@@ -1,0 +1,6 @@
+# URL for E-Prints repository
+export EPGO_URL=http://lemurprints.local
+# Username needed to access REST API
+export EPGO_USERNAME=janedoe
+# Password for username needed to access REST API
+export EPGO_USERNAME=janesecret
