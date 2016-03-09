@@ -14,3 +14,4 @@
 ## Reference
 
 + [Web API Docs](http://wiki.eprints.org/w/API:EPrints/Apache/CRUD)
+    + includes example curl interactions

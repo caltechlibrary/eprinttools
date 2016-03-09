@@ -10,4 +10,4 @@ if [ "$1" != "" ]; then
     TARGET=$1
 fi
 
-curl -H "Content-Type: application/xml" -u $EPGO_USERNAME:$EPGO_PASSWORD -X GET $EPGO_URL/rest/subject/$TARGET
+curl -u $EPGO_USERNAME:$EPGO_PASSWORD -X GET $EPGO_URL/rest/subject/$TARGET
