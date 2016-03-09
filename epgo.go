@@ -30,46 +30,40 @@ type EPrintsAPI struct {
 	Password string   `json:"password"`
 }
 
-// Creator returns the contents of eprint>creators>item as a struct
-type Creator struct {
+// Name returns the contents of eprint>creators>item>name as a struct
+type Name struct {
 	XMLName xml.Name
-	Given   string `xml:"creators>item>given"`
-	Family  string `xml:"creators>item>family"`
-}
-
-// Subject returns a Subject code
-type Subject struct {
-	XMLName xml.Name
-	Code    string `xml:"subjects>item"`
+	Given   string `xml:"given"`
+	Family  string `xml:"family"`
 }
 
 // Record returns a structure that can be converted to JSON easily
 type Record struct {
 	XMLName            xml.Name
-	Title              string     `xml:"eprint>title"`
-	ID                 int        `xml:"eprint>eprintid"`
-	RevNumber          int        `xml:"eprint>rev_number"`
-	UserID             int        `xml:"eprint>userid"`
-	Dir                string     `xml:"eprint>dir"`
-	Datestamp          string     `xml:"eprint>datestamp"`
-	LastModified       string     `xml:"eprint>lastmod"`
-	StatusChange       string     `xml:"eprint>status_changed"`
-	Type               string     `xml:"eprint>type"`
-	MetadataVisibility string     `xml:"eprint>metadata_visibility"`
-	Creators           []*Creator `xml:"eprint>creators"`
-	IsPublished        string     `xml:"eprint>ispublished"`
-	Subjects           []*Subject `xml:"eprint>subjects"`
-	FullTextStatus     string     `xml:"eprint>full_text_status"`
-	Date               string     `xml:"eprint>date"`
-	DateType           string     `xml:"eprint>data_type"`
-	Publication        string     `xml:"eprint>publication"`
-	Volume             string     `xml:"eprint>volume"`
-	Number             string     `xml:"eprint>number"`
-	PageRange          string     `xml:"eprint>pagerange"`
-	IDNumber           string     `xml:"eprint>id_number"`
-	Referred           bool       `xml:"eprint>refereed"`
-	ISSN               string     `xml:"eprint>issn"`
-	OfficialURL        string     `xml:"eprint>official_url"`
+	Title              string   `xml:"eprint>title"`
+	ID                 int      `xml:"eprint>eprintid"`
+	RevNumber          int      `xml:"eprint>rev_number"`
+	UserID             int      `xml:"eprint>userid"`
+	Dir                string   `xml:"eprint>dir"`
+	Datestamp          string   `xml:"eprint>datestamp"`
+	LastModified       string   `xml:"eprint>lastmod"`
+	StatusChange       string   `xml:"eprint>status_changed"`
+	Type               string   `xml:"eprint>type"`
+	MetadataVisibility string   `xml:"eprint>metadata_visibility"`
+	Creators           []*Name  `xml:"eprint>creators>item>name"`
+	IsPublished        string   `xml:"eprint>ispublished"`
+	Subjects           []string `xml:"eprint>subjects>item"`
+	FullTextStatus     string   `xml:"eprint>full_text_status"`
+	Date               string   `xml:"eprint>date"`
+	DateType           string   `xml:"eprint>date_type"`
+	Publication        string   `xml:"eprint>publication"`
+	Volume             string   `xml:"eprint>volume"`
+	Number             string   `xml:"eprint>number"`
+	PageRange          string   `xml:"eprint>pagerange"`
+	IDNumber           string   `xml:"eprint>id_number"`
+	Referred           bool     `xml:"eprint>refereed"`
+	ISSN               string   `xml:"eprint>issn"`
+	OfficialURL        string   `xml:"eprint>official_url"`
 }
 
 type ePrintIDs struct {
@@ -106,6 +100,9 @@ func (api *EPrintsAPI) ListEPrintsURI() ([]string, error) {
 		return nil, fmt.Errorf("requested %s, %s", api.URL.String(), err)
 	}
 	defer resp.Body.Close()
+	if resp.StatusCode != 200 {
+		return nil, fmt.Errorf("http error %s, %s", api.URL.String(), resp.Status)
+	}
 	content, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return nil, fmt.Errorf("content can't be read %s, %s", api.URL.String(), err)
@@ -130,6 +127,9 @@ func (api *EPrintsAPI) GetEPrint(uri string) (*Record, error) {
 		return nil, fmt.Errorf("requested %s, %s", api.URL.String(), err)
 	}
 	defer resp.Body.Close()
+	if resp.StatusCode != 200 {
+		return nil, fmt.Errorf("http error %s, %s", api.URL.String(), resp.Status)
+	}
 	content, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return nil, fmt.Errorf("content can't be read %s, %s", api.URL.String(), err)
