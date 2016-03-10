@@ -1,6 +1,7 @@
 package epgo
 
 import (
+	"encoding/json"
 	"encoding/xml"
 	"fmt"
 	"io/ioutil"
@@ -9,12 +10,32 @@ import (
 	"net/url"
 	"os"
 	"path"
+	"strconv"
 	"strings"
+	"time"
+
+	// 3rd Party packages
+	"github.com/boltdb/bolt"
 )
 
 const (
 	// Version is the revision number for this implementation of epgo
 	Version = "0.0.0"
+)
+
+// These are our main bucket and index buckets
+var (
+	// Primary collection
+	ePrintBucket = []byte("eprints")
+
+	// Indexes available
+	indexDelimiter = "|"
+	pubDatesBucket = []byte("publicationDates")
+	// publicationsBucket  = []byte("publications")
+	// titlesBucket        = []byte("titles")
+	// subjectsBucket      = []byte("subjects")
+	// authors             = []byte("authors")
+	// additionDatesBucket = []byte("additionsDates")
 )
 
 func failCheck(err error, msg string) {
@@ -25,9 +46,12 @@ func failCheck(err error, msg string) {
 
 // EPrintsAPI holds the basic connectin information to read the REST API for EPrints
 type EPrintsAPI struct {
-	URL      *url.URL `json:"base_url"`
-	Username string   `json:"username"`
-	Password string   `json:"password"`
+	URL       *url.URL `json:"base_url"`  // EPGO_BASE_URL
+	Username  string   `json:"username"`  // EPGO_USERNAME
+	Password  string   `json:"password"`  // EPGO_PASSWORD
+	DBName    string   `json:"dbname"`    // EPGO_DBNAME
+	Htdocs    string   `json:"htdocs"`    // EPGO_HTDOCS
+	Templates string   `json:"templates"` // EPGO_TEMPLATES
 }
 
 // Name returns the contents of eprint>creators>item>name as a struct
@@ -71,12 +95,45 @@ type ePrintIDs struct {
 	IDs     []string `xml:"body>ul>li>a"`
 }
 
+// String renders the Record as a pretty printed JSON object
+func (r *Record) String() string {
+	src, _ := json.MarshalIndent(r, "", "  ")
+	return string(src)
+}
+
+func normalizeDate(in string) string {
+	parts := strings.Split(in, "-")
+	if len(parts) == 1 {
+		parts = append(parts, "01")
+		parts = append(parts, "01")
+	}
+	if len(parts) == 2 {
+		parts = append(parts, "01")
+	}
+	for i := 0; i < len(parts); i++ {
+		x, err := strconv.Atoi(parts[i])
+		if err != nil {
+			x = 1
+		}
+		if i == 0 {
+			parts[i] = fmt.Sprintf("%0.4d", x)
+		} else {
+			parts[i] = fmt.Sprintf("%0.2d", x)
+		}
+	}
+	return strings.Join(parts, "-")
+}
+
 // New creates a new API instance
 func New() (*EPrintsAPI, error) {
 	var err error
 	baseURL := os.Getenv("EPGO_BASE_URL")
 	username := os.Getenv("EPGO_USERNAME")
 	password := os.Getenv("EPGO_PASSWORD")
+	htdocs := os.Getenv("EPGO_HTDOCS")
+	dbName := os.Getenv("EPGO_DBNAME")
+	templates := os.Getenv("EPGO_TEMPLATES")
+
 	if baseURL == "" {
 		return nil, fmt.Errorf("Environment not configured, missing EPGO_BASE_URL")
 	}
@@ -85,8 +142,21 @@ func New() (*EPrintsAPI, error) {
 	if err != nil {
 		return nil, fmt.Errorf("EPGO_BASE_URL malformed %s, %s", baseURL, err)
 	}
+	if htdocs == "" {
+		htdocs = "htdocs"
+	}
+	if dbName == "" {
+		dbName = "eprints"
+	}
+	if templates == "" {
+		templates = "templates"
+	}
+
 	api.Username = username
 	api.Password = password
+	api.Htdocs = htdocs
+	api.DBName = dbName
+	api.Templates = templates
 	return api, nil
 }
 
@@ -120,6 +190,7 @@ func (api *EPrintsAPI) ListEPrintsURI() ([]string, error) {
 	return results, nil
 }
 
+// GetEPrint retrieves an EPrint record via REST API and returns a Record structure and error
 func (api *EPrintsAPI) GetEPrint(uri string) (*Record, error) {
 	api.URL.Path = uri
 	resp, err := http.Get(api.URL.String())
@@ -140,4 +211,72 @@ func (api *EPrintsAPI) GetEPrint(uri string) (*Record, error) {
 		return nil, err
 	}
 	return rec, nil
+}
+
+// ExportEPrints gets a list of all EPrints and then saves each record in a DB
+func (api *EPrintsAPI) ExportEPrints() error {
+	db, err := bolt.Open(api.DBName, 0660, &bolt.Options{Timeout: 1 * time.Second})
+	failCheck(err, fmt.Sprintf("Export %s failed to open db, %s", api.DBName, err))
+	defer db.Close()
+	// Make sure we have a buckets to store things in
+	db.Update(func(tx *bolt.Tx) error {
+		if _, err := tx.CreateBucketIfNotExists(ePrintBucket); err != nil {
+			return fmt.Errorf("create bucket %s: %s", ePrintBucket, err)
+		}
+		if _, err := tx.CreateBucketIfNotExists(pubDatesBucket); err != nil {
+			return fmt.Errorf("create bucket %s: %s", pubDatesBucket, err)
+		}
+		return nil
+	})
+
+	uris, err := api.ListEPrintsURI()
+	failCheck(err, fmt.Sprintf("Export %s failed, %s", api.URL.String(), err))
+
+	j := 0 // success count
+	k := 0 // error count
+	log.Printf("Exporting of %d uris", len(uris))
+	for i, uri := range uris {
+		rec, err := api.GetEPrint(uri)
+		if err != nil {
+			log.Printf("Failed to get %s, %s\n", uri, err)
+			k++
+		} else {
+			src, err := json.Marshal(rec)
+			if err != nil {
+				log.Printf("json.Marshal() failed on %s, %s", uri, err)
+				k++
+			} else {
+				err := db.Update(func(tx *bolt.Tx) error {
+					b := tx.Bucket(ePrintBucket)
+					err := b.Put([]byte(uri), src)
+					if err == nil {
+						// See if we need to add this to the publicationDates index
+						if rec.DateType == "published" && rec.Date != "" {
+							idx := tx.Bucket(pubDatesBucket)
+							dt := normalizeDate(rec.Date)
+							err = idx.Put([]byte(fmt.Sprintf("%s%s%s", dt, indexDelimiter, uri)), []byte(uri))
+						}
+						j++
+					}
+					return err
+				})
+				if err != nil {
+					log.Printf("Failed to save eprint %s, %s\n", uri, err)
+					k++
+				}
+			}
+		}
+		if (i % 10) == 0 {
+			log.Printf("%d uri processed, %d exported, %d unexported", i+1, j, k)
+		}
+	}
+	log.Printf("%d uri processed, %d exported, %d unexported", len(uris), j, k)
+	return nil
+}
+
+// BuildSite generates a website based on the contents of the exported EPrints data.
+// The site builder needs to know the name of the BoltDB, the root directory
+// for the website and directory to find the templates
+func (api *EPrintsAPI) BuildSite() error {
+	return fmt.Errorf("api.BuildSite(%q, %q, %q) not implemented", api.DBName, api.Htdocs, api.Templates)
 }

@@ -26,3 +26,5 @@ _testmain.go
 # project specific excludes
 etc/*
 bin/*
+htdocs/*
+eprints*

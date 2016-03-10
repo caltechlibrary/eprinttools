@@ -30,11 +30,9 @@ if [ "$EPGO_USERNAME" != "" ] && [ "$EPGO_PASSWORD" != "" ]; then
     curl \
         -X GET \
         -u "$EPGO_USERNAME:$EPGO_PASSWORD" \
-        -H "Accept: application/xml" \
-        $EPGO_URL/rest/$TARGET
+        $EPGO_BASE_URL/rest/$TARGET
 else
     curl \
         -X GET \
-        -H "Accept: application/xml" \
-        $EPGO_URL/rest/$TARGET
+        $EPGO_BASE_URL/rest/$TARGET
 fi

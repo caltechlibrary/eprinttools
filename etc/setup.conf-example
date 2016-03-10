@@ -4,3 +4,9 @@ export EPGO_BASE_URL=http://lemurprints.local
 export EPGO_USERNAME=janedoe
 # Password for username needed to access REST API
 export EPGO_USERNAME=janesecret
+# DB Name used to exporting from E-Prints and for site building
+export EPGO_DBNAME=eprints
+# Htdocs document root for generated pages and feeds
+export EPGO_HTDOCS
+# Templates directory for templates used to build webpages or feeds
+export EPGO_TEMPLATES
