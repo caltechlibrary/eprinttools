@@ -1,13 +1,15 @@
 
-## method calls
+# Overview
 
-+ listEPrints()
-+ listUsers()
-+ listSubjects()
+## epgo functions
+
++ New() - returns an new API structu
++ ListEPrintsURI() - returns a list of eprint URI
++ GetEPrint() - returns an eprint record from a URI
 
 ## environment vars
 
-+ EPGO_URL - base URL for your eprints repository (e.g. http://lemurprints.local)
++ EPGO_BASE_URL - base URL for your eprints repository (e.g. http://lemurprints.local)
 + EPGO_USERNAME - username required to access API( e.g. janedoe)
 + EPGO_PASSWORD - password required to access API (e.g. janesecret)
 
