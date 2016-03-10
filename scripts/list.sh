@@ -1,6 +1,22 @@
 #!/bin/bash
-
-if [ "$EPGO_URL" = "" ] || [ "$EPGO_USERNAME" = "" ]; then
+#
+# This script outputs contents from the EPrints 3.3 REST API
+#
+# Examples:
+#     List the eprint URI
+#
+#           ./script/list.sh eprint/
+#
+#     List the eprint id number 3
+#
+#           ./script/list.sh eprint/3.xml
+#
+#     List subjects
+#
+#           ./script/list.sh subject/
+#
+#
+if [ "$EPGO_BASE_URL" = "" ]; then
     echo "Environment not configured."
     exit 1
 fi
@@ -10,8 +26,15 @@ if [ "$1" != "" ]; then
     TARGET=$1
 fi
 
-curl \
-    -X GET \
-    -u "$EPGO_USERNAME:$EPGO_PASSWORD" \
-    -H "Accept: application/xml" \
-    $EPGO_URL/rest/$TARGET
+if [ "$EPGO_USERNAME" != "" ] && [ "$EPGO_PASSWORD" != "" ]; then
+    curl \
+        -X GET \
+        -u "$EPGO_USERNAME:$EPGO_PASSWORD" \
+        -H "Accept: application/xml" \
+        $EPGO_URL/rest/$TARGET
+else
+    curl \
+        -X GET \
+        -H "Accept: application/xml" \
+        $EPGO_URL/rest/$TARGET
+fi
