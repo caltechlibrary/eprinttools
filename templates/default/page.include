@@ -1,0 +1,11 @@
+<div class="ep-publications-by-date-list">
+{{ range . }}
+    <div class="ep-publications-by-date-item">
+        <div class="creators">
+            {{ range .Creators }}<span class="person-name">{{.Given}}, {{.Family}}</span>{{ end }}
+        </div>
+        <div>({{.Date}}) <a href="{{.URI}}"><em class="article-title">{{.Title}}</em></a></div>
+        <div>{{.Publication}} {{.Volume}} {{.Number}} {{.PageRange}} {{.ISSN}} {{ .IDNumber }} <a href="{{ .OfficialURL }}">{{ .OfficialURL }}</a></div>
+    </div>
+{{ end }}
+</div>

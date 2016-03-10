@@ -4,10 +4,12 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"github.com/rsdoiel/epgo"
 	"log"
 	"os"
 	"time"
+
+	// my package
+	"github.com/rsdoiel/epgo"
 )
 
 var (
@@ -35,7 +37,7 @@ func init() {
 	flag.BoolVar(&showVersion, "v", false, "display version info")
 	flag.BoolVar(&prettyPrint, "p", false, "pretty print JSON output")
 	flag.BoolVar(&exportToDB, "export", false, "export EPrints to database")
-	flag.BoolVar(&buildSite, "build", false, "build webpages and feeds from database")
+	flag.BoolVar(&buildSite, "build", false, "build pages and feeds from database")
 }
 
 func main() {
@@ -50,10 +52,6 @@ func main() {
  epgo can be configured with following environment variables
 
  + EPGO_BASE_URL (required) the URL to your E-Prints installation
- + EPGO_USERNAME (optional) Username if you have the E-Prints REST API
-                 retricted to authorized users
- + EPGO_PASSWORD (optional) Password if you have the E-Prints REST API
-                 retricted to authorized users
  + EPGO_DBNAME   (optional) the BoltDB name for exporting or site building
  + EPGO_HTDOCS   (optional) the htdocs root for site building
  + EPGO_TEMPLATES (optional) the template directory to use for site building

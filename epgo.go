@@ -21,6 +21,11 @@ import (
 const (
 	// Version is the revision number for this implementation of epgo
 	Version = "0.0.0"
+
+	// Ascending sorts from lowest (oldest) to highest (newest)
+	Ascending = iota
+	// Descending sorts from highest (newest) to lowest (oldest)
+	Descending = iota
 )
 
 // These are our main bucket and index buckets
@@ -47,8 +52,6 @@ func failCheck(err error, msg string) {
 // EPrintsAPI holds the basic connectin information to read the REST API for EPrints
 type EPrintsAPI struct {
 	URL       *url.URL `json:"base_url"`  // EPGO_BASE_URL
-	Username  string   `json:"username"`  // EPGO_USERNAME
-	Password  string   `json:"password"`  // EPGO_PASSWORD
 	DBName    string   `json:"dbname"`    // EPGO_DBNAME
 	Htdocs    string   `json:"htdocs"`    // EPGO_HTDOCS
 	Templates string   `json:"templates"` // EPGO_TEMPLATES
@@ -128,8 +131,6 @@ func normalizeDate(in string) string {
 func New() (*EPrintsAPI, error) {
 	var err error
 	baseURL := os.Getenv("EPGO_BASE_URL")
-	username := os.Getenv("EPGO_USERNAME")
-	password := os.Getenv("EPGO_PASSWORD")
 	htdocs := os.Getenv("EPGO_HTDOCS")
 	dbName := os.Getenv("EPGO_DBNAME")
 	templates := os.Getenv("EPGO_TEMPLATES")
@@ -152,8 +153,6 @@ func New() (*EPrintsAPI, error) {
 		templates = "templates"
 	}
 
-	api.Username = username
-	api.Password = password
 	api.Htdocs = htdocs
 	api.DBName = dbName
 	api.Templates = templates
@@ -274,9 +273,61 @@ func (api *EPrintsAPI) ExportEPrints() error {
 	return nil
 }
 
+// GetPublishedRecords reads the index for published content and returns a populated
+// array of records found in index in decending order
+func (api *EPrintsAPI) GetPublishedRecords(start, count, direction int) ([]Record, error) {
+	//	var records []Record
+	switch direction {
+	case Ascending:
+		return nil, fmt.Errorf("GetPublishedRecords(%d, %d, %d `ascending`) not implemented", start, count, direction)
+	case Descending:
+		return nil, fmt.Errorf("GetPublishedRecords(%d, %d, %d `descending`) not implemented", start, count, direction)
+	}
+	return nil, fmt.Errorf("GetPublishedRecords(%d, %d, %d) not implemented", start, count, direction)
+}
+
 // BuildSite generates a website based on the contents of the exported EPrints data.
 // The site builder needs to know the name of the BoltDB, the root directory
 // for the website and directory to find the templates
 func (api *EPrintsAPI) BuildSite() error {
-	return fmt.Errorf("api.BuildSite(%q, %q, %q) not implemented", api.DBName, api.Htdocs, api.Templates)
+	// Collect the published records
+	records, err := api.GetPublishedRecords(0, 100, Descending)
+	if err != nil {
+		return fmt.Errorf("Can't get published records, %s", err)
+	}
+	if len(records) == 0 {
+		return fmt.Errorf("No published records found")
+	}
+	fmt.Printf("DEBUG records: %+v", records)
+	// FIXME: Build feeds and HTML page for published EPrints
+	// pageHTML, err := ioutil.ReadFile(path.Join(api.Templates, "page.html"))
+	// if err != nil {
+	// 	return fmt.Errorf("Can't open template %s/page.html, %s", api.Templates, err)
+	// }
+	// pageInclude, err := ioutil.ReadFile(path.Join(api.Templates, "page.include"))
+	// if err != nil {
+	// 	return fmt.Errorf("Can't open template %s/page.include, %s", api.Templates, err)
+	// }
+	// fmt.Printf("DEBUG pageHTML: %s\n", pageHTML)
+	// fmt.Printf("DEBUG pageInclude: %s\n", pageInclude)
+	//
+	// pageTmpl, err := template.New("page.html").Parse(string(pageHTML))
+	// if err != nil {
+	// 	return fmt.Errorf("Can't parse %s/page.html, %s", api.Templates, err)
+	// }
+	// includeTmpl, err := template.Must(pageTmpl.Clone()).Parse(string(pageInclude))
+	// if err != nil {
+	// 	return fmt.Errorf("Can't parse %s/page.include, %s", api.Templates, err)
+	// }
+	// // Write out .html page
+	// if err = pageTmpl.Execute(os.Stdout, records); err != nil {
+	// 	return fmt.Errorf("Can't execute %s/page.html, %s", api.Templates, err)
+	//
+	// }
+	// // Write out .include page
+	// if err = includeTmpl.Execute(os.Stdout, records); err != nil {
+	// 	return fmt.Errorf("Can't execute %s/page.include, %s", api.Templates, err)
+	//
+	// }
+	return nil
 }
