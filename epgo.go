@@ -12,6 +12,7 @@ import (
 	"path"
 	"strconv"
 	"strings"
+	"text/template"
 	"time"
 
 	// 3rd Party packages
@@ -51,17 +52,17 @@ func failCheck(err error, msg string) {
 
 // EPrintsAPI holds the basic connectin information to read the REST API for EPrints
 type EPrintsAPI struct {
-	URL       *url.URL `json:"base_url"`  // EPGO_BASE_URL
-	DBName    string   `json:"dbname"`    // EPGO_DBNAME
-	Htdocs    string   `json:"htdocs"`    // EPGO_HTDOCS
-	Templates string   `json:"templates"` // EPGO_TEMPLATES
+	URL       *url.URL `xml:"epgo>base_url" json:"base_url"`   // EPGO_BASE_URL
+	DBName    string   `xml:"epgo>dbname" json:"dbname"`       // EPGO_DBNAME
+	Htdocs    string   `xml:"epgo>htdocs" json:"htdocs"`       // EPGO_HTDOCS
+	Templates string   `xml:"epgo>templates" json:"templates"` // EPGO_TEMPLATES
 }
 
 // Name returns the contents of eprint>creators>item>name as a struct
 type Name struct {
 	XMLName xml.Name `json:"-"`
-	Given   string   `xml:"given"`
-	Family  string   `xml:"family"`
+	Given   string   `xml:"given" json:"given"`
+	Family  string   `xml:"family" json:"family"`
 }
 
 // Record returns a structure that can be converted to JSON easily
@@ -96,12 +97,6 @@ type Record struct {
 type ePrintIDs struct {
 	XMLName xml.Name `xml:"html" json:"-"`
 	IDs     []string `xml:"body>ul>li>a" json:"ids"`
-}
-
-// String renders the Record as a pretty printed JSON object
-func (r *Record) String() string {
-	src, _ := json.MarshalIndent(r, "", "  ")
-	return string(src)
 }
 
 func normalizeDate(in string) string {
@@ -404,45 +399,79 @@ func (api *EPrintsAPI) GetPublishedRecords(start, count, direction int) ([]*Reco
 // BuildSite generates a website based on the contents of the exported EPrints data.
 // The site builder needs to know the name of the BoltDB, the root directory
 // for the website and directory to find the templates
-func (api *EPrintsAPI) BuildSite() error {
+func (api *EPrintsAPI) BuildSite(basename string) error {
 	// Collect the published records
-	records, err := api.GetPublishedRecords(0, 100, Descending)
+	log.Printf("Getting published records")
+	records, err := api.GetPublishedRecords(0, 25, Descending)
 	if err != nil {
 		return fmt.Errorf("Can't get published records, %s", err)
 	}
 	if len(records) == 0 {
 		return fmt.Errorf("No published records found")
 	}
-	fmt.Printf("DEBUG records: %+v", records)
-	// FIXME: Build feeds and HTML page for published EPrints
-	// pageHTML, err := ioutil.ReadFile(path.Join(api.Templates, "page.html"))
-	// if err != nil {
-	// 	return fmt.Errorf("Can't open template %s/page.html, %s", api.Templates, err)
-	// }
-	// pageInclude, err := ioutil.ReadFile(path.Join(api.Templates, "page.include"))
-	// if err != nil {
-	// 	return fmt.Errorf("Can't open template %s/page.include, %s", api.Templates, err)
-	// }
-	// fmt.Printf("DEBUG pageHTML: %s\n", pageHTML)
-	// fmt.Printf("DEBUG pageInclude: %s\n", pageInclude)
-	//
-	// pageTmpl, err := template.New("page.html").Parse(string(pageHTML))
-	// if err != nil {
-	// 	return fmt.Errorf("Can't parse %s/page.html, %s", api.Templates, err)
-	// }
-	// includeTmpl, err := template.Must(pageTmpl.Clone()).Parse(string(pageInclude))
-	// if err != nil {
-	// 	return fmt.Errorf("Can't parse %s/page.include, %s", api.Templates, err)
-	// }
-	// // Write out .html page
-	// if err = pageTmpl.Execute(os.Stdout, records); err != nil {
-	// 	return fmt.Errorf("Can't execute %s/page.html, %s", api.Templates, err)
-	//
-	// }
-	// // Write out .include page
-	// if err = includeTmpl.Execute(os.Stdout, records); err != nil {
-	// 	return fmt.Errorf("Can't execute %s/page.include, %s", api.Templates, err)
-	//
-	// }
+	log.Printf("%d records found.", len(records))
+
+	// Writing JSON file
+	fname := path.Join(api.Htdocs, basename+".json")
+	src, err := json.Marshal(records)
+	if err != nil {
+		return fmt.Errorf("Can't convert records to JSON %s, %s", fname, err)
+	}
+	err = ioutil.WriteFile(fname, src, 0664)
+	if err != nil {
+		return fmt.Errorf("Can't write %s, %s", fname, err)
+	}
+
+	// Write out RSS 2.0 file
+	fname = path.Join(api.Templates, "rss.xml")
+	rss20, err := ioutil.ReadFile(fname)
+	if err != nil {
+		return fmt.Errorf("Can't open template %s, %s", fname, err)
+	}
+	funcs := template.FuncMap{
+		"rfc882": func(s string) string {
+			dt, err := time.Parse("2006-01-02", normalizeDate(s))
+			if err != nil {
+				return ""
+			}
+			return dt.Format(time.RFC822)
+		},
+	}
+	rssTmpl, err := template.New("rss").Funcs(funcs).Parse(string(rss20))
+	if err != nil {
+		return fmt.Errorf("Can't convert records to RSS %s, %s", fname, err)
+	}
+	fname = path.Join(api.Htdocs, basename+".xml")
+	out, err := os.Create(fname)
+	if err != nil {
+		return fmt.Errorf("Can't write %s, %s", fname, err)
+	}
+	if err := rssTmpl.Execute(out, records); err != nil {
+		return fmt.Errorf("Can't render %s, %s", fname, err)
+	}
+	out.Close()
+
+	// Write out include file
+	fname = path.Join(api.Templates, "page.include")
+	pageInclude, err := ioutil.ReadFile(fname)
+	if err != nil {
+		return fmt.Errorf("Can't open template %s, %s", fname, err)
+	}
+	pageIncludeTmpl, err := template.New("page.include").Parse(string(pageInclude))
+	if err != nil {
+		return fmt.Errorf("Can't parse %s, %s", fname, err)
+	}
+	fname = path.Join(api.Htdocs, basename+".include")
+	out, err = os.Create(fname)
+	if err != nil {
+		return fmt.Errorf("Can't write %s, %s", fname, err)
+	}
+	log.Printf("Writing %s", fname)
+	if err := pageIncludeTmpl.Execute(out, records); err != nil {
+		return fmt.Errorf("Can't render %s, %s", fname, err)
+	}
+	out.Close()
+
+	//FIXME: Write out the HTML file
 	return nil
 }

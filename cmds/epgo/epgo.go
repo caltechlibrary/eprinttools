@@ -101,7 +101,7 @@ func main() {
 	}
 
 	if buildSite == true {
-		if err := api.BuildSite(); err != nil {
+		if err := api.BuildSite("recently-published"); err != nil {
 			log.Fatalf("%s", err)
 		}
 		os.Exit(0)
