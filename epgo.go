@@ -59,43 +59,43 @@ type EPrintsAPI struct {
 
 // Name returns the contents of eprint>creators>item>name as a struct
 type Name struct {
-	XMLName xml.Name
-	Given   string `xml:"given"`
-	Family  string `xml:"family"`
+	XMLName xml.Name `json:"-"`
+	Given   string   `xml:"given"`
+	Family  string   `xml:"family"`
 }
 
 // Record returns a structure that can be converted to JSON easily
 type Record struct {
-	XMLName            xml.Name
-	Title              string   `xml:"eprint>title"`
-	ID                 int      `xml:"eprint>eprintid"`
-	RevNumber          int      `xml:"eprint>rev_number"`
-	UserID             int      `xml:"eprint>userid"`
-	Dir                string   `xml:"eprint>dir"`
-	Datestamp          string   `xml:"eprint>datestamp"`
-	LastModified       string   `xml:"eprint>lastmod"`
-	StatusChange       string   `xml:"eprint>status_changed"`
-	Type               string   `xml:"eprint>type"`
-	MetadataVisibility string   `xml:"eprint>metadata_visibility"`
-	Creators           []*Name  `xml:"eprint>creators>item>name"`
-	IsPublished        string   `xml:"eprint>ispublished"`
-	Subjects           []string `xml:"eprint>subjects>item"`
-	FullTextStatus     string   `xml:"eprint>full_text_status"`
-	Date               string   `xml:"eprint>date"`
-	DateType           string   `xml:"eprint>date_type"`
-	Publication        string   `xml:"eprint>publication"`
-	Volume             string   `xml:"eprint>volume"`
-	Number             string   `xml:"eprint>number"`
-	PageRange          string   `xml:"eprint>pagerange"`
-	IDNumber           string   `xml:"eprint>id_number"`
-	Referred           bool     `xml:"eprint>refereed"`
-	ISSN               string   `xml:"eprint>issn"`
-	OfficialURL        string   `xml:"eprint>official_url"`
+	XMLName            xml.Name `json:"-"`
+	Title              string   `xml:"eprint>title" json:"title"`
+	ID                 int      `xml:"eprint>eprintid" json:"id"`
+	RevNumber          int      `xml:"eprint>rev_number" json:"rev_number"`
+	UserID             int      `xml:"eprint>userid" json:"userid"`
+	Dir                string   `xml:"eprint>dir" json:"eprint_dir"`
+	Datestamp          string   `xml:"eprint>datestamp" json:"datestamp"`
+	LastModified       string   `xml:"eprint>lastmod" json:"lastmod"`
+	StatusChange       string   `xml:"eprint>status_changed" json:"status_changed"`
+	Type               string   `xml:"eprint>type" json:"type"`
+	MetadataVisibility string   `xml:"eprint>metadata_visibility" json:"metadata_visibility"`
+	Creators           []*Name  `xml:"eprint>creators>item>name" json:"creators"`
+	IsPublished        string   `xml:"eprint>ispublished" json:"ispublished"`
+	Subjects           []string `xml:"eprint>subjects>item" json:"subjects"`
+	FullTextStatus     string   `xml:"eprint>full_text_status" json:"full_text_status"`
+	Date               string   `xml:"eprint>date" json:"data"`
+	DateType           string   `xml:"eprint>date_type" json:"date_type"`
+	Publication        string   `xml:"eprint>publication" json:"publication"`
+	Volume             string   `xml:"eprint>volume" json:"volume"`
+	Number             string   `xml:"eprint>number" json:"number"`
+	PageRange          string   `xml:"eprint>pagerange" json:"pagerange"`
+	IDNumber           string   `xml:"eprint>id_number" json:"id_number"`
+	Referred           bool     `xml:"eprint>refereed" json:"refereed"`
+	ISSN               string   `xml:"eprint>issn" json:"issn"`
+	OfficialURL        string   `xml:"eprint>official_url" json:"official_url"`
 }
 
 type ePrintIDs struct {
-	XMLName xml.Name `xml:"html"`
-	IDs     []string `xml:"body>ul>li>a"`
+	XMLName xml.Name `xml:"html" json:"-"`
+	IDs     []string `xml:"body>ul>li>a" json:"ids"`
 }
 
 // String renders the Record as a pretty printed JSON object
@@ -214,7 +214,7 @@ func (api *EPrintsAPI) GetEPrint(uri string) (*Record, error) {
 
 // ExportEPrints gets a list of all EPrints and then saves each record in a DB
 func (api *EPrintsAPI) ExportEPrints() error {
-	db, err := bolt.Open(api.DBName, 0660, &bolt.Options{Timeout: 1 * time.Second})
+	db, err := bolt.Open(api.DBName, 0660, &bolt.Options{Timeout: 1 * time.Second, ReadOnly: false})
 	failCheck(err, fmt.Sprintf("Export %s failed to open db, %s", api.DBName, err))
 	defer db.Close()
 	// Make sure we have a buckets to store things in
@@ -273,17 +273,132 @@ func (api *EPrintsAPI) ExportEPrints() error {
 	return nil
 }
 
+// ListURI returns a list of eprint record ids from the database
+func (api *EPrintsAPI) ListURI(start, count int) ([]string, error) {
+	var results []string
+	db, err := bolt.Open(api.DBName, 0660, &bolt.Options{Timeout: 1 * time.Second, ReadOnly: true})
+	failCheck(err, fmt.Sprintf("Export %s failed to open db, %s", api.DBName, err))
+	defer db.Close()
+	// Make sure we have a buckets to store things in
+	db.Update(func(tx *bolt.Tx) error {
+		if _, err := tx.CreateBucketIfNotExists(ePrintBucket); err != nil {
+			return fmt.Errorf("create bucket %s: %s", ePrintBucket, err)
+		}
+		if _, err := tx.CreateBucketIfNotExists(pubDatesBucket); err != nil {
+			return fmt.Errorf("create bucket %s: %s", pubDatesBucket, err)
+		}
+		return nil
+	})
+	err = db.View(func(tx *bolt.Tx) error {
+		recs := tx.Bucket(ePrintBucket)
+		c := recs.Cursor()
+		p := 0
+		for uri, _ := c.First(); uri != nil && count > 0; uri, _ = c.Next() {
+			if p >= start {
+				results = append(results, string(uri))
+				count--
+			}
+			p++
+		}
+		return nil
+	})
+	return results, err
+}
+
+// Get retrieves an EPrint record from the database
+func (api *EPrintsAPI) Get(uri string) (*Record, error) {
+	db, err := bolt.Open(api.DBName, 0660, &bolt.Options{Timeout: 1 * time.Second, ReadOnly: true})
+	failCheck(err, fmt.Sprintf("Export %s failed to open db, %s", api.DBName, err))
+	defer db.Close()
+	// Make sure we have a buckets to store things in
+	db.Update(func(tx *bolt.Tx) error {
+		if _, err := tx.CreateBucketIfNotExists(ePrintBucket); err != nil {
+			return fmt.Errorf("create bucket %s: %s", ePrintBucket, err)
+		}
+		if _, err := tx.CreateBucketIfNotExists(pubDatesBucket); err != nil {
+			return fmt.Errorf("create bucket %s: %s", pubDatesBucket, err)
+		}
+		return nil
+	})
+	record := new(Record)
+	err = db.View(func(tx *bolt.Tx) error {
+		recs := tx.Bucket(ePrintBucket)
+		src := recs.Get([]byte(uri))
+		err := json.Unmarshal(src, &record)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+	return record, err
+}
+
 // GetPublishedRecords reads the index for published content and returns a populated
 // array of records found in index in decending order
-func (api *EPrintsAPI) GetPublishedRecords(start, count, direction int) ([]Record, error) {
+func (api *EPrintsAPI) GetPublishedRecords(start, count, direction int) ([]*Record, error) {
+	db, err := bolt.Open(api.DBName, 0660, &bolt.Options{Timeout: 1 * time.Second, ReadOnly: true})
+	failCheck(err, fmt.Sprintf("Export %s failed to open db, %s", api.DBName, err))
+	defer db.Close()
+	// Make sure we have a buckets to store things in
+	db.Update(func(tx *bolt.Tx) error {
+		if _, err := tx.CreateBucketIfNotExists(ePrintBucket); err != nil {
+			return fmt.Errorf("create bucket %s: %s", ePrintBucket, err)
+		}
+		if _, err := tx.CreateBucketIfNotExists(pubDatesBucket); err != nil {
+			return fmt.Errorf("create bucket %s: %s", pubDatesBucket, err)
+		}
+		return nil
+	})
+
 	//	var records []Record
+	var (
+		results []*Record
+	)
 	switch direction {
 	case Ascending:
-		return nil, fmt.Errorf("GetPublishedRecords(%d, %d, %d `ascending`) not implemented", start, count, direction)
+		err = db.View(func(tx *bolt.Tx) error {
+			recs := tx.Bucket(ePrintBucket)
+			idx := tx.Bucket(pubDatesBucket)
+			c := idx.Cursor()
+			p := 0
+			for k, uri := c.First(); k != nil && count > 0; k, uri = c.Next() {
+				if p >= start {
+					rec := new(Record)
+					src := recs.Get([]byte(uri))
+					err := json.Unmarshal(src, rec)
+					if err != nil {
+						return fmt.Errorf("Can't unmarshal %s, %s", uri, err)
+					}
+					results = append(results, rec)
+					count--
+				}
+				p++
+			}
+			return nil
+		})
 	case Descending:
-		return nil, fmt.Errorf("GetPublishedRecords(%d, %d, %d `descending`) not implemented", start, count, direction)
+		err = db.View(func(tx *bolt.Tx) error {
+			recs := tx.Bucket(ePrintBucket)
+			idx := tx.Bucket(pubDatesBucket)
+			c := idx.Cursor()
+			p := 0
+			for k, uri := c.Last(); k != nil && count > 0; k, uri = c.Prev() {
+				if p >= start {
+					rec := new(Record)
+					src := recs.Get([]byte(uri))
+					err := json.Unmarshal(src, rec)
+					if err != nil {
+						return fmt.Errorf("Can't unmarshal %s, %s", uri, err)
+					}
+					results = append(results, rec)
+					count--
+				}
+				p++
+			}
+			return nil
+		})
 	}
-	return nil, fmt.Errorf("GetPublishedRecords(%d, %d, %d) not implemented", start, count, direction)
+	return results, err
 }
 
 // BuildSite generates a website based on the contents of the exported EPrints data.
