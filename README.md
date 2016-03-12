@@ -9,21 +9,20 @@ based on the exported materials.
 
 ## Overview
 
- USAGE: epgo [OPTIONS] [EPRINT_URI]
+USAGE: epgo [OPTIONS] [EPRINT_URI]
 
- epgo wraps the REST API for E-Prints 3.3 or better. It can return a list of uri,
- a JSON view of the XML presentation as well as generates feeds and web pages.
+epgo wraps the REST API for E-Prints 3.3 or better. It can return a list of uri,
+a JSON view of the XML presentation as well as generates feeds and web pages.
 
- epgo can be configured with following environment variables
+epgo can be configured with following environment variables
 
- + EPGO_BASE_URL (required) the URL to your E-Prints installation
- + EPGO_DBNAME   (required) the BoltDB name for exporting, site building, and content retrieval
- + EPGO_HTDOCS   (optional) the htdocs root for site building
- + EPGO_TEMPLATES (optional) the template directory to use for site building
++ EPGO_BASE_URL (required) the URL to your E-Prints installation
++ EPGO_DBNAME   (required) the BoltDB name for exporting, site building, and content retrieval
++ EPGO_HTDOCS   (optional) the htdocs root for site building
++ EPGO_TEMPLATES (optional) the template directory to use for site building
 
- If EPRINT_URI is provided then an individual EPrint is return as
- a JSON structure (e.g. /rest/eprint/34.xml). Otherwise a list of EPrint paths are
- returned.
+If EPRINT_URI is provided then an individual EPrint is return as a JSON structure 
+(e.g. /rest/eprint/34.xml). Otherwise a list of EPrint paths are returned.
 
 
 | Options | Description |
