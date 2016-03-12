@@ -25,9 +25,8 @@ based on the exported materials.
  a JSON structure (e.g. /rest/eprint/34.xml). Otherwise a list of EPrint paths are
  returned.
 
- OPTIONS
 
-|         | Description |
+| Options | Description |
 |---------|-------------------------------------------------------------------|
 | -api    | read the contents from the API without saving in the database     |
 | -build  | build pages and feeds from database                               |
