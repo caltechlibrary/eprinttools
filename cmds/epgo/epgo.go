@@ -25,8 +25,8 @@ import (
 	"log"
 	"os"
 
-	// my package
-	"github.com/rsdoiel/epgo"
+	// Caltech Library Packages
+	"github.com/caltechlibrary/epgo"
 )
 
 var (
