@@ -28,7 +28,7 @@ based on the exported materials.
  OPTIONS
 
 |         | Description |
-+---------+-------------------------------------------------------------------+
+|---------|-------------------------------------------------------------------|
 | -api    | read the contents from the API without saving in the database     |
 | -build  | build pages and feeds from database                               |
 | -export | export EPrints to database                                        |
