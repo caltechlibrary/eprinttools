@@ -1,11 +1,8 @@
 # epgo
 
-An experimental Go wrapper around the E-Prints REST API. It provides for 
-exporting eprint documents from the REST API into a BoltDB database.  In
-the BoltDB database an index is created for recently published repository items.
-A set of feed documents (json, rss and html include files) can then be render
-based on the exported materials.
-
+epgo is a command line utility utilizing EPrints' REST API to produce alternative
+feeds and formats. Currently it supports generating a feed of repository items based
+on publication dates.
 
 ## Overview
 
@@ -21,7 +18,7 @@ epgo can be configured with following environment variables
 + EPGO_HTDOCS   (optional) the htdocs root for site building
 + EPGO_TEMPLATES (optional) the template directory to use for site building
 
-If EPRINT_URI is provided then an individual EPrint is return as a JSON structure 
+If EPRINT_URI is provided then an individual EPrint is return as a JSON structure
 (e.g. /rest/eprint/34.xml). Otherwise a list of EPrint paths are returned.
 
 
@@ -35,4 +32,3 @@ If EPRINT_URI is provided then an individual EPrint is return as a JSON structur
 | -published-newest int | list the N newest published items                   |
 | -published-oldest int | list the N oldest published items                   |
 |    -v   | display version info                                              |
-
