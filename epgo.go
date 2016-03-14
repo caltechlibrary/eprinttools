@@ -19,6 +19,7 @@
 package epgo
 
 import (
+	"sort"
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
@@ -39,7 +40,7 @@ import (
 
 const (
 	// Version is the revision number for this implementation of epgo
-	Version = "0.0.3"
+	Version = "0.0.4"
 
 	// Ascending sorts from lowest (oldest) to highest (newest)
 	Ascending = iota
@@ -256,6 +257,31 @@ func New() (*EPrintsAPI, error) {
 	return api, nil
 }
 
+type byURI []string
+
+func (s byURI) Len() int {
+	return len(s)
+}
+
+func (s byURI) Swap(i, j int) {
+	s[i], s[j] = s[j], s[i]
+}
+
+func (s byURI) Less(i, j int) bool {
+	s1 := strings.TrimSuffix(path.Base(s[i]), path.Ext(s[i]))
+	s2 := strings.TrimSuffix(path.Base(s[j]), path.Ext(s[j]))
+	a1, err := strconv.Atoi(s1)
+	if err != nil {
+		return false
+	}
+	a2, err := strconv.Atoi(s2)
+	if err != nil {
+		return false
+	}
+	return a1 > a2
+}
+
+
 // ListEPrintsURI returns a list of eprint record ids
 func (api *EPrintsAPI) ListEPrintsURI() ([]string, error) {
 	var results []string
@@ -327,6 +353,9 @@ func (api *EPrintsAPI) ExportEPrints() error {
 
 	uris, err := api.ListEPrintsURI()
 	failCheck(err, fmt.Sprintf("Export %s failed, %s", api.URL.String(), err))
+	//NOTE: I am sorting the URI by decscending ID number so that the newest articles
+	// are exported first
+	sort.Sort(byURI(uris))
 
 	j := 0 // success count
 	k := 0 // error count
