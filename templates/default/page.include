@@ -12,6 +12,7 @@
                 <em class="article-title">{{.Title}}</em>
             {{with .OfficialURL}}</a>{{end}}
         </div>
+        <div>{{with .Abstract}}{{ . }}{{end}}</div>
         <div>
             {{with .Publication}}Publication: {{ . }} {{ end }}
             {{with .Volume}}Vol.: {{ . }}{{ end }}

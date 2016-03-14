@@ -1,22 +1,27 @@
 <rss version="2.0">
     <channel>
-        <title>Recently Published Archives</title>
-        <link>http://authors.example.edu</link>
+        <title>Recently Published Articles</title>
+        <link>http://authors.example.edu/rss.xml</link>
         <description>Recently Published Arctiles added to the Author's repository</description>
+        <lastBuildDate>{{rfc1123z "now"}}</lastBuildDate>
+        <docs>http://cyber.law.harvard.edu/rss/rss.html</docs>
+        <generator>epgo 0.0.2</generator>
         {{range . }}
         <item>
             <title>{{.Title}}</title>
             <link>{{.OfficialURL}}</link>
-            <description>
-                {{ if .Creators }}Authors: {{ range $i, $name := .Creators -}} {{if (gt $i 1) }}, {{end}} {{$name.Given}} {{$name.Family}} {{ end -}}{{ end }}
-                {{with .Publication}}Publication: {{ . }}{{ end -}} {{with .Volume}}Vol.: {{ . }}{{ end -}} {{with .Number}}No.: {{ . }} {{ end -}} {{with .PageRange}}Pages {{ . }}{{ end -}}
-                {{with .Date}}Published: {{.}}{{ end }}
-                {{with .ISSN}}ISSN: {{ . }}{{ end }}
-                {{with .IDNumber }}ID: {{ . }}{{ end }}
-                {{with .OfficialURL }}Official URL: <a href="{{ . }}">{{ . }}</a>{{ end }}
+            <description><![CDATA[
+                {{ if .Creators }}<p>Authors: {{ range $i, $name := .Creators -}} {{if (gt $i 1) }}, {{end}} {{$name.Given}} {{$name.Family}} {{ end -}}</p>{{ end }}
+
+                {{with .Abstract }}<p>Abstract: {{ . }}</p>{{ end }}
+
+                {{with .Publication}}Publication: {{ . }}{{ end -}} {{with .Volume}}Vol.: {{ . }}{{ end -}} {{with .Number}}No.: {{ . }} {{ end -}} {{with .PageRange}}Pages {{ . }}<br />{{ end -}}
+                {{with .ISSN}}ISSN: {{ . }}<br />{{ end }}
+                {{with .IDNumber }}ID: {{ . }}<br />{{ end }}
+                ]]>
             </description>
-            <pubDate>{{rfc882 .Date}}</pubDate>
-            <guid>{{.IDNumber}}</guid>
+            <pubDate>{{rfc1123z .Date}}</pubDate>
+            <guid>{{.OfficialURL}}</guid>
         </item>
         {{ end }}
     </channel>

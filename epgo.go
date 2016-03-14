@@ -39,7 +39,7 @@ import (
 
 const (
 	// Version is the revision number for this implementation of epgo
-	Version = "0.0.2"
+	Version = "0.0.3"
 
 	// Ascending sorts from lowest (oldest) to highest (newest)
 	Ascending = iota
@@ -87,6 +87,7 @@ type Name struct {
 type Record struct {
 	XMLName            xml.Name `json:"-"`
 	Title              string   `xml:"eprint>title" json:"title"`
+	Abstract           string   `xml:"eprint>abstract" json:"abstract"`
 	ID                 int      `xml:"eprint>eprintid" json:"id"`
 	RevNumber          int      `xml:"eprint>rev_number" json:"rev_number"`
 	UserID             int      `xml:"eprint>userid" json:"userid"`
@@ -447,10 +448,78 @@ func (api *EPrintsAPI) BuildSite(basename string) error {
 		return fmt.Errorf("Can't open template %s, %s", fname, err)
 	}
 	funcs := template.FuncMap{
-		"rfc882": func(s string) string {
-			dt, err := time.Parse("2006-01-02", normalizeDate(s))
-			if err != nil {
-				return ""
+		"rfc3339": func(s string) string {
+			var (
+				dt  time.Time
+				err error
+			)
+			if s == "now" {
+				dt = time.Now()
+			} else {
+				dt, err = time.Parse("2006-01-02", normalizeDate(s))
+				if err != nil {
+					return ""
+				}
+			}
+			return dt.Format(time.RFC3339)
+		},
+		"rfc1123": func(s string) string {
+			var (
+				dt  time.Time
+				err error
+			)
+			if s == "now" {
+				dt = time.Now()
+			} else {
+				dt, err = time.Parse("2006-01-02", normalizeDate(s))
+				if err != nil {
+					return ""
+				}
+			}
+			return dt.Format(time.RFC1123)
+		},
+		"rfc1123z": func(s string) string {
+			var (
+				dt  time.Time
+				err error
+			)
+			if s == "now" {
+				dt = time.Now()
+			} else {
+				dt, err = time.Parse("2006-01-02", normalizeDate(s))
+				if err != nil {
+					return ""
+				}
+			}
+			return dt.Format(time.RFC1123Z)
+		},
+		"rfc822z": func(s string) string {
+			var (
+				dt  time.Time
+				err error
+			)
+			if s == "now" {
+				dt = time.Now()
+			} else {
+				dt, err = time.Parse("2006-01-02", normalizeDate(s))
+				if err != nil {
+					return ""
+				}
+			}
+			return dt.Format(time.RFC822Z)
+		},
+		"rfc822": func(s string) string {
+			var (
+				dt  time.Time
+				err error
+			)
+			if s == "now" {
+				dt = time.Now()
+			} else {
+				dt, err = time.Parse("2006-01-02", normalizeDate(s))
+				if err != nil {
+					return ""
+				}
 			}
 			return dt.Format(time.RFC822)
 		},
@@ -475,7 +544,7 @@ func (api *EPrintsAPI) BuildSite(basename string) error {
 	if err != nil {
 		return fmt.Errorf("Can't open template %s, %s", fname, err)
 	}
-	pageIncludeTmpl, err := template.New("page.include").Parse(string(pageInclude))
+	pageIncludeTmpl, err := template.New("page.include").Funcs(funcs).Parse(string(pageInclude))
 	if err != nil {
 		return fmt.Errorf("Can't parse %s, %s", fname, err)
 	}
@@ -490,6 +559,23 @@ func (api *EPrintsAPI) BuildSite(basename string) error {
 	}
 	out.Close()
 
-	//FIXME: Write out the HTML file
+	pageHTMLTmpl, err := template.New("page.html").Funcs(funcs).ParseFiles(
+		path.Join(api.Templates, "page.include"),
+		path.Join(api.Templates, "page.html"),
+	)
+	if err != nil {
+		return fmt.Errorf("Can't parse %s, %s", fname, err)
+	}
+	fname = path.Join(api.Htdocs, basename+".html")
+	out, err = os.Create(fname)
+	if err != nil {
+		return fmt.Errorf("Can't write %s, %s", fname, err)
+	}
+	log.Printf("Writing %s", fname)
+	if err := pageHTMLTmpl.Execute(out, records); err != nil {
+		return fmt.Errorf("Can't render %s, %s", fname, err)
+	}
+	out.Close()
+
 	return nil
 }
