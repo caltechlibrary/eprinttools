@@ -8,9 +8,9 @@
         </div>
         <div>
             {{with .Date}}({{.}}){{ end }}
-            {{with .OfficialURL}}<a href="{{ . }}">{{ end }}
-                <em class="article-title">{{.Title}}</em>
-            {{with .OfficialURL}}</a>{{end}}
+            {{with .OfficialURL}}><h2><a href="{{ . }}">{{ end }}
+                {{- .Title -}}
+            {{with .OfficialURL }}</a></h2>{{end}}
         </div>
         <div>{{with .Abstract}}{{ . }}{{end}}</div>
         <div>

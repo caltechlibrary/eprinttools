@@ -45,6 +45,9 @@ const (
 	Ascending = iota
 	// Descending sorts from highest (newest) to lowest (oldest)
 	Descending = iota
+
+	// EPrintsExportBatchSize
+	EPrintsExportBatchSize = 100
 )
 
 // These are our main bucket and index buckets
@@ -60,6 +63,85 @@ var (
 	// subjectsBucket      = []byte("subjects")
 	// authors             = []byte("authors")
 	// additionDatesBucket = []byte("additionsDates")
+
+	// EPTmplFuncs provides a common set of functions available to templates
+	EPTmplFuncs = template.FuncMap{
+		"rfc3339": func(s string) string {
+			var (
+				dt  time.Time
+				err error
+			)
+			if s == "now" {
+				dt = time.Now()
+			} else {
+				dt, err = time.Parse("2006-01-02", normalizeDate(s))
+				if err != nil {
+					return ""
+				}
+			}
+			return dt.Format(time.RFC3339)
+		},
+		"rfc1123": func(s string) string {
+			var (
+				dt  time.Time
+				err error
+			)
+			if s == "now" {
+				dt = time.Now()
+			} else {
+				dt, err = time.Parse("2006-01-02", normalizeDate(s))
+				if err != nil {
+					return ""
+				}
+			}
+			return dt.Format(time.RFC1123)
+		},
+		"rfc1123z": func(s string) string {
+			var (
+				dt  time.Time
+				err error
+			)
+			if s == "now" {
+				dt = time.Now()
+			} else {
+				dt, err = time.Parse("2006-01-02", normalizeDate(s))
+				if err != nil {
+					return ""
+				}
+			}
+			return dt.Format(time.RFC1123Z)
+		},
+		"rfc822z": func(s string) string {
+			var (
+				dt  time.Time
+				err error
+			)
+			if s == "now" {
+				dt = time.Now()
+			} else {
+				dt, err = time.Parse("2006-01-02", normalizeDate(s))
+				if err != nil {
+					return ""
+				}
+			}
+			return dt.Format(time.RFC822Z)
+		},
+		"rfc822": func(s string) string {
+			var (
+				dt  time.Time
+				err error
+			)
+			if s == "now" {
+				dt = time.Now()
+			} else {
+				dt, err = time.Parse("2006-01-02", normalizeDate(s))
+				if err != nil {
+					return ""
+				}
+			}
+			return dt.Format(time.RFC822)
+		},
+	}
 )
 
 func failCheck(err error, msg string) {
@@ -87,6 +169,7 @@ type Name struct {
 type Record struct {
 	XMLName            xml.Name `json:"-"`
 	Title              string   `xml:"eprint>title" json:"title"`
+	URI                string   `json:"uri"`
 	Abstract           string   `xml:"eprint>abstract" json:"abstract"`
 	ID                 int      `xml:"eprint>eprintid" json:"id"`
 	RevNumber          int      `xml:"eprint>rev_number" json:"rev_number"`
@@ -254,6 +337,7 @@ func (api *EPrintsAPI) ExportEPrints() error {
 			log.Printf("Failed to get %s, %s\n", uri, err)
 			k++
 		} else {
+			rec.URI = uri
 			src, err := json.Marshal(rec)
 			if err != nil {
 				log.Printf("json.Marshal() failed on %s, %s", uri, err)
@@ -264,7 +348,7 @@ func (api *EPrintsAPI) ExportEPrints() error {
 					err := b.Put([]byte(uri), src)
 					if err == nil {
 						// See if we need to add this to the publicationDates index
-						if rec.DateType == "published" && rec.Date != "" {
+						if rec.DateType == "published" && rec.Date != "" && rec.IsPublished == "pub" {
 							idx := tx.Bucket(pubDatesBucket)
 							dt := normalizeDate(rec.Date)
 							err = idx.Put([]byte(fmt.Sprintf("%s%s%s", dt, indexDelimiter, uri)), []byte(uri))
@@ -279,7 +363,7 @@ func (api *EPrintsAPI) ExportEPrints() error {
 				}
 			}
 		}
-		if (i % 10) == 0 {
+		if (i % EPrintsExportBatchSize) == 0 {
 			log.Printf("%d uri processed, %d exported, %d unexported", i+1, j, k)
 		}
 	}
@@ -415,23 +499,87 @@ func (api *EPrintsAPI) GetPublishedRecords(start, count, direction int) ([]*Reco
 	return results, err
 }
 
-// BuildSite generates a website based on the contents of the exported EPrints data.
-// The site builder needs to know the name of the BoltDB, the root directory
-// for the website and directory to find the templates
-func (api *EPrintsAPI) BuildSite(basename string) error {
-	// Collect the published records
-	log.Printf("Getting published records")
-	records, err := api.GetPublishedRecords(0, 25, Descending)
-	if err != nil {
-		return fmt.Errorf("Can't get published records, %s", err)
+// GetPublishedArticles reads the index for published content and returns a populated
+// array of records found in index in decending order
+func (api *EPrintsAPI) GetPublishedArticles(start, count, direction int) ([]*Record, error) {
+	db, err := bolt.Open(api.DBName, 0660, &bolt.Options{Timeout: 1 * time.Second, ReadOnly: true})
+	failCheck(err, fmt.Sprintf("Export %s failed to open db, %s", api.DBName, err))
+	defer db.Close()
+	// Make sure we have a buckets to store things in
+	db.Update(func(tx *bolt.Tx) error {
+		if _, err := tx.CreateBucketIfNotExists(ePrintBucket); err != nil {
+			return fmt.Errorf("create bucket %s: %s", ePrintBucket, err)
+		}
+		if _, err := tx.CreateBucketIfNotExists(pubDatesBucket); err != nil {
+			return fmt.Errorf("create bucket %s: %s", pubDatesBucket, err)
+		}
+		return nil
+	})
+
+	//	var records []Record
+	var (
+		results []*Record
+	)
+	switch direction {
+	case Ascending:
+		err = db.View(func(tx *bolt.Tx) error {
+			recs := tx.Bucket(ePrintBucket)
+			idx := tx.Bucket(pubDatesBucket)
+			c := idx.Cursor()
+			p := 0
+			for k, uri := c.First(); k != nil && count > 0; k, uri = c.Next() {
+				if p >= start {
+					rec := new(Record)
+					src := recs.Get([]byte(uri))
+					err := json.Unmarshal(src, rec)
+					if err != nil {
+						return fmt.Errorf("Can't unmarshal %s, %s", uri, err)
+					}
+					if rec.Type == "article" {
+						results = append(results, rec)
+						count--
+					}
+				}
+				p++
+			}
+			return nil
+		})
+	case Descending:
+		err = db.View(func(tx *bolt.Tx) error {
+			recs := tx.Bucket(ePrintBucket)
+			idx := tx.Bucket(pubDatesBucket)
+			c := idx.Cursor()
+			p := 0
+			for k, uri := c.Last(); k != nil && count > 0; k, uri = c.Prev() {
+				if p >= start {
+					rec := new(Record)
+					src := recs.Get([]byte(uri))
+					err := json.Unmarshal(src, rec)
+					if err != nil {
+						return fmt.Errorf("Can't unmarshal %s, %s", uri, err)
+					}
+					if rec.Type == "article" {
+						results = append(results, rec)
+						count--
+					}
+				}
+				p++
+			}
+			return nil
+		})
 	}
-	if len(records) == 0 {
-		return fmt.Errorf("No published records found")
+	return results, err
+}
+
+// RenderDocuments writes JSON, HTML, include and rss to the directory indicated by basepath
+func (api *EPrintsAPI) RenderDocuments(basepath string, records []*Record) error {
+	// Create the basepath if neccessary
+	if _, err := os.Open(path.Join(api.Htdocs, basepath)); err != nil && os.IsNotExist(err) == true {
+		os.MkdirAll(path.Join(api.Htdocs, basepath), 0775)
 	}
-	log.Printf("%d records found.", len(records))
 
 	// Writing JSON file
-	fname := path.Join(api.Htdocs, basename+".json")
+	fname := path.Join(api.Htdocs, basepath, "index.json")
 	src, err := json.Marshal(records)
 	if err != nil {
 		return fmt.Errorf("Can't convert records to JSON %s, %s", fname, err)
@@ -440,95 +588,17 @@ func (api *EPrintsAPI) BuildSite(basename string) error {
 	if err != nil {
 		return fmt.Errorf("Can't write %s, %s", fname, err)
 	}
-
 	// Write out RSS 2.0 file
 	fname = path.Join(api.Templates, "rss.xml")
 	rss20, err := ioutil.ReadFile(fname)
 	if err != nil {
 		return fmt.Errorf("Can't open template %s, %s", fname, err)
 	}
-	funcs := template.FuncMap{
-		"rfc3339": func(s string) string {
-			var (
-				dt  time.Time
-				err error
-			)
-			if s == "now" {
-				dt = time.Now()
-			} else {
-				dt, err = time.Parse("2006-01-02", normalizeDate(s))
-				if err != nil {
-					return ""
-				}
-			}
-			return dt.Format(time.RFC3339)
-		},
-		"rfc1123": func(s string) string {
-			var (
-				dt  time.Time
-				err error
-			)
-			if s == "now" {
-				dt = time.Now()
-			} else {
-				dt, err = time.Parse("2006-01-02", normalizeDate(s))
-				if err != nil {
-					return ""
-				}
-			}
-			return dt.Format(time.RFC1123)
-		},
-		"rfc1123z": func(s string) string {
-			var (
-				dt  time.Time
-				err error
-			)
-			if s == "now" {
-				dt = time.Now()
-			} else {
-				dt, err = time.Parse("2006-01-02", normalizeDate(s))
-				if err != nil {
-					return ""
-				}
-			}
-			return dt.Format(time.RFC1123Z)
-		},
-		"rfc822z": func(s string) string {
-			var (
-				dt  time.Time
-				err error
-			)
-			if s == "now" {
-				dt = time.Now()
-			} else {
-				dt, err = time.Parse("2006-01-02", normalizeDate(s))
-				if err != nil {
-					return ""
-				}
-			}
-			return dt.Format(time.RFC822Z)
-		},
-		"rfc822": func(s string) string {
-			var (
-				dt  time.Time
-				err error
-			)
-			if s == "now" {
-				dt = time.Now()
-			} else {
-				dt, err = time.Parse("2006-01-02", normalizeDate(s))
-				if err != nil {
-					return ""
-				}
-			}
-			return dt.Format(time.RFC822)
-		},
-	}
-	rssTmpl, err := template.New("rss").Funcs(funcs).Parse(string(rss20))
+	rssTmpl, err := template.New("rss").Funcs(EPTmplFuncs).Parse(string(rss20))
 	if err != nil {
 		return fmt.Errorf("Can't convert records to RSS %s, %s", fname, err)
 	}
-	fname = path.Join(api.Htdocs, basename+".xml")
+	fname = path.Join(api.Htdocs, basepath, "rss.xml")
 	out, err := os.Create(fname)
 	if err != nil {
 		return fmt.Errorf("Can't write %s, %s", fname, err)
@@ -544,11 +614,11 @@ func (api *EPrintsAPI) BuildSite(basename string) error {
 	if err != nil {
 		return fmt.Errorf("Can't open template %s, %s", fname, err)
 	}
-	pageIncludeTmpl, err := template.New("page.include").Funcs(funcs).Parse(string(pageInclude))
+	pageIncludeTmpl, err := template.New("page.include").Funcs(EPTmplFuncs).Parse(string(pageInclude))
 	if err != nil {
 		return fmt.Errorf("Can't parse %s, %s", fname, err)
 	}
-	fname = path.Join(api.Htdocs, basename+".include")
+	fname = path.Join(api.Htdocs, basepath, "index.include")
 	out, err = os.Create(fname)
 	if err != nil {
 		return fmt.Errorf("Can't write %s, %s", fname, err)
@@ -559,14 +629,14 @@ func (api *EPrintsAPI) BuildSite(basename string) error {
 	}
 	out.Close()
 
-	pageHTMLTmpl, err := template.New("page.html").Funcs(funcs).ParseFiles(
+	pageHTMLTmpl, err := template.New("page.html").Funcs(EPTmplFuncs).ParseFiles(
 		path.Join(api.Templates, "page.include"),
 		path.Join(api.Templates, "page.html"),
 	)
 	if err != nil {
 		return fmt.Errorf("Can't parse %s, %s", fname, err)
 	}
-	fname = path.Join(api.Htdocs, basename+".html")
+	fname = path.Join(api.Htdocs, basepath, "index.html")
 	out, err = os.Create(fname)
 	if err != nil {
 		return fmt.Errorf("Can't write %s, %s", fname, err)
@@ -576,6 +646,36 @@ func (api *EPrintsAPI) BuildSite(basename string) error {
 		return fmt.Errorf("Can't render %s, %s", fname, err)
 	}
 	out.Close()
+	return nil
+}
 
+// BuildSite generates a website based on the contents of the exported EPrints data.
+// The site builder needs to know the name of the BoltDB, the root directory
+// for the website and directory to find the templates
+func (api *EPrintsAPI) BuildSite(basename string) error {
+	// Collect the published records
+	log.Printf("Getting published records")
+	records, err := api.GetPublishedRecords(0, 25, Descending)
+	if err != nil {
+		return fmt.Errorf("Can't get published records, %s", err)
+	}
+	if len(records) == 0 {
+		return fmt.Errorf("No published records found")
+	}
+	log.Printf("%d records found.", len(records))
+	if err := api.RenderDocuments("recently-published", records); err != nil {
+		return fmt.Errorf("recently published error, %s", err)
+	}
+	// Collect the published articles
+	records, err = api.GetPublishedArticles(0, 25, Descending)
+	if err != nil {
+		return fmt.Errorf("Can't get published articles, %s", err)
+	}
+	if len(records) == 0 {
+		return fmt.Errorf("No published articles found")
+	}
+	if err := api.RenderDocuments("recently-published-articles", records); err != nil {
+		return fmt.Errorf("recently published error, %s", err)
+	}
 	return nil
 }

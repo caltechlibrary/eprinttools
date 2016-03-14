@@ -13,7 +13,14 @@ The epgo command line utility provides a way to generate that list by leveraging
 + Get() - returns an eprint record by URI from the database
 + Export() - exports the contents from the EPrint REST API into a database with a publication dates index
 + GetPublishedRecords() - returns an array of records with a date type of "published" from the database
+    + IsPublished is "pub"
+    + Date Type is "publish"
++ GetPublishedArticles() - recently published articles 
+    + Type is "article"
+    + IsPublished is "pub"
+    + Date Type is "publish"
 + BuildSite() - generates a JSON file of 25 most recently published articles, a version in RSS and one as an HTML include
++ RenderDocuments() - takes a basepath and records array and renders out a directory with rss.xml, index.html, index.include and index.json
 
 ## environment vars
 
