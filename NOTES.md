@@ -24,7 +24,8 @@ The epgo command line utility provides a way to generate that list by leveraging
 
 ## environment vars
 
-+ EPGO_BASE_URL - base URL for your eprints repository (e.g. http://lemurprints.local)
++ EPGO_API_URL - base URL for your eprints repository (e.g. http://lemurprints.local)
++ EPGO_SITE_URL - the website url (might be the same as your eprints repository)
 + EPGO_DBNAME - the database name used in exporting or building
 + EPGO_HTDOCS - the htdocs directory where files are written in building
 + EPGO_TEMPLATES - the template directory holding the templates for building

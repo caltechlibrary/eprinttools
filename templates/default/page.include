@@ -1,29 +1,27 @@
-<div class="ep-publications-by-date-list">
-{{- range . }}
-    <div class="ep-publications-by-date-item">
-        <div class="creators">
-            {{ range .Creators -}}
-                <span class="person-name">{{.Given}} {{.Family}}</span>
-            {{ end }}
-        </div>
-        <div>
-            {{with .Date}}({{.}}){{ end }}
-            {{with .OfficialURL}}><h2><a href="{{ . }}">{{ end }}
-                {{- .Title -}}
-            {{with .OfficialURL }}</a></h2>{{end}}
-        </div>
-        <div>{{with .Abstract}}{{ . }}{{end}}</div>
-        <div>
-            {{with .Publication}}Publication: {{ . }} {{ end }}
-            {{with .Volume}}Vol.: {{ . }}{{ end }}
-            {{with .Number}}No.: {{ . }} {{ end }}
-            {{with .PageRange}}Pages {{ . }}{{ end }}
-        </div>
-        <div>
-            {{with .ISSN}}ISSN: {{ . }}{{ end }}
-            {{with .IDNumber }}ID: {{ . }}{{ end }}
-            {{with .OfficialURL }}<a href="{{ . }}">{{ . }}</a>{{ end }}
-        </div>
-    </div>
+<div class="publication-list">
+{{ $SiteURL := .SiteURL }}
+{{- range .Records }}
+    <p class="article">
+        {{ with .Creators -}}
+        <span class="authors">
+                {{ range $i, $name := . -}}
+                    {{- if (eq $i 0) -}}<span class="person-name">{{$name.Family}}, {{$name.Given}}</span>
+                    {{- else if (eq $i 1) }} and <span class="person-name">{{$name.Family}}, {{$name.Given}}</span>
+                    {{- else if (eq $i 2) }} et al.
+                    {{- end -}}
+                {{ end }}
+        </span>
+        {{- end }}
+        {{with .Date}}<span class="publication-year">({{year . }})</span>{{ end }}
+        <span class="title"><em><a href="{{ $SiteURL }}/{{ .ID }}">
+            {{- .Title -}}
+        </a></em></span>
+        {{with .Publication}}<span class="publication">{{ . }}</span>{{ end }}
+        {{with .Volume}}<span class="publication-volume">{{ . }}</span>{{ end }}
+        {{with .Number}}<span class="publication-number">{{ . }}</span>{{ end }}
+        {{with .PageRange}}<span class="publication-pages">{{ . }}</span>{{ end }}
+        {{with .ISSN}}ISSN: {{ . }}{{ end }}
+        {{with .OfficialURL }}<a href="{{ . }}">{{ . }}</a>{{ end }}
+    </p>
 {{ end -}}
 </div>

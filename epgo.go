@@ -19,7 +19,6 @@
 package epgo
 
 import (
-	"sort"
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
@@ -29,6 +28,7 @@ import (
 	"net/url"
 	"os"
 	"path"
+	"sort"
 	"strconv"
 	"strings"
 	"text/template"
@@ -47,8 +47,11 @@ const (
 	// Descending sorts from highest (newest) to lowest (oldest)
 	Descending = iota
 
-	// EPrintsExportBatchSize
-	EPrintsExportBatchSize = 100
+	// EPrintsExportBatchSize sets the summary output frequency when exporting content from E-Prints
+	EPrintsExportBatchSize = 1000
+
+	// DefaultFeedSize sets the default size of rss, JSON, HTML include and index lists
+	DefaultFeedSize = 25
 )
 
 // These are our main bucket and index buckets
@@ -67,6 +70,21 @@ var (
 
 	// EPTmplFuncs provides a common set of functions available to templates
 	EPTmplFuncs = template.FuncMap{
+		"year": func(s string) string {
+			var (
+				dt  time.Time
+				err error
+			)
+			if s == "now" {
+				dt = time.Now()
+			} else {
+				dt, err = time.Parse("2006-01-02", normalizeDate(s))
+				if err != nil {
+					return ""
+				}
+			}
+			return dt.Format("2006")
+		},
 		"rfc3339": func(s string) string {
 			var (
 				dt  time.Time
@@ -153,10 +171,11 @@ func failCheck(err error, msg string) {
 
 // EPrintsAPI holds the basic connectin information to read the REST API for EPrints
 type EPrintsAPI struct {
-	URL       *url.URL `xml:"epgo>base_url" json:"base_url"`   // EPGO_BASE_URL
+	URL       *url.URL `xml:"epgo>api_url" json:"api_url"`     // EPGO_API_URL
 	DBName    string   `xml:"epgo>dbname" json:"dbname"`       // EPGO_DBNAME
 	Htdocs    string   `xml:"epgo>htdocs" json:"htdocs"`       // EPGO_HTDOCS
 	Templates string   `xml:"epgo>templates" json:"templates"` // EPGO_TEMPLATES
+	SiteURL   string   `xml:"epgo>siteurl" josn:"site_url"`    // EPGO_SITE_URL
 }
 
 // Name returns the contents of eprint>creators>item>name as a struct
@@ -228,18 +247,19 @@ func normalizeDate(in string) string {
 // New creates a new API instance
 func New() (*EPrintsAPI, error) {
 	var err error
-	baseURL := os.Getenv("EPGO_BASE_URL")
+	apiURL := os.Getenv("EPGO_API_URL")
+	siteURL := os.Getenv("EPGO_SITE_URL")
 	htdocs := os.Getenv("EPGO_HTDOCS")
 	dbName := os.Getenv("EPGO_DBNAME")
 	templates := os.Getenv("EPGO_TEMPLATES")
 
-	if baseURL == "" {
-		return nil, fmt.Errorf("Environment not configured, missing EPGO_BASE_URL")
+	if apiURL == "" {
+		return nil, fmt.Errorf("Environment not configured, missing EPGO_API_URL")
 	}
 	api := new(EPrintsAPI)
-	api.URL, err = url.Parse(baseURL)
+	api.URL, err = url.Parse(apiURL)
 	if err != nil {
-		return nil, fmt.Errorf("EPGO_BASE_URL malformed %s, %s", baseURL, err)
+		return nil, fmt.Errorf("EPGO_API_URL malformed %s, %s", apiURL, err)
 	}
 	if htdocs == "" {
 		htdocs = "htdocs"
@@ -250,7 +270,7 @@ func New() (*EPrintsAPI, error) {
 	if templates == "" {
 		templates = "templates"
 	}
-
+	api.SiteURL = siteURL
 	api.Htdocs = htdocs
 	api.DBName = dbName
 	api.Templates = templates
@@ -280,7 +300,6 @@ func (s byURI) Less(i, j int) bool {
 	}
 	return a1 > a2
 }
-
 
 // ListEPrintsURI returns a list of eprint record ids
 func (api *EPrintsAPI) ListEPrintsURI() ([]string, error) {
@@ -335,8 +354,8 @@ func (api *EPrintsAPI) GetEPrint(uri string) (*Record, error) {
 	return rec, nil
 }
 
-// ExportEPrints gets a list of all EPrints and then saves each record in a DB
-func (api *EPrintsAPI) ExportEPrints() error {
+// ExportEPrints from highest ID to lowest for cnt. Saves each record in a DB and indexes published ones
+func (api *EPrintsAPI) ExportEPrints(cnt int) error {
 	db, err := bolt.Open(api.DBName, 0660, &bolt.Options{Timeout: 1 * time.Second, ReadOnly: false})
 	failCheck(err, fmt.Sprintf("Export %s failed to open db, %s", api.DBName, err))
 	defer db.Close()
@@ -357,10 +376,15 @@ func (api *EPrintsAPI) ExportEPrints() error {
 	// are exported first
 	sort.Sort(byURI(uris))
 
+	uriCnt := len(uris)
+	if cnt < 0 {
+		cnt = uriCnt
+	}
 	j := 0 // success count
 	k := 0 // error count
-	log.Printf("Exporting of %d uris", len(uris))
-	for i, uri := range uris {
+	log.Printf("Exporting %d of %d uris", cnt, uriCnt)
+	for i := 0; i < uriCnt && cnt > 0; i++ {
+		uri := uris[i]
 		rec, err := api.GetEPrint(uri)
 		if err != nil {
 			log.Printf("Failed to get %s, %s\n", uri, err)
@@ -377,12 +401,13 @@ func (api *EPrintsAPI) ExportEPrints() error {
 					err := b.Put([]byte(uri), src)
 					if err == nil {
 						// See if we need to add this to the publicationDates index
-						if rec.DateType == "published" && rec.Date != "" && rec.IsPublished == "pub" {
+						if rec.DateType == "published" && rec.Date != "" {
 							idx := tx.Bucket(pubDatesBucket)
 							dt := normalizeDate(rec.Date)
 							err = idx.Put([]byte(fmt.Sprintf("%s%s%s", dt, indexDelimiter, uri)), []byte(uri))
 						}
 						j++
+						cnt--
 					}
 					return err
 				})
@@ -404,7 +429,7 @@ func (api *EPrintsAPI) ExportEPrints() error {
 func (api *EPrintsAPI) ListURI(start, count int) ([]string, error) {
 	var results []string
 	db, err := bolt.Open(api.DBName, 0660, &bolt.Options{Timeout: 1 * time.Second, ReadOnly: true})
-	failCheck(err, fmt.Sprintf("Export %s failed to open db, %s", api.DBName, err))
+	failCheck(err, fmt.Sprintf("ListURI %s failed to open db, %s", api.DBName, err))
 	defer db.Close()
 	// Make sure we have a buckets to store things in
 	db.Update(func(tx *bolt.Tx) error {
@@ -435,7 +460,7 @@ func (api *EPrintsAPI) ListURI(start, count int) ([]string, error) {
 // Get retrieves an EPrint record from the database
 func (api *EPrintsAPI) Get(uri string) (*Record, error) {
 	db, err := bolt.Open(api.DBName, 0660, &bolt.Options{Timeout: 1 * time.Second, ReadOnly: true})
-	failCheck(err, fmt.Sprintf("Export %s failed to open db, %s", api.DBName, err))
+	failCheck(err, fmt.Sprintf("Get(%q) %s failed to open db, %s", uri, api.DBName, err))
 	defer db.Close()
 	// Make sure we have a buckets to store things in
 	db.Update(func(tx *bolt.Tx) error {
@@ -464,7 +489,7 @@ func (api *EPrintsAPI) Get(uri string) (*Record, error) {
 // array of records found in index in decending order
 func (api *EPrintsAPI) GetPublishedRecords(start, count, direction int) ([]*Record, error) {
 	db, err := bolt.Open(api.DBName, 0660, &bolt.Options{Timeout: 1 * time.Second, ReadOnly: true})
-	failCheck(err, fmt.Sprintf("Export %s failed to open db, %s", api.DBName, err))
+	failCheck(err, fmt.Sprintf("GetPulishedRecords() %s failed to open db, %s", api.DBName, err))
 	defer db.Close()
 	// Make sure we have a buckets to store things in
 	db.Update(func(tx *bolt.Tx) error {
@@ -496,8 +521,10 @@ func (api *EPrintsAPI) GetPublishedRecords(start, count, direction int) ([]*Reco
 					if err != nil {
 						return fmt.Errorf("Can't unmarshal %s, %s", uri, err)
 					}
-					results = append(results, rec)
-					count--
+					if rec.IsPublished == "pub" {
+						results = append(results, rec)
+						count--
+					}
 				}
 				p++
 			}
@@ -517,8 +544,10 @@ func (api *EPrintsAPI) GetPublishedRecords(start, count, direction int) ([]*Reco
 					if err != nil {
 						return fmt.Errorf("Can't unmarshal %s, %s", uri, err)
 					}
-					results = append(results, rec)
-					count--
+					if rec.IsPublished == "pub" {
+						results = append(results, rec)
+						count--
+					}
 				}
 				p++
 			}
@@ -532,7 +561,7 @@ func (api *EPrintsAPI) GetPublishedRecords(start, count, direction int) ([]*Reco
 // array of records found in index in decending order
 func (api *EPrintsAPI) GetPublishedArticles(start, count, direction int) ([]*Record, error) {
 	db, err := bolt.Open(api.DBName, 0660, &bolt.Options{Timeout: 1 * time.Second, ReadOnly: true})
-	failCheck(err, fmt.Sprintf("Export %s failed to open db, %s", api.DBName, err))
+	failCheck(err, fmt.Sprintf("GetPublishedArticles() %s failed to open db, %s", api.DBName, err))
 	defer db.Close()
 	// Make sure we have a buckets to store things in
 	db.Update(func(tx *bolt.Tx) error {
@@ -564,7 +593,7 @@ func (api *EPrintsAPI) GetPublishedArticles(start, count, direction int) ([]*Rec
 					if err != nil {
 						return fmt.Errorf("Can't unmarshal %s, %s", uri, err)
 					}
-					if rec.Type == "article" {
+					if rec.Type == "article" && rec.IsPublished == "pub" {
 						results = append(results, rec)
 						count--
 					}
@@ -587,7 +616,7 @@ func (api *EPrintsAPI) GetPublishedArticles(start, count, direction int) ([]*Rec
 					if err != nil {
 						return fmt.Errorf("Can't unmarshal %s, %s", uri, err)
 					}
-					if rec.Type == "article" {
+					if rec.Type == "article" && rec.IsPublished == "pub" {
 						results = append(results, rec)
 						count--
 					}
@@ -601,7 +630,7 @@ func (api *EPrintsAPI) GetPublishedArticles(start, count, direction int) ([]*Rec
 }
 
 // RenderDocuments writes JSON, HTML, include and rss to the directory indicated by basepath
-func (api *EPrintsAPI) RenderDocuments(basepath string, records []*Record) error {
+func (api *EPrintsAPI) RenderDocuments(docTitle, basepath string, records []*Record) error {
 	// Create the basepath if neccessary
 	if _, err := os.Open(path.Join(api.Htdocs, basepath)); err != nil && os.IsNotExist(err) == true {
 		os.MkdirAll(path.Join(api.Htdocs, basepath), 0775)
@@ -637,6 +666,17 @@ func (api *EPrintsAPI) RenderDocuments(basepath string, records []*Record) error
 	}
 	out.Close()
 
+	//NOTE: create a data wrapper for HTML page creation
+	pageData := &struct {
+		SiteURL  string
+		DocTitle string
+		Records  []*Record
+	}{
+		SiteURL:  api.SiteURL,
+		DocTitle: docTitle,
+		Records:  records,
+	}
+
 	// Write out include file
 	fname = path.Join(api.Templates, "page.include")
 	pageInclude, err := ioutil.ReadFile(fname)
@@ -653,7 +693,7 @@ func (api *EPrintsAPI) RenderDocuments(basepath string, records []*Record) error
 		return fmt.Errorf("Can't write %s, %s", fname, err)
 	}
 	log.Printf("Writing %s", fname)
-	if err := pageIncludeTmpl.Execute(out, records); err != nil {
+	if err := pageIncludeTmpl.Execute(out, pageData); err != nil {
 		return fmt.Errorf("Can't render %s, %s", fname, err)
 	}
 	out.Close()
@@ -670,8 +710,9 @@ func (api *EPrintsAPI) RenderDocuments(basepath string, records []*Record) error
 	if err != nil {
 		return fmt.Errorf("Can't write %s, %s", fname, err)
 	}
+
 	log.Printf("Writing %s", fname)
-	if err := pageHTMLTmpl.Execute(out, records); err != nil {
+	if err := pageHTMLTmpl.Execute(out, pageData); err != nil {
 		return fmt.Errorf("Can't render %s, %s", fname, err)
 	}
 	out.Close()
@@ -681,10 +722,13 @@ func (api *EPrintsAPI) RenderDocuments(basepath string, records []*Record) error
 // BuildSite generates a website based on the contents of the exported EPrints data.
 // The site builder needs to know the name of the BoltDB, the root directory
 // for the website and directory to find the templates
-func (api *EPrintsAPI) BuildSite(basename string) error {
+func (api *EPrintsAPI) BuildSite(feedSize int) error {
+	if feedSize < 1 {
+		feedSize = DefaultFeedSize
+	}
 	// Collect the published records
-	log.Printf("Getting published records")
-	records, err := api.GetPublishedRecords(0, 25, Descending)
+	log.Printf("Building recently-published")
+	records, err := api.GetPublishedRecords(0, feedSize, Descending)
 	if err != nil {
 		return fmt.Errorf("Can't get published records, %s", err)
 	}
@@ -692,19 +736,22 @@ func (api *EPrintsAPI) BuildSite(basename string) error {
 		return fmt.Errorf("No published records found")
 	}
 	log.Printf("%d records found.", len(records))
-	if err := api.RenderDocuments("recently-published", records); err != nil {
+	if err := api.RenderDocuments("Recently Published", "recently-published", records); err != nil {
 		return fmt.Errorf("recently published error, %s", err)
 	}
+	log.Printf("Building recent-articles")
 	// Collect the published articles
-	records, err = api.GetPublishedArticles(0, 25, Descending)
+	records, err = api.GetPublishedArticles(0, feedSize, Descending)
+	log.Printf("%d records found.", len(records))
 	if err != nil {
 		return fmt.Errorf("Can't get published articles, %s", err)
 	}
 	if len(records) == 0 {
 		return fmt.Errorf("No published articles found")
 	}
-	if err := api.RenderDocuments("recently-published-articles", records); err != nil {
-		return fmt.Errorf("recently published error, %s", err)
+	if err := api.RenderDocuments("Recent Articles", "recent-articles", records); err != nil {
+		return fmt.Errorf("recent articles error, %s", err)
 	}
+	// FIXME: Should build entire site with searhable content
 	return nil
 }

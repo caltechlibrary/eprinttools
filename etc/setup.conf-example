@@ -1,7 +1,9 @@
 # URL for E-Prints repository
-export EPGO_BASE_URL=http://lemurprints.local
+export EPGO_API_URL=http://lemurprints.local
 # DB Name used to exporting from E-Prints and for site building
 export EPGO_DBNAME=eprints
+# SiteURL is the website base URL used by the feeds to point at articles
+export EPGO_SITE_URL=http://lemurprints.local
 # Htdocs document root for generated pages and feeds
 export EPGO_HTDOCS=htdocs
 # Templates directory for templates used to build webpages or feeds
