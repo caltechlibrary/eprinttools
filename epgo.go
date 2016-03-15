@@ -40,7 +40,7 @@ import (
 
 const (
 	// Version is the revision number for this implementation of epgo
-	Version = "0.0.4"
+	Version = "0.0.5"
 
 	// Ascending sorts from lowest (oldest) to highest (newest)
 	Ascending = iota
@@ -185,35 +185,101 @@ type Name struct {
 	Family  string   `xml:"family" json:"family"`
 }
 
+// File structures in Document
+type File struct {
+	XMLName   xml.Name `json:"-"`
+	FileID    int      `xml:"fileid" json:"fileid"`
+	DatasetID string   `xml:"datasetid" json:"datasetid"`
+	ObjectID  int      `xml:"objectid" json:"objectid"`
+	Filename  string   `xml:"filename" json:"filename"`
+	MimeType  string   `xml:"mime_type" json:"mime_type"`
+	Hash      string   `xml:"hash" json:"hash"`
+	HashType  string   `xml:"hash_type" json:"hash_type"`
+	FileSize  int      `xml:"filesize" json:"filesize"`
+	MTime     string   `xml:"mtime" json:"mtime"`
+	URL       string   `xml:"url" json:"url"`
+}
+
+// Document structures in Record
+type Document struct {
+	XMLName   xml.Name `json:"-"`
+	DocID     int      `xml:"docid" json:"docid"`
+	RevNumber int      `xml:"rev_number" json:"rev_number"`
+	Files     []*File  `xml:"files>file" json:"files"`
+	EPrintID  int      `xml:"eprintid" json:"eprintid"`
+	Pos       int      `xml:"pos" json:"pos"`
+	Placement int      `xml:"placement" json:"placement"`
+	MimeType  string   `xml:"mime_type" json:"mime_type"`
+	Format    string   `xml:"format" json:"format"`
+	Language  string   `xml:"language" json:"language"`
+	Security  string   `xml:"security" json:"security"`
+	License   string   `xml:"license" json:"license"`
+	Main      string   `xml:"main" json:"main"`
+	Content   string   `xml:"content" json:"content"`
+}
+
+// RelatedURL is a structure containing information about a relationship
+type RelatedURL struct {
+	XMLName     xml.Name `json:"-"`
+	URL         string   `xml:"url" json:"url"`
+	Type        string   `xml:"type" json:"type"`
+	Description string   `xml:"description" json:"description"`
+}
+
+// NumberingSystem is a structure describing other numbering systems for record
+type NumberingSystem struct {
+	XMLName xml.Name `json:"-"`
+	Name    string   `xml:"name" json:"name"`
+	ID      string   `xml:"id" json:"id"`
+}
+
+// Funder is a structure describing a funding source for record
+type Funder struct {
+	XMLName     xml.Name `json:"-"`
+	Agency      string   `xml:"agency" json:"agency"`
+	GrantNumber string   `xml:"grant_number" json:"grant_number,omitempty"`
+}
+
 // Record returns a structure that can be converted to JSON easily
 type Record struct {
-	XMLName            xml.Name `json:"-"`
-	Title              string   `xml:"eprint>title" json:"title"`
-	URI                string   `json:"uri"`
-	Abstract           string   `xml:"eprint>abstract" json:"abstract"`
-	ID                 int      `xml:"eprint>eprintid" json:"id"`
-	RevNumber          int      `xml:"eprint>rev_number" json:"rev_number"`
-	UserID             int      `xml:"eprint>userid" json:"userid"`
-	Dir                string   `xml:"eprint>dir" json:"eprint_dir"`
-	Datestamp          string   `xml:"eprint>datestamp" json:"datestamp"`
-	LastModified       string   `xml:"eprint>lastmod" json:"lastmod"`
-	StatusChange       string   `xml:"eprint>status_changed" json:"status_changed"`
-	Type               string   `xml:"eprint>type" json:"type"`
-	MetadataVisibility string   `xml:"eprint>metadata_visibility" json:"metadata_visibility"`
-	Creators           []*Name  `xml:"eprint>creators>item>name" json:"creators"`
-	IsPublished        string   `xml:"eprint>ispublished" json:"ispublished"`
-	Subjects           []string `xml:"eprint>subjects>item" json:"subjects"`
-	FullTextStatus     string   `xml:"eprint>full_text_status" json:"full_text_status"`
-	Date               string   `xml:"eprint>date" json:"data"`
-	DateType           string   `xml:"eprint>date_type" json:"date_type"`
-	Publication        string   `xml:"eprint>publication" json:"publication"`
-	Volume             string   `xml:"eprint>volume" json:"volume"`
-	Number             string   `xml:"eprint>number" json:"number"`
-	PageRange          string   `xml:"eprint>pagerange" json:"pagerange"`
-	IDNumber           string   `xml:"eprint>id_number" json:"id_number"`
-	Referred           bool     `xml:"eprint>refereed" json:"refereed"`
-	ISSN               string   `xml:"eprint>issn" json:"issn"`
-	OfficialURL        string   `xml:"eprint>official_url" json:"official_url"`
+	XMLName              xml.Name           `json:"-"`
+	Title                string             `xml:"eprint>title" json:"title"`
+	URI                  string             `json:"uri"`
+	Abstract             string             `xml:"eprint>abstract" json:"abstract"`
+	Documents            []*Document        `xml:"eprint>documents>document" json:"documents"`
+	Note                 string             `xml:"eprint>note" json:"note"`
+	ID                   int                `xml:"eprint>eprintid" json:"id"`
+	RevNumber            int                `xml:"eprint>rev_number" json:"rev_number"`
+	UserID               int                `xml:"eprint>userid" json:"userid"`
+	Dir                  string             `xml:"eprint>dir" json:"eprint_dir"`
+	Datestamp            string             `xml:"eprint>datestamp" json:"datestamp"`
+	LastModified         string             `xml:"eprint>lastmod" json:"lastmod"`
+	StatusChange         string             `xml:"eprint>status_changed" json:"status_changed"`
+	Type                 string             `xml:"eprint>type" json:"type"`
+	MetadataVisibility   string             `xml:"eprint>metadata_visibility" json:"metadata_visibility"`
+	Creators             []*Name            `xml:"eprint>creators>item>name" json:"creators"`
+	IsPublished          string             `xml:"eprint>ispublished" json:"ispublished"`
+	Subjects             []string           `xml:"eprint>subjects>item" json:"subjects"`
+	FullTextStatus       string             `xml:"eprint>full_text_status" json:"full_text_status"`
+	Date                 string             `xml:"eprint>date" json:"data"`
+	DateType             string             `xml:"eprint>date_type" json:"date_type"`
+	Publication          string             `xml:"eprint>publication" json:"publication"`
+	Volume               string             `xml:"eprint>volume" json:"volume"`
+	Number               string             `xml:"eprint>number" json:"number"`
+	PageRange            string             `xml:"eprint>pagerange" json:"pagerange"`
+	IDNumber             string             `xml:"eprint>id_number" json:"id_number"`
+	Referred             bool               `xml:"eprint>refereed" json:"refereed"`
+	ISSN                 string             `xml:"eprint>issn" json:"issn"`
+	OfficialURL          string             `xml:"eprint>official_url" json:"official_url"`
+	RelatedURL           []*RelatedURL      `xml:"eprint>related_url>item" json:"related_url"`
+	ReferenceText        []string           `xml:"eprint>referencetext>item" json:"referencetext"`
+	Rights               string             `xml:"eprint>rights" json:"rights"`
+	OfficialCitation     string             `xml:"eprint>official_cit" json:"official_citation"`
+	OtherNumberingSystem []*NumberingSystem `xml:"eprint>other_numbering_system>item" json:"other_numbering_system"`
+	Funders              []*Funder          `xml:"eprint>funders>item" json:"funders"`
+	Collection           string             `xml:"eprint>collection" json:"collection"`
+	Reviewer             string             `xml:"eprint>reviewer" json:"reviewer"`
+	LocalGroup           []string           `xml:"eprint>local_group>item" json:"local_group"`
 }
 
 type ePrintIDs struct {
@@ -390,7 +456,7 @@ func (api *EPrintsAPI) ExportEPrints(cnt int) error {
 			log.Printf("Failed to get %s, %s\n", uri, err)
 			k++
 		} else {
-			rec.URI = uri
+			rec.URI = strings.TrimPrefix(strings.TrimSuffix(uri, path.Ext(".xml")), "/rest")
 			src, err := json.Marshal(rec)
 			if err != nil {
 				log.Printf("json.Marshal() failed on %s, %s", uri, err)
