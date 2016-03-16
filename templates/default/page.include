@@ -16,9 +16,9 @@
         <span class="title"><em><a href="{{ $SiteURL }}/{{ .ID }}">
             {{- .Title -}}
         </a></em></span>
-        {{with .Publication}}<span class="publication">{{ . }}</span>{{ end }}
-        {{with .Volume}}<span class="publication-volume">{{ . }}</span>{{ end }}
-        {{with .Number}}<span class="publication-number">{{ . }}</span>{{ end }}
+        {{with .Publication}}<span class="publication">{{ . }}</span>;{{ end }}
+        {{with .Volume}} Vol. <span class="publication-volume">{{ . }}</span>;{{ end }}
+        {{with .Number}} No. <span class="publication-number">{{ . }}</span>;{{ end }}
         {{with .PageRange}}<span class="publication-pages">{{ . }}</span>{{ end }}
         {{with .ISSN}}ISSN: {{ . }}{{ end }}
         {{with .OfficialURL }}<a href="{{ . }}">{{ . }}</a>{{ end }}
