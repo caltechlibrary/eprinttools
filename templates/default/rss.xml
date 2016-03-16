@@ -1,27 +1,28 @@
 <rss version="2.0">
     <channel>
-        <title>Recently Published Articles</title>
-        <link>http://authors.example.edu/rss.xml</link>
-        <description>Recently Published Arctiles added to the Author's repository</description>
+        <title>{{.DocTitle}}</title>
+        <link>{{ .SiteURL }}/{{ .Basepath }}/rss.xml</link>
+        <description>{{ .DocDescription }}</description>
         <lastBuildDate>{{rfc1123z "now"}}</lastBuildDate>
         <docs>http://cyber.law.harvard.edu/rss/rss.html</docs>
-        <generator>epgo 0.0.2</generator>
-        {{range . }}
+        <generator>epgo {{ .Version }}</generator>
+        {{- $ApiURL := .ApiURL -}}
+        {{range .Records }}
         <item>
-            <title>{{.Title}}</title>
-            <link>{{.OfficialURL}}</link>
+            <title>{{ .Title }}</title>
+            <link>{{ .OfficialURL }}</link>
             <description><![CDATA[
                 {{ if .Creators }}<p>Authors: {{ range $i, $name := .Creators -}} {{if (gt $i 1) }}, {{end}} {{$name.Given}} {{$name.Family}} {{ end -}}</p>{{ end }}
 
                 {{with .Abstract }}<p>Abstract: {{ . }}</p>{{ end }}
 
-                {{with .Publication}}Publication: {{ . }}{{ end -}} {{with .Volume}}Vol.: {{ . }}{{ end -}} {{with .Number}}No.: {{ . }} {{ end -}} {{with .PageRange}}Pages {{ . }}<br />{{ end -}}
+                {{with .Publication}}Publication: {{ . }}{{ end -}} {{with .Volume}} Vol.: {{ . }}{{ end -}} {{with .Number}} No.: {{ . }} {{ end -}} {{with .PageRange}} Pages {{ . }}<br />{{ end -}}
                 {{with .ISSN}}ISSN: {{ . }}<br />{{ end }}
                 {{with .IDNumber }}ID: {{ . }}<br />{{ end }}
                 ]]>
             </description>
             <pubDate>{{rfc1123z .Date}}</pubDate>
-            <guid>{{.OfficialURL}}</guid>
+            <guid>{{ $ApiURL }}{{ .URI }}</guid>
         </item>
         {{ end }}
     </channel>

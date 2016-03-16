@@ -175,47 +175,16 @@ type EPrintsAPI struct {
 	DBName    string   `xml:"epgo>dbname" json:"dbname"`       // EPGO_DBNAME
 	Htdocs    string   `xml:"epgo>htdocs" json:"htdocs"`       // EPGO_HTDOCS
 	Templates string   `xml:"epgo>templates" json:"templates"` // EPGO_TEMPLATES
-	SiteURL   string   `xml:"epgo>siteurl" josn:"site_url"`    // EPGO_SITE_URL
+	SiteURL   *url.URL `xml:"epgo>site_url" josn:"site_url"`   // EPGO_SITE_URL
 }
 
-// Name returns the contents of eprint>creators>item>name as a struct
-type Name struct {
+// Person returns the contents of eprint>creators>item>name as a struct
+type Person struct {
 	XMLName xml.Name `json:"-"`
-	Given   string   `xml:"given" json:"given"`
-	Family  string   `xml:"family" json:"family"`
-}
-
-// File structures in Document
-type File struct {
-	XMLName   xml.Name `json:"-"`
-	FileID    int      `xml:"fileid" json:"fileid"`
-	DatasetID string   `xml:"datasetid" json:"datasetid"`
-	ObjectID  int      `xml:"objectid" json:"objectid"`
-	Filename  string   `xml:"filename" json:"filename"`
-	MimeType  string   `xml:"mime_type" json:"mime_type"`
-	Hash      string   `xml:"hash" json:"hash"`
-	HashType  string   `xml:"hash_type" json:"hash_type"`
-	FileSize  int      `xml:"filesize" json:"filesize"`
-	MTime     string   `xml:"mtime" json:"mtime"`
-	URL       string   `xml:"url" json:"url"`
-}
-
-// Document structures in Record
-type Document struct {
-	XMLName   xml.Name `json:"-"`
-	DocID     int      `xml:"docid" json:"docid"`
-	RevNumber int      `xml:"rev_number" json:"rev_number"`
-	Files     []*File  `xml:"files>file" json:"files"`
-	EPrintID  int      `xml:"eprintid" json:"eprintid"`
-	Pos       int      `xml:"pos" json:"pos"`
-	Placement int      `xml:"placement" json:"placement"`
-	MimeType  string   `xml:"mime_type" json:"mime_type"`
-	Format    string   `xml:"format" json:"format"`
-	Language  string   `xml:"language" json:"language"`
-	Security  string   `xml:"security" json:"security"`
-	License   string   `xml:"license" json:"license"`
-	Main      string   `xml:"main" json:"main"`
-	Content   string   `xml:"content" json:"content"`
+	Given   string   `xml:"name>given" json:"given"`
+	Family  string   `xml:"name>family" json:"family"`
+	ID      string   `xml:"id,omitempty" json:"id,omitempty"`
+	ORCID   string   `xml:"orcid,omitempty" json:"orcid,omitempty"`
 }
 
 // RelatedURL is a structure containing information about a relationship
@@ -237,7 +206,42 @@ type NumberingSystem struct {
 type Funder struct {
 	XMLName     xml.Name `json:"-"`
 	Agency      string   `xml:"agency" json:"agency"`
-	GrantNumber string   `xml:"grant_number" json:"grant_number,omitempty"`
+	GrantNumber string   `xml:"grant_number,omitempty" json:"grant_number,omitempty"`
+}
+
+// File structures in Document
+type File struct {
+	XMLName   xml.Name `json:"-"`
+	ID        string   `xml:"id,attr" json:"id"`
+	FileID    int      `xml:"fileid" json:"fileid"`
+	DatasetID string   `xml:"datasetid" json:"datasetid"`
+	ObjectID  int      `xml:"objectid" json:"objectid"`
+	Filename  string   `xml:"filename" json:"filename"`
+	MimeType  string   `xml:"mime_type" json:"mime_type"`
+	Hash      string   `xml:"hash" json:"hash"`
+	HashType  string   `xml:"hash_type" json:"hash_type"`
+	FileSize  int      `xml:"filesize" json:"filesize"`
+	MTime     string   `xml:"mtime" json:"mtime"`
+	URL       string   `xml:"url" json:"url"`
+}
+
+// Document structures in Record
+type Document struct {
+	XMLName   xml.Name `json:"-"`
+	ID        string   `xml:"id,attr" json:"id"`
+	DocID     int      `xml:"docid" json:"docid"`
+	RevNumber int      `xml:"rev_number" json:"rev_number"`
+	Files     []*File  `xml:"files>file" json:"files"`
+	EPrintID  int      `xml:"eprintid" json:"eprintid"`
+	Pos       int      `xml:"pos" json:"pos"`
+	Placement int      `xml:"placement" json:"placement"`
+	MimeType  string   `xml:"mime_type" json:"mime_type"`
+	Format    string   `xml:"format" json:"format"`
+	Language  string   `xml:"language" json:"language"`
+	Security  string   `xml:"security" json:"security"`
+	License   string   `xml:"license" json:"license"`
+	Main      string   `xml:"main" json:"main"`
+	Content   string   `xml:"content" json:"content"`
 }
 
 // Record returns a structure that can be converted to JSON easily
@@ -257,10 +261,11 @@ type Record struct {
 	StatusChange         string             `xml:"eprint>status_changed" json:"status_changed"`
 	Type                 string             `xml:"eprint>type" json:"type"`
 	MetadataVisibility   string             `xml:"eprint>metadata_visibility" json:"metadata_visibility"`
-	Creators             []*Name            `xml:"eprint>creators>item>name" json:"creators"`
+	Creators             []*Person          `xml:"eprint>creators>item" json:"creators"`
 	IsPublished          string             `xml:"eprint>ispublished" json:"ispublished"`
 	Subjects             []string           `xml:"eprint>subjects>item" json:"subjects"`
 	FullTextStatus       string             `xml:"eprint>full_text_status" json:"full_text_status"`
+	Keywords             string             `xml:"eprint>keywords" json:"keywords"`
 	Date                 string             `xml:"eprint>date" json:"data"`
 	DateType             string             `xml:"eprint>date_type" json:"date_type"`
 	Publication          string             `xml:"eprint>publication" json:"publication"`
@@ -275,7 +280,7 @@ type Record struct {
 	ReferenceText        []string           `xml:"eprint>referencetext>item" json:"referencetext"`
 	Rights               string             `xml:"eprint>rights" json:"rights"`
 	OfficialCitation     string             `xml:"eprint>official_cit" json:"official_citation"`
-	OtherNumberingSystem []*NumberingSystem `xml:"eprint>other_numbering_system>item" json:"other_numbering_system"`
+	OtherNumberingSystem []*NumberingSystem `xml:"eprint>other_numbering_system>item,omitempty" json:"other_numbering_system,omitempty"`
 	Funders              []*Funder          `xml:"eprint>funders>item" json:"funders"`
 	Collection           string             `xml:"eprint>collection" json:"collection"`
 	Reviewer             string             `xml:"eprint>reviewer" json:"reviewer"`
@@ -327,6 +332,10 @@ func New() (*EPrintsAPI, error) {
 	if err != nil {
 		return nil, fmt.Errorf("EPGO_API_URL malformed %s, %s", apiURL, err)
 	}
+	api.SiteURL, err = url.Parse(siteURL)
+	if err != nil {
+		return nil, fmt.Errorf("EPGO_SITE_URL malformed %s, %s", siteURL, err)
+	}
 	if htdocs == "" {
 		htdocs = "htdocs"
 	}
@@ -336,7 +345,6 @@ func New() (*EPrintsAPI, error) {
 	if templates == "" {
 		templates = "templates"
 	}
-	api.SiteURL = siteURL
 	api.Htdocs = htdocs
 	api.DBName = dbName
 	api.Templates = templates
@@ -696,10 +704,29 @@ func (api *EPrintsAPI) GetPublishedArticles(start, count, direction int) ([]*Rec
 }
 
 // RenderDocuments writes JSON, HTML, include and rss to the directory indicated by basepath
-func (api *EPrintsAPI) RenderDocuments(docTitle, basepath string, records []*Record) error {
+func (api *EPrintsAPI) RenderDocuments(docTitle, docDescription, basepath string, records []*Record) error {
 	// Create the basepath if neccessary
 	if _, err := os.Open(path.Join(api.Htdocs, basepath)); err != nil && os.IsNotExist(err) == true {
 		os.MkdirAll(path.Join(api.Htdocs, basepath), 0775)
+	}
+
+	//NOTE: create a data wrapper for HTML page creation
+	pageData := &struct {
+		Version        string
+		Basepath       string
+		ApiURL         string
+		SiteURL        string
+		DocTitle       string
+		DocDescription string
+		Records        []*Record
+	}{
+		Version:        Version,
+		Basepath:       basepath,
+		ApiURL:         api.URL.String(),
+		SiteURL:        api.SiteURL.String(),
+		DocTitle:       docTitle,
+		DocDescription: docDescription,
+		Records:        records,
 	}
 
 	// Writing JSON file
@@ -727,21 +754,10 @@ func (api *EPrintsAPI) RenderDocuments(docTitle, basepath string, records []*Rec
 	if err != nil {
 		return fmt.Errorf("Can't write %s, %s", fname, err)
 	}
-	if err := rssTmpl.Execute(out, records); err != nil {
+	if err := rssTmpl.Execute(out, pageData); err != nil {
 		return fmt.Errorf("Can't render %s, %s", fname, err)
 	}
 	out.Close()
-
-	//NOTE: create a data wrapper for HTML page creation
-	pageData := &struct {
-		SiteURL  string
-		DocTitle string
-		Records  []*Record
-	}{
-		SiteURL:  api.SiteURL,
-		DocTitle: docTitle,
-		Records:  records,
-	}
 
 	// Write out include file
 	fname = path.Join(api.Templates, "page.include")
@@ -802,7 +818,7 @@ func (api *EPrintsAPI) BuildSite(feedSize int) error {
 		return fmt.Errorf("No published records found")
 	}
 	log.Printf("%d records found.", len(records))
-	if err := api.RenderDocuments("Recently Published", "recently-published", records); err != nil {
+	if err := api.RenderDocuments("Recently Published", "Recently published items including chapters, collections and articles.", "recently-published", records); err != nil {
 		return fmt.Errorf("recently published error, %s", err)
 	}
 	log.Printf("Building recent-articles")
@@ -815,9 +831,9 @@ func (api *EPrintsAPI) BuildSite(feedSize int) error {
 	if len(records) == 0 {
 		return fmt.Errorf("No published articles found")
 	}
-	if err := api.RenderDocuments("Recent Articles", "recent-articles", records); err != nil {
+	if err := api.RenderDocuments("Recent Articles", "Recently published articles.", "recent-articles", records); err != nil {
 		return fmt.Errorf("recent articles error, %s", err)
 	}
-	// FIXME: Should build entire site with searhable content
+	// FIXME: Should build entire site with searchable content
 	return nil
 }
