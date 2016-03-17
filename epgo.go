@@ -40,7 +40,7 @@ import (
 
 const (
 	// Version is the revision number for this implementation of epgo
-	Version = "0.0.5"
+	Version = "0.0.6"
 
 	// Ascending sorts from lowest (oldest) to highest (newest)
 	Ascending = iota
@@ -464,7 +464,7 @@ func (api *EPrintsAPI) ExportEPrints(cnt int) error {
 			log.Printf("Failed to get %s, %s\n", uri, err)
 			k++
 		} else {
-			rec.URI = strings.TrimPrefix(strings.TrimSuffix(uri, path.Ext(".xml")), "/rest")
+			rec.URI = strings.TrimPrefix(strings.TrimSuffix(uri, ".xml"), "/rest")
 			src, err := json.Marshal(rec)
 			if err != nil {
 				log.Printf("json.Marshal() failed on %s, %s", uri, err)
@@ -472,13 +472,13 @@ func (api *EPrintsAPI) ExportEPrints(cnt int) error {
 			} else {
 				err := db.Update(func(tx *bolt.Tx) error {
 					b := tx.Bucket(ePrintBucket)
-					err := b.Put([]byte(uri), src)
+					err := b.Put([]byte(rec.URI), src)
 					if err == nil {
 						// See if we need to add this to the publicationDates index
 						if rec.DateType == "published" && rec.Date != "" {
 							idx := tx.Bucket(pubDatesBucket)
 							dt := normalizeDate(rec.Date)
-							err = idx.Put([]byte(fmt.Sprintf("%s%s%s", dt, indexDelimiter, uri)), []byte(uri))
+							err = idx.Put([]byte(fmt.Sprintf("%s%s%s", dt, indexDelimiter, rec.URI)), []byte(rec.URI))
 						}
 						j++
 						cnt--
