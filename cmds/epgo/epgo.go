@@ -52,9 +52,10 @@ var (
 	articlesNewest  int
 )
 
-// addEPrintsExecntions creates a *otto.Otto (JavaScript VM) with functions added to integrate
+// addEPrintExtensionsAndHelp creates a *otto.Otto (JavaScript VM) with functions added to integrate
 // epgo.
-func addEPrintExtentions(api *epgo.EPrintsAPI, vm *otto.Otto) *otto.Otto {
+func addEPrintExtensionsAndHelp(api *epgo.EPrintsAPI, js *ostdlib.JavaScriptVM) *otto.Otto {
+	vm := js.VM
 	errorObject := func(obj *otto.Object, msg string) otto.Value {
 		if obj == nil {
 			obj, _ = vm.Object(`({})`)
@@ -73,6 +74,7 @@ func addEPrintExtentions(api *epgo.EPrintsAPI, vm *otto.Otto) *otto.Otto {
 
 	// EPrints REST API methods
 	apiObj, _ := vm.Object(`api = {}`)
+	js.SetHelp("api", "listEPrintsURI", []string{}, "returns and array of EPrint uris")
 	apiObj.Set("listEPrintsURI", func(call otto.FunctionCall) otto.Value {
 		uris, err := api.ListEPrintsURI()
 		if err != nil {
@@ -85,6 +87,7 @@ func addEPrintExtentions(api *epgo.EPrintsAPI, vm *otto.Otto) *otto.Otto {
 		return result
 	})
 
+	js.SetHelp("api", "getEPrint", []string{"uri string"}, "given an EPrint uri (e.g. /eprint/2026) return the eprint as a JavaScript object")
 	apiObj.Set("getEPrint", func(call otto.FunctionCall) otto.Value {
 		if len(call.ArgumentList) != 1 {
 			return errorObject(nil, fmt.Sprintf("Missing uri for getEPrint() %s", call.CallerLocation()))
@@ -101,6 +104,7 @@ func addEPrintExtentions(api *epgo.EPrintsAPI, vm *otto.Otto) *otto.Otto {
 		return result
 	})
 
+	js.SetHelp("api", "exportEPrints", []string{"N int"}, "Export N items from eprints. Exports highest value id first. If N == -1 then export everything")
 	apiObj.Set("exportEPrints", func(call otto.FunctionCall) otto.Value {
 		if len(call.ArgumentList) != 1 {
 			return errorObject(nil, fmt.Sprintf("Missing export count for exportEPrints(n) %s", call.CallerLocation()))
@@ -118,6 +122,7 @@ func addEPrintExtentions(api *epgo.EPrintsAPI, vm *otto.Otto) *otto.Otto {
 		return result
 	})
 
+	js.SetHelp("api", "listURI", []string{}, "return a list of URI saved in the boltdb")
 	apiObj.Set("listURI", func(call otto.FunctionCall) otto.Value {
 		if len(call.ArgumentList) != 2 {
 			return errorObject(nil, fmt.Sprintf("listURI(start, count) missing parameters %s", call.CallerLocation()))
@@ -137,6 +142,7 @@ func addEPrintExtentions(api *epgo.EPrintsAPI, vm *otto.Otto) *otto.Otto {
 		return result
 	})
 
+	js.SetHelp("api", "get", []string{"uri string"}, "given a uri, return the results saved in the boltdb")
 	apiObj.Set("get", func(call otto.FunctionCall) otto.Value {
 		if len(call.ArgumentList) != 1 {
 			return errorObject(nil, fmt.Sprintf("get(uri) missing parameters %s", call.CallerLocation()))
@@ -153,6 +159,7 @@ func addEPrintExtentions(api *epgo.EPrintsAPI, vm *otto.Otto) *otto.Otto {
 		return result
 	})
 
+	js.SetHelp("api", "getPublishedRecords", []string{"start int", "count int", "direction int"}, "generate a list of published eprints starting at start for count by direction. Direction is 0 for ascending, 1 for descending")
 	apiObj.Set("getPublishedRecords", func(call otto.FunctionCall) otto.Value {
 		if len(call.ArgumentList) != 3 {
 			return errorObject(nil, fmt.Sprintf("getPublishedRecords(start, count, direction) missing parameters %s", call.CallerLocation()))
@@ -174,6 +181,7 @@ func addEPrintExtentions(api *epgo.EPrintsAPI, vm *otto.Otto) *otto.Otto {
 		return result
 	})
 
+	js.SetHelp("api", "getPublishedArticles", []string{"start int", "count int", "direction int"}, "generate a list of published articles eprints starting at start for count by direction. Direction is 0 for ascending, 1 for descending")
 	apiObj.Set("getPublishedArticles", func(call otto.FunctionCall) otto.Value {
 		if len(call.ArgumentList) != 3 {
 			return errorObject(nil, fmt.Sprintf("getPublishedArticles(start, count, direction) missing parameters %s", call.CallerLocation()))
@@ -195,6 +203,8 @@ func addEPrintExtentions(api *epgo.EPrintsAPI, vm *otto.Otto) *otto.Otto {
 		return result
 	})
 
+	js.SetHelp("api", "renderDocuments", []string{"docTitle string", "docDescription string", "basepath string", "records an array of eprints"},
+		"render the eprint records list as an HTML file, HTML include, RSS and JSON documents")
 	apiObj.Set("renderDocuments", func(call otto.FunctionCall) otto.Value {
 		if len(call.ArgumentList) != 4 {
 			return errorObject(nil, fmt.Sprintf("renderDocuments(docTitle, docDescription, basepath, records) missing parameters %s", call.CallerLocation()))
@@ -217,6 +227,7 @@ func addEPrintExtentions(api *epgo.EPrintsAPI, vm *otto.Otto) *otto.Otto {
 		return result
 	})
 
+	js.SetHelp("api", "buildSite", []string{"feedSize int"}, "build feeds recently-published and recent-articles. feedSize indicates the maximun number of items included")
 	apiObj.Set("buildSite", func(call otto.FunctionCall) otto.Value {
 		if len(call.ArgumentList) != 1 {
 			return errorObject(nil, fmt.Sprintf("buildSite(feed_size) missing parameter %s", call.CallerLocation()))
@@ -368,9 +379,11 @@ func main() {
 
 	if runInteractive == true {
 		vm := otto.New()
-		vm = ostdlib.AddExtensions(vm)
-		vm = addEPrintExtentions(api, vm)
-		ostdlib.Repl(vm)
+		js := ostdlib.New(vm)
+		js.AddHelp()
+		js.AddExtensions()
+		addEPrintExtensionsAndHelp(api, js)
+		js.Repl()
 		os.Exit(0)
 	}
 
