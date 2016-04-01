@@ -380,9 +380,16 @@ func main() {
 	if runInteractive == true {
 		vm := otto.New()
 		js := ostdlib.New(vm)
+		// Add basic help
 		js.AddHelp()
+		// Add extensions
 		js.AddExtensions()
+		// Add API specific extensions
 		addEPrintExtensionsAndHelp(api, js)
+		// build autocomplete list
+		js.AddAutoComplete()
+		// print welcome
+		js.PrintDefaultWelcome()
 		js.Repl()
 		os.Exit(0)
 	}
