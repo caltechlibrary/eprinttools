@@ -79,7 +79,7 @@ func main() {
 	flag.Parse()
 	if showHelp == true {
 		fmt.Printf(`
- USAGE: epgo [OPTIONS] [EPRINT_URI|JAVASCRIPT_FILENAME]
+ USAGE: epgo [OPTIONS] [EPRINT_URI|JAVASCRIPT_FILES]
 
  epgo wraps the REST API for E-Prints 3.3 or better. It can return a list of uri,
  a JSON view of the XML presentation as well as generates feeds and web pages.
