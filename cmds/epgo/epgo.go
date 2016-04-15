@@ -22,9 +22,10 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
-	"strconv"
+	"strings"
 
 	// 3rd Party Packages
 	"github.com/robertkrimen/otto"
@@ -43,6 +44,7 @@ var (
 	prettyPrint    bool
 	buildSite      bool
 	runInteractive bool
+	runJavaScript  bool
 
 	exportEPrints   int
 	feedSize        int
@@ -51,201 +53,6 @@ var (
 	articlesOldest  int
 	articlesNewest  int
 )
-
-// addEPrintExtensionsAndHelp creates a *otto.Otto (JavaScript VM) with functions added to integrate
-// epgo.
-func addEPrintExtensionsAndHelp(api *epgo.EPrintsAPI, js *ostdlib.JavaScriptVM) *otto.Otto {
-	vm := js.VM
-	errorObject := func(obj *otto.Object, msg string) otto.Value {
-		if obj == nil {
-			obj, _ = vm.Object(`({})`)
-		}
-		log.Println(msg)
-		obj.Set("status", "error")
-		obj.Set("error", msg)
-		return obj.Value()
-	}
-
-	// responseObject := func(data interface{}) otto.Value {
-	// 	src, _ := json.Marshal(data)
-	// 	obj, _ := vm.Object(fmt.Sprintf(`(%s)`, src))
-	// 	return obj.Value()
-	// }
-
-	// EPrints REST API methods
-	apiObj, _ := vm.Object(`api = {}`)
-	js.SetHelp("api", "listEPrintsURI", []string{}, "returns and array of EPrint uris")
-	apiObj.Set("listEPrintsURI", func(call otto.FunctionCall) otto.Value {
-		uris, err := api.ListEPrintsURI()
-		if err != nil {
-			return errorObject(nil, fmt.Sprintf("listEPrintsURI() failed %s, %s", call.CallerLocation(), err))
-		}
-		result, err := vm.ToValue(uris)
-		if err != nil {
-			return errorObject(nil, fmt.Sprintf("listEPrintsURI() failed %s, %s", call.CallerLocation(), err))
-		}
-		return result
-	})
-
-	js.SetHelp("api", "getEPrint", []string{"uri string"}, "given an EPrint uri (e.g. /eprint/2026) return the eprint as a JavaScript object")
-	apiObj.Set("getEPrint", func(call otto.FunctionCall) otto.Value {
-		if len(call.ArgumentList) != 1 {
-			return errorObject(nil, fmt.Sprintf("Missing uri for getEPrint() %s", call.CallerLocation()))
-		}
-		uri := call.Argument(0).String()
-		record, err := api.GetEPrint(uri)
-		if err != nil {
-			return errorObject(nil, fmt.Sprintf("getEPrint(%q) failed %s, %s", uri, call.CallerLocation(), err))
-		}
-		result, err := vm.ToValue(record)
-		if err != nil {
-			return errorObject(nil, fmt.Sprintf("getEPrint(%q) failed %s, %s", uri, call.CallerLocation(), err))
-		}
-		return result
-	})
-
-	js.SetHelp("api", "exportEPrints", []string{"N int"}, "Export N items from eprints. Exports highest value id first. If N == -1 then export everything")
-	apiObj.Set("exportEPrints", func(call otto.FunctionCall) otto.Value {
-		if len(call.ArgumentList) != 1 {
-			return errorObject(nil, fmt.Sprintf("Missing export count for exportEPrints(n) %s", call.CallerLocation()))
-		}
-		s := call.Argument(0).String()
-		cnt, _ := strconv.Atoi(s)
-		err := api.ExportEPrints(cnt)
-		if err != nil {
-			return errorObject(nil, fmt.Sprintf("exportEprints(%d) failed %s, %s", cnt, call.CallerLocation(), err))
-		}
-		result, err := vm.ToValue(true)
-		if err != nil {
-			return errorObject(nil, fmt.Sprintf("exportEprints(%d) failed %s, %s", cnt, call.CallerLocation(), err))
-		}
-		return result
-	})
-
-	js.SetHelp("api", "listURI", []string{}, "return a list of URI saved in the boltdb")
-	apiObj.Set("listURI", func(call otto.FunctionCall) otto.Value {
-		if len(call.ArgumentList) != 2 {
-			return errorObject(nil, fmt.Sprintf("listURI(start, count) missing parameters %s", call.CallerLocation()))
-		}
-		s := call.Argument(0).String()
-		start, _ := strconv.Atoi(s)
-		s = call.Argument(1).String()
-		count, _ := strconv.Atoi(s)
-		uris, err := api.ListURI(start, count)
-		if err != nil {
-			return errorObject(nil, fmt.Sprintf("listURI(%d, %d) failed %s, %s", start, count, call.CallerLocation(), err))
-		}
-		result, err := vm.ToValue(uris)
-		if err != nil {
-			return errorObject(nil, fmt.Sprintf("listURI(%d, %d) failed %s, %s", start, count, call.CallerLocation(), err))
-		}
-		return result
-	})
-
-	js.SetHelp("api", "get", []string{"uri string"}, "given a uri, return the results saved in the boltdb")
-	apiObj.Set("get", func(call otto.FunctionCall) otto.Value {
-		if len(call.ArgumentList) != 1 {
-			return errorObject(nil, fmt.Sprintf("get(uri) missing parameters %s", call.CallerLocation()))
-		}
-		uri := call.Argument(0).String()
-		record, err := api.Get(uri)
-		if err != nil {
-			return errorObject(nil, fmt.Sprintf("get(%q) failed %s, %s", uri, call.CallerLocation(), err))
-		}
-		result, err := vm.ToValue(record)
-		if err != nil {
-			return errorObject(nil, fmt.Sprintf("get(%q) failed %s, %s", uri, call.CallerLocation(), err))
-		}
-		return result
-	})
-
-	js.SetHelp("api", "getPublishedRecords", []string{"start int", "count int", "direction int"}, "generate a list of published eprints starting at start for count by direction. Direction is 0 for ascending, 1 for descending")
-	apiObj.Set("getPublishedRecords", func(call otto.FunctionCall) otto.Value {
-		if len(call.ArgumentList) != 3 {
-			return errorObject(nil, fmt.Sprintf("getPublishedRecords(start, count, direction) missing parameters %s", call.CallerLocation()))
-		}
-		s := call.Argument(0).String()
-		start, _ := strconv.Atoi(s)
-		s = call.Argument(1).String()
-		count, _ := strconv.Atoi(s)
-		s = call.Argument(2).String()
-		direction, _ := strconv.Atoi(s)
-		records, err := api.GetPublishedRecords(start, count, direction)
-		if err != nil {
-			return errorObject(nil, fmt.Sprintf("getPublishedRecords(%d, %d, %d) failed %s, %s", start, count, direction, call.CallerLocation(), err))
-		}
-		result, err := vm.ToValue(records)
-		if err != nil {
-			return errorObject(nil, fmt.Sprintf("getPublishedRecords(%d, %d, %d) failed %s, %s", start, count, direction, call.CallerLocation(), err))
-		}
-		return result
-	})
-
-	js.SetHelp("api", "getPublishedArticles", []string{"start int", "count int", "direction int"}, "generate a list of published articles eprints starting at start for count by direction. Direction is 0 for ascending, 1 for descending")
-	apiObj.Set("getPublishedArticles", func(call otto.FunctionCall) otto.Value {
-		if len(call.ArgumentList) != 3 {
-			return errorObject(nil, fmt.Sprintf("getPublishedArticles(start, count, direction) missing parameters %s", call.CallerLocation()))
-		}
-		s := call.Argument(0).String()
-		start, _ := strconv.Atoi(s)
-		s = call.Argument(1).String()
-		count, _ := strconv.Atoi(s)
-		s = call.Argument(2).String()
-		direction, _ := strconv.Atoi(s)
-		records, err := api.GetPublishedArticles(start, count, direction)
-		if err != nil {
-			return errorObject(nil, fmt.Sprintf("getPublishedArticles(%d, %d, %d) failed %s, %s", start, count, direction, call.CallerLocation(), err))
-		}
-		result, err := vm.ToValue(records)
-		if err != nil {
-			return errorObject(nil, fmt.Sprintf("getPublishedArticles(%d, %d, %d) failed %s, %s", start, count, direction, call.CallerLocation(), err))
-		}
-		return result
-	})
-
-	js.SetHelp("api", "renderDocuments", []string{"docTitle string", "docDescription string", "basepath string", "records an array of eprints"},
-		"render the eprint records list as an HTML file, HTML include, RSS and JSON documents")
-	apiObj.Set("renderDocuments", func(call otto.FunctionCall) otto.Value {
-		if len(call.ArgumentList) != 4 {
-			return errorObject(nil, fmt.Sprintf("renderDocuments(docTitle, docDescription, basepath, records) missing parameters %s", call.CallerLocation()))
-		}
-		docTitle := call.Argument(0).String()
-		docDescription := call.Argument(1).String()
-		basepath := call.Argument(2).String()
-		records := []*epgo.Record{}
-		err := ostdlib.ToStruct(call.Argument(3), records)
-		if err != nil {
-			return errorObject(nil, fmt.Sprintf("renderDocuments(%q, %q, %q, records) records error %s, %s", docTitle, docDescription, basepath, call.CallerLocation(), err))
-		}
-		if err := api.RenderDocuments(docTitle, docDescription, basepath, records); err != nil {
-			return errorObject(nil, fmt.Sprintf("renderDocuments(%q, %q, %q, records) failed %s, %s", docTitle, docDescription, basepath, call.CallerLocation(), err))
-		}
-		result, err := vm.ToValue(true)
-		if err != nil {
-			return errorObject(nil, fmt.Sprintf("renderDocuments(%q, %q, %q, records) failed %s, %s", docTitle, docDescription, basepath, call.CallerLocation(), err))
-		}
-		return result
-	})
-
-	js.SetHelp("api", "buildSite", []string{"feedSize int"}, "build feeds recently-published and recent-articles. feedSize indicates the maximun number of items included")
-	apiObj.Set("buildSite", func(call otto.FunctionCall) otto.Value {
-		if len(call.ArgumentList) != 1 {
-			return errorObject(nil, fmt.Sprintf("buildSite(feed_size) missing parameter %s", call.CallerLocation()))
-		}
-		s := call.Argument(0).String()
-		feedSize, _ := strconv.Atoi(s)
-		err := api.BuildSite(feedSize)
-		if err != nil {
-			return errorObject(nil, fmt.Sprintf("buildSite(%d) failed %s, %s", feedSize, call.CallerLocation(), err))
-		}
-		result, err := vm.ToValue(true)
-		if err != nil {
-			return errorObject(nil, fmt.Sprintf("buildSite(%d) failed %s, %s", feedSize, call.CallerLocation(), err))
-		}
-		return result
-	})
-	return vm
-}
 
 func init() {
 	publishedNewest = 0
@@ -256,6 +63,7 @@ func init() {
 	flag.BoolVar(&showVersion, "v", false, "display version info")
 	flag.BoolVar(&prettyPrint, "p", false, "pretty print JSON output")
 	flag.BoolVar(&showLicense, "l", false, "show license information")
+	flag.BoolVar(&runJavaScript, "js", false, "run JavaScript files")
 	flag.BoolVar(&runInteractive, "i", false, "run interactive JavaScript REPL")
 	flag.BoolVar(&restAPI, "api", false, "read the contents from the API without saving in the database")
 	flag.BoolVar(&buildSite, "build", false, "build pages and feeds from database")
@@ -271,7 +79,7 @@ func main() {
 	flag.Parse()
 	if showHelp == true {
 		fmt.Printf(`
- USAGE: epgo [OPTIONS] [EPRINT_URI]
+ USAGE: epgo [OPTIONS] [EPRINT_URI|JAVASCRIPT_FILENAME]
 
  epgo wraps the REST API for E-Prints 3.3 or better. It can return a list of uri,
  a JSON view of the XML presentation as well as generates feeds and web pages.
@@ -301,6 +109,7 @@ func main() {
   -articles-newest int         list the N newest articles
   -articles-oldest int         list the N oldest articles
 
+  -js                          run each JavaScript file, can be combined with -i
   -i                           interactive JavaScript REPL
   -p                           pretty print JSON output
 
@@ -377,21 +186,48 @@ func main() {
 		os.Exit(0)
 	}
 
-	if runInteractive == true {
+	if runJavaScript == true || runInteractive == true {
 		vm := otto.New()
 		js := ostdlib.New(vm)
-		// Add basic help
-		js.AddHelp()
 		// Add extensions
 		js.AddExtensions()
-		// Add API specific extensions
-		addEPrintExtensionsAndHelp(api, js)
-		// build autocomplete list
-		js.AddAutoComplete()
-		// print welcome
-		js.PrintDefaultWelcome()
-		js.Repl()
-		os.Exit(0)
+		// Add EPrints API exentions
+		vm = api.AddExtensions(js)
+
+		if runJavaScript == true {
+			for _, fname := range args {
+				if strings.HasSuffix(fname, ".js") == true {
+					src, err := ioutil.ReadFile(fname)
+					if err != nil {
+						log.Fatalf("%s, %s", fname, src)
+					}
+					// Load, Compile and run the JS file
+					if script, err := vm.Compile(fname, src); err != nil {
+						log.Fatalf("%s, %s", fname, err)
+					} else {
+						if _, err := vm.Run(script); err != nil {
+							log.Fatalf("%s, %s", fname, err)
+						}
+					}
+				}
+			}
+			if runInteractive == false {
+				os.Exit(0)
+			}
+		}
+
+		if runInteractive == true {
+			// Add basic help
+			js.AddHelp()
+			// Add EPrint API help
+			api.AddHelp(js)
+			// build autocomplete list
+			js.AddAutoComplete()
+			// print welcome
+			js.PrintDefaultWelcome()
+			js.Repl()
+			os.Exit(0)
+		}
 	}
 
 	//

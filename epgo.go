@@ -40,7 +40,7 @@ import (
 
 const (
 	// Version is the revision number for this implementation of epgo
-	Version = "0.0.6"
+	Version = "0.0.7"
 
 	// Ascending sorts from lowest (oldest) to highest (newest)
 	Ascending = iota
@@ -171,6 +171,7 @@ func failCheck(err error, msg string) {
 
 // EPrintsAPI holds the basic connectin information to read the REST API for EPrints
 type EPrintsAPI struct {
+	XMLName   xml.Name `json:"-"`
 	URL       *url.URL `xml:"epgo>api_url" json:"api_url"`     // EPGO_API_URL
 	DBName    string   `xml:"epgo>dbname" json:"dbname"`       // EPGO_DBNAME
 	Htdocs    string   `xml:"epgo>htdocs" json:"htdocs"`       // EPGO_HTDOCS
