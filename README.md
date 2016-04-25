@@ -1,3 +1,5 @@
+[![Go Report Card](http://goreportcard.com/badge/caltechlibrary/epgo)](http://goreportcard.com/report/caltechlibrary/epgo)
+
 # epgo
 
 _epgo_ is a command line utility utilizing EPrints' REST API to produce alternative
