@@ -16,7 +16,7 @@
 #           ./script/list.sh subject/
 #
 #
-if [ "$EPGO_BASE_URL" = "" ]; then
+if [ "$EPGO_API_URL" = "" ]; then
     echo "Environment not configured."
     exit 1
 fi
@@ -30,9 +30,9 @@ if [ "$EPGO_USERNAME" != "" ] && [ "$EPGO_PASSWORD" != "" ]; then
     curl \
         -X GET \
         -u "$EPGO_USERNAME:$EPGO_PASSWORD" \
-        $EPGO_BASE_URL/rest/$TARGET
+        $EPGO_API_URL/rest/$TARGET
 else
     curl \
         -X GET \
-        $EPGO_BASE_URL/rest/$TARGET
+        $EPGO_API_URL/rest/$TARGET
 fi
