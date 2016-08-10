@@ -28,12 +28,13 @@ A feature that needs to be added to accessing simple and advanced search via the
 
 Two examples of "search" using *curl* for titles starting with "flood characteristic of alluvial"
 
-```path
+```shell
     # Basic search URL from using form
-    curl "$EPRINTS_URL/cgi/search/simple?screen=Search&order=&q_merge=ALL&q=flood+characteristics+of+alluvial&_action_search=Search" | \
-        jq 
+    curl "$EPRINTS_URL/cgi/search/simple?screen=Search&order=&q_merge=ALL&q=flood+characteristics+of+alluvial&_action_search=Search"\
+    | jq 
     # Advanced Search returned as JSON (title = ??)
-    curl $"EPRINTS_URL/cgi/search/archive/advanced/export_caltechauthors_JSON.js?screen=Search&dataset=archive&_action_export=1&output=JSON&exp=0%7C1%7C-date%2Fcreators_name%2Ftitle%7Carchive%7C-%7Ctitle%3Atitle%3AALL%3AIN%3Aflood+characteristics+of+alluvial%7C-%7Ceprint_status%3Aeprint_status%3AANY%3AEQ%3Aarchive%7Cmetadata_visibility%3Ametadata_visibility%3AANY%3AEQ%3Ashow&n=" | jq '{title: .[].title, uri: .[].uri}'
+    curl "$EPRINTS_URL/cgi/search/archive/advanced/export_caltechauthors_JSON.js?screen=Search&dataset=archive&_action_export=1&output=JSON&exp=0%7C1%7C-date%2Fcreators_name%2Ftitle%7Carchive%7C-%7Ctitle%3Atitle%3AALL%3AIN%3Aflood+characteristics+of+alluvial%7C-%7Ceprint_status%3Aeprint_status%3AANY%3AEQ%3Aarchive%7Cmetadata_visibility%3Ametadata_visibility%3AANY%3AEQ%3Ashow&n="\
+    | jq '{title: .[].title, uri: .[].uri}'
 ```
 
 
