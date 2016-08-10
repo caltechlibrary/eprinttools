@@ -29,3 +29,5 @@ bin/*
 htdocs/*
 eprints*
 epgo
+*.zip
+
