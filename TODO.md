@@ -9,5 +9,6 @@
     + switch to updates in batch 
     + write to a separate database then queue a batch for a single write
 + crawl E-Prints REST API asynchronously to improve through put
++ Does the REST API have a way of supporting search?
 
 
