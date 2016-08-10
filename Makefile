@@ -31,6 +31,5 @@ save:
 
 publish:
 	./mk-website.bash
-	./mk-release.bash
 	./publish.bash
 
