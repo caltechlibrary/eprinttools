@@ -5,6 +5,7 @@
 
 # Someday, Maybe
 
++ Add epgo package interface to search
 + minimize lock time records for DB writes
     + switch to updates in batch 
     + write to a separate database then queue a batch for a single write
