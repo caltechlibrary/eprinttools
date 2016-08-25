@@ -715,7 +715,7 @@ func (api *EPrintsAPI) RenderDocuments(docTitle, docDescription, basepath string
 	pageData := &struct {
 		Version        string
 		Basepath       string
-		ApiURL         string
+		APIURL         string
 		SiteURL        string
 		DocTitle       string
 		DocDescription string
@@ -723,7 +723,7 @@ func (api *EPrintsAPI) RenderDocuments(docTitle, docDescription, basepath string
 	}{
 		Version:        Version,
 		Basepath:       basepath,
-		ApiURL:         api.URL.String(),
+		APIURL:         api.URL.String(),
 		SiteURL:        api.SiteURL.String(),
 		DocTitle:       docTitle,
 		DocDescription: docDescription,
