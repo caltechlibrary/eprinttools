@@ -18,8 +18,12 @@ body {
      padding: 0;
      width: 100%;
      height: 100%;
+     color: black;
+     background-color: #AAA99F; /* #76777B;*/
+     /*
      color: #FF6E1E;
      background-color: white;
+     */
      font-family: Open Sans, Helvetica, Sans-Serif;
      font-size: 16px;
 }
@@ -204,17 +208,17 @@ aside ul > ul {
 }
 
 footer {
-     clear: all;
      position: relative;
+     bottom: 0;
      display: block;
      width: 100%;
-     height: 3em;
+     height: 2em;
      color: white;
      background-color: #616265;
 
      font-size: 80%;
      text-align: left;
-     vertical-align: bottom;
+     vertical-align: middle;
      z-index: 2;
 }
 
@@ -225,11 +229,9 @@ footer h1, footer span, footer address {
      padding-left: 0.24em;
      font-family: Open Sans, Helvetica, Sans-Serif;
      font-size: 1em;
-     vertical-align: bottom;
 }
 
 footer h1 {
-     font-size: 2em;
      font-weight: normal;
 }
 
