@@ -43,7 +43,6 @@ If EPRINT_URI is provided then an individual EPrint is return as a JSON structur
 | -h                    |  display help info                                  |
 | -l                    |  show license information                           |
 | -v                    |  display version info                               |
-|-----------------------|-----------------------------------------------------|
 
 ## JavaScript REPL
 
