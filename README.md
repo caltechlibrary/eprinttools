@@ -28,19 +28,18 @@ If EPRINT_URI is provided then an individual EPrint is return as a JSON structur
 | Options               | Description |
 |-----------------------|-----------------------------------------------------|
 | -api	                | display EPrint REST API response                    |
-| -export int           | export N EPrints to local database, if N is         |
-|                       | negative export all EPrints                         |
+| -export int           | export N EPrints to local database, if N is negative export all EPrints |
 | -build                | build pages and feeds from database                 |
 | -feed-size int        | the number of items included in generated feeds     |
 | -published-newest int | list the N newest published records                 |
 | -published-oldest int | list the N oldest published records                 |
 | -articles-newest int  | list the N newest articles                          |
 | -articles-oldest int  | list the N oldest articles                          |
-|-----------------------|-----------------------------------------------------|
+|                       |                                                     |
 | -js                   | run each JavaScript file, can be combined with -i   |
 | -i                    | interactive JavaScript REPL                         |
 | -p                    | pretty print JSON output                            |
-|-----------------------|-----------------------------------------------------|
+|                       |                                                     |
 | -h                    |  display help info                                  |
 | -l                    |  show license information                           |
 | -v                    |  display version info                               |
