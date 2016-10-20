@@ -36,8 +36,6 @@ If EPRINT_URI is provided then an individual EPrint is return as a JSON structur
 | -articles-newest int  | list the N newest articles                          |
 | -articles-oldest int  | list the N oldest articles                          |
 |                       |                                                     |
-| -js                   | run each JavaScript file, can be combined with -i   |
-| -i                    | interactive JavaScript REPL                         |
 | -p                    | pretty print JSON output                            |
 |                       |                                                     |
 | -h                    |  display help info                                  |

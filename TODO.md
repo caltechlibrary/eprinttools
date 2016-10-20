@@ -1,6 +1,7 @@
 
 # Action items
 
++ Drop JavaScript support via Otto
 + I need to support the MLA citation for HTML found in browse by person/year in both the website and include files
 
 # Someday, Maybe

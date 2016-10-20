@@ -22,29 +22,21 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
-	"strings"
-
-	// 3rd Party Packages
-	"github.com/robertkrimen/otto"
 
 	// Caltech Library Packages
 	"github.com/caltechlibrary/epgo"
-	"github.com/caltechlibrary/ostdlib"
 )
 
 var (
 	// CLI options
-	showHelp       bool
-	showVersion    bool
-	showLicense    bool
-	restAPI        bool
-	prettyPrint    bool
-	buildSite      bool
-	runInteractive bool
-	runJavaScript  bool
+	showHelp    bool
+	showVersion bool
+	showLicense bool
+	restAPI     bool
+	prettyPrint bool
+	buildSite   bool
 
 	exportEPrints   int
 	feedSize        int
@@ -63,8 +55,6 @@ func init() {
 	flag.BoolVar(&showVersion, "v", false, "display version info")
 	flag.BoolVar(&prettyPrint, "p", false, "pretty print JSON output")
 	flag.BoolVar(&showLicense, "l", false, "show license information")
-	flag.BoolVar(&runJavaScript, "js", false, "run JavaScript files")
-	flag.BoolVar(&runInteractive, "i", false, "run interactive JavaScript REPL")
 	flag.BoolVar(&restAPI, "api", false, "read the contents from the API without saving in the database")
 	flag.BoolVar(&buildSite, "build", false, "build pages and feeds from database")
 	flag.IntVar(&feedSize, "feed-size", feedSize, "number of items rendering in feeds")
@@ -109,8 +99,6 @@ func main() {
   -articles-newest int         list the N newest articles
   -articles-oldest int         list the N oldest articles
 
-  -js                          run each JavaScript file, can be combined with -i
-  -i                           interactive JavaScript REPL
   -p                           pretty print JSON output
 
   -h       display help info
@@ -184,50 +172,6 @@ func main() {
 			log.Fatalf("%s", err)
 		}
 		os.Exit(0)
-	}
-
-	if runJavaScript == true || runInteractive == true {
-		vm := otto.New()
-		js := ostdlib.New(vm)
-		// Add extensions
-		js.AddExtensions()
-		// Add EPrints API exentions
-		vm = api.AddExtensions(js)
-
-		if runJavaScript == true {
-			for _, fname := range args {
-				if strings.HasSuffix(fname, ".js") == true {
-					src, err := ioutil.ReadFile(fname)
-					if err != nil {
-						log.Fatalf("%s, %s", fname, src)
-					}
-					// Load, Compile and run the JS file
-					if script, err := vm.Compile(fname, src); err != nil {
-						log.Fatalf("%s, %s", fname, err)
-					} else {
-						if _, err := vm.Run(script); err != nil {
-							log.Fatalf("%s, %s", fname, err)
-						}
-					}
-				}
-			}
-			if runInteractive == false {
-				os.Exit(0)
-			}
-		}
-
-		if runInteractive == true {
-			// Add basic help
-			js.AddHelp()
-			// Add EPrint API help
-			api.AddHelp(js)
-			// build autocomplete list
-			js.AddAutoComplete()
-			// print welcome
-			js.PrintDefaultWelcome()
-			js.Repl()
-			os.Exit(0)
-		}
 	}
 
 	//
