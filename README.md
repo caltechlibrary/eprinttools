@@ -42,9 +42,3 @@ If EPRINT_URI is provided then an individual EPrint is return as a JSON structur
 | -l                    |  show license information                           |
 | -v                    |  display version info                               |
 
-## JavaScript REPL
-
-_epgo_ provides a JavaScript REPL for interactive accession to the REST API.
-The repl includes support for generating Excel Workbook files (.xlsx) and
-PCDM documents. With this you can use _epgo_ as a basis for integration
-with other systems such as Fedora Commons 4.
