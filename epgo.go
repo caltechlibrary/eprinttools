@@ -715,7 +715,7 @@ func (api *EPrintsAPI) RenderDocuments(docTitle, docDescription, basepath string
 	pageData := &struct {
 		Version        string
 		Basepath       string
-		APIURL         string
+		ApiURL         string
 		SiteURL        string
 		DocTitle       string
 		DocDescription string
@@ -723,7 +723,7 @@ func (api *EPrintsAPI) RenderDocuments(docTitle, docDescription, basepath string
 	}{
 		Version:        Version,
 		Basepath:       basepath,
-		APIURL:         api.URL.String(),
+		ApiURL:         api.URL.String(),
 		SiteURL:        api.SiteURL.String(),
 		DocTitle:       docTitle,
 		DocDescription: docDescription,
@@ -802,6 +802,30 @@ func (api *EPrintsAPI) RenderDocuments(docTitle, docDescription, basepath string
 	return nil
 }
 
+// BuildPages generates a webpages based on the contents of the exported EPrints data.
+// The site builder needs to know the name of the BoltDB, the root directory
+// for the website and directory to find the templates
+func (api *EPrintsAPI) BuildPages(feedSize int, title, target string, filter func(*EPrintsAPI, int, int, int) ([]*Record, error)) error {
+	if feedSize < 1 {
+		feedSize = DefaultFeedSize
+	}
+	// Collect the published records
+	docPath := path.Join(api.Htdocs, target)
+	log.Printf("Building %s", docPath)
+	records, err := filter(api, 0, feedSize, Descending)
+	if err != nil {
+		return fmt.Errorf("Can't get records for %q %s, %s", title, docPath, err)
+	}
+	if len(records) == 0 {
+		return fmt.Errorf("No records found for %q %s", title, docPath)
+	}
+	log.Printf("%d records found.", len(records))
+	if err := api.RenderDocuments(title, fmt.Sprintf("Building pages 0 to %d descending", feedSize), target, records); err != nil {
+		return fmt.Errorf("%q %s error, %s", title, docPath, err)
+	}
+	return nil
+}
+
 // BuildSite generates a website based on the contents of the exported EPrints data.
 // The site builder needs to know the name of the BoltDB, the root directory
 // for the website and directory to find the templates
@@ -810,31 +834,21 @@ func (api *EPrintsAPI) BuildSite(feedSize int) error {
 		feedSize = DefaultFeedSize
 	}
 	// Collect the published records
-	log.Printf("Building recently-published")
-	records, err := api.GetPublishedRecords(0, feedSize, Descending)
+	log.Printf("Building Recently Published")
+	err := api.BuildPages(feedSize, "Recently Published", "recently-published", func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
+		return api.GetPublishedRecords(0, feedSize, Descending)
+	})
 	if err != nil {
-		return fmt.Errorf("Can't get published records, %s", err)
+		return err
 	}
-	if len(records) == 0 {
-		return fmt.Errorf("No published records found")
-	}
-	log.Printf("%d records found.", len(records))
-	if err := api.RenderDocuments("Recently Published", "Recently published items including chapters, collections and articles.", "recently-published", records); err != nil {
-		return fmt.Errorf("recently published error, %s", err)
-	}
-	log.Printf("Building recent-articles")
+
 	// Collect the published articles
-	records, err = api.GetPublishedArticles(0, feedSize, Descending)
-	log.Printf("%d records found.", len(records))
+	log.Printf("Building Recent Articles")
+	err = api.BuildPages(feedSize, "Recent Articles", "recent-articles", func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
+		return api.GetPublishedArticles(start, count, direction)
+	})
 	if err != nil {
-		return fmt.Errorf("Can't get published articles, %s", err)
+		return err
 	}
-	if len(records) == 0 {
-		return fmt.Errorf("No published articles found")
-	}
-	if err := api.RenderDocuments("Recent Articles", "Recently published articles.", "recent-articles", records); err != nil {
-		return fmt.Errorf("recent articles error, %s", err)
-	}
-	// FIXME: Should build entire site with searchable content
 	return nil
 }

@@ -6,8 +6,6 @@ PROJECT_NAME = epgo
 build: 
 	go build
 	go build -o bin/epgo cmds/epgo/epgo.go
-	go build -o bin/epindexer cmds/epindexer/epindexer.go
-	go build -o bin/epapi cmds/epapi/epapi.go
 
 website: page.tmpl README.md nav.md INSTALL.md LICENSE css/site.css
 	./mk-website.bash
@@ -16,18 +14,12 @@ lint:
 	goimports -w epgo.go
 	goimports -w epgo_test.go
 	goimports -w cmds/epgo/epgo.go
-	goimports -w cmds/epindexer/epindexer.go
-	goimports -w cmds/epapi/epapi.go
 	gofmt -w epgo.go
 	gofmt -w epgo_test.go
 	gofmt -w cmds/epgo/epgo.go
-	gofmt -w cmds/epindexer/epindexer.go
-	gofmt -w cmds/epapi/epapi.go
 	golint epgo.go
 	golint epgo_test.go
 	golint cmds/epgo/epgo.go
-	golint cmds/epindexer/epindexer.go
-	golint cmds/epapi/epapi.go
 
 
 test:

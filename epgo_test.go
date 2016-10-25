@@ -18,9 +18,42 @@
 //
 package epgo
 
-import "testing"
+import (
+	"os"
+	"testing"
+)
 
-func TestTitleSearch(t *testing.T) {
-	// URL for AuthorsCaltech Advanced Search by Title
-	t.Error("TestTitleSearch not implemented")
+func TestHarvest(t *testing.T) {
+	api, err := New()
+	if err != nil {
+		t.Errorf("Cannot create a new API instance %q", err)
+		t.FailNow()
+	}
+	api.DBName = "test.boltdb"
+	api.Htdocs = "testsite"
+	_, err = os.Stat(api.Htdocs)
+	if err != nil && os.IsNotExist(err) == true {
+		err = os.Mkdir(api.Htdocs, 0770)
+		if err != nil {
+			t.Errorf("Cannot create %s %q", api.Htdocs, err)
+			t.FailNow()
+		}
+	}
+
+	err = api.ExportEPrints(5)
+	if err != nil {
+		t.Errorf("Cannot harvest for test site %q", err)
+		t.FailNow()
+	}
+
+	err = api.BuildPages(5, "Recently Published", "recently-published", func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
+		return api.GetPublishedRecords(start, count, direction)
+	})
+	if err != nil {
+		t.Errorf("Cannot build test site %q", err)
+		t.FailNow()
+	}
+	err = api.BuildPages(5, "Recent Articles", "recent-articles", func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
+		return api.GetPublishedArticles(start, count, direction)
+	})
 }
