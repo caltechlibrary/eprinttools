@@ -23,8 +23,22 @@ import (
 	"testing"
 )
 
+// cfg is configuration to access the EPrints REST API for tests
+var (
+	cfg Config
+)
+
+func TestMain(m *testing.M) {
+	cfg.MergeEnv("EPGO", "API_URL", "")
+	cfg.MergeEnv("EPGO", "SITE_URL", "")
+	cfg.MergeEnv("EPGO", "DBNAME", "")
+	cfg.MergeEnv("EPGO", "HTDOCS", "")
+	cfg.MergeEnv("EPGO", "TEMPLATE_PATH", "")
+	os.Exit(m.Run())
+}
+
 func TestHarvest(t *testing.T) {
-	api, err := New()
+	api, err := New(cfg)
 	if err != nil {
 		t.Errorf("Cannot create a new API instance %q", err)
 		t.FailNow()

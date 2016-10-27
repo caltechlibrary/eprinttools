@@ -151,8 +151,16 @@ func main() {
 		os.Exit(0)
 	}
 
+	// Populate cfg from the environment
+	var cfg epgo.Config
+	cfg.MergeEnv("EPGO", "API_URL", "")
+	cfg.MergeEnv("EPGO", "SITE_URL", "")
+	cfg.MergeEnv("EPGO", "DBNAME", "")
+	cfg.MergeEnv("EPGO", "HTDOCS", "")
+	cfg.MergeEnv("EPGO", "TEMPLATE_PATH", "")
+
 	// This will read in any settings from the environment
-	api, err := epgo.New()
+	api, err := epgo.New(cfg)
 	if err != nil {
 		log.Fatalf("%s", err)
 	}

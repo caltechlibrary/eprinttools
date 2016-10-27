@@ -293,6 +293,21 @@ type ePrintIDs struct {
 	IDs     []string `xml:"body>ul>li>a" json:"ids"`
 }
 
+// Config holds the common configuration elements needed to access and harvest data
+type Config struct {
+	XMLName xml.Name `json:"-"`
+	// ApiURL is the root URL accessed to retrieve data from EPrints
+	ApiURL string `json:"api_url,required" xml:"api_url,required"`
+	// Setup configuration for how the feed stores or reads harvested metadata. Becomes the primary bucket in BoltDB
+	DBName string `json:"dbName,omitempty" xml:"dbName,omitempty"`
+	// Site URL, URL of website hosting feeds and search service (not EPrints or another repository)
+	SiteURL string `json:"site_url,omitempty" xml:"site_url,omitempty"`
+	// HTDocs directory for the website hosting feeds and search service
+	Htdocs string `json:"htdocs,omitempty" xml:"htdocs,omitempty"`
+	// TemplatePath directory for generating website described by SiteURL and Htdocs
+	TemplatePath string `json:"htdocs,omitempty" xml:"htdocs,omitempty"`
+}
+
 func normalizeDate(in string) string {
 	parts := strings.Split(in, "-")
 	if len(parts) == 1 {
@@ -316,26 +331,58 @@ func normalizeDate(in string) string {
 	return strings.Join(parts, "-")
 }
 
+// MergeEnv merge environment variables into the configuration structure.
+// options are
+// + prefix - e.g. EPGO, name space before the first underscore in the envinronment
+//      + prefix plus uppercase key forms the complete environment variable name
+// + key - the field map (e.g ApiURL maps to API_URL in EPGO_API_URL for prefix EPGO)
+// + proposedValue - the proposed value, usually the value from the flags passed in (an empty string means no value provided)
+//
+// returns an error if a problem is encountered.
+func (cfg *Config) MergeEnv(prefix, key, proposedValue string) error {
+	// Default is anything set in the environment
+	val := os.Getenv(fmt.Sprintf("%s_%s", prefix, key))
+	// Override with proposedValue provided (e.g. flag value from the command line)
+	if proposedValue != "" {
+		val = proposedValue
+	}
+	switch key {
+	case "API_URL":
+		cfg.ApiURL = val
+	case "DBNAME":
+		cfg.DBName = val
+	case "SITE_URL":
+		cfg.SiteURL = val
+	case "HTDOCS":
+		cfg.Htdocs = val
+	case "TEMPLATE_PATH":
+		cfg.TemplatePath = val
+	default:
+		return fmt.Errorf("%s isn't a known configuration option.", key)
+	}
+	return nil
+}
+
 // New creates a new API instance
-func New() (*EPrintsAPI, error) {
+func New(cfg Config) (*EPrintsAPI, error) {
 	var err error
-	apiURL := os.Getenv("EPGO_API_URL")
-	siteURL := os.Getenv("EPGO_SITE_URL")
-	htdocs := os.Getenv("EPGO_HTDOCS")
-	dbName := os.Getenv("EPGO_DBNAME")
-	templatePath := os.Getenv("EPGO_TEMPLATE_PATH")
+	apiURL := cfg.ApiURL
+	siteURL := cfg.SiteURL
+	htdocs := cfg.Htdocs
+	dbName := cfg.DBName
+	templatePath := cfg.TemplatePath
 
 	if apiURL == "" {
-		return nil, fmt.Errorf("Environment not configured, missing EPGO_API_URL")
+		return nil, fmt.Errorf("Environment not configured, missing eprint api url")
 	}
 	api := new(EPrintsAPI)
 	api.URL, err = url.Parse(apiURL)
 	if err != nil {
-		return nil, fmt.Errorf("EPGO_API_URL malformed %s, %s", apiURL, err)
+		return nil, fmt.Errorf("api url is malformed %s, %s", apiURL, err)
 	}
 	api.SiteURL, err = url.Parse(siteURL)
 	if err != nil {
-		return nil, fmt.Errorf("EPGO_SITE_URL malformed %s, %s", siteURL, err)
+		return nil, fmt.Errorf("site url malformed %s, %s", siteURL, err)
 	}
 	if htdocs == "" {
 		htdocs = "htdocs"
@@ -430,7 +477,7 @@ func (api *EPrintsAPI) GetEPrint(uri string) (*Record, error) {
 }
 
 // ExportEPrints from highest ID to lowest for cnt. Saves each record in a DB and indexes published ones
-func (api *EPrintsAPI) ExportEPrints(cnt int) error {
+func (api *EPrintsAPI) ExportEPrints(count int) error {
 	db, err := bolt.Open(api.DBName, 0660, &bolt.Options{Timeout: 1 * time.Second, ReadOnly: false})
 	failCheck(err, fmt.Sprintf("Export %s failed to open db, %s", api.DBName, err))
 	defer db.Close()
@@ -451,14 +498,14 @@ func (api *EPrintsAPI) ExportEPrints(cnt int) error {
 	// are exported first
 	sort.Sort(byURI(uris))
 
-	uriCnt := len(uris)
-	if cnt < 0 {
-		cnt = uriCnt
+	uriCount := len(uris)
+	if count < 0 {
+		count = uriCount
 	}
 	j := 0 // success count
 	k := 0 // error count
-	log.Printf("Exporting %d of %d uris", cnt, uriCnt)
-	for i := 0; i < uriCnt && cnt > 0; i++ {
+	log.Printf("Exporting %d of %d uris", count, uriCount)
+	for i := 0; i < uriCount && i < count; i++ {
 		uri := uris[i]
 		rec, err := api.GetEPrint(uri)
 		if err != nil {
@@ -482,7 +529,6 @@ func (api *EPrintsAPI) ExportEPrints(cnt int) error {
 							err = idx.Put([]byte(fmt.Sprintf("%s%s%s", dt, indexDelimiter, rec.URI)), []byte(rec.URI))
 						}
 						j++
-						cnt--
 					}
 					return err
 				})
