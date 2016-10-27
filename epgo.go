@@ -171,12 +171,12 @@ func failCheck(err error, msg string) {
 
 // EPrintsAPI holds the basic connectin information to read the REST API for EPrints
 type EPrintsAPI struct {
-	XMLName   xml.Name `json:"-"`
-	URL       *url.URL `xml:"epgo>api_url" json:"api_url"`     // EPGO_API_URL
-	DBName    string   `xml:"epgo>dbname" json:"dbname"`       // EPGO_DBNAME
-	Htdocs    string   `xml:"epgo>htdocs" json:"htdocs"`       // EPGO_HTDOCS
-	Templates string   `xml:"epgo>templates" json:"templates"` // EPGO_TEMPLATES
-	SiteURL   *url.URL `xml:"epgo>site_url" josn:"site_url"`   // EPGO_SITE_URL
+	XMLName      xml.Name `json:"-"`
+	URL          *url.URL `xml:"epgo>api_url" json:"api_url"`             // EPGO_API_URL
+	DBName       string   `xml:"epgo>dbname" json:"dbname"`               // EPGO_DBNAME
+	Htdocs       string   `xml:"epgo>htdocs" json:"htdocs"`               // EPGO_HTDOCS
+	TemplatePath string   `xml:"epgo>template_path" json:"template_path"` // EPGO_TEMPLATES
+	SiteURL      *url.URL `xml:"epgo>site_url" josn:"site_url"`           // EPGO_SITE_URL
 }
 
 // Person returns the contents of eprint>creators>item>name as a struct
@@ -323,7 +323,7 @@ func New() (*EPrintsAPI, error) {
 	siteURL := os.Getenv("EPGO_SITE_URL")
 	htdocs := os.Getenv("EPGO_HTDOCS")
 	dbName := os.Getenv("EPGO_DBNAME")
-	templates := os.Getenv("EPGO_TEMPLATES")
+	templatePath := os.Getenv("EPGO_TEMPLATE_PATH")
 
 	if apiURL == "" {
 		return nil, fmt.Errorf("Environment not configured, missing EPGO_API_URL")
@@ -343,12 +343,12 @@ func New() (*EPrintsAPI, error) {
 	if dbName == "" {
 		dbName = "eprints"
 	}
-	if templates == "" {
-		templates = "templates"
+	if templatePath == "" {
+		templatePath = "templates"
 	}
 	api.Htdocs = htdocs
 	api.DBName = dbName
-	api.Templates = templates
+	api.TemplatePath = templatePath
 	return api, nil
 }
 
@@ -741,7 +741,7 @@ func (api *EPrintsAPI) RenderDocuments(docTitle, docDescription, basepath string
 		return fmt.Errorf("Can't write %s, %s", fname, err)
 	}
 	// Write out RSS 2.0 file
-	fname = path.Join(api.Templates, "rss.xml")
+	fname = path.Join(api.TemplatePath, "rss.xml")
 	rss20, err := ioutil.ReadFile(fname)
 	if err != nil {
 		return fmt.Errorf("Can't open template %s, %s", fname, err)
@@ -761,7 +761,7 @@ func (api *EPrintsAPI) RenderDocuments(docTitle, docDescription, basepath string
 	out.Close()
 
 	// Write out include file
-	fname = path.Join(api.Templates, "page.include")
+	fname = path.Join(api.TemplatePath, "page.include")
 	pageInclude, err := ioutil.ReadFile(fname)
 	if err != nil {
 		return fmt.Errorf("Can't open template %s, %s", fname, err)
@@ -782,8 +782,8 @@ func (api *EPrintsAPI) RenderDocuments(docTitle, docDescription, basepath string
 	out.Close()
 
 	pageHTMLTmpl, err := template.New("page.html").Funcs(EPTmplFuncs).ParseFiles(
-		path.Join(api.Templates, "page.include"),
-		path.Join(api.Templates, "page.html"),
+		path.Join(api.TemplatePath, "page.include"),
+		path.Join(api.TemplatePath, "page.html"),
 	)
 	if err != nil {
 		return fmt.Errorf("Can't parse %s, %s", fname, err)

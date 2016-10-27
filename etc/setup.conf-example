@@ -7,4 +7,4 @@ export EPGO_SITE_URL=http://lemurprints.local
 # Htdocs document root for generated pages and feeds
 export EPGO_HTDOCS=htdocs
 # Templates directory for templates used to build webpages or feeds
-export EPGO_TEMPLATES=templates/default
+export EPGO_TEMPLATE_PATH=templates/default
