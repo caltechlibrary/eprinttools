@@ -19,7 +19,7 @@ _epgo_ can be configured with following environment variables
 + EPGO_DBNAME   (required) the BoltDB name for exporting, site building, and content retrieval
 + EPGO_SITE_URL (optional) the website URL (might be the same as E-Prints)
 + EPGO_HTDOCS   (optional) the htdocs root for site building
-+ EPGO_TEMPLATES (optional) the template directory to use for site building
++ EPGO_TEMPLATE_PATH (optional) the template directory to use for site building
 
 If EPRINT_URI is provided then an individual EPrint is return as a JSON structure
 (e.g. /rest/eprint/34.xml). Otherwise a list of EPrint paths are returned.
