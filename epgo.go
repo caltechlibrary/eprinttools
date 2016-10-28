@@ -296,8 +296,8 @@ type ePrintIDs struct {
 // Config holds the common configuration elements needed to access and harvest data
 type Config struct {
 	XMLName xml.Name `json:"-"`
-	// APIURL is the root URL accessed to retrieve data from EPrints.
-	APIURL string `json:"api_url,required" xml:"api_url,required"`
+	// ApiURL is the root URL accessed to retrieve data from EPrints.
+	ApiURL string `json:"api_url,required" xml:"api_url,required"`
 	// Setup configuration for how the feed stores or reads harvested metadata. Becomes the primary bucket in BoltDB
 	DBName string `json:"dbName,omitempty" xml:"dbName,omitempty"`
 	// Site URL, URL of website hosting feeds and search service (not EPrints or another repository)
@@ -335,7 +335,7 @@ func normalizeDate(in string) string {
 // options are
 // + prefix - e.g. EPGO, name space before the first underscore in the envinronment
 //      + prefix plus uppercase key forms the complete environment variable name
-// + key - the field map (e.g APIURL maps to API_URL in EPGO_API_URL for prefix EPGO)
+// + key - the field map (e.g ApiURL maps to API_URL in EPGO_API_URL for prefix EPGO)
 // + proposedValue - the proposed value, usually the value from the flags passed in (an empty string means no value provided)
 //
 // returns an error if a problem is encountered.
@@ -348,7 +348,7 @@ func (cfg *Config) MergeEnv(prefix, key, proposedValue string) error {
 	}
 	switch key {
 	case "API_URL":
-		cfg.APIURL = val
+		cfg.ApiURL = val
 	case "DBNAME":
 		cfg.DBName = val
 	case "SITE_URL":
@@ -366,7 +366,7 @@ func (cfg *Config) MergeEnv(prefix, key, proposedValue string) error {
 // New creates a new API instance
 func New(cfg Config) (*EPrintsAPI, error) {
 	var err error
-	apiURL := cfg.APIURL
+	apiURL := cfg.ApiURL
 	siteURL := cfg.SiteURL
 	htdocs := cfg.Htdocs
 	dbName := cfg.DBName
@@ -761,7 +761,7 @@ func (api *EPrintsAPI) RenderDocuments(docTitle, docDescription, basepath string
 	pageData := &struct {
 		Version        string
 		Basepath       string
-		APIURL         string
+		ApiURL         string
 		SiteURL        string
 		DocTitle       string
 		DocDescription string
@@ -769,7 +769,7 @@ func (api *EPrintsAPI) RenderDocuments(docTitle, docDescription, basepath string
 	}{
 		Version:        Version,
 		Basepath:       basepath,
-		APIURL:         api.URL.String(),
+		ApiURL:         api.URL.String(),
 		SiteURL:        api.SiteURL.String(),
 		DocTitle:       docTitle,
 		DocDescription: docDescription,
