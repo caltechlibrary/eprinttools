@@ -30,4 +30,5 @@ htdocs/*
 eprints*
 epgo
 *.zip
-
+*.boltdb
+testsite/*
