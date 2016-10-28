@@ -20,6 +20,7 @@ lint:
 	golint epgo.go
 	golint epgo_test.go
 	golint cmds/epgo/epgo.go
+	gocyclo epgo.go
 
 
 test:
