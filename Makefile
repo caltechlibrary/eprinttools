@@ -7,6 +7,9 @@ build:
 	go build
 	go build -o bin/epgo cmds/epgo/epgo.go
 
+install: 
+	go install cmds/epgo/epgo.go
+
 website: page.tmpl README.md nav.md INSTALL.md LICENSE css/site.css
 	./mk-website.bash
 
