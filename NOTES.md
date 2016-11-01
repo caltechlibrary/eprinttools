@@ -11,7 +11,7 @@ The epgo command line utility provides a way to generate that list by leveraging
 + GetEPrint() - returns an eprint record by URI from the REST API
 + ListURI() - return a list of eprint URI from the database
 + Get() - returns an eprint record by URI from the database
-+ Export() - exports the contents from the EPrint REST API into a database with a publication dates index
++ ExportEPrints() - exports the contents from the EPrint REST API into a database with a publication dates index
 + GetPublishedRecords() - returns an array of records with a date type of "published" from the database
     + IsPublished is "pub"
     + Date Type is "publish"
@@ -19,8 +19,14 @@ The epgo command line utility provides a way to generate that list by leveraging
     + Type is "article"
     + IsPublished is "pub"
     + Date Type is "publish"
++ GetLocalGroups() - get a list of unique local groups used in EPrints
++ GetLocalGroupRecords() - get a list of EPrint records for given Local Group
++ GetORCIDS() - get a list of unique orcid ids used in EPrints
++ GetORCIDRecords() - get a list of EPrint records for a given ORCID id
++ BuildPages() - generate a page from an EPrints (BuildSite() makes repeated calls to BuildPage())
 + BuildSite() - generates a JSON file of 25 most recently published articles, a version in RSS and one as an HTML include
 + RenderDocuments() - takes a basepath and records array and renders out a directory with rss.xml, index.html, index.include and index.json
+
 
 ## epgo Search
 

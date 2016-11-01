@@ -63,7 +63,9 @@ var (
 	indexDelimiter   = "|"
 	pubDatesBucket   = []byte("publicationDates")
 	localGroupBucket = []byte("localGroup")
-	// orcidBucket    = []byte("orcid")
+	orcidBucket      = []byte("orcid")
+
+	//FIXME: Additional indexes might be useful.
 	// publicationsBucket  = []byte("publications")
 	// titlesBucket        = []byte("titles")
 	// subjectsBucket      = []byte("subjects")
@@ -478,13 +480,9 @@ func (api *EPrintsAPI) GetEPrint(uri string) (*Record, error) {
 	return rec, nil
 }
 
-// ExportEPrints from highest ID to lowest for cnt. Saves each record in a DB and indexes published ones
-func (api *EPrintsAPI) ExportEPrints(count int) error {
-	db, err := bolt.Open(api.DBName, 0660, &bolt.Options{Timeout: 1 * time.Second, ReadOnly: false})
-	failCheck(err, fmt.Sprintf("Export %s failed to open db, %s", api.DBName, err))
-	defer db.Close()
-	// Make sure we have a buckets to store things in
-	db.Update(func(tx *bolt.Tx) error {
+// initBuckets initializes expected buckets if necessary for boltdb
+func initBuckets(db *bolt.DB) error {
+	return db.Update(func(tx *bolt.Tx) error {
 		if _, err := tx.CreateBucketIfNotExists(ePrintBucket); err != nil {
 			return fmt.Errorf("create bucket %s: %s", ePrintBucket, err)
 		}
@@ -494,8 +492,22 @@ func (api *EPrintsAPI) ExportEPrints(count int) error {
 		if _, err := tx.CreateBucketIfNotExists(localGroupBucket); err != nil {
 			return fmt.Errorf("create bucket %s: %s", localGroupBucket, err)
 		}
+		if _, err := tx.CreateBucketIfNotExists(orcidBucket); err != nil {
+			return fmt.Errorf("create bucket %s: %s", orcidBucket, err)
+		}
 		return nil
 	})
+
+}
+
+// ExportEPrints from highest ID to lowest for cnt. Saves each record in a DB and indexes published ones
+func (api *EPrintsAPI) ExportEPrints(count int) error {
+	db, err := bolt.Open(api.DBName, 0660, &bolt.Options{Timeout: 1 * time.Second, ReadOnly: false})
+	failCheck(err, fmt.Sprintf("Export %s failed to open db, %s", api.DBName, err))
+	defer db.Close()
+	// Make sure we have a buckets to store things in
+	err = initBuckets(db)
+	failCheck(err, fmt.Sprintf("Export %s failed to initialize buckets, %s", api.DBName, err))
 
 	uris, err := api.ListEPrintsURI()
 	failCheck(err, fmt.Sprintf("Export %s failed, %s", api.URL.String(), err))
@@ -549,6 +561,17 @@ func (api *EPrintsAPI) ExportEPrints(count int) error {
 								}
 							}
 						}
+						if len(rec.Creators) > 0 {
+							for _, person := range rec.Creators {
+								if len(person.ORCID) > 0 {
+									idx := tx.Bucket(orcidBucket)
+									err := idx.Put([]byte(fmt.Sprintf("%s%s%s", person.ORCID, indexDelimiter, rec.URI)), []byte(rec.URI))
+									if err != nil {
+										errs = append(errs, fmt.Sprintf("%s", err))
+									}
+								}
+							}
+						}
 						j++
 					}
 					if len(errs) > 0 {
@@ -577,19 +600,17 @@ func (api *EPrintsAPI) ListURI(start, count int) ([]string, error) {
 	failCheck(err, fmt.Sprintf("ListURI %s failed to open db, %s", api.DBName, err))
 	defer db.Close()
 	// Make sure we have a buckets to store things in
-	db.Update(func(tx *bolt.Tx) error {
-		if _, err := tx.CreateBucketIfNotExists(ePrintBucket); err != nil {
-			return fmt.Errorf("create bucket %s: %s", ePrintBucket, err)
-		}
-		if _, err := tx.CreateBucketIfNotExists(pubDatesBucket); err != nil {
-			return fmt.Errorf("create bucket %s: %s", pubDatesBucket, err)
-		}
-		return nil
-	})
+	err = initBuckets(db)
+	failCheck(err, fmt.Sprintf("ListURI %s failed to initialize buckets, %s", api.DBName, err))
+
 	err = db.View(func(tx *bolt.Tx) error {
 		recs := tx.Bucket(ePrintBucket)
 		c := recs.Cursor()
 		p := 0
+		if count < 0 {
+			bStats := recs.Stats()
+			count = bStats.KeyN
+		}
 		for uri, _ := c.First(); uri != nil && count > 0; uri, _ = c.Next() {
 			if p >= start {
 				results = append(results, string(uri))
@@ -608,15 +629,9 @@ func (api *EPrintsAPI) Get(uri string) (*Record, error) {
 	failCheck(err, fmt.Sprintf("Get(%q) %s failed to open db, %s", uri, api.DBName, err))
 	defer db.Close()
 	// Make sure we have a buckets to store things in
-	db.Update(func(tx *bolt.Tx) error {
-		if _, err := tx.CreateBucketIfNotExists(ePrintBucket); err != nil {
-			return fmt.Errorf("create bucket %s: %s", ePrintBucket, err)
-		}
-		if _, err := tx.CreateBucketIfNotExists(pubDatesBucket); err != nil {
-			return fmt.Errorf("create bucket %s: %s", pubDatesBucket, err)
-		}
-		return nil
-	})
+	err = initBuckets(db)
+	failCheck(err, fmt.Sprintf("Get(%q) %s failed to initialize buckets, %s", uri, api.DBName, err))
+
 	record := new(Record)
 	err = db.View(func(tx *bolt.Tx) error {
 		recs := tx.Bucket(ePrintBucket)
@@ -637,15 +652,8 @@ func (api *EPrintsAPI) GetPublishedRecords(start, count, direction int) ([]*Reco
 	failCheck(err, fmt.Sprintf("GetPulishedRecords() %s failed to open db, %s", api.DBName, err))
 	defer db.Close()
 	// Make sure we have a buckets to store things in
-	db.Update(func(tx *bolt.Tx) error {
-		if _, err := tx.CreateBucketIfNotExists(ePrintBucket); err != nil {
-			return fmt.Errorf("create bucket %s: %s", ePrintBucket, err)
-		}
-		if _, err := tx.CreateBucketIfNotExists(pubDatesBucket); err != nil {
-			return fmt.Errorf("create bucket %s: %s", pubDatesBucket, err)
-		}
-		return nil
-	})
+	err = initBuckets(db)
+	failCheck(err, fmt.Sprintf("GetPublishedRecords() %s failed to initialized buckets, %s", api.DBName, err))
 
 	//	var records []Record
 	var (
@@ -658,6 +666,10 @@ func (api *EPrintsAPI) GetPublishedRecords(start, count, direction int) ([]*Reco
 			idx := tx.Bucket(pubDatesBucket)
 			c := idx.Cursor()
 			p := 0
+			if count < 0 {
+				bStats := idx.Stats()
+				count = bStats.KeyN
+			}
 			for k, uri := c.First(); k != nil && count > 0; k, uri = c.Next() {
 				if p >= start {
 					rec := new(Record)
@@ -681,6 +693,10 @@ func (api *EPrintsAPI) GetPublishedRecords(start, count, direction int) ([]*Reco
 			idx := tx.Bucket(pubDatesBucket)
 			c := idx.Cursor()
 			p := 0
+			if count < 0 {
+				bStats := idx.Stats()
+				count = bStats.KeyN
+			}
 			for k, uri := c.Last(); k != nil && count > 0; k, uri = c.Prev() {
 				if p >= start {
 					rec := new(Record)
@@ -709,15 +725,8 @@ func (api *EPrintsAPI) GetPublishedArticles(start, count, direction int) ([]*Rec
 	failCheck(err, fmt.Sprintf("GetPublishedArticles() %s failed to open db, %s", api.DBName, err))
 	defer db.Close()
 	// Make sure we have a buckets to store things in
-	db.Update(func(tx *bolt.Tx) error {
-		if _, err := tx.CreateBucketIfNotExists(ePrintBucket); err != nil {
-			return fmt.Errorf("create bucket %s: %s", ePrintBucket, err)
-		}
-		if _, err := tx.CreateBucketIfNotExists(pubDatesBucket); err != nil {
-			return fmt.Errorf("create bucket %s: %s", pubDatesBucket, err)
-		}
-		return nil
-	})
+	err = initBuckets(db)
+	failCheck(err, fmt.Sprintf("GetPublishedArticles() %s failed to initialize buckets, %s", api.DBName, err))
 
 	//	var records []Record
 	var (
@@ -730,6 +739,10 @@ func (api *EPrintsAPI) GetPublishedArticles(start, count, direction int) ([]*Rec
 			idx := tx.Bucket(pubDatesBucket)
 			c := idx.Cursor()
 			p := 0
+			if count < 0 {
+				bStats := idx.Stats()
+				count = bStats.KeyN
+			}
 			for k, uri := c.First(); k != nil && count > 0; k, uri = c.Next() {
 				if p >= start {
 					rec := new(Record)
@@ -753,6 +766,10 @@ func (api *EPrintsAPI) GetPublishedArticles(start, count, direction int) ([]*Rec
 			idx := tx.Bucket(pubDatesBucket)
 			c := idx.Cursor()
 			p := 0
+			if count < 0 {
+				bStats := idx.Stats()
+				count = bStats.KeyN
+			}
 			for k, uri := c.Last(); k != nil && count > 0; k, uri = c.Prev() {
 				if p >= start {
 					rec := new(Record)
@@ -772,6 +789,282 @@ func (api *EPrintsAPI) GetPublishedArticles(start, count, direction int) ([]*Rec
 		})
 	}
 	return results, err
+}
+
+// Utility methods used by the LocalGroup and ORCID index related functions
+func appendToList(list []string, term string) []string {
+	for _, element := range list {
+		if strings.Compare(element, term) == 0 {
+			return list
+		}
+	}
+	return append(list, term)
+}
+
+func firstTerm(s, delimiter string) string {
+	r := strings.SplitN(s, delimiter, 2)
+	if len(r) > 0 {
+		return strings.TrimSpace(r[0])
+	}
+	return ""
+}
+
+// GetLocalGroups returns a JSON list of unique Group names in index
+func (api *EPrintsAPI) GetLocalGroups(start, count, direction int) ([]string, error) {
+	groupNames := []string{}
+	db, err := bolt.Open(api.DBName, 0660, &bolt.Options{Timeout: 1 * time.Second, ReadOnly: true})
+	failCheck(err, fmt.Sprintf("GetLocalGroups() %s failed to open db, %s", api.DBName, err))
+	defer db.Close()
+	// Make sure we have a buckets to store things in
+	err = initBuckets(db)
+	failCheck(err, fmt.Sprintf("GetLocalGroups() %s failed to initialize buckets, %s", api.DBName, err))
+	switch direction {
+	case Ascending:
+		err = db.View(func(tx *bolt.Tx) error {
+			idx := tx.Bucket(localGroupBucket)
+			c := idx.Cursor()
+			p := 0
+			if count < 0 {
+				bStats := idx.Stats()
+				count = bStats.KeyN
+			}
+			for k, _ := c.First(); k != nil && count > 0; k, _ = c.Next() {
+				if p >= start {
+					grp := firstTerm(fmt.Sprintf("%s", k), indexDelimiter)
+					groupNames = appendToList(groupNames, grp)
+					count--
+				}
+				p++
+			}
+			return nil
+		})
+	case Descending:
+		err = db.View(func(tx *bolt.Tx) error {
+			idx := tx.Bucket(localGroupBucket)
+			c := idx.Cursor()
+			p := 0
+			if count < 0 {
+				bStats := idx.Stats()
+				count = bStats.KeyN
+			}
+			for k, _ := c.Last(); k != nil && count > 0; k, _ = c.Prev() {
+				if p >= start {
+					grp := firstTerm(fmt.Sprintf("%s", k), indexDelimiter)
+					groupNames = appendToList(groupNames, grp)
+					count--
+				}
+				p++
+			}
+			return nil
+		})
+	}
+	if err != nil {
+		return groupNames, err
+	}
+	return groupNames, nil
+}
+
+// GetLocalGroupRecords returns a list of EPrint records with groupName
+func (api *EPrintsAPI) GetLocalGroupRecords(groupName string, start, count, direction int) ([]*Record, error) {
+	results := []*Record{}
+
+	db, err := bolt.Open(api.DBName, 0660, &bolt.Options{Timeout: 1 * time.Second, ReadOnly: true})
+	failCheck(err, fmt.Sprintf("GetLocalGroupRecords() %s failed to open db, %s", api.DBName, err))
+	defer db.Close()
+	// Make sure we have a buckets to store things in
+	err = initBuckets(db)
+	failCheck(err, fmt.Sprintf("GetLocalGroupRecords() %s failed to initialize buckets, %s", api.DBName, err))
+	switch direction {
+	case Ascending:
+		err = db.View(func(tx *bolt.Tx) error {
+			recs := tx.Bucket(ePrintBucket)
+			idx := tx.Bucket(localGroupBucket)
+			c := idx.Cursor()
+			p := 0
+			if count < 0 {
+				bStats := idx.Stats()
+				count = bStats.KeyN
+			}
+			for k, uri := c.First(); k != nil && count > 0; k, uri = c.Next() {
+				if p >= start {
+					grp := firstTerm(fmt.Sprintf("%s", k), indexDelimiter)
+					if strings.Compare(grp, groupName) == 0 {
+						rec := new(Record)
+						src := recs.Get([]byte(uri))
+						err := json.Unmarshal(src, rec)
+						if err != nil {
+							return fmt.Errorf("Can't unmarshal %s, %s", uri, err)
+						}
+						results = append(results, rec)
+						count--
+					}
+				}
+				p++
+			}
+			return nil
+		})
+	case Descending:
+		err = db.View(func(tx *bolt.Tx) error {
+			recs := tx.Bucket(ePrintBucket)
+			idx := tx.Bucket(localGroupBucket)
+			c := idx.Cursor()
+			p := 0
+			if count < 0 {
+				bStats := idx.Stats()
+				count = bStats.KeyN
+			}
+			for k, uri := c.Last(); k != nil && count > 0; k, uri = c.Prev() {
+				if p >= start {
+					grp := firstTerm(fmt.Sprintf("%s", k), indexDelimiter)
+					if strings.Compare(grp, groupName) == 0 {
+						rec := new(Record)
+						src := recs.Get([]byte(uri))
+						err := json.Unmarshal(src, rec)
+						if err != nil {
+							return fmt.Errorf("Can't unmarshal %s, %s", uri, err)
+						}
+						results = append(results, rec)
+						count--
+					}
+				}
+				p++
+			}
+			return nil
+		})
+	}
+	if err != nil {
+		return results, err
+	}
+	return results, nil
+}
+
+// GetORCIDs returns a JSON list unique of ORCID IDs in index
+func (api *EPrintsAPI) GetORCIDs(start, count, direction int) ([]string, error) {
+	orcids := []string{}
+	db, err := bolt.Open(api.DBName, 0660, &bolt.Options{Timeout: 1 * time.Second, ReadOnly: true})
+	failCheck(err, fmt.Sprintf("GetORCIDS() %s failed to open db, %s", api.DBName, err))
+	defer db.Close()
+	// Make sure we have a buckets to store things in
+	err = initBuckets(db)
+	failCheck(err, fmt.Sprintf("GetORCIDS() %s failed to initialize buckets, %s", api.DBName, err))
+	switch direction {
+	case Ascending:
+		err = db.View(func(tx *bolt.Tx) error {
+			idx := tx.Bucket(orcidBucket)
+			c := idx.Cursor()
+			p := 0
+			if count < 0 {
+				bStats := idx.Stats()
+				count = bStats.KeyN
+			}
+			for k, _ := c.First(); k != nil && count > 0; k, _ = c.Next() {
+				if p >= start {
+					orcid := firstTerm(fmt.Sprintf("%s", k), indexDelimiter)
+					orcids = appendToList(orcids, orcid)
+					count--
+				}
+				p++
+			}
+			return nil
+		})
+	case Descending:
+		err = db.View(func(tx *bolt.Tx) error {
+			idx := tx.Bucket(orcidBucket)
+			c := idx.Cursor()
+			p := 0
+			if count < 0 {
+				bStats := idx.Stats()
+				count = bStats.KeyN
+			}
+			for k, _ := c.Last(); k != nil && count > 0; k, _ = c.Prev() {
+				if p >= start {
+					orcid := firstTerm(fmt.Sprintf("%s", k), indexDelimiter)
+					orcids = appendToList(orcids, orcid)
+					count--
+				}
+				p++
+			}
+			return nil
+		})
+	}
+	if err != nil {
+		return orcids, err
+	}
+	return orcids, nil
+}
+
+// GetORCIDRecords returns a list of EPrint records with a given ORCID
+func (api *EPrintsAPI) GetORCIDRecords(orcid string, start, count, direction int) ([]*Record, error) {
+	results := []*Record{}
+
+	db, err := bolt.Open(api.DBName, 0660, &bolt.Options{Timeout: 1 * time.Second, ReadOnly: true})
+	failCheck(err, fmt.Sprintf("GetORCIDRecords() %s failed to open db, %s", api.DBName, err))
+	defer db.Close()
+	// Make sure we have a buckets to store things in
+	err = initBuckets(db)
+	failCheck(err, fmt.Sprintf("GetORCIDRecords() %s failed to initialize buckets, %s", api.DBName, err))
+	switch direction {
+	case Ascending:
+		err = db.View(func(tx *bolt.Tx) error {
+			recs := tx.Bucket(ePrintBucket)
+			idx := tx.Bucket(orcidBucket)
+			c := idx.Cursor()
+			p := 0
+			if count < 0 {
+				bStats := idx.Stats()
+				count = bStats.KeyN
+			}
+			for k, uri := c.First(); k != nil && count > 0; k, uri = c.Next() {
+				if p >= start {
+					term := firstTerm(fmt.Sprintf("%s", k), indexDelimiter)
+					if strings.Compare(term, orcid) == 0 {
+						rec := new(Record)
+						src := recs.Get([]byte(uri))
+						err := json.Unmarshal(src, rec)
+						if err != nil {
+							return fmt.Errorf("Can't unmarshal %s, %s", uri, err)
+						}
+						results = append(results, rec)
+						count--
+					}
+				}
+				p++
+			}
+			return nil
+		})
+	case Descending:
+		err = db.View(func(tx *bolt.Tx) error {
+			recs := tx.Bucket(ePrintBucket)
+			idx := tx.Bucket(orcidBucket)
+			c := idx.Cursor()
+			p := 0
+			if count < 0 {
+				bStats := idx.Stats()
+				count = bStats.KeyN
+			}
+			for k, uri := c.Last(); k != nil && count > 0; k, uri = c.Prev() {
+				if p >= start {
+					term := firstTerm(fmt.Sprintf("%s", k), indexDelimiter)
+					if strings.Compare(term, orcid) == 0 {
+						rec := new(Record)
+						src := recs.Get([]byte(uri))
+						err := json.Unmarshal(src, rec)
+						if err != nil {
+							return fmt.Errorf("Can't unmarshal %s, %s", uri, err)
+						}
+						results = append(results, rec)
+						count--
+					}
+				}
+				p++
+			}
+			return nil
+		})
+	}
+	if err != nil {
+		return results, err
+	}
+	return results, nil
 }
 
 // RenderDocuments writes JSON, HTML, include and rss to the directory indicated by basepath
