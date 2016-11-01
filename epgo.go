@@ -60,8 +60,10 @@ var (
 	ePrintBucket = []byte("eprints")
 
 	// Indexes available
-	indexDelimiter = "|"
-	pubDatesBucket = []byte("publicationDates")
+	indexDelimiter   = "|"
+	pubDatesBucket   = []byte("publicationDates")
+	localGroupBucket = []byte("localGroup")
+	// orcidBucket    = []byte("orcid")
 	// publicationsBucket  = []byte("publications")
 	// titlesBucket        = []byte("titles")
 	// subjectsBucket      = []byte("subjects")
@@ -489,6 +491,9 @@ func (api *EPrintsAPI) ExportEPrints(count int) error {
 		if _, err := tx.CreateBucketIfNotExists(pubDatesBucket); err != nil {
 			return fmt.Errorf("create bucket %s: %s", pubDatesBucket, err)
 		}
+		if _, err := tx.CreateBucketIfNotExists(localGroupBucket); err != nil {
+			return fmt.Errorf("create bucket %s: %s", localGroupBucket, err)
+		}
 		return nil
 	})
 
@@ -519,6 +524,7 @@ func (api *EPrintsAPI) ExportEPrints(count int) error {
 				k++
 			} else {
 				err := db.Update(func(tx *bolt.Tx) error {
+					var errs []string
 					b := tx.Bucket(ePrintBucket)
 					err := b.Put([]byte(rec.URI), src)
 					if err == nil {
@@ -527,10 +533,25 @@ func (api *EPrintsAPI) ExportEPrints(count int) error {
 							idx := tx.Bucket(pubDatesBucket)
 							dt := normalizeDate(rec.Date)
 							err = idx.Put([]byte(fmt.Sprintf("%s%s%s", dt, indexDelimiter, rec.URI)), []byte(rec.URI))
+							if err != nil {
+								errs = append(errs, fmt.Sprintf("%s", err))
+							}
+						}
+						if len(rec.LocalGroup) > 0 {
+							for _, grp := range rec.LocalGroup {
+								idx := tx.Bucket(localGroupBucket)
+								err = idx.Put([]byte(fmt.Sprintf("%s%s%s", strings.TrimSpace(grp), indexDelimiter, rec.URI)), []byte(rec.URI))
+								if err != nil {
+									errs = append(errs, fmt.Sprintf("%s", err))
+								}
+							}
 						}
 						j++
 					}
-					return err
+					if len(errs) > 0 {
+						return fmt.Errorf("%s", strings.Join(errs, "; "))
+					}
+					return nil
 				})
 				if err != nil {
 					log.Printf("Failed to save eprint %s, %s\n", uri, err)
