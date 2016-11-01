@@ -539,10 +539,13 @@ func (api *EPrintsAPI) ExportEPrints(count int) error {
 						}
 						if len(rec.LocalGroup) > 0 {
 							for _, grp := range rec.LocalGroup {
-								idx := tx.Bucket(localGroupBucket)
-								err = idx.Put([]byte(fmt.Sprintf("%s%s%s", strings.TrimSpace(grp), indexDelimiter, rec.URI)), []byte(rec.URI))
-								if err != nil {
-									errs = append(errs, fmt.Sprintf("%s", err))
+								grp = strings.TrimSpace(grp)
+								if len(grp) > 0 {
+									idx := tx.Bucket(localGroupBucket)
+									err = idx.Put([]byte(fmt.Sprintf("%s%s%s", grp, indexDelimiter, rec.URI)), []byte(rec.URI))
+									if err != nil {
+										errs = append(errs, fmt.Sprintf("%s", err))
+									}
 								}
 							}
 						}
