@@ -505,12 +505,14 @@ func (api *EPrintsAPI) ExportEPrints(count int) error {
 	db, err := bolt.Open(api.DBName, 0660, &bolt.Options{Timeout: 1 * time.Second, ReadOnly: false})
 	failCheck(err, fmt.Sprintf("Export %s failed to open db, %s", api.DBName, err))
 	defer db.Close()
+
 	// Make sure we have a buckets to store things in
 	err = initBuckets(db)
 	failCheck(err, fmt.Sprintf("Export %s failed to initialize buckets, %s", api.DBName, err))
 
 	uris, err := api.ListEPrintsURI()
 	failCheck(err, fmt.Sprintf("Export %s failed, %s", api.URL.String(), err))
+
 	//NOTE: I am sorting the URI by decscending ID number so that the newest articles
 	// are exported first
 	sort.Sort(byURI(uris))
@@ -599,9 +601,6 @@ func (api *EPrintsAPI) ListURI(start, count int) ([]string, error) {
 	db, err := bolt.Open(api.DBName, 0660, &bolt.Options{Timeout: 1 * time.Second, ReadOnly: true})
 	failCheck(err, fmt.Sprintf("ListURI %s failed to open db, %s", api.DBName, err))
 	defer db.Close()
-	// Make sure we have a buckets to store things in
-	err = initBuckets(db)
-	failCheck(err, fmt.Sprintf("ListURI %s failed to initialize buckets, %s", api.DBName, err))
 
 	err = db.View(func(tx *bolt.Tx) error {
 		recs := tx.Bucket(ePrintBucket)
@@ -628,9 +627,6 @@ func (api *EPrintsAPI) Get(uri string) (*Record, error) {
 	db, err := bolt.Open(api.DBName, 0660, &bolt.Options{Timeout: 1 * time.Second, ReadOnly: true})
 	failCheck(err, fmt.Sprintf("Get(%q) %s failed to open db, %s", uri, api.DBName, err))
 	defer db.Close()
-	// Make sure we have a buckets to store things in
-	err = initBuckets(db)
-	failCheck(err, fmt.Sprintf("Get(%q) %s failed to initialize buckets, %s", uri, api.DBName, err))
 
 	record := new(Record)
 	err = db.View(func(tx *bolt.Tx) error {
@@ -651,9 +647,6 @@ func (api *EPrintsAPI) GetPublishedRecords(start, count, direction int) ([]*Reco
 	db, err := bolt.Open(api.DBName, 0660, &bolt.Options{Timeout: 1 * time.Second, ReadOnly: true})
 	failCheck(err, fmt.Sprintf("GetPulishedRecords() %s failed to open db, %s", api.DBName, err))
 	defer db.Close()
-	// Make sure we have a buckets to store things in
-	err = initBuckets(db)
-	failCheck(err, fmt.Sprintf("GetPublishedRecords() %s failed to initialized buckets, %s", api.DBName, err))
 
 	//	var records []Record
 	var (
@@ -724,9 +717,6 @@ func (api *EPrintsAPI) GetPublishedArticles(start, count, direction int) ([]*Rec
 	db, err := bolt.Open(api.DBName, 0660, &bolt.Options{Timeout: 1 * time.Second, ReadOnly: true})
 	failCheck(err, fmt.Sprintf("GetPublishedArticles() %s failed to open db, %s", api.DBName, err))
 	defer db.Close()
-	// Make sure we have a buckets to store things in
-	err = initBuckets(db)
-	failCheck(err, fmt.Sprintf("GetPublishedArticles() %s failed to initialize buckets, %s", api.DBName, err))
 
 	//	var records []Record
 	var (
@@ -815,9 +805,7 @@ func (api *EPrintsAPI) GetLocalGroups(start, count, direction int) ([]string, er
 	db, err := bolt.Open(api.DBName, 0660, &bolt.Options{Timeout: 1 * time.Second, ReadOnly: true})
 	failCheck(err, fmt.Sprintf("GetLocalGroups() %s failed to open db, %s", api.DBName, err))
 	defer db.Close()
-	// Make sure we have a buckets to store things in
-	err = initBuckets(db)
-	failCheck(err, fmt.Sprintf("GetLocalGroups() %s failed to initialize buckets, %s", api.DBName, err))
+
 	switch direction {
 	case Ascending:
 		err = db.View(func(tx *bolt.Tx) error {
@@ -871,9 +859,7 @@ func (api *EPrintsAPI) GetLocalGroupRecords(groupName string, start, count, dire
 	db, err := bolt.Open(api.DBName, 0660, &bolt.Options{Timeout: 1 * time.Second, ReadOnly: true})
 	failCheck(err, fmt.Sprintf("GetLocalGroupRecords() %s failed to open db, %s", api.DBName, err))
 	defer db.Close()
-	// Make sure we have a buckets to store things in
-	err = initBuckets(db)
-	failCheck(err, fmt.Sprintf("GetLocalGroupRecords() %s failed to initialize buckets, %s", api.DBName, err))
+
 	switch direction {
 	case Ascending:
 		err = db.View(func(tx *bolt.Tx) error {
@@ -944,9 +930,7 @@ func (api *EPrintsAPI) GetORCIDs(start, count, direction int) ([]string, error) 
 	db, err := bolt.Open(api.DBName, 0660, &bolt.Options{Timeout: 1 * time.Second, ReadOnly: true})
 	failCheck(err, fmt.Sprintf("GetORCIDS() %s failed to open db, %s", api.DBName, err))
 	defer db.Close()
-	// Make sure we have a buckets to store things in
-	err = initBuckets(db)
-	failCheck(err, fmt.Sprintf("GetORCIDS() %s failed to initialize buckets, %s", api.DBName, err))
+
 	switch direction {
 	case Ascending:
 		err = db.View(func(tx *bolt.Tx) error {
@@ -1000,9 +984,7 @@ func (api *EPrintsAPI) GetORCIDRecords(orcid string, start, count, direction int
 	db, err := bolt.Open(api.DBName, 0660, &bolt.Options{Timeout: 1 * time.Second, ReadOnly: true})
 	failCheck(err, fmt.Sprintf("GetORCIDRecords() %s failed to open db, %s", api.DBName, err))
 	defer db.Close()
-	// Make sure we have a buckets to store things in
-	err = initBuckets(db)
-	failCheck(err, fmt.Sprintf("GetORCIDRecords() %s failed to initialize buckets, %s", api.DBName, err))
+
 	switch direction {
 	case Ascending:
 		err = db.View(func(tx *bolt.Tx) error {
