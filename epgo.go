@@ -800,6 +800,11 @@ func firstTerm(s, delimiter string) string {
 	return ""
 }
 
+// Turn a string into a URL friendly path part
+func Slugify(s string) string {
+	return url.QueryEscape(s)
+}
+
 // GetLocalGroups returns a JSON list of unique Group names in index
 func (api *EPrintsAPI) GetLocalGroups(start, count, direction int) ([]string, error) {
 	groupNames := []string{}
@@ -1221,7 +1226,7 @@ func (api *EPrintsAPI) BuildSite(feedSize int) error {
 	}
 	log.Printf("Found %d groups", len(groupNames))
 	for _, groupName := range groupNames {
-		err = api.BuildPages(feedSize, fmt.Sprintf("%s", groupName), fmt.Sprintf("affiliation/%s", groupName), func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
+		err = api.BuildPages(feedSize, fmt.Sprintf("%s", groupName), fmt.Sprintf("affiliation/%s", Slugify(groupName)), func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
 			return api.GetLocalGroupRecords(groupName, start, count, direction)
 		})
 		if err != nil {

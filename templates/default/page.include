@@ -13,7 +13,7 @@
         </span>
         {{- end }}
         {{with .Date}}<span class="publication-year">({{year . }})</span>{{ end }}
-        <span class="title"><em><a href="{{ .OfficialURL }}/{{ .ID }}">
+        <span class="title"><em><a href="{{ .OfficialURL }}">
             {{- .Title -}}
         </a></em></span>
         {{with .Publication}}<span class="publication">{{ . }}</span>;{{ end }}
