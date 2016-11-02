@@ -1198,14 +1198,14 @@ func (api *EPrintsAPI) BuildSite(feedSize int) error {
 	}
 
 	// Collect EPrints by orcid ID and publish
-	log.Printf("Building ORCID works")
+	log.Printf("Building Person (orcid) works")
 	orcids, err := api.GetORCIDs(0, -1, Ascending)
 	if err != nil {
 		return err
 	}
 	log.Printf("Found %d orcids", len(orcids))
 	for _, orcid := range orcids {
-		err = api.BuildPages(feedSize, fmt.Sprintf("ORCID: %s", orcid), fmt.Sprintf("orcid/%s", orcid), func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
+		err = api.BuildPages(feedSize, fmt.Sprintf("ORCID: %s", orcid), fmt.Sprintf("person/%s", orcid), func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
 			return api.GetORCIDRecords(orcid, start, count, direction)
 		})
 		if err != nil {
