@@ -34,6 +34,9 @@ clean:
 	if [ -d dist ]; then /bin/rm -fR dist; fi
 	if [ -f $(PROJECT_NAME)-binary-release.zip ]; then /bin/rm $(PROJECT_NAME)-binary-release.zip; fi
 	if [ -f index.html ]; then /bin/rm *.html; fi
+	if [ -d htdocs/person ]; then /bin/rm -fR htdocs/person; fi
+	if [ -d htdocs/affiliations ]; then /bin/rm -fR htdocs/affiliations; fi
+	if [ -d htdocs/recent ]; then /bin/rm -fR htdocs/recent; fi
 
 release:
 	./mk-release.bash
