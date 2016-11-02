@@ -565,9 +565,10 @@ func (api *EPrintsAPI) ExportEPrints(count int) error {
 						}
 						if len(rec.Creators) > 0 {
 							for _, person := range rec.Creators {
-								if len(person.ORCID) > 0 {
+								orcid := strings.TrimSpace(person.ORCID)
+								if len(orcid) > 0 {
 									idx := tx.Bucket(orcidBucket)
-									err := idx.Put([]byte(fmt.Sprintf("%s%s%s", person.ORCID, indexDelimiter, rec.URI)), []byte(rec.URI))
+									err := idx.Put([]byte(fmt.Sprintf("%s%s%s", orcid, indexDelimiter, rec.URI)), []byte(rec.URI))
 									if err != nil {
 										errs = append(errs, fmt.Sprintf("%s", err))
 									}
@@ -924,11 +925,11 @@ func (api *EPrintsAPI) GetLocalGroupRecords(groupName string, start, count, dire
 	return results, nil
 }
 
-// GetORCIDs returns a JSON list unique of ORCID IDs in index
+// GetORCIDs returns a list unique of ORCID IDs in index
 func (api *EPrintsAPI) GetORCIDs(start, count, direction int) ([]string, error) {
 	orcids := []string{}
 	db, err := bolt.Open(api.DBName, 0660, &bolt.Options{Timeout: 1 * time.Second, ReadOnly: true})
-	failCheck(err, fmt.Sprintf("GetORCIDS() %s failed to open db, %s", api.DBName, err))
+	failCheck(err, fmt.Sprintf("GetORCIDs() %s failed to open db, %s", api.DBName, err))
 	defer db.Close()
 
 	switch direction {
@@ -1180,7 +1181,7 @@ func (api *EPrintsAPI) BuildSite(feedSize int) error {
 	}
 	// Collect the published records
 	log.Printf("Building Recently Published")
-	err := api.BuildPages(feedSize, "Recently Published", "recently-published", func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
+	err := api.BuildPages(feedSize, "Recently Published", "recent/published", func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
 		return api.GetPublishedRecords(0, feedSize, Descending)
 	})
 	if err != nil {
@@ -1189,11 +1190,43 @@ func (api *EPrintsAPI) BuildSite(feedSize int) error {
 
 	// Collect the published articles
 	log.Printf("Building Recent Articles")
-	err = api.BuildPages(feedSize, "Recent Articles", "recent-articles", func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
+	err = api.BuildPages(feedSize, "Recent Articles", "recent/articles", func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
 		return api.GetPublishedArticles(start, count, direction)
 	})
 	if err != nil {
 		return err
+	}
+
+	// Collect EPrints by orcid ID and publish
+	log.Printf("Building ORCID works")
+	orcids, err := api.GetORCIDs(0, -1, Ascending)
+	if err != nil {
+		return err
+	}
+	log.Printf("Found %d orcids", len(orcids))
+	for _, orcid := range orcids {
+		err = api.BuildPages(feedSize, fmt.Sprintf("ORCID: %s", orcid), fmt.Sprintf("orcid/%s", orcid), func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
+			return api.GetORCIDRecords(orcid, start, count, direction)
+		})
+		if err != nil {
+			return err
+		}
+	}
+
+	// Collect EPrints by Group/Affiliation
+	log.Printf("Building Local Groups")
+	groupNames, err := api.GetLocalGroups(0, -1, Ascending)
+	if err != nil {
+		return err
+	}
+	log.Printf("Found %d groups", len(groupNames))
+	for _, groupName := range groupNames {
+		err = api.BuildPages(feedSize, fmt.Sprintf("%s", groupName), fmt.Sprintf("affiliation/%s", groupName), func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
+			return api.GetLocalGroupRecords(groupName, start, count, direction)
+		})
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }
