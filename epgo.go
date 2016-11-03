@@ -541,6 +541,8 @@ func (api *EPrintsAPI) ExportEPrints(count int) error {
 					var errs []string
 					b := tx.Bucket(ePrintBucket)
 					err := b.Put([]byte(rec.URI), src)
+					//NOTE: dt is the pub date
+					dt := normalizeDate(rec.Date)
 					if err == nil {
 						//NOTE: dt is the record date.
 						dt := normalizeDate(rec.Date)
@@ -1211,8 +1213,13 @@ func (api *EPrintsAPI) BuildSite(feedSize int) error {
 	}
 	log.Printf("Found %d orcids", len(orcids))
 	for _, orcid := range orcids {
+<<<<<<< HEAD
 		err = api.BuildPages(feedSize, fmt.Sprintf("ORCID: %s", orcid), fmt.Sprintf("person/%s", orcid), func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
 			return api.GetORCIDRecords(orcid, start, -1, Descending)
+=======
+		err = api.BuildPages(-1, fmt.Sprintf("ORCID: %s", orcid), fmt.Sprintf("person/%s", orcid), func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
+			return api.GetORCIDRecords(orcid, start, count, Descending)
+>>>>>>> 36596c7f6c3c283132d4dcbe1fbc3da0e23cc77b
 		})
 		if err != nil {
 			return err
@@ -1227,8 +1234,13 @@ func (api *EPrintsAPI) BuildSite(feedSize int) error {
 	}
 	log.Printf("Found %d groups", len(groupNames))
 	for _, groupName := range groupNames {
+<<<<<<< HEAD
 		err = api.BuildPages(feedSize, fmt.Sprintf("%s", groupName), fmt.Sprintf("affiliation/%s", Slugify(groupName)), func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
 			return api.GetLocalGroupRecords(groupName, start, -1, direction)
+=======
+		err = api.BuildPages(-1, fmt.Sprintf("%s", groupName), fmt.Sprintf("affiliation/%s", Slugify(groupName)), func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
+			return api.GetLocalGroupRecords(groupName, start, count, Descending)
+>>>>>>> 36596c7f6c3c283132d4dcbe1fbc3da0e23cc77b
 		})
 		if err != nil {
 			return err
