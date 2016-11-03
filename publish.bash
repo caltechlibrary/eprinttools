@@ -22,9 +22,6 @@ else
         git pull origin "$WORKING_BRANCH"
         echo "Merging changes from $WORKING_BRANCH"
         git commit -am "merging $WORKING_BRANCH with gh-pages"
-        mk-website.bash
-        git add -f *.html
-        git commit -am "built pages"
         echo "Pushing changes up and publishing"
         git push origin gh-pages
         echo "Changing back to your working branch $WORKING_BRANCH"
