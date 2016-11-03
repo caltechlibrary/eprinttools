@@ -29,3 +29,6 @@ makePage "epgo" NOTES.md nav.md notes.html
 
 # todo.html
 makePage "epgo" TODO.md nav.md todo.html
+
+# Add the files to git as needed
+git add index.html install.html license.html notes.html todo.html
