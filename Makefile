@@ -49,5 +49,6 @@ save:
 	git push origin master
 
 publish:
+	./mk-website.bash
 	./publish.bash
 
