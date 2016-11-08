@@ -40,7 +40,7 @@ import (
 
 const (
 	// Version is the revision number for this implementation of epgo
-	Version = "0.0.8"
+	Version = "v0.0.8"
 
 	// Ascending sorts from lowest (oldest) to highest (newest)
 	Ascending = iota
@@ -178,6 +178,7 @@ type EPrintsAPI struct {
 	XMLName      xml.Name `json:"-"`
 	URL          *url.URL `xml:"epgo>api_url" json:"api_url"`             // EPGO_API_URL
 	DBName       string   `xml:"epgo>dbname" json:"dbname"`               // EPGO_DBNAME
+	BleveName    string   `xml:"epgo>bleve" json:"bleve"`                 // EPGO_BLEVE
 	Htdocs       string   `xml:"epgo>htdocs" json:"htdocs"`               // EPGO_HTDOCS
 	TemplatePath string   `xml:"epgo>template_path" json:"template_path"` // EPGO_TEMPLATES
 	SiteURL      *url.URL `xml:"epgo>site_url" josn:"site_url"`           // EPGO_SITE_URL
@@ -303,13 +304,20 @@ type Config struct {
 	// ApiURL is the root URL accessed to retrieve data from EPrints.
 	ApiURL string `json:"api_url,required" xml:"api_url,required"`
 	// Setup configuration for how the feed stores or reads harvested metadata. Becomes the primary bucket in BoltDB
-	DBName string `json:"dbName,omitempty" xml:"dbName,omitempty"`
+	DBName string `json:"dbname,required" xml:"dbname,required"`
+	// Name of Bleve db/index
+	BleveName string `json:"bleve" xml:"bleve"`
 	// Site URL, URL of website hosting feeds and search service (not EPrints or another repository)
-	SiteURL string `json:"site_url,omitempty" xml:"site_url,omitempty"`
+	SiteURL string `json:"site_url" xml:"site_url"`
 	// HTDocs directory for the website hosting feeds and search service
-	Htdocs string `json:"htdocs,omitempty" xml:"htdocs,omitempty"`
+	Htdocs string `json:"htdocs" xml:"htdocs"`
 	// TemplatePath directory for generating website described by SiteURL and Htdocs
-	TemplatePath string `json:"htdocs,omitempty" xml:"htdocs,omitempty"`
+	TemplatePath string `json:"templates" xml:"templates"`
+}
+
+func (cfg *Config) String() string {
+	src, _ := json.Marshal(cfg)
+	return fmt.Sprintf("%s", src)
 }
 
 func normalizeDate(in string) string {
@@ -338,7 +346,7 @@ func normalizeDate(in string) string {
 // MergeEnv merge environment variables into the configuration structure.
 // options are
 // + prefix - e.g. EPGO, name space before the first underscore in the envinronment
-//      + prefix plus uppercase key forms the complete environment variable name
+//   + prefix plus uppercase key forms the complete environment variable name
 // + key - the field map (e.g ApiURL maps to API_URL in EPGO_API_URL for prefix EPGO)
 // + proposedValue - the proposed value, usually the value from the flags passed in (an empty string means no value provided)
 //
@@ -361,10 +369,32 @@ func (cfg *Config) MergeEnv(prefix, key, proposedValue string) error {
 		cfg.Htdocs = val
 	case "TEMPLATE_PATH":
 		cfg.TemplatePath = val
+	case "BLEVE":
+		cfg.BleveName = val
 	default:
 		return fmt.Errorf("%s isn't a known configuration option", key)
 	}
 	return nil
+}
+
+// Get returns a specific property of the config.
+func (cfg *Config) Get(key string) string {
+	switch key {
+	case "api_url":
+		return cfg.ApiURL
+	case "site_url":
+		return cfg.SiteURL
+	case "htdocs":
+		return cfg.Htdocs
+	case "bleve":
+		return cfg.BleveName
+	case "dbname":
+		return cfg.DBName
+	case "templates":
+		return cfg.TemplatePath
+	default:
+		return ""
+	}
 }
 
 // New creates a new API instance
@@ -374,6 +404,7 @@ func New(cfg Config) (*EPrintsAPI, error) {
 	siteURL := cfg.SiteURL
 	htdocs := cfg.Htdocs
 	dbName := cfg.DBName
+	bleveName := cfg.BleveName
 	templatePath := cfg.TemplatePath
 
 	if apiURL == "" {
@@ -392,7 +423,10 @@ func New(cfg Config) (*EPrintsAPI, error) {
 		htdocs = "htdocs"
 	}
 	if dbName == "" {
-		dbName = "eprints"
+		dbName = "eprints.boltdb"
+	}
+	if bleveName == "" {
+		bleveName = "eprints.bleve"
 	}
 	if templatePath == "" {
 		templatePath = "templates"
@@ -400,6 +434,7 @@ func New(cfg Config) (*EPrintsAPI, error) {
 	api.Htdocs = htdocs
 	api.DBName = dbName
 	api.TemplatePath = templatePath
+	api.BleveName = bleveName
 	return api, nil
 }
 

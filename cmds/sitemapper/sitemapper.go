@@ -1,5 +1,5 @@
 //
-// Package epgo is a collection of structures and functions for working with the E-Prints REST API
+// sitemapper generates a sitemap.xml file by crawling the content generate with genpages
 //
 // @author R. S. Doiel, <rsdoiel@caltech.edu>
 //
@@ -19,44 +19,39 @@
 package main
 
 import (
-	"encoding/json"
 	"flag"
 	"fmt"
 	"log"
 	"os"
 	"path"
+	"path/filepath"
+	"strings"
 
-	// Caltech Library Packages
+	// Caltech Library packages
 	"github.com/caltechlibrary/epgo"
 )
 
+type locInfo struct {
+	Loc     string
+	LastMod string
+}
+
 var (
-	// cli help text
 	description = `
- USAGE: %s [OPTIONS] [EPRINT_URI]
+USAGE: %s [OPTIONS] HTDOCS_PATH MAP_FILENAME PUBLIC_BASE_URL
 
- %s wraps the REST API for E-Prints 3.3 or better. It can return a list of uri,
- a JSON view of the XML presentation as well as generates feeds and web pages.
+OVERVIEW
 
-OPTIONS
-
+Generates a sitemap for the accession pages.
 `
+
 	configuration = `
+`
 
- CONFIG
+	examples = `
+EXAMPLE
 
- %s can be configured with following environment variables
-
- + EPGO_API_URL (required) the URL to your E-Prints installation
- + EPGO_DBNAME   (required) the BoltDB name for exporting, site building, and content retrieval
- + EPGO_BLEVE (optional) the name for the Bleve index/db
- + EPGO_SITE_URL (optional) the URL to your public website (might be the same as E-Prints)
- + EPGO_HTDOCS   (optional) the htdocs root for site building
- + EPGO_TEMPLATE_PATH (optional) the template directory to use for site building
-
- If EPRINT_URI is provided then an individual EPrint is return as
- a JSON structure (e.g. /rest/eprint/34.xml). Otherwise a list of EPrint paths are
- returned.
+    %s htdocs htdocs/sitemap.xml http://eprints.example.edu
 
 `
 
@@ -92,15 +87,12 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 `
-	// CLI options
+	// Standard cli options
 	showHelp    bool
 	showVersion bool
 	showLicense bool
 
-	useAPI      bool
-	prettyPrint bool
-	buildSite   bool
-
+	// App specific options
 	apiURL       string
 	dbName       string
 	bleveName    string
@@ -108,28 +100,28 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	templatePath string
 	siteURL      string
 
-	exportEPrints   int
-	feedSize        int
-	publishedOldest int
-	publishedNewest int
-	articlesOldest  int
-	articlesNewest  int
+	changefreq string
+	locList    []*locInfo
 )
 
-func usage(description, configuration, appName, version string) {
-	fmt.Printf(description, appName, appName)
+func check(err error) {
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func usage(description, configuration, examples, appName, version string) {
+	fmt.Printf(description, appName)
 	flag.VisitAll(func(f *flag.Flag) {
 		fmt.Printf("\t-%s\t%s\n", f.Name, f.Usage)
 	})
 	fmt.Printf(configuration, appName)
-	fmt.Printf("\n\n%s %s\n", appName, version)
+	fmt.Printf(examples, appName)
+	fmt.Printf("\n%s %s\n", appName, version)
 }
 
 func init() {
-	publishedNewest = 0
-	publishedOldest = 0
-	feedSize = epgo.DefaultFeedSize
-
+	// standard cli options
 	flag.BoolVar(&showHelp, "h", false, "display help")
 	flag.BoolVar(&showHelp, "help", false, "display help")
 	flag.BoolVar(&showVersion, "v", false, "display version")
@@ -137,29 +129,17 @@ func init() {
 	flag.BoolVar(&showLicense, "l", false, "display license")
 	flag.BoolVar(&showLicense, "license", false, "display license")
 
-	flag.StringVar(&apiURL, "api", "", "url for EPrints API")
-	flag.StringVar(&dbName, "dbname", "", "BoltDB name")
-	flag.StringVar(&bleveName, "bleve", "", "Bleve db/index name")
-	flag.StringVar(&htdocs, "htdocs", "", "htdocs path")
-	flag.StringVar(&templatePath, "templates", "", "template path")
-	flag.StringVar(&siteURL, "site_url", "", "the local website URL")
-
-	flag.BoolVar(&prettyPrint, "p", false, "pretty print JSON output")
-	flag.BoolVar(&useAPI, "read-api", false, "read the contents from the API without saving in the database")
-	flag.BoolVar(&buildSite, "build", false, "build pages and feeds from database")
-	flag.IntVar(&feedSize, "feed-size", feedSize, "number of items rendering in feeds")
-	flag.IntVar(&exportEPrints, "export", 0, "export N EPrints from highest ID to lowest")
-	flag.IntVar(&publishedOldest, "published-oldest", 0, "list the N oldest published items")
-	flag.IntVar(&publishedNewest, "published-newest", 0, "list the N newest published items")
-	flag.IntVar(&articlesOldest, "articles-oldest", 0, "list the N oldest published articles")
-	flag.IntVar(&articlesNewest, "articles-newest", 0, "list the N newest published articles")
+	// app specific cli options
+	flag.StringVar(&changefreq, "u", "daily", "Set the change frequencely value, e.g. daily, weekly, monthly")
+	flag.StringVar(&changefreq, "update-frequency", "daily", "Set the change frequencely value, e.g. daily, weekly, monthly")
 }
 
 func main() {
 	appName := path.Base(os.Args[0])
 	flag.Parse()
+	args := flag.Args()
 	if showHelp == true {
-		usage(description, configuration, appName, epgo.Version)
+		usage(description, configuration, examples, appName, epgo.Version)
 		os.Exit(0)
 	}
 	if showVersion == true {
@@ -171,76 +151,62 @@ func main() {
 		os.Exit(0)
 	}
 
-	// Populate cfg from the environment
+	if len(args) != 3 {
+		fmt.Printf("%s requires 3 parameters, see %s --help\n", appName, appName)
+		os.Exit(1)
+	}
+
 	var cfg epgo.Config
+
+	// Required
+	check(cfg.MergeEnv("EPGO", "HTDOCS", htdocs))
+	check(cfg.MergeEnv("EPGO", "SITE_URL", siteURL))
+
+	// Optional
 	cfg.MergeEnv("EPGO", "API_URL", apiURL)
 	cfg.MergeEnv("EPGO", "DBNAME", dbName)
 	cfg.MergeEnv("EPGO", "BLEVE", bleveName)
-	cfg.MergeEnv("EPGO", "HTDOCS", htdocs)
 	cfg.MergeEnv("EPGO", "TEMPLATE_PATH", templatePath)
-	cfg.MergeEnv("EPGO", "SITE_URL", siteURL)
 
-	// This will read in any settings from the environment
-	api, err := epgo.New(cfg)
+	if changefreq == "" {
+		changefreq = "daily"
+	}
+
+	log.Printf("Starting map of %s\n", args[0])
+	filepath.Walk(args[0], func(p string, info os.FileInfo, err error) error {
+		if strings.HasSuffix(p, ".html") {
+			fname := path.Base(p)
+			//NOTE: You can skip the eror pages in the sitemap
+			if strings.HasPrefix(fname, "50") == false && strings.HasPrefix(p, "40") == false {
+				finfo := new(locInfo)
+				finfo.Loc = fmt.Sprintf("%s%s", args[2], strings.TrimPrefix(p, args[0]))
+				yr, mn, dy := info.ModTime().Date()
+				finfo.LastMod = fmt.Sprintf("%d-%0.2d-%0.2d", yr, mn, dy)
+				log.Printf("Adding %s\n", finfo.Loc)
+				locList = append(locList, finfo)
+			}
+		}
+		return nil
+	})
+	fmt.Printf("Writing %s\n", args[1])
+	fp, err := os.OpenFile(args[1], os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0664)
 	if err != nil {
-		log.Fatalf("%s", err)
+		log.Fatalf("Can't create %s, %s\n", args[1], err)
 	}
-
-	args := flag.Args()
-	if exportEPrints != 0 {
-		if err := api.ExportEPrints(exportEPrints); err != nil {
-			log.Fatalf("%s", err)
-		}
-		if buildSite == false {
-			os.Exit(0)
-		}
+	defer fp.Close()
+	fp.Write([]byte(`<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+`))
+	for _, item := range locList {
+		fp.WriteString(fmt.Sprintf(`
+    <url>
+            <loc>%s</loc>
+            <lastmod>%s</lastmod>
+            <changefreq>%s</changefreq>
+    </url>
+`, item.Loc, item.LastMod, changefreq))
 	}
-
-	if buildSite == true {
-		if err := api.BuildSite(feedSize); err != nil {
-			log.Fatalf("%s", err)
-		}
-		os.Exit(0)
-	}
-
-	//
-	// Generate JSON output
-	//
-	var (
-		src  []byte
-		data interface{}
-	)
-	switch {
-	case publishedNewest > 0:
-		data, err = api.GetPublishedRecords(0, publishedNewest, epgo.Descending)
-	case publishedOldest > 0:
-		data, err = api.GetPublishedRecords(0, publishedOldest, epgo.Ascending)
-	case articlesNewest > 0:
-		data, err = api.GetPublishedArticles(0, articlesNewest, epgo.Descending)
-	case articlesOldest > 0:
-		data, err = api.GetPublishedArticles(0, articlesOldest, epgo.Ascending)
-	case useAPI == true:
-		if len(args) == 1 {
-			data, err = api.GetEPrint(args[0])
-		} else {
-			data, err = api.ListEPrintsURI()
-		}
-	default:
-		if len(args) == 1 {
-			data, err = api.Get(args[0])
-		} else {
-			data, err = api.ListURI(0, 1000000)
-		}
-	}
-
-	if err != nil {
-		log.Fatalf("%s", err)
-	}
-
-	if prettyPrint == true {
-		src, _ = json.MarshalIndent(data, "", "    ")
-	} else {
-		src, _ = json.Marshal(data)
-	}
-	fmt.Printf("%s", src)
+	fp.Write([]byte(`
+</urlset>
+`))
 }

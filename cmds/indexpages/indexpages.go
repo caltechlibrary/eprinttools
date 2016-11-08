@@ -19,44 +19,46 @@
 package main
 
 import (
-	"encoding/json"
 	"flag"
 	"fmt"
 	"log"
 	"os"
 	"path"
 
-	// Caltech Library Packages
+	// Caltech Libraries packages
 	"github.com/caltechlibrary/epgo"
+
+	// 3rd Party packages
+	"github.com/blevesearch/bleve"
 )
 
 var (
-	// cli help text
 	description = `
- USAGE: %s [OPTIONS] [EPRINT_URI]
+ USAGE: %s [OPTIONS]
 
- %s wraps the REST API for E-Prints 3.3 or better. It can return a list of uri,
- a JSON view of the XML presentation as well as generates feeds and web pages.
+ SYNOPSIS
 
-OPTIONS
+ %s is a command line utility to indexes content in the htdocs directory.
+ It produces a Bleve search index used by servepages web service.
+ Configuration is done through environmental variables.
 
+ OPTIONS
 `
+
 	configuration = `
 
- CONFIG
+ CONFIGURATION
 
- %s can be configured with following environment variables
+ %s relies on the following environment variables for
+ configuration when overriding the defaults:
 
- + EPGO_API_URL (required) the URL to your E-Prints installation
- + EPGO_DBNAME   (required) the BoltDB name for exporting, site building, and content retrieval
- + EPGO_BLEVE (optional) the name for the Bleve index/db
- + EPGO_SITE_URL (optional) the URL to your public website (might be the same as E-Prints)
- + EPGO_HTDOCS   (optional) the htdocs root for site building
- + EPGO_TEMPLATE_PATH (optional) the template directory to use for site building
+    EPGO_HTDOCS       This should be the path to the directory tree
+                        containings the content (e.g. JSON files) to be index.
+                        This is generally populated with the caitpage command.
+						Defaults to ./htdocs.
 
- If EPRINT_URI is provided then an individual EPrint is return as
- a JSON structure (e.g. /rest/eprint/34.xml). Otherwise a list of EPrint paths are
- returned.
+    EPGO_BLEVE        This is is the directory that will contain all the Bleve
+                        indexes. Defaults to ./htdocs.bleve
 
 `
 
@@ -92,44 +94,43 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 `
-	// CLI options
+	// cli options
 	showHelp    bool
 	showVersion bool
 	showLicense bool
 
-	useAPI      bool
-	prettyPrint bool
-	buildSite   bool
-
-	apiURL       string
-	dbName       string
-	bleveName    string
+	// additional options
+	replaceIndex bool
 	htdocs       string
-	templatePath string
+	indexName    string
+	dbName       string
+	apiURL       string
 	siteURL      string
+	templatePath string
 
-	exportEPrints   int
-	feedSize        int
-	publishedOldest int
-	publishedNewest int
-	articlesOldest  int
-	articlesNewest  int
+	// internal counters
+	dirCount  int
+	fileCount int
 )
 
-func usage(description, configuration, appName, version string) {
+func check(err error) {
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func usage(appName, version string) {
 	fmt.Printf(description, appName, appName)
 	flag.VisitAll(func(f *flag.Flag) {
 		fmt.Printf("\t-%s\t%s\n", f.Name, f.Usage)
 	})
 	fmt.Printf(configuration, appName)
-	fmt.Printf("\n\n%s %s\n", appName, version)
+	fmt.Printf("%s %s\n", appName, version)
+	os.Exit(0)
 }
 
 func init() {
-	publishedNewest = 0
-	publishedOldest = 0
-	feedSize = epgo.DefaultFeedSize
-
+	// standard options
 	flag.BoolVar(&showHelp, "h", false, "display help")
 	flag.BoolVar(&showHelp, "help", false, "display help")
 	flag.BoolVar(&showVersion, "v", false, "display version")
@@ -137,30 +138,80 @@ func init() {
 	flag.BoolVar(&showLicense, "l", false, "display license")
 	flag.BoolVar(&showLicense, "license", false, "display license")
 
-	flag.StringVar(&apiURL, "api", "", "url for EPrints API")
-	flag.StringVar(&dbName, "dbname", "", "BoltDB name")
-	flag.StringVar(&bleveName, "bleve", "", "Bleve db/index name")
-	flag.StringVar(&htdocs, "htdocs", "", "htdocs path")
-	flag.StringVar(&templatePath, "templates", "", "template path")
-	flag.StringVar(&siteURL, "site_url", "", "the local website URL")
+	// app specific options
+	flag.StringVar(&htdocs, "htdocs", "", "The document root for the website")
+	flag.StringVar(&indexName, "bleve", "", "The name of the Bleve index")
+	flag.BoolVar(&replaceIndex, "r", false, "Replace the index if it exists")
+}
 
-	flag.BoolVar(&prettyPrint, "p", false, "pretty print JSON output")
-	flag.BoolVar(&useAPI, "read-api", false, "read the contents from the API without saving in the database")
-	flag.BoolVar(&buildSite, "build", false, "build pages and feeds from database")
-	flag.IntVar(&feedSize, "feed-size", feedSize, "number of items rendering in feeds")
-	flag.IntVar(&exportEPrints, "export", 0, "export N EPrints from highest ID to lowest")
-	flag.IntVar(&publishedOldest, "published-oldest", 0, "list the N oldest published items")
-	flag.IntVar(&publishedNewest, "published-newest", 0, "list the N newest published items")
-	flag.IntVar(&articlesOldest, "articles-oldest", 0, "list the N oldest published articles")
-	flag.IntVar(&articlesNewest, "articles-newest", 0, "list the N newest published articles")
+func getIndex(indexName string) (bleve.Index, error) {
+	if _, err := os.Stat(indexName); os.IsNotExist(err) {
+		log.Printf("Creating Bleve index at %s\n", indexName)
+
+		log.Println("Setting up index...")
+		indexMapping := bleve.NewIndexMapping()
+		// Add Accession as a specific document map
+		eprintMapping := bleve.NewDocumentMapping()
+
+		// Now add specific accession fields
+		titleMapping := bleve.NewTextFieldMapping()
+		titleMapping.Analyzer = "en"
+		titleMapping.Store = true
+		titleMapping.Index = true
+		eprintMapping.AddFieldMappingsAt("title", titleMapping)
+
+		descriptionMapping := bleve.NewTextFieldMapping()
+		descriptionMapping.Analyzer = "en"
+		descriptionMapping.Store = true
+		descriptionMapping.Index = true
+		eprintMapping.AddFieldMappingsAt("description", descriptionMapping)
+
+		subjectsMapping := bleve.NewTextFieldMapping()
+		subjectsMapping.Analyzer = "en"
+		subjectsMapping.Store = true
+		subjectsMapping.Index = true
+		subjectsMapping.IncludeTermVectors = true
+		eprintMapping.AddFieldMappingsAt("subject", subjectsMapping)
+
+		datesMapping := bleve.NewTextFieldMapping()
+		datesMapping.Store = true
+		datesMapping.Index = false
+		eprintMapping.AddFieldMappingsAt("date", datesMapping)
+
+		createdMapping := bleve.NewDateTimeFieldMapping()
+		createdMapping.Store = true
+		createdMapping.Index = false
+		eprintMapping.AddFieldMappingsAt("created", createdMapping)
+
+		// Finally add this mapping to the main index mapping
+		indexMapping.AddDocumentMapping("eprint", eprintMapping)
+
+		index, err := bleve.New(indexName, indexMapping)
+		if err != nil {
+			return nil, fmt.Errorf("Can't create new bleve index %s, %s", indexName, err)
+		}
+		return index, nil
+	}
+	log.Printf("Opening Bleve index at %s\n", indexName)
+	index, err := bleve.Open(indexName)
+	if err != nil {
+		return nil, fmt.Errorf("Can't create new bleve index %s, %s", indexName, err)
+	}
+	return index, nil
+}
+
+func indexSite(index bleve.Index, batchSize int) error {
+	return fmt.Errorf("indexSite() not implemented.")
 }
 
 func main() {
+	var err error
+
 	appName := path.Base(os.Args[0])
+
 	flag.Parse()
 	if showHelp == true {
-		usage(description, configuration, appName, epgo.Version)
-		os.Exit(0)
+		usage(appName, epgo.Version)
 	}
 	if showVersion == true {
 		fmt.Printf("%s %s\n", appName, epgo.Version)
@@ -168,79 +219,34 @@ func main() {
 	}
 	if showLicense == true {
 		fmt.Printf(license, appName, epgo.Version)
-		os.Exit(0)
 	}
 
-	// Populate cfg from the environment
 	var cfg epgo.Config
+
+	// Required fields
+	check(cfg.MergeEnv("EPGO", "DBNAME", dbName))
+	check(cfg.MergeEnv("EPGO", "BLEVE", indexName))
+	check(cfg.MergeEnv("EPGO", "HTDOCS", htdocs))
+	check(cfg.MergeEnv("EPGO", "SITE_URL", siteURL))
+	// Optional fields
 	cfg.MergeEnv("EPGO", "API_URL", apiURL)
-	cfg.MergeEnv("EPGO", "DBNAME", dbName)
-	cfg.MergeEnv("EPGO", "BLEVE", bleveName)
-	cfg.MergeEnv("EPGO", "HTDOCS", htdocs)
 	cfg.MergeEnv("EPGO", "TEMPLATE_PATH", templatePath)
-	cfg.MergeEnv("EPGO", "SITE_URL", siteURL)
 
-	// This will read in any settings from the environment
-	api, err := epgo.New(cfg)
+	if replaceIndex == true {
+		err := os.RemoveAll(indexName)
+		if err != nil {
+			log.Fatalf("Could not removed %s, %s", indexName, err)
+		}
+	}
+
+	index, err := getIndex(indexName)
 	if err != nil {
 		log.Fatalf("%s", err)
 	}
+	defer index.Close()
 
-	args := flag.Args()
-	if exportEPrints != 0 {
-		if err := api.ExportEPrints(exportEPrints); err != nil {
-			log.Fatalf("%s", err)
-		}
-		if buildSite == false {
-			os.Exit(0)
-		}
-	}
-
-	if buildSite == true {
-		if err := api.BuildSite(feedSize); err != nil {
-			log.Fatalf("%s", err)
-		}
-		os.Exit(0)
-	}
-
-	//
-	// Generate JSON output
-	//
-	var (
-		src  []byte
-		data interface{}
-	)
-	switch {
-	case publishedNewest > 0:
-		data, err = api.GetPublishedRecords(0, publishedNewest, epgo.Descending)
-	case publishedOldest > 0:
-		data, err = api.GetPublishedRecords(0, publishedOldest, epgo.Ascending)
-	case articlesNewest > 0:
-		data, err = api.GetPublishedArticles(0, articlesNewest, epgo.Descending)
-	case articlesOldest > 0:
-		data, err = api.GetPublishedArticles(0, articlesOldest, epgo.Ascending)
-	case useAPI == true:
-		if len(args) == 1 {
-			data, err = api.GetEPrint(args[0])
-		} else {
-			data, err = api.ListEPrintsURI()
-		}
-	default:
-		if len(args) == 1 {
-			data, err = api.Get(args[0])
-		} else {
-			data, err = api.ListURI(0, 1000000)
-		}
-	}
-
-	if err != nil {
-		log.Fatalf("%s", err)
-	}
-
-	if prettyPrint == true {
-		src, _ = json.MarshalIndent(data, "", "    ")
-	} else {
-		src, _ = json.Marshal(data)
-	}
-	fmt.Printf("%s", src)
+	// Walk our data import tree and index things
+	log.Printf("Start indexing of %s in %s\n", htdocs, indexName)
+	indexSite(index, 1000)
+	log.Printf("Finished")
 }
