@@ -145,6 +145,7 @@ func init() {
 }
 
 func getIndex(indexName string) (bleve.Index, error) {
+	//FIXME: we want to create a new fresh index, then swap the alias to the old one
 	if _, err := os.Stat(indexName); os.IsNotExist(err) {
 		log.Printf("Creating Bleve index at %s\n", indexName)
 
@@ -164,6 +165,7 @@ func getIndex(indexName string) (bleve.Index, error) {
 		descriptionMapping.Analyzer = "en"
 		descriptionMapping.Store = true
 		descriptionMapping.Index = true
+		descriptionMapping.IncludeTermVectors = true
 		eprintMapping.AddFieldMappingsAt("description", descriptionMapping)
 
 		subjectsMapping := bleve.NewTextFieldMapping()
@@ -172,6 +174,13 @@ func getIndex(indexName string) (bleve.Index, error) {
 		subjectsMapping.Index = true
 		subjectsMapping.IncludeTermVectors = true
 		eprintMapping.AddFieldMappingsAt("subject", subjectsMapping)
+
+		groupMapping := bleve.NewTextFieldMapping()
+		groupMapping.Analyzer = "en"
+		groupMapping.Store = true
+		groupMapping.Index = true
+		groupMapping.IncludeTermVectors = true
+		eprintMapping.AddFieldMappingsAt("group", groupMapping)
 
 		datesMapping := bleve.NewTextFieldMapping()
 		datesMapping.Store = true
@@ -186,6 +195,7 @@ func getIndex(indexName string) (bleve.Index, error) {
 		// Finally add this mapping to the main index mapping
 		indexMapping.AddDocumentMapping("eprint", eprintMapping)
 
+		log.Printf("Creating Bleve index at %s\n", indexName)
 		index, err := bleve.New(indexName, indexMapping)
 		if err != nil {
 			return nil, fmt.Errorf("Can't create new bleve index %s, %s", indexName, err)
