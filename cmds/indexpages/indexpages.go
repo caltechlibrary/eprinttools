@@ -19,11 +19,14 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
 	"path"
+	"time"
 
 	// Caltech Libraries packages
 	"github.com/caltechlibrary/epgo"
@@ -100,13 +103,15 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	showLicense bool
 
 	// additional options
-	replaceIndex bool
-	htdocs       string
-	indexName    string
-	dbName       string
-	apiURL       string
-	siteURL      string
-	templatePath string
+	replaceIndex   bool
+	htdocs         string
+	indexName      string
+	dbName         string
+	apiURL         string
+	siteURL        string
+	templatePath   string
+	repositoryPath string
+	maxBatchSize   int
 
 	// internal counters
 	dirCount  int
@@ -142,76 +147,169 @@ func init() {
 	flag.StringVar(&htdocs, "htdocs", "", "The document root for the website")
 	flag.StringVar(&indexName, "bleve", "", "The name of the Bleve index")
 	flag.BoolVar(&replaceIndex, "r", false, "Replace the index if it exists")
+	flag.StringVar(&repositoryPath, "repository-path", "", "Path of rendered repository content")
+	flag.IntVar(&maxBatchSize, "batch", maxBatchSize, "Set the maximum batch index size")
+}
+
+func createIndex(indexName string) (bleve.Index, error) {
+	log.Printf("Creating Bleve index at %s\n", indexName)
+
+	log.Println("Setting up index...")
+	indexMapping := bleve.NewIndexMapping()
+	// Add EPrint as a specific document map
+	eprintMapping := bleve.NewDocumentMapping()
+
+	// Now add specific accession fields
+	titleMapping := bleve.NewTextFieldMapping()
+	titleMapping.Analyzer = "en"
+	titleMapping.Store = true
+	titleMapping.Index = true
+	eprintMapping.AddFieldMappingsAt("title", titleMapping)
+
+	abstractMapping := bleve.NewTextFieldMapping()
+	abstractMapping.Analyzer = "en"
+	abstractMapping.Store = true
+	abstractMapping.Index = true
+	eprintMapping.AddFieldMappingsAt("abstract", abstractMapping)
+
+	publicationMapping := bleve.NewTextFieldMapping()
+	publicationMapping.Analyzer = "en"
+	publicationMapping.Store = true
+	publicationMapping.Index = true
+	eprintMapping.AddFieldMappingsAt("publication", publicationMapping)
+
+	subjectsMapping := bleve.NewTextFieldMapping()
+	subjectsMapping.Analyzer = "en"
+	subjectsMapping.Store = true
+	subjectsMapping.Index = true
+	subjectsMapping.IncludeTermVectors = true
+	eprintMapping.AddFieldMappingsAt("subjects", subjectsMapping)
+
+	typeMapping := bleve.NewTextFieldMapping()
+	typeMapping.Analyzer = "en"
+	typeMapping.Store = true
+	typeMapping.Index = true
+	eprintMapping.AddFieldMappingsAt("type", typeMapping)
+
+	localGroupMapping := bleve.NewTextFieldMapping()
+	localGroupMapping.Analyzer = "en"
+	eprintMapping.AddFieldMappingsAt("local_group", localGroupMapping)
+
+	fundersMapping := bleve.NewTextFieldMapping()
+	fundersMapping.Analyzer = "en"
+	eprintMapping.AddFieldMappingsAt("funders", fundersMapping)
+
+	creatorsMapping := bleve.NewTextFieldMapping()
+	creatorsMapping.Analyzer = "en"
+	creatorsMapping.IncludeTermVectors = true
+	eprintMapping.AddFieldMappingsAt("creators", creatorsMapping)
+
+	orcidMapping := bleve.NewTextFieldMapping()
+	orcidMapping.Analyzer = "en"
+	eprintMapping.AddFieldMappingsAt("orcid", orcidMapping)
+
+	createdMapping := bleve.NewDateTimeFieldMapping()
+	createdMapping.Store = true
+	createdMapping.Index = false
+	eprintMapping.AddFieldMappingsAt("created", createdMapping)
+
+	// Finally add this mapping to the main index mapping
+	indexMapping.AddDocumentMapping("eprint", eprintMapping)
+
+	log.Printf("Creating Bleve index at %s\n", indexName)
+	index, err := bleve.New(indexName, indexMapping)
+	if err != nil {
+		return nil, fmt.Errorf("Can't create new bleve index %q, %s", indexName, err)
+	}
+	return index, nil
 }
 
 func getIndex(indexName string) (bleve.Index, error) {
 	//FIXME: we want to create a new fresh index, then swap the alias to the old one
 	if _, err := os.Stat(indexName); os.IsNotExist(err) {
-		log.Printf("Creating Bleve index at %s\n", indexName)
-
-		log.Println("Setting up index...")
-		indexMapping := bleve.NewIndexMapping()
-		// Add Accession as a specific document map
-		eprintMapping := bleve.NewDocumentMapping()
-
-		// Now add specific accession fields
-		titleMapping := bleve.NewTextFieldMapping()
-		titleMapping.Analyzer = "en"
-		titleMapping.Store = true
-		titleMapping.Index = true
-		eprintMapping.AddFieldMappingsAt("title", titleMapping)
-
-		descriptionMapping := bleve.NewTextFieldMapping()
-		descriptionMapping.Analyzer = "en"
-		descriptionMapping.Store = true
-		descriptionMapping.Index = true
-		descriptionMapping.IncludeTermVectors = true
-		eprintMapping.AddFieldMappingsAt("description", descriptionMapping)
-
-		subjectsMapping := bleve.NewTextFieldMapping()
-		subjectsMapping.Analyzer = "en"
-		subjectsMapping.Store = true
-		subjectsMapping.Index = true
-		subjectsMapping.IncludeTermVectors = true
-		eprintMapping.AddFieldMappingsAt("subject", subjectsMapping)
-
-		groupMapping := bleve.NewTextFieldMapping()
-		groupMapping.Analyzer = "en"
-		groupMapping.Store = true
-		groupMapping.Index = true
-		groupMapping.IncludeTermVectors = true
-		eprintMapping.AddFieldMappingsAt("group", groupMapping)
-
-		datesMapping := bleve.NewTextFieldMapping()
-		datesMapping.Store = true
-		datesMapping.Index = false
-		eprintMapping.AddFieldMappingsAt("date", datesMapping)
-
-		createdMapping := bleve.NewDateTimeFieldMapping()
-		createdMapping.Store = true
-		createdMapping.Index = false
-		eprintMapping.AddFieldMappingsAt("created", createdMapping)
-
-		// Finally add this mapping to the main index mapping
-		indexMapping.AddDocumentMapping("eprint", eprintMapping)
-
-		log.Printf("Creating Bleve index at %s\n", indexName)
-		index, err := bleve.New(indexName, indexMapping)
-		if err != nil {
-			return nil, fmt.Errorf("Can't create new bleve index %s, %s", indexName, err)
-		}
-		return index, nil
+		return createIndex(indexName)
 	}
 	log.Printf("Opening Bleve index at %s\n", indexName)
 	index, err := bleve.Open(indexName)
 	if err != nil {
-		return nil, fmt.Errorf("Can't create new bleve index %s, %s", indexName, err)
+		return nil, fmt.Errorf("Can't open new bleve index %q, %s", indexName, err)
 	}
 	return index, nil
 }
 
-func indexSite(index bleve.Index, batchSize int) error {
-	return fmt.Errorf("indexSite() not implemented.")
+func indexSite(htdocs, eprintsDotJSON string, index bleve.Index, maxBatchSize int) error {
+	var (
+		uris   []string
+		record *epgo.Record
+	)
+
+	startT := time.Now()
+	count := 0
+	batchNo := 1
+
+	log.Printf("Reading %s", eprintsDotJSON)
+	src, err := ioutil.ReadFile(eprintsDotJSON)
+	if err != nil {
+		return err
+	}
+
+	log.Printf("Decoding %s", eprintsDotJSON)
+	err = json.Unmarshal(src, &uris)
+	if err != nil {
+		return err
+	}
+	total := len(uris)
+
+	log.Printf("%d eprints found", total)
+	currentBatchSize := 5
+	batch := index.NewBatch()
+	log.Printf("Indexed: %d of %d, batch size %d, run time %s", count, total, currentBatchSize, time.Now().Sub(startT))
+	for _, uri := range uris {
+		p := path.Join(htdocs, uri)
+		src, err := ioutil.ReadFile(p)
+		if err != nil {
+			return err
+		}
+		err = json.Unmarshal(src, &record)
+		if err != nil {
+			return err
+		}
+		if len(record.OfficialURL) > 0 {
+			err = batch.Index(record.OfficialURL, record)
+			if err != nil {
+				return err
+			}
+			// Let go of reference to this record can be garbage collected
+			record = nil
+		}
+		if batch.Size() >= currentBatchSize {
+			log.Printf("Indexing batch %d", batchNo)
+			batchNo++
+			err := index.Batch(batch)
+			if err != nil {
+				return err
+			}
+			count += batch.Size()
+			batch.Reset()
+			log.Printf("Indexed: %d of %d, batch size %d, run time %s", count, total, currentBatchSize, time.Now().Sub(startT))
+			if currentBatchSize < maxBatchSize {
+				currentBatchSize = currentBatchSize * batchNo
+			}
+			if currentBatchSize > maxBatchSize {
+				currentBatchSize = maxBatchSize
+			}
+		}
+	}
+	if batch.Size() > 0 {
+		log.Printf("Indexing batch %d", batchNo)
+		err := index.Batch(batch)
+		if err != nil {
+			return err
+		}
+		count += batch.Size()
+		log.Printf("Indexed: %d of %d, batch size %d, run time %s", count, total, currentBatchSize, time.Now().Sub(startT))
+	}
+	return nil
 }
 
 func main() {
@@ -231,6 +329,10 @@ func main() {
 		fmt.Printf(license, appName, epgo.Version)
 	}
 
+	if maxBatchSize == 0 {
+		maxBatchSize = 500
+	}
+
 	var cfg epgo.Config
 
 	// Required fields
@@ -238,25 +340,33 @@ func main() {
 	check(cfg.MergeEnv("EPGO", "BLEVE", indexName))
 	check(cfg.MergeEnv("EPGO", "HTDOCS", htdocs))
 	check(cfg.MergeEnv("EPGO", "SITE_URL", siteURL))
+	check(cfg.MergeEnv("EPGO", "REPOSITORY_PATH", repositoryPath))
 	// Optional fields
 	cfg.MergeEnv("EPGO", "API_URL", apiURL)
 	cfg.MergeEnv("EPGO", "TEMPLATE_PATH", templatePath)
 
+	// Now log what we're running
+	log.Printf("%s %s", appName, epgo.Version)
+
 	if replaceIndex == true {
-		err := os.RemoveAll(indexName)
+		log.Printf("Clearing index")
+		err := os.RemoveAll(cfg.Get("bleve"))
 		if err != nil {
-			log.Fatalf("Could not removed %s, %s", indexName, err)
+			log.Fatalf("Could not removed %s, %s", cfg.Get("bleve"), err)
 		}
 	}
 
-	index, err := getIndex(indexName)
+	index, err := getIndex(cfg.Get("bleve"))
 	if err != nil {
 		log.Fatalf("%s", err)
 	}
 	defer index.Close()
 
 	// Walk our data import tree and index things
-	log.Printf("Start indexing of %s in %s\n", htdocs, indexName)
-	indexSite(index, 1000)
+	log.Printf("Start indexing contents of %s as %s\n", path.Join(cfg.Get("htdocs"), cfg.Get("repository_path"), "eprints.json"), cfg.Get("bleve"))
+	err = indexSite(cfg.Get("htdocs"), path.Join(cfg.Get("htdocs"), cfg.Get("repository_path"), "eprints.json"), index, maxBatchSize)
+	if err != nil {
+		log.Fatal(err)
+	}
 	log.Printf("Finished")
 }

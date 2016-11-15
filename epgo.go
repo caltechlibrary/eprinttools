@@ -175,13 +175,14 @@ func failCheck(err error, msg string) {
 
 // EPrintsAPI holds the basic connectin information to read the REST API for EPrints
 type EPrintsAPI struct {
-	XMLName      xml.Name `json:"-"`
-	URL          *url.URL `xml:"epgo>api_url" json:"api_url"`             // EPGO_API_URL
-	DBName       string   `xml:"epgo>dbname" json:"dbname"`               // EPGO_DBNAME
-	BleveName    string   `xml:"epgo>bleve" json:"bleve"`                 // EPGO_BLEVE
-	Htdocs       string   `xml:"epgo>htdocs" json:"htdocs"`               // EPGO_HTDOCS
-	TemplatePath string   `xml:"epgo>template_path" json:"template_path"` // EPGO_TEMPLATES
-	SiteURL      *url.URL `xml:"epgo>site_url" josn:"site_url"`           // EPGO_SITE_URL
+	XMLName        xml.Name `json:"-"`
+	URL            *url.URL `xml:"epgo>api_url" json:"api_url"`                 // EPGO_API_URL
+	DBName         string   `xml:"epgo>dbname" json:"dbname"`                   // EPGO_DBNAME
+	BleveName      string   `xml:"epgo>bleve" json:"bleve"`                     // EPGO_BLEVE
+	Htdocs         string   `xml:"epgo>htdocs" json:"htdocs"`                   // EPGO_HTDOCS
+	TemplatePath   string   `xml:"epgo>template_path" json:"template_path"`     // EPGO_TEMPLATES
+	SiteURL        *url.URL `xml:"epgo>site_url" json:"site_url"`               // EPGO_SITE_URL
+	RepositoryPath string   `xml:"epgo>repository_path" json:"repository_path"` // EPGO_REPOSITORY_PATH
 }
 
 // Person returns the contents of eprint>creators>item>name as a struct
@@ -189,8 +190,8 @@ type Person struct {
 	XMLName xml.Name `json:"-"`
 	Given   string   `xml:"name>given" json:"given"`
 	Family  string   `xml:"name>family" json:"family"`
-	ID      string   `xml:"id,omitempty" json:"id,omitempty"`
-	ORCID   string   `xml:"orcid,omitempty" json:"orcid,omitempty"`
+	ID      string   `xml:"id,omitempty" json:"id"`
+	ORCID   string   `xml:"orcid,omitempty" json:"orcid"`
 }
 
 // RelatedURL is a structure containing information about a relationship
@@ -212,7 +213,7 @@ type NumberingSystem struct {
 type Funder struct {
 	XMLName     xml.Name `json:"-"`
 	Agency      string   `xml:"agency" json:"agency"`
-	GrantNumber string   `xml:"grant_number,omitempty" json:"grant_number,omitempty"`
+	GrantNumber string   `xml:"grant_number,omitempty" json:"grant_number"`
 }
 
 // File structures in Document
@@ -286,7 +287,7 @@ type Record struct {
 	ReferenceText        []string           `xml:"eprint>referencetext>item" json:"referencetext"`
 	Rights               string             `xml:"eprint>rights" json:"rights"`
 	OfficialCitation     string             `xml:"eprint>official_cit" json:"official_citation"`
-	OtherNumberingSystem []*NumberingSystem `xml:"eprint>other_numbering_system>item,omitempty" json:"other_numbering_system,omitempty"`
+	OtherNumberingSystem []*NumberingSystem `xml:"eprint>other_numbering_system>item,omitempty" json:"other_numbering_system"`
 	Funders              []*Funder          `xml:"eprint>funders>item" json:"funders"`
 	Collection           string             `xml:"eprint>collection" json:"collection"`
 	Reviewer             string             `xml:"eprint>reviewer" json:"reviewer"`
@@ -313,6 +314,8 @@ type Config struct {
 	Htdocs string `json:"htdocs" xml:"htdocs"`
 	// TemplatePath directory for generating website described by SiteURL and Htdocs
 	TemplatePath string `json:"templates" xml:"templates"`
+	// RepositoryPath directory for generated repository wide content
+	RepositoryPath string `json:"repository_path" xml:"repository_path"`
 }
 
 func (cfg *Config) String() string {
@@ -371,6 +374,8 @@ func (cfg *Config) MergeEnv(prefix, key, proposedValue string) error {
 		cfg.TemplatePath = val
 	case "BLEVE":
 		cfg.BleveName = val
+	case "REPOSITORY_PATH":
+		cfg.RepositoryPath = val
 	default:
 		return fmt.Errorf("%s isn't a known configuration option", key)
 	}
@@ -392,6 +397,8 @@ func (cfg *Config) Get(key string) string {
 		return cfg.DBName
 	case "templates":
 		return cfg.TemplatePath
+	case "repository_path":
+		return cfg.RepositoryPath
 	default:
 		return ""
 	}
@@ -406,6 +413,7 @@ func New(cfg Config) (*EPrintsAPI, error) {
 	dbName := cfg.DBName
 	bleveName := cfg.BleveName
 	templatePath := cfg.TemplatePath
+	repositoryPath := cfg.RepositoryPath
 
 	if apiURL == "" {
 		return nil, fmt.Errorf("Environment not configured, missing eprint api url")
@@ -431,10 +439,14 @@ func New(cfg Config) (*EPrintsAPI, error) {
 	if templatePath == "" {
 		templatePath = "templates"
 	}
+	if repositoryPath == "" {
+		repositoryPath = "repository"
+	}
 	api.Htdocs = htdocs
 	api.DBName = dbName
 	api.TemplatePath = templatePath
 	api.BleveName = bleveName
+	api.RepositoryPath = repositoryPath
 	return api, nil
 }
 
@@ -678,8 +690,89 @@ func (api *EPrintsAPI) Get(uri string) (*Record, error) {
 	return record, err
 }
 
+// GetAllRecordIDs reads and returns a list of record ids found.
+func (api *EPrintsAPI) GetAllRecordIDs(direction int) ([]string, error) {
+	db, err := bolt.Open(api.DBName, 0660, &bolt.Options{Timeout: 1 * time.Second, ReadOnly: true})
+	failCheck(err, fmt.Sprintf("GetAllRecordIDs() %s failed to open db, %s", api.DBName, err))
+	defer db.Close()
+
+	//	var records []Record
+	var (
+		results []string
+	)
+	switch direction {
+	case Ascending:
+		err = db.View(func(tx *bolt.Tx) error {
+			idx := tx.Bucket(pubDatesBucket)
+			c := idx.Cursor()
+			for k, uri := c.First(); k != nil; k, uri = c.Next() {
+				results = append(results, fmt.Sprintf("%s", uri))
+			}
+			return nil
+		})
+	case Descending:
+		err = db.View(func(tx *bolt.Tx) error {
+			idx := tx.Bucket(pubDatesBucket)
+			c := idx.Cursor()
+			for k, uri := c.Last(); k != nil; k, uri = c.Prev() {
+				results = append(results, fmt.Sprintf("%s", uri))
+			}
+			return nil
+		})
+	}
+	return results, err
+}
+
+// GetAllRecords reads and returns all records keys
+// returning an array of keys in  ascending or decending order
+func (api *EPrintsAPI) GetAllRecords(direction int) ([]*Record, error) {
+	db, err := bolt.Open(api.DBName, 0660, &bolt.Options{Timeout: 1 * time.Second, ReadOnly: true})
+	failCheck(err, fmt.Sprintf("GetAllRecords() %s failed to open db, %s", api.DBName, err))
+	defer db.Close()
+
+	//	var records []Record
+	var (
+		results []*Record
+	)
+	switch direction {
+	case Ascending:
+		err = db.View(func(tx *bolt.Tx) error {
+			recs := tx.Bucket(ePrintBucket)
+			idx := tx.Bucket(pubDatesBucket)
+			c := idx.Cursor()
+			for k, uri := c.First(); k != nil; k, uri = c.Next() {
+				rec := new(Record)
+				src := recs.Get([]byte(uri))
+				err := json.Unmarshal(src, rec)
+				if err != nil {
+					return fmt.Errorf("Can't unmarshal %s, %s", uri, err)
+				}
+				results = append(results, rec)
+			}
+			return nil
+		})
+	case Descending:
+		err = db.View(func(tx *bolt.Tx) error {
+			recs := tx.Bucket(ePrintBucket)
+			idx := tx.Bucket(pubDatesBucket)
+			c := idx.Cursor()
+			for k, uri := c.Last(); k != nil; k, uri = c.Prev() {
+				rec := new(Record)
+				src := recs.Get([]byte(uri))
+				err := json.Unmarshal(src, rec)
+				if err != nil {
+					return fmt.Errorf("Can't unmarshal %s, %s", uri, err)
+				}
+				results = append(results, rec)
+			}
+			return nil
+		})
+	}
+	return results, err
+}
+
 // GetPublishedRecords reads the index for published content and returns a populated
-// array of records found in index in decending order
+// array of records found in index in ascending or decending order
 func (api *EPrintsAPI) GetPublishedRecords(start, count, direction int) ([]*Record, error) {
 	db, err := bolt.Open(api.DBName, 0660, &bolt.Options{Timeout: 1 * time.Second, ReadOnly: true})
 	failCheck(err, fmt.Sprintf("GetPulishedRecords() %s failed to open db, %s", api.DBName, err))
@@ -1091,6 +1184,18 @@ func (api *EPrintsAPI) GetORCIDRecords(orcid string, start, count, direction int
 	return results, nil
 }
 
+// RenderRecord writes a single EPrint record to disc.
+func (api *EPrintsAPI) RenderRecord(basepath string, record *Record) error {
+	// Convert record to JSON
+	src, err := json.Marshal(record)
+	if err != nil {
+		return err
+	}
+	fname := path.Join(basepath, fmt.Sprintf("%d.json", record.ID))
+	return ioutil.WriteFile(fname, src, 0664)
+	// FIXME: look at adding other presententations, e.g. HTML, HTML include, BibTeX
+}
+
 // RenderDocuments writes JSON, HTML, include and rss to the directory indicated by basepath
 func (api *EPrintsAPI) RenderDocuments(docTitle, docDescription, basepath string, records []*Record) error {
 	// Create the basepath if neccessary
@@ -1189,7 +1294,7 @@ func (api *EPrintsAPI) RenderDocuments(docTitle, docDescription, basepath string
 	return nil
 }
 
-// BuildPages generates a webpages based on the contents of the exported EPrints data.
+// BuildPages generates webpages based on the contents of the exported EPrints data.
 // The site builder needs to know the name of the BoltDB, the root directory
 // for the website and directory to find the templates
 func (api *EPrintsAPI) BuildPages(feedSize int, title, target string, filter func(*EPrintsAPI, int, int, int) ([]*Record, error)) error {
@@ -1213,6 +1318,56 @@ func (api *EPrintsAPI) BuildPages(feedSize int, title, target string, filter fun
 	return nil
 }
 
+func (api *EPrintsAPI) BuildEPrintMirror() error {
+	// checkPath checks  and creates a path if needed
+	checkPath := func(p string) error {
+		_, err := os.Stat(p)
+		if os.IsExist(err) == true {
+			return nil
+		}
+		return os.MkdirAll(p, 0775)
+	}
+
+	ids, err := api.GetAllRecordIDs(Descending)
+	if err != nil {
+		return err
+	}
+
+	// Setup subdirs to hold all the individual eprint records.
+	keys := []string{}
+	subdir := []string{"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"}
+	q := len(subdir)
+	// Make subdirs as needed
+	for _, p := range subdir {
+		checkPath(path.Join(api.Htdocs, api.RepositoryPath, p))
+	}
+	total := len(ids)
+	i := 0
+	for _, uri := range ids {
+		record, err := api.Get(uri)
+		if err != nil {
+			return err
+		}
+		basepath := path.Join(api.Htdocs, api.RepositoryPath, subdir[i%q])
+		err = api.RenderRecord(basepath, record)
+		if err != nil {
+			return err
+		}
+		//NOTE: We only save the path relative to the web docroot.
+		keys = append(keys, path.Join(api.RepositoryPath, subdir[i%q], fmt.Sprintf("%d.json", record.ID)))
+		if (i % 1000) == 0 {
+			log.Printf("%d of %d records written", i, total)
+		}
+		i++
+	}
+	log.Printf("%d of %d records written", i, total)
+	src, err := json.Marshal(keys)
+	if err != nil {
+		return err
+	}
+	return ioutil.WriteFile(path.Join(api.Htdocs, api.RepositoryPath, "eprints.json"), src, 0664)
+}
+
 // BuildSite generates a website based on the contents of the exported EPrints data.
 // The site builder needs to know the name of the BoltDB, the root directory
 // for the website and directory to find the templates
@@ -1220,9 +1375,25 @@ func (api *EPrintsAPI) BuildSite(feedSize int) error {
 	if feedSize < 1 {
 		feedSize = DefaultFeedSize
 	}
+	// Build mirror of repository content.
+	log.Printf("Mirroring eprint records")
+	err := api.BuildEPrintMirror()
+	if err != nil {
+		return nil
+	}
+
+	// Build a master file of all records (these are large and probably only useful for migration purposes)
+	log.Printf("Building EPrint Repository Master Index")
+	err = api.BuildPages(feedSize, "Repository Master Index", api.RepositoryPath, func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
+		return api.GetAllRecords(Descending)
+	})
+	if err != nil {
+		return err
+	}
+
 	// Collect the published records
 	log.Printf("Building Recently Published")
-	err := api.BuildPages(feedSize, "Recently Published", "recent/published", func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
+	err = api.BuildPages(feedSize, "Recently Published", path.Join("recent", "published"), func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
 		return api.GetPublishedRecords(0, feedSize, Descending)
 	})
 	if err != nil {
@@ -1231,7 +1402,7 @@ func (api *EPrintsAPI) BuildSite(feedSize int) error {
 
 	// Collect the published articles
 	log.Printf("Building Recent Articles")
-	err = api.BuildPages(feedSize, "Recent Articles", "recent/articles", func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
+	err = api.BuildPages(feedSize, "Recent Articles", path.Join("recent", "articles"), func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
 		return api.GetPublishedArticles(start, count, Descending)
 	})
 	if err != nil {
@@ -1246,8 +1417,16 @@ func (api *EPrintsAPI) BuildSite(feedSize int) error {
 	}
 	log.Printf("Found %d orcids", len(orcids))
 	for _, orcid := range orcids {
-		err = api.BuildPages(-1, fmt.Sprintf("ORCID: %s", orcid), fmt.Sprintf("person/%s", orcid), func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
+		// Build recent list of each ORCID
+		err = api.BuildPages(-1, fmt.Sprintf("ORCID: %s", orcid), path.Join("person", fmt.Sprintf("%s", orcid), "recent"), func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
 			return api.GetORCIDRecords(orcid, start, count, Descending)
+		})
+		if err != nil {
+			return err
+		}
+		// Build complete list for each orcid
+		err = api.BuildPages(-1, fmt.Sprintf("ORCID: %s", orcid), path.Join("person", fmt.Sprintf("%s", orcid)), func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
+			return api.GetORCIDRecords(orcid, 0, -1, Descending)
 		})
 		if err != nil {
 			return err
@@ -1262,8 +1441,16 @@ func (api *EPrintsAPI) BuildSite(feedSize int) error {
 	}
 	log.Printf("Found %d groups", len(groupNames))
 	for _, groupName := range groupNames {
-		err = api.BuildPages(-1, fmt.Sprintf("%s", groupName), fmt.Sprintf("affiliation/%s", Slugify(groupName)), func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
+		// Build recently for each affiliation
+		err = api.BuildPages(-1, fmt.Sprintf("%s", groupName), path.Join("affiliation", fmt.Sprintf("%s", Slugify(groupName)), "recent"), func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
 			return api.GetLocalGroupRecords(groupName, start, count, Descending)
+		})
+		if err != nil {
+			return err
+		}
+		// Build complete list for each affiliation
+		err = api.BuildPages(-1, fmt.Sprintf("%s", groupName), path.Join("affiliation", fmt.Sprintf("%s", Slugify(groupName))), func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
+			return api.GetLocalGroupRecords(groupName, 0, -1, Descending)
 		})
 		if err != nil {
 			return err

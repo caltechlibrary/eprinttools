@@ -74,12 +74,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	showVersion bool
 	showLicense bool
 
-	htdocs       string
-	dbName       string
-	bleveName    string
-	templatePath string
-	apiURL       string
-	siteURL      string
+	htdocs         string
+	dbName         string
+	bleveName      string
+	templatePath   string
+	apiURL         string
+	siteURL        string
+	repositoryPath string
 )
 
 func usage(appName, version string) {
@@ -112,6 +113,7 @@ func init() {
 	flag.StringVar(&apiURL, "api-url", "", "the URL of the EPrints API")
 	flag.StringVar(&siteURL, "site-url", "", "the website url")
 	flag.StringVar(&templatePath, "templates", "", "specify where to read the templates from")
+	flag.StringVar(&repositoryPath, "repository-path", "", "specify the repository path to use for generated content")
 }
 
 func main() {
@@ -139,6 +141,7 @@ func main() {
 	// Merge any optional data
 	cfg.MergeEnv("EPGO", "BLEVE", bleveName)
 	cfg.MergeEnv("EPGO", "API_URL", apiURL)
+	cfg.MergeEnv("EPGO", "REPOSITORY_PATH", repositoryPath)
 
 	if cfg.Htdocs != "" {
 		if _, err := os.Stat(htdocs); os.IsNotExist(err) {
@@ -158,6 +161,9 @@ func main() {
 	//
 	log.Printf("%s %s\n", appName, epgo.Version)
 	log.Printf("Rendering pages from %s\n", cfg.DBName)
-	api.BuildSite(-1)
+	err = api.BuildSite(-1)
+	if err != nil {
+		log.Fatal(err)
+	}
 	log.Printf("Rendering complete")
 }
