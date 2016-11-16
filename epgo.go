@@ -63,7 +63,7 @@ var (
 	indexDelimiter   = "|"
 	pubDatesBucket   = []byte("publicationDates")
 	localGroupBucket = []byte("localGroup")
-	orcidBucket      = []byte("orcid")
+	orcidBucket      = []byte("orcid") // NOTE: Combined bucket for ORCID or ISNI ids
 
 	//FIXME: Additional indexes might be useful.
 	// publicationsBucket  = []byte("publications")
@@ -192,6 +192,7 @@ type Person struct {
 	Family  string   `xml:"name>family" json:"family"`
 	ID      string   `xml:"id,omitempty" json:"id"`
 	ORCID   string   `xml:"orcid,omitempty" json:"orcid"`
+	ISNI    string   `xml:"isni,omitempty" json:"isni"`
 }
 
 // RelatedURL is a structure containing information about a relationship
@@ -614,7 +615,14 @@ func (api *EPrintsAPI) ExportEPrints(count int) error {
 						if len(rec.Creators) > 0 {
 							for _, person := range rec.Creators {
 								orcid := strings.TrimSpace(person.ORCID)
+								isni := strings.TrimSpace(person.ISNI)
 								if len(orcid) > 0 {
+									idx := tx.Bucket(orcidBucket)
+									err := idx.Put([]byte(fmt.Sprintf("%s%s%s%s%s", orcid, indexDelimiter, dt, indexDelimiter, rec.URI)), []byte(rec.URI))
+									if err != nil {
+										errs = append(errs, fmt.Sprintf("%s", err))
+									}
+								} else if len(isni) > 0 {
 									idx := tx.Bucket(orcidBucket)
 									err := idx.Put([]byte(fmt.Sprintf("%s%s%s%s%s", orcid, indexDelimiter, dt, indexDelimiter, rec.URI)), []byte(rec.URI))
 									if err != nil {
@@ -1059,9 +1067,9 @@ func (api *EPrintsAPI) GetLocalGroupRecords(groupName string, start, count, dire
 	return results, nil
 }
 
-// GetORCIDs returns a list unique of ORCID IDs in index
+// GetORCIDs (or ISNI) returns a list unique of ORCID/ISNI IDs in index
 func (api *EPrintsAPI) GetORCIDs(start, count, direction int) ([]string, error) {
-	orcids := []string{}
+	ids := []string{}
 	db, err := bolt.Open(api.DBName, 0660, &bolt.Options{Timeout: 1 * time.Second, ReadOnly: true})
 	failCheck(err, fmt.Sprintf("GetORCIDs() %s failed to open db, %s", api.DBName, err))
 	defer db.Close()
@@ -1078,8 +1086,8 @@ func (api *EPrintsAPI) GetORCIDs(start, count, direction int) ([]string, error) 
 			}
 			for k, _ := c.First(); k != nil && count > 0; k, _ = c.Next() {
 				if p >= start {
-					orcid := firstTerm(fmt.Sprintf("%s", k), indexDelimiter)
-					orcids = appendToList(orcids, orcid)
+					id := firstTerm(fmt.Sprintf("%s", k), indexDelimiter)
+					ids = appendToList(ids, id)
 					count--
 				}
 				p++
@@ -1097,8 +1105,8 @@ func (api *EPrintsAPI) GetORCIDs(start, count, direction int) ([]string, error) 
 			}
 			for k, _ := c.Last(); k != nil && count > 0; k, _ = c.Prev() {
 				if p >= start {
-					orcid := firstTerm(fmt.Sprintf("%s", k), indexDelimiter)
-					orcids = appendToList(orcids, orcid)
+					id := firstTerm(fmt.Sprintf("%s", k), indexDelimiter)
+					ids = appendToList(ids, id)
 					count--
 				}
 				p++
@@ -1107,9 +1115,9 @@ func (api *EPrintsAPI) GetORCIDs(start, count, direction int) ([]string, error) 
 		})
 	}
 	if err != nil {
-		return orcids, err
+		return ids, err
 	}
-	return orcids, nil
+	return ids, nil
 }
 
 // GetORCIDRecords returns a list of EPrint records with a given ORCID

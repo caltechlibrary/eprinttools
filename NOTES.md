@@ -4,6 +4,7 @@
 E-Prints produces a list of recently added items to the repository but doesn't provide a feed of items by publication dates.
 The epgo command line utility provides a way to generate that list by leveraging E-Prints REST API.
 
+
 ## epgo functions
 
 + New() - returns an new API structure
@@ -51,6 +52,37 @@ Two examples of "search" using *curl* for titles starting with "flood characteri
 + EPGO_DBNAME - the database name used in exporting or building
 + EPGO_HTDOCS - the htdocs directory where files are written in building
 + EPGO_TEMPLATES - the template directory holding the templates for building
+
+
+## htdocs layout
+
++ publications.*, articles.* come from EPrints
++ data.* comes from the data repository
++ FORMAT: .html, .include (html fragment), .xml (RSS), .json (as JSON document), .bib (BibTeX)
++ ORCID-OR-ISNI: if we have an ORCID use that otherwise use ISNI if available (e.g. Richard Feynman only has an ISNI but not an ORCID)
+    + ORCID and ISNI do not collide, ORCID is a proper subset of ISNI's four four digit grouping
+
+```
+    /index.html <-- docs & description of structure
+    /publications.FORMAT
+    /articles.FORMAT
+    /data.FORMAT
+    /recent/index.html <-- docs describing recent 25 and data formats
+    /recent/publications.FORMAT
+    /recent/articles.FORMAT
+    /recent/data.FORMAT
+    /person/ORCID-OR-ISNI/publications.FORMAT
+    /person/ORCID-OR-ISNI/articles.FORMAT
+    /person/ORCID-OR-ISNI/data.FORMAT
+    /person/ORCID-OR-ISNI/recent/publications.FORMAT
+    /person/ORCID-OR-ISNI/recent/articles.FORMAT
+    /person/ORCID-OR-ISNI/recent/data.FORMAT
+    ...
+    /affiliations/... <-- needs to be defined around a uniqu ID (e.g. what was talked about at pidpaloosa)
+    /search/?q=... <-- search engine results (also available in various FORMAT)
+    /tools/... <-- any web based tools we invent to work with the feeds
+```
+
 
 ## Reference materials
 

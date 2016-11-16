@@ -159,7 +159,7 @@ func createIndex(indexName string) (bleve.Index, error) {
 	// Add EPrint as a specific document map
 	eprintMapping := bleve.NewDocumentMapping()
 
-	// Now add specific accession fields
+	// Now add specific eprint fields
 	titleMapping := bleve.NewTextFieldMapping()
 	titleMapping.Analyzer = "en"
 	titleMapping.Store = true
@@ -208,6 +208,10 @@ func createIndex(indexName string) (bleve.Index, error) {
 	orcidMapping.Analyzer = "en"
 	eprintMapping.AddFieldMappingsAt("orcid", orcidMapping)
 
+	isniMapping := bleve.NewTextFieldMapping()
+	isniMapping.Analyzer = "en"
+	eprintMapping.AddFieldMappingsAt("isni", isniMapping)
+
 	createdMapping := bleve.NewDateTimeFieldMapping()
 	createdMapping.Store = true
 	createdMapping.Index = false
@@ -239,8 +243,7 @@ func getIndex(indexName string) (bleve.Index, error) {
 
 func indexSite(htdocs, eprintsDotJSON string, index bleve.Index, maxBatchSize int) error {
 	var (
-		uris   []string
-		record *epgo.Record
+		uris []string
 	)
 
 	startT := time.Now()
@@ -261,28 +264,23 @@ func indexSite(htdocs, eprintsDotJSON string, index bleve.Index, maxBatchSize in
 	total := len(uris)
 
 	log.Printf("%d eprints found", total)
-	currentBatchSize := 5
+	batchSize := 10
 	batch := index.NewBatch()
-	log.Printf("Indexed: %d of %d, batch size %d, run time %s", count, total, currentBatchSize, time.Now().Sub(startT))
+	log.Printf("Indexed: %d of %d, batch size %d, run time %s", count, total, batchSize, time.Now().Sub(startT))
 	for _, uri := range uris {
 		p := path.Join(htdocs, uri)
 		src, err := ioutil.ReadFile(p)
 		if err != nil {
 			return err
 		}
-		err = json.Unmarshal(src, &record)
+		var jsonDoc interface{}
+		err = json.Unmarshal(src, &jsonDoc)
 		if err != nil {
-			return err
+			log.Printf("error indexing %s, %s", uri, err)
+		} else {
+			batch.Index(uri, jsonDoc)
 		}
-		if len(record.OfficialURL) > 0 {
-			err = batch.Index(record.OfficialURL, record)
-			if err != nil {
-				return err
-			}
-			// Let go of reference to this record can be garbage collected
-			record = nil
-		}
-		if batch.Size() >= currentBatchSize {
+		if batch.Size() >= batchSize {
 			log.Printf("Indexing batch %d", batchNo)
 			batchNo++
 			err := index.Batch(batch)
@@ -291,12 +289,12 @@ func indexSite(htdocs, eprintsDotJSON string, index bleve.Index, maxBatchSize in
 			}
 			count += batch.Size()
 			batch.Reset()
-			log.Printf("Indexed: %d of %d, batch size %d, run time %s", count, total, currentBatchSize, time.Now().Sub(startT))
-			if currentBatchSize < maxBatchSize {
-				currentBatchSize = currentBatchSize * batchNo
+			log.Printf("Indexed: %d of %d, batch size %d, run time %s", count, total, batchSize, time.Now().Sub(startT))
+			if batchSize < maxBatchSize {
+				batchSize += 10
 			}
-			if currentBatchSize > maxBatchSize {
-				currentBatchSize = maxBatchSize
+			if batchSize > maxBatchSize {
+				batchSize = maxBatchSize
 			}
 		}
 	}
@@ -307,7 +305,7 @@ func indexSite(htdocs, eprintsDotJSON string, index bleve.Index, maxBatchSize in
 			return err
 		}
 		count += batch.Size()
-		log.Printf("Indexed: %d of %d, batch size %d, run time %s", count, total, currentBatchSize, time.Now().Sub(startT))
+		log.Printf("Indexed: %d of %d, batch size %d, run time %s", count, total, batchSize, time.Now().Sub(startT))
 	}
 	return nil
 }
@@ -330,7 +328,7 @@ func main() {
 	}
 
 	if maxBatchSize == 0 {
-		maxBatchSize = 500
+		maxBatchSize = 100
 	}
 
 	var cfg epgo.Config
