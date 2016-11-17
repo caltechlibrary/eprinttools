@@ -40,7 +40,7 @@ import (
 
 const (
 	// Version is the revision number for this implementation of epgo
-	Version = "v0.0.8"
+	Version = "v0.0.7"
 
 	// Ascending sorts from lowest (oldest) to highest (newest)
 	Ascending = iota
@@ -1303,7 +1303,7 @@ func (api *EPrintsAPI) RenderDocuments(docTitle, docDescription, basepath string
 	}
 
 	// Writing JSON file
-	fname := path.Join(api.Htdocs, basepath, "index.json")
+	fname := path.Join(api.Htdocs, basepath+".json")
 	src, err := json.Marshal(records)
 	if err != nil {
 		return fmt.Errorf("Can't convert records to JSON %s, %s", fname, err)
@@ -1322,7 +1322,7 @@ func (api *EPrintsAPI) RenderDocuments(docTitle, docDescription, basepath string
 	if err != nil {
 		return fmt.Errorf("Can't convert records to RSS %s, %s", fname, err)
 	}
-	fname = path.Join(api.Htdocs, basepath, "rss.xml")
+	fname = path.Join(api.Htdocs, path.Dir(basepath), "rss.xml")
 	out, err := os.Create(fname)
 	if err != nil {
 		return fmt.Errorf("Can't write %s, %s", fname, err)
@@ -1342,7 +1342,7 @@ func (api *EPrintsAPI) RenderDocuments(docTitle, docDescription, basepath string
 	if err != nil {
 		return fmt.Errorf("Can't parse %s, %s", fname, err)
 	}
-	fname = path.Join(api.Htdocs, basepath, "index.include")
+	fname = path.Join(api.Htdocs, basepath+".include")
 	out, err = os.Create(fname)
 	if err != nil {
 		return fmt.Errorf("Can't write %s, %s", fname, err)
@@ -1360,7 +1360,7 @@ func (api *EPrintsAPI) RenderDocuments(docTitle, docDescription, basepath string
 	if err != nil {
 		return fmt.Errorf("Can't parse %s, %s", fname, err)
 	}
-	fname = path.Join(api.Htdocs, basepath, "index.html")
+	fname = path.Join(api.Htdocs, basepath+".html")
 	out, err = os.Create(fname)
 	if err != nil {
 		return fmt.Errorf("Can't write %s, %s", fname, err)
@@ -1383,7 +1383,7 @@ func (api *EPrintsAPI) BuildPages(feedSize int, title, target string, filter fun
 	}
 	// Collect the published records
 	docPath := path.Join(api.Htdocs, target)
-	log.Printf("Building %s", docPath)
+	log.Printf("Building %s.*", docPath)
 	records, err := filter(api, 0, feedSize, Descending)
 	if err != nil {
 		return fmt.Errorf("Can't get records for %q %s, %s", title, docPath, err)
@@ -1452,19 +1452,23 @@ func (api *EPrintsAPI) BuildEPrintMirror() error {
 // The site builder needs to know the name of the BoltDB, the root directory
 // for the website and directory to find the templates
 func (api *EPrintsAPI) BuildSite(feedSize int) error {
+	var err error
+
 	if feedSize < 1 {
 		feedSize = DefaultFeedSize
 	}
-	// Build mirror of repository content.
-	log.Printf("Mirroring eprint records")
-	err := api.BuildEPrintMirror()
-	if err != nil {
-		return nil
-	}
+	/*
+		// Build mirror of repository content.
+		log.Printf("Mirroring eprint records")
+		err = api.BuildEPrintMirror()
+		if err != nil {
+			return nil
+		}
+	*/
 
 	// Build a master file of all records (these are large and probably only useful for migration purposes)
 	log.Printf("Building EPrint Repository Master Index")
-	err = api.BuildPages(feedSize, "Repository Master Index", api.RepositoryPath, func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
+	err = api.BuildPages(feedSize, "Repository Master Index", "index", func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
 		return api.GetAllRecords(Descending)
 	})
 	if err != nil {
