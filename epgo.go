@@ -1192,8 +1192,8 @@ func (api *EPrintsAPI) GetORCIDRecords(orcid string, start, count, direction int
 	return results, nil
 }
 
-// RenderRecord writes a single EPrint record to disc.
-func (api *EPrintsAPI) RenderRecord(basepath string, record *Record) error {
+// RenderEPrint writes a single EPrint record to disc.
+func (api *EPrintsAPI) RenderEPrint(basepath string, record *Record) error {
 	// Convert record to JSON
 	src, err := json.Marshal(record)
 	if err != nil {
@@ -1357,7 +1357,7 @@ func (api *EPrintsAPI) BuildEPrintMirror() error {
 			return err
 		}
 		basepath := path.Join(api.Htdocs, api.RepositoryPath, subdir[i%q])
-		err = api.RenderRecord(basepath, record)
+		err = api.RenderEPrint(basepath, record)
 		if err != nil {
 			return err
 		}
@@ -1399,16 +1399,16 @@ func (api *EPrintsAPI) BuildSite(feedSize int) error {
 		return err
 	}
 
-	// Collect the published records
+	// Collect the recent publications (all types)
 	log.Printf("Building Recently Published")
-	err = api.BuildPages(feedSize, "Recently Published", path.Join("recent", "published"), func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
+	err = api.BuildPages(feedSize, "Recently Published", path.Join("recent", "publications"), func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
 		return api.GetPublishedRecords(0, feedSize, Descending)
 	})
 	if err != nil {
 		return err
 	}
 
-	// Collect the published articles
+	// Collect the rencently published  articles
 	log.Printf("Building Recent Articles")
 	err = api.BuildPages(feedSize, "Recent Articles", path.Join("recent", "articles"), func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
 		return api.GetPublishedArticles(start, count, Descending)
@@ -1426,6 +1426,7 @@ func (api *EPrintsAPI) BuildSite(feedSize int) error {
 	log.Printf("Found %d orcids", len(orcids))
 	for _, orcid := range orcids {
 		// Build recent list of each ORCID
+		//FIXME: Need to have recent/publications.FORMAT, recent/articles.FORMAT and eventually recent/data.FORMAT
 		err = api.BuildPages(-1, fmt.Sprintf("ORCID: %s", orcid), path.Join("person", fmt.Sprintf("%s", orcid), "recent"), func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
 			return api.GetORCIDRecords(orcid, start, count, Descending)
 		})
@@ -1433,6 +1434,7 @@ func (api *EPrintsAPI) BuildSite(feedSize int) error {
 			return err
 		}
 		// Build complete list for each orcid
+		//FIXME: Need to have publications.FORMAT, articles.FORMAT and eventually data.FORMAT
 		err = api.BuildPages(-1, fmt.Sprintf("ORCID: %s", orcid), path.Join("person", fmt.Sprintf("%s", orcid)), func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
 			return api.GetORCIDRecords(orcid, 0, -1, Descending)
 		})
@@ -1450,6 +1452,7 @@ func (api *EPrintsAPI) BuildSite(feedSize int) error {
 	log.Printf("Found %d groups", len(groupNames))
 	for _, groupName := range groupNames {
 		// Build recently for each affiliation
+		//FIXME: Need to have recent/publications.FORMAT, recent/articles.FORMAT and eventually recent/data.FORMAT
 		err = api.BuildPages(-1, fmt.Sprintf("%s", groupName), path.Join("affiliation", fmt.Sprintf("%s", Slugify(groupName)), "recent"), func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
 			return api.GetLocalGroupRecords(groupName, start, count, Descending)
 		})
@@ -1457,6 +1460,7 @@ func (api *EPrintsAPI) BuildSite(feedSize int) error {
 			return err
 		}
 		// Build complete list for each affiliation
+		//FIXME: Need to have publications.FORMAT, articles.FORMAT and eventually data.FORMAT
 		err = api.BuildPages(-1, fmt.Sprintf("%s", groupName), path.Join("affiliation", fmt.Sprintf("%s", Slugify(groupName))), func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
 			return api.GetLocalGroupRecords(groupName, 0, -1, Descending)
 		})
