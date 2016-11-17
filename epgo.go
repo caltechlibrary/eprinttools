@@ -195,6 +195,9 @@ type Person struct {
 	ISNI    string   `xml:"isni,omitempty" json:"isni"`
 }
 
+// PersonList is an array of pointers to Person structs
+type PersonList []*Person
+
 // RelatedURL is a structure containing information about a relationship
 type RelatedURL struct {
 	XMLName     xml.Name `json:"-"`
@@ -216,6 +219,9 @@ type Funder struct {
 	Agency      string   `xml:"agency" json:"agency"`
 	GrantNumber string   `xml:"grant_number,omitempty" json:"grant_number"`
 }
+
+// FunderList is an array of pointers to Funder structs
+type FunderList []*Funder
 
 // File structures in Document
 type File struct {
@@ -252,13 +258,16 @@ type Document struct {
 	Content   string   `xml:"content" json:"content"`
 }
 
+// DocumentList is an array of pointers to Document structs
+type DocumentList []*Document
+
 // Record returns a structure that can be converted to JSON easily
 type Record struct {
 	XMLName              xml.Name           `json:"-"`
 	Title                string             `xml:"eprint>title" json:"title"`
 	URI                  string             `json:"uri"`
 	Abstract             string             `xml:"eprint>abstract" json:"abstract"`
-	Documents            []*Document        `xml:"eprint>documents>document" json:"documents"`
+	Documents            DocumentList       `xml:"eprint>documents>document" json:"documents"`
 	Note                 string             `xml:"eprint>note" json:"note"`
 	ID                   int                `xml:"eprint>eprintid" json:"id"`
 	RevNumber            int                `xml:"eprint>rev_number" json:"rev_number"`
@@ -269,12 +278,12 @@ type Record struct {
 	StatusChange         string             `xml:"eprint>status_changed" json:"status_changed"`
 	Type                 string             `xml:"eprint>type" json:"type"`
 	MetadataVisibility   string             `xml:"eprint>metadata_visibility" json:"metadata_visibility"`
-	Creators             []*Person          `xml:"eprint>creators>item" json:"creators"`
+	Creators             PersonList         `xml:"eprint>creators>item" json:"creators"`
 	IsPublished          string             `xml:"eprint>ispublished" json:"ispublished"`
 	Subjects             []string           `xml:"eprint>subjects>item" json:"subjects"`
 	FullTextStatus       string             `xml:"eprint>full_text_status" json:"full_text_status"`
 	Keywords             string             `xml:"eprint>keywords" json:"keywords"`
-	Date                 string             `xml:"eprint>date" json:"data"`
+	Date                 string             `xml:"eprint>date" json:"date"`
 	DateType             string             `xml:"eprint>date_type" json:"date_type"`
 	Publication          string             `xml:"eprint>publication" json:"publication"`
 	Volume               string             `xml:"eprint>volume" json:"volume"`
@@ -289,7 +298,7 @@ type Record struct {
 	Rights               string             `xml:"eprint>rights" json:"rights"`
 	OfficialCitation     string             `xml:"eprint>official_cit" json:"official_citation"`
 	OtherNumberingSystem []*NumberingSystem `xml:"eprint>other_numbering_system>item,omitempty" json:"other_numbering_system"`
-	Funders              []*Funder          `xml:"eprint>funders>item" json:"funders"`
+	Funders              FunderList         `xml:"eprint>funders>item" json:"funders"`
 	Collection           string             `xml:"eprint>collection" json:"collection"`
 	Reviewer             string             `xml:"eprint>reviewer" json:"reviewer"`
 	LocalGroup           []string           `xml:"eprint>local_group>item" json:"local_group"`
@@ -527,6 +536,69 @@ func (api *EPrintsAPI) GetEPrint(uri string) (*Record, error) {
 	}
 	return rec, nil
 }
+
+// ToNames takes an array of pointers to Person and returns a list of names (family, given)
+func (persons PersonList) ToNames() []string {
+	var result []string
+
+	for _, person := range persons {
+		result = append(result, fmt.Sprintf("%s, %s", person.Family, person.Given))
+	}
+	return result
+}
+
+// ToORCIDs takes an an array of pointers to Person and returns a list of ORCID ids
+func (persons PersonList) ToORCIDs() []string {
+	var result []string
+
+	for _, person := range persons {
+		result = append(result, person.ORCID)
+	}
+
+	return result
+}
+
+// ToISNIs takes an array of pointers to Person and returns a list of ISNI ids
+func (persons PersonList) ToISNIs() []string {
+	var result []string
+
+	for _, person := range persons {
+		result = append(result, person.ISNI)
+	}
+
+	return result
+}
+
+// ToAgencies takes an array of pointers to Funders and returns a list of Agency names
+func (funders FunderList) ToAgencies() []string {
+	var result []string
+
+	for _, funder := range funders {
+		result = append(result, funder.Agency)
+	}
+
+	return result
+}
+
+// ToGrantNumbers takes an array of pointers to Funders and returns a list of Agency names
+func (funders FunderList) ToGrantNumbers() []string {
+	var result []string
+
+	for _, funder := range funders {
+		result = append(result, funder.GrantNumber)
+	}
+
+	return result
+}
+
+func (record *Record) PubDate() string {
+	if strings.Compare(record.DateType, "published") == 0 {
+		return record.Date
+	}
+	return ""
+}
+
+// initBuckets initializes expected buckets if necessary for boltdb
 
 // initBuckets initializes expected buckets if necessary for boltdb
 func initBuckets(db *bolt.DB) error {

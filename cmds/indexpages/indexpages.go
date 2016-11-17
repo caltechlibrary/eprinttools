@@ -264,7 +264,7 @@ func indexSite(htdocs, eprintsDotJSON string, index bleve.Index, maxBatchSize in
 	total := len(uris)
 
 	log.Printf("%d eprints found", total)
-	batchSize := 10
+	batchSize := 50
 	batch := index.NewBatch()
 	log.Printf("Indexed: %d of %d, batch size %d, run time %s", count, total, batchSize, time.Now().Sub(startT))
 	for _, uri := range uris {
@@ -273,12 +273,46 @@ func indexSite(htdocs, eprintsDotJSON string, index bleve.Index, maxBatchSize in
 		if err != nil {
 			return err
 		}
-		var jsonDoc interface{}
+		var jsonDoc *epgo.Record
 		err = json.Unmarshal(src, &jsonDoc)
 		if err != nil {
 			log.Printf("error indexing %s, %s", uri, err)
 		} else {
-			batch.Index(uri, jsonDoc)
+			batch.Index(uri, struct {
+				EPrintID     int
+				OfficialURL  string
+				Title        string
+				Abstract     string
+				Keywords     string
+				ISSN         string
+				Publication  string
+				Note         string
+				Authors      []string
+				ORCIDs       []string
+				ISNIs        []string
+				Type         string
+				Rights       string
+				Funders      []string
+				GrantNumbers []string
+				PubDate      string
+			}{
+				EPrintID:     jsonDoc.ID,
+				Type:         jsonDoc.Type,
+				OfficialURL:  jsonDoc.OfficialURL,
+				Title:        jsonDoc.Title,
+				Abstract:     jsonDoc.Abstract,
+				Keywords:     jsonDoc.Keywords,
+				ISSN:         jsonDoc.ISSN,
+				Publication:  jsonDoc.Publication,
+				Note:         jsonDoc.Note,
+				Authors:      jsonDoc.Creators.ToNames(),
+				ORCIDs:       jsonDoc.Creators.ToORCIDs(),
+				ISNIs:        jsonDoc.Creators.ToISNIs(),
+				Rights:       jsonDoc.Rights,
+				Funders:      jsonDoc.Funders.ToAgencies(),
+				GrantNumbers: jsonDoc.Funders.ToGrantNumbers(),
+				PubDate:      jsonDoc.PubDate(),
+			})
 		}
 		if batch.Size() >= batchSize {
 			log.Printf("Indexing batch %d", batchNo)
@@ -291,7 +325,7 @@ func indexSite(htdocs, eprintsDotJSON string, index bleve.Index, maxBatchSize in
 			batch.Reset()
 			log.Printf("Indexed: %d of %d, batch size %d, run time %s", count, total, batchSize, time.Now().Sub(startT))
 			if batchSize < maxBatchSize {
-				batchSize += 10
+				batchSize = batchSize * 2
 			}
 			if batchSize > maxBatchSize {
 				batchSize = maxBatchSize
@@ -328,7 +362,7 @@ func main() {
 	}
 
 	if maxBatchSize == 0 {
-		maxBatchSize = 100
+		maxBatchSize = 500
 	}
 
 	var cfg epgo.Config
