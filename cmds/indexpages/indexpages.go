@@ -159,58 +159,84 @@ func createIndex(indexName string) (bleve.Index, error) {
 	// Add EPrint as a specific document map
 	eprintMapping := bleve.NewDocumentMapping()
 
+	/*
+		EPrintID:     jsonDoc.ID,
+		Type:         jsonDoc.Type,
+		OfficialURL:  jsonDoc.OfficialURL,
+		Title:        jsonDoc.Title,
+		Abstract:     jsonDoc.Abstract,
+		Keywords:     jsonDoc.Keywords,
+		ISSN:         jsonDoc.ISSN,
+		Publication:  jsonDoc.Publication,
+		Note:         jsonDoc.Note,
+		Authors:      jsonDoc.Creators.ToNames(),
+		ORCIDs:       jsonDoc.Creators.ToORCIDs(),
+		ISNIs:        jsonDoc.Creators.ToISNIs(),
+		Rights:       jsonDoc.Rights,
+		Funders:      jsonDoc.Funders.ToAgencies(),
+		GrantNumbers: jsonDoc.Funders.ToGrantNumbers(),
+		PubDate:      jsonDoc.PubDate(),
+		LocalGroup:  jsonDoc.LocalGroup,
+	*/
 	// Now add specific eprint fields
 	titleMapping := bleve.NewTextFieldMapping()
 	titleMapping.Analyzer = "en"
 	titleMapping.Store = true
 	titleMapping.Index = true
-	eprintMapping.AddFieldMappingsAt("title", titleMapping)
+	eprintMapping.AddFieldMappingsAt("Title", titleMapping)
 
 	abstractMapping := bleve.NewTextFieldMapping()
 	abstractMapping.Analyzer = "en"
 	abstractMapping.Store = true
 	abstractMapping.Index = true
-	eprintMapping.AddFieldMappingsAt("abstract", abstractMapping)
+	eprintMapping.AddFieldMappingsAt("Abstract", abstractMapping)
 
 	publicationMapping := bleve.NewTextFieldMapping()
 	publicationMapping.Analyzer = "en"
 	publicationMapping.Store = true
 	publicationMapping.Index = true
-	eprintMapping.AddFieldMappingsAt("publication", publicationMapping)
+	eprintMapping.AddFieldMappingsAt("Publication", publicationMapping)
 
 	subjectsMapping := bleve.NewTextFieldMapping()
 	subjectsMapping.Analyzer = "en"
 	subjectsMapping.Store = true
 	subjectsMapping.Index = true
 	subjectsMapping.IncludeTermVectors = true
-	eprintMapping.AddFieldMappingsAt("subjects", subjectsMapping)
+	eprintMapping.AddFieldMappingsAt("Subjects", subjectsMapping)
+
+	keywordsMapping := bleve.NewTextFieldMapping()
+	keywordsMapping.Analyzer = "en"
+	keywordsMapping.Store = true
+	keywordsMapping.Index = true
+	keywordsMapping.IncludeTermVectors = true
+	eprintMapping.AddFieldMappingsAt("Keywords", keywordsMapping)
 
 	typeMapping := bleve.NewTextFieldMapping()
 	typeMapping.Analyzer = "en"
 	typeMapping.Store = true
 	typeMapping.Index = true
-	eprintMapping.AddFieldMappingsAt("type", typeMapping)
+	eprintMapping.AddFieldMappingsAt("Type", typeMapping)
 
 	localGroupMapping := bleve.NewTextFieldMapping()
 	localGroupMapping.Analyzer = "en"
-	eprintMapping.AddFieldMappingsAt("local_group", localGroupMapping)
+	eprintMapping.AddFieldMappingsAt("LocalGroup", localGroupMapping)
 
 	fundersMapping := bleve.NewTextFieldMapping()
 	fundersMapping.Analyzer = "en"
-	eprintMapping.AddFieldMappingsAt("funders", fundersMapping)
+	eprintMapping.AddFieldMappingsAt("Funders", fundersMapping)
 
 	creatorsMapping := bleve.NewTextFieldMapping()
 	creatorsMapping.Analyzer = "en"
 	creatorsMapping.IncludeTermVectors = true
-	eprintMapping.AddFieldMappingsAt("creators", creatorsMapping)
+	eprintMapping.AddFieldMappingsAt("Authors", creatorsMapping)
 
 	orcidMapping := bleve.NewTextFieldMapping()
 	orcidMapping.Analyzer = "en"
-	eprintMapping.AddFieldMappingsAt("orcid", orcidMapping)
+	eprintMapping.AddFieldMappingsAt("ORCIDs", orcidMapping)
 
 	isniMapping := bleve.NewTextFieldMapping()
 	isniMapping.Analyzer = "en"
-	eprintMapping.AddFieldMappingsAt("isni", isniMapping)
+	eprintMapping.AddFieldMappingsAt("ISNIs", isniMapping)
 
 	createdMapping := bleve.NewDateTimeFieldMapping()
 	createdMapping.Store = true
@@ -295,6 +321,8 @@ func indexSite(htdocs, eprintsDotJSON string, index bleve.Index, maxBatchSize in
 				Funders      []string
 				GrantNumbers []string
 				PubDate      string
+				LocalGroup   []string
+				Subjects     []string
 			}{
 				EPrintID:     jsonDoc.ID,
 				Type:         jsonDoc.Type,
@@ -312,6 +340,8 @@ func indexSite(htdocs, eprintsDotJSON string, index bleve.Index, maxBatchSize in
 				Funders:      jsonDoc.Funders.ToAgencies(),
 				GrantNumbers: jsonDoc.Funders.ToGrantNumbers(),
 				PubDate:      jsonDoc.PubDate(),
+				LocalGroup:   jsonDoc.LocalGroup,
+				Subjects:     jsonDoc.Subjects,
 			})
 		}
 		if batch.Size() >= batchSize {

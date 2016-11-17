@@ -1276,11 +1276,11 @@ func (api *EPrintsAPI) RenderEPrint(basepath string, record *Record) error {
 	// FIXME: look at adding other presententations, e.g. HTML, HTML include, BibTeX
 }
 
-// RenderDocuments writes JSON, HTML, include and rss to the directory indicated by basepath
-func (api *EPrintsAPI) RenderDocuments(docTitle, docDescription, basepath string, records []*Record) error {
-	// Create the basepath if neccessary
-	if _, err := os.Open(path.Join(api.Htdocs, basepath)); err != nil && os.IsNotExist(err) == true {
-		os.MkdirAll(path.Join(api.Htdocs, basepath), 0775)
+// RenderDocuments writes JSON, HTML, include and rss to the directory indicated by docpath
+func (api *EPrintsAPI) RenderDocuments(docTitle, docDescription, docpath string, records []*Record) error {
+	// Create the the directory part of docpath if neccessary
+	if _, err := os.Open(path.Join(api.Htdocs, docpath)); err != nil && os.IsNotExist(err) == true {
+		os.MkdirAll(path.Join(api.Htdocs, path.Dir(docpath)), 0775)
 	}
 
 	//NOTE: create a data wrapper for HTML page creation
@@ -1294,7 +1294,7 @@ func (api *EPrintsAPI) RenderDocuments(docTitle, docDescription, basepath string
 		Records        []*Record
 	}{
 		Version:        Version,
-		Basepath:       basepath,
+		Basepath:       docpath,
 		ApiURL:         api.URL.String(),
 		SiteURL:        api.SiteURL.String(),
 		DocTitle:       docTitle,
@@ -1303,7 +1303,7 @@ func (api *EPrintsAPI) RenderDocuments(docTitle, docDescription, basepath string
 	}
 
 	// Writing JSON file
-	fname := path.Join(api.Htdocs, basepath+".json")
+	fname := path.Join(api.Htdocs, docpath+".json")
 	src, err := json.Marshal(records)
 	if err != nil {
 		return fmt.Errorf("Can't convert records to JSON %s, %s", fname, err)
@@ -1322,7 +1322,7 @@ func (api *EPrintsAPI) RenderDocuments(docTitle, docDescription, basepath string
 	if err != nil {
 		return fmt.Errorf("Can't convert records to RSS %s, %s", fname, err)
 	}
-	fname = path.Join(api.Htdocs, path.Dir(basepath), "rss.xml")
+	fname = path.Join(api.Htdocs, docpath) + ".rss"
 	out, err := os.Create(fname)
 	if err != nil {
 		return fmt.Errorf("Can't write %s, %s", fname, err)
@@ -1342,7 +1342,7 @@ func (api *EPrintsAPI) RenderDocuments(docTitle, docDescription, basepath string
 	if err != nil {
 		return fmt.Errorf("Can't parse %s, %s", fname, err)
 	}
-	fname = path.Join(api.Htdocs, basepath+".include")
+	fname = path.Join(api.Htdocs, docpath+".include")
 	out, err = os.Create(fname)
 	if err != nil {
 		return fmt.Errorf("Can't write %s, %s", fname, err)
@@ -1360,7 +1360,7 @@ func (api *EPrintsAPI) RenderDocuments(docTitle, docDescription, basepath string
 	if err != nil {
 		return fmt.Errorf("Can't parse %s, %s", fname, err)
 	}
-	fname = path.Join(api.Htdocs, basepath+".html")
+	fname = path.Join(api.Htdocs, docpath+".html")
 	out, err = os.Create(fname)
 	if err != nil {
 		return fmt.Errorf("Can't write %s, %s", fname, err)
@@ -1457,18 +1457,17 @@ func (api *EPrintsAPI) BuildSite(feedSize int) error {
 	if feedSize < 1 {
 		feedSize = DefaultFeedSize
 	}
-	/*
-		// Build mirror of repository content.
-		log.Printf("Mirroring eprint records")
-		err = api.BuildEPrintMirror()
-		if err != nil {
-			return nil
-		}
-	*/
+
+	// Build mirror of repository content.
+	log.Printf("Mirroring eprint records")
+	err = api.BuildEPrintMirror()
+	if err != nil {
+		return nil
+	}
 
 	// Build a master file of all records (these are large and probably only useful for migration purposes)
 	log.Printf("Building EPrint Repository Master Index")
-	err = api.BuildPages(feedSize, "Repository Master Index", "index", func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
+	err = api.BuildPages(feedSize, "Repository Master Index", path.Join(api.RepositoryPath, "index"), func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
 		return api.GetAllRecords(Descending)
 	})
 	if err != nil {
@@ -1503,7 +1502,7 @@ func (api *EPrintsAPI) BuildSite(feedSize int) error {
 	for _, orcid := range orcids {
 		// Build recent list of each ORCID
 		//FIXME: Need to have recent/publications.FORMAT, recent/articles.FORMAT and eventually recent/data.FORMAT
-		err = api.BuildPages(-1, fmt.Sprintf("ORCID: %s", orcid), path.Join("person", fmt.Sprintf("%s", orcid), "recent"), func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
+		err = api.BuildPages(-1, fmt.Sprintf("ORCID: %s", orcid), path.Join("person", fmt.Sprintf("%s", orcid), "recent", "publications"), func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
 			return api.GetORCIDRecords(orcid, start, count, Descending)
 		})
 		if err != nil {
@@ -1511,7 +1510,7 @@ func (api *EPrintsAPI) BuildSite(feedSize int) error {
 		}
 		// Build complete list for each orcid
 		//FIXME: Need to have publications.FORMAT, articles.FORMAT and eventually data.FORMAT
-		err = api.BuildPages(-1, fmt.Sprintf("ORCID: %s", orcid), path.Join("person", fmt.Sprintf("%s", orcid)), func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
+		err = api.BuildPages(-1, fmt.Sprintf("ORCID: %s", orcid), path.Join("person", fmt.Sprintf("%s", orcid), "publications"), func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
 			return api.GetORCIDRecords(orcid, 0, -1, Descending)
 		})
 		if err != nil {
@@ -1529,7 +1528,7 @@ func (api *EPrintsAPI) BuildSite(feedSize int) error {
 	for _, groupName := range groupNames {
 		// Build recently for each affiliation
 		//FIXME: Need to have recent/publications.FORMAT, recent/articles.FORMAT and eventually recent/data.FORMAT
-		err = api.BuildPages(-1, fmt.Sprintf("%s", groupName), path.Join("affiliation", fmt.Sprintf("%s", Slugify(groupName)), "recent"), func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
+		err = api.BuildPages(-1, fmt.Sprintf("%s", groupName), path.Join("affiliation", fmt.Sprintf("%s", Slugify(groupName)), "recent", "publications"), func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
 			return api.GetLocalGroupRecords(groupName, start, count, Descending)
 		})
 		if err != nil {
@@ -1537,7 +1536,7 @@ func (api *EPrintsAPI) BuildSite(feedSize int) error {
 		}
 		// Build complete list for each affiliation
 		//FIXME: Need to have publications.FORMAT, articles.FORMAT and eventually data.FORMAT
-		err = api.BuildPages(-1, fmt.Sprintf("%s", groupName), path.Join("affiliation", fmt.Sprintf("%s", Slugify(groupName))), func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
+		err = api.BuildPages(-1, fmt.Sprintf("%s", groupName), path.Join("affiliation", fmt.Sprintf("%s", Slugify(groupName)), "publications"), func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
 			return api.GetLocalGroupRecords(groupName, 0, -1, Descending)
 		})
 		if err != nil {
