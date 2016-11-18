@@ -225,11 +225,6 @@ func (q *QueryOptions) AttachSearchResults(sr *bleve.SearchResult) {
 }
 
 func resultsHandler(w http.ResponseWriter, r *http.Request) {
-	var (
-		pageHTML    = "results.html"
-		pageInclude = "results.include"
-	)
-
 	urlQuery := r.URL.Query()
 	err := r.ParseForm()
 	if err != nil {
@@ -357,11 +352,11 @@ func resultsHandler(w http.ResponseWriter, r *http.Request) {
 	// as carring the results to support paging and other types of navigation through
 	// the query set. Results are a query with the bleve.SearchReults merged
 	q.AttachSearchResults(searchResults)
-	pageHTML = "results.html"
-	pageInclude = "results.include"
+	pageHTML := path.Join(templatePath, "results.html")
+	pageInclude := path.Join(templatePath, "results.include")
 
 	// Load my templates and setup to execute them
-	tmpl, err := epgo.AssembleTemplate(path.Join(templatePath, pageHTML), path.Join(templatePath, pageInclude))
+	tmpl, err := epgo.AssembleTemplate(pageHTML, pageInclude)
 	if err != nil {
 		responseLogger(r, http.StatusInternalServerError, fmt.Errorf("Template Errors: %s, %s, %s\n", pageHTML, pageInclude, err))
 		w.WriteHeader(http.StatusInternalServerError)
@@ -374,7 +369,7 @@ func resultsHandler(w http.ResponseWriter, r *http.Request) {
 	var buf bytes.Buffer
 	err = tmpl.Execute(&buf, q)
 	if err != nil {
-		responseLogger(r, http.StatusInternalServerError, fmt.Errorf("Can't render %s, %s/%s, %s", templatePath, pageHTML, pageInclude, err))
+		responseLogger(r, http.StatusInternalServerError, fmt.Errorf("Can't render %s, %s, %s", pageHTML, pageInclude, err))
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte("Template error"))
 		return
@@ -405,12 +400,14 @@ func searchHandler(w http.ResponseWriter, r *http.Request) {
 		tmpl *template.Template
 		err  error
 	)
+	pageHTML := path.Join(templatePath, "search.html")
+	pageInclude := path.Join(templatePath, "search.include")
 	w.Header().Set("Content-Type", "text/html")
 	if strings.HasPrefix(r.URL.Path, "/search/") == true {
 		formData.URI = "/search/"
-		tmpl, err = epgo.AssembleTemplate(path.Join(templatePath, "search.html"), path.Join(templatePath, "search.include"))
+		tmpl, err = epgo.AssembleTemplate(pageHTML, pageInclude)
 		if err != nil {
-			fmt.Printf("Can't read search templates, %s", err)
+			fmt.Printf("Can't read search templates %s, %s, %s", pageHTML, pageInclude, err)
 			return
 		}
 	}
@@ -505,7 +502,7 @@ func init() {
 	flag.StringVar(&htdocs, "htdocs", "", "specify where to write the HTML files to")
 	flag.StringVar(&bleveName, "bleve", "", "the Bleve index/db name")
 	flag.StringVar(&siteURL, "site-url", "", "the website url")
-	flag.StringVar(&templatePath, "templates", "", "specify where to read the templates from")
+	flag.StringVar(&templatePath, "template-path", "", "specify where to read the templates from")
 }
 
 func main() {
@@ -541,6 +538,7 @@ func main() {
 	}
 	htdocs = cfg.Get("htdocs")
 	templatePath = cfg.Get("template_path")
+	log.Printf("DEBUG templatePath: %q", templatePath)
 	bleveName = cfg.Get("bleve")
 	siteURL = cfg.Get("site_url")
 

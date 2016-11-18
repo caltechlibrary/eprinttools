@@ -130,7 +130,7 @@ func init() {
 	flag.StringVar(&bleveName, "bleve", "", "the Bleve index/db name")
 	flag.StringVar(&apiURL, "api-url", "", "the URL of the EPrints API")
 	flag.StringVar(&siteURL, "site-url", "", "the website url")
-	flag.StringVar(&templatePath, "templates", "", "specify where to read the templates from")
+	flag.StringVar(&templatePath, "template-path", "", "specify where to read the templates from")
 	flag.StringVar(&repositoryPath, "repository-path", "", "specify the repository path to use for generated content")
 }
 

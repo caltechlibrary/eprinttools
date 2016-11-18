@@ -405,7 +405,7 @@ func (cfg *Config) Get(key string) string {
 		return cfg.BleveName
 	case "dbname":
 		return cfg.DBName
-	case "templates":
+	case "template_path":
 		return cfg.TemplatePath
 	case "repository_path":
 		return cfg.RepositoryPath
