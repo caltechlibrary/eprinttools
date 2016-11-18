@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Search Results</title>
+    <style>
+    .search-result {
+        height: auto;
+        width: 100%;
+        border-bottom: medium solid black;
+    }
+    </style>
+</head>
+<body>
+    <header><h1>Search Results</h1></header>
+    <nav class="site-nav">
+        <li><a href="/search/basic/">New Search</a></li>
+    </nav>
+    {{ template "content" . }}
+    <footer>
+    </footer>
+</body>
+</html>

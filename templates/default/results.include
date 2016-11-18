@@ -1,0 +1,53 @@
+    <nav class="search-nav">
+        {{ if (and (gt .Total .Size) (lt .From (sub .Total .Size))) }}
+            {{ printf "%d-%d" (add .From 1) (add .From .Size) }} of {{ .Total }} found<br />
+        {{ else }}
+            {{ .Total }} found<br />
+        {{ end }}
+        {{ if (gt .From 0) }}
+            <a href="?from={{ (prevPage .From .Size .Total) }}&size={{ .Size }}&q={{ encodeURIComponent .Q }}&q_required={{ encodeURIComponent .QRequired }}&q_exact={{ encodeURIComponent .QExact }}&q_excluded={{ encodeURIComponent .QExcluded }}">Prev Page</a>
+        {{ end }}
+        {{ if (lt .From (sub .Total .Size)) }}
+            <a href="?from={{ (nextPage .From .Size .Total) }}&size={{ .Size }}&q={{ encodeURIComponent .Q }}&q_required={{ encodeURIComponent .QRequired }}&q_exact={{ encodeURIComponent .QExact }}&q_excluded={{ encodeURIComponent .QExcluded }}">Next Page</a>
+        {{ end }}
+    </nav>
+    <section class="search-results">
+    {{ if (eq .Total 0) }}
+    No items found
+    {{ end }}
+    {{ $baseURI := (printf "%s" .DetailsBaseURI) }}
+    {{ $queryParams := (printf "%s" .QueryURLEncoded) }}
+    <hr />
+    {{ range .Results.Hits }}
+    <!-- DEBUG START
+    <div class="debug">DEBUG JSON record: <pre>{{ stringify .Fields true }}</pre></div>
+    DEBUG END -->
+        <div class="search-result">
+            {{ $href := (printf "%shtml?%s" .ID $queryParams)  }}
+            {{ range $key, $value := .Fields }}
+                {{ if (eq $key "title") }}<h2><a href="{{ $href }}">{{ $value }}</a></h2>{{ end }}
+            {{ end }}
+            {{ range $key, $value := .Fragments }}
+                {{  if (or (eq $key "title") (eq $key "content_description"))}}
+                    {{ range $i, $src := $value }}
+                        {{ if $src }}<div>{{ $src }}</div>{{ end }}
+                    {{ end }}
+                {{ end }}
+            {{ end }}
+            <p>
+            {{ $objLink := (digitalObjectLink .Fields) }}
+            {{ if (ne $objLink "") }}Read on-line: {{ $objLink}}{{ end }}
+            {{ range $key, $value := .Fields }}
+                {{ if (eq $key "dates")}}Date: <pre>{{stringify $value }}</pre>{{ end }}
+                {{ if (eq $key "link_agents_creators")}}<div>Agent Creators: {{ $value }}</div>{{ end }}
+                {{ if (eq $key "link_agents_subjects")}}<div>Agent Subjects: {{ $value }}</div>{{ end }}
+                {{ if (eq $key "link_agents_sources")}}<div>Agent Sources: {{ $value }}</div>{{ end }}
+                {{ if (eq $key "digital_objects")}}<div>{{ $value }}</div>{{ end }}
+                {{ if (eq $key "extents") }}<div>{{ $value }}</div>{{ end }}
+                {{ if (eq $key "subjects") }}<div>Subjects: {{ if (eq (getType $value) "[]interface {}") }}{{ (asList $value "; ") }}{{ else }}{{ $value }}{{ end }}</div>{{ end }}
+            {{ end }}
+            </p>
+            <hr />
+        </div>
+    {{ end }}
+    </section>

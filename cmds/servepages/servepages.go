@@ -226,8 +226,8 @@ func (q *QueryOptions) AttachSearchResults(sr *bleve.SearchResult) {
 
 func resultsHandler(w http.ResponseWriter, r *http.Request) {
 	var (
-		pageHTML    = "results-search.html"
-		pageInclude = "results-search.include"
+		pageHTML    = "results.html"
+		pageInclude = "results.include"
 	)
 
 	urlQuery := r.URL.Query()
@@ -357,8 +357,8 @@ func resultsHandler(w http.ResponseWriter, r *http.Request) {
 	// as carring the results to support paging and other types of navigation through
 	// the query set. Results are a query with the bleve.SearchReults merged
 	q.AttachSearchResults(searchResults)
-	pageHTML = "results-search.html"
-	pageInclude = "results-search.include"
+	pageHTML = "results.html"
+	pageInclude = "results.include"
 
 	// Load my templates and setup to execute them
 	tmpl, err := epgo.AssembleTemplate(path.Join(templatePath, pageHTML), path.Join(templatePath, pageInclude))
@@ -440,9 +440,9 @@ func requestLogger(next http.Handler) http.Handler {
 func responseLogger(r *http.Request, status int, err error) {
 	q := r.URL.Query()
 	if len(q) > 0 {
-		log.Printf("Response: %s Path: %s RemoteAddr: %s Query: %+v StatusCode: %d Error: %q\n", r.Method, r.URL.Path, r.RemoteAddr, r.UserAgent(), q, status, err)
+		log.Printf("Response: %s Path: %s RemoteAddr: %s UserAgent: %s Query: %+v Status: %d, %s %q\n", r.Method, r.URL.Path, r.RemoteAddr, r.UserAgent(), q, status, http.StatusText(status), err)
 	} else {
-		log.Printf("Response: %s Path: %s RemoteAddr: %s UserAgent: %s StatusCode: %d Error: %q\n", r.Method, r.URL.Path, r.RemoteAddr, r.UserAgent(), status, err)
+		log.Printf("Response: %s Path: %s RemoteAddr: %s UserAgent: %s Status: %d, %s %q\n", r.Method, r.URL.Path, r.RemoteAddr, r.UserAgent(), status, http.StatusText(status), err)
 	}
 }
 
@@ -466,6 +466,7 @@ func customRoutes(next http.Handler) http.Handler {
 			searchHandler(w, r)
 			return
 		}
+		// NOTE: The default static file server doesn't seem send the correct mimetype for RSS and JSON responses.
 
 		// If this is a MultiViews style request (i.e. missing .html) then update r.URL.Path
 		if isMultiViewPath(r.URL.Path) == true {
