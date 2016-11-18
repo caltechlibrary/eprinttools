@@ -538,7 +538,6 @@ func main() {
 	}
 	htdocs = cfg.Get("htdocs")
 	templatePath = cfg.Get("template_path")
-	log.Printf("DEBUG templatePath: %q", templatePath)
 	bleveName = cfg.Get("bleve")
 	siteURL = cfg.Get("site_url")
 
