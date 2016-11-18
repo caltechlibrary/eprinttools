@@ -419,16 +419,12 @@ func main() {
 	}
 
 	index, err := getIndex(cfg.Get("bleve"))
-	if err != nil {
-		log.Fatalf("%s", err)
-	}
+	check(err)
 	defer index.Close()
 
 	// Walk our data import tree and index things
 	log.Printf("Start indexing contents of %s as %s\n", path.Join(cfg.Get("htdocs"), cfg.Get("repository_path"), "eprints.json"), cfg.Get("bleve"))
 	err = indexSite(cfg.Get("htdocs"), path.Join(cfg.Get("htdocs"), cfg.Get("repository_path"), "eprints.json"), index, maxBatchSize)
-	if err != nil {
-		log.Fatal(err)
-	}
+	check(err)
 	log.Printf("Finished")
 }

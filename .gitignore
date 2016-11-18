@@ -26,7 +26,6 @@ _testmain.go
 # project specific excludes
 etc/*
 bin/*
-htdocs/index.*
 htdocs/publications.*
 htdocs/articles.*
 htdocs/data.*
@@ -39,3 +38,4 @@ epgo
 *.boltdb
 *.bleve
 testsite/*
+logs/*

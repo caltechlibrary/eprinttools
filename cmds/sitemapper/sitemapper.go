@@ -99,6 +99,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	htdocs       string
 	templatePath string
 	siteURL      string
+	excludeList  string
 
 	changefreq string
 	locList    []*locInfo
@@ -132,6 +133,27 @@ func init() {
 	// app specific cli options
 	flag.StringVar(&changefreq, "u", "daily", "Set the change frequencely value, e.g. daily, weekly, monthly")
 	flag.StringVar(&changefreq, "update-frequency", "daily", "Set the change frequencely value, e.g. daily, weekly, monthly")
+	flag.StringVar(&excludeList, "e", "", "A colon delimited list of path parts to exclude from sitemap")
+	flag.StringVar(&excludeList, "exclude", "", "A colon delimited list of path parts to exclude from sitemap")
+}
+
+type ExcludeList []string
+
+// Set returns the len of the new DirList array based on spliting the passed in string
+func (dirList ExcludeList) Set(s string) int {
+	dirList = strings.Split(s, ":")
+	return len(dirList)
+}
+
+// Exclude returns true if a fname fragment is included in set of dirList
+func (dirList ExcludeList) Exclude(p string) bool {
+	for _, item := range dirList {
+		if len(p) > 0 && strings.Contains(p, item) == true {
+			log.Printf("Skipping %q", p)
+			return true
+		}
+	}
+	return false
 }
 
 func main() {
@@ -172,12 +194,14 @@ func main() {
 		changefreq = "daily"
 	}
 
+	excludeDirs := ExcludeList(strings.Split(excludeList, ":"))
+
 	log.Printf("Starting map of %s\n", args[0])
 	filepath.Walk(args[0], func(p string, info os.FileInfo, err error) error {
 		if strings.HasSuffix(p, ".html") {
 			fname := path.Base(p)
-			//NOTE: You can skip the eror pages in the sitemap
-			if strings.HasPrefix(fname, "50") == false && strings.HasPrefix(p, "40") == false {
+			//NOTE: You can skip the eror pages, and excluded directories in the sitemap
+			if strings.HasPrefix(fname, "50") == false && strings.HasPrefix(p, "40") == false && excludeDirs.Exclude(p) == false {
 				finfo := new(locInfo)
 				finfo.Loc = fmt.Sprintf("%s%s", args[2], strings.TrimPrefix(p, args[0]))
 				yr, mn, dy := info.ModTime().Date()

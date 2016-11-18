@@ -99,14 +99,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 	useAPI      bool
 	prettyPrint bool
-	buildSite   bool
 
-	apiURL       string
-	dbName       string
-	bleveName    string
-	htdocs       string
-	templatePath string
-	siteURL      string
+	apiURL string
+	dbName string
 
 	exportEPrints   int
 	feedSize        int
@@ -139,20 +134,21 @@ func init() {
 
 	flag.StringVar(&apiURL, "api", "", "url for EPrints API")
 	flag.StringVar(&dbName, "dbname", "", "BoltDB name")
-	flag.StringVar(&bleveName, "bleve", "", "Bleve db/index name")
-	flag.StringVar(&htdocs, "htdocs", "", "htdocs path")
-	flag.StringVar(&templatePath, "templates", "", "template path")
-	flag.StringVar(&siteURL, "site_url", "", "the local website URL")
 
 	flag.BoolVar(&prettyPrint, "p", false, "pretty print JSON output")
 	flag.BoolVar(&useAPI, "read-api", false, "read the contents from the API without saving in the database")
-	flag.BoolVar(&buildSite, "build", false, "build pages and feeds from database")
 	flag.IntVar(&feedSize, "feed-size", feedSize, "number of items rendering in feeds")
 	flag.IntVar(&exportEPrints, "export", 0, "export N EPrints from highest ID to lowest")
 	flag.IntVar(&publishedOldest, "published-oldest", 0, "list the N oldest published items")
 	flag.IntVar(&publishedNewest, "published-newest", 0, "list the N newest published items")
 	flag.IntVar(&articlesOldest, "articles-oldest", 0, "list the N oldest published articles")
 	flag.IntVar(&articlesNewest, "articles-newest", 0, "list the N newest published articles")
+}
+
+func check(err error) {
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 func main() {
@@ -173,34 +169,19 @@ func main() {
 
 	// Populate cfg from the environment
 	var cfg epgo.Config
-	cfg.MergeEnv("EPGO", "API_URL", apiURL)
-	cfg.MergeEnv("EPGO", "DBNAME", dbName)
-	cfg.MergeEnv("EPGO", "BLEVE", bleveName)
-	cfg.MergeEnv("EPGO", "HTDOCS", htdocs)
-	cfg.MergeEnv("EPGO", "TEMPLATE_PATH", templatePath)
-	cfg.MergeEnv("EPGO", "SITE_URL", siteURL)
+	check(cfg.MergeEnv("EPGO", "API_URL", apiURL))
+	check(cfg.MergeEnv("EPGO", "DBNAME", dbName))
 
 	// This will read in any settings from the environment
 	api, err := epgo.New(cfg)
-	if err != nil {
-		log.Fatalf("%s", err)
-	}
+	check(err)
 
 	args := flag.Args()
 	if exportEPrints != 0 {
-		if err := api.ExportEPrints(exportEPrints); err != nil {
-			log.Fatalf("%s", err)
-		}
-		if buildSite == false {
-			os.Exit(0)
-		}
-	}
-
-	if buildSite == true {
-		if err := api.BuildSite(feedSize); err != nil {
-			log.Fatalf("%s", err)
-		}
-		os.Exit(0)
+		log.Printf("%s %s", appName, epgo.Version)
+		log.Println("Export started")
+		check(api.ExportEPrints(exportEPrints))
+		log.Println("Export completed")
 	}
 
 	//
@@ -232,10 +213,7 @@ func main() {
 			data, err = api.ListURI(0, 1000000)
 		}
 	}
-
-	if err != nil {
-		log.Fatalf("%s", err)
-	}
+	check(err)
 
 	if prettyPrint == true {
 		src, _ = json.MarshalIndent(data, "", "    ")

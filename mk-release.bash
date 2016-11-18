@@ -3,7 +3,7 @@
 # Make releases for Linux/amd64, Linux/ARM6 and Linux/ARM7 (Raspberry Pi), Windows, and Mac OX X (darwin)
 #
 RELEASE_NAME=epgo
-for PROGNAME in epgo genpages indexpages sitemapper; do
+for PROGNAME in epgo genpages indexpages sitemapper servepages; do
   echo "Cross compiling $PROGNAME"
   env GOOS=linux GOARCH=amd64 go build -o dist/linux-amd64/$PROGNAME cmds/$PROGNAME/$PROGNAME.go
   env GOOS=darwin GOARCH=amd64 go build -o dist/macosx-amd64/$PROGNAME cmds/$PROGNAME/$PROGNAME.go
