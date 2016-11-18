@@ -543,12 +543,17 @@ func main() {
 	bleveName = cfg.Get("bleve")
 	siteURL = cfg.Get("site_url")
 
+	//NOTE: Need to get hostname and port from siteURL
+	u, err := url.Parse(siteURL)
+	check(err)
+
 	//
 	// Run the webserver and search service
 	//
 	log.Printf("%s %s\n", appName, epgo.Version)
 
 	// Wake up our search engine
+	log.Println("Initializing search services")
 	index, err = bleve.Open(bleveName)
 	if err != nil {
 		log.Fatalf("Can't open Bleve index %q, %s", bleveName, err)
@@ -559,9 +564,8 @@ func main() {
 	// search routes are handled by middleware customRoutes()
 	http.Handle("/", http.FileServer(http.Dir(htdocs)))
 
-	log.Printf("%s %s\n", appName, epgo.Version)
-	log.Printf("Listening on %s\n", siteURL)
-	err = http.ListenAndServe(siteURL, requestLogger(customRoutes(http.DefaultServeMux)))
+	log.Printf("Listening on %s\n", u.String())
+	err = http.ListenAndServe(u.Host, requestLogger(customRoutes(http.DefaultServeMux)))
 	if err != nil {
 		log.Fatal(err)
 	}
