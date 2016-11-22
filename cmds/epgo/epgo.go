@@ -25,6 +25,7 @@ import (
 	"log"
 	"os"
 	"path"
+	"strings"
 
 	// Caltech Library Packages
 	"github.com/caltechlibrary/cli"
@@ -132,20 +133,22 @@ func init() {
 	flag.IntVar(&articlesNewest, "articles-newest", 0, "list the N newest published articles")
 }
 
-func check(err error) {
-	if err != nil {
-		log.Fatal(err)
+func check(cfg *cli.Config, key, value string) string {
+	if value == "" {
+		log.Fatalf("Missing %s_%s", cfg.EnvPrefix, strings.ToUpper(key))
+		return ""
 	}
+	return value
 }
 
 func main() {
 	appName := path.Base(os.Args[0])
 	flag.Parse()
 	// Populate cfg from the environment
-	cfg := New(appName, appName, fmt.Sprintf(license, appName, epgo.Version), epgo.Version)
+	cfg := cli.New(appName, appName, fmt.Sprintf(license, appName, epgo.Version), epgo.Version)
 	cfg.UsageText = fmt.Sprintf(usage, appName)
 	cfg.DescriptionText = fmt.Sprintf(description, appName, appName)
-	cfg.Options = "OPTIONS\n"
+	cfg.OptionsText = "OPTIONS\n"
 
 	// Handle the default options
 	if showHelp == true {
@@ -174,7 +177,9 @@ func main() {
 	if exportEPrints != 0 {
 		log.Printf("%s %s", appName, epgo.Version)
 		log.Println("Export started")
-		check(api.ExportEPrints(exportEPrints))
+		if err := api.ExportEPrints(exportEPrints); err != nil {
+			log.Fatal(err)
+		}
 		log.Println("Export completed")
 	}
 
@@ -207,7 +212,9 @@ func main() {
 			data, err = api.ListURI(0, 1000000)
 		}
 	}
-	check(err)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	if prettyPrint == true {
 		src, _ = json.MarshalIndent(data, "", "    ")

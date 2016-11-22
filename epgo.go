@@ -34,6 +34,9 @@ import (
 	"text/template"
 	"time"
 
+	// Caltech Library packages
+	"github.com/caltechlibrary/cli"
+
 	// 3rd Party packages
 	"github.com/boltdb/bolt"
 )
@@ -309,30 +312,6 @@ type ePrintIDs struct {
 	IDs     []string `xml:"body>ul>li>a" json:"ids"`
 }
 
-// Config holds the common configuration elements needed to access and harvest data
-type Config struct {
-	XMLName xml.Name `json:"-"`
-	// ApiURL is the root URL accessed to retrieve data from EPrints.
-	ApiURL string `json:"api_url,required" xml:"api_url,required"`
-	// Setup configuration for how the feed stores or reads harvested metadata. Becomes the primary bucket in BoltDB
-	DBName string `json:"dbname,required" xml:"dbname,required"`
-	// Name of Bleve db/index
-	BleveName string `json:"bleve" xml:"bleve"`
-	// Site URL, URL of website hosting feeds and search service (not EPrints or another repository)
-	SiteURL string `json:"site_url" xml:"site_url"`
-	// HTDocs directory for the website hosting feeds and search service
-	Htdocs string `json:"htdocs" xml:"htdocs"`
-	// TemplatePath directory for generating website described by SiteURL and Htdocs
-	TemplatePath string `json:"templates" xml:"templates"`
-	// RepositoryPath directory for generated repository wide content
-	RepositoryPath string `json:"repository_path" xml:"repository_path"`
-}
-
-func (cfg *Config) String() string {
-	src, _ := json.Marshal(cfg)
-	return fmt.Sprintf("%s", src)
-}
-
 func normalizeDate(in string) string {
 	parts := strings.Split(in, "-")
 	if len(parts) == 1 {
@@ -364,66 +343,17 @@ func normalizeDate(in string) string {
 // + proposedValue - the proposed value, usually the value from the flags passed in (an empty string means no value provided)
 //
 // returns an error if a problem is encountered.
-func (cfg *Config) MergeEnv(prefix, key, proposedValue string) error {
-	// Default is anything set in the environment
-	val := os.Getenv(fmt.Sprintf("%s_%s", prefix, key))
-	// Override with proposedValue provided (e.g. flag value from the command line)
-	if proposedValue != "" {
-		val = proposedValue
-	}
-	switch key {
-	case "API_URL":
-		cfg.ApiURL = val
-	case "DBNAME":
-		cfg.DBName = val
-	case "SITE_URL":
-		cfg.SiteURL = val
-	case "HTDOCS":
-		cfg.Htdocs = val
-	case "TEMPLATE_PATH":
-		cfg.TemplatePath = val
-	case "BLEVE":
-		cfg.BleveName = val
-	case "REPOSITORY_PATH":
-		cfg.RepositoryPath = val
-	default:
-		return fmt.Errorf("%s isn't a known configuration option", key)
-	}
-	return nil
-}
-
-// Get returns a specific property of the config.
-func (cfg *Config) Get(key string) string {
-	switch key {
-	case "api_url":
-		return cfg.ApiURL
-	case "site_url":
-		return cfg.SiteURL
-	case "htdocs":
-		return cfg.Htdocs
-	case "bleve":
-		return cfg.BleveName
-	case "dbname":
-		return cfg.DBName
-	case "template_path":
-		return cfg.TemplatePath
-	case "repository_path":
-		return cfg.RepositoryPath
-	default:
-		return ""
-	}
-}
 
 // New creates a new API instance
-func New(cfg Config) (*EPrintsAPI, error) {
+func New(cfg *cli.Config) (*EPrintsAPI, error) {
 	var err error
-	apiURL := cfg.ApiURL
-	siteURL := cfg.SiteURL
-	htdocs := cfg.Htdocs
-	dbName := cfg.DBName
-	bleveName := cfg.BleveName
-	templatePath := cfg.TemplatePath
-	repositoryPath := cfg.RepositoryPath
+	apiURL := cfg.Get("api_url")
+	siteURL := cfg.Get("site_url")
+	htdocs := cfg.Get("htdocs")
+	dbName := cfg.Get("dbname")
+	bleveName := cfg.Get("bleve")
+	templatePath := cfg.Get("template_path")
+	repositoryPath := cfg.Get("repository_path")
 
 	if apiURL == "" {
 		return nil, fmt.Errorf("Environment not configured, missing eprint api url")
