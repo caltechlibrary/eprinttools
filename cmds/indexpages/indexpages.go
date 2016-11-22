@@ -26,6 +26,7 @@ import (
 	"log"
 	"os"
 	"path"
+	"strings"
 	"time"
 
 	// Caltech Libraries packages
@@ -374,10 +375,10 @@ func main() {
 	var err error
 
 	appName := path.Base(os.Args[0])
-	cfg := cli.New(appName, "EPGO", fmt.Sprintf(license, appName, epgo.Version), version)
+	cfg := cli.New(appName, "EPGO", fmt.Sprintf(license, appName, epgo.Version), epgo.Version)
 	cfg.UsageText = fmt.Sprintf(usage, appName)
-	cfg.Description = fmt.Sprintf(description, appName, appName)
-	cfg.Options = "OPTIONS\n"
+	cfg.DescriptionText = fmt.Sprintf(description, appName, appName)
+	cfg.OptionsText = "OPTIONS\n"
 
 	flag.Parse()
 	if showHelp == true {
@@ -396,8 +397,6 @@ func main() {
 	if maxBatchSize == 0 {
 		maxBatchSize = 500
 	}
-
-	var cfg epgo.Config
 
 	// Required fields
 	dbName = check(cfg, "dbname", cfg.MergeEnv("dbname", dbName))
@@ -422,7 +421,9 @@ func main() {
 	}
 
 	index, err := getIndex(indexName)
-	check(err)
+	if err != nil {
+		log.Fatal(err)
+	}
 	defer index.Close()
 
 	// Walk our data import tree and index things

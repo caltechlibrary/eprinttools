@@ -529,8 +529,6 @@ func (record *Record) PubDate() string {
 }
 
 // initBuckets initializes expected buckets if necessary for boltdb
-
-// initBuckets initializes expected buckets if necessary for boltdb
 func initBuckets(db *bolt.DB) error {
 	return db.Update(func(tx *bolt.Tx) error {
 		if _, err := tx.CreateBucketIfNotExists(ePrintBucket); err != nil {

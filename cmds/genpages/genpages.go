@@ -24,6 +24,7 @@ import (
 	"log"
 	"os"
 	"path"
+	"strings"
 
 	// Caltech Library packages
 	"github.com/caltechlibrary/cli"
@@ -31,7 +32,7 @@ import (
 )
 
 var (
-	useage = `USAGE: %s [OPTIONS]`
+	usage = `USAGE: %s [OPTIONS]`
 
 	description = `
 
@@ -99,16 +100,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	repositoryPath string
 )
 
-func usage(appName, version string) {
-	fmt.Printf(description, appName, appName)
-	flag.VisitAll(func(f *flag.Flag) {
-		fmt.Printf("\t-%s\t%s\n", f.Name, f.Usage)
-	})
-	fmt.Printf(configuration, appName)
-	fmt.Printf("%s %s\n", appName, version)
-	os.Exit(0)
-}
-
 func check(cfg *cli.Config, key, value string) string {
 	if value == "" {
 		log.Fatal("Missing %s_%s", cfg.EnvPrefix, strings.ToUpper(key))
@@ -138,7 +129,7 @@ func main() {
 	appName := path.Base(os.Args[0])
 	cfg := cli.New(appName, "EPGO", fmt.Sprintf(license, appName, epgo.Version), epgo.Version)
 	cfg.UsageText = fmt.Sprintf(usage, appName)
-	cfg.Description = fmt.Sprintf(description, appName, appName)
+	cfg.DescriptionText = fmt.Sprintf(description, appName, appName)
 	cfg.OptionsText = "OPTIONS\n"
 
 	flag.Parse()

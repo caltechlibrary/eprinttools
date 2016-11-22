@@ -44,7 +44,7 @@ var (
 
 OVERVIEW
 
-Generates a sitemap for the accession pages.
+%s generates a sitemap for the website.
 
 `
 
@@ -154,9 +154,9 @@ func main() {
 
 	cfg := cli.New(appName, "EPGO", fmt.Sprintf(license, appName, epgo.Version), epgo.Version)
 	cfg.UsageText = fmt.Sprintf(usage, appName)
-	cfg.DescriptionText = fmt.Sprintf(description, appName, appName)
+	cfg.DescriptionText = fmt.Sprintf(description, appName)
 	cfg.OptionsText = "OPTIONS\n"
-	cfg.ExampleText = fmt.Sprintf(examples, appName, appName)
+	cfg.ExampleText = fmt.Sprintf(examples, appName)
 
 	args := flag.Args()
 	if showHelp == true {
