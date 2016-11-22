@@ -28,6 +28,7 @@ import (
 	"strings"
 
 	// Caltech Library packages
+	"github.com/caltechlibrary/cli"
 	"github.com/caltechlibrary/epgo"
 )
 
@@ -37,15 +38,14 @@ type locInfo struct {
 }
 
 var (
+	usage = `USAGE: %s [OPTIONS] HTDOCS_PATH MAP_FILENAME PUBLIC_BASE_URL`
+
 	description = `
-USAGE: %s [OPTIONS] HTDOCS_PATH MAP_FILENAME PUBLIC_BASE_URL
 
 OVERVIEW
 
 Generates a sitemap for the accession pages.
-`
 
-	configuration = `
 `
 
 	examples = `
@@ -105,20 +105,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	locList    []*locInfo
 )
 
-func check(err error) {
-	if err != nil {
-		log.Fatal(err)
+func check(cfg *cli.Config, key, value string) string {
+	if value == "" {
+		log.Fatal("Missing %s_%s", cfg.EnvPrefix, strings.ToUpper(key))
+		return ""
 	}
-}
-
-func usage(description, configuration, examples, appName, version string) {
-	fmt.Printf(description, appName)
-	flag.VisitAll(func(f *flag.Flag) {
-		fmt.Printf("\t-%s\t%s\n", f.Name, f.Usage)
-	})
-	fmt.Printf(configuration, appName)
-	fmt.Printf(examples, appName)
-	fmt.Printf("\n%s %s\n", appName, version)
+	return value
 }
 
 func init() {
@@ -159,17 +151,24 @@ func (dirList ExcludeList) Exclude(p string) bool {
 func main() {
 	appName := path.Base(os.Args[0])
 	flag.Parse()
+
+	cfg := cli.New(appName, "EPGO", fmt.Sprintf(license, appName, epgo.Version), epgo.Version)
+	cfg.UsageText = fmt.Sprintf(usage, appName)
+	cfg.DescriptionText = fmt.Sprintf(description, appName, appName)
+	cfg.OptionsText = "OPTIONS\n"
+	cfg.ExampleText = fmt.Sprintf(examples, appName, appName)
+
 	args := flag.Args()
 	if showHelp == true {
-		usage(description, configuration, examples, appName, epgo.Version)
+		fmt.Println(cfg.Usage())
 		os.Exit(0)
 	}
 	if showVersion == true {
-		fmt.Printf("%s %s\n", appName, epgo.Version)
+		fmt.Println(cfg.Version())
 		os.Exit(0)
 	}
 	if showLicense == true {
-		fmt.Printf(license, appName, epgo.Version)
+		fmt.Println(cfg.License())
 		os.Exit(0)
 	}
 
@@ -178,17 +177,15 @@ func main() {
 		os.Exit(1)
 	}
 
-	var cfg epgo.Config
-
 	// Required
-	check(cfg.MergeEnv("EPGO", "HTDOCS", htdocs))
-	check(cfg.MergeEnv("EPGO", "SITE_URL", siteURL))
+	htdocs = check(cfg, "htdocs", cfg.MergeEnv("htdocs", htdocs))
+	siteURL = check(cfg, "site_url", cfg.MergeEnv("site_url", siteURL))
 
 	// Optional
-	cfg.MergeEnv("EPGO", "API_URL", apiURL)
-	cfg.MergeEnv("EPGO", "DBNAME", dbName)
-	cfg.MergeEnv("EPGO", "BLEVE", bleveName)
-	cfg.MergeEnv("EPGO", "TEMPLATE_PATH", templatePath)
+	apiURL = cfg.MergeEnv("api_url", apiURL)
+	dbName = cfg.MergeEnv("dbname", dbName)
+	bleveName = cfg.MergeEnv("bleve", bleveName)
+	templatePath = cfg.MergeEnv("template_path", templatePath)
 
 	if changefreq == "" {
 		changefreq = "daily"

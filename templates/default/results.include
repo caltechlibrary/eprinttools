@@ -19,9 +19,9 @@
     {{ $queryParams := (printf "%s" .QueryURLEncoded) }}
     <hr />
     {{ range .Results.Hits }}
-    <!-- DEBUG START
+    <!-- DEBUG START -->
     <div class="debug">DEBUG JSON record: <pre>{{ stringify .Fields true }}</pre></div>
-    DEBUG END -->
+    <!-- DEBUG END -->
         <div class="search-result">
             {{ $href := (printf "%shtml?%s" .ID $queryParams)  }}
             {{ range $key, $value := .Fields }}
@@ -35,17 +35,27 @@
                 {{ end }}
             {{ end }}
             <p>
-            {{ $objLink := (digitalObjectLink .Fields) }}
-            {{ if (ne $objLink "") }}Read on-line: {{ $objLink}}{{ end }}
-            {{ range $key, $value := .Fields }}
-                {{ if (eq $key "dates")}}Date: <pre>{{stringify $value }}</pre>{{ end }}
-                {{ if (eq $key "link_agents_creators")}}<div>Agent Creators: {{ $value }}</div>{{ end }}
-                {{ if (eq $key "link_agents_subjects")}}<div>Agent Subjects: {{ $value }}</div>{{ end }}
-                {{ if (eq $key "link_agents_sources")}}<div>Agent Sources: {{ $value }}</div>{{ end }}
-                {{ if (eq $key "digital_objects")}}<div>{{ $value }}</div>{{ end }}
-                {{ if (eq $key "extents") }}<div>{{ $value }}</div>{{ end }}
-                {{ if (eq $key "subjects") }}<div>Subjects: {{ if (eq (getType $value) "[]interface {}") }}{{ (asList $value "; ") }}{{ else }}{{ $value }}{{ end }}</div>{{ end }}
-            {{ end }}
+<!-- DEBUG START
+	/*
+		EPrintID:     jsonDoc.ID,
+		Type:         jsonDoc.Type,
+		OfficialURL:  jsonDoc.OfficialURL,
+		Title:        jsonDoc.Title,
+		Abstract:     jsonDoc.Abstract,
+		Keywords:     jsonDoc.Keywords,
+		ISSN:         jsonDoc.ISSN,
+		Publication:  jsonDoc.Publication,
+		Note:         jsonDoc.Note,
+		Authors:      jsonDoc.Creators.ToNames(),
+		ORCIDs:       jsonDoc.Creators.ToORCIDs(),
+		ISNIs:        jsonDoc.Creators.ToISNIs(),
+		Rights:       jsonDoc.Rights,
+		Funders:      jsonDoc.Funders.ToAgencies(),
+		GrantNumbers: jsonDoc.Funders.ToGrantNumbers(),
+		PubDate:      jsonDoc.PubDate(),
+		LocalGroup:  jsonDoc.LocalGroup,
+	*/
+DEBUG END -->
             </p>
             <hr />
         </div>

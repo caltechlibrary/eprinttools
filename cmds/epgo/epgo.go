@@ -27,21 +27,17 @@ import (
 	"path"
 
 	// Caltech Library Packages
+	"github.com/caltechlibrary/cli"
 	"github.com/caltechlibrary/epgo"
 )
 
 var (
 	// cli help text
-	description = `
- USAGE: %s [OPTIONS] [EPRINT_URI]
+	usage = `USAGE %s [OPTIONS] [EPRINT_URI]`
 
+	description = `
  %s wraps the REST API for E-Prints 3.3 or better. It can return a list of uri,
  a JSON view of the XML presentation as well as generates feeds and web pages.
-
-OPTIONS
-
-`
-	configuration = `
 
  CONFIG
 
@@ -111,15 +107,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	articlesNewest  int
 )
 
-func usage(description, configuration, appName, version string) {
-	fmt.Printf(description, appName, appName)
-	flag.VisitAll(func(f *flag.Flag) {
-		fmt.Printf("\t-%s\t%s\n", f.Name, f.Usage)
-	})
-	fmt.Printf(configuration, appName)
-	fmt.Printf("\n\n%s %s\n", appName, version)
-}
-
 func init() {
 	publishedNewest = 0
 	publishedOldest = 0
@@ -154,27 +141,34 @@ func check(err error) {
 func main() {
 	appName := path.Base(os.Args[0])
 	flag.Parse()
+	// Populate cfg from the environment
+	cfg := New(appName, appName, fmt.Sprintf(license, appName, epgo.Version), epgo.Version)
+	cfg.UsageText = fmt.Sprintf(usage, appName)
+	cfg.DescriptionText = fmt.Sprintf(description, appName, appName)
+	cfg.Options = "OPTIONS\n"
+
+	// Handle the default options
 	if showHelp == true {
-		usage(description, configuration, appName, epgo.Version)
+		fmt.Println(cfg.Usage())
 		os.Exit(0)
 	}
 	if showVersion == true {
-		fmt.Printf("%s %s\n", appName, epgo.Version)
+		fmt.Println(cfg.Version())
 		os.Exit(0)
 	}
 	if showLicense == true {
-		fmt.Printf(license, appName, epgo.Version)
+		fmt.Println(cfg.License())
 		os.Exit(0)
 	}
 
-	// Populate cfg from the environment
-	var cfg epgo.Config
-	check(cfg.MergeEnv("EPGO", "API_URL", apiURL))
-	check(cfg.MergeEnv("EPGO", "DBNAME", dbName))
+	apiURL = check(cfg, "api_url", cfg.MergeEnv("api_url", apiURL))
+	dbName = check(cfg, "dbname", cfg.MergeEnv("dbname", dbName))
 
 	// This will read in any settings from the environment
 	api, err := epgo.New(cfg)
-	check(err)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	args := flag.Args()
 	if exportEPrints != 0 {

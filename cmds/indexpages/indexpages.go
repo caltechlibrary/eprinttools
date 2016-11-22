@@ -29,6 +29,7 @@ import (
 	"time"
 
 	// Caltech Libraries packages
+	"github.com/caltechlibrary/cli"
 	"github.com/caltechlibrary/epgo"
 
 	// 3rd Party packages
@@ -36,19 +37,14 @@ import (
 )
 
 var (
-	description = `
- USAGE: %s [OPTIONS]
+	usage = `USAGE: %s [OPTIONS]`
 
+	description = `
  SYNOPSIS
 
  %s is a command line utility to indexes content in the htdocs directory.
  It produces a Bleve search index used by servepages web service.
  Configuration is done through environmental variables.
-
- OPTIONS
-`
-
-	configuration = `
 
  CONFIGURATION
 
@@ -118,20 +114,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	fileCount int
 )
 
-func check(err error) {
-	if err != nil {
-		log.Fatal(err)
+func check(cfg *cli.Config, key, value string) string {
+	if value == "" {
+		log.Fatal("Missing %s_%s", cfg.EnvPrefix, strings.ToUpper(key))
+		return ""
 	}
-}
-
-func usage(appName, version string) {
-	fmt.Printf(description, appName, appName)
-	flag.VisitAll(func(f *flag.Flag) {
-		fmt.Printf("\t-%s\t%s\n", f.Name, f.Usage)
-	})
-	fmt.Printf(configuration, appName)
-	fmt.Printf("%s %s\n", appName, version)
-	os.Exit(0)
+	return value
 }
 
 func init() {
@@ -219,6 +207,8 @@ func createIndex(indexName string) (bleve.Index, error) {
 
 	localGroupMapping := bleve.NewTextFieldMapping()
 	localGroupMapping.Analyzer = "en"
+	localGroupMapping.Store = true
+	localGroupMapping.Index = true
 	eprintMapping.AddFieldMappingsAt("LocalGroup", localGroupMapping)
 
 	fundersMapping := bleve.NewTextFieldMapping()
@@ -227,15 +217,21 @@ func createIndex(indexName string) (bleve.Index, error) {
 
 	creatorsMapping := bleve.NewTextFieldMapping()
 	creatorsMapping.Analyzer = "en"
+	creatorsMapping.Store = true
+	creatorsMapping.Index = true
 	creatorsMapping.IncludeTermVectors = true
 	eprintMapping.AddFieldMappingsAt("Authors", creatorsMapping)
 
 	orcidMapping := bleve.NewTextFieldMapping()
 	orcidMapping.Analyzer = "en"
+	orcidMapping.Store = true
+	orcidMapping.Index = true
 	eprintMapping.AddFieldMappingsAt("ORCIDs", orcidMapping)
 
 	isniMapping := bleve.NewTextFieldMapping()
 	isniMapping.Analyzer = "en"
+	isniMapping.Store = true
+	isniMapping.Index = true
 	eprintMapping.AddFieldMappingsAt("ISNIs", isniMapping)
 
 	createdMapping := bleve.NewDateTimeFieldMapping()
@@ -378,17 +374,23 @@ func main() {
 	var err error
 
 	appName := path.Base(os.Args[0])
+	cfg := cli.New(appName, "EPGO", fmt.Sprintf(license, appName, epgo.Version), version)
+	cfg.UsageText = fmt.Sprintf(usage, appName)
+	cfg.Description = fmt.Sprintf(description, appName, appName)
+	cfg.Options = "OPTIONS\n"
 
 	flag.Parse()
 	if showHelp == true {
-		usage(appName, epgo.Version)
+		fmt.Println(cfg.Usage())
+		os.Exit(0)
 	}
 	if showVersion == true {
-		fmt.Printf("%s %s\n", appName, epgo.Version)
+		fmt.Println(cfg.Version())
 		os.Exit(0)
 	}
 	if showLicense == true {
-		fmt.Printf(license, appName, epgo.Version)
+		fmt.Println(cfg.License())
+		os.Exit(0)
 	}
 
 	if maxBatchSize == 0 {
@@ -398,33 +400,36 @@ func main() {
 	var cfg epgo.Config
 
 	// Required fields
-	check(cfg.MergeEnv("EPGO", "DBNAME", dbName))
-	check(cfg.MergeEnv("EPGO", "BLEVE", indexName))
-	check(cfg.MergeEnv("EPGO", "HTDOCS", htdocs))
-	check(cfg.MergeEnv("EPGO", "SITE_URL", siteURL))
-	check(cfg.MergeEnv("EPGO", "REPOSITORY_PATH", repositoryPath))
+	dbName = check(cfg, "dbname", cfg.MergeEnv("dbname", dbName))
+	indexName = check(cfg, "bleve", cfg.MergeEnv("bleve", indexName))
+	htdocs = check(cfg, "htdocs", cfg.MergeEnv("htdocs", htdocs))
+	siteURL = check(cfg, "site_url", cfg.MergeEnv("site_url", siteURL))
+	repositoryPath = check(cfg, "repository_path", cfg.MergeEnv("repository_path", repositoryPath))
+
 	// Optional fields
-	cfg.MergeEnv("EPGO", "API_URL", apiURL)
-	cfg.MergeEnv("EPGO", "TEMPLATE_PATH", templatePath)
+	apiURL = cfg.MergeEnv("api_url", apiURL)
+	templatePath = cfg.MergeEnv("template_path", templatePath)
 
 	// Now log what we're running
 	log.Printf("%s %s", appName, epgo.Version)
 
 	if replaceIndex == true {
 		log.Printf("Clearing index")
-		err := os.RemoveAll(cfg.Get("bleve"))
+		err := os.RemoveAll(indexName)
 		if err != nil {
-			log.Fatalf("Could not removed %s, %s", cfg.Get("bleve"), err)
+			log.Fatalf("Could not removed %q, %s", indexName, err)
 		}
 	}
 
-	index, err := getIndex(cfg.Get("bleve"))
+	index, err := getIndex(indexName)
 	check(err)
 	defer index.Close()
 
 	// Walk our data import tree and index things
-	log.Printf("Start indexing contents of %s as %s\n", path.Join(cfg.Get("htdocs"), cfg.Get("repository_path"), "eprints.json"), cfg.Get("bleve"))
-	err = indexSite(cfg.Get("htdocs"), path.Join(cfg.Get("htdocs"), cfg.Get("repository_path"), "eprints.json"), index, maxBatchSize)
-	check(err)
+	log.Printf("Start indexing contents of %s as %s\n", path.Join(htdocs, repositoryPath, "eprints.json"), indexName)
+	err = indexSite(htdocs, path.Join(htdocs, repositoryPath, "eprints.json"), index, maxBatchSize)
+	if err != nil {
+		log.Fatal(err)
+	}
 	log.Printf("Finished")
 }

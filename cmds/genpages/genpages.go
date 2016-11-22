@@ -26,22 +26,20 @@ import (
 	"path"
 
 	// Caltech Library packages
+	"github.com/caltechlibrary/cli"
 	"github.com/caltechlibrary/epgo"
 )
 
 var (
+	useage = `USAGE: %s [OPTIONS]`
+
 	description = `
- USAGE: %s [OPTIONS]
 
  OVERVIEW
 
 	%s generates HTML, .include pages, BibTeX and normalized JSON based 
 	on the JSON output form epgo and templates associated with 
 	the command.
-
- OPTIONS
-`
-	configuration = `
 
  CONFIGURATION
 
@@ -111,10 +109,12 @@ func usage(appName, version string) {
 	os.Exit(0)
 }
 
-func check(err error) {
-	if err != nil {
-		log.Fatal(err)
+func check(cfg *cli.Config, key, value string) string {
+	if value == "" {
+		log.Fatal("Missing %s_%s", cfg.EnvPrefix, strings.ToUpper(key))
+		return ""
 	}
+	return value
 }
 
 func init() {
@@ -136,32 +136,37 @@ func init() {
 
 func main() {
 	appName := path.Base(os.Args[0])
+	cfg := cli.New(appName, "EPGO", fmt.Sprintf(license, appName, epgo.Version), epgo.Version)
+	cfg.UsageText = fmt.Sprintf(usage, appName)
+	cfg.Description = fmt.Sprintf(description, appName, appName)
+	cfg.OptionsText = "OPTIONS\n"
+
 	flag.Parse()
 	if showHelp == true {
-		usage(appName, epgo.Version)
+		fmt.Println(cfg.Usage())
+		os.Exit(0)
 	}
 	if showVersion == true {
-		fmt.Printf("%s %s\n", appName, epgo.Version)
+		fmt.Println(cfg.Version())
 		os.Exit(0)
 	}
 	if showLicense == true {
-		fmt.Printf(license, appName, epgo.Version)
+		fmt.Println(cfg.License())
 		os.Exit(0)
 	}
 
-	var cfg epgo.Config
-
 	// Check to see we can merge the required fields are merged.
-	check(cfg.MergeEnv("EPGO", "HTDOCS", htdocs))
-	check(cfg.MergeEnv("EPGO", "DBNAME", dbName))
-	check(cfg.MergeEnv("EPGO", "TEMPLATE_PATH", templatePath))
-	check(cfg.MergeEnv("EPGO", "SITE_URL", siteURL))
-	// Merge any optional data
-	cfg.MergeEnv("EPGO", "BLEVE", bleveName)
-	cfg.MergeEnv("EPGO", "API_URL", apiURL)
-	cfg.MergeEnv("EPGO", "REPOSITORY_PATH", repositoryPath)
+	htdocs = check(cfg, "htdocs", cfg.MergeEnv("htdocs", htdocs))
+	dbName = check(cfg, "dbname", cfg.MergeEnv("dbname", dbName))
+	templatePath = check(cfg, "template_path", cfg.MergeEnv("template_path", templatePath))
+	siteURL = check(cfg, "site_url", cfg.MergeEnv("site_url", siteURL))
 
-	if cfg.Htdocs != "" {
+	// Merge any optional data
+	bleveName = cfg.MergeEnv("bleve", bleveName)
+	apiURL = cfg.MergeEnv("api_url", apiURL)
+	repositoryPath = cfg.MergeEnv("repository_path", repositoryPath)
+
+	if htdocs != "" {
 		if _, err := os.Stat(htdocs); os.IsNotExist(err) {
 			os.MkdirAll(htdocs, 0775)
 		}
@@ -178,7 +183,7 @@ func main() {
 	// render pages in the various formats supported.
 	//
 	log.Printf("%s %s\n", appName, epgo.Version)
-	log.Printf("Rendering pages from %s\n", cfg.DBName)
+	log.Printf("Rendering pages from %s\n", dbName)
 	err = api.BuildSite(-1)
 	if err != nil {
 		log.Fatal(err)

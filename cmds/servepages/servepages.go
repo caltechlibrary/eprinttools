@@ -32,24 +32,22 @@ import (
 	"strings"
 	"text/template"
 
+	// Caltech Library packages
+	"github.com/caltechlibrary/cli"
+	"github.com/caltechlibrary/epgo"
+
 	// 3rd Party packages
 	"github.com/blevesearch/bleve"
-
-	// Caltech Library packages
-	"github.com/caltechlibrary/epgo"
 )
 
 var (
+	usage = `USAGE: %s [OPTIONS]`
+
 	description = `
- USAGE: %s [OPTIONS]
 
  OVERVIEW
 
 	%s a webserver for explosing EPrints as HTML pages,  HTML .include pages, JSON and BibTeX formats.
-
- OPTIONS
-`
-	configuration = `
 
  CONFIGURATION
 
@@ -422,6 +420,7 @@ func searchHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func requestLogger(next http.Handler) http.Handler {
+	//FIXME: Need to convert to the common log format: htts://en.wikipedia.org/wiki/Common_Log_Format
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		//FIXME: add the response status returned.
 		q := r.URL.Query()
@@ -435,6 +434,7 @@ func requestLogger(next http.Handler) http.Handler {
 }
 
 func responseLogger(r *http.Request, status int, err error) {
+	//FIXME: Need to convert to the common log format: htts://en.wikipedia.org/wiki/Common_Log_Format
 	q := r.URL.Query()
 	if len(q) > 0 {
 		log.Printf("Response: %s Path: %s RemoteAddr: %s UserAgent: %s Query: %+v Status: %d, %s %q\n", r.Method, r.URL.Path, r.RemoteAddr, r.UserAgent(), q, status, http.StatusText(status), err)
@@ -475,20 +475,12 @@ func customRoutes(next http.Handler) http.Handler {
 	})
 }
 
-func usage(appName, version string) {
-	fmt.Printf(description, appName, appName)
-	flag.VisitAll(func(f *flag.Flag) {
-		fmt.Printf("\t-%s\t%s\n", f.Name, f.Usage)
-	})
-	fmt.Printf(configuration, appName)
-	fmt.Printf("%s %s\n", appName, version)
-	os.Exit(0)
-}
-
-func check(err error) {
-	if err != nil {
-		log.Fatal(err)
+func check(cfg *cli.Config, key, value string) string {
+	if value == "" {
+		log.Fatal("Missing %s_%s", cfg.EnvPrefix, strings.ToUpper(key))
+		return ""
 	}
+	return value
 }
 
 func init() {
@@ -507,43 +499,46 @@ func init() {
 
 func main() {
 	var (
-		cfg epgo.Config
 		err error
 	)
 
 	appName := path.Base(os.Args[0])
+	cfg := cli.New(appName, "EPGO", fmt.Sprintf(license, appName, epgo.Version), epgo.Version)
+	cfg.UsageText = fmt.Sprintf(usage, appName)
+	cfg.DescriptionText = fmt.Sprintf(description, appName, appName)
+	cfg.OptionsText = "OPTIONS\n"
+
 	flag.Parse()
 	if showHelp == true {
-		usage(appName, epgo.Version)
+		fmt.Println(cfg.Usage())
+		os.Exit(0)
 	}
 	if showVersion == true {
-		fmt.Printf("%s %s\n", appName, epgo.Version)
+		fmt.Println(cfg.Version())
 		os.Exit(0)
 	}
 	if showLicense == true {
-		fmt.Printf(license, appName, epgo.Version)
+		fmt.Println(cfg.License())
 		os.Exit(0)
 	}
 
 	// Check to see we can merge the required fields are merged.
-	check(cfg.MergeEnv("EPGO", "HTDOCS", htdocs))
-	check(cfg.MergeEnv("EPGO", "TEMPLATE_PATH", templatePath))
-	check(cfg.MergeEnv("EPGO", "SITE_URL", siteURL))
-	check(cfg.MergeEnv("EPGO", "BLEVE", bleveName))
+	htdocs = check(cfg, "htdocs", cfg.MergeEnv("htdocs", htdocs))
+	templatePath = check(cfg, "template_path", cfg.MergeEnv("template_path", templatePath))
+	siteURL = check(cfg, "site_url", cfg.MergeEnv("site_url", siteURL))
+	bleveName = check(cfg, "bleve", cfg.MergeEnv("BLEVE", bleveName))
 
-	if cfg.Htdocs != "" {
+	if htdocs != "" {
 		if _, err := os.Stat(htdocs); os.IsNotExist(err) {
 			os.MkdirAll(htdocs, 0775)
 		}
 	}
-	htdocs = cfg.Get("htdocs")
-	templatePath = cfg.Get("template_path")
-	bleveName = cfg.Get("bleve")
-	siteURL = cfg.Get("site_url")
 
 	//NOTE: Need to get hostname and port from siteURL
 	u, err := url.Parse(siteURL)
-	check(err)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	//
 	// Run the webserver and search service
@@ -551,7 +546,7 @@ func main() {
 	log.Printf("%s %s\n", appName, epgo.Version)
 
 	// Wake up our search engine
-	log.Println("Initializing search services")
+	log.Printf("Opening %q", bleveName)
 	index, err = bleve.Open(bleveName)
 	if err != nil {
 		log.Fatalf("Can't open Bleve index %q, %s", bleveName, err)
@@ -560,6 +555,7 @@ func main() {
 
 	// Send static file request to the default handler,
 	// search routes are handled by middleware customRoutes()
+	log.Printf("Adding handler for %q", htdocs)
 	http.Handle("/", http.FileServer(http.Dir(htdocs)))
 
 	log.Printf("Listening on %s\n", u.String())
