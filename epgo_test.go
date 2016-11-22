@@ -66,13 +66,13 @@ func TestHarvest(t *testing.T) {
 	}
 
 	err = api.BuildPages(5, "Recently Published", "recently-published", func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
-		return api.GetPublishedRecords(start, count, direction)
+		return api.GetPublications(start, count, direction)
 	})
 	if err != nil {
 		t.Errorf("Cannot build test site %q", err)
 		t.FailNow()
 	}
 	err = api.BuildPages(5, "Recent Articles", "recent-articles", func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
-		return api.GetPublishedArticles(start, count, direction)
+		return api.GetArticles(start, count, direction)
 	})
 }

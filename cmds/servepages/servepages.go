@@ -100,6 +100,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	showVersion bool
 	showLicense bool
 
+	enableSearch bool
+
 	htdocs       string
 	dbName       string
 	bleveName    string
@@ -355,7 +357,7 @@ func resultsHandler(w http.ResponseWriter, r *http.Request) {
 	pageInclude := path.Join(templatePath, "results.include")
 
 	// Load my templates and setup to execute them
-	tmpl, err := tmplfn.AssembleTemplate(pageHTML, pageInclude, epgo.TmplFuncs)
+	tmpl, err := tmplfn.AssemblePage(pageHTML, pageInclude, epgo.TmplFuncs)
 	if err != nil {
 		responseLogger(r, http.StatusInternalServerError, fmt.Errorf("Template Errors: %s, %s, %s\n", pageHTML, pageInclude, err))
 		w.WriteHeader(http.StatusInternalServerError)
@@ -404,7 +406,7 @@ func searchHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
 	if strings.HasPrefix(r.URL.Path, "/search/") == true {
 		formData.URI = "/search/"
-		tmpl, err = tmlfn.AssembleTemplate(pageHTML, pageInclude, epgo.TmplFuncs)
+		tmpl, err = tmplfn.AssemblePage(pageHTML, pageInclude, epgo.TmplFuncs)
 		if err != nil {
 			fmt.Printf("Can't read search templates %s, %s, %s", pageHTML, pageInclude, err)
 			return
@@ -460,10 +462,13 @@ func multiViewPath(p string) string {
 
 func customRoutes(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if strings.HasPrefix(r.URL.Path, "/search/") == true {
-			searchHandler(w, r)
-			return
+		if enableSearch == true {
+			if strings.HasPrefix(r.URL.Path, "/search/") == true {
+				searchHandler(w, r)
+				return
+			}
 		}
+
 		// NOTE: The default static file server doesn't seem send the correct mimetype for RSS and JSON responses.
 
 		// If this is a MultiViews style request (i.e. missing .html) then update r.URL.Path
@@ -496,6 +501,7 @@ func init() {
 	flag.StringVar(&bleveName, "bleve", "", "the Bleve index/db name")
 	flag.StringVar(&siteURL, "site-url", "", "the website url")
 	flag.StringVar(&templatePath, "template-path", "", "specify where to read the templates from")
+	flag.BoolVar(&enableSearch, "enable-search", false, "turn on search support in webserver")
 }
 
 func main() {
@@ -546,13 +552,15 @@ func main() {
 	//
 	log.Printf("%s %s\n", appName, epgo.Version)
 
-	// Wake up our search engine
-	log.Printf("Opening %q", bleveName)
-	index, err = bleve.Open(bleveName)
-	if err != nil {
-		log.Fatalf("Can't open Bleve index %q, %s", bleveName, err)
+	if enableSearch == true {
+		// Wake up our search engine
+		log.Printf("Opening %q", bleveName)
+		index, err = bleve.Open(bleveName)
+		if err != nil {
+			log.Fatalf("Can't open Bleve index %q, %s", bleveName, err)
+		}
+		defer index.Close()
 	}
-	defer index.Close()
 
 	// Send static file request to the default handler,
 	// search routes are handled by middleware customRoutes()

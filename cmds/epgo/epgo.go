@@ -192,13 +192,13 @@ func main() {
 	)
 	switch {
 	case publishedNewest > 0:
-		data, err = api.GetPublishedRecords(0, publishedNewest, epgo.Descending)
+		data, err = api.GetPublications(0, publishedNewest, epgo.Descending)
 	case publishedOldest > 0:
-		data, err = api.GetPublishedRecords(0, publishedOldest, epgo.Ascending)
+		data, err = api.GetPublications(0, publishedOldest, epgo.Ascending)
 	case articlesNewest > 0:
-		data, err = api.GetPublishedArticles(0, articlesNewest, epgo.Descending)
+		data, err = api.GetArticles(0, articlesNewest, epgo.Descending)
 	case articlesOldest > 0:
-		data, err = api.GetPublishedArticles(0, articlesOldest, epgo.Ascending)
+		data, err = api.GetArticles(0, articlesOldest, epgo.Ascending)
 	case useAPI == true:
 		if len(args) == 1 {
 			data, err = api.GetEPrint(args[0])

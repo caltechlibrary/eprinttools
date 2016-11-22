@@ -16,5 +16,5 @@ if [ -f "logs/harvest.$WEEKDAY.log" ]; then
 fi
 ./bin/epgo -export -1 2> logs/harvest.$WEEKDAY.log
 ./bin/genpages 2>> logs/harvest.$WEEKDAY.log
-./bin/sitmapper -exclude "$EPGO_REPOSITORY_PATH:affilications" "$EPGO_HTDOCS" "$EPGO_HTDOCS/sitemap.xml" "$EPGO_SITE_URL" 2>> logs/harvest.$WEEKDAY.log
+./bin/sitemapper -exclude "$EPGO_REPOSITORY_PATH:affilications" "$EPGO_HTDOCS" "$EPGO_HTDOCS/sitemap.xml" "$EPGO_SITE_URL" 2>> logs/harvest.$WEEKDAY.log
 ./bin/indexpages -r 2>> logs/harvest.$WEEKDAY.log

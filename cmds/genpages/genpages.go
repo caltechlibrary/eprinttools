@@ -29,7 +29,6 @@ import (
 	// Caltech Library packages
 	"github.com/caltechlibrary/cli"
 	"github.com/caltechlibrary/epgo"
-	"github.com/caltechlibrary/tmplfn"
 )
 
 var (
