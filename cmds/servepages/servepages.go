@@ -35,6 +35,7 @@ import (
 	// Caltech Library packages
 	"github.com/caltechlibrary/cli"
 	"github.com/caltechlibrary/epgo"
+	"github.com/caltechlibrary/tmplfn"
 
 	// 3rd Party packages
 	"github.com/blevesearch/bleve"
@@ -354,7 +355,7 @@ func resultsHandler(w http.ResponseWriter, r *http.Request) {
 	pageInclude := path.Join(templatePath, "results.include")
 
 	// Load my templates and setup to execute them
-	tmpl, err := epgo.AssembleTemplate(pageHTML, pageInclude)
+	tmpl, err := tmplfn.AssembleTemplate(pageHTML, pageInclude, epgo.TmplFuncs)
 	if err != nil {
 		responseLogger(r, http.StatusInternalServerError, fmt.Errorf("Template Errors: %s, %s, %s\n", pageHTML, pageInclude, err))
 		w.WriteHeader(http.StatusInternalServerError)
@@ -403,7 +404,7 @@ func searchHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
 	if strings.HasPrefix(r.URL.Path, "/search/") == true {
 		formData.URI = "/search/"
-		tmpl, err = epgo.AssembleTemplate(pageHTML, pageInclude)
+		tmpl, err = tmlfn.AssembleTemplate(pageHTML, pageInclude, epgo.TmplFuncs)
 		if err != nil {
 			fmt.Printf("Can't read search templates %s, %s, %s", pageHTML, pageInclude, err)
 			return

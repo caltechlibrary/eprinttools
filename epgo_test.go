@@ -19,38 +19,27 @@
 package epgo
 
 import (
-	"fmt"
 	"os"
-	"strings"
 	"testing"
+
+	// Caltech Library packages
+	"github.com/caltechlibrary/cli"
 )
 
 // cfg is configuration to access the EPrints REST API for tests
 var (
-	cfg Config
+	cfg *cli.Config
 )
 
 func TestMain(m *testing.M) {
-	cfg.MergeEnv("EPGO", "API_URL", "")
-	cfg.MergeEnv("EPGO", "DBNAME", "")
-	cfg.MergeEnv("EPGO", "BLEVE", "")
-	cfg.MergeEnv("EPGO", "HTDOCS", "")
-	cfg.MergeEnv("EPGO", "TEMPLATE_PATH", "")
-	cfg.MergeEnv("EPGO", "SITE_URL", "")
+	cfg = cli.New("epgo", "EPGO", "", Version)
+	cfg.MergeEnv("api_url", "")
+	cfg.MergeEnv("dbname", "")
+	cfg.MergeEnv("bleve", "")
+	cfg.MergeEnv("htdocs", "")
+	cfg.MergeEnv("template_path", "")
+	cfg.MergeEnv("site_url", "")
 	os.Exit(m.Run())
-}
-
-func TestMergeEnv(t *testing.T) {
-	var tCfg Config
-
-	for _, term := range []string{"API_URL", "DBNAME", "BLEVE", "HTDOCS", "TEMPLATE_PATH", "SITE_URL"} {
-		if err := tCfg.MergeEnv("EPGO", term, "test_"+term); err != nil {
-			if strings.Compare(tCfg.Get(term), "test_"+term) != 0 {
-				t.Error(fmt.Sprintf("%s_%s error %s", "EPGO", term, err))
-				t.FailNow()
-			}
-		}
-	}
 }
 
 func TestHarvest(t *testing.T) {

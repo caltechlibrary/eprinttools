@@ -36,6 +36,7 @@ import (
 
 	// Caltech Library packages
 	"github.com/caltechlibrary/cli"
+	"github.com/caltechlibrary/tmplfn"
 
 	// 3rd Party packages
 	"github.com/boltdb/bolt"
@@ -66,7 +67,7 @@ var (
 	indexDelimiter   = "|"
 	pubDatesBucket   = []byte("publicationDates")
 	localGroupBucket = []byte("localGroup")
-	orcidBucket      = []byte("orcid") // NOTE: Combined bucket for ORCID or ISNI ids
+	orcidBucket      = []byte("orcid") // NOTE: We can probably combined bucket for ORCID or ISNI ids
 
 	//FIXME: Additional indexes might be useful.
 	// publicationsBucket  = []byte("publications")
@@ -75,99 +76,8 @@ var (
 	// authors             = []byte("authors")
 	// additionDatesBucket = []byte("additionsDates")
 
-	// EPTmplFuncs provides a common set of functions available to templates
-	EPTmplFuncs = template.FuncMap{
-		"year": func(s string) string {
-			var (
-				dt  time.Time
-				err error
-			)
-			if s == "now" {
-				dt = time.Now()
-			} else {
-				dt, err = time.Parse("2006-01-02", normalizeDate(s))
-				if err != nil {
-					return ""
-				}
-			}
-			return dt.Format("2006")
-		},
-		"rfc3339": func(s string) string {
-			var (
-				dt  time.Time
-				err error
-			)
-			if s == "now" {
-				dt = time.Now()
-			} else {
-				dt, err = time.Parse("2006-01-02", normalizeDate(s))
-				if err != nil {
-					return ""
-				}
-			}
-			return dt.Format(time.RFC3339)
-		},
-		"rfc1123": func(s string) string {
-			var (
-				dt  time.Time
-				err error
-			)
-			if s == "now" {
-				dt = time.Now()
-			} else {
-				dt, err = time.Parse("2006-01-02", normalizeDate(s))
-				if err != nil {
-					return ""
-				}
-			}
-			return dt.Format(time.RFC1123)
-		},
-		"rfc1123z": func(s string) string {
-			var (
-				dt  time.Time
-				err error
-			)
-			if s == "now" {
-				dt = time.Now()
-			} else {
-				dt, err = time.Parse("2006-01-02", normalizeDate(s))
-				if err != nil {
-					return ""
-				}
-			}
-			return dt.Format(time.RFC1123Z)
-		},
-		"rfc822z": func(s string) string {
-			var (
-				dt  time.Time
-				err error
-			)
-			if s == "now" {
-				dt = time.Now()
-			} else {
-				dt, err = time.Parse("2006-01-02", normalizeDate(s))
-				if err != nil {
-					return ""
-				}
-			}
-			return dt.Format(time.RFC822Z)
-		},
-		"rfc822": func(s string) string {
-			var (
-				dt  time.Time
-				err error
-			)
-			if s == "now" {
-				dt = time.Now()
-			} else {
-				dt, err = time.Parse("2006-01-02", normalizeDate(s))
-				if err != nil {
-					return ""
-				}
-			}
-			return dt.Format(time.RFC822)
-		},
-	}
+	// TmplFuncs is the collected functions available in EPGO templates
+	TmplFuncs = tmplfn.Join(tmplfn.Page, tmplfn.Time)
 )
 
 func failCheck(err error, msg string) {
@@ -1246,7 +1156,7 @@ func (api *EPrintsAPI) RenderDocuments(docTitle, docDescription, docpath string,
 	if err != nil {
 		return fmt.Errorf("Can't open template %s, %s", fname, err)
 	}
-	rssTmpl, err := template.New("rss").Funcs(EPTmplFuncs).Parse(string(rss20))
+	rssTmpl, err := template.New("rss").Funcs(tmplfn.Time).Parse(string(rss20))
 	if err != nil {
 		return fmt.Errorf("Can't convert records to RSS %s, %s", fname, err)
 	}
@@ -1266,7 +1176,7 @@ func (api *EPrintsAPI) RenderDocuments(docTitle, docDescription, docpath string,
 	if err != nil {
 		return fmt.Errorf("Can't open template %s, %s", fname, err)
 	}
-	pageIncludeTmpl, err := template.New("page.include").Funcs(EPTmplFuncs).Parse(string(pageInclude))
+	pageIncludeTmpl, err := template.New("page.include").Funcs(tmplfn.Time).Parse(string(pageInclude))
 	if err != nil {
 		return fmt.Errorf("Can't parse %s, %s", fname, err)
 	}
@@ -1281,7 +1191,7 @@ func (api *EPrintsAPI) RenderDocuments(docTitle, docDescription, docpath string,
 	}
 	out.Close()
 
-	pageHTMLTmpl, err := template.New("page.html").Funcs(EPTmplFuncs).ParseFiles(
+	pageHTMLTmpl, err := template.New("page.html").Funcs(tmplfn.Time).ParseFiles(
 		path.Join(api.TemplatePath, "page.include"),
 		path.Join(api.TemplatePath, "page.html"),
 	)
