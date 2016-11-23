@@ -25,11 +25,12 @@ If EPRINT_URI is provided then an individual EPrint is return as a JSON structur
 (e.g. /rest/eprint/34.xml). Otherwise a list of EPrint paths are returned.
 
 
-| Options               | Description |
+| Options               | Description                                         |
 |-----------------------|-----------------------------------------------------|
 | -api	                | display EPrint REST API response                    |
+| -dbname               | BoltDB name                                         |
 | -export int           | export N EPrints to local database, if N is negative export all EPrints |
-| -build                | build pages and feeds from database                 |
+| -read-api             | read the contents from the API without saving in the database |
 | -feed-size int        | the number of items included in generated feeds     |
 | -published-newest int | list the N newest published records                 |
 | -published-oldest int | list the N oldest published records                 |
@@ -41,4 +42,7 @@ If EPRINT_URI is provided then an individual EPrint is return as a JSON structur
 | -h                    |  display help info                                  |
 | -l                    |  show license information                           |
 | -v                    |  display version info                               |
+
+
+
 
