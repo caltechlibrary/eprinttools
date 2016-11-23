@@ -6,6 +6,7 @@
 
 # Someday, Maybe
 
++ Add ORCID API harvest for person biographies and profiles, populating the person landing page with this content
 + Add epgo package interface to search
 + minimize lock time records for DB writes
     + switch to updates in batch 

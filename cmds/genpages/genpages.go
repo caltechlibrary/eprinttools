@@ -98,6 +98,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	apiURL         string
 	siteURL        string
 	repositoryPath string
+
+	buildEPrintMirror bool
 )
 
 func check(cfg *cli.Config, key, value string) string {
@@ -123,6 +125,8 @@ func init() {
 	flag.StringVar(&siteURL, "site-url", "", "the website url")
 	flag.StringVar(&templatePath, "template-path", "", "specify where to read the templates from")
 	flag.StringVar(&repositoryPath, "repository-path", "", "specify the repository path to use for generated content")
+
+	flag.BoolVar(&buildEPrintMirror, "build-eprint-mirror", true, "Build a mirror of EPrint content rendered as JSON documents")
 }
 
 func main() {
@@ -175,7 +179,7 @@ func main() {
 	//
 	log.Printf("%s %s\n", appName, epgo.Version)
 	log.Printf("Rendering pages from %s\n", dbName)
-	err = api.BuildSite(-1)
+	err = api.BuildSite(-1, buildEPrintMirror)
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -35,6 +35,7 @@ import (
 	"time"
 
 	// Caltech Library packages
+	"github.com/caltechlibrary/bibtex"
 	"github.com/caltechlibrary/cli"
 	"github.com/caltechlibrary/tmplfn"
 
@@ -245,14 +246,50 @@ func normalizeDate(in string) string {
 	return strings.Join(parts, "-")
 }
 
-// MergeEnv merge environment variables into the configuration structure.
-// options are
-// + prefix - e.g. EPGO, name space before the first underscore in the envinronment
-//   + prefix plus uppercase key forms the complete environment variable name
-// + key - the field map (e.g ApiURL maps to API_URL in EPGO_API_URL for prefix EPGO)
-// + proposedValue - the proposed value, usually the value from the flags passed in (an empty string means no value provided)
-//
-// returns an error if a problem is encountered.
+// ToBibTeXElement takes an epgo.Record and turns it into a bibtex.Element record
+func (rec *Record) ToBibTeXElement() *bibtex.Element {
+	bib := &bibtex.Element{}
+	bib.Set("type", rec.Type)
+	//FIXME: the id field in the bib record needs a value...
+	//bib.Set("id", rec.eprintID)
+	bib.Set("title", rec.Title)
+	if len(rec.Abstract) > 0 {
+		bib.Set("abstract", rec.Abstract)
+	}
+	if rec.DateType == "pub" {
+		dt, err := time.Parse("2006-01-02", rec.Date)
+		if err != nil {
+			bib.Set("year", dt.Format("2006"))
+			bib.Set("month", dt.Format("January"))
+		}
+	}
+	if len(rec.PageRange) > 0 {
+		bib.Set("pages", rec.PageRange)
+	}
+	if len(rec.Note) > 0 {
+		bib.Set("note", rec.Note)
+	}
+	if len(rec.Creators) > 0 {
+		people := []string{}
+		for _, person := range rec.Creators {
+			people = append(people, fmt.Sprintf("%s, %s", person.Family, person.Given))
+		}
+		bib.Set("author", strings.Join(people, " and "))
+	}
+	switch rec.Type {
+	case "article":
+		bib.Set("journal", rec.Publication)
+	case "book":
+		bib.Set("publisher", rec.Publication)
+	}
+	if len(rec.Volume) > 0 {
+		bib.Set("volume", rec.Volume)
+	}
+	if len(rec.Number) > 0 {
+		bib.Set("number", rec.Number)
+	}
+	return bib
+}
 
 // New creates a new API instance
 func New(cfg *cli.Config) (*EPrintsAPI, error) {
@@ -1302,6 +1339,7 @@ func (api *EPrintsAPI) RenderDocuments(docTitle, docDescription, docpath string,
 	if err != nil {
 		return fmt.Errorf("Can't write %s, %s", fname, err)
 	}
+
 	// Write out RSS 2.0 file
 	fname = path.Join(api.TemplatePath, "rss.xml")
 	rss20, err := ioutil.ReadFile(fname)
@@ -1321,6 +1359,17 @@ func (api *EPrintsAPI) RenderDocuments(docTitle, docDescription, docpath string,
 		return fmt.Errorf("Can't render %s, %s", fname, err)
 	}
 	out.Close()
+
+	// FIXME: Write out BibTeX file.
+	bibDoc := []string{}
+	for _, rec := range records {
+		bibDoc = append(bibDoc, rec.ToBibTeXElement().String())
+	}
+	fname = path.Join(api.Htdocs, docpath+".bib")
+	err = ioutil.WriteFile(fname, []byte(strings.Join(bibDoc, "\n\n")), 0664)
+	if err != nil {
+		return fmt.Errorf("Can't write %s, %s", fname, err)
+	}
 
 	// Write out include file
 	fname = path.Join(api.TemplatePath, "page.include")
@@ -1443,27 +1492,29 @@ func (api *EPrintsAPI) BuildEPrintMirror() error {
 // BuildSite generates a website based on the contents of the exported EPrints data.
 // The site builder needs to know the name of the BoltDB, the root directory
 // for the website and directory to find the templates
-func (api *EPrintsAPI) BuildSite(feedSize int) error {
+func (api *EPrintsAPI) BuildSite(feedSize int, buildEPrintMirror bool) error {
 	var err error
 
 	if feedSize < 1 {
 		feedSize = DefaultFeedSize
 	}
 
-	// Build mirror of repository content.
-	log.Printf("Mirroring eprint records")
-	err = api.BuildEPrintMirror()
-	if err != nil {
-		return nil
-	}
+	if buildEPrintMirror == true {
+		// Build mirror of repository content.
+		log.Printf("Mirroring eprint records")
+		err = api.BuildEPrintMirror()
+		if err != nil {
+			return nil
+		}
 
-	// Build a master file of all records (these are large and probably only useful for migration purposes)
-	log.Printf("Building EPrint Repository Master Index")
-	err = api.BuildPages(feedSize, "Repository Master Index", path.Join(api.RepositoryPath, "index"), func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
-		return api.GetAllRecords(Descending)
-	})
-	if err != nil {
-		return err
+		// Build a master file of all records (these are large and probably only useful for migration purposes)
+		log.Printf("Building EPrint Repository Master Index")
+		err = api.BuildPages(feedSize, "Repository Master Index", path.Join(api.RepositoryPath, "index"), func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
+			return api.GetAllRecords(Descending)
+		})
+		if err != nil {
+			return err
+		}
 	}
 
 	// Collect the recent publications (all types)
