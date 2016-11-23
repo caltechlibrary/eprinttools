@@ -1380,9 +1380,10 @@ func (api *EPrintsAPI) BuildPages(feedSize int, title, target string, filter fun
 		return fmt.Errorf("Can't get records for %q %s, %s", title, docPath, err)
 	}
 	if len(records) == 0 {
-		return fmt.Errorf("No records found for %q %s", title, docPath)
+		log.Printf("No records found for %q %s", title, docPath)
+	} else {
+		log.Printf("%d records found.", len(records))
 	}
-	log.Printf("%d records found.", len(records))
 	if err := api.RenderDocuments(title, fmt.Sprintf("Building pages 0 to %d descending", feedSize), target, records); err != nil {
 		return fmt.Errorf("%q %s error, %s", title, docPath, err)
 	}
