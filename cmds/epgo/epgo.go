@@ -109,6 +109,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 )
 
 func init() {
+	// Log to standard out
+	log.SetOutput(os.Stdout)
+
+	// Setup options
 	publishedNewest = 0
 	publishedOldest = 0
 	feedSize = epgo.DefaultFeedSize
@@ -120,6 +124,7 @@ func init() {
 	flag.BoolVar(&showLicense, "l", false, "display license")
 	flag.BoolVar(&showLicense, "license", false, "display license")
 
+	// App Specific options
 	flag.StringVar(&apiURL, "api", "", "url for EPrints API")
 	flag.StringVar(&dbName, "dbname", "", "BoltDB name")
 

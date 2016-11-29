@@ -111,6 +111,10 @@ func check(cfg *cli.Config, key, value string) string {
 }
 
 func init() {
+	// Log to standard out
+	log.SetOutput(os.Stdout)
+
+	// Setup options
 	flag.BoolVar(&showHelp, "h", false, "display help")
 	flag.BoolVar(&showHelp, "help", false, "display help")
 	flag.BoolVar(&showVersion, "v", false, "display version")
@@ -118,6 +122,7 @@ func init() {
 	flag.BoolVar(&showLicense, "l", false, "display license")
 	flag.BoolVar(&showLicense, "license", false, "display license")
 
+	// App Specific options
 	flag.StringVar(&htdocs, "htdocs", "", "specify where to write the HTML files to")
 	flag.StringVar(&dbName, "dbname", "", "the BoltDB name")
 	flag.StringVar(&bleveName, "bleve", "", "the Bleve index/db name")

@@ -27,9 +27,11 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"os/signal"
 	"path"
 	"strconv"
 	"strings"
+	"syscall"
 	"text/template"
 
 	// Caltech Library packages
@@ -104,12 +106,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 	htdocs       string
 	dbName       string
-	bleveName    string
+	bleveNames   string // NOTE: this is a colon delimited string of index names
 	templatePath string
 	apiURL       string
 	siteURL      string
 
-	index bleve.Index
+	indexAlias    bleve.IndexAlias
+	index         bleve.Index
+	activeIndexNo int
 )
 
 // QueryOptions holds the support query terms expected in either a GET or POST
@@ -341,7 +345,7 @@ func resultsHandler(w http.ResponseWriter, r *http.Request) {
 	// Return all fields
 	searchRequest.Fields = []string{}
 
-	searchResults, err := index.Search(searchRequest)
+	searchResults, err := indexAlias.Search(searchRequest)
 	if err != nil {
 		responseLogger(r, http.StatusInternalServerError, fmt.Errorf("Bleve results error %v, %s", qry, err))
 		w.WriteHeader(http.StatusInternalServerError)
@@ -489,7 +493,75 @@ func check(cfg *cli.Config, key, value string) string {
 	return value
 }
 
+// switchIndex returns the index to active index in the list represented by bleveNames and an error object
+func switchIndex() (int, error) {
+	var (
+		curName  string
+		nextName string
+	)
+	i := activeIndexNo
+	indexList := strings.Split(bleveNames, ":")
+	if len(indexList) > 1 {
+		// Save our previous index name
+		curName = indexList[i]
+		// Find our next index name
+		i++
+		// Wrap to beginning of list if needed
+		if i >= len(indexList) {
+			i = 0
+		}
+		nextName = indexList[i]
+
+		log.Printf("Switching from %q to %q", curName, nextName)
+		indexOld = index
+		indexNext, err := bleve.Open(indexList[i])
+		if err != nil {
+			return activeIndexNo, fmt.Errorf("Can't open Bleve index %q, %s", indexList[i], err)
+		}
+		indexAlias = bleve.Swap(index, indexNext)
+		log.Printf("Closing %q", curName)
+		indexOld.Close()
+		index = indexNext
+		return i, nil
+	}
+	return activeIndexNo, fmt.Errorf("Only one index defined, no swap possible")
+}
+
+func handleSignals() {
+	var err error
+
+	signalChannel := make(chan os.Signal, 3)
+	signal.Notify(signalChannel, os.Interrupt, syscall.SIGTERM, syscall.SIGHUP)
+	go func() {
+		sig := <-signalChannel
+		switch sig {
+		case os.Interrupt:
+			//handle SIGINT
+			log.Println("SIGINT received, shutting down")
+			os.Exit(0)
+		case syscall.SIGTERM:
+			//handle SIGTERM
+			log.Println("SIGTERM received, shutting down")
+			os.Exit(0)
+		case syscall.SIGHUP:
+			//FIXME: this maybe a good choice for closing and re-opening the index with bringing down the web service
+			log.Println("SIGHUP received, switching indexAlias")
+			activeIndexNo, err = switchIndex()
+			if err != nil {
+				log.Printf("Error swaping index %s", err)
+				return
+			}
+			log.Printf("Acrive Index is now No. %d", activeIndexNo)
+		}
+	}()
+
+}
+
 func init() {
+	// Log to standard out
+	log.SetOutput(os.Stdout)
+
+	// Setup options
 	flag.BoolVar(&showHelp, "h", false, "display help")
 	flag.BoolVar(&showHelp, "help", false, "display help")
 	flag.BoolVar(&showVersion, "v", false, "display version")
@@ -497,8 +569,9 @@ func init() {
 	flag.BoolVar(&showLicense, "l", false, "display license")
 	flag.BoolVar(&showLicense, "license", false, "display license")
 
+	// App Specific options
 	flag.StringVar(&htdocs, "htdocs", "", "specify where to write the HTML files to")
-	flag.StringVar(&bleveName, "bleve", "", "the Bleve index/db name")
+	flag.StringVar(&bleveNames, "bleve", "", "a colon delimited list of Bleve index db names")
 	flag.StringVar(&siteURL, "site-url", "", "the website url")
 	flag.StringVar(&templatePath, "template-path", "", "specify where to read the templates from")
 	flag.BoolVar(&enableSearch, "enable-search", false, "turn on search support in webserver")
@@ -533,7 +606,7 @@ func main() {
 	htdocs = check(cfg, "htdocs", cfg.MergeEnv("htdocs", htdocs))
 	templatePath = check(cfg, "template_path", cfg.MergeEnv("template_path", templatePath))
 	siteURL = check(cfg, "site_url", cfg.MergeEnv("site_url", siteURL))
-	bleveName = check(cfg, "bleve", cfg.MergeEnv("BLEVE", bleveName))
+	bleveNames = check(cfg, "bleve", cfg.MergeEnv("BLEVE", bleveNames))
 
 	if htdocs != "" {
 		if _, err := os.Stat(htdocs); os.IsNotExist(err) {
@@ -547,6 +620,8 @@ func main() {
 		log.Fatal(err)
 	}
 
+	handleSignals()
+
 	//
 	// Run the webserver and search service
 	//
@@ -554,12 +629,17 @@ func main() {
 
 	if enableSearch == true {
 		// Wake up our search engine
-		log.Printf("Opening %q", bleveName)
-		index, err = bleve.Open(bleveName)
-		if err != nil {
-			log.Fatalf("Can't open Bleve index %q, %s", bleveName, err)
+		indexList := strings.Split(bleveNames, ":")
+		activeIndexNo = 0
+		if len(indexList) > 0 {
+			log.Printf("Opening %q", indexList[activeIndexNo])
+			index, err = bleve.Open(indexList[activeIndexNo])
+			if err != nil {
+				log.Fatalf("Can't open Bleve index %q, %s", indexList[activeIndexNo], err)
+			}
+			defer index.Close()
+			indexAlias = bleve.NewIndexAlias(index)
 		}
-		defer index.Close()
 	}
 
 	// Send static file request to the default handler,

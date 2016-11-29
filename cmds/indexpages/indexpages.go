@@ -25,8 +25,10 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"os/signal"
 	"path"
 	"strings"
+	"syscall"
 	"time"
 
 	// Caltech Libraries packages
@@ -115,6 +117,28 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	fileCount int
 )
 
+func handleSignals() {
+	signalChannel := make(chan os.Signal, 3)
+	signal.Notify(signalChannel, os.Interrupt, syscall.SIGTERM, syscall.SIGHUP)
+	go func() {
+		sig := <-signalChannel
+		switch sig {
+		case os.Interrupt:
+			//handle SIGINT
+			log.Println("SIGINT received, shutting down")
+			os.Exit(0)
+		case syscall.SIGTERM:
+			//handle SIGTERM
+			log.Println("SIGTERM received, shutting down")
+			os.Exit(0)
+		case syscall.SIGHUP:
+			//FIXME: this maybe a good choice for closing and re-opening the index with bringing down the web service
+			log.Println("SIGHUP received, shutting down")
+			os.Exit(0)
+		}
+	}()
+}
+
 func check(cfg *cli.Config, key, value string) string {
 	if value == "" {
 		log.Fatal("Missing %s_%s", cfg.EnvPrefix, strings.ToUpper(key))
@@ -124,7 +148,10 @@ func check(cfg *cli.Config, key, value string) string {
 }
 
 func init() {
-	// standard options
+	// Log to standard out
+	log.SetOutput(os.Stdout)
+
+	// Standard options
 	flag.BoolVar(&showHelp, "h", false, "display help")
 	flag.BoolVar(&showHelp, "help", false, "display help")
 	flag.BoolVar(&showVersion, "v", false, "display version")
@@ -132,7 +159,7 @@ func init() {
 	flag.BoolVar(&showLicense, "l", false, "display license")
 	flag.BoolVar(&showLicense, "license", false, "display license")
 
-	// app specific options
+	// App specific options
 	flag.StringVar(&htdocs, "htdocs", "", "The document root for the website")
 	flag.StringVar(&indexName, "bleve", "", "The name of the Bleve index")
 	flag.BoolVar(&replaceIndex, "r", false, "Replace the index if it exists")
@@ -419,6 +446,8 @@ func main() {
 			log.Fatalf("Could not removed %q, %s", indexName, err)
 		}
 	}
+
+	handleSignals()
 
 	index, err := getIndex(indexName)
 	if err != nil {

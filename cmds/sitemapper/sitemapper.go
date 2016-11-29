@@ -114,7 +114,10 @@ func check(cfg *cli.Config, key, value string) string {
 }
 
 func init() {
-	// standard cli options
+	// Log to standard out
+	log.SetOutput(os.Stdout)
+
+	// Setup options
 	flag.BoolVar(&showHelp, "h", false, "display help")
 	flag.BoolVar(&showHelp, "help", false, "display help")
 	flag.BoolVar(&showVersion, "v", false, "display version")
@@ -122,7 +125,7 @@ func init() {
 	flag.BoolVar(&showLicense, "l", false, "display license")
 	flag.BoolVar(&showLicense, "license", false, "display license")
 
-	// app specific cli options
+	// App specific options
 	flag.StringVar(&changefreq, "u", "daily", "Set the change frequencely value, e.g. daily, weekly, monthly")
 	flag.StringVar(&changefreq, "update-frequency", "daily", "Set the change frequencely value, e.g. daily, weekly, monthly")
 	flag.StringVar(&excludeList, "e", "", "A colon delimited list of path parts to exclude from sitemap")
