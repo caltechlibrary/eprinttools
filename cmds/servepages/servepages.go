@@ -57,7 +57,7 @@ var (
     %s can be configured through setting the following environment
 	variables-
 
-    EPGO_BLEVE    this is the Bleve index that drives the search feature.
+    EPGO_BLEVE    a colon delimited list of Bleve indexes
 
     EPGO_HTDOCS    this is the directory where the HTML files are written.
 
@@ -111,9 +111,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	apiURL       string
 	siteURL      string
 
-	indexAlias    bleve.IndexAlias
-	index         bleve.Index
-	activeIndexNo int
+	indexAlias bleve.IndexAlias
+	index      bleve.Index
 )
 
 // QueryOptions holds the support query terms expected in either a GET or POST
@@ -138,11 +137,11 @@ type QueryOptions struct {
 	AllIDs    bool   `json:"all_ids"`
 
 	// Results olds the submitted query results
-	Total           int    `json:"total"`
-	DetailsBaseURI  string `json:"details_base_uri"`
-	QueryURLEncoded string
-	Request         *bleve.SearchRequest
-	Results         *bleve.SearchResult
+	Total           int                  `json:"total"`
+	DetailsBaseURI  string               `json:"details_base_uri"`
+	QueryURLEncoded string               `json:"query_urlencoded"`
+	Request         *bleve.SearchRequest `json:"request"`
+	Results         *bleve.SearchResult  `json:"results"`
 }
 
 // Parses the submitted map for query options setting the internals of the QueryOptions structure
@@ -493,65 +492,82 @@ func check(cfg *cli.Config, key, value string) string {
 	return value
 }
 
-// switchIndex returns the index to active index in the list represented by bleveNames and an error object
-func switchIndex() (int, error) {
+// switchIndex returns the error if a problem happens swaping the index
+func switchIndex() error {
 	var (
 		curName  string
 		nextName string
 	)
-	i := activeIndexNo
+	curName = index.Name()
+	if len(curName) == 0 {
+		return fmt.Errorf("No index defined")
+	}
 	indexList := strings.Split(bleveNames, ":")
 	if len(indexList) > 1 {
-		// Save our previous index name
-		curName = indexList[i]
-		// Find our next index name
-		i++
-		// Wrap to beginning of list if needed
-		if i >= len(indexList) {
-			i = 0
+		// Find the name of the next index
+		for i, iName := range indexList {
+			if strings.Compare(iName, curName) == 0 {
+				i++
+				// Wrap to the beginning if we go off end of list
+				if i >= len(indexList) {
+					i = 0
+				}
+				nextName = indexList[i]
+			}
 		}
-		nextName = indexList[i]
-
 		log.Printf("Switching from %q to %q", curName, nextName)
-		indexOld = index
-		indexNext, err := bleve.Open(indexList[i])
+		indexNext, err := bleve.Open(nextName)
 		if err != nil {
-			return activeIndexNo, fmt.Errorf("Can't open Bleve index %q, %s", indexList[i], err)
+			return fmt.Errorf("Can't open Bleve index %q, %s", nextName, err)
 		}
-		indexAlias = bleve.Swap(index, indexNext)
+		indexAlias.Swap([]bleve.Index{indexNext}, []bleve.Index{index})
 		log.Printf("Closing %q", curName)
-		indexOld.Close()
+		index.Close()
+		// Point index at indexNext
 		index = indexNext
-		return i, nil
+		return nil
 	}
-	return activeIndexNo, fmt.Errorf("Only one index defined, no swap possible")
+	return fmt.Errorf("Only %q index defined, no swap possible", curName)
 }
 
 func handleSignals() {
-	var err error
-
-	signalChannel := make(chan os.Signal, 3)
-	signal.Notify(signalChannel, os.Interrupt, syscall.SIGTERM, syscall.SIGHUP)
+	signalChannel := make(chan os.Signal, 4)
+	signal.Notify(signalChannel, os.Interrupt, syscall.SIGTERM, syscall.SIGHUP, syscall.SIGINFO)
 	go func() {
-		sig := <-signalChannel
-		switch sig {
-		case os.Interrupt:
-			//handle SIGINT
-			log.Println("SIGINT received, shutting down")
-			os.Exit(0)
-		case syscall.SIGTERM:
-			//handle SIGTERM
-			log.Println("SIGTERM received, shutting down")
-			os.Exit(0)
-		case syscall.SIGHUP:
-			//FIXME: this maybe a good choice for closing and re-opening the index with bringing down the web service
-			log.Println("SIGHUP received, switching indexAlias")
-			activeIndexNo, err = switchIndex()
-			if err != nil {
-				log.Printf("Error swaping index %s", err)
-				return
+		// handle signals for the duration of the process
+		for {
+			sig := <-signalChannel
+			switch sig {
+			case os.Interrupt:
+				//handle SIGINT by shutting down servepages
+				if index != nil {
+					log.Printf("Closing index %q", index.Name())
+					index.Close()
+				}
+				log.Println("SIGINT received, shutting down")
+				os.Exit(0)
+			case syscall.SIGTERM:
+				//handle SIGTERM by shutting down servepages
+				if index != nil {
+					log.Printf("Closing index %q", index.Name())
+					index.Close()
+				}
+				log.Println("SIGTERM received, shutting down")
+				os.Exit(0)
+			case syscall.SIGINFO:
+				//handle SIGINFO, send out the current index being used
+				log.Printf("Status: site url is %q", siteURL)
+				log.Printf("Status: search index is %q", index.Name())
+			case syscall.SIGHUP:
+				//NOTE: HUP triggers an swap of indexes used by search
+				log.Println("SIGHUP received, swaping index")
+				err := switchIndex()
+				if err != nil {
+					log.Printf("Error swaping index %s", err)
+					return
+				}
+				log.Printf("Active Index is now %q", index.Name())
 			}
-			log.Printf("Acrive Index is now No. %d", activeIndexNo)
 		}
 	}()
 
@@ -574,7 +590,7 @@ func init() {
 	flag.StringVar(&bleveNames, "bleve", "", "a colon delimited list of Bleve index db names")
 	flag.StringVar(&siteURL, "site-url", "", "the website url")
 	flag.StringVar(&templatePath, "template-path", "", "specify where to read the templates from")
-	flag.BoolVar(&enableSearch, "enable-search", false, "turn on search support in webserver")
+	flag.BoolVar(&enableSearch, "enable-search", true, "turn on search support in webserver")
 }
 
 func main() {
@@ -630,12 +646,12 @@ func main() {
 	if enableSearch == true {
 		// Wake up our search engine
 		indexList := strings.Split(bleveNames, ":")
-		activeIndexNo = 0
 		if len(indexList) > 0 {
-			log.Printf("Opening %q", indexList[activeIndexNo])
-			index, err = bleve.Open(indexList[activeIndexNo])
+			indexName := indexList[0]
+			log.Printf("Opening %q", indexName)
+			index, err = bleve.Open(indexName)
 			if err != nil {
-				log.Fatalf("Can't open Bleve index %q, %s", indexList[activeIndexNo], err)
+				log.Fatalf("Can't open Bleve index %q, %s", indexName, err)
 			}
 			defer index.Close()
 			indexAlias = bleve.NewIndexAlias(index)

@@ -363,7 +363,9 @@ func (s byURI) Less(i, j int) bool {
 
 // ListEPrintsURI returns a list of eprint record ids
 func (api *EPrintsAPI) ListEPrintsURI() ([]string, error) {
-	var results []string
+	var (
+		results []string
+	)
 
 	api.URL.Path = path.Join("rest", "eprint") + "/"
 	resp, err := http.Get(api.URL.String())
@@ -383,9 +385,17 @@ func (api *EPrintsAPI) ListEPrintsURI() ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
+	// Build a list of Unique IDs in a map, then convert unique querys to results array
+	m := make(map[string]bool)
 	for _, val := range eIDs.IDs {
 		if strings.HasSuffix(val, ".xml") == true {
-			results = append(results, "/"+path.Join("rest", "eprint", val))
+			uri := "/" + path.Join("rest", "eprint", val)
+			if _, hasID := m[uri]; hasID == false {
+				// Save the new ID found
+				m[uri] = true
+				// Only store Unique IDs in result
+				results = append(results, uri)
+			}
 		}
 	}
 	return results, nil
@@ -534,11 +544,15 @@ func (api *EPrintsAPI) ExportEPrints(count int) error {
 			} else {
 				err := db.Update(func(tx *bolt.Tx) error {
 					var errs []string
+					// Saving the eprint record
 					b := tx.Bucket(ePrintBucket)
 					err := b.Put([]byte(rec.URI), src)
-					//NOTE: dt is the pub date
-					dt := normalizeDate(rec.Date)
 					if err == nil {
+						// Inc the stored EPrint count
+						j++
+						//NOTE: dt is the pub date
+						dt := normalizeDate(rec.Date)
+
 						// See if we need to add this to the publicationDates index
 						if rec.DateType == "published" && rec.Date != "" {
 							idx := tx.Bucket(pubDatesBucket)
@@ -578,7 +592,6 @@ func (api *EPrintsAPI) ExportEPrints(count int) error {
 								}
 							}
 						}
-						j++
 					}
 					if len(errs) > 0 {
 						return fmt.Errorf("%s", strings.Join(errs, "; "))
@@ -1453,6 +1466,7 @@ func (api *EPrintsAPI) BuildEPrintMirror() error {
 	if err != nil {
 		return err
 	}
+	fmt.Printf("DEBUG len(ids) %d\n", len(ids))
 
 	// Setup subdirs to hold all the individual eprint records.
 	keys := []string{}

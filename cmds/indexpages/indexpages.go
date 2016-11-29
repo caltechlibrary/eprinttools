@@ -40,7 +40,7 @@ import (
 )
 
 var (
-	usage = `USAGE: %s [OPTIONS]`
+	usage = `USAGE: %s [OPTIONS] [BLEVE_INDEX_NAME]`
 
 	description = `
  SYNOPSIS
@@ -110,7 +110,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	siteURL        string
 	templatePath   string
 	repositoryPath string
-	maxBatchSize   int
+	batchSize      int
 
 	// internal counters
 	dirCount  int
@@ -164,7 +164,7 @@ func init() {
 	flag.StringVar(&indexName, "bleve", "", "The name of the Bleve index")
 	flag.BoolVar(&replaceIndex, "r", false, "Replace the index if it exists")
 	flag.StringVar(&repositoryPath, "repository-path", "", "Path of rendered repository content")
-	flag.IntVar(&maxBatchSize, "batch", maxBatchSize, "Set the maximum batch index size")
+	flag.IntVar(&batchSize, "batch", batchSize, "Set the batch index size")
 }
 
 func createIndex(indexName string) (bleve.Index, error) {
@@ -291,7 +291,7 @@ func getIndex(indexName string) (bleve.Index, error) {
 	return index, nil
 }
 
-func indexSite(htdocs, eprintsDotJSON string, index bleve.Index, maxBatchSize int) error {
+func indexSite(htdocs, eprintsDotJSON string, index bleve.Index, batchSize int) error {
 	var (
 		uris []string
 	)
@@ -314,7 +314,6 @@ func indexSite(htdocs, eprintsDotJSON string, index bleve.Index, maxBatchSize in
 	total := len(uris)
 
 	log.Printf("%d eprints found", total)
-	batchSize := 50
 	batch := index.NewBatch()
 	log.Printf("Indexed: %d of %d, batch size %d, run time %s", count, total, batchSize, time.Now().Sub(startT))
 	for _, uri := range uris {
@@ -323,7 +322,7 @@ func indexSite(htdocs, eprintsDotJSON string, index bleve.Index, maxBatchSize in
 		if err != nil {
 			return err
 		}
-		var jsonDoc *epgo.Record
+		jsonDoc := new(epgo.Record)
 		err = json.Unmarshal(src, &jsonDoc)
 		if err != nil {
 			log.Printf("error indexing %s, %s", uri, err)
@@ -367,6 +366,8 @@ func indexSite(htdocs, eprintsDotJSON string, index bleve.Index, maxBatchSize in
 				LocalGroup:   jsonDoc.LocalGroup,
 				Subjects:     jsonDoc.Subjects,
 			})
+			// Flag the memory used by this jsonDoc to be garbage collected
+			jsonDoc = nil
 		}
 		if batch.Size() >= batchSize {
 			log.Printf("Indexing batch %d", batchNo)
@@ -378,12 +379,6 @@ func indexSite(htdocs, eprintsDotJSON string, index bleve.Index, maxBatchSize in
 			count += batch.Size()
 			batch.Reset()
 			log.Printf("Indexed: %d of %d, batch size %d, run time %s", count, total, batchSize, time.Now().Sub(startT))
-			if batchSize < maxBatchSize {
-				batchSize = batchSize * 2
-			}
-			if batchSize > maxBatchSize {
-				batchSize = maxBatchSize
-			}
 		}
 	}
 	if batch.Size() > 0 {
@@ -408,6 +403,7 @@ func main() {
 	cfg.OptionsText = "OPTIONS\n"
 
 	flag.Parse()
+	args := flag.Args()
 	if showHelp == true {
 		fmt.Println(cfg.Usage())
 		os.Exit(0)
@@ -421,13 +417,20 @@ func main() {
 		os.Exit(0)
 	}
 
-	if maxBatchSize == 0 {
-		maxBatchSize = 500
+	if batchSize == 0 {
+		batchSize = 500
+	}
+
+	if len(args) > 0 {
+		indexName = strings.Join(args, ":")
 	}
 
 	// Required fields
 	dbName = check(cfg, "dbname", cfg.MergeEnv("dbname", dbName))
-	indexName = check(cfg, "bleve", cfg.MergeEnv("bleve", indexName))
+	names := check(cfg, "bleve", cfg.MergeEnv("bleve", indexName))
+	if strings.Contains(names, ":") {
+		indexName = (strings.Split(names, ":"))[0]
+	}
 	htdocs = check(cfg, "htdocs", cfg.MergeEnv("htdocs", htdocs))
 	siteURL = check(cfg, "site_url", cfg.MergeEnv("site_url", siteURL))
 	repositoryPath = check(cfg, "repository_path", cfg.MergeEnv("repository_path", repositoryPath))
@@ -457,7 +460,7 @@ func main() {
 
 	// Walk our data import tree and index things
 	log.Printf("Start indexing contents of %s as %s\n", path.Join(htdocs, repositoryPath, "eprints.json"), indexName)
-	err = indexSite(htdocs, path.Join(htdocs, repositoryPath, "eprints.json"), index, maxBatchSize)
+	err = indexSite(htdocs, path.Join(htdocs, repositoryPath, "eprints.json"), index, batchSize)
 	if err != nil {
 		log.Fatal(err)
 	}

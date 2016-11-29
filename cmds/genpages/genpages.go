@@ -93,7 +93,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 	htdocs         string
 	dbName         string
-	bleveName      string
 	templatePath   string
 	apiURL         string
 	siteURL        string
@@ -125,8 +124,7 @@ func init() {
 	// App Specific options
 	flag.StringVar(&htdocs, "htdocs", "", "specify where to write the HTML files to")
 	flag.StringVar(&dbName, "dbname", "", "the BoltDB name")
-	flag.StringVar(&bleveName, "bleve", "", "the Bleve index/db name")
-	flag.StringVar(&apiURL, "api-url", "", "the URL of the EPrints API")
+	flag.StringVar(&apiURL, "api-url", "", "the EPrints API url")
 	flag.StringVar(&siteURL, "site-url", "", "the website url")
 	flag.StringVar(&templatePath, "template-path", "", "specify where to read the templates from")
 	flag.StringVar(&repositoryPath, "repository-path", "", "specify the repository path to use for generated content")
@@ -159,11 +157,10 @@ func main() {
 	htdocs = check(cfg, "htdocs", cfg.MergeEnv("htdocs", htdocs))
 	dbName = check(cfg, "dbname", cfg.MergeEnv("dbname", dbName))
 	templatePath = check(cfg, "template_path", cfg.MergeEnv("template_path", templatePath))
+	apiURL = check(cfg, "api_url", cfg.MergeEnv("api_url", apiURL))
 	siteURL = check(cfg, "site_url", cfg.MergeEnv("site_url", siteURL))
 
 	// Merge any optional data
-	bleveName = cfg.MergeEnv("bleve", bleveName)
-	apiURL = cfg.MergeEnv("api_url", apiURL)
 	repositoryPath = cfg.MergeEnv("repository_path", repositoryPath)
 
 	if htdocs != "" {

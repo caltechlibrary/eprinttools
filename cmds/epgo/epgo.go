@@ -186,6 +186,7 @@ func main() {
 			log.Fatal(err)
 		}
 		log.Println("Export completed")
+		os.Exit(0)
 	}
 
 	//

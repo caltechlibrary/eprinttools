@@ -11,6 +11,10 @@
             <a href="?from={{ (nextPage .From .Size .Total) }}&size={{ .Size }}&q={{ encodeURIComponent .Q }}&q_required={{ encodeURIComponent .QRequired }}&q_exact={{ encodeURIComponent .QExact }}&q_excluded={{ encodeURIComponent .QExcluded }}">Next Page</a>
         {{ end }}
     </nav>
+    <div class="debug">
+    Search DEBUG:
+    <pre>{{ stringify . true }}</pre>
+    </div>
     <section class="search-results">
     {{ if (eq .Total 0) }}
     No items found
@@ -20,7 +24,7 @@
     <hr />
     {{ range .Results.Hits }}
     <!-- DEBUG START -->
-    <div class="debug">DEBUG JSON record: <pre>{{ stringify .Fields true }}</pre></div>
+    <div class="debug">DEBUG JSON record: <pre>{{ stringify . true }}</pre></div>
     <!-- DEBUG END -->
         <div class="search-result">
             {{ $href := (printf "%shtml?%s" .ID $queryParams)  }}
