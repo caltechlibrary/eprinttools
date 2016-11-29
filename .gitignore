@@ -24,6 +24,8 @@ _testmain.go
 *.prof
 
 # project specific excludes
+.DS_Store
+*swp
 etc/*
 bin/*
 htdocs/publications.*
