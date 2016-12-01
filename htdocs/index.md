@@ -12,7 +12,7 @@ Each directory under the root is a branch.  The following branches are generated
 + [/person/](/person/) will git you a directory listing of ORCID/ISNI available
 	+ /persons/ORCID_OR_ISNI - content of a person (author) in repository
 	+ /person/ORCID_OR_ISNI/recent - content sorted by descending publication date, limited to 25 items
-+ [/affilation/](/affilation/) - lists affilations taken from the "local groups" field in EPrints
++ [/affiliation/](/affiliation/) - lists affiliation taken from the "local groups" field in EPrints
 + [/search/](/search/) - Additionally you can use an interactive search (does not currently support output other than HTML pages)
 
 ## The leafs
