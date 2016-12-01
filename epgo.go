@@ -250,8 +250,7 @@ func normalizeDate(in string) string {
 func (rec *Record) ToBibTeXElement() *bibtex.Element {
 	bib := &bibtex.Element{}
 	bib.Set("type", rec.Type)
-	//FIXME: the id field in the bib record needs a value...
-	//bib.Set("id", rec.eprintID)
+	bib.Set("id", fmt.Sprintf("eprint-%d", rec.ID))
 	bib.Set("title", rec.Title)
 	if len(rec.Abstract) > 0 {
 		bib.Set("abstract", rec.Abstract)
@@ -266,9 +265,11 @@ func (rec *Record) ToBibTeXElement() *bibtex.Element {
 	if len(rec.PageRange) > 0 {
 		bib.Set("pages", rec.PageRange)
 	}
-	if len(rec.Note) > 0 {
-		bib.Set("note", rec.Note)
-	}
+	/*
+		if len(rec.Note) > 0 {
+			bib.Set("note", rec.Note)
+		}
+	*/
 	if len(rec.Creators) > 0 {
 		people := []string{}
 		for _, person := range rec.Creators {
