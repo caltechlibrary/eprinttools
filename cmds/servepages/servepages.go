@@ -324,25 +324,58 @@ func resultsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	searchRequest.Highlight = bleve.NewHighlight()
-	searchRequest.Highlight.AddField("title")
-	searchRequest.Highlight.AddField("content_description")
-	searchRequest.Highlight.AddField("subjects")
-	searchRequest.Highlight.AddField("subjects_function")
-	searchRequest.Highlight.AddField("subjects_topical")
-	searchRequest.Highlight.AddField("extents")
-
-	subjectFacet := bleve.NewFacetRequest("subjects", 3)
-	searchRequest.AddFacet("subjects", subjectFacet)
-
-	subjectTopicalFacet := bleve.NewFacetRequest("subjects_topical", 3)
-	searchRequest.AddFacet("subjects_topical", subjectTopicalFacet)
-
-	subjectFunctionFacet := bleve.NewFacetRequest("subjects_function", 3)
-	searchRequest.AddFacet("subjects_function", subjectFunctionFacet)
+	/*
+		EPrintID:     jsonDoc.ID,
+		Type:         jsonDoc.Type,
+		OfficialURL:  jsonDoc.OfficialURL,
+		Title:        jsonDoc.Title,
+		Abstract:     jsonDoc.Abstract,
+		Keywords:     jsonDoc.Keywords,
+		ISSN:         jsonDoc.ISSN,
+		Publication:  jsonDoc.Publication,
+		Note:         jsonDoc.Note,
+		Authors:      jsonDoc.Creators.ToNames(),
+		ORCIDs:       jsonDoc.Creators.ToORCIDs(),
+		ISNIs:        jsonDoc.Creators.ToISNIs(),
+		Rights:       jsonDoc.Rights,
+		Funders:      jsonDoc.Funders.ToAgencies(),
+		GrantNumbers: jsonDoc.Funders.ToGrantNumbers(),
+		PubDate:      jsonDoc.PubDate(),
+		LocalGroup:   jsonDoc.LocalGroup,
+	*/
 
 	// Return all fields
-	searchRequest.Fields = []string{}
+	searchRequest.Fields = []string{
+		"EPrintID",
+		"Type",
+		"OfficialURL",
+		"Title",
+		"Abstract",
+		"Keywords",
+		"ISSN",
+		"Publication",
+		"Note",
+		"Authors",
+		"ORCIDs",
+		"ISNIs",
+		"Rights",
+		"Funders",
+		"GrantNumbers",
+		"PubDate",
+		"LocalGroup",
+	}
+
+	// Setup Highlights
+	searchRequest.Highlight = bleve.NewHighlight()
+	for _, fieldName := range searchRequest.Fields {
+		searchRequest.Highlight.AddField(fieldName)
+	}
+
+	// Setup fieldName
+	for _, fieldName := range []string{"Authors", "Keywords", "Funders", "ORCIDs", "ISNIs", "GrantNumbers", "Publication", "LocalGroup"} {
+		facet := bleve.NewFacetRequest(fieldName, 3)
+		searchRequest.AddFacet(fieldName, facet)
+	}
 
 	searchResults, err := indexAlias.Search(searchRequest)
 	if err != nil {
@@ -531,45 +564,101 @@ func switchIndex() error {
 }
 
 func handleSignals() {
-	signalChannel := make(chan os.Signal, 4)
-	signal.Notify(signalChannel, os.Interrupt, syscall.SIGTERM, syscall.SIGHUP, syscall.SIGINFO)
+	intChan := make(chan os.Signal, 1)
+	termChan := make(chan os.Signal, 1)
+	hupChan := make(chan os.Signal, 1)
+	infoChan := make(chan os.Signal, 1)
+
+	signal.Notify(intChan, os.Interrupt)
 	go func() {
-		// handle signals for the duration of the process
 		for {
-			sig := <-signalChannel
-			switch sig {
-			case os.Interrupt:
-				//handle SIGINT by shutting down servepages
-				if index != nil {
-					log.Printf("Closing index %q", index.Name())
-					index.Close()
-				}
-				log.Println("SIGINT received, shutting down")
-				os.Exit(0)
-			case syscall.SIGTERM:
-				//handle SIGTERM by shutting down servepages
-				if index != nil {
-					log.Printf("Closing index %q", index.Name())
-					index.Close()
-				}
-				log.Println("SIGTERM received, shutting down")
-				os.Exit(0)
-			case syscall.SIGINFO:
-				//handle SIGINFO, send out the current index being used
-				log.Printf("Status: site url is %q", siteURL)
-				log.Printf("Status: search index is %q", index.Name())
-			case syscall.SIGHUP:
-				//NOTE: HUP triggers an swap of indexes used by search
-				log.Println("SIGHUP received, swaping index")
-				err := switchIndex()
-				if err != nil {
-					log.Printf("Error swaping index %s", err)
-					return
-				}
-				log.Printf("Active Index is now %q", index.Name())
+			<-intChan
+			//handle SIGINT by shutting down servepages
+			if index != nil {
+				log.Printf("Closing index %q", index.Name())
+				index.Close()
 			}
+			log.Println("SIGINT received, shutting down")
+			os.Exit(0)
 		}
 	}()
+	signal.Notify(termChan, syscall.SIGTERM)
+	go func() {
+		for {
+			<-termChan
+			//handle SIGTERM by shutting down servepages
+			if index != nil {
+				log.Printf("Closing index %q", index.Name())
+				index.Close()
+			}
+			log.Println("SIGTERM received, shutting down")
+			os.Exit(0)
+		}
+	}()
+	signal.Notify(hupChan, syscall.SIGHUP)
+	go func() {
+		for {
+			<-hupChan
+			//NOTE: HUP triggers an swap of indexes used by search
+			log.Println("SIGHUP received, swaping index")
+			err := switchIndex()
+			if err != nil {
+				log.Printf("Error swaping index %s", err)
+				return
+			}
+			log.Printf("Active Index is now %q", index.Name())
+		}
+	}()
+	signal.Notify(infoChan, syscall.SIGINFO)
+	go func() {
+		for {
+			<-infoChan
+			//handle SIGINFO, send out the current index being used
+			log.Printf("Status: site url is %q", siteURL)
+			log.Printf("Status: search index is %q", index.Name())
+		}
+	}()
+	/*
+		signalChannel := make(chan os.Signal, 4)
+		signal.Notify(signalChannel, os.Interrupt, syscall.SIGTERM, syscall.SIGHUP, syscall.SIGINFO)
+		go func() {
+			// handle signals for the duration of the process
+			for {
+				sig := <-signalChannel
+				switch sig {
+				case os.Interrupt:
+					//handle SIGINT by shutting down servepages
+					if index != nil {
+						log.Printf("Closing index %q", index.Name())
+						index.Close()
+					}
+					log.Println("SIGINT received, shutting down")
+					os.Exit(0)
+				case syscall.SIGTERM:
+					//handle SIGTERM by shutting down servepages
+					if index != nil {
+						log.Printf("Closing index %q", index.Name())
+						index.Close()
+					}
+					log.Println("SIGTERM received, shutting down")
+					os.Exit(0)
+				case syscall.SIGINFO:
+					//handle SIGINFO, send out the current index being used
+					log.Printf("Status: site url is %q", siteURL)
+					log.Printf("Status: search index is %q", index.Name())
+				case syscall.SIGHUP:
+					//NOTE: HUP triggers an swap of indexes used by search
+					log.Println("SIGHUP received, swaping index")
+					err := switchIndex()
+					if err != nil {
+						log.Printf("Error swaping index %s", err)
+						return
+					}
+					log.Printf("Active Index is now %q", index.Name())
+				}
+			}
+		}()
+	*/
 
 }
 
@@ -646,16 +735,22 @@ func main() {
 	if enableSearch == true {
 		// Wake up our search engine
 		indexList := strings.Split(bleveNames, ":")
-		if len(indexList) > 0 {
-			indexName := indexList[0]
+		availableIndex := false
+		for i := 0; i < len(indexList) && availableIndex == false; i++ {
+			indexName := indexList[i]
 			log.Printf("Opening %q", indexName)
 			index, err = bleve.Open(indexName)
 			if err != nil {
-				log.Fatalf("Can't open Bleve index %q, %s", indexName, err)
+				log.Printf("Can't open Bleve index %q, %s, trying next index", indexName, err)
+			} else {
+				indexAlias = bleve.NewIndexAlias(index)
+				availableIndex = true
 			}
-			defer index.Close()
-			indexAlias = bleve.NewIndexAlias(index)
 		}
+		if availableIndex == false {
+			log.Fatalf("No index available %s", bleveNames)
+		}
+		defer index.Close()
 	}
 
 	// Send static file request to the default handler,
