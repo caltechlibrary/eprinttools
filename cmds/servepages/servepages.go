@@ -565,10 +565,6 @@ func switchIndex() error {
 
 func handleSignals() {
 	intChan := make(chan os.Signal, 1)
-	termChan := make(chan os.Signal, 1)
-	hupChan := make(chan os.Signal, 1)
-	infoChan := make(chan os.Signal, 1)
-
 	signal.Notify(intChan, os.Interrupt)
 	go func() {
 		for {
@@ -582,6 +578,8 @@ func handleSignals() {
 			os.Exit(0)
 		}
 	}()
+
+	termChan := make(chan os.Signal, 1)
 	signal.Notify(termChan, syscall.SIGTERM)
 	go func() {
 		for {
@@ -595,6 +593,8 @@ func handleSignals() {
 			os.Exit(0)
 		}
 	}()
+
+	hupChan := make(chan os.Signal, 1)
 	signal.Notify(hupChan, syscall.SIGHUP)
 	go func() {
 		for {
@@ -609,6 +609,8 @@ func handleSignals() {
 			log.Printf("Active Index is now %q", index.Name())
 		}
 	}()
+/*NOTE: Not available outside BSD-* systems
+	infoChan := make(chan os.Signal, 1)
 	signal.Notify(infoChan, syscall.SIGINFO)
 	go func() {
 		for {
@@ -618,6 +620,7 @@ func handleSignals() {
 			log.Printf("Status: search index is %q", index.Name())
 		}
 	}()
+*/
 	/*
 		signalChannel := make(chan os.Signal, 4)
 		signal.Notify(signalChannel, os.Interrupt, syscall.SIGTERM, syscall.SIGHUP, syscall.SIGINFO)
