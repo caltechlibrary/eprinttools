@@ -27,6 +27,11 @@ Each format is used to represents a leaf which come in two types
 + publications, a list of publications (e.g. articles, presentations, book chapters)
 + articles.*, a list of articles (a subset of publications)
 
+## Search
+
+You can also use a the repository's search to look for interesting records. Right now the search only returns
+HTML pages. This may change in the future.  To use [search](/search/) go to /search/ and enter your search terms.
+
 ## Example
 
 Finding an RSS feed of recent articles for someone with an ORCID of 0000-0002-1576-1676 would look like
