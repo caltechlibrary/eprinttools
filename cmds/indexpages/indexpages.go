@@ -394,8 +394,6 @@ func indexSite(htdocs, eprintsDotJSON string, index bleve.Index, batchSize int) 
 }
 
 func main() {
-	var err error
-
 	appName := path.Base(os.Args[0])
 	cfg := cli.New(appName, "EPGO", fmt.Sprintf(license, appName, epgo.Version), epgo.Version)
 	cfg.UsageText = fmt.Sprintf(usage, appName)
@@ -428,9 +426,6 @@ func main() {
 	// Required fields
 	dbName = check(cfg, "dbname", cfg.MergeEnv("dbname", dbName))
 	names := check(cfg, "bleve", cfg.MergeEnv("bleve", indexName))
-	if strings.Contains(names, ":") {
-		indexName = (strings.Split(names, ":"))[0]
-	}
 	htdocs = check(cfg, "htdocs", cfg.MergeEnv("htdocs", htdocs))
 	siteURL = check(cfg, "site_url", cfg.MergeEnv("site_url", siteURL))
 	repositoryPath = check(cfg, "repository_path", cfg.MergeEnv("repository_path", repositoryPath))
@@ -441,28 +436,29 @@ func main() {
 
 	// Now log what we're running
 	log.Printf("%s %s", appName, epgo.Version)
-
-	if replaceIndex == true {
-		log.Printf("Clearing index")
-		err := os.RemoveAll(indexName)
-		if err != nil {
-			log.Fatalf("Could not removed %q, %s", indexName, err)
-		}
-	}
-
 	handleSignals()
 
-	index, err := getIndex(indexName)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer index.Close()
+	for _, indexName := range strings.Split(names, ":") {
+		if replaceIndex == true {
+			log.Printf("Clearing index %s", indexName)
+			if err := os.RemoveAll(indexName); err != nil {
+				log.Fatalf("Could not removed %q, %s", indexName, err)
+			}
+		}
 
-	// Walk our data import tree and index things
-	log.Printf("Start indexing contents of %s as %s\n", path.Join(htdocs, repositoryPath, "eprints.json"), indexName)
-	err = indexSite(htdocs, path.Join(htdocs, repositoryPath, "eprints.json"), index, batchSize)
-	if err != nil {
-		log.Fatal(err)
+		index, err := getIndex(indexName)
+		if err != nil {
+			log.Printf("Skipping %s, ", indexName, err)
+		} else {
+			defer index.Close()
+
+			// Walk our data import tree and index things
+			log.Printf("Start indexing contents of %s as %s\n", path.Join(htdocs, repositoryPath, "eprints.json"), indexName)
+			err = indexSite(htdocs, path.Join(htdocs, repositoryPath, "eprints.json"), index, batchSize)
+			if err != nil {
+				log.Fatal(err)
+			}
+		}
 	}
 	log.Printf("Finished")
 }
