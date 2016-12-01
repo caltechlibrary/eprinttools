@@ -10,6 +10,7 @@ build:
 	go build -o bin/indexpages cmds/indexpages/indexpages.go
 	go build -o bin/sitemapper cmds/sitemapper/sitemapper.go
 	go build -o bin/servepages cmds/servepages/servepages.go
+	mkpage "content=htdocs/index.md" page.tmpl > htdocs/index.html
 
 install: 
 	go install cmds/epgo/epgo.go
