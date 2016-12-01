@@ -11,10 +11,6 @@
             <a href="?from={{ (nextPage .From .Size .Total) }}&size={{ .Size }}&q={{ encodeURIComponent .Q }}&q_required={{ encodeURIComponent .QRequired }}&q_exact={{ encodeURIComponent .QExact }}&q_excluded={{ encodeURIComponent .QExcluded }}">Next Page</a>
         {{ end }}
     </nav>
-    <div class="debug">
-    Search DEBUG:
-    <pre>{{ stringify . true }}</pre>
-    </div>
     <section class="search-results">
     {{ if (eq .Total 0) }}
     No items found
@@ -23,20 +19,37 @@
     {{ $queryParams := (printf "%s" .QueryURLEncoded) }}
     <hr />
     {{ range .Results.Hits }}
-    <!-- DEBUG START -->
-    <div class="debug">DEBUG JSON record: <pre>{{ stringify . true }}</pre></div>
-    <!-- DEBUG END -->
         <div class="search-result">
-            {{ $href := (printf "%shtml?%s" .ID $queryParams)  }}
-            {{ range $key, $value := .Fields }}
-                {{ if (eq $key "title") }}<h2><a href="{{ $href }}">{{ $value }}</a></h2>{{ end }}
-            {{ end }}
-            {{ range $key, $value := .Fragments }}
-                {{  if (or (eq $key "title") (eq $key "content_description"))}}
-                    {{ range $i, $src := $value }}
-                        {{ if $src }}<div>{{ $src }}</div>{{ end }}
-                    {{ end }}
+            {{ with .Fields }}
+            <h2><a href="{{ .OfficialURL }}">{{ .Title }}</a></h2>
+            <p>{{if (eq (getType .Authors) "string") -}}
+                  Author: {{ .Authors -}}
+               {{- else -}}
+                  Authors: 
+                  {{ range $i, $name := .Authors -}}
+                  {{- if (gt $i 0) -}};{{- end -}} 
+                  {{ printf " %s" $name -}}
+                  {{- end -}}
+               {{- end}}</p>
+
+            <p>{{ .Abstract }}</p>
+            <ul>
+            {{ with .LocalGroup }}<li>Group/Affilation: {{ . }}</li>{{ end }}
+                {{ with .Type }}<li>Type: {{ . }}</li>{{ end }}
+                {{ with .Publication }}<li>Publication: {{ . }}</li>{{ end }}
+                {{ with .PubDate }}<li>Publication Date: {{ . }}</li>{{ end }}
+                {{if (eq (getType .Keywords) "string") -}}
+                    {{ with .Keywords }}<li>Keywords: {{ . }}</li>{{ end }}
+                {{ else }}
+                    {{ with .Keywords }}<li>Keywords: {{ range $i, $value := . }}{{if (gt $i 0)}}, {{end}} {{ printf "&amp;%s&amp;" $value }}{{ end }}</li>{{ end }}
                 {{ end }}
+                {{ with .ISSN }}<li>ISSN: {{ . }}</li>{{ end }}
+                {{ with .Publication }}<li>Publication: {{ . }}</li>{{ end }}
+                {{ with .Funders }}<li>Funders: {{ . }}</li>{{ end }}
+                {{ with .GrantNumbers }}<li>Grant Numbers: {{ . }}</li>{{ end }}
+                {{ with .Rights }}<li>Rights: {{ . }}</li>{{ end }}
+            </ul>
+
             {{ end }}
             <p>
 <!-- DEBUG START
