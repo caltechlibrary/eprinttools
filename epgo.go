@@ -1466,7 +1466,6 @@ func (api *EPrintsAPI) BuildEPrintMirror() error {
 	if err != nil {
 		return err
 	}
-	fmt.Printf("DEBUG len(ids) %d\n", len(ids))
 
 	// Setup subdirs to hold all the individual eprint records.
 	keys := []string{}
@@ -1521,14 +1520,16 @@ func (api *EPrintsAPI) BuildSite(feedSize int, buildEPrintMirror bool) error {
 			return nil
 		}
 
-		// Build a master file of all records (these are large and probably only useful for migration purposes)
-		log.Printf("Building EPrint Repository Master Index")
-		err = api.BuildPages(feedSize, "Repository Master Index", path.Join(api.RepositoryPath, "index"), func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
-			return api.GetAllRecords(Descending)
-		})
-		if err != nil {
-			return err
-		}
+		/*
+			// Build a master file of all records (these are large and probably only useful for migration purposes)
+			log.Printf("Building EPrint Repository Master Index")
+			err = api.BuildPages(feedSize, "Repository Master Index", path.Join(api.RepositoryPath, "index"), func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
+				return api.GetAllRecords(Descending)
+			})
+			if err != nil {
+				return err
+			}
+		*/
 	}
 
 	// Collect the recent publications (all types)
