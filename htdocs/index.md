@@ -12,9 +12,12 @@ Each directory under the root is a branch.  The following branches are generated
 + /persons/ORCID_OR_ISNI - content of a person (author) in repository
 + /person/ORCID_OR_ISNI/recent - content sorted by descending publication date, limited to 25 items
 
-Additionally you can use a search pages at
+Additionally you can use a search the feed contents at
 
 + [/search/](/search/)
+
+At this time search only provides an HTML view. This will likely change in the future.
+
 
 ## The leafs
 
@@ -30,11 +33,6 @@ Each format is used to represents a leaf which come in two types
 
 + publications, a list of publications (e.g. articles, presentations, book chapters)
 + articles.*, a list of articles (a subset of publications)
-
-## Search
-
-You can also use a the repository's search to look for interesting records. Right now the search only returns
-HTML pages. This may change in the future.  To use [search](/search/) go to /search/ and enter your search terms.
 
 ## Example
 
