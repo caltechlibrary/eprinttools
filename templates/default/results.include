@@ -45,8 +45,20 @@
                 {{ end }}
                 {{ with .ISSN }}<li>ISSN: {{ . }}</li>{{ end }}
                 {{ with .Publication }}<li>Publication: {{ . }}</li>{{ end }}
-                {{ with .Funders }}<li>Funders: {{ . }}</li>{{ end }}
-                {{ with .GrantNumbers }}<li>Grant Numbers: {{ . }}</li>{{ end }}
+                {{ with .Funders }}
+                    {{ if (eq (getType .) "string") }}
+                <li>Funders: {{ . }}</li>
+                    {{ else }}
+                <li>Funders: {{ range $i,$name := . }}{{ if (gt $i 0) }}; {{ end }}{{ $name }}{{ end }}</li>
+                    {{ end }}
+                {{ end }}
+                {{ with .GrantNumbers }}
+                    {{if (eq (getType .) "string")}}
+                <li>Grant Numbers: {{ . }}</li>
+                    {{ else }}
+                <li>Grant Numbers: {{ range $i,$value := . }}{{ if (gt $i 0) }}; {{ end }}{{ $value }}{{ end }}</li>
+                    {{ end }}
+                {{ end }}
                 {{ with .Rights }}<li>Rights: {{ . }}</li>{{ end }}
             </ul>
 

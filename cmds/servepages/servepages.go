@@ -548,16 +548,21 @@ func switchIndex() error {
 				nextName = indexList[i]
 			}
 		}
-		log.Printf("Switching from %q to %q", curName, nextName)
+		log.Printf("Opening index %q", nextName)
 		indexNext, err := bleve.Open(nextName)
 		if err != nil {
-			return fmt.Errorf("Can't open Bleve index %q, %s", nextName, err)
+			fmt.Printf("Can't open Bleve index %q, %s, aborting swap", nextName, err)
+		} else {
+			log.Printf("Switching from %q to %q", curName, nextName)
+			indexAlias.Swap([]bleve.Index{indexNext}, []bleve.Index{index})
+			log.Printf("Removing %q", index.Name())
+			indexAlias.Remove(index)
+			log.Printf("Closing %q", curName)
+			index.Close()
+			// Point index at indexNext
+			index = indexNext
+			log.Printf("Swap complete, index now %q", index.Name())
 		}
-		indexAlias.Swap([]bleve.Index{indexNext}, []bleve.Index{index})
-		log.Printf("Closing %q", curName)
-		index.Close()
-		// Point index at indexNext
-		index = indexNext
 		return nil
 	}
 	return fmt.Errorf("Only %q index defined, no swap possible", curName)
@@ -609,7 +614,7 @@ func handleSignals() {
 			log.Printf("Active Index is now %q", index.Name())
 		}
 	}()
-/*NOTE: Not available outside BSD-* systems
+	/*NOTE: Not available outside BSD-* systems
 	infoChan := make(chan os.Signal, 1)
 	signal.Notify(infoChan, syscall.SIGINFO)
 	go func() {
@@ -620,7 +625,7 @@ func handleSignals() {
 			log.Printf("Status: search index is %q", index.Name())
 		}
 	}()
-*/
+	*/
 	/*
 		signalChannel := make(chan os.Signal, 4)
 		signal.Notify(signalChannel, os.Interrupt, syscall.SIGTERM, syscall.SIGHUP, syscall.SIGINFO)

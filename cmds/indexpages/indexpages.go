@@ -284,7 +284,9 @@ func getIndex(indexName string) (bleve.Index, error) {
 		return createIndex(indexName)
 	}
 	log.Printf("Opening Bleve index at %s\n", indexName)
-	index, err := bleve.Open(indexName)
+	index, err := bleve.OpenUsing(indexName, map[string]interface{}{
+		"read_only": false,
+	})
 	if err != nil {
 		return nil, fmt.Errorf("Can't open new bleve index %q, %s", indexName, err)
 	}

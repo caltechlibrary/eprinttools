@@ -1,7 +1,7 @@
 
 # Action items
 
-+ Add epgo package interface to search
++ Add feeds for Grant Numbers and Funders
 
 # Someday, Maybe
 
