@@ -2,6 +2,7 @@
 #
 # Make releases for Linux/amd64, Linux/ARM6 and Linux/ARM7 (Raspberry Pi), Windows, and Mac OX X (darwin)
 #
+export CGOENABLED=0
 RELEASE_NAME=epgo
 for PROGNAME in epgo genpages indexpages sitemapper servepages; do
   echo "Cross compiling $PROGNAME"
