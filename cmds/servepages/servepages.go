@@ -605,7 +605,7 @@ func handleSignals() {
 		for {
 			<-hupChan
 			//NOTE: HUP triggers an swap of indexes used by search
-			log.Println("SIGHUP received, swaping index")
+			log.Printf("SIGHUP received, swaping out index %s", index.Name())
 			err := switchIndex()
 			if err != nil {
 				log.Printf("Error swaping index %s", err)
@@ -614,60 +614,6 @@ func handleSignals() {
 			log.Printf("Active Index is now %q", index.Name())
 		}
 	}()
-	/*NOTE: Not available outside BSD-* systems
-	infoChan := make(chan os.Signal, 1)
-	signal.Notify(infoChan, syscall.SIGINFO)
-	go func() {
-		for {
-			<-infoChan
-			//handle SIGINFO, send out the current index being used
-			log.Printf("Status: site url is %q", siteURL)
-			log.Printf("Status: search index is %q", index.Name())
-		}
-	}()
-	*/
-	/*
-		signalChannel := make(chan os.Signal, 4)
-		signal.Notify(signalChannel, os.Interrupt, syscall.SIGTERM, syscall.SIGHUP, syscall.SIGINFO)
-		go func() {
-			// handle signals for the duration of the process
-			for {
-				sig := <-signalChannel
-				switch sig {
-				case os.Interrupt:
-					//handle SIGINT by shutting down servepages
-					if index != nil {
-						log.Printf("Closing index %q", index.Name())
-						index.Close()
-					}
-					log.Println("SIGINT received, shutting down")
-					os.Exit(0)
-				case syscall.SIGTERM:
-					//handle SIGTERM by shutting down servepages
-					if index != nil {
-						log.Printf("Closing index %q", index.Name())
-						index.Close()
-					}
-					log.Println("SIGTERM received, shutting down")
-					os.Exit(0)
-				case syscall.SIGINFO:
-					//handle SIGINFO, send out the current index being used
-					log.Printf("Status: site url is %q", siteURL)
-					log.Printf("Status: search index is %q", index.Name())
-				case syscall.SIGHUP:
-					//NOTE: HUP triggers an swap of indexes used by search
-					log.Println("SIGHUP received, swaping index")
-					err := switchIndex()
-					if err != nil {
-						log.Printf("Error swaping index %s", err)
-						return
-					}
-					log.Printf("Active Index is now %q", index.Name())
-				}
-			}
-		}()
-	*/
-
 }
 
 func init() {

@@ -104,7 +104,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	// additional options
 	replaceIndex   bool
 	htdocs         string
-	indexName      string
+	bleveNames     string
 	dbName         string
 	apiURL         string
 	siteURL        string
@@ -161,8 +161,8 @@ func init() {
 
 	// App specific options
 	flag.StringVar(&htdocs, "htdocs", "", "The document root for the website")
-	flag.StringVar(&indexName, "bleve", "", "The name of the Bleve index")
-	flag.BoolVar(&replaceIndex, "r", false, "Replace the index if it exists")
+	flag.StringVar(&bleveNames, "bleve", "", "a colon delimited list of Bleve index db names")
+	flag.BoolVar(&replaceIndex, "r", true, "Replace the index if it exists")
 	flag.StringVar(&repositoryPath, "repository-path", "", "Path of rendered repository content")
 	flag.IntVar(&batchSize, "batch", batchSize, "Set the batch index size")
 }
@@ -422,12 +422,12 @@ func main() {
 	}
 
 	if len(args) > 0 {
-		indexName = strings.Join(args, ":")
+		bleveNames = strings.Join(args, ":")
 	}
 
 	// Required fields
 	dbName = check(cfg, "dbname", cfg.MergeEnv("dbname", dbName))
-	names := check(cfg, "bleve", cfg.MergeEnv("bleve", indexName))
+	names := check(cfg, "bleve", cfg.MergeEnv("bleve", bleveNames))
 	htdocs = check(cfg, "htdocs", cfg.MergeEnv("htdocs", htdocs))
 	siteURL = check(cfg, "site_url", cfg.MergeEnv("site_url", siteURL))
 	repositoryPath = check(cfg, "repository_path", cfg.MergeEnv("repository_path", repositoryPath))
