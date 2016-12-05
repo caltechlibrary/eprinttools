@@ -12,5 +12,5 @@ for PROGNAME in epgo genpages indexpages sitemapper servepages; do
   env CGO_ENABLED=0 GOOS=linux GOARCH=arm GOARM=7 go build -o dist/raspberrypi-arm7/$PROGNAME cmds/$PROGNAME/$PROGNAME.go
   env CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o dist/windows-amd64/$PROGNAME.exe cmds/$PROGNAME/$PROGNAME.go
 done
-echo "Zipping $RELEASE_NAME-binary-release.zip"
-zip -r "$RELEASE_NAME-binary-release.zip" README.md INSTALL.md LICENSE dist/*
+echo "Zipping $RELEASE_NAME-release.zip"
+zip -r "$RELEASE_NAME-release.zip" README.md INSTALL.md LICENSE dist/*
