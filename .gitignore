@@ -34,6 +34,8 @@ htdocs/data.*
 htdocs/recent/*
 htdocs/person/*
 htdocs/affiliation/*
+htdocs/repository/*
+htdocs/Caltech*/*
 eprints*
 epgo
 *.zip
