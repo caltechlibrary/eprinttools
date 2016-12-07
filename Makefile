@@ -34,7 +34,7 @@ install: $(PROJECT_LIST)
 	go install cmds/servepages/servepages.go
 
 website: page.tmpl README.md nav.md INSTALL.md LICENSE css/site.css htdocs/index.md
-	mkpage "content=htdocs/index.md" page.tmpl > htdocs/index.html
+	mkpage "content=htdocs/index.md" templates/default/index.html > htdocs/index.html
 	./mk-website.bash
 
 format:

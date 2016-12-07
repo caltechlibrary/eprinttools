@@ -1,4 +1,5 @@
-    <nav class="search-nav">
+<p>
+    <ul class="search-nav">
         {{ if (and (gt .Total .Size) (lt .From (sub .Total .Size))) }}
             {{ printf "%d-%d" (add .From 1) (add .From .Size) }} of {{ .Total }} found<br />
         {{ else }}
@@ -10,7 +11,7 @@
         {{ if (lt .From (sub .Total .Size)) }}
             <a href="?from={{ (nextPage .From .Size .Total) }}&size={{ .Size }}&q={{ encodeURIComponent .Q }}&q_required={{ encodeURIComponent .QRequired }}&q_exact={{ encodeURIComponent .QExact }}&q_excluded={{ encodeURIComponent .QExcluded }}">Next Page</a>
         {{ end }}
-    </nav>
+    </ul>
     <section class="search-results">
     {{ if (eq .Total 0) }}
     No items found
