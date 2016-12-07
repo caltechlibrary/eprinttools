@@ -11,4 +11,4 @@ export EPGO_HTDOCS=htdocs
 # Templates directory for templates used to build webpages or feeds
 export EPGO_TEMPLATE_PATH=templates/default
 # Repository name (path friendly name for repository) to output generated content
-export EPGO_REPOSITORY_NAME=eprints-repository
+export EPGO_REPOSITORY_PATH=eprints-repository
