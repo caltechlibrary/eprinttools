@@ -1,0 +1,16 @@
+[Unit]
+Description=servpages runs a webserver for the epgo project.
+Documentation=https://github.com/caltechlibrary/epgo
+After=network.target
+
+[Service]
+Type=forking
+EnvironmentFile=/Sites/example.edu/etc/website.bash
+ExecStart=/Sites/example.edu/bin/servepages
+ExecReload=/bin/kill -HUP $MAINPID
+KillMode=process
+Restart=on-failure
+RestartSec=120s
+
+[Install]
+WantedBy=multi-user.target

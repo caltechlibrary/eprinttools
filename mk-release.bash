@@ -13,4 +13,4 @@ for PROGNAME in epgo genpages indexpages sitemapper servepages; do
   env CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o dist/windows-amd64/$PROGNAME.exe cmds/$PROGNAME/$PROGNAME.go
 done
 echo "Zipping $RELEASE_NAME-release.zip"
-zip -r "$RELEASE_NAME-release.zip" README.md INSTALL.md LICENSE dist/*
+zip -r "$RELEASE_NAME-release.zip" README.md INSTALL.md LICENSE scripts/* etc/*example etc/systemd/system/*example templates/* htdocs/index.* htdocs/css/* htdocs/js/* htdocs/assets/* dist/*
