@@ -3,7 +3,7 @@ export EPGO_API_URL=http://lemurprints.local
 # DB Name used to exporting from E-Prints and for site building
 export EPGO_DBNAME=eprints.boltdb
 # Bleve db and indexes used to support interactive web searches
-export EPGO_BLEVE=eprints.bleve
+export EPGO_BLEVE=eprints-A.bleve:eprints-B.bleve
 # SiteURL is the website base URL used by the feeds to point at articles
 export EPGO_SITE_URL=http://lemurprints.local
 # Htdocs document root for generated pages and feeds
@@ -11,4 +11,4 @@ export EPGO_HTDOCS=htdocs
 # Templates directory for templates used to build webpages or feeds
 export EPGO_TEMPLATE_PATH=templates/default
 # Repository name (path friendly name for repository) to output generated content
-export EPGO_REPOSITORY_NAME=eprints-repository
+export EPGO_REPOSITORY_PATH=eprints-repository

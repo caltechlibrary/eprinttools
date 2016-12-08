@@ -141,7 +141,7 @@ func handleSignals() {
 
 func check(cfg *cli.Config, key, value string) string {
 	if value == "" {
-		log.Fatal("Missing %s_%s", cfg.EnvPrefix, strings.ToUpper(key))
+		log.Fatalf("Missing %s_%s", cfg.EnvPrefix, strings.ToUpper(key))
 		return ""
 	}
 	return value

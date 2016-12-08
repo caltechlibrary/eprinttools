@@ -136,14 +136,15 @@ nav ul li {
 section {
      position: relative;
      display: inline-block;
-     width: 100%;
+     width: auto;
+     max-width: 98%;
      height: 100%;
      color: black;
      background-color: white;
      margin: 0;
      padding-top 0;
      padding-bottom: 2em;
-     padding-left: 1em;
+     padding-left: 0.24em;
      padding-right: 0;
 }
 
