@@ -395,15 +395,11 @@ func resultsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// q (QueryOptions) performs double duty as both the structure for query submission as well
-	// as carring the results to support paging and other types of navigation through
-	// the query set. Results are a query with the bleve.SearchReults merged
-	q.AttachSearchResults(searchResults)
-
+	// Handle json formated results request, eventually should also support things like BibTeX and RSS results.
 	if strings.Compare(q.Format, "application/json") == 0 {
-		src, err := json.Marshal(q)
+		src, err := json.Marshal(searchResults)
 		if err != nil {
-			responseLogger(r, http.StatusInternalServerError, fmt.Errorf("Bleve results error %v, %s", qry, err))
+			responseLogger(r, http.StatusInternalServerError, fmt.Errorf("Marshal JSON results, %s", err))
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(fmt.Sprintf("%s", err)))
 			return
@@ -412,6 +408,11 @@ func resultsHandler(w http.ResponseWriter, r *http.Request) {
 		w.Write(src)
 		return
 	}
+
+	// q (QueryOptions) performs double duty as both the structure for query submission as well
+	// as carring the results to support paging and other types of navigation through
+	// the query set. Results are a query with the bleve.SearchReults merged
+	q.AttachSearchResults(searchResults)
 	pageHTML := path.Join(templatePath, "results.html")
 	pageInclude := path.Join(templatePath, "results.include")
 
