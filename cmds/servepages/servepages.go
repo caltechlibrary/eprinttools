@@ -135,6 +135,7 @@ type QueryOptions struct {
 	Size      int    `json:"size"`
 	From      int    `json:"from"`
 	AllIDs    bool   `json:"all_ids"`
+	Format    string `json:"format"`
 
 	// Results olds the submitted query results
 	Total           int                  `json:"total"`
@@ -162,6 +163,7 @@ func (q *QueryOptions) Parse(m map[string]interface{}) error {
 	if err != nil {
 		return fmt.Errorf("Can't unmarshal %s, %s", src, err)
 	}
+
 	if len(raw.Q) > 0 {
 		q.Q = raw.Q
 		isQuery = true
@@ -196,6 +198,14 @@ func (q *QueryOptions) Parse(m map[string]interface{}) error {
 		q.From = 0
 	} else {
 		q.From = raw.From
+	}
+
+	//Note: We're vetting the string for specific values before assigning to q.Format or choosing the default.
+	switch {
+	case strings.Compare(raw.Format, "json") == 0:
+		q.Format = "application/json"
+	default:
+		q.Format = "text/html"
 	}
 	return nil
 }
@@ -252,7 +262,7 @@ func resultsHandler(w http.ResponseWriter, r *http.Request) {
 				if i, err := strconv.Atoi(strings.Join(v, "")); err == nil {
 					submission[k] = i
 				}
-			} else if k == "q" || k == "q_exact" || k == "q_excluded" || k == "q_required" {
+			} else if k == "q" || k == "q_exact" || k == "q_excluded" || k == "q_required" || k == "format" {
 				submission[k] = strings.Join(v, "")
 			}
 		}
@@ -269,7 +279,7 @@ func resultsHandler(w http.ResponseWriter, r *http.Request) {
 				if i, err := strconv.Atoi(strings.Join(v, "")); err == nil {
 					submission[k] = i
 				}
-			} else if k == "q" || k == "q_exact" || k == "q_excluded" || k == "q_required" {
+			} else if k == "q" || k == "q_exact" || k == "q_excluded" || k == "q_required" || k == "format" {
 				submission[k] = strings.Join(v, "")
 			}
 		}
@@ -389,6 +399,19 @@ func resultsHandler(w http.ResponseWriter, r *http.Request) {
 	// as carring the results to support paging and other types of navigation through
 	// the query set. Results are a query with the bleve.SearchReults merged
 	q.AttachSearchResults(searchResults)
+
+	if strings.Compare(q.Format, "application/json") == 0 {
+		src, err := json.Marshal(q)
+		if err != nil {
+			responseLogger(r, http.StatusInternalServerError, fmt.Errorf("Bleve results error %v, %s", qry, err))
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(fmt.Sprintf("%s", err)))
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(src)
+		return
+	}
 	pageHTML := path.Join(templatePath, "results.html")
 	pageInclude := path.Join(templatePath, "results.include")
 
