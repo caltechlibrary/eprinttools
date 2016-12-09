@@ -24,7 +24,7 @@ sitemapper: epgo.go cmds/sitemapper/sitemapper.go
 
 servepages: epgo.go cmds/servepages/servepages.go
 	go build -o bin/servepages cmds/servepages/servepages.go
-	mkpage "content=htdocs/index.md" page.tmpl > htdocs/index.html
+	mkpage "content=htdocs/index.md" templates/default/index.html > htdocs/index.html
 
 install: $(PROJECT_LIST)
 	go install cmds/epgo/epgo.go
