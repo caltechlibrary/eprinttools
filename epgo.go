@@ -34,13 +34,18 @@ import (
 	"text/template"
 	"time"
 
+	// Caltech Library packages
+	"github.com/caltechlibrary/bibtex"
+	"github.com/caltechlibrary/cli"
+	"github.com/caltechlibrary/tmplfn"
+
 	// 3rd Party packages
 	"github.com/boltdb/bolt"
 )
 
 const (
 	// Version is the revision number for this implementation of epgo
-	Version = "0.0.8"
+	Version = "v0.0.9"
 
 	// Ascending sorts from lowest (oldest) to highest (newest)
 	Ascending = iota
@@ -63,7 +68,7 @@ var (
 	indexDelimiter   = "|"
 	pubDatesBucket   = []byte("publicationDates")
 	localGroupBucket = []byte("localGroup")
-	orcidBucket      = []byte("orcid")
+	orcidBucket      = []byte("orcid") // NOTE: We can probably combined bucket for ORCID or ISNI ids
 
 	//FIXME: Additional indexes might be useful.
 	// publicationsBucket  = []byte("publications")
@@ -72,99 +77,8 @@ var (
 	// authors             = []byte("authors")
 	// additionDatesBucket = []byte("additionsDates")
 
-	// EPTmplFuncs provides a common set of functions available to templates
-	EPTmplFuncs = template.FuncMap{
-		"year": func(s string) string {
-			var (
-				dt  time.Time
-				err error
-			)
-			if s == "now" {
-				dt = time.Now()
-			} else {
-				dt, err = time.Parse("2006-01-02", normalizeDate(s))
-				if err != nil {
-					return ""
-				}
-			}
-			return dt.Format("2006")
-		},
-		"rfc3339": func(s string) string {
-			var (
-				dt  time.Time
-				err error
-			)
-			if s == "now" {
-				dt = time.Now()
-			} else {
-				dt, err = time.Parse("2006-01-02", normalizeDate(s))
-				if err != nil {
-					return ""
-				}
-			}
-			return dt.Format(time.RFC3339)
-		},
-		"rfc1123": func(s string) string {
-			var (
-				dt  time.Time
-				err error
-			)
-			if s == "now" {
-				dt = time.Now()
-			} else {
-				dt, err = time.Parse("2006-01-02", normalizeDate(s))
-				if err != nil {
-					return ""
-				}
-			}
-			return dt.Format(time.RFC1123)
-		},
-		"rfc1123z": func(s string) string {
-			var (
-				dt  time.Time
-				err error
-			)
-			if s == "now" {
-				dt = time.Now()
-			} else {
-				dt, err = time.Parse("2006-01-02", normalizeDate(s))
-				if err != nil {
-					return ""
-				}
-			}
-			return dt.Format(time.RFC1123Z)
-		},
-		"rfc822z": func(s string) string {
-			var (
-				dt  time.Time
-				err error
-			)
-			if s == "now" {
-				dt = time.Now()
-			} else {
-				dt, err = time.Parse("2006-01-02", normalizeDate(s))
-				if err != nil {
-					return ""
-				}
-			}
-			return dt.Format(time.RFC822Z)
-		},
-		"rfc822": func(s string) string {
-			var (
-				dt  time.Time
-				err error
-			)
-			if s == "now" {
-				dt = time.Now()
-			} else {
-				dt, err = time.Parse("2006-01-02", normalizeDate(s))
-				if err != nil {
-					return ""
-				}
-			}
-			return dt.Format(time.RFC822)
-		},
-	}
+	// TmplFuncs is the collected functions available in EPGO templates
+	TmplFuncs = tmplfn.Join(tmplfn.TimeMap, tmplfn.PageMap)
 )
 
 func failCheck(err error, msg string) {
@@ -175,12 +89,14 @@ func failCheck(err error, msg string) {
 
 // EPrintsAPI holds the basic connectin information to read the REST API for EPrints
 type EPrintsAPI struct {
-	XMLName      xml.Name `json:"-"`
-	URL          *url.URL `xml:"epgo>api_url" json:"api_url"`             // EPGO_API_URL
-	DBName       string   `xml:"epgo>dbname" json:"dbname"`               // EPGO_DBNAME
-	Htdocs       string   `xml:"epgo>htdocs" json:"htdocs"`               // EPGO_HTDOCS
-	TemplatePath string   `xml:"epgo>template_path" json:"template_path"` // EPGO_TEMPLATES
-	SiteURL      *url.URL `xml:"epgo>site_url" josn:"site_url"`           // EPGO_SITE_URL
+	XMLName        xml.Name `json:"-"`
+	URL            *url.URL `xml:"epgo>api_url" json:"api_url"`                 // EPGO_API_URL
+	DBName         string   `xml:"epgo>dbname" json:"dbname"`                   // EPGO_DBNAME
+	BleveName      string   `xml:"epgo>bleve" json:"bleve"`                     // EPGO_BLEVE
+	Htdocs         string   `xml:"epgo>htdocs" json:"htdocs"`                   // EPGO_HTDOCS
+	TemplatePath   string   `xml:"epgo>template_path" json:"template_path"`     // EPGO_TEMPLATES
+	SiteURL        *url.URL `xml:"epgo>site_url" json:"site_url"`               // EPGO_SITE_URL
+	RepositoryPath string   `xml:"epgo>repository_path" json:"repository_path"` // EPGO_REPOSITORY_PATH
 }
 
 // Person returns the contents of eprint>creators>item>name as a struct
@@ -188,9 +104,13 @@ type Person struct {
 	XMLName xml.Name `json:"-"`
 	Given   string   `xml:"name>given" json:"given"`
 	Family  string   `xml:"name>family" json:"family"`
-	ID      string   `xml:"id,omitempty" json:"id,omitempty"`
-	ORCID   string   `xml:"orcid,omitempty" json:"orcid,omitempty"`
+	ID      string   `xml:"id,omitempty" json:"id"`
+	ORCID   string   `xml:"orcid,omitempty" json:"orcid"`
+	ISNI    string   `xml:"isni,omitempty" json:"isni"`
 }
+
+// PersonList is an array of pointers to Person structs
+type PersonList []*Person
 
 // RelatedURL is a structure containing information about a relationship
 type RelatedURL struct {
@@ -211,8 +131,11 @@ type NumberingSystem struct {
 type Funder struct {
 	XMLName     xml.Name `json:"-"`
 	Agency      string   `xml:"agency" json:"agency"`
-	GrantNumber string   `xml:"grant_number,omitempty" json:"grant_number,omitempty"`
+	GrantNumber string   `xml:"grant_number,omitempty" json:"grant_number"`
 }
+
+// FunderList is an array of pointers to Funder structs
+type FunderList []*Funder
 
 // File structures in Document
 type File struct {
@@ -249,13 +172,16 @@ type Document struct {
 	Content   string   `xml:"content" json:"content"`
 }
 
+// DocumentList is an array of pointers to Document structs
+type DocumentList []*Document
+
 // Record returns a structure that can be converted to JSON easily
 type Record struct {
 	XMLName              xml.Name           `json:"-"`
 	Title                string             `xml:"eprint>title" json:"title"`
 	URI                  string             `json:"uri"`
 	Abstract             string             `xml:"eprint>abstract" json:"abstract"`
-	Documents            []*Document        `xml:"eprint>documents>document" json:"documents"`
+	Documents            DocumentList       `xml:"eprint>documents>document" json:"documents"`
 	Note                 string             `xml:"eprint>note" json:"note"`
 	ID                   int                `xml:"eprint>eprintid" json:"id"`
 	RevNumber            int                `xml:"eprint>rev_number" json:"rev_number"`
@@ -266,12 +192,12 @@ type Record struct {
 	StatusChange         string             `xml:"eprint>status_changed" json:"status_changed"`
 	Type                 string             `xml:"eprint>type" json:"type"`
 	MetadataVisibility   string             `xml:"eprint>metadata_visibility" json:"metadata_visibility"`
-	Creators             []*Person          `xml:"eprint>creators>item" json:"creators"`
+	Creators             PersonList         `xml:"eprint>creators>item" json:"creators"`
 	IsPublished          string             `xml:"eprint>ispublished" json:"ispublished"`
 	Subjects             []string           `xml:"eprint>subjects>item" json:"subjects"`
 	FullTextStatus       string             `xml:"eprint>full_text_status" json:"full_text_status"`
 	Keywords             string             `xml:"eprint>keywords" json:"keywords"`
-	Date                 string             `xml:"eprint>date" json:"data"`
+	Date                 string             `xml:"eprint>date" json:"date"`
 	DateType             string             `xml:"eprint>date_type" json:"date_type"`
 	Publication          string             `xml:"eprint>publication" json:"publication"`
 	Volume               string             `xml:"eprint>volume" json:"volume"`
@@ -285,8 +211,8 @@ type Record struct {
 	ReferenceText        []string           `xml:"eprint>referencetext>item" json:"referencetext"`
 	Rights               string             `xml:"eprint>rights" json:"rights"`
 	OfficialCitation     string             `xml:"eprint>official_cit" json:"official_citation"`
-	OtherNumberingSystem []*NumberingSystem `xml:"eprint>other_numbering_system>item,omitempty" json:"other_numbering_system,omitempty"`
-	Funders              []*Funder          `xml:"eprint>funders>item" json:"funders"`
+	OtherNumberingSystem []*NumberingSystem `xml:"eprint>other_numbering_system>item,omitempty" json:"other_numbering_system"`
+	Funders              FunderList         `xml:"eprint>funders>item" json:"funders"`
 	Collection           string             `xml:"eprint>collection" json:"collection"`
 	Reviewer             string             `xml:"eprint>reviewer" json:"reviewer"`
 	LocalGroup           []string           `xml:"eprint>local_group>item" json:"local_group"`
@@ -295,21 +221,6 @@ type Record struct {
 type ePrintIDs struct {
 	XMLName xml.Name `xml:"html" json:"-"`
 	IDs     []string `xml:"body>ul>li>a" json:"ids"`
-}
-
-// Config holds the common configuration elements needed to access and harvest data
-type Config struct {
-	XMLName xml.Name `json:"-"`
-	// ApiURL is the root URL accessed to retrieve data from EPrints.
-	ApiURL string `json:"api_url,required" xml:"api_url,required"`
-	// Setup configuration for how the feed stores or reads harvested metadata. Becomes the primary bucket in BoltDB
-	DBName string `json:"dbName,omitempty" xml:"dbName,omitempty"`
-	// Site URL, URL of website hosting feeds and search service (not EPrints or another repository)
-	SiteURL string `json:"site_url,omitempty" xml:"site_url,omitempty"`
-	// HTDocs directory for the website hosting feeds and search service
-	Htdocs string `json:"htdocs,omitempty" xml:"htdocs,omitempty"`
-	// TemplatePath directory for generating website described by SiteURL and Htdocs
-	TemplatePath string `json:"htdocs,omitempty" xml:"htdocs,omitempty"`
 }
 
 func normalizeDate(in string) string {
@@ -335,46 +246,62 @@ func normalizeDate(in string) string {
 	return strings.Join(parts, "-")
 }
 
-// MergeEnv merge environment variables into the configuration structure.
-// options are
-// + prefix - e.g. EPGO, name space before the first underscore in the envinronment
-//      + prefix plus uppercase key forms the complete environment variable name
-// + key - the field map (e.g ApiURL maps to API_URL in EPGO_API_URL for prefix EPGO)
-// + proposedValue - the proposed value, usually the value from the flags passed in (an empty string means no value provided)
-//
-// returns an error if a problem is encountered.
-func (cfg *Config) MergeEnv(prefix, key, proposedValue string) error {
-	// Default is anything set in the environment
-	val := os.Getenv(fmt.Sprintf("%s_%s", prefix, key))
-	// Override with proposedValue provided (e.g. flag value from the command line)
-	if proposedValue != "" {
-		val = proposedValue
+// ToBibTeXElement takes an epgo.Record and turns it into a bibtex.Element record
+func (rec *Record) ToBibTeXElement() *bibtex.Element {
+	bib := &bibtex.Element{}
+	bib.Set("type", rec.Type)
+	bib.Set("id", fmt.Sprintf("eprint-%d", rec.ID))
+	bib.Set("title", rec.Title)
+	if len(rec.Abstract) > 0 {
+		bib.Set("abstract", rec.Abstract)
 	}
-	switch key {
-	case "API_URL":
-		cfg.ApiURL = val
-	case "DBNAME":
-		cfg.DBName = val
-	case "SITE_URL":
-		cfg.SiteURL = val
-	case "HTDOCS":
-		cfg.Htdocs = val
-	case "TEMPLATE_PATH":
-		cfg.TemplatePath = val
-	default:
-		return fmt.Errorf("%s isn't a known configuration option", key)
+	if rec.DateType == "pub" {
+		dt, err := time.Parse("2006-01-02", rec.Date)
+		if err != nil {
+			bib.Set("year", dt.Format("2006"))
+			bib.Set("month", dt.Format("January"))
+		}
 	}
-	return nil
+	if len(rec.PageRange) > 0 {
+		bib.Set("pages", rec.PageRange)
+	}
+	/*
+		if len(rec.Note) > 0 {
+			bib.Set("note", rec.Note)
+		}
+	*/
+	if len(rec.Creators) > 0 {
+		people := []string{}
+		for _, person := range rec.Creators {
+			people = append(people, fmt.Sprintf("%s, %s", person.Family, person.Given))
+		}
+		bib.Set("author", strings.Join(people, " and "))
+	}
+	switch rec.Type {
+	case "article":
+		bib.Set("journal", rec.Publication)
+	case "book":
+		bib.Set("publisher", rec.Publication)
+	}
+	if len(rec.Volume) > 0 {
+		bib.Set("volume", rec.Volume)
+	}
+	if len(rec.Number) > 0 {
+		bib.Set("number", rec.Number)
+	}
+	return bib
 }
 
 // New creates a new API instance
-func New(cfg Config) (*EPrintsAPI, error) {
+func New(cfg *cli.Config) (*EPrintsAPI, error) {
 	var err error
-	apiURL := cfg.ApiURL
-	siteURL := cfg.SiteURL
-	htdocs := cfg.Htdocs
-	dbName := cfg.DBName
-	templatePath := cfg.TemplatePath
+	apiURL := cfg.Get("api_url")
+	siteURL := cfg.Get("site_url")
+	htdocs := cfg.Get("htdocs")
+	dbName := cfg.Get("dbname")
+	bleveName := cfg.Get("bleve")
+	templatePath := cfg.Get("template_path")
+	repositoryPath := cfg.Get("repository_path")
 
 	if apiURL == "" {
 		return nil, fmt.Errorf("Environment not configured, missing eprint api url")
@@ -392,14 +319,22 @@ func New(cfg Config) (*EPrintsAPI, error) {
 		htdocs = "htdocs"
 	}
 	if dbName == "" {
-		dbName = "eprints"
+		dbName = "eprints.boltdb"
+	}
+	if bleveName == "" {
+		bleveName = "eprints.bleve"
 	}
 	if templatePath == "" {
 		templatePath = "templates"
 	}
+	if repositoryPath == "" {
+		repositoryPath = "repository"
+	}
 	api.Htdocs = htdocs
 	api.DBName = dbName
 	api.TemplatePath = templatePath
+	api.BleveName = bleveName
+	api.RepositoryPath = repositoryPath
 	return api, nil
 }
 
@@ -429,7 +364,9 @@ func (s byURI) Less(i, j int) bool {
 
 // ListEPrintsURI returns a list of eprint record ids
 func (api *EPrintsAPI) ListEPrintsURI() ([]string, error) {
-	var results []string
+	var (
+		results []string
+	)
 
 	api.URL.Path = path.Join("rest", "eprint") + "/"
 	resp, err := http.Get(api.URL.String())
@@ -449,9 +386,17 @@ func (api *EPrintsAPI) ListEPrintsURI() ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
+	// Build a list of Unique IDs in a map, then convert unique querys to results array
+	m := make(map[string]bool)
 	for _, val := range eIDs.IDs {
 		if strings.HasSuffix(val, ".xml") == true {
-			results = append(results, "/"+path.Join("rest", "eprint", val))
+			uri := "/" + path.Join("rest", "eprint", val)
+			if _, hasID := m[uri]; hasID == false {
+				// Save the new ID found
+				m[uri] = true
+				// Only store Unique IDs in result
+				results = append(results, uri)
+			}
 		}
 	}
 	return results, nil
@@ -478,6 +423,67 @@ func (api *EPrintsAPI) GetEPrint(uri string) (*Record, error) {
 		return nil, err
 	}
 	return rec, nil
+}
+
+// ToNames takes an array of pointers to Person and returns a list of names (family, given)
+func (persons PersonList) ToNames() []string {
+	var result []string
+
+	for _, person := range persons {
+		result = append(result, fmt.Sprintf("%s, %s", person.Family, person.Given))
+	}
+	return result
+}
+
+// ToORCIDs takes an an array of pointers to Person and returns a list of ORCID ids
+func (persons PersonList) ToORCIDs() []string {
+	var result []string
+
+	for _, person := range persons {
+		result = append(result, person.ORCID)
+	}
+
+	return result
+}
+
+// ToISNIs takes an array of pointers to Person and returns a list of ISNI ids
+func (persons PersonList) ToISNIs() []string {
+	var result []string
+
+	for _, person := range persons {
+		result = append(result, person.ISNI)
+	}
+
+	return result
+}
+
+// ToAgencies takes an array of pointers to Funders and returns a list of Agency names
+func (funders FunderList) ToAgencies() []string {
+	var result []string
+
+	for _, funder := range funders {
+		result = append(result, funder.Agency)
+	}
+
+	return result
+}
+
+// ToGrantNumbers takes an array of pointers to Funders and returns a list of Agency names
+func (funders FunderList) ToGrantNumbers() []string {
+	var result []string
+
+	for _, funder := range funders {
+		result = append(result, funder.GrantNumber)
+	}
+
+	return result
+}
+
+func (record *Record) PubDate() string {
+	if strings.Compare(record.DateType, "published") == 0 {
+		return record.Date
+	}
+	return ""
 }
 
 // initBuckets initializes expected buckets if necessary for boltdb
@@ -539,13 +545,20 @@ func (api *EPrintsAPI) ExportEPrints(count int) error {
 			} else {
 				err := db.Update(func(tx *bolt.Tx) error {
 					var errs []string
+					// Saving the eprint record
 					b := tx.Bucket(ePrintBucket)
 					err := b.Put([]byte(rec.URI), src)
-					//NOTE: dt is the pub date
-					dt := normalizeDate(rec.Date)
 					if err == nil {
+<<<<<<< HEAD
 						//NOTE: dt is the record date.
 						dt := normalizeDate(rec.Date)
+=======
+						// Inc the stored EPrint count
+						j++
+						//NOTE: dt is the pub date
+						dt := normalizeDate(rec.Date)
+
+>>>>>>> cda6473fc5a2f7f66e04669f3544a953c2eaa373
 						// See if we need to add this to the publicationDates index
 						if rec.DateType == "published" && rec.Date != "" {
 							idx := tx.Bucket(pubDatesBucket)
@@ -569,7 +582,14 @@ func (api *EPrintsAPI) ExportEPrints(count int) error {
 						if len(rec.Creators) > 0 {
 							for _, person := range rec.Creators {
 								orcid := strings.TrimSpace(person.ORCID)
+								isni := strings.TrimSpace(person.ISNI)
 								if len(orcid) > 0 {
+									idx := tx.Bucket(orcidBucket)
+									err := idx.Put([]byte(fmt.Sprintf("%s%s%s%s%s", orcid, indexDelimiter, dt, indexDelimiter, rec.URI)), []byte(rec.URI))
+									if err != nil {
+										errs = append(errs, fmt.Sprintf("%s", err))
+									}
+								} else if len(isni) > 0 {
 									idx := tx.Bucket(orcidBucket)
 									err := idx.Put([]byte(fmt.Sprintf("%s%s%s%s%s", orcid, indexDelimiter, dt, indexDelimiter, rec.URI)), []byte(rec.URI))
 									if err != nil {
@@ -578,7 +598,6 @@ func (api *EPrintsAPI) ExportEPrints(count int) error {
 								}
 							}
 						}
-						j++
 					}
 					if len(errs) > 0 {
 						return fmt.Errorf("%s", strings.Join(errs, "; "))
@@ -645,9 +664,90 @@ func (api *EPrintsAPI) Get(uri string) (*Record, error) {
 	return record, err
 }
 
-// GetPublishedRecords reads the index for published content and returns a populated
-// array of records found in index in decending order
-func (api *EPrintsAPI) GetPublishedRecords(start, count, direction int) ([]*Record, error) {
+// GetAllRecordIDs reads and returns a list of record ids found.
+func (api *EPrintsAPI) GetAllRecordIDs(direction int) ([]string, error) {
+	db, err := bolt.Open(api.DBName, 0660, &bolt.Options{Timeout: 1 * time.Second, ReadOnly: true})
+	failCheck(err, fmt.Sprintf("GetAllRecordIDs() %s failed to open db, %s", api.DBName, err))
+	defer db.Close()
+
+	//	var records []Record
+	var (
+		results []string
+	)
+	switch direction {
+	case Ascending:
+		err = db.View(func(tx *bolt.Tx) error {
+			idx := tx.Bucket(pubDatesBucket)
+			c := idx.Cursor()
+			for k, uri := c.First(); k != nil; k, uri = c.Next() {
+				results = append(results, fmt.Sprintf("%s", uri))
+			}
+			return nil
+		})
+	case Descending:
+		err = db.View(func(tx *bolt.Tx) error {
+			idx := tx.Bucket(pubDatesBucket)
+			c := idx.Cursor()
+			for k, uri := c.Last(); k != nil; k, uri = c.Prev() {
+				results = append(results, fmt.Sprintf("%s", uri))
+			}
+			return nil
+		})
+	}
+	return results, err
+}
+
+// GetAllRecords reads and returns all records keys
+// returning an array of keys in  ascending or decending order
+func (api *EPrintsAPI) GetAllRecords(direction int) ([]*Record, error) {
+	db, err := bolt.Open(api.DBName, 0660, &bolt.Options{Timeout: 1 * time.Second, ReadOnly: true})
+	failCheck(err, fmt.Sprintf("GetAllRecords() %s failed to open db, %s", api.DBName, err))
+	defer db.Close()
+
+	//	var records []Record
+	var (
+		results []*Record
+	)
+	switch direction {
+	case Ascending:
+		err = db.View(func(tx *bolt.Tx) error {
+			recs := tx.Bucket(ePrintBucket)
+			idx := tx.Bucket(pubDatesBucket)
+			c := idx.Cursor()
+			for k, uri := c.First(); k != nil; k, uri = c.Next() {
+				rec := new(Record)
+				src := recs.Get([]byte(uri))
+				err := json.Unmarshal(src, rec)
+				if err != nil {
+					return fmt.Errorf("Can't unmarshal %s, %s", uri, err)
+				}
+				results = append(results, rec)
+			}
+			return nil
+		})
+	case Descending:
+		err = db.View(func(tx *bolt.Tx) error {
+			recs := tx.Bucket(ePrintBucket)
+			idx := tx.Bucket(pubDatesBucket)
+			c := idx.Cursor()
+			for k, uri := c.Last(); k != nil; k, uri = c.Prev() {
+				rec := new(Record)
+				src := recs.Get([]byte(uri))
+				err := json.Unmarshal(src, rec)
+				if err != nil {
+					return fmt.Errorf("Can't unmarshal %s, %s", uri, err)
+				}
+				results = append(results, rec)
+			}
+			return nil
+		})
+	}
+	return results, err
+}
+
+// GetPublications reads the index for published content and returns a populated
+// array of records found in index in ascending or decending order
+func (api *EPrintsAPI) GetPublications(start, count, direction int) ([]*Record, error) {
 	db, err := bolt.Open(api.DBName, 0660, &bolt.Options{Timeout: 1 * time.Second, ReadOnly: true})
 	failCheck(err, fmt.Sprintf("GetPulishedRecords() %s failed to open db, %s", api.DBName, err))
 	defer db.Close()
@@ -715,11 +815,11 @@ func (api *EPrintsAPI) GetPublishedRecords(start, count, direction int) ([]*Reco
 	return results, err
 }
 
-// GetPublishedArticles reads the index for published content and returns a populated
+// GetArticles reads the index for published content and returns a populated
 // array of records found in index in decending order
-func (api *EPrintsAPI) GetPublishedArticles(start, count, direction int) ([]*Record, error) {
+func (api *EPrintsAPI) GetArticles(start, count, direction int) ([]*Record, error) {
 	db, err := bolt.Open(api.DBName, 0660, &bolt.Options{Timeout: 1 * time.Second, ReadOnly: true})
-	failCheck(err, fmt.Sprintf("GetPublishedArticles() %s failed to open db, %s", api.DBName, err))
+	failCheck(err, fmt.Sprintf("GetArticles() %s failed to open db, %s", api.DBName, err))
 	defer db.Close()
 
 	//	var records []Record
@@ -861,12 +961,12 @@ func (api *EPrintsAPI) GetLocalGroups(start, count, direction int) ([]string, er
 	return groupNames, nil
 }
 
-// GetLocalGroupRecords returns a list of EPrint records with groupName
-func (api *EPrintsAPI) GetLocalGroupRecords(groupName string, start, count, direction int) ([]*Record, error) {
+// GetLocalGroupPublications returns a list of EPrint records with groupName
+func (api *EPrintsAPI) GetLocalGroupPublications(groupName string, start, count, direction int) ([]*Record, error) {
 	results := []*Record{}
 
 	db, err := bolt.Open(api.DBName, 0660, &bolt.Options{Timeout: 1 * time.Second, ReadOnly: true})
-	failCheck(err, fmt.Sprintf("GetLocalGroupRecords() %s failed to open db, %s", api.DBName, err))
+	failCheck(err, fmt.Sprintf("GetLocalGroupPublications() %s failed to open db, %s", api.DBName, err))
 	defer db.Close()
 
 	switch direction {
@@ -933,9 +1033,85 @@ func (api *EPrintsAPI) GetLocalGroupRecords(groupName string, start, count, dire
 	return results, nil
 }
 
-// GetORCIDs returns a list unique of ORCID IDs in index
+// GetLocalGroupArticles returns a list of EPrint records with groupName
+func (api *EPrintsAPI) GetLocalGroupArticles(groupName string, start, count, direction int) ([]*Record, error) {
+	results := []*Record{}
+
+	db, err := bolt.Open(api.DBName, 0660, &bolt.Options{Timeout: 1 * time.Second, ReadOnly: true})
+	failCheck(err, fmt.Sprintf("GetLocalGroupArticles() %s failed to open db, %s", api.DBName, err))
+	defer db.Close()
+
+	switch direction {
+	case Ascending:
+		err = db.View(func(tx *bolt.Tx) error {
+			recs := tx.Bucket(ePrintBucket)
+			idx := tx.Bucket(localGroupBucket)
+			c := idx.Cursor()
+			p := 0
+			if count < 0 {
+				bStats := idx.Stats()
+				count = bStats.KeyN
+			}
+			for k, uri := c.First(); k != nil && count > 0; k, uri = c.Next() {
+				if p >= start {
+					grp := firstTerm(fmt.Sprintf("%s", k), indexDelimiter)
+					if strings.Compare(grp, groupName) == 0 {
+						rec := new(Record)
+						src := recs.Get([]byte(uri))
+						err := json.Unmarshal(src, rec)
+						if err != nil {
+							return fmt.Errorf("Can't unmarshal %s, %s", uri, err)
+						}
+						if rec.Type == "article" && rec.IsPublished == "pub" {
+							results = append(results, rec)
+							count--
+						}
+					}
+				}
+				p++
+			}
+			return nil
+		})
+	case Descending:
+		err = db.View(func(tx *bolt.Tx) error {
+			recs := tx.Bucket(ePrintBucket)
+			idx := tx.Bucket(localGroupBucket)
+			c := idx.Cursor()
+			p := 0
+			if count < 0 {
+				bStats := idx.Stats()
+				count = bStats.KeyN
+			}
+			for k, uri := c.Last(); k != nil && count > 0; k, uri = c.Prev() {
+				if p >= start {
+					grp := firstTerm(fmt.Sprintf("%s", k), indexDelimiter)
+					if strings.Compare(grp, groupName) == 0 {
+						rec := new(Record)
+						src := recs.Get([]byte(uri))
+						err := json.Unmarshal(src, rec)
+						if err != nil {
+							return fmt.Errorf("Can't unmarshal %s, %s", uri, err)
+						}
+						if rec.Type == "article" && rec.IsPublished == "pub" {
+							results = append(results, rec)
+							count--
+						}
+					}
+				}
+				p++
+			}
+			return nil
+		})
+	}
+	if err != nil {
+		return results, err
+	}
+	return results, nil
+}
+
+// GetORCIDs (or ISNI) returns a list unique of ORCID/ISNI IDs in index
 func (api *EPrintsAPI) GetORCIDs(start, count, direction int) ([]string, error) {
-	orcids := []string{}
+	ids := []string{}
 	db, err := bolt.Open(api.DBName, 0660, &bolt.Options{Timeout: 1 * time.Second, ReadOnly: true})
 	failCheck(err, fmt.Sprintf("GetORCIDs() %s failed to open db, %s", api.DBName, err))
 	defer db.Close()
@@ -952,8 +1128,8 @@ func (api *EPrintsAPI) GetORCIDs(start, count, direction int) ([]string, error) 
 			}
 			for k, _ := c.First(); k != nil && count > 0; k, _ = c.Next() {
 				if p >= start {
-					orcid := firstTerm(fmt.Sprintf("%s", k), indexDelimiter)
-					orcids = appendToList(orcids, orcid)
+					id := firstTerm(fmt.Sprintf("%s", k), indexDelimiter)
+					ids = appendToList(ids, id)
 					count--
 				}
 				p++
@@ -971,8 +1147,8 @@ func (api *EPrintsAPI) GetORCIDs(start, count, direction int) ([]string, error) 
 			}
 			for k, _ := c.Last(); k != nil && count > 0; k, _ = c.Prev() {
 				if p >= start {
-					orcid := firstTerm(fmt.Sprintf("%s", k), indexDelimiter)
-					orcids = appendToList(orcids, orcid)
+					id := firstTerm(fmt.Sprintf("%s", k), indexDelimiter)
+					ids = appendToList(ids, id)
 					count--
 				}
 				p++
@@ -981,17 +1157,17 @@ func (api *EPrintsAPI) GetORCIDs(start, count, direction int) ([]string, error) 
 		})
 	}
 	if err != nil {
-		return orcids, err
+		return ids, err
 	}
-	return orcids, nil
+	return ids, nil
 }
 
-// GetORCIDRecords returns a list of EPrint records with a given ORCID
-func (api *EPrintsAPI) GetORCIDRecords(orcid string, start, count, direction int) ([]*Record, error) {
+// GetORCIDPublications returns a list of EPrint records with a given ORCID
+func (api *EPrintsAPI) GetORCIDPublications(orcid string, start, count, direction int) ([]*Record, error) {
 	results := []*Record{}
 
 	db, err := bolt.Open(api.DBName, 0660, &bolt.Options{Timeout: 1 * time.Second, ReadOnly: true})
-	failCheck(err, fmt.Sprintf("GetORCIDRecords() %s failed to open db, %s", api.DBName, err))
+	failCheck(err, fmt.Sprintf("GetORCIDPublications() %s failed to open db, %s", api.DBName, err))
 	defer db.Close()
 
 	switch direction {
@@ -1058,11 +1234,99 @@ func (api *EPrintsAPI) GetORCIDRecords(orcid string, start, count, direction int
 	return results, nil
 }
 
-// RenderDocuments writes JSON, HTML, include and rss to the directory indicated by basepath
-func (api *EPrintsAPI) RenderDocuments(docTitle, docDescription, basepath string, records []*Record) error {
-	// Create the basepath if neccessary
-	if _, err := os.Open(path.Join(api.Htdocs, basepath)); err != nil && os.IsNotExist(err) == true {
-		os.MkdirAll(path.Join(api.Htdocs, basepath), 0775)
+// GetORCIDArticles returns a list of EPrint records with a given ORCID
+func (api *EPrintsAPI) GetORCIDArticles(orcid string, start, count, direction int) ([]*Record, error) {
+	results := []*Record{}
+
+	db, err := bolt.Open(api.DBName, 0660, &bolt.Options{Timeout: 1 * time.Second, ReadOnly: true})
+	failCheck(err, fmt.Sprintf("GetORCIDArticles() %s failed to open db, %s", api.DBName, err))
+	defer db.Close()
+
+	switch direction {
+	case Ascending:
+		err = db.View(func(tx *bolt.Tx) error {
+			recs := tx.Bucket(ePrintBucket)
+			idx := tx.Bucket(orcidBucket)
+			c := idx.Cursor()
+			p := 0
+			if count < 0 {
+				bStats := idx.Stats()
+				count = bStats.KeyN
+			}
+			for k, uri := c.First(); k != nil && count > 0; k, uri = c.Next() {
+				if p >= start {
+					term := firstTerm(fmt.Sprintf("%s", k), indexDelimiter)
+					if strings.Compare(term, orcid) == 0 {
+						rec := new(Record)
+						src := recs.Get([]byte(uri))
+						err := json.Unmarshal(src, rec)
+						if err != nil {
+							return fmt.Errorf("Can't unmarshal %s, %s", uri, err)
+						}
+						if rec.Type == "article" && rec.IsPublished == "pub" {
+							results = append(results, rec)
+							count--
+						}
+					}
+				}
+				p++
+			}
+			return nil
+		})
+	case Descending:
+		err = db.View(func(tx *bolt.Tx) error {
+			recs := tx.Bucket(ePrintBucket)
+			idx := tx.Bucket(orcidBucket)
+			c := idx.Cursor()
+			p := 0
+			if count < 0 {
+				bStats := idx.Stats()
+				count = bStats.KeyN
+			}
+			for k, uri := c.Last(); k != nil && count > 0; k, uri = c.Prev() {
+				if p >= start {
+					term := firstTerm(fmt.Sprintf("%s", k), indexDelimiter)
+					if strings.Compare(term, orcid) == 0 {
+						rec := new(Record)
+						src := recs.Get([]byte(uri))
+						err := json.Unmarshal(src, rec)
+						if err != nil {
+							return fmt.Errorf("Can't unmarshal %s, %s", uri, err)
+						}
+						if rec.Type == "article" && rec.IsPublished == "pub" {
+							results = append(results, rec)
+							count--
+						}
+					}
+				}
+				p++
+			}
+			return nil
+		})
+	}
+	if err != nil {
+		return results, err
+	}
+	return results, nil
+}
+
+// RenderEPrint writes a single EPrint record to disc.
+func (api *EPrintsAPI) RenderEPrint(basepath string, record *Record) error {
+	// Convert record to JSON
+	src, err := json.Marshal(record)
+	if err != nil {
+		return err
+	}
+	fname := path.Join(basepath, fmt.Sprintf("%d.json", record.ID))
+	return ioutil.WriteFile(fname, src, 0664)
+	// FIXME: look at adding other presententations, e.g. HTML, HTML include, BibTeX
+}
+
+// RenderDocuments writes JSON, HTML, include and rss to the directory indicated by docpath
+func (api *EPrintsAPI) RenderDocuments(docTitle, docDescription, docpath string, records []*Record) error {
+	// Create the the directory part of docpath if neccessary
+	if _, err := os.Open(path.Join(api.Htdocs, docpath)); err != nil && os.IsNotExist(err) == true {
+		os.MkdirAll(path.Join(api.Htdocs, path.Dir(docpath)), 0775)
 	}
 
 	//NOTE: create a data wrapper for HTML page creation
@@ -1076,7 +1340,7 @@ func (api *EPrintsAPI) RenderDocuments(docTitle, docDescription, basepath string
 		Records        []*Record
 	}{
 		Version:        Version,
-		Basepath:       basepath,
+		Basepath:       docpath,
 		ApiURL:         api.URL.String(),
 		SiteURL:        api.SiteURL.String(),
 		DocTitle:       docTitle,
@@ -1085,7 +1349,7 @@ func (api *EPrintsAPI) RenderDocuments(docTitle, docDescription, basepath string
 	}
 
 	// Writing JSON file
-	fname := path.Join(api.Htdocs, basepath, "index.json")
+	fname := path.Join(api.Htdocs, docpath+".json")
 	src, err := json.Marshal(records)
 	if err != nil {
 		return fmt.Errorf("Can't convert records to JSON %s, %s", fname, err)
@@ -1094,17 +1358,18 @@ func (api *EPrintsAPI) RenderDocuments(docTitle, docDescription, basepath string
 	if err != nil {
 		return fmt.Errorf("Can't write %s, %s", fname, err)
 	}
+
 	// Write out RSS 2.0 file
 	fname = path.Join(api.TemplatePath, "rss.xml")
 	rss20, err := ioutil.ReadFile(fname)
 	if err != nil {
 		return fmt.Errorf("Can't open template %s, %s", fname, err)
 	}
-	rssTmpl, err := template.New("rss").Funcs(EPTmplFuncs).Parse(string(rss20))
+	rssTmpl, err := template.New("rss").Funcs(TmplFuncs).Parse(string(rss20))
 	if err != nil {
 		return fmt.Errorf("Can't convert records to RSS %s, %s", fname, err)
 	}
-	fname = path.Join(api.Htdocs, basepath, "rss.xml")
+	fname = path.Join(api.Htdocs, docpath) + ".rss"
 	out, err := os.Create(fname)
 	if err != nil {
 		return fmt.Errorf("Can't write %s, %s", fname, err)
@@ -1114,17 +1379,28 @@ func (api *EPrintsAPI) RenderDocuments(docTitle, docDescription, basepath string
 	}
 	out.Close()
 
+	// FIXME: Write out BibTeX file.
+	bibDoc := []string{}
+	for _, rec := range records {
+		bibDoc = append(bibDoc, rec.ToBibTeXElement().String())
+	}
+	fname = path.Join(api.Htdocs, docpath+".bib")
+	err = ioutil.WriteFile(fname, []byte(strings.Join(bibDoc, "\n\n")), 0664)
+	if err != nil {
+		return fmt.Errorf("Can't write %s, %s", fname, err)
+	}
+
 	// Write out include file
 	fname = path.Join(api.TemplatePath, "page.include")
 	pageInclude, err := ioutil.ReadFile(fname)
 	if err != nil {
 		return fmt.Errorf("Can't open template %s, %s", fname, err)
 	}
-	pageIncludeTmpl, err := template.New("page.include").Funcs(EPTmplFuncs).Parse(string(pageInclude))
+	pageIncludeTmpl, err := template.New("page.include").Funcs(TmplFuncs).Parse(string(pageInclude))
 	if err != nil {
 		return fmt.Errorf("Can't parse %s, %s", fname, err)
 	}
-	fname = path.Join(api.Htdocs, basepath, "index.include")
+	fname = path.Join(api.Htdocs, docpath+".include")
 	out, err = os.Create(fname)
 	if err != nil {
 		return fmt.Errorf("Can't write %s, %s", fname, err)
@@ -1135,14 +1411,14 @@ func (api *EPrintsAPI) RenderDocuments(docTitle, docDescription, basepath string
 	}
 	out.Close()
 
-	pageHTMLTmpl, err := template.New("page.html").Funcs(EPTmplFuncs).ParseFiles(
+	pageHTMLTmpl, err := template.New("page.html").Funcs(TmplFuncs).ParseFiles(
 		path.Join(api.TemplatePath, "page.include"),
 		path.Join(api.TemplatePath, "page.html"),
 	)
 	if err != nil {
 		return fmt.Errorf("Can't parse %s, %s", fname, err)
 	}
-	fname = path.Join(api.Htdocs, basepath, "index.html")
+	fname = path.Join(api.Htdocs, docpath+".html")
 	out, err = os.Create(fname)
 	if err != nil {
 		return fmt.Errorf("Can't write %s, %s", fname, err)
@@ -1153,10 +1429,11 @@ func (api *EPrintsAPI) RenderDocuments(docTitle, docDescription, basepath string
 		return fmt.Errorf("Can't render %s, %s", fname, err)
 	}
 	out.Close()
+
 	return nil
 }
 
-// BuildPages generates a webpages based on the contents of the exported EPrints data.
+// BuildPages generates webpages based on the contents of the exported EPrints data.
 // The site builder needs to know the name of the BoltDB, the root directory
 // for the website and directory to find the templates
 func (api *EPrintsAPI) BuildPages(feedSize int, title, target string, filter func(*EPrintsAPI, int, int, int) ([]*Record, error)) error {
@@ -1171,35 +1448,109 @@ func (api *EPrintsAPI) BuildPages(feedSize int, title, target string, filter fun
 		return fmt.Errorf("Can't get records for %q %s, %s", title, docPath, err)
 	}
 	if len(records) == 0 {
-		return fmt.Errorf("No records found for %q %s", title, docPath)
+		log.Printf("No records found for %q %s", title, docPath)
+	} else {
+		log.Printf("%d records found.", len(records))
 	}
-	log.Printf("%d records found.", len(records))
 	if err := api.RenderDocuments(title, fmt.Sprintf("Building pages 0 to %d descending", feedSize), target, records); err != nil {
 		return fmt.Errorf("%q %s error, %s", title, docPath, err)
 	}
 	return nil
 }
 
+func (api *EPrintsAPI) BuildEPrintMirror() error {
+	// checkPath checks  and creates a path if needed
+	checkPath := func(p string) error {
+		_, err := os.Stat(p)
+		if os.IsExist(err) == true {
+			return nil
+		}
+		return os.MkdirAll(p, 0775)
+	}
+
+	ids, err := api.GetAllRecordIDs(Descending)
+	if err != nil {
+		return err
+	}
+
+	// Setup subdirs to hold all the individual eprint records.
+	keys := []string{}
+	subdir := []string{"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"}
+	q := len(subdir)
+	// Make subdirs as needed
+	for _, p := range subdir {
+		checkPath(path.Join(api.Htdocs, api.RepositoryPath, p))
+	}
+	total := len(ids)
+	i := 0
+	for _, uri := range ids {
+		record, err := api.Get(uri)
+		if err != nil {
+			return err
+		}
+		basepath := path.Join(api.Htdocs, api.RepositoryPath, subdir[i%q])
+		err = api.RenderEPrint(basepath, record)
+		if err != nil {
+			return err
+		}
+		//NOTE: We only save the path relative to the web docroot.
+		keys = append(keys, path.Join(api.RepositoryPath, subdir[i%q], fmt.Sprintf("%d.json", record.ID)))
+		if (i % 1000) == 0 {
+			log.Printf("%d of %d records written", i, total)
+		}
+		i++
+	}
+	log.Printf("%d of %d records written", i, total)
+	src, err := json.Marshal(keys)
+	if err != nil {
+		return err
+	}
+	return ioutil.WriteFile(path.Join(api.Htdocs, api.RepositoryPath, "eprints.json"), src, 0664)
+}
+
 // BuildSite generates a website based on the contents of the exported EPrints data.
 // The site builder needs to know the name of the BoltDB, the root directory
 // for the website and directory to find the templates
-func (api *EPrintsAPI) BuildSite(feedSize int) error {
+func (api *EPrintsAPI) BuildSite(feedSize int, buildEPrintMirror bool) error {
+	var err error
+
 	if feedSize < 1 {
 		feedSize = DefaultFeedSize
 	}
-	// Collect the published records
+
+	if buildEPrintMirror == true {
+		// Build mirror of repository content.
+		log.Printf("Mirroring eprint records")
+		err = api.BuildEPrintMirror()
+		if err != nil {
+			return nil
+		}
+
+		/*
+			// Build a master file of all records (these are large and probably only useful for migration purposes)
+			log.Printf("Building EPrint Repository Master Index")
+			err = api.BuildPages(feedSize, "Repository Master Index", path.Join(api.RepositoryPath, "index"), func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
+				return api.GetAllRecords(Descending)
+			})
+			if err != nil {
+				return err
+			}
+		*/
+	}
+
+	// Collect the recent publications (all types)
 	log.Printf("Building Recently Published")
-	err := api.BuildPages(feedSize, "Recently Published", "recent/published", func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
-		return api.GetPublishedRecords(0, feedSize, Descending)
+	err = api.BuildPages(feedSize, "Recently Published", path.Join("recent", "publications"), func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
+		return api.GetPublications(0, feedSize, Descending)
 	})
 	if err != nil {
 		return err
 	}
 
-	// Collect the published articles
+	// Collect the rencently published  articles
 	log.Printf("Building Recent Articles")
-	err = api.BuildPages(feedSize, "Recent Articles", "recent/articles", func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
-		return api.GetPublishedArticles(start, count, Descending)
+	err = api.BuildPages(feedSize, "Recent Articles", path.Join("recent", "articles"), func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
+		return api.GetArticles(start, count, Descending)
 	})
 	if err != nil {
 		return err
@@ -1214,12 +1565,39 @@ func (api *EPrintsAPI) BuildSite(feedSize int) error {
 	log.Printf("Found %d orcids", len(orcids))
 	for _, orcid := range orcids {
 <<<<<<< HEAD
+<<<<<<< HEAD
 		err = api.BuildPages(feedSize, fmt.Sprintf("ORCID: %s", orcid), fmt.Sprintf("person/%s", orcid), func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
 			return api.GetORCIDRecords(orcid, start, -1, Descending)
 =======
 		err = api.BuildPages(-1, fmt.Sprintf("ORCID: %s", orcid), fmt.Sprintf("person/%s", orcid), func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
 			return api.GetORCIDRecords(orcid, start, count, Descending)
 >>>>>>> 36596c7f6c3c283132d4dcbe1fbc3da0e23cc77b
+=======
+		// Build a list of recent ORCID Publications
+		err = api.BuildPages(-1, fmt.Sprintf("ORCID: %s", orcid), path.Join("person", fmt.Sprintf("%s", orcid), "recent", "publications"), func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
+			return api.GetORCIDPublications(orcid, start, count, Descending)
+		})
+		if err != nil {
+			return err
+		}
+		// Build complete list for each orcid
+		err = api.BuildPages(-1, fmt.Sprintf("ORCID: %s", orcid), path.Join("person", fmt.Sprintf("%s", orcid), "publications"), func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
+			return api.GetORCIDPublications(orcid, 0, -1, Descending)
+		})
+		if err != nil {
+			return err
+		}
+		// Build a list of recent ORCID Articles
+		err = api.BuildPages(-1, fmt.Sprintf("ORCID: %s", orcid), path.Join("person", fmt.Sprintf("%s", orcid), "recent", "articles"), func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
+			return api.GetORCIDArticles(orcid, start, count, Descending)
+		})
+		if err != nil {
+			return err
+		}
+		// Build complete list of articels for each ORCID
+		err = api.BuildPages(-1, fmt.Sprintf("ORCID: %s", orcid), path.Join("person", fmt.Sprintf("%s", orcid), "articles"), func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
+			return api.GetORCIDArticles(orcid, 0, -1, Descending)
+>>>>>>> cda6473fc5a2f7f66e04669f3544a953c2eaa373
 		})
 		if err != nil {
 			return err
@@ -1235,12 +1613,39 @@ func (api *EPrintsAPI) BuildSite(feedSize int) error {
 	log.Printf("Found %d groups", len(groupNames))
 	for _, groupName := range groupNames {
 <<<<<<< HEAD
+<<<<<<< HEAD
 		err = api.BuildPages(feedSize, fmt.Sprintf("%s", groupName), fmt.Sprintf("affiliation/%s", Slugify(groupName)), func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
 			return api.GetLocalGroupRecords(groupName, start, -1, direction)
 =======
 		err = api.BuildPages(-1, fmt.Sprintf("%s", groupName), fmt.Sprintf("affiliation/%s", Slugify(groupName)), func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
 			return api.GetLocalGroupRecords(groupName, start, count, Descending)
 >>>>>>> 36596c7f6c3c283132d4dcbe1fbc3da0e23cc77b
+=======
+		// Build recently for each affiliation
+		err = api.BuildPages(-1, fmt.Sprintf("%s", groupName), path.Join("affiliation", fmt.Sprintf("%s", Slugify(groupName)), "recent", "publications"), func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
+			return api.GetLocalGroupPublications(groupName, start, count, Descending)
+		})
+		if err != nil {
+			return err
+		}
+		// Build complete list for each affiliation
+		err = api.BuildPages(-1, fmt.Sprintf("%s", groupName), path.Join("affiliation", fmt.Sprintf("%s", Slugify(groupName)), "publications"), func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
+			return api.GetLocalGroupPublications(groupName, 0, -1, Descending)
+		})
+		if err != nil {
+			return err
+		}
+		// Build recent articles for each affiliation
+		err = api.BuildPages(-1, fmt.Sprintf("%s", groupName), path.Join("affiliation", fmt.Sprintf("%s", Slugify(groupName)), "recent", "articles"), func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
+			return api.GetLocalGroupArticles(groupName, start, count, Descending)
+		})
+		if err != nil {
+			return err
+		}
+		// Build complete list of articles for each affiliation
+		err = api.BuildPages(-1, fmt.Sprintf("%s", groupName), path.Join("affiliation", fmt.Sprintf("%s", Slugify(groupName)), "articles"), func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
+			return api.GetLocalGroupArticles(groupName, 0, -1, Descending)
+>>>>>>> cda6473fc5a2f7f66e04669f3544a953c2eaa373
 		})
 		if err != nil {
 			return err

@@ -1,8 +1,7 @@
-{{define "page.include"}}{{end}}
 <!DOCTYPE html>
 <html>
 <head>
-    <title>{{ .DocTitle }}</title>
+    <title>Search</title>
     <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" href="/css/site.css">
     </style>
@@ -18,12 +17,12 @@
 <div><a href="/recent/publications.html">Recent Publications</a></div> 
 <div><a href="/person/">Person</a></div> 
 <div><a href="/affiliation/">Affiliation</a></div> 
-<div><a href="/search/">Search</a></div>
+<div>Search</div>
 </nav>
 
     <section>
-        <h1>{{ .DocTitle }}</h1>
-{{ template "page.include" . }}
+        <h2>Search Library Feeds</h2>
+{{ template "search.include" . }}
     </section>
     <footer>
         <span><h1><A href="http://caltech.edu">Caltech</a></h1></span>

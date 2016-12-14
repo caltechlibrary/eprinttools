@@ -1,16 +1,12 @@
 
 # Action items
 
-+ Drop JavaScript support via Otto
-+ I need to support the MLA citation for HTML found in browse by person/year in both the website and include files
++ Add feeds for Grant Numbers and Funders
++ Add ORCID API harvest for person biographies and profiles, populating the person landing page with this content
 
 # Someday, Maybe
 
-+ Add epgo package interface to search
-+ minimize lock time records for DB writes
-    + switch to updates in batch 
-    + write to a separate database then queue a batch for a single write
-+ crawl E-Prints REST API asynchronously to improve through put
-+ Does the REST API have a way of supporting search?
++ Add support for the MLA citation style in the HTML markup for HTML found in browse by person/year in both the website and include files
+    + Does it make more sense to include BibTeX and let BibTeX format different citation formats?
 
 

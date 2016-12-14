@@ -19,7 +19,6 @@
 package main
 
 import (
-	"encoding/json"
 	"flag"
 	"fmt"
 	"log"
@@ -27,33 +26,33 @@ import (
 	"path"
 	"strings"
 
-	// Caltech Library Packages
+	// Caltech Library packages
 	"github.com/caltechlibrary/cli"
 	"github.com/caltechlibrary/epgo"
 )
 
 var (
-	// cli help text
-	usage = `USAGE %s [OPTIONS] [EPRINT_URI]`
+	usage = `USAGE: %s [OPTIONS]`
 
 	description = `
- %s wraps the REST API for E-Prints 3.3 or better. It can return a list of uri,
- a JSON view of the XML presentation as well as generates feeds and web pages.
 
- CONFIG
+ OVERVIEW
 
- %s can be configured with following environment variables
+	%s generates HTML, .include pages, BibTeX and normalized JSON based 
+	on the JSON output form epgo and templates associated with 
+	the command.
 
- + EPGO_API_URL (required) the URL to your E-Prints installation
- + EPGO_DBNAME   (required) the BoltDB name for exporting, site building, and content retrieval
- + EPGO_BLEVE (optional) the name for the Bleve index/db
- + EPGO_SITE_URL (optional) the URL to your public website (might be the same as E-Prints)
- + EPGO_HTDOCS   (optional) the htdocs root for site building
- + EPGO_TEMPLATE_PATH (optional) the template directory to use for site building
+ CONFIGURATION
 
- If EPRINT_URI is provided then an individual EPrint is return as
- a JSON structure (e.g. /rest/eprint/34.xml). Otherwise a list of EPrint paths are
- returned.
+    %s can be configured through setting the following environment
+	variables-
+
+    EPGO_DBNAME    this is the BoltDB filename.
+
+    EPGO_TEMPLATE_PATH  this is the directory that contains the templates
+                   used used to generate the static content of the website.
+
+    EPGO_HTDOCS    this is the directory where the HTML files are written.
 
 `
 
@@ -87,36 +86,34 @@ SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
 CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
 `
-	// CLI options
 	showHelp    bool
 	showVersion bool
 	showLicense bool
 
-	useAPI      bool
-	prettyPrint bool
+	htdocs         string
+	dbName         string
+	templatePath   string
+	apiURL         string
+	siteURL        string
+	repositoryPath string
 
-	apiURL string
-	dbName string
-
-	exportEPrints   int
-	feedSize        int
-	publishedOldest int
-	publishedNewest int
-	articlesOldest  int
-	articlesNewest  int
+	buildEPrintMirror bool
 )
+
+func check(cfg *cli.Config, key, value string) string {
+	if value == "" {
+		log.Fatal("Missing %s_%s", cfg.EnvPrefix, strings.ToUpper(key))
+		return ""
+	}
+	return value
+}
 
 func init() {
 	// Log to standard out
 	log.SetOutput(os.Stdout)
 
 	// Setup options
-	publishedNewest = 0
-	publishedOldest = 0
-	feedSize = epgo.DefaultFeedSize
-
 	flag.BoolVar(&showHelp, "h", false, "display help")
 	flag.BoolVar(&showHelp, "help", false, "display help")
 	flag.BoolVar(&showVersion, "v", false, "display version")
@@ -125,37 +122,24 @@ func init() {
 	flag.BoolVar(&showLicense, "license", false, "display license")
 
 	// App Specific options
-	flag.StringVar(&apiURL, "api", "", "url for EPrints API")
-	flag.StringVar(&dbName, "dbname", "", "BoltDB name")
+	flag.StringVar(&htdocs, "htdocs", "", "specify where to write the HTML files to")
+	flag.StringVar(&dbName, "dbname", "", "the BoltDB name")
+	flag.StringVar(&apiURL, "api-url", "", "the EPrints API url")
+	flag.StringVar(&siteURL, "site-url", "", "the website url")
+	flag.StringVar(&templatePath, "template-path", "", "specify where to read the templates from")
+	flag.StringVar(&repositoryPath, "repository-path", "", "specify the repository path to use for generated content")
 
-	flag.BoolVar(&prettyPrint, "p", false, "pretty print JSON output")
-	flag.BoolVar(&useAPI, "read-api", false, "read the contents from the API without saving in the database")
-	flag.IntVar(&feedSize, "feed-size", feedSize, "number of items rendering in feeds")
-	flag.IntVar(&exportEPrints, "export", 0, "export N EPrints from highest ID to lowest")
-	flag.IntVar(&publishedOldest, "published-oldest", 0, "list the N oldest published items")
-	flag.IntVar(&publishedNewest, "published-newest", 0, "list the N newest published items")
-	flag.IntVar(&articlesOldest, "articles-oldest", 0, "list the N oldest published articles")
-	flag.IntVar(&articlesNewest, "articles-newest", 0, "list the N newest published articles")
-}
-
-func check(cfg *cli.Config, key, value string) string {
-	if value == "" {
-		log.Fatalf("Missing %s_%s", cfg.EnvPrefix, strings.ToUpper(key))
-		return ""
-	}
-	return value
+	flag.BoolVar(&buildEPrintMirror, "build-eprint-mirror", true, "Build a mirror of EPrint content rendered as JSON documents")
 }
 
 func main() {
 	appName := path.Base(os.Args[0])
-	flag.Parse()
-	// Populate cfg from the environment
-	cfg := cli.New(appName, appName, fmt.Sprintf(license, appName, epgo.Version), epgo.Version)
+	cfg := cli.New(appName, "EPGO", fmt.Sprintf(license, appName, epgo.Version), epgo.Version)
 	cfg.UsageText = fmt.Sprintf(usage, appName)
 	cfg.DescriptionText = fmt.Sprintf(description, appName, appName)
 	cfg.OptionsText = "OPTIONS\n"
 
-	// Handle the default options
+	flag.Parse()
 	if showHelp == true {
 		fmt.Println(cfg.Usage())
 		os.Exit(0)
@@ -169,63 +153,37 @@ func main() {
 		os.Exit(0)
 	}
 
-	apiURL = check(cfg, "api_url", cfg.MergeEnv("api_url", apiURL))
+	// Check to see we can merge the required fields are merged.
+	htdocs = check(cfg, "htdocs", cfg.MergeEnv("htdocs", htdocs))
 	dbName = check(cfg, "dbname", cfg.MergeEnv("dbname", dbName))
+	templatePath = check(cfg, "template_path", cfg.MergeEnv("template_path", templatePath))
+	apiURL = check(cfg, "api_url", cfg.MergeEnv("api_url", apiURL))
+	siteURL = check(cfg, "site_url", cfg.MergeEnv("site_url", siteURL))
 
-	// This will read in any settings from the environment
+	// Merge any optional data
+	repositoryPath = cfg.MergeEnv("repository_path", repositoryPath)
+
+	if htdocs != "" {
+		if _, err := os.Stat(htdocs); os.IsNotExist(err) {
+			os.MkdirAll(htdocs, 0775)
+		}
+	}
+
+	// Create an API instance
 	api, err := epgo.New(cfg)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	args := flag.Args()
-	if exportEPrints != 0 {
-		log.Printf("%s %s", appName, epgo.Version)
-		log.Println("Export started")
-		if err := api.ExportEPrints(exportEPrints); err != nil {
-			log.Fatal(err)
-		}
-		log.Println("Export completed")
-		os.Exit(0)
-	}
-
 	//
-	// Generate JSON output
+	// Read the boltdb indicated in configuration and
+	// render pages in the various formats supported.
 	//
-	var (
-		src  []byte
-		data interface{}
-	)
-	switch {
-	case publishedNewest > 0:
-		data, err = api.GetPublications(0, publishedNewest, epgo.Descending)
-	case publishedOldest > 0:
-		data, err = api.GetPublications(0, publishedOldest, epgo.Ascending)
-	case articlesNewest > 0:
-		data, err = api.GetArticles(0, articlesNewest, epgo.Descending)
-	case articlesOldest > 0:
-		data, err = api.GetArticles(0, articlesOldest, epgo.Ascending)
-	case useAPI == true:
-		if len(args) == 1 {
-			data, err = api.GetEPrint(args[0])
-		} else {
-			data, err = api.ListEPrintsURI()
-		}
-	default:
-		if len(args) == 1 {
-			data, err = api.Get(args[0])
-		} else {
-			data, err = api.ListURI(0, 1000000)
-		}
-	}
+	log.Printf("%s %s\n", appName, epgo.Version)
+	log.Printf("Rendering pages from %s\n", dbName)
+	err = api.BuildSite(-1, buildEPrintMirror)
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	if prettyPrint == true {
-		src, _ = json.MarshalIndent(data, "", "    ")
-	} else {
-		src, _ = json.Marshal(data)
-	}
-	fmt.Printf("%s", src)
+	log.Printf("Rendering complete")
 }

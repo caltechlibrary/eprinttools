@@ -4,6 +4,7 @@
 E-Prints produces a list of recently added items to the repository but doesn't provide a feed of items by publication dates.
 The epgo command line utility provides a way to generate that list by leveraging E-Prints REST API.
 
+
 ## epgo functions
 
 + New() - returns an new API structure
@@ -12,6 +13,8 @@ The epgo command line utility provides a way to generate that list by leveraging
 + ListURI() - return a list of eprint URI from the database
 + Get() - returns an eprint record by URI from the database
 + ExportEPrints() - exports the contents from the EPrint REST API into a database with a publication dates index
++ GetAllRecordIDs() - return an array of all record ids
++ GetAllRecords() - return an array of all eprint records
 + GetPublishedRecords() - returns an array of records with a date type of "published" from the database
     + IsPublished is "pub"
     + Date Type is "publish"
@@ -25,7 +28,18 @@ The epgo command line utility provides a way to generate that list by leveraging
 + GetORCIDRecords() - get a list of EPrint records for a given ORCID id
 + BuildPages() - generate a page from an EPrints (BuildSite() makes repeated calls to BuildPage())
 + BuildSite() - generates a JSON file of 25 most recently published articles, a version in RSS and one as an HTML include
-+ RenderDocuments() - takes a basepath and records array and renders out a directory with rss.xml, index.html, index.include and index.json
++ BuildEPrintMirror() - mirror all the EPrint records in JSON form from BoltDB copy
++ RenderDocuments() - takes a basepath and records array and renders out a directory with *.rss, *.html, *.include and *.json
++ RenderEPrint() - render a mirrored eprint record
+
+Additional functions working off lists
+
++ ToNames() - from a PersonList type, returns a list of names in Family, Given format
++ ToORCIDs() - from a PersonList type, return a list of ORCID ids found
++ ToISNIs() - from a PersonList type, return a list of ISNI ids found
++ ToAgencies() - from a FunderList type, return a list of agency names
++ ToGrantNumbers() - from a FunderList type, return a list of grant numbers
++ PubDate() - from a Record structure, return a publication date or empty string
 
 
 ## epgo Search
@@ -52,9 +66,43 @@ Two examples of "search" using *curl* for titles starting with "flood characteri
 + EPGO_HTDOCS - the htdocs directory where files are written in building
 + EPGO_TEMPLATES - the template directory holding the templates for building
 
+
+## htdocs layout
+
++ publications.*, articles.* come from EPrints
++ data.* comes from the data repository
++ FORMAT: .html, .include (html fragment), .rss, .json (as JSON document), .bib (BibTeX)
++ ORCID-OR-ISNI: if we have an ORCID use that otherwise use ISNI if available (e.g. Richard Feynman only has an ISNI but not an ORCID)
+    + ORCID and ISNI do not collide, ORCID is a proper subset of ISNI's four four digit grouping
+
+```
+    /index.html <-- docs & description of structure
+    /publications.FORMAT
+    /articles.FORMAT
+    /data.FORMAT
+    /recent/index.html <-- docs describing recent 25 and data formats
+    /recent/publications.FORMAT
+    /recent/articles.FORMAT
+    /recent/data.FORMAT
+    /person/ORCID-OR-ISNI/publications.FORMAT
+    /person/ORCID-OR-ISNI/articles.FORMAT
+    /person/ORCID-OR-ISNI/data.FORMAT
+    /person/ORCID-OR-ISNI/recent/publications.FORMAT
+    /person/ORCID-OR-ISNI/recent/articles.FORMAT
+    /person/ORCID-OR-ISNI/recent/data.FORMAT
+    ...
+    /affiliations/... <-- needs to be defined around a uniqu ID (e.g. what was talked about at pidpaloosa)
+    /search/?q=... <-- search engine results (also available in various FORMAT)
+    /tools/... <-- any web based tools we invent to work with the feeds
+```
+
+
 ## Reference materials
 
 + [Web API Docs](http://wiki.eprints.org/w/API:EPrints/Apache/CRUD)
     + includes example curl interactions
 + [Golang Template Tutorial](https://elithrar.github.io/article/approximating-html-template-inheritance/)
     + page.html and page.include are the two templates needed to produce the publications feed pages
+
+
+

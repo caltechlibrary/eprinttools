@@ -21,19 +21,24 @@ package epgo
 import (
 	"os"
 	"testing"
+
+	// Caltech Library packages
+	"github.com/caltechlibrary/cli"
 )
 
 // cfg is configuration to access the EPrints REST API for tests
 var (
-	cfg Config
+	cfg *cli.Config
 )
 
 func TestMain(m *testing.M) {
-	cfg.MergeEnv("EPGO", "API_URL", "")
-	cfg.MergeEnv("EPGO", "SITE_URL", "")
-	cfg.MergeEnv("EPGO", "DBNAME", "")
-	cfg.MergeEnv("EPGO", "HTDOCS", "")
-	cfg.MergeEnv("EPGO", "TEMPLATE_PATH", "")
+	cfg = cli.New("epgo", "EPGO", "", Version)
+	cfg.MergeEnv("api_url", "")
+	cfg.MergeEnv("dbname", "")
+	cfg.MergeEnv("bleve", "")
+	cfg.MergeEnv("htdocs", "")
+	cfg.MergeEnv("template_path", "")
+	cfg.MergeEnv("site_url", "")
 	os.Exit(m.Run())
 }
 
@@ -60,14 +65,24 @@ func TestHarvest(t *testing.T) {
 		t.FailNow()
 	}
 
+<<<<<<< HEAD
 	err = api.BuildPages(5, "Recently Published", "recent/published", func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
 		return api.GetPublishedRecords(start, count, direction)
+=======
+	err = api.BuildPages(5, "Recently Published", "recently-published", func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
+		return api.GetPublications(start, count, direction)
+>>>>>>> cda6473fc5a2f7f66e04669f3544a953c2eaa373
 	})
 	if err != nil {
 		t.Errorf("Cannot build test site %q", err)
 		t.FailNow()
 	}
+<<<<<<< HEAD
 	err = api.BuildPages(5, "Recent Articles", "recent/articles", func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
 		return api.GetPublishedArticles(start, count, direction)
+=======
+	err = api.BuildPages(5, "Recent Articles", "recent-articles", func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
+		return api.GetArticles(start, count, direction)
+>>>>>>> cda6473fc5a2f7f66e04669f3544a953c2eaa373
 	})
 }
