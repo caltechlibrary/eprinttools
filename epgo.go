@@ -45,7 +45,7 @@ import (
 
 const (
 	// Version is the revision number for this implementation of epgo
-	Version = "v0.0.9"
+	Version = "v0.0.10"
 
 	// Ascending sorts from lowest (oldest) to highest (newest)
 	Ascending = iota
