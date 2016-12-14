@@ -417,7 +417,7 @@ func resultsHandler(w http.ResponseWriter, r *http.Request) {
 	pageInclude := path.Join(templatePath, "results.include")
 
 	// Load my templates and setup to execute them
-	tmpl, err := tmplfn.AssemblePage(pageHTML, pageInclude, epgo.TmplFuncs)
+	tmpl, err := tmplfn.Assemble(epgo.TmplFuncs, pageHTML, pageInclude)
 	if err != nil {
 		responseLogger(r, http.StatusInternalServerError, fmt.Errorf("Template Errors: %s, %s, %s\n", pageHTML, pageInclude, err))
 		w.WriteHeader(http.StatusInternalServerError)
@@ -466,7 +466,7 @@ func searchHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
 	if strings.HasPrefix(r.URL.Path, "/search/") == true {
 		formData.URI = "/search/"
-		tmpl, err = tmplfn.AssemblePage(pageHTML, pageInclude, epgo.TmplFuncs)
+		tmpl, err = tmplfn.Assemble(epgo.TmplFuncs, pageHTML, pageInclude)
 		if err != nil {
 			fmt.Printf("Can't read search templates %s, %s, %s", pageHTML, pageInclude, err)
 			return
