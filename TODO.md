@@ -6,6 +6,8 @@
 
 # Someday, Maybe
 
++ Integrate ISNI content
++ Integrate VIAF numbers (viaf.org) and links to other numbers (e.g. ISNI)
 + Add support for the MLA citation style in the HTML markup for HTML found in browse by person/year in both the website and include files
     + Does it make more sense to include BibTeX and let BibTeX format different citation formats?
 
