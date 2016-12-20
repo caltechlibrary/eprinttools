@@ -79,7 +79,7 @@ clean:
 	if [ -d htdocs/affiliation ]; then /bin/rm -fR htdocs/affiliation; fi
 	if [ -d htdocs/recent ]; then /bin/rm -fR htdocs/recent; fi
 	if [ -d htdocs/repository ]; then /bin/rm -fR htdocs/repository; fi
-	if [ $(EPGO_REPOSITORY_PATH) != "" ] && [ -d htdocs/$(EPGO_REPOSITORY_PATH) ]; then /bin/rm -fR htdocs/$(EPGO_REPOSITORY_PATH); fi
+	if [ "$(EPGO_REPOSITORY_PATH)" != "" ] && [ -d htdocs/$(EPGO_REPOSITORY_PATH) ]; then /bin/rm -fR htdocs/$(EPGO_REPOSITORY_PATH); fi
 
 release:
 	./mk-release.bash
