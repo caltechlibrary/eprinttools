@@ -4,9 +4,9 @@
 *epgo* is a command line program run from a shell like Bash. You can find compiled
 version in the [releases](https://github.com/caltechlibrary/epgo/releases/latest) 
 in the Github repository in a zip file named *epgo-VERSION_NUMBER-release.zip*. 
-where VERSION_NUMBER is a [symantic version number](http://semver.org/). Inside
-the zip file look for the directory that matches your computer and copy that someplace
-defined in your path (e.g. $HOME/bin). 
+where VERSION_NUMBER is a [symantic version number](http://semver.org/) (e.g. v0.1.2). 
+Inside the zip file look for the directory that matches your computer and copy that 
+someplace defined in your path (e.g. $HOME/bin). 
 
 Compiled versions are available for Mac OS X (amd64 processor), Linux (amd64), Windows
 (amd64) and Rapsberry Pi (both ARM6 and ARM7)
