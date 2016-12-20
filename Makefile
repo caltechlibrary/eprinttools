@@ -3,6 +3,10 @@
 #
 PROJECT_NAME = epgo
 
+VERSION = $(shell grep -m 1 'Version =' epgo.go | cut -d\"  -f 2)
+
+BRANCH = $(shell git branch | grep '* ' | cut -d\  -f 2)
+
 PROJECT_LIST = epgo genpages indexpages sitemapper servepages
 
 build: package $(PROJECT_LIST)
@@ -69,13 +73,13 @@ test:
 clean:
 	if [ -d bin ]; then /bin/rm -fR bin; fi
 	if [ -d dist ]; then /bin/rm -fR dist; fi
-	if [ -f $(PROJECT_NAME)-release.zip ]; then /bin/rm $(PROJECT_NAME)-release.zip; fi
+	if [ -f $(PROJECT_NAME)-$(VERSION)-release.zip ]; then /bin/rm $(PROJECT_NAME)-$(VERSION)-release.zip; fi
 	if [ -f index.html ]; then /bin/rm *.html; fi
 	if [ -d htdocs/person ]; then /bin/rm -fR htdocs/person; fi
 	if [ -d htdocs/affiliation ]; then /bin/rm -fR htdocs/affiliation; fi
 	if [ -d htdocs/recent ]; then /bin/rm -fR htdocs/recent; fi
 	if [ -d htdocs/repository ]; then /bin/rm -fR htdocs/repository; fi
-	if [ -d htdocs/$(EPGO_REPOSITORY_PATH) ]; then /bin/rm -fR htdocs/$(EPGO_REPOSITORY_PATH); fi
+	if [ $(EPGO_REPOSITORY_PATH) != "" ] && [ -d htdocs/$(EPGO_REPOSITORY_PATH) ]; then /bin/rm -fR htdocs/$(EPGO_REPOSITORY_PATH); fi
 
 release:
 	./mk-release.bash
@@ -85,7 +89,7 @@ status:
 
 save:
 	git commit -am "Quick save"
-	git push origin master
+	git push origin $(BRANCH)
 
 publish:
 	./mk-website.bash
