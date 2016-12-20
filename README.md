@@ -8,7 +8,7 @@ on publication dates.
 
 ## Overview
 
-USAGE: epgo [OPTIONS] [EPRINT_URI|JAVASCRIPT_FILES]
+USAGE: epgo [OPTIONS] [EPRINT_URI]
 
 _epgo_ wraps the REST API for E-Prints 3.3 or better. It can return a list of uri,
 a JSON view of the XML presentation as well as generates feeds and web pages.
