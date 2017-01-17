@@ -167,9 +167,8 @@ func init() {
 	flag.IntVar(&batchSize, "batch", batchSize, "Set the batch index size")
 }
 
-func createIndex(indexName string) (bleve.Index, error) {
+func newIndex(indexName string) (bleve.Index, error) {
 	log.Printf("Creating Bleve index at %s\n", indexName)
-
 	log.Println("Setting up index...")
 	indexMapping := bleve.NewIndexMapping()
 	// Add EPrint as a specific document map
@@ -278,21 +277,6 @@ func createIndex(indexName string) (bleve.Index, error) {
 	return index, nil
 }
 
-func getIndex(indexName string) (bleve.Index, error) {
-	//FIXME: we want to create a new fresh index, then swap the alias to the old one
-	if _, err := os.Stat(indexName); os.IsNotExist(err) {
-		return createIndex(indexName)
-	}
-	log.Printf("Opening Bleve index at %s\n", indexName)
-	index, err := bleve.OpenUsing(indexName, map[string]interface{}{
-		"read_only": false,
-	})
-	if err != nil {
-		return nil, fmt.Errorf("Can't open new bleve index %q, %s", indexName, err)
-	}
-	return index, nil
-}
-
 func indexSite(htdocs, eprintsDotJSON string, index bleve.Index, batchSize int) error {
 	var (
 		uris []string
@@ -300,7 +284,6 @@ func indexSite(htdocs, eprintsDotJSON string, index bleve.Index, batchSize int) 
 
 	startT := time.Now()
 	count := 0
-	batchNo := 1
 
 	log.Printf("Reading %s", eprintsDotJSON)
 	src, err := ioutil.ReadFile(eprintsDotJSON)
@@ -317,6 +300,8 @@ func indexSite(htdocs, eprintsDotJSON string, index bleve.Index, batchSize int) 
 
 	log.Printf("%d eprints found", total)
 	batch := index.NewBatch()
+	maxBatchSize := batchSize
+	batchSize = 10
 	log.Printf("Indexed: %d of %d, batch size %d, run time %s", count, total, batchSize, time.Now().Sub(startT))
 	for _, uri := range uris {
 		p := path.Join(htdocs, uri)
@@ -372,19 +357,24 @@ func indexSite(htdocs, eprintsDotJSON string, index bleve.Index, batchSize int) 
 			jsonDoc = nil
 		}
 		if batch.Size() >= batchSize {
-			log.Printf("Indexing batch %d", batchNo)
-			batchNo++
 			err := index.Batch(batch)
 			if err != nil {
-				return err
+				log.Fatal(err)
 			}
 			count += batch.Size()
-			batch.Reset()
-			log.Printf("Indexed: %d of %d, batch size %d, run time %s", count, total, batchSize, time.Now().Sub(startT))
+			batch = index.NewBatch()
+			log.Printf("Indexed: %d items, batch size %d, running %s\n", count, batchSize, time.Now().Sub(startT))
+			if batchSize < maxBatchSize {
+				batchSize = batchSize * 2
+			}
+			if batchSize > maxBatchSize {
+				batchSize = maxBatchSize
+			}
 		}
+
 	}
+
 	if batch.Size() > 0 {
-		log.Printf("Indexing batch %d", batchNo)
 		err := index.Batch(batch)
 		if err != nil {
 			return err
@@ -418,7 +408,7 @@ func main() {
 	}
 
 	if batchSize == 0 {
-		batchSize = 500
+		batchSize = 1024
 	}
 
 	if len(args) > 0 {
@@ -441,16 +431,9 @@ func main() {
 	handleSignals()
 
 	for _, indexName := range strings.Split(names, ":") {
-		if replaceIndex == true {
-			log.Printf("Clearing index %s", indexName)
-			if err := os.RemoveAll(indexName); err != nil {
-				log.Fatalf("Could not removed %q, %s", indexName, err)
-			}
-		}
-
-		index, err := getIndex(indexName)
+		index, err := newIndex(indexName)
 		if err != nil {
-			log.Printf("Skipping %s, ", indexName, err)
+			log.Printf("Skipping %s, %s", indexName, err)
 		} else {
 			defer index.Close()
 

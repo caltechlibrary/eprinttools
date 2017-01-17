@@ -14,19 +14,29 @@ build: package $(PROJECT_LIST)
 package: epgo.go
 	go build
 
-epgo: epgo.go cmds/epgo/epgo.go
+epgo: bin/epgo
+
+bin/epgo: epgo.go cmds/epgo/epgo.go
 	go build -o bin/epgo cmds/epgo/epgo.go
 
-genpages: epgo.go cmds/genpages/genpages.go
+genpages: bin/genpages
+
+bin/genpages: epgo.go cmds/genpages/genpages.go
 	go build -o bin/genpages cmds/genpages/genpages.go
 
-indexpages: epgo.go cmds/indexpages/indexpages.go
+indexpages: bin/indexpages
+
+bin/indexpages: epgo.go cmds/indexpages/indexpages.go
 	go build -o bin/indexpages cmds/indexpages/indexpages.go
 
-sitemapper: epgo.go cmds/sitemapper/sitemapper.go
+sitemapper: bin/sitemapper
+
+bin/sitemapper: epgo.go cmds/sitemapper/sitemapper.go
 	go build -o bin/sitemapper cmds/sitemapper/sitemapper.go
 
-servepages: epgo.go cmds/servepages/servepages.go
+servepages: bin/servepages
+
+bin/servepages: epgo.go cmds/servepages/servepages.go
 	go build -o bin/servepages cmds/servepages/servepages.go
 	mkpage "content=htdocs/index.md" templates/default/index.html > htdocs/index.html
 

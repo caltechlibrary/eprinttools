@@ -573,7 +573,9 @@ func switchIndex() error {
 			}
 		}
 		log.Printf("Opening index %q", nextName)
-		indexNext, err := bleve.Open(nextName)
+		indexNext, err := bleve.OpenUsing(nextName, map[string]interface{}{
+			"read_only": true,
+		})
 		if err != nil {
 			fmt.Printf("Can't open Bleve index %q, %s, aborting swap", nextName, err)
 		} else {
@@ -717,7 +719,9 @@ func main() {
 		for i := 0; i < len(indexList) && availableIndex == false; i++ {
 			indexName := indexList[i]
 			log.Printf("Opening %q", indexName)
-			index, err = bleve.Open(indexName)
+			index, err = bleve.OpenUsing(indexName, map[string]interface{}{
+				"read_only": true,
+			})
 			if err != nil {
 				log.Printf("Can't open Bleve index %q, %s, trying next index", indexName, err)
 			} else {
