@@ -18,6 +18,12 @@
 //
 package epgo
 
+import (
+
+	// Caltech Library Packages
+	_ "github.com/caltechlibrary/epgo/dataset"
+)
+
 const (
 	// Version is the revision number for this implementation of epgo
 	Version = "v0.0.10-alpha"
