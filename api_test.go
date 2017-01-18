@@ -18,18 +18,26 @@
 //
 package epgo
 
-const (
-	// Version is the revision number for this implementation of epgo
-	Version = "v0.0.10-alpha"
+import (
+	"os"
+	"testing"
 
-	// Ascending sorts from lowest (oldest) to highest (newest)
-	Ascending = iota
-	// Descending sorts from highest (newest) to lowest (oldest)
-	Descending = iota
-
-	// EPrintsExportBatchSize sets the summary output frequency when exporting content from E-Prints
-	EPrintsExportBatchSize = 1000
-
-	// DefaultFeedSize sets the default size of rss, JSON, HTML include and index lists
-	DefaultFeedSize = 25
+	// Caltech Library packages
+	"github.com/caltechlibrary/cli"
 )
+
+// cfg is configuration to access the EPrints REST API for tests
+var (
+	cfg *cli.Config
+)
+
+func TestMain(m *testing.M) {
+	cfg = cli.New("epgo", "EPGO", "", Version)
+	cfg.MergeEnv("api_url", "")
+	cfg.MergeEnv("dataset", "")
+	cfg.MergeEnv("bleve", "")
+	cfg.MergeEnv("htdocs", "")
+	cfg.MergeEnv("template_path", "")
+	cfg.MergeEnv("site_url", "")
+	os.Exit(m.Run())
+}
