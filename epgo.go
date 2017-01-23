@@ -19,9 +19,8 @@
 package epgo
 
 import (
-
-	// Caltech Library Packages
-	_ "github.com/caltechlibrary/epgo/dataset"
+	// CaltechLibrary packages
+	"github.com/caltechlibrary/dataset"
 )
 
 const (
@@ -29,9 +28,9 @@ const (
 	Version = "v0.0.10-alpha"
 
 	// Ascending sorts from lowest (oldest) to highest (newest)
-	Ascending = iota
+	Ascending = dataset.ASC
 	// Descending sorts from highest (newest) to lowest (oldest)
-	Descending = iota
+	Descending = dataset.DESC
 
 	// EPrintsExportBatchSize sets the summary output frequency when exporting content from E-Prints
 	EPrintsExportBatchSize = 1000

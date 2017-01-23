@@ -1,7 +1,7 @@
 # URL for E-Prints repository
 export EPGO_API_URL=http://lemurprints.local
 # DB Name used to exporting from E-Prints and for site building
-export EPGO_DBNAME=eprints.boltdb
+export EPGO_DATASET=dataset/eprints
 # Bleve db and indexes used to support interactive web searches
 export EPGO_BLEVE=eprints-A.bleve:eprints-B.bleve
 # SiteURL is the website base URL used by the feeds to point at articles

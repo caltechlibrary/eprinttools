@@ -31,7 +31,7 @@ func TestHarvest(t *testing.T) {
 		t.Errorf("Cannot create a new API instance %q", err)
 		t.FailNow()
 	}
-	api.DBName = "test.boltdb"
+	api.dataset = "test/eprints-harvest"
 	api.Htdocs = "testsite"
 	_, err = os.Stat(api.Htdocs)
 	if err != nil && os.IsNotExist(err) == true {

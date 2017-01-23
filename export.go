@@ -18,8 +18,29 @@
 //
 package epgo
 
+import (
+	"fmt"
+	"log"
+	"sort"
+	"strings"
+
+	// CaltechLibrary packages
+	"github.com/caltechlibrary/dataset"
+)
+
 // ExportEPrints from highest ID to lowest for cnt. Saves each record in a DB and indexes published ones
 func (api *EPrintsAPI) ExportEPrints(count int) error {
+	var errs []error
+
+	c, err := dataset.Open(api.Dataset)
+	failCheck(err, fmt.Sprintf("ListURI() %s, %s", api.Dataset, err))
+	defer c.Close()
+
+	// FIXME: Reset our select lists
+	sLists := map[string]*dataset.SelectList{}
+	for _, name := range slNames {
+		c.Clear(name)
+	}
 
 	uris, err := api.ListEPrintsURI()
 	failCheck(err, fmt.Sprintf("Export %s failed, %s", api.URL.String(), err))
@@ -43,71 +64,54 @@ func (api *EPrintsAPI) ExportEPrints(count int) error {
 			k++
 		} else {
 			rec.URI = strings.TrimPrefix(strings.TrimSuffix(uri, ".xml"), "/rest")
-			src, err := json.Marshal(rec)
-			if err != nil {
-				log.Printf("json.Marshal() failed on %s, %s", uri, err)
-				k++
-			} else {
-				err := db.Update(func(tx *bolt.Tx) error {
-					var errs []string
-					// Saving the eprint record
-					b := tx.Bucket(ePrintBucket)
-					err := b.Put([]byte(rec.URI), src)
-					if err == nil {
-						// Inc the stored EPrint count
-						j++
-						//NOTE: dt is the pub date
-						dt := normalizeDate(rec.Date)
-
-						// See if we need to add this to the publicationDates index
-						if rec.DateType == "published" && rec.Date != "" {
-							idx := tx.Bucket(pubDatesBucket)
-							err = idx.Put([]byte(fmt.Sprintf("%s%s%s", dt, indexDelimiter, rec.URI)), []byte(rec.URI))
-							if err != nil {
-								errs = append(errs, fmt.Sprintf("%s", err))
-							}
-						}
-						if len(rec.LocalGroup) > 0 {
-							for _, grp := range rec.LocalGroup {
-								grp = strings.TrimSpace(grp)
-								if len(grp) > 0 {
-									idx := tx.Bucket(localGroupBucket)
-									err = idx.Put([]byte(fmt.Sprintf("%s%s%s%s%s", grp, indexDelimiter, dt, indexDelimiter, rec.URI)), []byte(rec.URI))
-									if err != nil {
-										errs = append(errs, fmt.Sprintf("%s", err))
-									}
-								}
-							}
-						}
-						if len(rec.Creators) > 0 {
-							for _, person := range rec.Creators {
-								orcid := strings.TrimSpace(person.ORCID)
-								isni := strings.TrimSpace(person.ISNI)
-								if len(orcid) > 0 {
-									idx := tx.Bucket(orcidBucket)
-									err := idx.Put([]byte(fmt.Sprintf("%s%s%s%s%s", orcid, indexDelimiter, dt, indexDelimiter, rec.URI)), []byte(rec.URI))
-									if err != nil {
-										errs = append(errs, fmt.Sprintf("%s", err))
-									}
-								} else if len(isni) > 0 {
-									idx := tx.Bucket(orcidBucket)
-									err := idx.Put([]byte(fmt.Sprintf("%s%s%s%s%s", orcid, indexDelimiter, dt, indexDelimiter, rec.URI)), []byte(rec.URI))
-									if err != nil {
-										errs = append(errs, fmt.Sprintf("%s", err))
-									}
-								}
-							}
-						}
-					}
-					if len(errs) > 0 {
-						return fmt.Errorf("%s", strings.Join(errs, "; "))
-					}
-					return nil
-				})
-				if err != nil {
-					log.Printf("Failed to save eprint %s, %s\n", uri, err)
-					k++
+			key := fmt.Sprintf("%d", rec.ID)
+			docPath, _ := c.DocPath(key)
+			// decide if I need to create a record or replace a record
+			if len(docPath) > 0 {
+				if err := c.Create(key, rec); err != nil {
+					errs = append(errs, err)
 				}
+			} else {
+				if err := c.Update(key, rec); err != nil {
+					errs = append(errs, err)
+				}
+			}
+
+			// Update pubDates select list
+			dt := normalizeDate(rec.Date)
+			if rec.DateType == "published" && rec.Date != "" {
+				sLists["pubDates"].Push(fmt.Sprintf("%s%s%d", dt, indexDelimiter, rec.ID))
+			}
+			// Update localGroups select list
+			if len(rec.LocalGroup) > 0 {
+				for _, grp := range rec.LocalGroup {
+					grp = strings.TrimSpace(grp)
+					if len(grp) > 0 {
+						sLists["localGroups"].Push(fmt.Sprintf("%s%s%s%s%d", grp, indexDelimiter, dt, indexDelimiter, rec.ID))
+					}
+				}
+			}
+			// Update orcids, isnis and authors select list
+			if len(rec.Creators) > 0 {
+				for _, person := range rec.Creators {
+					orcid := strings.TrimSpace(person.ORCID)
+					isni := strings.TrimSpace(person.ISNI)
+					author := fmt.Sprintf("%s, %s", strings.TrimSpace(person.Family), strings.TrimSpace(person.Given))
+					if len(orcid) > 0 {
+						sLists["orcids"].Push(fmt.Sprintf("%s%s%s%s%d", orcid, indexDelimiter, dt, indexDelimiter, rec.ID))
+					}
+					if len(isni) > 0 {
+						sLists["isnis"].Push(fmt.Sprintf("%s%s%s%s%d", isni, indexDelimiter, dt, indexDelimiter, rec.ID))
+					}
+					if len(author) > 0 {
+						sLists["authors"].Push(fmt.Sprintf("%s%s%s%s%d", isni, indexDelimiter, dt, indexDelimiter, rec.ID))
+					}
+				}
+			}
+
+			if err != nil {
+				log.Printf("Failed to save eprint %s, %s\n", uri, err)
+				k++
 			}
 		}
 		if (i % EPrintsExportBatchSize) == 0 {

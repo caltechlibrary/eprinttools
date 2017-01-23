@@ -92,7 +92,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	showLicense bool
 
 	htdocs         string
-	dbName         string
+	datasetName    string
 	templatePath   string
 	apiURL         string
 	siteURL        string
@@ -123,7 +123,7 @@ func init() {
 
 	// App Specific options
 	flag.StringVar(&htdocs, "htdocs", "", "specify where to write the HTML files to")
-	flag.StringVar(&dbName, "dbname", "", "the BoltDB name")
+	flag.StringVar(&datasetName, "dataset", "", "the dataset/collection name")
 	flag.StringVar(&apiURL, "api-url", "", "the EPrints API url")
 	flag.StringVar(&siteURL, "site-url", "", "the website url")
 	flag.StringVar(&templatePath, "template-path", "", "specify where to read the templates from")
@@ -155,7 +155,7 @@ func main() {
 
 	// Check to see we can merge the required fields are merged.
 	htdocs = check(cfg, "htdocs", cfg.MergeEnv("htdocs", htdocs))
-	dbName = check(cfg, "dbname", cfg.MergeEnv("dbname", dbName))
+	datasetName = check(cfg, "dataset", cfg.MergeEnv("dataset", datasetName))
 	templatePath = check(cfg, "template_path", cfg.MergeEnv("template_path", templatePath))
 	apiURL = check(cfg, "api_url", cfg.MergeEnv("api_url", apiURL))
 	siteURL = check(cfg, "site_url", cfg.MergeEnv("site_url", siteURL))
@@ -176,11 +176,11 @@ func main() {
 	}
 
 	//
-	// Read the boltdb indicated in configuration and
+	// Read the dataset indicated in configuration and
 	// render pages in the various formats supported.
 	//
 	log.Printf("%s %s\n", appName, epgo.Version)
-	log.Printf("Rendering pages from %s\n", dbName)
+	log.Printf("Rendering pages from %s\n", datasetName)
 	err = api.BuildSite(-1, buildEPrintMirror)
 	if err != nil {
 		log.Fatal(err)
