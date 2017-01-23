@@ -21,6 +21,7 @@ package epgo
 import (
 	"fmt"
 	"log"
+	"os"
 	"sort"
 	"strings"
 
@@ -30,16 +31,24 @@ import (
 
 // ExportEPrints from highest ID to lowest for cnt. Saves each record in a DB and indexes published ones
 func (api *EPrintsAPI) ExportEPrints(count int) error {
-	var errs []error
-
-	c, err := dataset.Open(api.Dataset)
+	var (
+		c    *dataset.Collection
+		errs []error
+	)
+	if _, err := os.Stat(api.Dataset); os.IsExist(err) == true {
+		if err := dataset.Delete(api.Dataset); err != nil {
+			return fmt.Errorf("Can't removed stale collection %s, %s", api.Dataset, err)
+		}
+	}
+	c, err := dataset.Create(api.Dataset, dataset.GenerateBucketNames(dataset.DefaultAlphabet, 2))
 	failCheck(err, fmt.Sprintf("ListURI() %s, %s", api.Dataset, err))
 	defer c.Close()
 
-	// FIXME: Reset our select lists
 	sLists := map[string]*dataset.SelectList{}
 	for _, name := range slNames {
-		c.Clear(name)
+		if sLists[name], err = c.Select(name); err != nil {
+			return fmt.Errorf("Can't create empty select list for %s, %s", name, err)
+		}
 	}
 
 	uris, err := api.ListEPrintsURI()

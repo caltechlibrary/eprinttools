@@ -19,11 +19,14 @@
 package epgo
 
 import (
+	"os"
 	"testing"
 
-	// CaltechLibrary Packages
-	"github.com/caltechlibrary/cli"
+	// CaltechLibrary packages
+	"github.com/caltechlibrary/dataset"
 )
+
+var recordCount = 10
 
 func TestHarvest(t *testing.T) {
 	api, err := New(cfg)
@@ -31,7 +34,15 @@ func TestHarvest(t *testing.T) {
 		t.Errorf("Cannot create a new API instance %q", err)
 		t.FailNow()
 	}
-	api.dataset = "test/eprints-harvest"
+	api.Dataset = "testset/eprints"
+	if _, err = os.Stat(api.Dataset); os.IsNotExist(err) {
+		_, err = dataset.Create(api.Dataset, dataset.GenerateBucketNames(dataset.DefaultAlphabet, 2))
+		if err != nil {
+			t.Errorf("Can't create %s, %s", api.Dataset, err)
+			t.FailNow()
+		}
+	}
+
 	api.Htdocs = "testsite"
 	_, err = os.Stat(api.Htdocs)
 	if err != nil && os.IsNotExist(err) == true {
@@ -42,20 +53,20 @@ func TestHarvest(t *testing.T) {
 		}
 	}
 
-	err = api.ExportEPrints(5)
+	err = api.ExportEPrints(recordCount)
 	if err != nil {
 		t.Errorf("Cannot harvest for test site %q", err)
 		t.FailNow()
 	}
 
-	err = api.BuildPages(5, "Recently Published", "recently-published", func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
+	err = api.BuildPages(recordCount, "Recently Published", "recently-published", func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
 		return api.GetPublications(start, count, direction)
 	})
 	if err != nil {
 		t.Errorf("Cannot build test site %q", err)
 		t.FailNow()
 	}
-	err = api.BuildPages(5, "Recent Articles", "recent-articles", func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
+	err = api.BuildPages(recordCount, "Recent Articles", "recent-articles", func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
 		return api.GetArticles(start, count, direction)
 	})
 }
