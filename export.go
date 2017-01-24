@@ -21,7 +21,6 @@ package epgo
 import (
 	"fmt"
 	"log"
-	"os"
 	"sort"
 	"strings"
 
@@ -31,21 +30,14 @@ import (
 
 // ExportEPrints from highest ID to lowest for cnt. Saves each record in a DB and indexes published ones
 func (api *EPrintsAPI) ExportEPrints(count int) error {
-	var (
-		c    *dataset.Collection
-		errs []error
-	)
-	if _, err := os.Stat(api.Dataset); os.IsExist(err) == true {
-		if err := dataset.Delete(api.Dataset); err != nil {
-			return fmt.Errorf("Can't removed stale collection %s, %s", api.Dataset, err)
-		}
-	}
+	var errs []error
 	c, err := dataset.Create(api.Dataset, dataset.GenerateBucketNames(dataset.DefaultAlphabet, 2))
-	failCheck(err, fmt.Sprintf("ListURI() %s, %s", api.Dataset, err))
+	failCheck(err, fmt.Sprintf("ExportEPrints() %s, %s", api.Dataset, err))
 	defer c.Close()
 
 	sLists := map[string]*dataset.SelectList{}
 	for _, name := range slNames {
+		c.Clear(name)
 		if sLists[name], err = c.Select(name); err != nil {
 			return fmt.Errorf("Can't create empty select list for %s, %s", name, err)
 		}
@@ -72,31 +64,23 @@ func (api *EPrintsAPI) ExportEPrints(count int) error {
 			log.Printf("Failed to get %s, %s\n", uri, err)
 			k++
 		} else {
-			rec.URI = strings.TrimPrefix(strings.TrimSuffix(uri, ".xml"), "/rest")
 			key := fmt.Sprintf("%d", rec.ID)
-			docPath, _ := c.DocPath(key)
-			// decide if I need to create a record or replace a record
-			if len(docPath) > 0 {
-				if err := c.Create(key, rec); err != nil {
-					errs = append(errs, err)
-				}
-			} else {
-				if err := c.Update(key, rec); err != nil {
-					errs = append(errs, err)
-				}
+			err := c.Create(key, rec)
+			if err != nil {
+				errs = append(errs, err)
 			}
 
 			// Update pubDates select list
 			dt := normalizeDate(rec.Date)
 			if rec.DateType == "published" && rec.Date != "" {
-				sLists["pubDates"].Push(fmt.Sprintf("%s%s%d", dt, indexDelimiter, rec.ID))
+				sLists["pubDate"].Push(fmt.Sprintf("%s%s%d", dt, indexDelimiter, rec.ID))
 			}
 			// Update localGroups select list
 			if len(rec.LocalGroup) > 0 {
 				for _, grp := range rec.LocalGroup {
 					grp = strings.TrimSpace(grp)
 					if len(grp) > 0 {
-						sLists["localGroups"].Push(fmt.Sprintf("%s%s%s%s%d", grp, indexDelimiter, dt, indexDelimiter, rec.ID))
+						sLists["localGroup"].Push(fmt.Sprintf("%s%s%s%s%d", grp, indexDelimiter, dt, indexDelimiter, rec.ID))
 					}
 				}
 			}
@@ -107,13 +91,13 @@ func (api *EPrintsAPI) ExportEPrints(count int) error {
 					isni := strings.TrimSpace(person.ISNI)
 					author := fmt.Sprintf("%s, %s", strings.TrimSpace(person.Family), strings.TrimSpace(person.Given))
 					if len(orcid) > 0 {
-						sLists["orcids"].Push(fmt.Sprintf("%s%s%s%s%d", orcid, indexDelimiter, dt, indexDelimiter, rec.ID))
+						sLists["orcid"].Push(fmt.Sprintf("%s%s%s%s%d", orcid, indexDelimiter, dt, indexDelimiter, rec.ID))
 					}
 					if len(isni) > 0 {
-						sLists["isnis"].Push(fmt.Sprintf("%s%s%s%s%d", isni, indexDelimiter, dt, indexDelimiter, rec.ID))
+						sLists["isni"].Push(fmt.Sprintf("%s%s%s%s%d", isni, indexDelimiter, dt, indexDelimiter, rec.ID))
 					}
 					if len(author) > 0 {
-						sLists["authors"].Push(fmt.Sprintf("%s%s%s%s%d", isni, indexDelimiter, dt, indexDelimiter, rec.ID))
+						sLists["author"].Push(fmt.Sprintf("%s%s%s%s%d", author, indexDelimiter, dt, indexDelimiter, rec.ID))
 					}
 				}
 			}

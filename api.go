@@ -49,10 +49,11 @@ var (
 	indexDelimiter = "|"
 	// expected select lists used by epgo
 	slNames = []string{
-		"pubDates",
-		"localGroups",
-		"orcids",
+		"pubDate",
+		"localGroup",
+		"orcid",
 		"isni",
+		"author",
 	}
 
 	// TmplFuncs is the collected functions available in EPGO templates
@@ -340,7 +341,7 @@ func (s byURI) Less(i, j int) bool {
 	return a1 > a2
 }
 
-// ListEPrintsURI returns a list of eprint record ids
+// ListEPrintsURI returns a list of eprint record ids from the EPrints REST API
 func (api *EPrintsAPI) ListEPrintsURI() ([]string, error) {
 	var (
 		results []string
@@ -466,7 +467,7 @@ func (record *Record) PubDate() string {
 
 // initBuckets initializes expected buckets if necessary
 func initBuckets(c *dataset.Collection) error {
-	for _, slName := range []string{"pubDates", "localGroups", "funders", "orcids"} {
+	for _, slName := range slNames {
 		c.Clear(slName)
 		if _, err := c.Select(slName); err != nil {
 			return err
@@ -475,7 +476,7 @@ func initBuckets(c *dataset.Collection) error {
 	return nil
 }
 
-// ListURI returns a list of eprint record ids from the database
+// ListURI returns a list of eprint record ids from the dataset
 func (api *EPrintsAPI) ListURI(start, count int) ([]string, error) {
 	c, err := dataset.Open(api.Dataset)
 	failCheck(err, fmt.Sprintf("ListURI() %s, %s", api.Dataset, err))
@@ -489,7 +490,7 @@ func (api *EPrintsAPI) ListURI(start, count int) ([]string, error) {
 	return results, nil
 }
 
-// Get retrieves an EPrint record from the database
+// Get retrieves an EPrint record from the dataset
 func (api *EPrintsAPI) Get(uri string) (*Record, error) {
 	c, err := dataset.Open(api.Dataset)
 	failCheck(err, fmt.Sprintf("Get() %s, %s", api.Dataset, err))
@@ -525,8 +526,12 @@ func getRecordList(c *dataset.Collection, sl *dataset.SelectList, start int, cou
 	results := []*Record{}
 	i := 0
 	for _, id := range sl.List() {
+		if strings.Contains(id, indexDelimiter) {
+			tmp := strings.Split(id, indexDelimiter)
+			id = tmp[len(tmp)-1]
+		}
 		rec := new(Record)
-		if err := c.Read(id, rec); err != nil {
+		if err := c.Read(id, &rec); err != nil {
 			return results, err
 		}
 		if filterFn(rec) == true {
@@ -567,7 +572,7 @@ func (api *EPrintsAPI) GetPublications(start, count, direction int) ([]*Record, 
 	failCheck(err, fmt.Sprintf("GetPublications() %s, %s", api.Dataset, err))
 	defer c.Close()
 
-	sl, err := c.Select("pubDates")
+	sl, err := c.Select("pubDate")
 	if err != nil {
 		return nil, err
 	}
@@ -587,7 +592,7 @@ func (api *EPrintsAPI) GetArticles(start, count, direction int) ([]*Record, erro
 	failCheck(err, fmt.Sprintf("GetArticles() %s, %s", api.Dataset, err))
 	defer c.Close()
 
-	sl, err := c.Select("pubDates")
+	sl, err := c.Select("pubDate")
 	if err != nil {
 		return nil, err
 	}

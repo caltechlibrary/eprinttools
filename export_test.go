@@ -26,7 +26,7 @@ import (
 	"github.com/caltechlibrary/dataset"
 )
 
-var recordCount = 10
+var recordCount = 100
 
 func TestHarvest(t *testing.T) {
 	api, err := New(cfg)
