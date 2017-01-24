@@ -34,7 +34,7 @@ func TestHarvest(t *testing.T) {
 		t.Errorf("Cannot create a new API instance %q", err)
 		t.FailNow()
 	}
-	api.Dataset = "testset/eprints"
+	api.Dataset = "dataset/testdata"
 	if _, err = os.Stat(api.Dataset); os.IsNotExist(err) {
 		_, err = dataset.Create(api.Dataset, dataset.GenerateBucketNames(dataset.DefaultAlphabet, 2))
 		if err != nil {
