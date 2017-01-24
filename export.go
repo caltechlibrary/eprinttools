@@ -68,6 +68,8 @@ func (api *EPrintsAPI) ExportEPrints(count int) error {
 			err := c.Create(key, rec)
 			if err != nil {
 				errs = append(errs, err)
+			} else {
+				j++
 			}
 
 			// Update pubDates select list
