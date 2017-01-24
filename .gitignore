@@ -43,6 +43,7 @@ epgo
 *.zip
 *.boltdb
 *.bleve
+dataset/*
 testsite/*
 logs/*
 dist/*
