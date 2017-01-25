@@ -963,6 +963,8 @@ func (api *EPrintsAPI) BuildSite(feedSize int, buildEPrintMirror bool) error {
 		feedSize = DefaultFeedSize
 	}
 
+	//FIXME: This could be replaced by copying all the records in dataset/COLLECTION
+	//that are public and published.
 	if buildEPrintMirror == true {
 		// Build mirror of repository content.
 		log.Printf("Mirroring eprint records")
@@ -970,17 +972,6 @@ func (api *EPrintsAPI) BuildSite(feedSize int, buildEPrintMirror bool) error {
 		if err != nil {
 			return nil
 		}
-
-		/*
-			// Build a master file of all records (these are large and probably only useful for migration purposes)
-			log.Printf("Building EPrint Repository Master Index")
-			err = api.BuildPages(feedSize, "Repository Master Index", path.Join(api.RepositoryPath, "index"), func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
-				return api.GetAllRecords(Descending)
-			})
-			if err != nil {
-				return err
-			}
-		*/
 	}
 
 	// Collect the recent publications (all types)

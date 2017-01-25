@@ -16,27 +16,27 @@ package: epgo.go
 
 epgo: bin/epgo
 
-bin/epgo: epgo.go cmds/epgo/epgo.go
+bin/epgo: epgo.go api.go export.go cmds/epgo/epgo.go
 	go build -o bin/epgo cmds/epgo/epgo.go
 
 epgo-genpages: bin/epgo-genpages
 
-bin/epgo-genpages: epgo.go cmds/epgo-genpages/epgo-genpages.go
+bin/epgo-genpages: epgo.go api.go export.go cmds/epgo-genpages/epgo-genpages.go
 	go build -o bin/epgo-genpages cmds/epgo-genpages/epgo-genpages.go
 
 epgo-indexpages: bin/epgo-indexpages
 
-bin/epgo-indexpages: epgo.go cmds/epgo-indexpages/epgo-indexpages.go
+bin/epgo-indexpages: epgo.go api.go export.go cmds/epgo-indexpages/epgo-indexpages.go
 	go build -o bin/epgo-indexpages cmds/epgo-indexpages/epgo-indexpages.go
 
 epgo-sitemapper: bin/epgo-sitemapper
 
-bin/epgo-sitemapper: epgo.go cmds/epgo-sitemapper/epgo-sitemapper.go
+bin/epgo-sitemapper: epgo.go api.go export.go cmds/epgo-sitemapper/epgo-sitemapper.go
 	go build -o bin/epgo-sitemapper cmds/epgo-sitemapper/epgo-sitemapper.go
 
 epgo-servepages: bin/epgo-servepages
 
-bin/epgo-servepages: epgo.go cmds/epgo-servepages/epgo-servepages.go
+bin/epgo-servepages: epgo.go api.go export.go cmds/epgo-servepages/epgo-servepages.go
 	go build -o bin/epgo-servepages cmds/epgo-servepages/epgo-servepages.go
 	mkpage "content=htdocs/index.md" templates/default/index.html > htdocs/index.html
 
