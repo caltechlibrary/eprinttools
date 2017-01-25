@@ -25,120 +25,31 @@
 
 <h1>epgo</h1>
 
-<p><em>epgo</em> is a command line utility utilizing EPrints&rsquo; REST API to produce alternative
-feeds and formats. Currently it supports generating a feed of repository items based
-on publication dates.</p>
+<p>This project contains the <em>epgo</em> go package for working with EPrints REST API. It also includes
+a set of command line utilities for harvesting content,  building feeds and website pages
+that run indepenantly of EPrints itself (e.g. You could have a website/feeds generated from
+an EPrints repository running on a different system).</p>
 
-<h2>Overview</h2>
-
-<p>USAGE: epgo [OPTIONS] [EPRINT_URI|JAVASCRIPT_FILES]</p>
-
-<p><em>epgo</em> wraps the REST API for E-Prints 3.3 or better. It can return a list of uri,
-a JSON view of the XML presentation as well as generates feeds and web pages.</p>
-
-<p><em>epgo</em> can be configured with following environment variables</p>
+<h2>The command line utilities</h2>
 
 <ul>
-<li>EPGO_API_URL (required) the URL to your E-Prints installation</li>
-<li>EPGO_DBNAME   (required) the BoltDB name for exporting, site building, and content retrieval</li>
-<li>EPGO_SITE_URL (optional) the website URL (might be the same as E-Prints)</li>
-<li>EPGO_HTDOCS   (optional) the htdocs root for site building</li>
-<li>EPGO_TEMPLATE_PATH (optional) the template directory to use for site building</li>
+<li><em>epgo</em> is a command line utility utilizing EPrints&rsquo; REST API to produce alternative
+feeds and formats. Currently it supports generating a feed of repository items based
+on publication dates.</li>
+<li><em>epgo-genpages</em> is a command line utility that builds HTML and feed pages from content harvested with <em>epgo</em></li>
+<li><em>epgo-indexpages</em> is a command line utlity that will build a <a href="https://blevesearch.com">Bleve</a> index to support website search</li>
+<li><em>epgo-servepages</em> is a web server for serving the static content generated with <em>genpages</em> as well as supporting search from the index created with <em>epgo-indexpages</em></li>
+<li><em>epgo-sitemapper</em> is a command line utility for generating a sitemap.xml file</li>
 </ul>
 
-<p>If EPRINT_URI is provided then an individual EPrint is return as a JSON structure
-(e.g. /rest/eprint/34.xml). Otherwise a list of EPrint paths are returned.</p>
-
-<table>
-<thead>
-<tr>
-<th>Options</th>
-<th>Description</th>
-</tr>
-</thead>
-
-<tbody>
-<tr>
-<td>-api</td>
-<td>display EPrint REST API response</td>
-</tr>
-
-<tr>
-<td>-dbname</td>
-<td>BoltDB name</td>
-</tr>
-
-<tr>
-<td>-export int</td>
-<td>export N EPrints to local database, if N is negative export all EPrints</td>
-</tr>
-
-<tr>
-<td>-read-api</td>
-<td>read the contents from the API without saving in the database</td>
-</tr>
-
-<tr>
-<td>-feed-size int</td>
-<td>the number of items included in generated feeds</td>
-</tr>
-
-<tr>
-<td>-published-newest int</td>
-<td>list the N newest published records</td>
-</tr>
-
-<tr>
-<td>-published-oldest int</td>
-<td>list the N oldest published records</td>
-</tr>
-
-<tr>
-<td>-articles-newest int</td>
-<td>list the N newest articles</td>
-</tr>
-
-<tr>
-<td>-articles-oldest int</td>
-<td>list the N oldest articles</td>
-</tr>
-
-<tr>
-<td></td>
-<td></td>
-</tr>
-
-<tr>
-<td>-p</td>
-<td>pretty print JSON output</td>
-</tr>
-
-<tr>
-<td></td>
-<td></td>
-</tr>
-
-<tr>
-<td>-h</td>
-<td>display help info</td>
-</tr>
-
-<tr>
-<td>-l</td>
-<td>show license information</td>
-</tr>
-
-<tr>
-<td>-v</td>
-<td>display version info</td>
-</tr>
-</tbody>
-</table>
+<p>All the utilities can be configured from the environment.  The environment
+can be overridden by command line options. For details run the individual command wiht the &lsquo;-help&rsquo;
+option.  E.g. <code>./bin/epgo -help</code></p>
 
 </section>
 
 <footer>
-<span>&copy; 2016 <a href="http://library.caltech.edu/CLS_Copyright.htm">Caltech Library</a></span>
+<span>&copy; 2017 <a href="http://library.caltech.edu/CLS_Copyright.htm">Caltech Library</a></span>
 <address>1200 E California Blvd, Mail Code 1-32, Pasadena, CA 91125-3200</address>
 <span><a href="mailto:library@caltech.edu">Email Us</a></span> 
 <span>Phone: <a href="tel:+1-626-395-3405">(626)395-3405</a></span>

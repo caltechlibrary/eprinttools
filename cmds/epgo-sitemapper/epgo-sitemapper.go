@@ -1,9 +1,9 @@
 //
-// sitemapper generates a sitemap.xml file by crawling the content generate with genpages
+// epgo-sitemapper generates a sitemap.xml file by crawling the content generate with genpages
 //
 // @author R. S. Doiel, <rsdoiel@caltech.edu>
 //
-// Copyright (c) 2016, Caltech
+// Copyright (c) 2017, Caltech
 // All rights not granted herein are expressly reserved by Caltech.
 //
 // Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -58,7 +58,7 @@ EXAMPLE
 	license = `
 %s %s
 
-Copyright (c) 2016, Caltech
+Copyright (c) 2017, Caltech
 All rights not granted herein are expressly reserved by Caltech.
 
 Redistribution and use in source and binary forms, with or without
@@ -94,7 +94,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 	// App specific options
 	apiURL       string
-	dbName       string
+	datatsetName string
 	bleveName    string
 	htdocs       string
 	templatePath string
@@ -186,7 +186,7 @@ func main() {
 
 	// Optional
 	apiURL = cfg.MergeEnv("api_url", apiURL)
-	dbName = cfg.MergeEnv("dbname", dbName)
+	datatsetName = cfg.MergeEnv("dataset", datatsetName)
 	bleveName = cfg.MergeEnv("bleve", bleveName)
 	templatePath = cfg.MergeEnv("template_path", templatePath)
 

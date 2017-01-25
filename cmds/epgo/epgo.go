@@ -3,7 +3,7 @@
 //
 // @author R. S. Doiel, <rsdoiel@caltech.edu>
 //
-// Copyright (c) 2016, Caltech
+// Copyright (c) 2017, Caltech
 // All rights not granted herein are expressly reserved by Caltech.
 //
 // Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -45,7 +45,7 @@ var (
  %s can be configured with following environment variables
 
  + EPGO_API_URL (required) the URL to your E-Prints installation
- + EPGO_DBNAME   (required) the BoltDB name for exporting, site building, and content retrieval
+ + EPGO_DATASET   (required) the dataset and collection name for exporting, site building, and content retrieval
  + EPGO_BLEVE (optional) the name for the Bleve index/db
  + EPGO_SITE_URL (optional) the URL to your public website (might be the same as E-Prints)
  + EPGO_HTDOCS   (optional) the htdocs root for site building
@@ -60,7 +60,7 @@ var (
 	license = `
 %s %s
 
-Copyright (c) 2016, Caltech
+Copyright (c) 2017, Caltech
 All rights not granted herein are expressly reserved by Caltech.
 
 Redistribution and use in source and binary forms, with or without
@@ -97,8 +97,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	useAPI      bool
 	prettyPrint bool
 
-	apiURL string
-	dbName string
+	apiURL      string
+	datasetName string
 
 	exportEPrints   int
 	feedSize        int
@@ -126,7 +126,7 @@ func init() {
 
 	// App Specific options
 	flag.StringVar(&apiURL, "api", "", "url for EPrints API")
-	flag.StringVar(&dbName, "dbname", "", "BoltDB name")
+	flag.StringVar(&datasetName, "dataset", "", "dataset/collection name")
 
 	flag.BoolVar(&prettyPrint, "p", false, "pretty print JSON output")
 	flag.BoolVar(&useAPI, "read-api", false, "read the contents from the API without saving in the database")
@@ -170,7 +170,7 @@ func main() {
 	}
 
 	apiURL = check(cfg, "api_url", cfg.MergeEnv("api_url", apiURL))
-	dbName = check(cfg, "dbname", cfg.MergeEnv("dbname", dbName))
+	datasetName = check(cfg, "dataset", cfg.MergeEnv("dataset", datasetName))
 
 	// This will read in any settings from the environment
 	api, err := epgo.New(cfg)

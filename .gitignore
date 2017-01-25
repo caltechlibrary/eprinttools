@@ -28,6 +28,8 @@ _testmain.go
 *swp
 etc/*
 bin/*
+htdocs/index.html
+htdocs/sitemap.xml
 htdocs/publications.*
 htdocs/articles.*
 htdocs/data.*
@@ -41,6 +43,9 @@ epgo
 *.zip
 *.boltdb
 *.bleve
+dataset/*
 testsite/*
 logs/*
 dist/*
+*.csv
+*.dat

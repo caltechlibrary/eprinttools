@@ -3,7 +3,7 @@
 //
 // @author R. S. Doiel, <rsdoiel@caltech.edu>
 //
-// Copyright (c) 2016, Caltech
+// Copyright (c) 2017, Caltech
 // All rights not granted herein are expressly reserved by Caltech.
 //
 // Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -34,55 +34,10 @@ var (
 func TestMain(m *testing.M) {
 	cfg = cli.New("epgo", "EPGO", "", Version)
 	cfg.MergeEnv("api_url", "")
-	cfg.MergeEnv("dbname", "")
+	cfg.MergeEnv("dataset", "")
 	cfg.MergeEnv("bleve", "")
 	cfg.MergeEnv("htdocs", "")
 	cfg.MergeEnv("template_path", "")
 	cfg.MergeEnv("site_url", "")
 	os.Exit(m.Run())
-}
-
-func TestHarvest(t *testing.T) {
-	api, err := New(cfg)
-	if err != nil {
-		t.Errorf("Cannot create a new API instance %q", err)
-		t.FailNow()
-	}
-	api.DBName = "test.boltdb"
-	api.Htdocs = "testsite"
-	_, err = os.Stat(api.Htdocs)
-	if err != nil && os.IsNotExist(err) == true {
-		err = os.Mkdir(api.Htdocs, 0770)
-		if err != nil {
-			t.Errorf("Cannot create %s %q", api.Htdocs, err)
-			t.FailNow()
-		}
-	}
-
-	err = api.ExportEPrints(5)
-	if err != nil {
-		t.Errorf("Cannot harvest for test site %q", err)
-		t.FailNow()
-	}
-
-<<<<<<< HEAD
-	err = api.BuildPages(5, "Recently Published", "recent/published", func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
-		return api.GetPublishedRecords(start, count, direction)
-=======
-	err = api.BuildPages(5, "Recently Published", "recently-published", func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
-		return api.GetPublications(start, count, direction)
->>>>>>> cda6473fc5a2f7f66e04669f3544a953c2eaa373
-	})
-	if err != nil {
-		t.Errorf("Cannot build test site %q", err)
-		t.FailNow()
-	}
-<<<<<<< HEAD
-	err = api.BuildPages(5, "Recent Articles", "recent/articles", func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
-		return api.GetPublishedArticles(start, count, direction)
-=======
-	err = api.BuildPages(5, "Recent Articles", "recent-articles", func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
-		return api.GetArticles(start, count, direction)
->>>>>>> cda6473fc5a2f7f66e04669f3544a953c2eaa373
-	})
 }

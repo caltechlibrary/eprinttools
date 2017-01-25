@@ -19,44 +19,42 @@
 package epgo
 
 import (
-	// CaltechLibrary packages
+	"encoding/json"
+	"encoding/xml"
+	"fmt"
+	"io/ioutil"
+	"log"
+	"net/http"
+	"net/url"
+	"os"
+	"path"
+	"strconv"
+	"strings"
+	"text/template"
+	"time"
+
+	// Caltech Library packages
+	"github.com/caltechlibrary/bibtex"
+	"github.com/caltechlibrary/cli"
 	"github.com/caltechlibrary/dataset"
+	"github.com/caltechlibrary/tmplfn"
 )
-
-const (
-	// Version is the revision number for this implementation of epgo
-	Version = "v0.0.10-alpha"
-
-	// Ascending sorts from lowest (oldest) to highest (newest)
-	Ascending = dataset.ASC
-	// Descending sorts from highest (newest) to lowest (oldest)
-	Descending = dataset.DESC
-
-	// EPrintsExportBatchSize sets the summary output frequency when exporting content from E-Prints
-	EPrintsExportBatchSize = 1000
-
-	// DefaultFeedSize sets the default size of rss, JSON, HTML include and index lists
-	DefaultFeedSize = 25
-)
-<<<<<<< HEAD
 
 // These are our main bucket and index buckets
 var (
 	// Primary collection
 	ePrintBucket = []byte("eprints")
 
-	// Indexes available
-	indexDelimiter   = "|"
-	pubDatesBucket   = []byte("publicationDates")
-	localGroupBucket = []byte("localGroup")
-	orcidBucket      = []byte("orcid") // NOTE: We can probably combined bucket for ORCID or ISNI ids
-
-	//FIXME: Additional indexes might be useful.
-	// publicationsBucket  = []byte("publications")
-	// titlesBucket        = []byte("titles")
-	// subjectsBucket      = []byte("subjects")
-	// authors             = []byte("authors")
-	// additionDatesBucket = []byte("additionsDates")
+	// Select lists delimiter
+	indexDelimiter = "|"
+	// expected select lists used by epgo
+	slNames = []string{
+		"pubDate",
+		"localGroup",
+		"orcid",
+		"isni",
+		"author",
+	}
 
 	// TmplFuncs is the collected functions available in EPGO templates
 	TmplFuncs = tmplfn.Join(tmplfn.TimeMap, tmplfn.PageMap)
@@ -72,7 +70,7 @@ func failCheck(err error, msg string) {
 type EPrintsAPI struct {
 	XMLName        xml.Name `json:"-"`
 	URL            *url.URL `xml:"epgo>api_url" json:"api_url"`                 // EPGO_API_URL
-	DBName         string   `xml:"epgo>dbname" json:"dbname"`                   // EPGO_DBNAME
+	Dataset        string   `xml:"epgo>dataset" json:"dataset"`                 // EPGO_DATASET
 	BleveName      string   `xml:"epgo>bleve" json:"bleve"`                     // EPGO_BLEVE
 	Htdocs         string   `xml:"epgo>htdocs" json:"htdocs"`                   // EPGO_HTDOCS
 	TemplatePath   string   `xml:"epgo>template_path" json:"template_path"`     // EPGO_TEMPLATES
@@ -279,7 +277,7 @@ func New(cfg *cli.Config) (*EPrintsAPI, error) {
 	apiURL := cfg.Get("api_url")
 	siteURL := cfg.Get("site_url")
 	htdocs := cfg.Get("htdocs")
-	dbName := cfg.Get("dbname")
+	datasetName := cfg.Get("dataset")
 	bleveName := cfg.Get("bleve")
 	templatePath := cfg.Get("template_path")
 	repositoryPath := cfg.Get("repository_path")
@@ -299,8 +297,8 @@ func New(cfg *cli.Config) (*EPrintsAPI, error) {
 	if htdocs == "" {
 		htdocs = "htdocs"
 	}
-	if dbName == "" {
-		dbName = "eprints.boltdb"
+	if datasetName == "" {
+		datasetName = "eprints"
 	}
 	if bleveName == "" {
 		bleveName = "eprints.bleve"
@@ -312,7 +310,7 @@ func New(cfg *cli.Config) (*EPrintsAPI, error) {
 		repositoryPath = "repository"
 	}
 	api.Htdocs = htdocs
-	api.DBName = dbName
+	api.Dataset = datasetName
 	api.TemplatePath = templatePath
 	api.BleveName = bleveName
 	api.RepositoryPath = repositoryPath
@@ -343,7 +341,7 @@ func (s byURI) Less(i, j int) bool {
 	return a1 > a2
 }
 
-// ListEPrintsURI returns a list of eprint record ids
+// ListEPrintsURI returns a list of eprint record ids from the EPrints REST API
 func (api *EPrintsAPI) ListEPrintsURI() ([]string, error) {
 	var (
 		results []string
@@ -467,403 +465,144 @@ func (record *Record) PubDate() string {
 	return ""
 }
 
-// initBuckets initializes expected buckets if necessary for boltdb
-func initBuckets(db *bolt.DB) error {
-	return db.Update(func(tx *bolt.Tx) error {
-		if _, err := tx.CreateBucketIfNotExists(ePrintBucket); err != nil {
-			return fmt.Errorf("create bucket %s: %s", ePrintBucket, err)
-		}
-		if _, err := tx.CreateBucketIfNotExists(pubDatesBucket); err != nil {
-			return fmt.Errorf("create bucket %s: %s", pubDatesBucket, err)
-		}
-		if _, err := tx.CreateBucketIfNotExists(localGroupBucket); err != nil {
-			return fmt.Errorf("create bucket %s: %s", localGroupBucket, err)
-		}
-		if _, err := tx.CreateBucketIfNotExists(orcidBucket); err != nil {
-			return fmt.Errorf("create bucket %s: %s", orcidBucket, err)
-		}
-		return nil
-	})
-
-}
-
-// ExportEPrints from highest ID to lowest for cnt. Saves each record in a DB and indexes published ones
-func (api *EPrintsAPI) ExportEPrints(count int) error {
-	db, err := bolt.Open(api.DBName, 0660, &bolt.Options{Timeout: 1 * time.Second, ReadOnly: false})
-	failCheck(err, fmt.Sprintf("Export %s failed to open db, %s", api.DBName, err))
-	defer db.Close()
-
-	// Make sure we have a buckets to store things in
-	err = initBuckets(db)
-	failCheck(err, fmt.Sprintf("Export %s failed to initialize buckets, %s", api.DBName, err))
-
-	uris, err := api.ListEPrintsURI()
-	failCheck(err, fmt.Sprintf("Export %s failed, %s", api.URL.String(), err))
-
-	//NOTE: I am sorting the URI by decscending ID number so that the newest articles
-	// are exported first
-	sort.Sort(byURI(uris))
-
-	uriCount := len(uris)
-	if count < 0 {
-		count = uriCount
-	}
-	j := 0 // success count
-	k := 0 // error count
-	log.Printf("Exporting %d of %d uris", count, uriCount)
-	for i := 0; i < uriCount && i < count; i++ {
-		uri := uris[i]
-		rec, err := api.GetEPrint(uri)
-		if err != nil {
-			log.Printf("Failed to get %s, %s\n", uri, err)
-			k++
-		} else {
-			rec.URI = strings.TrimPrefix(strings.TrimSuffix(uri, ".xml"), "/rest")
-			src, err := json.Marshal(rec)
-			if err != nil {
-				log.Printf("json.Marshal() failed on %s, %s", uri, err)
-				k++
-			} else {
-				err := db.Update(func(tx *bolt.Tx) error {
-					var errs []string
-					// Saving the eprint record
-					b := tx.Bucket(ePrintBucket)
-					err := b.Put([]byte(rec.URI), src)
-					if err == nil {
-<<<<<<< HEAD
-						//NOTE: dt is the record date.
-						dt := normalizeDate(rec.Date)
-=======
-						// Inc the stored EPrint count
-						j++
-						//NOTE: dt is the pub date
-						dt := normalizeDate(rec.Date)
-
->>>>>>> cda6473fc5a2f7f66e04669f3544a953c2eaa373
-						// See if we need to add this to the publicationDates index
-						if rec.DateType == "published" && rec.Date != "" {
-							idx := tx.Bucket(pubDatesBucket)
-							err = idx.Put([]byte(fmt.Sprintf("%s%s%s", dt, indexDelimiter, rec.URI)), []byte(rec.URI))
-							if err != nil {
-								errs = append(errs, fmt.Sprintf("%s", err))
-							}
-						}
-						if len(rec.LocalGroup) > 0 {
-							for _, grp := range rec.LocalGroup {
-								grp = strings.TrimSpace(grp)
-								if len(grp) > 0 {
-									idx := tx.Bucket(localGroupBucket)
-									err = idx.Put([]byte(fmt.Sprintf("%s%s%s%s%s", grp, indexDelimiter, dt, indexDelimiter, rec.URI)), []byte(rec.URI))
-									if err != nil {
-										errs = append(errs, fmt.Sprintf("%s", err))
-									}
-								}
-							}
-						}
-						if len(rec.Creators) > 0 {
-							for _, person := range rec.Creators {
-								orcid := strings.TrimSpace(person.ORCID)
-								isni := strings.TrimSpace(person.ISNI)
-								if len(orcid) > 0 {
-									idx := tx.Bucket(orcidBucket)
-									err := idx.Put([]byte(fmt.Sprintf("%s%s%s%s%s", orcid, indexDelimiter, dt, indexDelimiter, rec.URI)), []byte(rec.URI))
-									if err != nil {
-										errs = append(errs, fmt.Sprintf("%s", err))
-									}
-								} else if len(isni) > 0 {
-									idx := tx.Bucket(orcidBucket)
-									err := idx.Put([]byte(fmt.Sprintf("%s%s%s%s%s", orcid, indexDelimiter, dt, indexDelimiter, rec.URI)), []byte(rec.URI))
-									if err != nil {
-										errs = append(errs, fmt.Sprintf("%s", err))
-									}
-								}
-							}
-						}
-					}
-					if len(errs) > 0 {
-						return fmt.Errorf("%s", strings.Join(errs, "; "))
-					}
-					return nil
-				})
-				if err != nil {
-					log.Printf("Failed to save eprint %s, %s\n", uri, err)
-					k++
-				}
-			}
-		}
-		if (i % EPrintsExportBatchSize) == 0 {
-			log.Printf("%d uri processed, %d exported, %d unexported", i+1, j, k)
+// initBuckets initializes expected buckets if necessary
+func initBuckets(c *dataset.Collection) error {
+	for _, slName := range slNames {
+		c.Clear(slName)
+		if _, err := c.Select(slName); err != nil {
+			return err
 		}
 	}
-	log.Printf("%d uri processed, %d exported, %d unexported", len(uris), j, k)
 	return nil
 }
 
-// ListURI returns a list of eprint record ids from the database
+// ListURI returns a list of eprint record ids from the dataset
 func (api *EPrintsAPI) ListURI(start, count int) ([]string, error) {
-	var results []string
-	db, err := bolt.Open(api.DBName, 0660, &bolt.Options{Timeout: 1 * time.Second, ReadOnly: true})
-	failCheck(err, fmt.Sprintf("ListURI %s failed to open db, %s", api.DBName, err))
-	defer db.Close()
+	c, err := dataset.Open(api.Dataset)
+	failCheck(err, fmt.Sprintf("ListURI() %s, %s", api.Dataset, err))
+	defer c.Close()
 
-	err = db.View(func(tx *bolt.Tx) error {
-		recs := tx.Bucket(ePrintBucket)
-		c := recs.Cursor()
-		p := 0
-		if count < 0 {
-			bStats := recs.Stats()
-			count = bStats.KeyN
-		}
-		for uri, _ := c.First(); uri != nil && count > 0; uri, _ = c.Next() {
-			if p >= start {
-				results = append(results, string(uri))
-				count--
-			}
-			p++
-		}
-		return nil
-	})
-	return results, err
+	ids := c.Keys()
+	results := []string{}
+	for i := start; count > 0; count-- {
+		results = append(results, ids[i])
+	}
+	return results, nil
 }
 
-// Get retrieves an EPrint record from the database
+// Get retrieves an EPrint record from the dataset
 func (api *EPrintsAPI) Get(uri string) (*Record, error) {
-	db, err := bolt.Open(api.DBName, 0660, &bolt.Options{Timeout: 1 * time.Second, ReadOnly: true})
-	failCheck(err, fmt.Sprintf("Get(%q) %s failed to open db, %s", uri, api.DBName, err))
-	defer db.Close()
+	c, err := dataset.Open(api.Dataset)
+	failCheck(err, fmt.Sprintf("Get() %s, %s", api.Dataset, err))
+	defer c.Close()
 
 	record := new(Record)
-	err = db.View(func(tx *bolt.Tx) error {
-		recs := tx.Bucket(ePrintBucket)
-		src := recs.Get([]byte(uri))
-		err := json.Unmarshal(src, &record)
-		if err != nil {
-			return err
-		}
-		return nil
-	})
-	return record, err
+	if err := c.Read(uri, record); err != nil {
+		return nil, err
+	}
+	return record, nil
 }
 
 // GetAllRecordIDs reads and returns a list of record ids found.
 func (api *EPrintsAPI) GetAllRecordIDs(direction int) ([]string, error) {
-	db, err := bolt.Open(api.DBName, 0660, &bolt.Options{Timeout: 1 * time.Second, ReadOnly: true})
-	failCheck(err, fmt.Sprintf("GetAllRecordIDs() %s failed to open db, %s", api.DBName, err))
-	defer db.Close()
+	c, err := dataset.Open(api.Dataset)
+	failCheck(err, fmt.Sprintf("GetAllRecordIDs() %s, %s", api.Dataset, err))
+	defer c.Close()
 
-	//	var records []Record
-	var (
-		results []string
-	)
+	sl, err := c.Select("keys")
+	if err != nil {
+		return nil, err
+	}
 	switch direction {
 	case Ascending:
-		err = db.View(func(tx *bolt.Tx) error {
-			idx := tx.Bucket(pubDatesBucket)
-			c := idx.Cursor()
-			for k, uri := c.First(); k != nil; k, uri = c.Next() {
-				results = append(results, fmt.Sprintf("%s", uri))
-			}
-			return nil
-		})
+		sl.Sort(dataset.ASC)
 	case Descending:
-		err = db.View(func(tx *bolt.Tx) error {
-			idx := tx.Bucket(pubDatesBucket)
-			c := idx.Cursor()
-			for k, uri := c.Last(); k != nil; k, uri = c.Prev() {
-				results = append(results, fmt.Sprintf("%s", uri))
-			}
-			return nil
-		})
+		sl.Sort(dataset.DESC)
 	}
-	return results, err
+	return sl.List(), err
+}
+
+func getRecordList(c *dataset.Collection, sl *dataset.SelectList, start int, count int, filterFn func(*Record) bool) ([]*Record, error) {
+	results := []*Record{}
+	i := 0
+	for _, id := range sl.List() {
+		if strings.Contains(id, indexDelimiter) {
+			tmp := strings.Split(id, indexDelimiter)
+			id = tmp[len(tmp)-1]
+		}
+		rec := new(Record)
+		if err := c.Read(id, &rec); err != nil {
+			return results, err
+		}
+		if filterFn(rec) == true {
+			if i >= start {
+				results = append(results, rec)
+			}
+			i++
+			count--
+			if count <= 0 {
+				return results, nil
+			}
+		}
+	}
+	return results, nil
 }
 
 // GetAllRecords reads and returns all records keys
 // returning an array of keys in  ascending or decending order
 func (api *EPrintsAPI) GetAllRecords(direction int) ([]*Record, error) {
-	db, err := bolt.Open(api.DBName, 0660, &bolt.Options{Timeout: 1 * time.Second, ReadOnly: true})
-	failCheck(err, fmt.Sprintf("GetAllRecords() %s failed to open db, %s", api.DBName, err))
-	defer db.Close()
+	c, err := dataset.Open(api.Dataset)
+	failCheck(err, fmt.Sprintf("GetAllRecords() %s, %s", api.Dataset, err))
+	defer c.Close()
 
-	//	var records []Record
-	var (
-		results []*Record
-	)
-	switch direction {
-	case Ascending:
-		err = db.View(func(tx *bolt.Tx) error {
-			recs := tx.Bucket(ePrintBucket)
-			idx := tx.Bucket(pubDatesBucket)
-			c := idx.Cursor()
-			for k, uri := c.First(); k != nil; k, uri = c.Next() {
-				rec := new(Record)
-				src := recs.Get([]byte(uri))
-				err := json.Unmarshal(src, rec)
-				if err != nil {
-					return fmt.Errorf("Can't unmarshal %s, %s", uri, err)
-				}
-				results = append(results, rec)
-			}
-			return nil
-		})
-	case Descending:
-		err = db.View(func(tx *bolt.Tx) error {
-			recs := tx.Bucket(ePrintBucket)
-			idx := tx.Bucket(pubDatesBucket)
-			c := idx.Cursor()
-			for k, uri := c.Last(); k != nil; k, uri = c.Prev() {
-				rec := new(Record)
-				src := recs.Get([]byte(uri))
-				err := json.Unmarshal(src, rec)
-				if err != nil {
-					return fmt.Errorf("Can't unmarshal %s, %s", uri, err)
-				}
-				results = append(results, rec)
-			}
-			return nil
-		})
+	sl, err := c.Select("keys")
+	if err != nil {
+		return nil, err
 	}
-	return results, err
+	sl.Sort(direction)
+	return getRecordList(c, sl, 0, len(sl.Keys)+1, func(rec *Record) bool {
+		return true
+	})
 }
 
 // GetPublications reads the index for published content and returns a populated
 // array of records found in index in ascending or decending order
 func (api *EPrintsAPI) GetPublications(start, count, direction int) ([]*Record, error) {
-	db, err := bolt.Open(api.DBName, 0660, &bolt.Options{Timeout: 1 * time.Second, ReadOnly: true})
-	failCheck(err, fmt.Sprintf("GetPulishedRecords() %s failed to open db, %s", api.DBName, err))
-	defer db.Close()
+	c, err := dataset.Open(api.Dataset)
+	failCheck(err, fmt.Sprintf("GetPublications() %s, %s", api.Dataset, err))
+	defer c.Close()
 
-	//	var records []Record
-	var (
-		results []*Record
-	)
-	switch direction {
-	case Ascending:
-		err = db.View(func(tx *bolt.Tx) error {
-			recs := tx.Bucket(ePrintBucket)
-			idx := tx.Bucket(pubDatesBucket)
-			c := idx.Cursor()
-			p := 0
-			if count < 0 {
-				bStats := idx.Stats()
-				count = bStats.KeyN
-			}
-			for k, uri := c.First(); k != nil && count > 0; k, uri = c.Next() {
-				if p >= start {
-					rec := new(Record)
-					src := recs.Get([]byte(uri))
-					err := json.Unmarshal(src, rec)
-					if err != nil {
-						return fmt.Errorf("Can't unmarshal %s, %s", uri, err)
-					}
-					if rec.IsPublished == "pub" {
-						results = append(results, rec)
-						count--
-					}
-				}
-				p++
-			}
-			return nil
-		})
-	case Descending:
-		err = db.View(func(tx *bolt.Tx) error {
-			recs := tx.Bucket(ePrintBucket)
-			idx := tx.Bucket(pubDatesBucket)
-			c := idx.Cursor()
-			p := 0
-			if count < 0 {
-				bStats := idx.Stats()
-				count = bStats.KeyN
-			}
-			for k, uri := c.Last(); k != nil && count > 0; k, uri = c.Prev() {
-				if p >= start {
-					rec := new(Record)
-					src := recs.Get([]byte(uri))
-					err := json.Unmarshal(src, rec)
-					if err != nil {
-						return fmt.Errorf("Can't unmarshal %s, %s", uri, err)
-					}
-					if rec.IsPublished == "pub" {
-						results = append(results, rec)
-						count--
-					}
-				}
-				p++
-			}
-			return nil
-		})
+	sl, err := c.Select("pubDate")
+	if err != nil {
+		return nil, err
 	}
-	return results, err
+	sl.Sort(direction)
+	return getRecordList(c, sl, start, count, func(rec *Record) bool {
+		if rec.IsPublished == "pub" {
+			return true
+		}
+		return false
+	})
 }
 
 // GetArticles reads the index for published content and returns a populated
 // array of records found in index in decending order
 func (api *EPrintsAPI) GetArticles(start, count, direction int) ([]*Record, error) {
-	db, err := bolt.Open(api.DBName, 0660, &bolt.Options{Timeout: 1 * time.Second, ReadOnly: true})
-	failCheck(err, fmt.Sprintf("GetArticles() %s failed to open db, %s", api.DBName, err))
-	defer db.Close()
+	c, err := dataset.Open(api.Dataset)
+	failCheck(err, fmt.Sprintf("GetArticles() %s, %s", api.Dataset, err))
+	defer c.Close()
 
-	//	var records []Record
-	var (
-		results []*Record
-	)
-	switch direction {
-	case Ascending:
-		err = db.View(func(tx *bolt.Tx) error {
-			recs := tx.Bucket(ePrintBucket)
-			idx := tx.Bucket(pubDatesBucket)
-			c := idx.Cursor()
-			p := 0
-			if count < 0 {
-				bStats := idx.Stats()
-				count = bStats.KeyN
-			}
-			for k, uri := c.First(); k != nil && count > 0; k, uri = c.Next() {
-				if p >= start {
-					rec := new(Record)
-					src := recs.Get([]byte(uri))
-					err := json.Unmarshal(src, rec)
-					if err != nil {
-						return fmt.Errorf("Can't unmarshal %s, %s", uri, err)
-					}
-					if rec.Type == "article" && rec.IsPublished == "pub" {
-						results = append(results, rec)
-						count--
-					}
-				}
-				p++
-			}
-			return nil
-		})
-	case Descending:
-		err = db.View(func(tx *bolt.Tx) error {
-			recs := tx.Bucket(ePrintBucket)
-			idx := tx.Bucket(pubDatesBucket)
-			c := idx.Cursor()
-			p := 0
-			if count < 0 {
-				bStats := idx.Stats()
-				count = bStats.KeyN
-			}
-			for k, uri := c.Last(); k != nil && count > 0; k, uri = c.Prev() {
-				if p >= start {
-					rec := new(Record)
-					src := recs.Get([]byte(uri))
-					err := json.Unmarshal(src, rec)
-					if err != nil {
-						return fmt.Errorf("Can't unmarshal %s, %s", uri, err)
-					}
-					if rec.Type == "article" && rec.IsPublished == "pub" {
-						results = append(results, rec)
-						count--
-					}
-				}
-				p++
-			}
-			return nil
-		})
+	sl, err := c.Select("pubDate")
+	if err != nil {
+		return nil, err
 	}
-	return results, err
+	sl.Sort(direction)
+	return getRecordList(c, sl, start, count, func(rec *Record) bool {
+		if rec.IsPublished == "pub" && rec.Type == "article" {
+			return true
+		}
+		return false
+	})
 }
 
 // Utility methods used by the LocalGroup and ORCID index related functions
@@ -891,404 +630,129 @@ func Slugify(s string) string {
 
 // GetLocalGroups returns a JSON list of unique Group names in index
 func (api *EPrintsAPI) GetLocalGroups(start, count, direction int) ([]string, error) {
-	groupNames := []string{}
-	db, err := bolt.Open(api.DBName, 0660, &bolt.Options{Timeout: 1 * time.Second, ReadOnly: true})
-	failCheck(err, fmt.Sprintf("GetLocalGroups() %s failed to open db, %s", api.DBName, err))
-	defer db.Close()
+	c, err := dataset.Open(api.Dataset)
+	failCheck(err, fmt.Sprintf("GetLocalGroups() %s, %s", api.Dataset, err))
+	defer c.Close()
 
-	switch direction {
-	case Ascending:
-		err = db.View(func(tx *bolt.Tx) error {
-			idx := tx.Bucket(localGroupBucket)
-			c := idx.Cursor()
-			p := 0
-			if count < 0 {
-				bStats := idx.Stats()
-				count = bStats.KeyN
-			}
-			for k, _ := c.First(); k != nil && count > 0; k, _ = c.Next() {
-				if p >= start {
-					grp := firstTerm(fmt.Sprintf("%s", k), indexDelimiter)
-					groupNames = appendToList(groupNames, grp)
-					count--
-				}
-				p++
-			}
-			return nil
-		})
-	case Descending:
-		err = db.View(func(tx *bolt.Tx) error {
-			idx := tx.Bucket(localGroupBucket)
-			c := idx.Cursor()
-			p := 0
-			if count < 0 {
-				bStats := idx.Stats()
-				count = bStats.KeyN
-			}
-			for k, _ := c.Last(); k != nil && count > 0; k, _ = c.Prev() {
-				if p >= start {
-					grp := firstTerm(fmt.Sprintf("%s", k), indexDelimiter)
-					groupNames = appendToList(groupNames, grp)
-					count--
-				}
-				p++
-			}
-			return nil
-		})
-	}
+	groupNames := []string{}
+	sl, err := c.Select("localGroup")
 	if err != nil {
-		return groupNames, err
+		return nil, err
+	}
+
+	for i, val := range sl.Keys {
+		if i >= start {
+			val := (strings.Split(val, indexDelimiter)[0])
+			groupNames = append(groupNames, val)
+			if count <= 0 {
+				return groupNames, nil
+			}
+			count--
+
+		}
 	}
 	return groupNames, nil
 }
 
 // GetLocalGroupPublications returns a list of EPrint records with groupName
 func (api *EPrintsAPI) GetLocalGroupPublications(groupName string, start, count, direction int) ([]*Record, error) {
-	results := []*Record{}
+	c, err := dataset.Open(api.Dataset)
+	failCheck(err, fmt.Sprintf("GetLocalGroupPublications() %s, %s", api.Dataset, err))
+	defer c.Close()
 
-	db, err := bolt.Open(api.DBName, 0660, &bolt.Options{Timeout: 1 * time.Second, ReadOnly: true})
-	failCheck(err, fmt.Sprintf("GetLocalGroupPublications() %s failed to open db, %s", api.DBName, err))
-	defer db.Close()
-
-	switch direction {
-	case Ascending:
-		err = db.View(func(tx *bolt.Tx) error {
-			recs := tx.Bucket(ePrintBucket)
-			idx := tx.Bucket(localGroupBucket)
-			c := idx.Cursor()
-			p := 0
-			if count < 0 {
-				bStats := idx.Stats()
-				count = bStats.KeyN
-			}
-			for k, uri := c.First(); k != nil && count > 0; k, uri = c.Next() {
-				if p >= start {
-					grp := firstTerm(fmt.Sprintf("%s", k), indexDelimiter)
-					if strings.Compare(grp, groupName) == 0 {
-						rec := new(Record)
-						src := recs.Get([]byte(uri))
-						err := json.Unmarshal(src, rec)
-						if err != nil {
-							return fmt.Errorf("Can't unmarshal %s, %s", uri, err)
-						}
-						results = append(results, rec)
-						count--
-					}
-				}
-				p++
-			}
-			return nil
-		})
-	case Descending:
-		err = db.View(func(tx *bolt.Tx) error {
-			recs := tx.Bucket(ePrintBucket)
-			idx := tx.Bucket(localGroupBucket)
-			c := idx.Cursor()
-			p := 0
-			if count < 0 {
-				bStats := idx.Stats()
-				count = bStats.KeyN
-			}
-			for k, uri := c.Last(); k != nil && count > 0; k, uri = c.Prev() {
-				if p >= start {
-					grp := firstTerm(fmt.Sprintf("%s", k), indexDelimiter)
-					if strings.Compare(grp, groupName) == 0 {
-						rec := new(Record)
-						src := recs.Get([]byte(uri))
-						err := json.Unmarshal(src, rec)
-						if err != nil {
-							return fmt.Errorf("Can't unmarshal %s, %s", uri, err)
-						}
-						results = append(results, rec)
-						count--
-					}
-				}
-				p++
-			}
-			return nil
-		})
-	}
+	sl, err := c.Select("localGroup")
 	if err != nil {
-		return results, err
+		return nil, err
 	}
-	return results, nil
+	sl.Sort(direction)
+	return getRecordList(c, sl, start, count, func(rec *Record) bool {
+		if rec.IsPublished == "pub" {
+			return true
+		}
+		return false
+	})
 }
 
 // GetLocalGroupArticles returns a list of EPrint records with groupName
 func (api *EPrintsAPI) GetLocalGroupArticles(groupName string, start, count, direction int) ([]*Record, error) {
-	results := []*Record{}
+	c, err := dataset.Open(api.Dataset)
+	failCheck(err, fmt.Sprintf("GetLocalGroupArticles() %s, %s", api.Dataset, err))
+	defer c.Close()
 
-	db, err := bolt.Open(api.DBName, 0660, &bolt.Options{Timeout: 1 * time.Second, ReadOnly: true})
-	failCheck(err, fmt.Sprintf("GetLocalGroupArticles() %s failed to open db, %s", api.DBName, err))
-	defer db.Close()
-
-	switch direction {
-	case Ascending:
-		err = db.View(func(tx *bolt.Tx) error {
-			recs := tx.Bucket(ePrintBucket)
-			idx := tx.Bucket(localGroupBucket)
-			c := idx.Cursor()
-			p := 0
-			if count < 0 {
-				bStats := idx.Stats()
-				count = bStats.KeyN
-			}
-			for k, uri := c.First(); k != nil && count > 0; k, uri = c.Next() {
-				if p >= start {
-					grp := firstTerm(fmt.Sprintf("%s", k), indexDelimiter)
-					if strings.Compare(grp, groupName) == 0 {
-						rec := new(Record)
-						src := recs.Get([]byte(uri))
-						err := json.Unmarshal(src, rec)
-						if err != nil {
-							return fmt.Errorf("Can't unmarshal %s, %s", uri, err)
-						}
-						if rec.Type == "article" && rec.IsPublished == "pub" {
-							results = append(results, rec)
-							count--
-						}
-					}
-				}
-				p++
-			}
-			return nil
-		})
-	case Descending:
-		err = db.View(func(tx *bolt.Tx) error {
-			recs := tx.Bucket(ePrintBucket)
-			idx := tx.Bucket(localGroupBucket)
-			c := idx.Cursor()
-			p := 0
-			if count < 0 {
-				bStats := idx.Stats()
-				count = bStats.KeyN
-			}
-			for k, uri := c.Last(); k != nil && count > 0; k, uri = c.Prev() {
-				if p >= start {
-					grp := firstTerm(fmt.Sprintf("%s", k), indexDelimiter)
-					if strings.Compare(grp, groupName) == 0 {
-						rec := new(Record)
-						src := recs.Get([]byte(uri))
-						err := json.Unmarshal(src, rec)
-						if err != nil {
-							return fmt.Errorf("Can't unmarshal %s, %s", uri, err)
-						}
-						if rec.Type == "article" && rec.IsPublished == "pub" {
-							results = append(results, rec)
-							count--
-						}
-					}
-				}
-				p++
-			}
-			return nil
-		})
-	}
+	sl, err := c.Select("localGroup")
 	if err != nil {
-		return results, err
+		return nil, err
 	}
-	return results, nil
+	sl.Sort(direction)
+	return getRecordList(c, sl, start, count, func(rec *Record) bool {
+		if rec.IsPublished == "pub" && rec.Type == "article" {
+			return true
+		}
+		return false
+	})
 }
 
 // GetORCIDs (or ISNI) returns a list unique of ORCID/ISNI IDs in index
 func (api *EPrintsAPI) GetORCIDs(start, count, direction int) ([]string, error) {
-	ids := []string{}
-	db, err := bolt.Open(api.DBName, 0660, &bolt.Options{Timeout: 1 * time.Second, ReadOnly: true})
-	failCheck(err, fmt.Sprintf("GetORCIDs() %s failed to open db, %s", api.DBName, err))
-	defer db.Close()
+	c, err := dataset.Open(api.Dataset)
+	failCheck(err, fmt.Sprintf("GetORCIDs() %s, %s", api.Dataset, err))
+	defer c.Close()
 
-	switch direction {
-	case Ascending:
-		err = db.View(func(tx *bolt.Tx) error {
-			idx := tx.Bucket(orcidBucket)
-			c := idx.Cursor()
-			p := 0
-			if count < 0 {
-				bStats := idx.Stats()
-				count = bStats.KeyN
-			}
-			for k, _ := c.First(); k != nil && count > 0; k, _ = c.Next() {
-				if p >= start {
-					id := firstTerm(fmt.Sprintf("%s", k), indexDelimiter)
-					ids = appendToList(ids, id)
-					count--
-				}
-				p++
-			}
-			return nil
-		})
-	case Descending:
-		err = db.View(func(tx *bolt.Tx) error {
-			idx := tx.Bucket(orcidBucket)
-			c := idx.Cursor()
-			p := 0
-			if count < 0 {
-				bStats := idx.Stats()
-				count = bStats.KeyN
-			}
-			for k, _ := c.Last(); k != nil && count > 0; k, _ = c.Prev() {
-				if p >= start {
-					id := firstTerm(fmt.Sprintf("%s", k), indexDelimiter)
-					ids = appendToList(ids, id)
-					count--
-				}
-				p++
-			}
-			return nil
-		})
-	}
+	sl, err := c.Select("orcid")
 	if err != nil {
-		return ids, err
+		return nil, err
+	}
+	sl.Sort(direction)
+	ids := []string{}
+	for i, id := range sl.Keys {
+		if i >= start {
+			id := (strings.Split(id, indexDelimiter))[0]
+			ids = append(ids, id)
+			if count == 0 {
+				return ids, nil
+			}
+			count--
+		}
 	}
 	return ids, nil
 }
 
 // GetORCIDPublications returns a list of EPrint records with a given ORCID
 func (api *EPrintsAPI) GetORCIDPublications(orcid string, start, count, direction int) ([]*Record, error) {
-	results := []*Record{}
+	c, err := dataset.Open(api.Dataset)
+	failCheck(err, fmt.Sprintf("GetORCIDPublications() %s, %s", api.Dataset, err))
+	defer c.Close()
 
-	db, err := bolt.Open(api.DBName, 0660, &bolt.Options{Timeout: 1 * time.Second, ReadOnly: true})
-	failCheck(err, fmt.Sprintf("GetORCIDPublications() %s failed to open db, %s", api.DBName, err))
-	defer db.Close()
-
-	switch direction {
-	case Ascending:
-		err = db.View(func(tx *bolt.Tx) error {
-			recs := tx.Bucket(ePrintBucket)
-			idx := tx.Bucket(orcidBucket)
-			c := idx.Cursor()
-			p := 0
-			if count < 0 {
-				bStats := idx.Stats()
-				count = bStats.KeyN
-			}
-			for k, uri := c.First(); k != nil && count > 0; k, uri = c.Next() {
-				if p >= start {
-					term := firstTerm(fmt.Sprintf("%s", k), indexDelimiter)
-					if strings.Compare(term, orcid) == 0 {
-						rec := new(Record)
-						src := recs.Get([]byte(uri))
-						err := json.Unmarshal(src, rec)
-						if err != nil {
-							return fmt.Errorf("Can't unmarshal %s, %s", uri, err)
-						}
-						results = append(results, rec)
-						count--
-					}
-				}
-				p++
-			}
-			return nil
-		})
-	case Descending:
-		err = db.View(func(tx *bolt.Tx) error {
-			recs := tx.Bucket(ePrintBucket)
-			idx := tx.Bucket(orcidBucket)
-			c := idx.Cursor()
-			p := 0
-			if count < 0 {
-				bStats := idx.Stats()
-				count = bStats.KeyN
-			}
-			for k, uri := c.Last(); k != nil && count > 0; k, uri = c.Prev() {
-				if p >= start {
-					term := firstTerm(fmt.Sprintf("%s", k), indexDelimiter)
-					if strings.Compare(term, orcid) == 0 {
-						rec := new(Record)
-						src := recs.Get([]byte(uri))
-						err := json.Unmarshal(src, rec)
-						if err != nil {
-							return fmt.Errorf("Can't unmarshal %s, %s", uri, err)
-						}
-						results = append(results, rec)
-						count--
-					}
-				}
-				p++
-			}
-			return nil
-		})
-	}
+	sl, err := c.Select("orcids")
 	if err != nil {
-		return results, err
+		return nil, err
 	}
-	return results, nil
+	sl.Sort(direction)
+	return getRecordList(c, sl, start, count, func(rec *Record) bool {
+		if rec.IsPublished == "pub" {
+			return true
+		}
+		return false
+	})
 }
 
 // GetORCIDArticles returns a list of EPrint records with a given ORCID
 func (api *EPrintsAPI) GetORCIDArticles(orcid string, start, count, direction int) ([]*Record, error) {
-	results := []*Record{}
+	c, err := dataset.Open(api.Dataset)
+	failCheck(err, fmt.Sprintf("GetORCIDArticles() %s, %s", api.Dataset, err))
+	defer c.Close()
 
-	db, err := bolt.Open(api.DBName, 0660, &bolt.Options{Timeout: 1 * time.Second, ReadOnly: true})
-	failCheck(err, fmt.Sprintf("GetORCIDArticles() %s failed to open db, %s", api.DBName, err))
-	defer db.Close()
-
-	switch direction {
-	case Ascending:
-		err = db.View(func(tx *bolt.Tx) error {
-			recs := tx.Bucket(ePrintBucket)
-			idx := tx.Bucket(orcidBucket)
-			c := idx.Cursor()
-			p := 0
-			if count < 0 {
-				bStats := idx.Stats()
-				count = bStats.KeyN
-			}
-			for k, uri := c.First(); k != nil && count > 0; k, uri = c.Next() {
-				if p >= start {
-					term := firstTerm(fmt.Sprintf("%s", k), indexDelimiter)
-					if strings.Compare(term, orcid) == 0 {
-						rec := new(Record)
-						src := recs.Get([]byte(uri))
-						err := json.Unmarshal(src, rec)
-						if err != nil {
-							return fmt.Errorf("Can't unmarshal %s, %s", uri, err)
-						}
-						if rec.Type == "article" && rec.IsPublished == "pub" {
-							results = append(results, rec)
-							count--
-						}
-					}
-				}
-				p++
-			}
-			return nil
-		})
-	case Descending:
-		err = db.View(func(tx *bolt.Tx) error {
-			recs := tx.Bucket(ePrintBucket)
-			idx := tx.Bucket(orcidBucket)
-			c := idx.Cursor()
-			p := 0
-			if count < 0 {
-				bStats := idx.Stats()
-				count = bStats.KeyN
-			}
-			for k, uri := c.Last(); k != nil && count > 0; k, uri = c.Prev() {
-				if p >= start {
-					term := firstTerm(fmt.Sprintf("%s", k), indexDelimiter)
-					if strings.Compare(term, orcid) == 0 {
-						rec := new(Record)
-						src := recs.Get([]byte(uri))
-						err := json.Unmarshal(src, rec)
-						if err != nil {
-							return fmt.Errorf("Can't unmarshal %s, %s", uri, err)
-						}
-						if rec.Type == "article" && rec.IsPublished == "pub" {
-							results = append(results, rec)
-							count--
-						}
-					}
-				}
-				p++
-			}
-			return nil
-		})
-	}
+	sl, err := c.Select("orcids")
 	if err != nil {
-		return results, err
+		return nil, err
 	}
-	return results, nil
+	sl.Sort(direction)
+	return getRecordList(c, sl, start, count, func(rec *Record) bool {
+		if rec.IsPublished == "pub" && rec.Type == "article" {
+			return true
+		}
+		return false
+	})
 }
 
 // RenderEPrint writes a single EPrint record to disc.
@@ -1545,15 +1009,6 @@ func (api *EPrintsAPI) BuildSite(feedSize int, buildEPrintMirror bool) error {
 	}
 	log.Printf("Found %d orcids", len(orcids))
 	for _, orcid := range orcids {
-<<<<<<< HEAD
-<<<<<<< HEAD
-		err = api.BuildPages(feedSize, fmt.Sprintf("ORCID: %s", orcid), fmt.Sprintf("person/%s", orcid), func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
-			return api.GetORCIDRecords(orcid, start, -1, Descending)
-=======
-		err = api.BuildPages(-1, fmt.Sprintf("ORCID: %s", orcid), fmt.Sprintf("person/%s", orcid), func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
-			return api.GetORCIDRecords(orcid, start, count, Descending)
->>>>>>> 36596c7f6c3c283132d4dcbe1fbc3da0e23cc77b
-=======
 		// Build a list of recent ORCID Publications
 		err = api.BuildPages(-1, fmt.Sprintf("ORCID: %s", orcid), path.Join("person", fmt.Sprintf("%s", orcid), "recent", "publications"), func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
 			return api.GetORCIDPublications(orcid, start, count, Descending)
@@ -1578,7 +1033,6 @@ func (api *EPrintsAPI) BuildSite(feedSize int, buildEPrintMirror bool) error {
 		// Build complete list of articels for each ORCID
 		err = api.BuildPages(-1, fmt.Sprintf("ORCID: %s", orcid), path.Join("person", fmt.Sprintf("%s", orcid), "articles"), func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
 			return api.GetORCIDArticles(orcid, 0, -1, Descending)
->>>>>>> cda6473fc5a2f7f66e04669f3544a953c2eaa373
 		})
 		if err != nil {
 			return err
@@ -1593,15 +1047,6 @@ func (api *EPrintsAPI) BuildSite(feedSize int, buildEPrintMirror bool) error {
 	}
 	log.Printf("Found %d groups", len(groupNames))
 	for _, groupName := range groupNames {
-<<<<<<< HEAD
-<<<<<<< HEAD
-		err = api.BuildPages(feedSize, fmt.Sprintf("%s", groupName), fmt.Sprintf("affiliation/%s", Slugify(groupName)), func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
-			return api.GetLocalGroupRecords(groupName, start, -1, direction)
-=======
-		err = api.BuildPages(-1, fmt.Sprintf("%s", groupName), fmt.Sprintf("affiliation/%s", Slugify(groupName)), func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
-			return api.GetLocalGroupRecords(groupName, start, count, Descending)
->>>>>>> 36596c7f6c3c283132d4dcbe1fbc3da0e23cc77b
-=======
 		// Build recently for each affiliation
 		err = api.BuildPages(-1, fmt.Sprintf("%s", groupName), path.Join("affiliation", fmt.Sprintf("%s", Slugify(groupName)), "recent", "publications"), func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
 			return api.GetLocalGroupPublications(groupName, start, count, Descending)
@@ -1626,7 +1071,6 @@ func (api *EPrintsAPI) BuildSite(feedSize int, buildEPrintMirror bool) error {
 		// Build complete list of articles for each affiliation
 		err = api.BuildPages(-1, fmt.Sprintf("%s", groupName), path.Join("affiliation", fmt.Sprintf("%s", Slugify(groupName)), "articles"), func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
 			return api.GetLocalGroupArticles(groupName, 0, -1, Descending)
->>>>>>> cda6473fc5a2f7f66e04669f3544a953c2eaa373
 		})
 		if err != nil {
 			return err
@@ -1634,5 +1078,3 @@ func (api *EPrintsAPI) BuildSite(feedSize int, buildEPrintMirror bool) error {
 	}
 	return nil
 }
-=======
->>>>>>> abcc7ee6eafe8b458dd68cbe6866dbcd01041fdd

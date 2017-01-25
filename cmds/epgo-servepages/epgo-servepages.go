@@ -3,7 +3,7 @@
 //
 // @author R. S. Doiel, <rsdoiel@caltech.edu>
 //
-// Copyright (c) 2016, Caltech
+// Copyright (c) 2017, Caltech
 // All rights not granted herein are expressly reserved by Caltech.
 //
 // Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -70,7 +70,7 @@ var (
 	license = `
 %s %s
 
-Copyright (c) 2016, Caltech
+Copyright (c) 2017, Caltech
 All rights not granted herein are expressly reserved by Caltech.
 
 Redistribution and use in source and binary forms, with or without
@@ -105,7 +105,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	enableSearch bool
 
 	htdocs       string
-	dbName       string
+	datatsetName string
 	bleveNames   string // NOTE: this is a colon delimited string of index names
 	templatePath string
 	apiURL       string
@@ -573,7 +573,9 @@ func switchIndex() error {
 			}
 		}
 		log.Printf("Opening index %q", nextName)
-		indexNext, err := bleve.Open(nextName)
+		indexNext, err := bleve.OpenUsing(nextName, map[string]interface{}{
+			"read_only": true,
+		})
 		if err != nil {
 			fmt.Printf("Can't open Bleve index %q, %s, aborting swap", nextName, err)
 		} else {
@@ -717,7 +719,9 @@ func main() {
 		for i := 0; i < len(indexList) && availableIndex == false; i++ {
 			indexName := indexList[i]
 			log.Printf("Opening %q", indexName)
-			index, err = bleve.Open(indexName)
+			index, err = bleve.OpenUsing(indexName, map[string]interface{}{
+				"read_only": true,
+			})
 			if err != nil {
 				log.Printf("Can't open Bleve index %q, %s, trying next index", indexName, err)
 			} else {
