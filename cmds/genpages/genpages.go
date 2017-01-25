@@ -47,7 +47,7 @@ var (
     %s can be configured through setting the following environment
 	variables-
 
-    EPGO_DBNAME    this is the BoltDB filename.
+    EPGO_DATASET    this is the dataset and collection directory (e.g. dataset/eprints)
 
     EPGO_TEMPLATE_PATH  this is the directory that contains the templates
                    used used to generate the static content of the website.

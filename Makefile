@@ -89,7 +89,7 @@ clean:
 	if [ "$(EPGO_REPOSITORY_PATH)" != "" ] && [ -d htdocs/$(EPGO_REPOSITORY_PATH) ]; then /bin/rm -fR htdocs/$(EPGO_REPOSITORY_PATH); fi
 	if [ -d bin ]; then /bin/rm -fR bin; fi
 	if [ -d dist ]; then /bin/rm -fR dist; fi
-	if [ -f $(PROJECT_NAME)-$(VERSION)-release.zip ]; then /bin/rm $(PROJECT_NAME)-$(VERSION)-release.zip; fi
+	if [ -f $(PROJECT)-$(VERSION)-release.zip ]; then /bin/rm $(PROJECT)-$(VERSION)-release.zip; fi
 
 release:
 	./mk-release.bash

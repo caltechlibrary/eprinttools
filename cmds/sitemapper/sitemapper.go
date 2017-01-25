@@ -94,7 +94,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 	// App specific options
 	apiURL       string
-	dbName       string
+	datatsetName string
 	bleveName    string
 	htdocs       string
 	templatePath string
@@ -186,7 +186,7 @@ func main() {
 
 	// Optional
 	apiURL = cfg.MergeEnv("api_url", apiURL)
-	dbName = cfg.MergeEnv("dbname", dbName)
+	datatsetName = cfg.MergeEnv("dataset", datatsetName)
 	bleveName = cfg.MergeEnv("bleve", bleveName)
 	templatePath = cfg.MergeEnv("template_path", templatePath)
 

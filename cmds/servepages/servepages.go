@@ -105,7 +105,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	enableSearch bool
 
 	htdocs       string
-	dbName       string
+	datatsetName string
 	bleveNames   string // NOTE: this is a colon delimited string of index names
 	templatePath string
 	apiURL       string

@@ -105,7 +105,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	replaceIndex   bool
 	htdocs         string
 	bleveNames     string
-	dbName         string
+	datatsetName   string
 	apiURL         string
 	siteURL        string
 	templatePath   string
@@ -416,7 +416,7 @@ func main() {
 	}
 
 	// Required fields
-	dbName = check(cfg, "dbname", cfg.MergeEnv("dbname", dbName))
+	datatsetName = check(cfg, "dataset", cfg.MergeEnv("dataset", datatsetName))
 	names := check(cfg, "bleve", cfg.MergeEnv("bleve", bleveNames))
 	htdocs = check(cfg, "htdocs", cfg.MergeEnv("htdocs", htdocs))
 	siteURL = check(cfg, "site_url", cfg.MergeEnv("site_url", siteURL))

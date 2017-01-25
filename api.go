@@ -635,13 +635,14 @@ func (api *EPrintsAPI) GetLocalGroups(start, count, direction int) ([]string, er
 	defer c.Close()
 
 	groupNames := []string{}
-	sl, err := c.Select("localGroups")
+	sl, err := c.Select("localGroup")
 	if err != nil {
 		return nil, err
 	}
 
 	for i, val := range sl.Keys {
 		if i >= start {
+			val := (strings.Split(val, indexDelimiter)[0])
 			groupNames = append(groupNames, val)
 			if count <= 0 {
 				return groupNames, nil
@@ -659,7 +660,7 @@ func (api *EPrintsAPI) GetLocalGroupPublications(groupName string, start, count,
 	failCheck(err, fmt.Sprintf("GetLocalGroupPublications() %s, %s", api.Dataset, err))
 	defer c.Close()
 
-	sl, err := c.Select("localGroups")
+	sl, err := c.Select("localGroup")
 	if err != nil {
 		return nil, err
 	}
@@ -678,7 +679,7 @@ func (api *EPrintsAPI) GetLocalGroupArticles(groupName string, start, count, dir
 	failCheck(err, fmt.Sprintf("GetLocalGroupArticles() %s, %s", api.Dataset, err))
 	defer c.Close()
 
-	sl, err := c.Select("localGroups")
+	sl, err := c.Select("localGroup")
 	if err != nil {
 		return nil, err
 	}
@@ -705,6 +706,7 @@ func (api *EPrintsAPI) GetORCIDs(start, count, direction int) ([]string, error) 
 	ids := []string{}
 	for i, id := range sl.Keys {
 		if i >= start {
+			id := (strings.Split(id, indexDelimiter))[0]
 			ids = append(ids, id)
 			if count == 0 {
 				return ids, nil
