@@ -522,14 +522,10 @@ func (api *EPrintsAPI) GetAllRecordIDs(direction int) ([]string, error) {
 	return sl.List(), err
 }
 
-func getRecordList(c *dataset.Collection, sl *dataset.SelectList, start int, count int, filterFn func(*Record) bool) ([]*Record, error) {
+func getRecordList(c *dataset.Collection, ePrintIDs []string, start int, count int, filterFn func(*Record) bool) ([]*Record, error) {
 	results := []*Record{}
 	i := 0
-	for _, id := range sl.List() {
-		if strings.Contains(id, indexDelimiter) {
-			tmp := strings.Split(id, indexDelimiter)
-			id = tmp[len(tmp)-1]
-		}
+	for _, id := range ePrintIDs {
 		rec := new(Record)
 		if err := c.Read(id, &rec); err != nil {
 			return results, err
@@ -548,6 +544,23 @@ func getRecordList(c *dataset.Collection, sl *dataset.SelectList, start int, cou
 	return results, nil
 }
 
+// Pick the first element in an array of strings
+func first(s []string) string {
+	if len(s) > 0 {
+		return s[0]
+	}
+	return ""
+}
+
+// Pick the list element in an array of strings
+func last(s []string) string {
+	l := len(s) - 1
+	if l >= 0 {
+		return s[l]
+	}
+	return ""
+}
+
 // GetAllRecords reads and returns all records keys
 // returning an array of keys in  ascending or decending order
 func (api *EPrintsAPI) GetAllRecords(direction int) ([]*Record, error) {
@@ -555,12 +568,18 @@ func (api *EPrintsAPI) GetAllRecords(direction int) ([]*Record, error) {
 	failCheck(err, fmt.Sprintf("GetAllRecords() %s, %s", api.Dataset, err))
 	defer c.Close()
 
-	sl, err := c.Select("keys")
+	sl, err := c.Select("pubDate")
 	if err != nil {
 		return nil, err
 	}
 	sl.Sort(direction)
-	return getRecordList(c, sl, 0, len(sl.Keys)+1, func(rec *Record) bool {
+	ids := []string{}
+	for _, id := range sl.List() {
+		eprintID := last(strings.Split(id, indexDelimiter))
+		ids = append(ids, eprintID)
+	}
+	// Build a select list in descending publication order
+	return getRecordList(c, ids, 0, -1, func(rec *Record) bool {
 		return true
 	})
 }
@@ -577,7 +596,12 @@ func (api *EPrintsAPI) GetPublications(start, count, direction int) ([]*Record, 
 		return nil, err
 	}
 	sl.Sort(direction)
-	return getRecordList(c, sl, start, count, func(rec *Record) bool {
+	ids := []string{}
+	for _, id := range sl.List() {
+		eprintID := last(strings.Split(id, indexDelimiter))
+		ids = append(ids, eprintID)
+	}
+	return getRecordList(c, ids, start, count, func(rec *Record) bool {
 		if rec.IsPublished == "pub" {
 			return true
 		}
@@ -597,7 +621,12 @@ func (api *EPrintsAPI) GetArticles(start, count, direction int) ([]*Record, erro
 		return nil, err
 	}
 	sl.Sort(direction)
-	return getRecordList(c, sl, start, count, func(rec *Record) bool {
+	ids := []string{}
+	for _, id := range sl.List() {
+		eprintID := last(strings.Split(id, indexDelimiter))
+		ids = append(ids, eprintID)
+	}
+	return getRecordList(c, ids, start, count, func(rec *Record) bool {
 		if rec.IsPublished == "pub" && rec.Type == "article" {
 			return true
 		}
@@ -634,23 +663,34 @@ func (api *EPrintsAPI) GetLocalGroups(start, count, direction int) ([]string, er
 	failCheck(err, fmt.Sprintf("GetLocalGroups() %s, %s", api.Dataset, err))
 	defer c.Close()
 
-	groupNames := []string{}
 	sl, err := c.Select("localGroup")
 	if err != nil {
 		return nil, err
 	}
+	sl.Sort(direction)
+	if count == -1 {
+		count = len(sl.Keys) + 1
+	}
 
-	for i, val := range sl.Keys {
+	// Note: Aggregate the local group names
+	groupNames := []string{}
+	lastGroup := ""
+	groupName := ""
+	for i, id := range sl.List() {
 		if i >= start {
-			val := (strings.Split(val, indexDelimiter)[0])
-			groupNames = append(groupNames, val)
-			if count <= 0 {
-				return groupNames, nil
+			groupName = first(strings.Split(id, indexDelimiter))
+			if strings.Compare(groupName, lastGroup) != 0 {
+				groupNames = append(groupNames, groupName)
+				lastGroup = groupName
+				fmt.Printf("DEBUG building groupNames: %+v\n", groupNames)
+				count--
+				if count < 0 {
+					return groupNames, nil
+				}
 			}
-			count--
-
 		}
 	}
+	fmt.Printf("DEBUG groupNames: %+v\n", groupNames)
 	return groupNames, nil
 }
 
@@ -665,7 +705,21 @@ func (api *EPrintsAPI) GetLocalGroupPublications(groupName string, start, count,
 		return nil, err
 	}
 	sl.Sort(direction)
-	return getRecordList(c, sl, start, count, func(rec *Record) bool {
+	if count == -1 {
+		count = len(sl.Keys) + 1
+	}
+
+	// Note: Filter for groupName, passing matching eprintIDs to getRecordList()
+	ids := []string{}
+	for _, id := range sl.List() {
+		parts := strings.Split(id, indexDelimiter)
+		grp := first(parts)
+		if strings.Compare(grp, groupName) == 0 {
+			eprintID := last(parts)
+			ids = append(ids, eprintID)
+		}
+	}
+	return getRecordList(c, ids, start, count, func(rec *Record) bool {
 		if rec.IsPublished == "pub" {
 			return true
 		}
@@ -684,7 +738,21 @@ func (api *EPrintsAPI) GetLocalGroupArticles(groupName string, start, count, dir
 		return nil, err
 	}
 	sl.Sort(direction)
-	return getRecordList(c, sl, start, count, func(rec *Record) bool {
+	if count == -1 {
+		count = len(sl.Keys) + 1
+	}
+
+	// Note: Filter for groupName, passing matching eprintIDs to getRecordList()
+	ids := []string{}
+	for _, id := range sl.List() {
+		parts := strings.Split(id, indexDelimiter)
+		grp := first(parts)
+		if strings.Compare(grp, groupName) == 0 {
+			eprintID := last(parts)
+			ids = append(ids, eprintID)
+		}
+	}
+	return getRecordList(c, ids, start, count, func(rec *Record) bool {
 		if rec.IsPublished == "pub" && rec.Type == "article" {
 			return true
 		}
@@ -703,17 +771,28 @@ func (api *EPrintsAPI) GetORCIDs(start, count, direction int) ([]string, error) 
 		return nil, err
 	}
 	sl.Sort(direction)
+	if count == -1 {
+		count = len(sl.Keys) + 1
+	}
+
+	// Note: Filter for orcid, passing matching eprintIDs to getRecordList()
 	ids := []string{}
-	for i, id := range sl.Keys {
+	lastORCID := ""
+	for i, id := range sl.List() {
 		if i >= start {
-			id := (strings.Split(id, indexDelimiter))[0]
-			ids = append(ids, id)
-			if count == 0 {
-				return ids, nil
+			id := first(strings.Split(id, indexDelimiter))
+			if strings.Compare(id, lastORCID) != 0 {
+				ids = append(ids, id)
+				fmt.Printf("DEBUG building orcid id list: %+v\n", ids)
+				lastORCID = id
+				count--
+				if count <= 0 {
+					return ids, nil
+				}
 			}
-			count--
 		}
 	}
+	fmt.Printf("DEBUG orcid id list: %+v\n", ids)
 	return ids, nil
 }
 
@@ -723,12 +802,26 @@ func (api *EPrintsAPI) GetORCIDPublications(orcid string, start, count, directio
 	failCheck(err, fmt.Sprintf("GetORCIDPublications() %s, %s", api.Dataset, err))
 	defer c.Close()
 
-	sl, err := c.Select("orcids")
+	sl, err := c.Select("orcid")
 	if err != nil {
 		return nil, err
 	}
 	sl.Sort(direction)
-	return getRecordList(c, sl, start, count, func(rec *Record) bool {
+	if count == -1 {
+		count = len(sl.Keys) + 1
+	}
+
+	// Note: Filter for orcid, passing matching eprintIDs to getRecordList()
+	ids := []string{}
+	for _, id := range sl.List() {
+		parts := strings.Split(id, indexDelimiter)
+		orcidID := first(parts)
+		if strings.Compare(orcidID, orcid) == 0 {
+			eprintID := last(parts)
+			ids = append(ids, eprintID)
+		}
+	}
+	return getRecordList(c, ids, start, count, func(rec *Record) bool {
 		if rec.IsPublished == "pub" {
 			return true
 		}
@@ -742,12 +835,26 @@ func (api *EPrintsAPI) GetORCIDArticles(orcid string, start, count, direction in
 	failCheck(err, fmt.Sprintf("GetORCIDArticles() %s, %s", api.Dataset, err))
 	defer c.Close()
 
-	sl, err := c.Select("orcids")
+	sl, err := c.Select("orcid")
 	if err != nil {
 		return nil, err
 	}
 	sl.Sort(direction)
-	return getRecordList(c, sl, start, count, func(rec *Record) bool {
+	if count == -1 {
+		count = len(sl.Keys) + 1
+	}
+
+	// Note: Filter for orcid, passing matching eprintIDs to getRecordList()
+	ids := []string{}
+	for _, id := range sl.List() {
+		parts := strings.Split(id, indexDelimiter)
+		orcidID := first(parts)
+		if strings.Compare(orcidID, orcid) == 0 {
+			eprintID := last(parts)
+			ids = append(ids, eprintID)
+		}
+	}
+	return getRecordList(c, ids, start, count, func(rec *Record) bool {
 		if rec.IsPublished == "pub" && rec.Type == "article" {
 			return true
 		}
@@ -850,7 +957,7 @@ func (api *EPrintsAPI) RenderDocuments(docTitle, docDescription, docpath string,
 	if err != nil {
 		return fmt.Errorf("Can't write %s, %s", fname, err)
 	}
-	log.Printf("Writing %s", fname)
+	//log.Printf("Writing %s", fname)
 	if err := pageIncludeTmpl.Execute(out, pageData); err != nil {
 		return fmt.Errorf("Can't render %s, %s", fname, err)
 	}
@@ -869,7 +976,7 @@ func (api *EPrintsAPI) RenderDocuments(docTitle, docDescription, docpath string,
 		return fmt.Errorf("Can't write %s, %s", fname, err)
 	}
 
-	log.Printf("Writing %s", fname)
+	//log.Printf("Writing %s", fname)
 	if err := pageHTMLTmpl.Execute(out, pageData); err != nil {
 		return fmt.Errorf("Can't render %s, %s", fname, err)
 	}
