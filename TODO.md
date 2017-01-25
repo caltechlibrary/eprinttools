@@ -1,6 +1,7 @@
 
 # Action items
 
++ Debug Person and Group feeds with dataset integration
 + Add feeds for Grant Numbers and Funders
 + Add ORCID API harvest for person biographies and profiles, populating the person landing page with this content
 
