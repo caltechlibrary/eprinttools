@@ -1,5 +1,5 @@
 //
-// sitemapper generates a sitemap.xml file by crawling the content generate with genpages
+// epgo-sitemapper generates a sitemap.xml file by crawling the content generate with genpages
 //
 // @author R. S. Doiel, <rsdoiel@caltech.edu>
 //
