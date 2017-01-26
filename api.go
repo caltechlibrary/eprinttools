@@ -1254,3 +1254,205 @@ func (api *EPrintsAPI) BuildSite(feedSize int, buildEPrintMirror bool) error {
 
 	return nil
 }
+
+// GetFunders returns a JSON list of unique Group names in index
+func (api *EPrintsAPI) GetFunders(start, count, direction int) ([]string, error) {
+	c, err := dataset.Open(api.Dataset)
+	failCheck(err, fmt.Sprintf("GetFunders() %s, %s", api.Dataset, err))
+	defer c.Close()
+
+	sl, err := c.Select("funder")
+	if err != nil {
+		return nil, err
+	}
+	sl.Sort(direction)
+	if count == -1 {
+		count = len(sl.Keys) + 1
+	}
+
+	// Note: Aggregate the local group names
+	funderNames := []string{}
+	lastFunder := ""
+	funderName := ""
+	for i, id := range sl.List() {
+		if i >= start {
+			funderName = first(strings.Split(id, indexDelimiter))
+			if strings.Compare(funderName, lastFunder) != 0 {
+				funderNames = append(funderNames, funderName)
+				lastFunder = funderName
+				count--
+				if count < 0 {
+					return funderNames, nil
+				}
+			}
+		}
+	}
+	return funderNames, nil
+}
+
+// GetFunderPublications returns a list of EPrint records with funderName
+func (api *EPrintsAPI) GetFunderPublications(funderName string, start, count, direction int) ([]*Record, error) {
+	c, err := dataset.Open(api.Dataset)
+	failCheck(err, fmt.Sprintf("GetFunderPublications() %s, %s", api.Dataset, err))
+	defer c.Close()
+
+	sl, err := c.Select("funder")
+	if err != nil {
+		return nil, err
+	}
+	sl.Sort(direction)
+	if count == -1 {
+		count = len(sl.Keys) + 1
+	}
+
+	// Note: Filter for funderName, passing matching eprintIDs to getRecordList()
+	ids := []string{}
+	for _, id := range sl.List() {
+		parts := strings.Split(id, indexDelimiter)
+		grp := first(parts)
+		if strings.Compare(grp, funderName) == 0 {
+			eprintID := last(parts)
+			ids = append(ids, eprintID)
+		}
+	}
+	return getRecordList(c, ids, start, count, func(rec *Record) bool {
+		if rec.IsPublished == "pub" {
+			return true
+		}
+		return false
+	})
+}
+
+// GetFunderArticles returns a list of EPrint records with funderName
+func (api *EPrintsAPI) GetFunderArticles(funderName string, start, count, direction int) ([]*Record, error) {
+	c, err := dataset.Open(api.Dataset)
+	failCheck(err, fmt.Sprintf("GetFunderArticles() %s, %s", api.Dataset, err))
+	defer c.Close()
+
+	sl, err := c.Select("funder")
+	if err != nil {
+		return nil, err
+	}
+	sl.Sort(direction)
+	if count == -1 {
+		count = len(sl.Keys) + 1
+	}
+
+	// Note: Filter for funderName, passing matching eprintIDs to getRecordList()
+	ids := []string{}
+	for _, id := range sl.List() {
+		parts := strings.Split(id, indexDelimiter)
+		grp := first(parts)
+		if strings.Compare(grp, funderName) == 0 {
+			eprintID := last(parts)
+			ids = append(ids, eprintID)
+		}
+	}
+	return getRecordList(c, ids, start, count, func(rec *Record) bool {
+		if rec.IsPublished == "pub" && rec.Type == "article" {
+			return true
+		}
+		return false
+	})
+}
+
+// GetGrantNumbers returns a JSON list of unique Group names in index
+func (api *EPrintsAPI) GetGrantNumbers(start, count, direction int) ([]string, error) {
+	c, err := dataset.Open(api.Dataset)
+	failCheck(err, fmt.Sprintf("GetGrantNumbers() %s, %s", api.Dataset, err))
+	defer c.Close()
+
+	sl, err := c.Select("grantNumber")
+	if err != nil {
+		return nil, err
+	}
+	sl.Sort(direction)
+	if count == -1 {
+		count = len(sl.Keys) + 1
+	}
+
+	// Note: Aggregate the local group names
+	grandNumberNames := []string{}
+	lastGrantNumber := ""
+	grandNumberName := ""
+	for i, id := range sl.List() {
+		if i >= start {
+			grandNumberName = first(strings.Split(id, indexDelimiter))
+			if strings.Compare(grandNumberName, lastGrantNumber) != 0 {
+				grandNumberNames = append(grandNumberNames, grandNumberName)
+				lastGrantNumber = grandNumberName
+				count--
+				if count < 0 {
+					return grandNumberNames, nil
+				}
+			}
+		}
+	}
+	return grandNumberNames, nil
+}
+
+// GetGrantNumberPublications returns a list of EPrint records with grandNumberName
+func (api *EPrintsAPI) GetGrantNumberPublications(grandNumberName string, start, count, direction int) ([]*Record, error) {
+	c, err := dataset.Open(api.Dataset)
+	failCheck(err, fmt.Sprintf("GetGrantNumberPublications() %s, %s", api.Dataset, err))
+	defer c.Close()
+
+	sl, err := c.Select("grantNumber")
+	if err != nil {
+		return nil, err
+	}
+	sl.Sort(direction)
+	if count == -1 {
+		count = len(sl.Keys) + 1
+	}
+
+	// Note: Filter for grandNumberName, passing matching eprintIDs to getRecordList()
+	ids := []string{}
+	for _, id := range sl.List() {
+		parts := strings.Split(id, indexDelimiter)
+		grp := first(parts)
+		if strings.Compare(grp, grandNumberName) == 0 {
+			eprintID := last(parts)
+			ids = append(ids, eprintID)
+		}
+	}
+	return getRecordList(c, ids, start, count, func(rec *Record) bool {
+		if rec.IsPublished == "pub" {
+			return true
+		}
+		return false
+	})
+}
+
+// GetGrantNumberArticles returns a list of EPrint records with grandNumberName
+func (api *EPrintsAPI) GetGrantNumberArticles(grandNumberName string, start, count, direction int) ([]*Record, error) {
+	c, err := dataset.Open(api.Dataset)
+	failCheck(err, fmt.Sprintf("GetGrantNumberArticles() %s, %s", api.Dataset, err))
+	defer c.Close()
+
+	sl, err := c.Select("grantNumber")
+	if err != nil {
+		return nil, err
+	}
+	sl.Sort(direction)
+	if count == -1 {
+		count = len(sl.Keys) + 1
+	}
+
+	// Note: Filter for grandNumberName, passing matching eprintIDs to getRecordList()
+	ids := []string{}
+	for _, id := range sl.List() {
+		parts := strings.Split(id, indexDelimiter)
+		grp := first(parts)
+		if strings.Compare(grp, grandNumberName) == 0 {
+			eprintID := last(parts)
+			ids = append(ids, eprintID)
+		}
+	}
+	return getRecordList(c, ids, start, count, func(rec *Record) bool {
+		if rec.IsPublished == "pub" && rec.Type == "article" {
+			return true
+		}
+		return false
+	})
+}
