@@ -86,6 +86,8 @@ clean:
 	if [ -d htdocs/affiliation ]; then /bin/rm -fR htdocs/affiliation; fi
 	if [ -d htdocs/recent ]; then /bin/rm -fR htdocs/recent; fi
 	if [ -d htdocs/repository ]; then /bin/rm -fR htdocs/repository; fi
+	if [ -d htdocs/funder ]; then /bin/rm -fR htdocs/funder; fi
+	if [ -d htdocs/grantNumber ]; then /bin/rm -fR htdocs/grantNumber; fi
 	if [ "$(EPGO_REPOSITORY_PATH)" != "" ] && [ -d htdocs/$(EPGO_REPOSITORY_PATH) ]; then /bin/rm -fR htdocs/$(EPGO_REPOSITORY_PATH); fi
 	if [ -d bin ]; then /bin/rm -fR bin; fi
 	if [ -d dist ]; then /bin/rm -fR dist; fi
