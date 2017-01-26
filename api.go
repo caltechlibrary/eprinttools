@@ -53,6 +53,8 @@ var (
 		"localGroup",
 		"orcid",
 		"isni",
+		"funder",
+		"grantNumber",
 		"author",
 	}
 
@@ -871,7 +873,6 @@ func (api *EPrintsAPI) RenderEPrint(basepath string, record *Record) error {
 	}
 	fname := path.Join(basepath, fmt.Sprintf("%d.json", record.ID))
 	return ioutil.WriteFile(fname, src, 0664)
-	// FIXME: look at adding other presententations, e.g. HTML, HTML include, BibTeX
 }
 
 // RenderDocuments writes JSON, HTML, include and rss to the directory indicated by docpath
@@ -931,7 +932,7 @@ func (api *EPrintsAPI) RenderDocuments(docTitle, docDescription, docpath string,
 	}
 	out.Close()
 
-	// FIXME: Write out BibTeX file.
+	// Write out BibTeX file.
 	bibDoc := []string{}
 	for _, rec := range records {
 		bibDoc = append(bibDoc, rec.ToBibTeXElement().String())
@@ -1070,8 +1071,8 @@ func (api *EPrintsAPI) BuildSite(feedSize int, buildEPrintMirror bool) error {
 		feedSize = DefaultFeedSize
 	}
 
-	//FIXME: This could be replaced by copying all the records in dataset/COLLECTION
-	//that are public and published.
+	// FIXME: This could be replaced by copying all the records in dataset/COLLECTION
+	// that are public and published.
 	if buildEPrintMirror == true {
 		// Build mirror of repository content.
 		log.Printf("Mirroring eprint records")
@@ -1174,5 +1175,82 @@ func (api *EPrintsAPI) BuildSite(feedSize int, buildEPrintMirror bool) error {
 			return err
 		}
 	}
+
+	// Collect EPrints by Funders
+	log.Printf("Building Funders")
+	funderNames, err := api.GetFunders(0, -1, Ascending)
+	if err != nil {
+		return err
+	}
+	log.Printf("Found %s funders", len(funderNames))
+	for _, funderName := range funderNames {
+		// Build recently for each funder
+		err = api.BuildPages(-1, fmt.Sprintf("%s", funderName), path.Join("funder", fmt.Sprintf("%s", Slugify(funderName)), "recent", "publications"), func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
+			return api.GetFunderPublications(funderName, start, count, Descending)
+		})
+		if err != nil {
+			return err
+		}
+		// Build complete list for each funder
+		err = api.BuildPages(-1, fmt.Sprintf("%s", funderName), path.Join("funder", fmt.Sprintf("%s", Slugify(funderName)), "publications"), func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
+			return api.GetFunderPublications(funderName, 0, -1, Descending)
+		})
+		if err != nil {
+			return err
+		}
+		// Build recent articles for each funder
+		err = api.BuildPages(-1, fmt.Sprintf("%s", funderName), path.Join("funder", fmt.Sprintf("%s", Slugify(funderName)), "recent", "articles"), func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
+			return api.GetFunderArticles(funderName, start, count, Descending)
+		})
+		if err != nil {
+			return err
+		}
+		// Build complete list of articles for each funder
+		err = api.BuildPages(-1, fmt.Sprintf("%s", funderName), path.Join("funder", fmt.Sprintf("%s", Slugify(funderName)), "articles"), func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
+			return api.GetFunderArticles(funderName, 0, -1, Descending)
+		})
+		if err != nil {
+			return err
+		}
+	}
+
+	// Collect EPrints by Grant Number
+	log.Printf("Building GrantNumbers")
+	grantNumberNames, err := api.GetGrantNumbers(0, -1, Ascending)
+	if err != nil {
+		return err
+	}
+	log.Printf("Found %s grantNumbers", len(grantNumberNames))
+	for _, grantNumberName := range grantNumberNames {
+		// Build recently for each grantNumber
+		err = api.BuildPages(-1, fmt.Sprintf("%s", grantNumberName), path.Join("grantNumber", fmt.Sprintf("%s", Slugify(grantNumberName)), "recent", "publications"), func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
+			return api.GetGrantNumberPublications(grantNumberName, start, count, Descending)
+		})
+		if err != nil {
+			return err
+		}
+		// Build complete list for each grantNumber
+		err = api.BuildPages(-1, fmt.Sprintf("%s", grantNumberName), path.Join("grantNumber", fmt.Sprintf("%s", Slugify(grantNumberName)), "publications"), func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
+			return api.GetGrantNumberPublications(grantNumberName, 0, -1, Descending)
+		})
+		if err != nil {
+			return err
+		}
+		// Build recent articles for each grantNumber
+		err = api.BuildPages(-1, fmt.Sprintf("%s", grantNumberName), path.Join("grantNumber", fmt.Sprintf("%s", Slugify(grantNumberName)), "recent", "articles"), func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
+			return api.GetGrantNumberArticles(grantNumberName, start, count, Descending)
+		})
+		if err != nil {
+			return err
+		}
+		// Build complete list of articles for each grantNumber
+		err = api.BuildPages(-1, fmt.Sprintf("%s", grantNumberName), path.Join("grantNumber", fmt.Sprintf("%s", Slugify(grantNumberName)), "articles"), func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
+			return api.GetGrantNumberArticles(grantNumberName, 0, -1, Descending)
+		})
+		if err != nil {
+			return err
+		}
+	}
+
 	return nil
 }

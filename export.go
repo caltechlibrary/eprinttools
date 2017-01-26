@@ -69,37 +69,52 @@ func (api *EPrintsAPI) ExportEPrints(count int) error {
 			if err != nil {
 				errs = append(errs, err)
 			} else {
+				// We've exported a record successfully, now update select lists
 				j++
-			}
 
-			// Update pubDates select list
-			dt := normalizeDate(rec.Date)
-			if rec.DateType == "published" && rec.Date != "" {
-				sLists["pubDate"].Push(fmt.Sprintf("%s%s%d", dt, indexDelimiter, rec.ID))
-			}
-			// Update localGroups select list
-			if len(rec.LocalGroup) > 0 {
-				for _, grp := range rec.LocalGroup {
-					grp = strings.TrimSpace(grp)
-					if len(grp) > 0 {
-						sLists["localGroup"].Push(fmt.Sprintf("%s%s%s%s%d", grp, indexDelimiter, dt, indexDelimiter, rec.ID))
+				// Update pubDates select list
+				dt := normalizeDate(rec.Date)
+				if rec.DateType == "published" && rec.Date != "" {
+					sLists["pubDate"].Push(fmt.Sprintf("%s%s%d", dt, indexDelimiter, rec.ID))
+				}
+				// Update localGroups select list
+				if len(rec.LocalGroup) > 0 {
+					for _, grp := range rec.LocalGroup {
+						grp = strings.TrimSpace(grp)
+						if len(grp) > 0 {
+							sLists["localGroup"].Push(fmt.Sprintf("%s%s%s%s%d", grp, indexDelimiter, dt, indexDelimiter, rec.ID))
+						}
 					}
 				}
-			}
-			// Update orcids, isnis and authors select list
-			if len(rec.Creators) > 0 {
-				for _, person := range rec.Creators {
-					orcid := strings.TrimSpace(person.ORCID)
-					isni := strings.TrimSpace(person.ISNI)
-					author := fmt.Sprintf("%s, %s", strings.TrimSpace(person.Family), strings.TrimSpace(person.Given))
-					if len(orcid) > 0 {
-						sLists["orcid"].Push(fmt.Sprintf("%s%s%s%s%d", orcid, indexDelimiter, dt, indexDelimiter, rec.ID))
+				// Update orcids, isnis and authors select list
+				if len(rec.Creators) > 0 {
+					for _, person := range rec.Creators {
+						orcid := strings.TrimSpace(person.ORCID)
+						isni := strings.TrimSpace(person.ISNI)
+						author := fmt.Sprintf("%s, %s", strings.TrimSpace(person.Family), strings.TrimSpace(person.Given))
+						if len(orcid) > 0 {
+							sLists["orcid"].Push(fmt.Sprintf("%s%s%s%s%d", orcid, indexDelimiter, dt, indexDelimiter, rec.ID))
+						}
+						if len(isni) > 0 {
+							sLists["isni"].Push(fmt.Sprintf("%s%s%s%s%d", isni, indexDelimiter, dt, indexDelimiter, rec.ID))
+						}
+						if len(author) > 0 {
+							sLists["author"].Push(fmt.Sprintf("%s%s%s%s%d", author, indexDelimiter, dt, indexDelimiter, rec.ID))
+						}
 					}
-					if len(isni) > 0 {
-						sLists["isni"].Push(fmt.Sprintf("%s%s%s%s%d", isni, indexDelimiter, dt, indexDelimiter, rec.ID))
-					}
-					if len(author) > 0 {
-						sLists["author"].Push(fmt.Sprintf("%s%s%s%s%d", author, indexDelimiter, dt, indexDelimiter, rec.ID))
+				}
+
+				// Add funders and grantNumbers to select lists
+				if len(rec.Funders) > 0 {
+					for _, funder := range rec.Funders {
+						funderName := strings.TrimSpace(funder.Agency)
+						grantNumber := strings.TrimSpace(funder.GrantNumber)
+						if len(funderName) > 0 {
+							sLists["funder"].Push(fmt.Sprintf("%s%s%s%s%d", funderName, indexDelimiter, dt, indexDelimiter, rec.ID))
+						}
+						if len(grantNumber) > 0 {
+							sLists["grantNumber"].Push(fmt.Sprintf("%s%s%s%s%d", grantNumber, indexDelimiter, dt, indexDelimiter, rec.ID))
+						}
 					}
 				}
 			}
@@ -114,5 +129,6 @@ func (api *EPrintsAPI) ExportEPrints(count int) error {
 		}
 	}
 	log.Printf("%d uri processed, %d exported, %d unexported", len(uris), j, k)
+
 	return nil
 }
