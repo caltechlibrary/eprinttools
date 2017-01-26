@@ -41,11 +41,11 @@ bin/epgo-servepages: epgo.go api.go export.go cmds/epgo-servepages/epgo-servepag
 	mkpage "content=htdocs/index.md" templates/default/index.html > htdocs/index.html
 
 install: $(PROJECT_LIST)
-	go install cmds/epgo/epgo.go
-	go install cmds/epgo-genpages/epgo-genpages.go
-	go install cmds/epgo-indexpages/epgo-indexpages.go
-	go install cmds/epgo-sitemapper/epgo-sitemapper.go
-	go install cmds/epgo-servepages/epgo-servepages.go
+	env GOBIN=$(HOME)/bin go install cmds/epgo/epgo.go
+	env GOBIN=$(HOME)/bin go install cmds/epgo-genpages/epgo-genpages.go
+	env GOBIN=$(HOME)/bin go install cmds/epgo-indexpages/epgo-indexpages.go
+	env GOBIN=$(HOME)/bin go install cmds/epgo-sitemapper/epgo-sitemapper.go
+	env GOBIN=$(HOME)/bin go install cmds/epgo-servepages/epgo-servepages.go
 
 website: page.tmpl README.md nav.md INSTALL.md LICENSE css/site.css htdocs/index.md
 	mkpage "content=htdocs/index.md" templates/default/index.html > htdocs/index.html
