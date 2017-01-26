@@ -656,8 +656,8 @@ func firstTerm(s, delimiter string) string {
 
 // Turn a string into a URL friendly path part
 func Slugify(s string) string {
-	if len(s) > 80 {
-		s = s[0:80] + "---"
+	if len(s) > 140 {
+		s = s[0:140] + "---"
 	}
 	return url.QueryEscape(s)
 }
