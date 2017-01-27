@@ -106,6 +106,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	publishedNewest int
 	articlesOldest  int
 	articlesNewest  int
+
+	genSelectLists bool
 )
 
 func init() {
@@ -136,6 +138,8 @@ func init() {
 	flag.IntVar(&publishedNewest, "published-newest", 0, "list the N newest published items")
 	flag.IntVar(&articlesOldest, "articles-oldest", 0, "list the N oldest published articles")
 	flag.IntVar(&articlesNewest, "articles-newest", 0, "list the N newest published articles")
+	flag.BoolVar(&genSelectLists, "s", false, "generate select lists in dataset")
+	flag.BoolVar(&genSelectLists, "select", false, "generate select lists in dataset")
 }
 
 func check(cfg *cli.Config, key, value string) string {
@@ -185,7 +189,16 @@ func main() {
 		if err := api.ExportEPrints(exportEPrints); err != nil {
 			log.Fatal(err)
 		}
+		log.Println("Generating Select lists")
+		api.BuildSelectLists()
 		log.Println("Export completed")
+		os.Exit(0)
+	}
+	if genSelectLists == true {
+		log.Printf("%s %s", appName, epgo.Version)
+		log.Println("Generating Select lists")
+		api.BuildSelectLists()
+		log.Println("Select lists complete")
 		os.Exit(0)
 	}
 
