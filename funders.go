@@ -2,7 +2,6 @@ package epgo
 
 import (
 	"fmt"
-	"log"
 	"strings"
 
 	// CaltechLibrary Packages
