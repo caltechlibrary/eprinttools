@@ -1147,7 +1147,7 @@ func (api *EPrintsAPI) BuildSite(feedSize int, buildEPrintMirror bool) error {
 		// Build recently for each affiliation
 		slug, err := slugify(groupName)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "Skipping %q, %s\n", groupName, err)
+			log.Printf("Skipping %q, %s\n", groupName, err)
 		} else {
 			err = api.BuildPages(-1, fmt.Sprintf("%s", groupName), path.Join("affiliation", slug, "recent", "publications"), func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
 				return api.GetLocalGroupPublications(groupName, start, count, Descending)
@@ -1189,7 +1189,7 @@ func (api *EPrintsAPI) BuildSite(feedSize int, buildEPrintMirror bool) error {
 	for _, funderName := range funderNames {
 		slug, err := slugify(funderName)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "Skipping %q, %s\n", funderName, err)
+			log.Printf("Skipping %q, %s\n", funderName, err)
 		} else {
 			// Build recently for each funder
 			err = api.BuildPages(-1, fmt.Sprintf("%s", funderName), path.Join("funder", slug, "recent", "publications"), func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
@@ -1234,7 +1234,7 @@ func (api *EPrintsAPI) BuildSite(feedSize int, buildEPrintMirror bool) error {
 		grantNumber := second(parts)
 		slug, err := slugify(funderName)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "Skipping %q, %s\n", funderName, err)
+			log.Printf("Skipping %q, %s\n", funderName, err)
 		} else {
 			// Build recently for each funder
 			err = api.BuildPages(-1, funderName, path.Join("funder", slug, "grant", grantNumber, "recent", "publications"), func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {

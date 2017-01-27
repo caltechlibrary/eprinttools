@@ -26,11 +26,15 @@ func (api *EPrintsAPI) GetGrantNumbersByFunder(direction int) ([]string, error) 
 	curKey := ""
 	for _, id := range sl.List() {
 		kys := strings.Split(id, indexDelimiter)
-		curKey = fmt.Sprintf("%s%s%s", first(kys), indexDelimiter, second(kys))
+		funderName := first(kys)
+		grantNo := second(kys)
+		if len(grantNo) > 0 && len(funderName) > 0 {
+			curKey = fmt.Sprintf("%s%s%s", funderName, indexDelimiter, grantNo)
 
-		if strings.Compare(curKey, lastKey) != 0 {
-			lastKey = curKey
-			grantNumbersByFunder = append(grantNumbersByFunder, curKey)
+			if strings.Compare(curKey, lastKey) != 0 {
+				lastKey = curKey
+				grantNumbersByFunder = append(grantNumbersByFunder, curKey)
+			}
 		}
 	}
 	return grantNumbersByFunder, nil
