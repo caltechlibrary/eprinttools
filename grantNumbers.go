@@ -28,6 +28,7 @@ func (api *EPrintsAPI) GetGrantNumbersByFunder(direction int) ([]string, error) 
 		kys := strings.Split(id, indexDelimiter)
 		funderName := first(kys)
 		grantNo := second(kys)
+		//NOTE: Since some ageny funded pubs lack Grant No, skip those (They will be listed under funder)
 		if len(grantNo) > 0 && len(funderName) > 0 {
 			curKey = fmt.Sprintf("%s%s%s", funderName, indexDelimiter, grantNo)
 

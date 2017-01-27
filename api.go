@@ -54,6 +54,7 @@ var (
 		"orcid",
 		"isni",
 		"funder",
+		"grantNumber",
 	}
 
 	// TmplFuncs is the collected functions available in EPGO templates
@@ -1048,7 +1049,10 @@ func (api *EPrintsAPI) BuildSelectLists() error {
 
 				// Update funder select list
 				if len(funderName) > 0 {
-					sLists["funder"].Push(fmt.Sprintf("%s%s%s%s%s%s%d", funderName, indexDelimiter, grantNumber, indexDelimiter, dt, indexDelimiter, rec.ID))
+					sLists["funder"].Push(fmt.Sprintf("%s%s%s%s%d", funderName, indexDelimiter, dt, indexDelimiter, rec.ID))
+				}
+				if len(funderName) > 0 && len(grantNumber) > 0 {
+					sLists["grantNumber"].Push(fmt.Sprintf("%s%s%s%s%s%s%d", funderName, indexDelimiter, grantNumber, indexDelimiter, dt, indexDelimiter, rec.ID))
 				}
 			}
 		}

@@ -189,9 +189,10 @@ func main() {
 		if err := api.ExportEPrints(exportEPrints); err != nil {
 			log.Fatal(err)
 		}
+		log.Println("Export completed")
 		log.Println("Generating Select lists")
 		api.BuildSelectLists()
-		log.Println("Export completed")
+		log.Println("Select lists complete")
 		os.Exit(0)
 	}
 	if genSelectLists == true {
