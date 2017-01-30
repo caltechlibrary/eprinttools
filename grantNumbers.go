@@ -32,7 +32,7 @@ func (api *EPrintsAPI) GetGrantNumbersByFunder(direction int) ([]string, error) 
 		if len(grantNo) > 0 && len(funderName) > 0 {
 			curKey = fmt.Sprintf("%s%s%s", funderName, indexDelimiter, grantNo)
 
-			if strings.Compare(curKey, lastKey) != 0 {
+			if curKey != lastKey {
 				lastKey = curKey
 				grantNumbersByFunder = append(grantNumbersByFunder, curKey)
 			}
@@ -50,7 +50,7 @@ func (api *EPrintsAPI) GetGrantNumberPublications(funderName string, grantNumber
 	// Note: Filter for funderName/Grant Number, passing matching eprintIDs to getRecordList()
 	ids, err := api.GetIDsBySelectList("funder", direction, func(s string) bool {
 		parts := strings.Split(s, indexDelimiter)
-		if strings.Compare(funderName, first(parts)) == 0 && strings.Compare(grantNumber, second(parts)) == 0 {
+		if funderName == first(parts) && grantNumber == second(parts) {
 			return true
 		}
 		return false
@@ -75,7 +75,7 @@ func (api *EPrintsAPI) GetGrantNumberArticles(funderName string, grantNumber str
 	// Note: Filter for funderName/GrantNumber, passing matching eprintIDs to getRecordList()
 	ids, err := api.GetIDsBySelectList("funder", direction, func(s string) bool {
 		parts := strings.Split(s, indexDelimiter)
-		if strings.Compare(funderName, first(parts)) == 0 && strings.Compare(grantNumber, second(parts)) == 0 {
+		if funderName == first(parts) && grantNumber == second(parts) {
 			return true
 		}
 		return false
