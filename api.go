@@ -204,16 +204,19 @@ type ePrintIDs struct {
 }
 
 func normalizeDate(in string) string {
+	var (
+		x   int
+		err error
+	)
 	parts := strings.Split(in, "-")
 	if len(parts) == 1 {
-		parts = append(parts, "01")
 		parts = append(parts, "01")
 	}
 	if len(parts) == 2 {
 		parts = append(parts, "01")
 	}
 	for i := 0; i < len(parts); i++ {
-		x, err := strconv.Atoi(parts[i])
+		x, err = strconv.Atoi(parts[i])
 		if err != nil {
 			x = 1
 		}
@@ -526,6 +529,25 @@ func (api *EPrintsAPI) Get(uri string) (*Record, error) {
 	return record, nil
 }
 
+// customLessFn provides a Less() for sorts non pubDate keys by reverse direction of sort
+func customLessFn(s []string, i, j int) bool {
+	if strings.Contains(s[i], indexDelimiter) == true {
+		k1, k2 := strings.Split(s[i], indexDelimiter), strings.Split(s[j], indexDelimiter)
+		if len(k1) == 2 {
+			if k1[0] <= k2[0] && k1[1] > k2[1] {
+				return true
+			}
+		} else {
+			pdPos := len(k1) - 2
+			if k1[0] <= k2[0] && k1[pdPos] > k2[pdPos] {
+				return true
+			}
+		}
+		return false
+	}
+	return (s[i] < s[j])
+}
+
 // GetIDsBySelectList returns a list of ePrint IDs from a select list filterd by filterFn
 func (api *EPrintsAPI) GetIDsBySelectList(slName string, direction int, filterFn func(s string) bool) ([]string, error) {
 	c, err := dataset.Open(api.Dataset)
@@ -537,6 +559,12 @@ func (api *EPrintsAPI) GetIDsBySelectList(slName string, direction int, filterFn
 		return nil, err
 	}
 	sl.Sort(direction)
+	if slName != "keys" {
+		// Sort the list by "direction" but pubDate element in composite by the reverse
+		sl.CustomLessFn = customLessFn
+	}
+	sl.Sort(direction)
+	sl.CustomLessFn = nil
 	ids := []string{}
 	for _, id := range sl.List() {
 		if filterFn(id) == true {
@@ -640,7 +668,10 @@ func (api *EPrintsAPI) GetLocalGroups(direction int) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
+	// We need to sort Groupname in "direction" and PubDate in the reverse
+	sl.CustomLessFn = customLessFn
 	sl.Sort(direction)
+	sl.CustomLessFn = nil
 
 	// Note: Aggregate the local group names
 	groupNames := []string{}
@@ -718,7 +749,10 @@ func (api *EPrintsAPI) GetORCIDs(direction int) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
+	// Sort ORCIDs in "direction" and pubdates in the reverse
+	sl.CustomLessFn = customLessFn
 	sl.Sort(direction)
+	sl.CustomLessFn = nil
 
 	// Note: Filter for orcid, passing matching eprintIDs to getRecordList()
 	orcids := []string{}

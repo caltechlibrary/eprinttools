@@ -8,17 +8,19 @@ import (
 	"github.com/caltechlibrary/dataset"
 )
 
-// GetGrantNumbersByFunder returns a JSON list of unique Group names in index
+// GetGrantNumbersByFunder returns a JSON list of unique Funder/Grant names in index
 func (api *EPrintsAPI) GetGrantNumbersByFunder(direction int) ([]string, error) {
 	c, err := dataset.Open(api.Dataset)
 	failCheck(err, fmt.Sprintf("GetGrantNumbers() %s, %s", api.Dataset, err))
 	defer c.Close()
 
-	sl, err := c.Select("funder")
+	sl, err := c.Select("grantNumber")
 	if err != nil {
 		return nil, err
 	}
+	sl.CustomLessFn = customLessFn
 	sl.Sort(direction)
+	sl.CustomLessFn = nil
 
 	// Note: Aggregate the local group names
 	grantNumbersByFunder := []string{}
@@ -48,7 +50,7 @@ func (api *EPrintsAPI) GetGrantNumberPublications(funderName string, grantNumber
 	defer c.Close()
 
 	// Note: Filter for funderName/Grant Number, passing matching eprintIDs to getRecordList()
-	ids, err := api.GetIDsBySelectList("funder", direction, func(s string) bool {
+	ids, err := api.GetIDsBySelectList("grantNumber", direction, func(s string) bool {
 		parts := strings.Split(s, indexDelimiter)
 		if funderName == first(parts) && grantNumber == second(parts) {
 			return true
@@ -73,7 +75,7 @@ func (api *EPrintsAPI) GetGrantNumberArticles(funderName string, grantNumber str
 	defer c.Close()
 
 	// Note: Filter for funderName/GrantNumber, passing matching eprintIDs to getRecordList()
-	ids, err := api.GetIDsBySelectList("funder", direction, func(s string) bool {
+	ids, err := api.GetIDsBySelectList("grantNumber", direction, func(s string) bool {
 		parts := strings.Split(s, indexDelimiter)
 		if funderName == first(parts) && grantNumber == second(parts) {
 			return true
