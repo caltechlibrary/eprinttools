@@ -26,7 +26,7 @@ func (api *EPrintsAPI) GetFunders(direction int) ([]string, error) {
 	funderName := ""
 	for _, id := range sl.List() {
 		funderName = first(strings.Split(id, indexDelimiter))
-		if strings.Compare(funderName, lastFunder) != 0 {
+		if funderName != lastFunder {
 			funderNames = append(funderNames, funderName)
 			lastFunder = funderName
 		}
@@ -54,7 +54,7 @@ func (api *EPrintsAPI) GetFunderPublications(funderName string, start, count, di
 	for _, id := range sl.List() {
 		parts := strings.Split(id, indexDelimiter)
 		grp := first(parts)
-		if strings.Compare(grp, funderName) == 0 {
+		if grp == funderName {
 			eprintID := last(parts)
 			ids = append(ids, eprintID)
 		}
@@ -87,7 +87,7 @@ func (api *EPrintsAPI) GetFunderArticles(funderName string, start, count, direct
 	for _, id := range sl.List() {
 		parts := strings.Split(id, indexDelimiter)
 		grp := first(parts)
-		if strings.Compare(grp, funderName) == 0 {
+		if grp == funderName {
 			eprintID := last(parts)
 			ids = append(ids, eprintID)
 		}

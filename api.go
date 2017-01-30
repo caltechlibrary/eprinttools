@@ -493,7 +493,7 @@ func (funders FunderList) ToGrantNumbers() []string {
 }
 
 func (record *Record) PubDate() string {
-	if strings.Compare(record.DateType, "published") == 0 {
+	if record.DateType == "published" {
 		return record.Date
 	}
 	return ""
@@ -648,7 +648,7 @@ func (api *EPrintsAPI) GetLocalGroups(direction int) ([]string, error) {
 	groupName := ""
 	for _, id := range sl.List() {
 		groupName = first(strings.Split(id, indexDelimiter))
-		if strings.Compare(groupName, lastGroup) != 0 {
+		if groupName != lastGroup {
 			groupNames = append(groupNames, groupName)
 			lastGroup = groupName
 		}
@@ -666,7 +666,7 @@ func (api *EPrintsAPI) GetLocalGroupPublications(groupName string, start, count,
 	ids, err := api.GetIDsBySelectList("localGroup", direction, func(s string) bool {
 		parts := strings.Split(s, indexDelimiter)
 		grp := first(parts)
-		if strings.Compare(groupName, grp) == 0 {
+		if groupName == grp {
 			return true
 		}
 		return false
@@ -692,7 +692,7 @@ func (api *EPrintsAPI) GetLocalGroupArticles(groupName string, start, count, dir
 	ids, err := api.GetIDsBySelectList("localGroup", direction, func(s string) bool {
 		parts := strings.Split(s, indexDelimiter)
 		grp := first(parts)
-		if strings.Compare(groupName, grp) == 0 {
+		if groupName == grp {
 			return true
 		}
 		return false
@@ -725,7 +725,7 @@ func (api *EPrintsAPI) GetORCIDs(direction int) ([]string, error) {
 	lastORCID := ""
 	for _, id := range sl.List() {
 		orcid := first(strings.Split(id, indexDelimiter))
-		if strings.Compare(orcid, lastORCID) != 0 {
+		if orcid != lastORCID {
 			lastORCID = orcid
 			orcids = append(orcids, orcid)
 		}
@@ -742,7 +742,7 @@ func (api *EPrintsAPI) GetORCIDPublications(orcid string, start, count, directio
 	// Note: Filter for orcid, passing matching eprintIDs to getRecordList()
 	ids, err := api.GetIDsBySelectList("orcid", direction, func(s string) bool {
 		key := first(strings.Split(s, indexDelimiter))
-		if strings.Compare(orcid, key) == 0 {
+		if orcid == key {
 			return true
 		}
 		return false
@@ -767,7 +767,7 @@ func (api *EPrintsAPI) GetORCIDArticles(orcid string, start, count, direction in
 	// Note: Filter for orcid, passing matching eprintIDs to getRecordList()
 	ids, err := api.GetIDsBySelectList("orcid", direction, func(s string) bool {
 		key := first(strings.Split(s, indexDelimiter))
-		if strings.Compare(orcid, key) == 0 {
+		if orcid == key {
 			return true
 		}
 		return false
