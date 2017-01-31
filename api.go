@@ -498,6 +498,9 @@ func (api *EPrintsAPI) ListURI(start, count int) ([]string, error) {
 
 	ids := c.Keys()
 	results := []string{}
+	if count <= 0 {
+		count = len(ids) + 1
+	}
 	for i := start; count > 0; count-- {
 		results = append(results, ids[i])
 	}
@@ -519,22 +522,34 @@ func (api *EPrintsAPI) Get(uri string) (*Record, error) {
 
 // customLessFn provides a Less() for ascending sorts non pubDate keys and descending sort for pubDate keys
 func customLessFn(s []string, i, j int) bool {
-	if strings.Contains(s[i], indexDelimiter) == true {
-		k1, k2 := strings.Split(s[i], indexDelimiter), strings.Split(s[j], indexDelimiter)
-		switch len(k1) {
-		case 3:
-			if k1[0] <= k2[0] && k1[1] > k2[1] {
-				return true
-			}
-			return false
-		case 4:
-			if k1[0] <= k2[0] && k1[1] <= k2[1] && k1[2] > k2[2] {
-				return true
-			}
-			return false
-		}
+	a, b := strings.Split(s[i], indexDelimiter), strings.Split(s[j], indexDelimiter)
+	switch {
+	// Four part keys
+	case len(a) == 4 && a[0] == b[0] && a[1] == b[1] && a[2] == b[2] && a[3] < a[3]:
+		return true
+	case len(a) == 4 && a[0] == b[0] && a[1] == b[1] && a[2] > b[2]:
+		return true
+	case len(a) == 4 && a[0] == b[0] && a[1] < b[1]:
+		return true
+	case len(a) == 4 && a[0] < b[0]:
+		return true
+	// Three part keys
+	case len(a) == 3 && a[0] == b[0] && a[1] == b[1] && a[2] < b[2]:
+		return true
+	case len(a) == 3 && a[0] == b[0] && a[1] > b[1]:
+		return true
+	case len(a) == 3 && a[0] < b[0]:
+		return true
+	// Two part keys
+	case len(a) == 2 && a[0] == b[0] && a[1] < b[1]:
+		return true
+	case len(a) == 2 && a[0] > b[0]:
+		return true
+	// Single Keys
+	case len(a) == 1 && a[0] < b[0]:
+		return true
 	}
-	return (s[i] < s[j])
+	return false
 }
 
 // GetIDsBySelectList returns a list of ePrint IDs from a select list filterd by filterFn
@@ -561,6 +576,9 @@ func (api *EPrintsAPI) GetIDsBySelectList(slName string, filterFn func(s string)
 func getRecordList(c *dataset.Collection, ePrintIDs []string, start int, count int, filterFn func(*Record) bool) ([]*Record, error) {
 	results := []*Record{}
 	i := 0
+	if count <= 0 {
+		count = len(ePrintIDs) + 1
+	}
 	for _, id := range ePrintIDs {
 		rec := new(Record)
 		if err := c.Read(id, &rec); err != nil {
@@ -654,14 +672,15 @@ func (api *EPrintsAPI) GetLocalGroups() ([]string, error) {
 	// Note: Aggregate the local group names
 	groupNames := []string{}
 	lastGroup := ""
-	groupName := ""
+	groupName := []string{}
 	for _, id := range sl.List() {
-		groupName = first(strings.Split(id, indexDelimiter))
-		if groupName != lastGroup {
-			groupNames = append(groupNames, groupName)
-			lastGroup = groupName
+		groupName = strings.Split(id, indexDelimiter)
+		if groupName[0] != lastGroup {
+			groupNames = append(groupNames, groupName[0])
+			lastGroup = groupName[0]
 		}
 	}
+	fmt.Printf("DEBUG groupNames ->\n%s\n", strings.Join(groupNames, "\n"))
 	return groupNames, nil
 }
 
@@ -937,60 +956,6 @@ func (api *EPrintsAPI) BuildPages(feedSize int, title, target string, filter fun
 	return nil
 }
 
-func (api *EPrintsAPI) BuildEPrintMirror() error {
-	// checkPath checks  and creates a path if needed
-	checkPath := func(p string) error {
-		_, err := os.Stat(p)
-		if os.IsExist(err) == true {
-			return nil
-		}
-		return os.MkdirAll(p, 0775)
-	}
-
-	ids, err := api.GetIDsBySelectList("keys", func(s string) bool {
-		return true
-	})
-	if err != nil {
-		return err
-	}
-
-	//FIXME: this should really copy the data/collection with a filter for "published" items
-
-	// Setup subdirs to hold all the individual eprint records.
-	keys := []string{}
-	subdir := []string{"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"}
-	q := len(subdir)
-	// Make subdirs as needed
-	for _, p := range subdir {
-		checkPath(path.Join(api.Htdocs, api.RepositoryPath, p))
-	}
-	total := len(ids)
-	i := 0
-	for _, uri := range ids {
-		record, err := api.Get(uri)
-		if err != nil {
-			return err
-		}
-		basepath := path.Join(api.Htdocs, api.RepositoryPath, subdir[i%q])
-		err = api.RenderEPrint(basepath, record)
-		if err != nil {
-			return err
-		}
-		//NOTE: We only save the path relative to the web docroot.
-		keys = append(keys, path.Join(api.RepositoryPath, subdir[i%q], fmt.Sprintf("%d.json", record.ID)))
-		if (i % 1000) == 0 {
-			log.Printf("%d of %d records written", i, total)
-		}
-		i++
-	}
-	log.Printf("%d of %d records written", i, total)
-	src, err := json.Marshal(keys)
-	if err != nil {
-		return err
-	}
-	return ioutil.WriteFile(path.Join(api.Htdocs, api.RepositoryPath, "eprints.json"), src, 0664)
-}
-
 // BuildSelectLists iterates over the exported data and creates fresh selectLists
 func (api *EPrintsAPI) BuildSelectLists() error {
 	c, err := dataset.Create(api.Dataset, dataset.GenerateBucketNames(dataset.DefaultAlphabet, 2))
@@ -1006,6 +971,7 @@ func (api *EPrintsAPI) BuildSelectLists() error {
 		if err != nil {
 			return err
 		}
+		sLists[name].CustomLessFn = nil
 	}
 
 	// Now iterate over the records and populate fresh select lists
@@ -1063,38 +1029,10 @@ func (api *EPrintsAPI) BuildSelectLists() error {
 		}
 	}
 	log.Printf("Sorting %d lists", len(sLists))
-	for name, s := range sLists {
+	for name, _ := range sLists {
 		log.Printf("Sorting %s\n", name)
-		switch name {
-		case "keys":
-			s.CustomLessFn = func(s []string, i, j int) bool {
-				v1, _ := strconv.Atoi(s[i])
-				v2, _ := strconv.Atoi(s[j])
-				if v1 < v2 {
-					return true
-				}
-				return false
-			}
-			s.Sort(dataset.ASC)
-			s.CustomLessFn = nil
-		case "pubDate":
-			s.Sort(dataset.DESC)
-		case "orcid":
-			s.CustomLessFn = func(s []string, i, j int) bool {
-				k1, k2 := strings.Split(s[i], indexDelimiter), strings.Split(s[j], indexDelimiter)
-				if k1[0] <= k2[0] && k1[1] > k2[1] {
-					return true
-				}
-				return false
-			}
-			s.Sort(dataset.ASC)
-			s.CustomLessFn = nil
-		default:
-			// Assume an ascending sort with special pubDate handling
-			s.CustomLessFn = customLessFn
-			s.Sort(dataset.ASC)
-			s.CustomLessFn = nil
-		}
+		sLists[name].CustomLessFn = customLessFn
+		sLists[name].Sort(dataset.ASC)
 	}
 	return nil
 }
@@ -1111,14 +1049,16 @@ func (api *EPrintsAPI) BuildSite(feedSize int, buildEPrintMirror bool) error {
 
 	// FIXME: This could be replaced by copying all the records in dataset/COLLECTION
 	// that are public and published.
-	if buildEPrintMirror == true {
-		// Build mirror of repository content.
-		log.Printf("Mirroring eprint records")
-		err = api.BuildEPrintMirror()
-		if err != nil {
-			return nil
+	/*
+		if buildEPrintMirror == true {
+			// Build mirror of repository content.
+			log.Printf("Mirroring eprint records")
+			err = api.BuildEPrintMirror()
+			if err != nil {
+				return nil
+			}
 		}
-	}
+	*/
 
 	// Collect the recent publications (all types)
 	log.Printf("Building Recently Published")
