@@ -524,21 +524,16 @@ func customLessFn(s []string, i, j int) bool {
 		switch len(k1) {
 		case 3:
 			if k1[0] <= k2[0] && k1[1] > k2[1] {
-				fmt.Printf("DEBUG customLessFn %q < %q --> %t\n", s[i], s[j], true)
 				return true
 			}
-			fmt.Printf("DEBUG customLessFn %q < %q --> %t\n", s[i], s[j], false)
 			return false
 		case 4:
 			if k1[0] <= k2[0] && k1[1] <= k2[1] && k1[2] > k2[2] {
-				fmt.Printf("DEBUG customLessFn %q < %q --> %t\n", s[i], s[j], true)
 				return true
 			}
-			fmt.Printf("DEBUG customLessFn %q < %q --> %t\n", s[i], s[j], false)
 			return false
 		}
 	}
-	fmt.Printf("DEBUG customLessFn %q < %q --> %t\n", s[i], s[j], (s[i] < s[j]))
 	return (s[i] < s[j])
 }
 
@@ -1075,7 +1070,6 @@ func (api *EPrintsAPI) BuildSelectLists() error {
 			s.CustomLessFn = func(s []string, i, j int) bool {
 				v1, _ := strconv.Atoi(s[i])
 				v2, _ := strconv.Atoi(s[j])
-				fmt.Printf("DEBUG v1: %d < v2 %d --> %t\n", v1, v2, (v1 < v2))
 				if v1 < v2 {
 					return true
 				}
