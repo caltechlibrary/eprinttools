@@ -9,7 +9,7 @@ import (
 )
 
 // GetFunders returns a JSON list of unique Group names in index
-func (api *EPrintsAPI) GetFunders(direction int) ([]string, error) {
+func (api *EPrintsAPI) GetFunders() ([]string, error) {
 	c, err := dataset.Open(api.Dataset)
 	failCheck(err, fmt.Sprintf("GetFunders() %s, %s", api.Dataset, err))
 	defer c.Close()
@@ -18,8 +18,6 @@ func (api *EPrintsAPI) GetFunders(direction int) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	sl.Sort(direction)
-
 	// Note: Aggregate the local group names
 	funderNames := []string{}
 	lastFunder := ""
@@ -35,7 +33,7 @@ func (api *EPrintsAPI) GetFunders(direction int) ([]string, error) {
 }
 
 // GetFunderPublications returns a list of EPrint records with funderName
-func (api *EPrintsAPI) GetFunderPublications(funderName string, start, count, direction int) ([]*Record, error) {
+func (api *EPrintsAPI) GetFunderPublications(funderName string, start, count int) ([]*Record, error) {
 	c, err := dataset.Open(api.Dataset)
 	failCheck(err, fmt.Sprintf("GetFunderPublications() %s, %s", api.Dataset, err))
 	defer c.Close()
@@ -44,7 +42,6 @@ func (api *EPrintsAPI) GetFunderPublications(funderName string, start, count, di
 	if err != nil {
 		return nil, err
 	}
-	sl.Sort(direction)
 	if count == -1 {
 		count = len(sl.Keys) + 1
 	}
@@ -68,7 +65,7 @@ func (api *EPrintsAPI) GetFunderPublications(funderName string, start, count, di
 }
 
 // GetFunderArticles returns a list of EPrint records with funderName
-func (api *EPrintsAPI) GetFunderArticles(funderName string, start, count, direction int) ([]*Record, error) {
+func (api *EPrintsAPI) GetFunderArticles(funderName string, start, count int) ([]*Record, error) {
 	c, err := dataset.Open(api.Dataset)
 	failCheck(err, fmt.Sprintf("GetFunderArticles() %s, %s", api.Dataset, err))
 	defer c.Close()
@@ -77,7 +74,6 @@ func (api *EPrintsAPI) GetFunderArticles(funderName string, start, count, direct
 	if err != nil {
 		return nil, err
 	}
-	sl.Sort(direction)
 	if count == -1 {
 		count = len(sl.Keys) + 1
 	}

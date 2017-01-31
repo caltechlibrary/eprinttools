@@ -9,7 +9,7 @@ import (
 )
 
 // GetGrantNumbersByFunder returns a JSON list of unique Funder/Grant names in index
-func (api *EPrintsAPI) GetGrantNumbersByFunder(direction int) ([]string, error) {
+func (api *EPrintsAPI) GetGrantNumbersByFunder() ([]string, error) {
 	c, err := dataset.Open(api.Dataset)
 	failCheck(err, fmt.Sprintf("GetGrantNumbers() %s, %s", api.Dataset, err))
 	defer c.Close()
@@ -18,9 +18,6 @@ func (api *EPrintsAPI) GetGrantNumbersByFunder(direction int) ([]string, error) 
 	if err != nil {
 		return nil, err
 	}
-	sl.CustomLessFn = customLessFn
-	sl.Sort(direction)
-	sl.CustomLessFn = nil
 
 	// Note: Aggregate the local group names
 	grantNumbersByFunder := []string{}
@@ -44,13 +41,13 @@ func (api *EPrintsAPI) GetGrantNumbersByFunder(direction int) ([]string, error) 
 }
 
 // GetGrantNumberPublications returns a list of EPrint records with funderName
-func (api *EPrintsAPI) GetGrantNumberPublications(funderName string, grantNumber string, start, count, direction int) ([]*Record, error) {
+func (api *EPrintsAPI) GetGrantNumberPublications(funderName string, grantNumber string, start, count int) ([]*Record, error) {
 	c, err := dataset.Open(api.Dataset)
 	failCheck(err, fmt.Sprintf("GetGrantNumberPublications() %s, %s", api.Dataset, err))
 	defer c.Close()
 
 	// Note: Filter for funderName/Grant Number, passing matching eprintIDs to getRecordList()
-	ids, err := api.GetIDsBySelectList("grantNumber", direction, func(s string) bool {
+	ids, err := api.GetIDsBySelectList("grantNumber", func(s string) bool {
 		parts := strings.Split(s, indexDelimiter)
 		if funderName == first(parts) && grantNumber == second(parts) {
 			return true
@@ -69,13 +66,13 @@ func (api *EPrintsAPI) GetGrantNumberPublications(funderName string, grantNumber
 }
 
 // GetGrantNumberArticles returns a list of EPrint records with funderName
-func (api *EPrintsAPI) GetGrantNumberArticles(funderName string, grantNumber string, start, count, direction int) ([]*Record, error) {
+func (api *EPrintsAPI) GetGrantNumberArticles(funderName string, grantNumber string, start, count int) ([]*Record, error) {
 	c, err := dataset.Open(api.Dataset)
 	failCheck(err, fmt.Sprintf("GetGrantNumberArticles() %s, %s", api.Dataset, err))
 	defer c.Close()
 
 	// Note: Filter for funderName/GrantNumber, passing matching eprintIDs to getRecordList()
-	ids, err := api.GetIDsBySelectList("grantNumber", direction, func(s string) bool {
+	ids, err := api.GetIDsBySelectList("grantNumber", func(s string) bool {
 		parts := strings.Split(s, indexDelimiter)
 		if funderName == first(parts) && grantNumber == second(parts) {
 			return true

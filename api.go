@@ -49,10 +49,10 @@ var (
 	indexDelimiter = "|"
 	// expected select lists used by epgo
 	slNames = []string{
+		"keys",
 		"pubDate",
 		"localGroup",
 		"orcid",
-		"isni",
 		"funder",
 		"grantNumber",
 	}
@@ -86,7 +86,6 @@ type Person struct {
 	Family  string   `xml:"name>family" json:"family"`
 	ID      string   `xml:"id,omitempty" json:"id"`
 	ORCID   string   `xml:"orcid,omitempty" json:"orcid"`
-	ISNI    string   `xml:"isni,omitempty" json:"isni"`
 }
 
 // PersonList is an array of pointers to Person structs
@@ -462,17 +461,6 @@ func (persons PersonList) ToORCIDs() []string {
 	return result
 }
 
-// ToISNIs takes an array of pointers to Person and returns a list of ISNI ids
-func (persons PersonList) ToISNIs() []string {
-	var result []string
-
-	for _, person := range persons {
-		result = append(result, person.ISNI)
-	}
-
-	return result
-}
-
 // ToAgencies takes an array of pointers to Funders and returns a list of Agency names
 func (funders FunderList) ToAgencies() []string {
 	var result []string
@@ -529,27 +517,34 @@ func (api *EPrintsAPI) Get(uri string) (*Record, error) {
 	return record, nil
 }
 
-// customLessFn provides a Less() for sorts non pubDate keys by reverse direction of sort
+// customLessFn provides a Less() for ascending sorts non pubDate keys and descending sort for pubDate keys
 func customLessFn(s []string, i, j int) bool {
 	if strings.Contains(s[i], indexDelimiter) == true {
 		k1, k2 := strings.Split(s[i], indexDelimiter), strings.Split(s[j], indexDelimiter)
-		if len(k1) == 2 {
+		switch len(k1) {
+		case 3:
 			if k1[0] <= k2[0] && k1[1] > k2[1] {
+				fmt.Printf("DEBUG customLessFn %q < %q --> %t\n", s[i], s[j], true)
 				return true
 			}
-		} else {
-			pdPos := len(k1) - 2
-			if k1[0] <= k2[0] && k1[pdPos] > k2[pdPos] {
+			fmt.Printf("DEBUG customLessFn %q < %q --> %t\n", s[i], s[j], false)
+			return false
+		case 4:
+			if k1[0] <= k2[0] && k1[1] <= k2[1] && k1[2] > k2[2] {
+				fmt.Printf("DEBUG customLessFn %q < %q --> %t\n", s[i], s[j], true)
 				return true
 			}
+			fmt.Printf("DEBUG customLessFn %q < %q --> %t\n", s[i], s[j], false)
+			return false
 		}
-		return false
 	}
+	fmt.Printf("DEBUG customLessFn %q < %q --> %t\n", s[i], s[j], (s[i] < s[j]))
 	return (s[i] < s[j])
 }
 
 // GetIDsBySelectList returns a list of ePrint IDs from a select list filterd by filterFn
-func (api *EPrintsAPI) GetIDsBySelectList(slName string, direction int, filterFn func(s string) bool) ([]string, error) {
+// SelectLists are sorted by creation...
+func (api *EPrintsAPI) GetIDsBySelectList(slName string, filterFn func(s string) bool) ([]string, error) {
 	c, err := dataset.Open(api.Dataset)
 	failCheck(err, fmt.Sprintf("GetIDs() %s, %s", api.Dataset, err))
 	defer c.Close()
@@ -558,13 +553,6 @@ func (api *EPrintsAPI) GetIDsBySelectList(slName string, direction int, filterFn
 	if err != nil {
 		return nil, err
 	}
-	sl.Sort(direction)
-	if slName != "keys" {
-		// Sort the list by "direction" but pubDate element in composite by the reverse
-		sl.CustomLessFn = customLessFn
-	}
-	sl.Sort(direction)
-	sl.CustomLessFn = nil
 	ids := []string{}
 	for _, id := range sl.List() {
 		if filterFn(id) == true {
@@ -599,12 +587,12 @@ func getRecordList(c *dataset.Collection, ePrintIDs []string, start int, count i
 
 // GetAllRecords reads and returns all records sorted by Publication Date
 // returning an array of keys in  ascending or decending order
-func (api *EPrintsAPI) GetAllRecords(direction int) ([]*Record, error) {
+func (api *EPrintsAPI) GetAllRecords() ([]*Record, error) {
 	c, err := dataset.Open(api.Dataset)
 	failCheck(err, fmt.Sprintf("GetAllRecords() %s, %s", api.Dataset, err))
 	defer c.Close()
 
-	ids, err := api.GetIDsBySelectList("pubDate", direction, func(s string) bool {
+	ids, err := api.GetIDsBySelectList("pubDate", func(s string) bool {
 		return true
 	})
 	if err != nil {
@@ -618,12 +606,12 @@ func (api *EPrintsAPI) GetAllRecords(direction int) ([]*Record, error) {
 
 // GetPublications reads the index for published content and returns a populated
 // array of records found in index in ascending or decending order
-func (api *EPrintsAPI) GetPublications(start, count, direction int) ([]*Record, error) {
+func (api *EPrintsAPI) GetPublications(start, count int) ([]*Record, error) {
 	c, err := dataset.Open(api.Dataset)
 	failCheck(err, fmt.Sprintf("GetPublications() %s, %s", api.Dataset, err))
 	defer c.Close()
 
-	ids, err := api.GetIDsBySelectList("pubDate", direction, func(s string) bool {
+	ids, err := api.GetIDsBySelectList("pubDate", func(s string) bool {
 		return true
 	})
 	if err != nil {
@@ -639,12 +627,12 @@ func (api *EPrintsAPI) GetPublications(start, count, direction int) ([]*Record, 
 
 // GetArticles reads the index for published content and returns a populated
 // array of records found in index in decending order
-func (api *EPrintsAPI) GetArticles(start, count, direction int) ([]*Record, error) {
+func (api *EPrintsAPI) GetArticles(start, count int) ([]*Record, error) {
 	c, err := dataset.Open(api.Dataset)
 	failCheck(err, fmt.Sprintf("GetArticles() %s, %s", api.Dataset, err))
 	defer c.Close()
 
-	ids, err := api.GetIDsBySelectList("pubDate", direction, func(s string) bool {
+	ids, err := api.GetIDsBySelectList("pubDate", func(s string) bool {
 		return true
 	})
 	if err != nil {
@@ -659,7 +647,7 @@ func (api *EPrintsAPI) GetArticles(start, count, direction int) ([]*Record, erro
 }
 
 // GetLocalGroups returns a JSON list of unique Group names in index
-func (api *EPrintsAPI) GetLocalGroups(direction int) ([]string, error) {
+func (api *EPrintsAPI) GetLocalGroups() ([]string, error) {
 	c, err := dataset.Open(api.Dataset)
 	failCheck(err, fmt.Sprintf("GetLocalGroups() %s, %s", api.Dataset, err))
 	defer c.Close()
@@ -668,11 +656,6 @@ func (api *EPrintsAPI) GetLocalGroups(direction int) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	// We need to sort Groupname in "direction" and PubDate in the reverse
-	sl.CustomLessFn = customLessFn
-	sl.Sort(direction)
-	sl.CustomLessFn = nil
-
 	// Note: Aggregate the local group names
 	groupNames := []string{}
 	lastGroup := ""
@@ -688,13 +671,13 @@ func (api *EPrintsAPI) GetLocalGroups(direction int) ([]string, error) {
 }
 
 // GetLocalGroupPublications returns a list of EPrint records with groupName
-func (api *EPrintsAPI) GetLocalGroupPublications(groupName string, start, count, direction int) ([]*Record, error) {
+func (api *EPrintsAPI) GetLocalGroupPublications(groupName string, start, count int) ([]*Record, error) {
 	c, err := dataset.Open(api.Dataset)
 	failCheck(err, fmt.Sprintf("GetLocalGroupPublications() %s, %s", api.Dataset, err))
 	defer c.Close()
 
 	// Note: Filter for groupName, passing matching eprintIDs to getRecordList()
-	ids, err := api.GetIDsBySelectList("localGroup", direction, func(s string) bool {
+	ids, err := api.GetIDsBySelectList("localGroup", func(s string) bool {
 		parts := strings.Split(s, indexDelimiter)
 		grp := first(parts)
 		if groupName == grp {
@@ -714,13 +697,13 @@ func (api *EPrintsAPI) GetLocalGroupPublications(groupName string, start, count,
 }
 
 // GetLocalGroupArticles returns a list of EPrint records with groupName
-func (api *EPrintsAPI) GetLocalGroupArticles(groupName string, start, count, direction int) ([]*Record, error) {
+func (api *EPrintsAPI) GetLocalGroupArticles(groupName string, start, count int) ([]*Record, error) {
 	c, err := dataset.Open(api.Dataset)
 	failCheck(err, fmt.Sprintf("GetLocalGroupArticles() %s, %s", api.Dataset, err))
 	defer c.Close()
 
 	// Note: Filter for groupName, passing matching eprintIDs to getRecordList()
-	ids, err := api.GetIDsBySelectList("localGroup", direction, func(s string) bool {
+	ids, err := api.GetIDsBySelectList("localGroup", func(s string) bool {
 		parts := strings.Split(s, indexDelimiter)
 		grp := first(parts)
 		if groupName == grp {
@@ -739,8 +722,8 @@ func (api *EPrintsAPI) GetLocalGroupArticles(groupName string, start, count, dir
 	})
 }
 
-// GetORCIDs (or ISNI) returns a list unique of ORCID/ISNI IDs in index
-func (api *EPrintsAPI) GetORCIDs(direction int) ([]string, error) {
+// GetORCIDs returns a list unique of ORCID IDs in index
+func (api *EPrintsAPI) GetORCIDs() ([]string, error) {
 	c, err := dataset.Open(api.Dataset)
 	failCheck(err, fmt.Sprintf("GetORCIDs() %s, %s", api.Dataset, err))
 	defer c.Close()
@@ -749,11 +732,6 @@ func (api *EPrintsAPI) GetORCIDs(direction int) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	// Sort ORCIDs in "direction" and pubdates in the reverse
-	sl.CustomLessFn = customLessFn
-	sl.Sort(direction)
-	sl.CustomLessFn = nil
-
 	// Note: Filter for orcid, passing matching eprintIDs to getRecordList()
 	orcids := []string{}
 	lastORCID := ""
@@ -768,13 +746,13 @@ func (api *EPrintsAPI) GetORCIDs(direction int) ([]string, error) {
 }
 
 // GetORCIDPublications returns a list of EPrint records with a given ORCID
-func (api *EPrintsAPI) GetORCIDPublications(orcid string, start, count, direction int) ([]*Record, error) {
+func (api *EPrintsAPI) GetORCIDPublications(orcid string, start, count int) ([]*Record, error) {
 	c, err := dataset.Open(api.Dataset)
 	failCheck(err, fmt.Sprintf("GetORCIDPublications() %s, %s", api.Dataset, err))
 	defer c.Close()
 
 	// Note: Filter for orcid, passing matching eprintIDs to getRecordList()
-	ids, err := api.GetIDsBySelectList("orcid", direction, func(s string) bool {
+	ids, err := api.GetIDsBySelectList("orcid", func(s string) bool {
 		key := first(strings.Split(s, indexDelimiter))
 		if orcid == key {
 			return true
@@ -793,13 +771,13 @@ func (api *EPrintsAPI) GetORCIDPublications(orcid string, start, count, directio
 }
 
 // GetORCIDArticles returns a list of EPrint records with a given ORCID
-func (api *EPrintsAPI) GetORCIDArticles(orcid string, start, count, direction int) ([]*Record, error) {
+func (api *EPrintsAPI) GetORCIDArticles(orcid string, start, count int) ([]*Record, error) {
 	c, err := dataset.Open(api.Dataset)
 	failCheck(err, fmt.Sprintf("GetORCIDArticles() %s, %s", api.Dataset, err))
 	defer c.Close()
 
 	// Note: Filter for orcid, passing matching eprintIDs to getRecordList()
-	ids, err := api.GetIDsBySelectList("orcid", direction, func(s string) bool {
+	ids, err := api.GetIDsBySelectList("orcid", func(s string) bool {
 		key := first(strings.Split(s, indexDelimiter))
 		if orcid == key {
 			return true
@@ -942,14 +920,14 @@ func (api *EPrintsAPI) RenderDocuments(docTitle, docDescription, docpath string,
 // BuildPages generates webpages based on the contents of the exported EPrints data.
 // The site builder needs to know the name of the BoltDB, the root directory
 // for the website and directory to find the templates
-func (api *EPrintsAPI) BuildPages(feedSize int, title, target string, filter func(*EPrintsAPI, int, int, int) ([]*Record, error)) error {
+func (api *EPrintsAPI) BuildPages(feedSize int, title, target string, filter func(*EPrintsAPI, int, int) ([]*Record, error)) error {
 	if feedSize < 1 {
 		feedSize = DefaultFeedSize
 	}
 	// Collect the published records
 	docPath := path.Join(api.Htdocs, target)
 	log.Printf("Building %s", docPath)
-	records, err := filter(api, 0, feedSize, Descending)
+	records, err := filter(api, 0, feedSize)
 	if err != nil {
 		return fmt.Errorf("Can't get records for %q %s, %s", title, docPath, err)
 	}
@@ -974,7 +952,7 @@ func (api *EPrintsAPI) BuildEPrintMirror() error {
 		return os.MkdirAll(p, 0775)
 	}
 
-	ids, err := api.GetIDsBySelectList("keys", Descending, func(s string) bool {
+	ids, err := api.GetIDsBySelectList("keys", func(s string) bool {
 		return true
 	})
 	if err != nil {
@@ -1036,6 +1014,7 @@ func (api *EPrintsAPI) BuildSelectLists() error {
 	}
 
 	// Now iterate over the records and populate fresh select lists
+	log.Println("Building select lists")
 	for i, ky := range c.Keys() {
 		rec := new(Record)
 		err := c.Read(ky, &rec)
@@ -1051,26 +1030,20 @@ func (api *EPrintsAPI) BuildSelectLists() error {
 		// Update localGroup select list
 		if len(rec.LocalGroup) > 0 {
 			for _, grp := range rec.LocalGroup {
-				grp = strings.TrimSpace(grp)
+				grp = strings.TrimSpace(strings.Replace(grp, indexDelimiter, " ", -1))
 				if len(grp) > 0 {
 					sLists["localGroup"].Push(fmt.Sprintf("%s%s%s%s%d", grp, indexDelimiter, dt, indexDelimiter, rec.ID))
 				}
 			}
 		}
-		// Update orcids, isnis and authors select list
+		// Update orcid select list
 		if len(rec.Creators) > 0 {
 			for _, person := range rec.Creators {
 				orcid := strings.TrimSpace(person.ORCID)
-				isni := strings.TrimSpace(person.ISNI)
 
 				// Update orcid select list
 				if len(orcid) > 0 {
 					sLists["orcid"].Push(fmt.Sprintf("%s%s%s%s%d", orcid, indexDelimiter, dt, indexDelimiter, rec.ID))
-				}
-
-				// Update isni select list
-				if len(isni) > 0 {
-					sLists["isni"].Push(fmt.Sprintf("%s%s%s%s%d", isni, indexDelimiter, dt, indexDelimiter, rec.ID))
 				}
 			}
 		}
@@ -1078,8 +1051,8 @@ func (api *EPrintsAPI) BuildSelectLists() error {
 		// Add funders and grantNumbers to select lists
 		if len(rec.Funders) > 0 {
 			for _, funder := range rec.Funders {
-				funderName := strings.TrimSpace(funder.Agency)
-				grantNumber := strings.TrimSpace(funder.GrantNumber)
+				funderName := strings.TrimSpace(strings.Replace(funder.Agency, indexDelimiter, " ", -1))
+				grantNumber := strings.TrimSpace(strings.Replace(funder.GrantNumber, indexDelimiter, " ", -1))
 
 				// Update funder select list
 				if len(funderName) > 0 {
@@ -1092,6 +1065,41 @@ func (api *EPrintsAPI) BuildSelectLists() error {
 		}
 		if (i % 1000) == 0 {
 			log.Printf("%d recs processed", i)
+		}
+	}
+	log.Printf("Sorting %d lists", len(sLists))
+	for name, s := range sLists {
+		log.Printf("Sorting %s\n", name)
+		switch name {
+		case "keys":
+			s.CustomLessFn = func(s []string, i, j int) bool {
+				v1, _ := strconv.Atoi(s[i])
+				v2, _ := strconv.Atoi(s[j])
+				fmt.Printf("DEBUG v1: %d < v2 %d --> %t\n", v1, v2, (v1 < v2))
+				if v1 < v2 {
+					return true
+				}
+				return false
+			}
+			s.Sort(dataset.ASC)
+			s.CustomLessFn = nil
+		case "pubDate":
+			s.Sort(dataset.DESC)
+		case "orcid":
+			s.CustomLessFn = func(s []string, i, j int) bool {
+				k1, k2 := strings.Split(s[i], indexDelimiter), strings.Split(s[j], indexDelimiter)
+				if k1[0] <= k2[0] && k1[1] > k2[1] {
+					return true
+				}
+				return false
+			}
+			s.Sort(dataset.ASC)
+			s.CustomLessFn = nil
+		default:
+			// Assume an ascending sort with special pubDate handling
+			s.CustomLessFn = customLessFn
+			s.Sort(dataset.ASC)
+			s.CustomLessFn = nil
 		}
 	}
 	return nil
@@ -1120,8 +1128,8 @@ func (api *EPrintsAPI) BuildSite(feedSize int, buildEPrintMirror bool) error {
 
 	// Collect the recent publications (all types)
 	log.Printf("Building Recently Published")
-	err = api.BuildPages(feedSize, "Recently Published", path.Join("recent", "publications"), func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
-		return api.GetPublications(0, feedSize, Descending)
+	err = api.BuildPages(feedSize, "Recently Published", path.Join("recent", "publications"), func(api *EPrintsAPI, start, count int) ([]*Record, error) {
+		return api.GetPublications(0, feedSize)
 	})
 	if err != nil {
 		return err
@@ -1129,8 +1137,8 @@ func (api *EPrintsAPI) BuildSite(feedSize int, buildEPrintMirror bool) error {
 
 	// Collect the rencently published  articles
 	log.Printf("Building Recent Articles")
-	err = api.BuildPages(feedSize, "Recent Articles", path.Join("recent", "articles"), func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
-		return api.GetArticles(start, count, Descending)
+	err = api.BuildPages(feedSize, "Recent Articles", path.Join("recent", "articles"), func(api *EPrintsAPI, start, count int) ([]*Record, error) {
+		return api.GetArticles(start, count)
 	})
 	if err != nil {
 		return err
@@ -1138,36 +1146,36 @@ func (api *EPrintsAPI) BuildSite(feedSize int, buildEPrintMirror bool) error {
 
 	// Collect EPrints by orcid ID and publish
 	log.Printf("Building Person (orcid) works")
-	orcids, err := api.GetORCIDs(Ascending)
+	orcids, err := api.GetORCIDs()
 	if err != nil {
 		return err
 	}
 	log.Printf("Found %d orcids", len(orcids))
 	for _, orcid := range orcids {
 		// Build a list of recent ORCID Publications
-		err = api.BuildPages(-1, fmt.Sprintf("ORCID: %s", orcid), path.Join("person", fmt.Sprintf("%s", orcid), "recent", "publications"), func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
-			return api.GetORCIDPublications(orcid, start, count, Descending)
+		err = api.BuildPages(-1, fmt.Sprintf("ORCID: %s", orcid), path.Join("person", fmt.Sprintf("%s", orcid), "recent", "publications"), func(api *EPrintsAPI, start, count int) ([]*Record, error) {
+			return api.GetORCIDPublications(orcid, start, count)
 		})
 		if err != nil {
 			return err
 		}
 		// Build complete list for each orcid
-		err = api.BuildPages(-1, fmt.Sprintf("ORCID: %s", orcid), path.Join("person", fmt.Sprintf("%s", orcid), "publications"), func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
-			return api.GetORCIDPublications(orcid, 0, -1, Descending)
+		err = api.BuildPages(-1, fmt.Sprintf("ORCID: %s", orcid), path.Join("person", fmt.Sprintf("%s", orcid), "publications"), func(api *EPrintsAPI, start, count int) ([]*Record, error) {
+			return api.GetORCIDPublications(orcid, 0, -1)
 		})
 		if err != nil {
 			return err
 		}
 		// Build a list of recent ORCID Articles
-		err = api.BuildPages(-1, fmt.Sprintf("ORCID: %s", orcid), path.Join("person", fmt.Sprintf("%s", orcid), "recent", "articles"), func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
-			return api.GetORCIDArticles(orcid, start, count, Descending)
+		err = api.BuildPages(-1, fmt.Sprintf("ORCID: %s", orcid), path.Join("person", fmt.Sprintf("%s", orcid), "recent", "articles"), func(api *EPrintsAPI, start, count int) ([]*Record, error) {
+			return api.GetORCIDArticles(orcid, start, count)
 		})
 		if err != nil {
 			return err
 		}
 		// Build complete list of articels for each ORCID
-		err = api.BuildPages(-1, fmt.Sprintf("ORCID: %s", orcid), path.Join("person", fmt.Sprintf("%s", orcid), "articles"), func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
-			return api.GetORCIDArticles(orcid, 0, -1, Descending)
+		err = api.BuildPages(-1, fmt.Sprintf("ORCID: %s", orcid), path.Join("person", fmt.Sprintf("%s", orcid), "articles"), func(api *EPrintsAPI, start, count int) ([]*Record, error) {
+			return api.GetORCIDArticles(orcid, 0, -1)
 		})
 		if err != nil {
 			return err
@@ -1176,7 +1184,7 @@ func (api *EPrintsAPI) BuildSite(feedSize int, buildEPrintMirror bool) error {
 
 	// Collect EPrints by Group/Affiliation
 	log.Printf("Building Local Groups")
-	groupNames, err := api.GetLocalGroups(Ascending)
+	groupNames, err := api.GetLocalGroups()
 	if err != nil {
 		return err
 	}
@@ -1187,29 +1195,29 @@ func (api *EPrintsAPI) BuildSite(feedSize int, buildEPrintMirror bool) error {
 		if err != nil {
 			log.Printf("Skipping %q, %s\n", groupName, err)
 		} else {
-			err = api.BuildPages(-1, fmt.Sprintf("%s", groupName), path.Join("affiliation", slug, "recent", "publications"), func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
-				return api.GetLocalGroupPublications(groupName, start, count, Descending)
+			err = api.BuildPages(-1, fmt.Sprintf("%s", groupName), path.Join("affiliation", slug, "recent", "publications"), func(api *EPrintsAPI, start, count int) ([]*Record, error) {
+				return api.GetLocalGroupPublications(groupName, start, count)
 			})
 			if err != nil {
 				return err
 			}
 			// Build complete list for each affiliation
-			err = api.BuildPages(-1, fmt.Sprintf("%s", groupName), path.Join("affiliation", slug, "publications"), func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
-				return api.GetLocalGroupPublications(groupName, 0, -1, Descending)
+			err = api.BuildPages(-1, fmt.Sprintf("%s", groupName), path.Join("affiliation", slug, "publications"), func(api *EPrintsAPI, start, count int) ([]*Record, error) {
+				return api.GetLocalGroupPublications(groupName, 0, -1)
 			})
 			if err != nil {
 				return err
 			}
 			// Build recent articles for each affiliation
-			err = api.BuildPages(-1, fmt.Sprintf("%s", groupName), path.Join("affiliation", slug, "recent", "articles"), func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
-				return api.GetLocalGroupArticles(groupName, start, count, Descending)
+			err = api.BuildPages(-1, fmt.Sprintf("%s", groupName), path.Join("affiliation", slug, "recent", "articles"), func(api *EPrintsAPI, start, count int) ([]*Record, error) {
+				return api.GetLocalGroupArticles(groupName, start, count)
 			})
 			if err != nil {
 				return err
 			}
 			// Build complete list of articles for each affiliation
-			err = api.BuildPages(-1, fmt.Sprintf("%s", groupName), path.Join("affiliation", slug, "articles"), func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
-				return api.GetLocalGroupArticles(groupName, 0, -1, Descending)
+			err = api.BuildPages(-1, fmt.Sprintf("%s", groupName), path.Join("affiliation", slug, "articles"), func(api *EPrintsAPI, start, count int) ([]*Record, error) {
+				return api.GetLocalGroupArticles(groupName, 0, -1)
 			})
 			if err != nil {
 				return err
@@ -1219,7 +1227,7 @@ func (api *EPrintsAPI) BuildSite(feedSize int, buildEPrintMirror bool) error {
 
 	// Collect EPrints by Funders
 	log.Printf("Building Funders")
-	funderNames, err := api.GetFunders(Ascending)
+	funderNames, err := api.GetFunders()
 	if err != nil {
 		return err
 	}
@@ -1230,29 +1238,29 @@ func (api *EPrintsAPI) BuildSite(feedSize int, buildEPrintMirror bool) error {
 			log.Printf("Skipping %q, %s\n", funderName, err)
 		} else {
 			// Build recently for each funder
-			err = api.BuildPages(-1, fmt.Sprintf("%s", funderName), path.Join("funder", slug, "recent", "publications"), func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
-				return api.GetFunderPublications(funderName, start, count, Descending)
+			err = api.BuildPages(-1, fmt.Sprintf("%s", funderName), path.Join("funder", slug, "recent", "publications"), func(api *EPrintsAPI, start, count int) ([]*Record, error) {
+				return api.GetFunderPublications(funderName, start, count)
 			})
 			if err != nil {
 				return err
 			}
 			// Build complete list for each funder
-			err = api.BuildPages(-1, fmt.Sprintf("%s", funderName), path.Join("funder", slug, "publications"), func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
-				return api.GetFunderPublications(funderName, 0, -1, Descending)
+			err = api.BuildPages(-1, fmt.Sprintf("%s", funderName), path.Join("funder", slug, "publications"), func(api *EPrintsAPI, start, count int) ([]*Record, error) {
+				return api.GetFunderPublications(funderName, 0, -1)
 			})
 			if err != nil {
 				return err
 			}
 			// Build recent articles for each funder
-			err = api.BuildPages(-1, fmt.Sprintf("%s", funderName), path.Join("funder", slug, "recent", "articles"), func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
-				return api.GetFunderArticles(funderName, start, count, Descending)
+			err = api.BuildPages(-1, fmt.Sprintf("%s", funderName), path.Join("funder", slug, "recent", "articles"), func(api *EPrintsAPI, start, count int) ([]*Record, error) {
+				return api.GetFunderArticles(funderName, start, count)
 			})
 			if err != nil {
 				return err
 			}
 			// Build complete list of articles for each funder
-			err = api.BuildPages(-1, fmt.Sprintf("%s", funderName), path.Join("funder", slug, "articles"), func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
-				return api.GetFunderArticles(funderName, 0, -1, Descending)
+			err = api.BuildPages(-1, fmt.Sprintf("%s", funderName), path.Join("funder", slug, "articles"), func(api *EPrintsAPI, start, count int) ([]*Record, error) {
+				return api.GetFunderArticles(funderName, 0, -1)
 			})
 			if err != nil {
 				return err
@@ -1261,7 +1269,7 @@ func (api *EPrintsAPI) BuildSite(feedSize int, buildEPrintMirror bool) error {
 	}
 
 	// Collect EPrints by Funders/Grant Number
-	funderGrantNames, err := api.GetGrantNumbersByFunder(Ascending)
+	funderGrantNames, err := api.GetGrantNumbersByFunder()
 	if err != nil {
 		return err
 	}
@@ -1275,29 +1283,29 @@ func (api *EPrintsAPI) BuildSite(feedSize int, buildEPrintMirror bool) error {
 			log.Printf("Skipping %q, %s\n", funderName, err)
 		} else {
 			// Build recently for each funder
-			err = api.BuildPages(-1, funderName, path.Join("funder", slug, "grant", grantNumber, "recent", "publications"), func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
-				return api.GetGrantNumberPublications(funderName, grantNumber, start, count, Descending)
+			err = api.BuildPages(-1, funderName, path.Join("funder", slug, "grant", grantNumber, "recent", "publications"), func(api *EPrintsAPI, start, count int) ([]*Record, error) {
+				return api.GetGrantNumberPublications(funderName, grantNumber, start, count)
 			})
 			if err != nil {
 				return err
 			}
 			// Build complete list for each funder
-			err = api.BuildPages(-1, funderName, path.Join("funder", slug, "grant", grantNumber, "publications"), func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
-				return api.GetGrantNumberPublications(funderName, grantNumber, 0, -1, Descending)
+			err = api.BuildPages(-1, funderName, path.Join("funder", slug, "grant", grantNumber, "publications"), func(api *EPrintsAPI, start, count int) ([]*Record, error) {
+				return api.GetGrantNumberPublications(funderName, grantNumber, 0, -1)
 			})
 			if err != nil {
 				return err
 			}
 			// Build recent articles for each funder
-			err = api.BuildPages(-1, funderName, path.Join("funder", slug, "grant", grantNumber, "recent", "articles"), func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
-				return api.GetGrantNumberArticles(funderName, grantNumber, start, count, Descending)
+			err = api.BuildPages(-1, funderName, path.Join("funder", slug, "grant", grantNumber, "recent", "articles"), func(api *EPrintsAPI, start, count int) ([]*Record, error) {
+				return api.GetGrantNumberArticles(funderName, grantNumber, start, count)
 			})
 			if err != nil {
 				return err
 			}
 			// Build complete list of articles for each funder
-			err = api.BuildPages(-1, funderName, path.Join("funder", slug, "grant", grantNumber, "articles"), func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
-				return api.GetGrantNumberArticles(funderName, grantNumber, 0, -1, Descending)
+			err = api.BuildPages(-1, funderName, path.Join("funder", slug, "grant", grantNumber, "articles"), func(api *EPrintsAPI, start, count int) ([]*Record, error) {
+				return api.GetGrantNumberArticles(funderName, grantNumber, 0, -1)
 			})
 			if err != nil {
 				return err
