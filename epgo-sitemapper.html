@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>epgo</title>
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="css/site.css">
+</head>
+<body>
+<header>
+<a href="http://library.caltech.edu" title="link to Caltech Library Homepage"><img src="assets/liblogo.gif" alt="Caltech Library logo"></a>
+</header>
+<nav>
+<ul>
+<li><a href="/">Home</a></li>
+<li><a href="./">README</a></li>
+<li><a href="install.html">INSTALL</a></li>
+<li><a href="license.html">LICENSE</a></li>
+<li><a href="epgo.html">epgo</a></li>
+<li><a href="epgo-genpages.html">epgo-genpages</a></li>
+<li><a href="epgo-indexpages.html">epgo-indexpages</a></li>
+<li><a href="epgo-servepages.html">epgo-servepages</a></li>
+<li><a href="epgo-sitemapper.html">epgo-sitemapper</a></li>
+<li><a href="https://github.com/caltechlibrary/epgo">Github</a></li>
+</ul>
+
+</nav>
+
+<section>
+<h1>USAGE</h1>
+
+<pre><code>epgo-sitemapper [OPTIONS] HTDOCS_PATH MAP_FILENAME PUBLIC_BASE_URL
+</code></pre>
+
+<h2>OVERVIEW</h2>
+
+<p>epgo-sitemapper generates a sitemap for the website.</p>
+
+<h2>OPTIONS</h2>
+
+<pre><code>	-e	A colon delimited list of path parts to exclude from sitemap
+	-exclude	A colon delimited list of path parts to exclude from sitemap
+	-h	display help
+	-help	display help
+	-l	display license
+	-license	display license
+	-u	Set the change frequencely value, e.g. daily, weekly, monthly
+	-update-frequency	Set the change frequencely value, e.g. daily, weekly, monthly
+	-v	display version
+	-version	display version
+</code></pre>
+
+<h2>EXAMPLE</h2>
+
+<pre><code>    epgo-sitemapper htdocs htdocs/sitemap.xml http://eprints.example.edu
+</code></pre>
+
+</section>
+
+<footer>
+<span>&copy; 2017 <a href="http://library.caltech.edu/CLS_Copyright.htm">Caltech Library</a></span>
+<address>1200 E California Blvd, Mail Code 1-32, Pasadena, CA 91125-3200</address>
+<span><a href="mailto:library@caltech.edu">Email Us</a></span> 
+<span>Phone: <a href="tel:+1-626-395-3405">(626)395-3405</a></span>
+</footer>
+</body>
+</html>

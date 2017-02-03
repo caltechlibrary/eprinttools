@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>epgo</title>
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="css/site.css">
+</head>
+<body>
+<header>
+<a href="http://library.caltech.edu" title="link to Caltech Library Homepage"><img src="assets/liblogo.gif" alt="Caltech Library logo"></a>
+</header>
+<nav>
+<ul>
+<li><a href="/">Home</a></li>
+<li><a href="./">README</a></li>
+<li><a href="install.html">INSTALL</a></li>
+<li><a href="license.html">LICENSE</a></li>
+<li><a href="epgo.html">epgo</a></li>
+<li><a href="epgo-genpages.html">epgo-genpages</a></li>
+<li><a href="epgo-indexpages.html">epgo-indexpages</a></li>
+<li><a href="epgo-servepages.html">epgo-servepages</a></li>
+<li><a href="epgo-sitemapper.html">epgo-sitemapper</a></li>
+<li><a href="https://github.com/caltechlibrary/epgo">Github</a></li>
+</ul>
+
+</nav>
+
+<section>
+<h1>USAGE</h1>
+
+<pre><code>epgo-servepages [OPTIONS]
+</code></pre>
+
+<h2>OVERVIEW</h2>
+
+<p>epgo-servepages a webserver for explosing EPrints as HTML pages,  HTML .include pages, JSON and BibTeX formats.</p>
+
+<h2>CONFIGURATION</h2>
+
+<p>epgo-servepages can be configured through setting the following environment
+variables-</p>
+
+<ul>
+<li><p>EPGO_BLEVE     a colon delimited list of Bleve indexes</p></li>
+
+<li><p>EPGO_HTDOCS    this is the directory where the HTML files are written.</p></li>
+
+<li><p>EPGO_SITE_URL  this is the website URL that the public will use</p></li>
+
+<li><p>EPGO_TEMPLATE_PATH this is the directory that contains the templates
+             used used to generate the static content of the website.</p></li>
+</ul>
+
+<h2>OPTIONS</h2>
+
+<pre><code>	-bleve	a colon delimited list of Bleve index db names
+	-enable-search	turn on search support in webserver
+	-h	display help
+	-help	display help
+	-htdocs	specify where to write the HTML files to
+	-l	display license
+	-license	display license
+	-site-url	the website url
+	-template-path	specify where to read the templates from
+	-v	display version
+	-version	display version
+</code></pre>
+
+</section>
+
+<footer>
+<span>&copy; 2017 <a href="http://library.caltech.edu/CLS_Copyright.htm">Caltech Library</a></span>
+<address>1200 E California Blvd, Mail Code 1-32, Pasadena, CA 91125-3200</address>
+<span><a href="mailto:library@caltech.edu">Email Us</a></span> 
+<span>Phone: <a href="tel:+1-626-395-3405">(626)395-3405</a></span>
+</footer>
+</body>
+</html>
