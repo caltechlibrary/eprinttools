@@ -1,8 +1,8 @@
 
 + [Home](/)
 + [README](./)
-+ [INSTALL](install.html)
 + [LICENSE](license.html)
++ [INSTALL](install.html)
 + [epgo](epgo.html)
 + [epgo-genpages](epgo-genpages.html)
 + [epgo-indexpages](epgo-indexpages.html)
