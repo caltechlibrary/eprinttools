@@ -102,10 +102,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 	exportEPrints   int
 	feedSize        int
-	publishedOldest int
 	publishedNewest int
-	articlesOldest  int
 	articlesNewest  int
+
+	genSelectLists bool
 )
 
 func init() {
@@ -114,7 +114,6 @@ func init() {
 
 	// Setup options
 	publishedNewest = 0
-	publishedOldest = 0
 	feedSize = epgo.DefaultFeedSize
 
 	flag.BoolVar(&showHelp, "h", false, "display help")
@@ -132,10 +131,10 @@ func init() {
 	flag.BoolVar(&useAPI, "read-api", false, "read the contents from the API without saving in the database")
 	flag.IntVar(&feedSize, "feed-size", feedSize, "number of items rendering in feeds")
 	flag.IntVar(&exportEPrints, "export", 0, "export N EPrints from highest ID to lowest")
-	flag.IntVar(&publishedOldest, "published-oldest", 0, "list the N oldest published items")
 	flag.IntVar(&publishedNewest, "published-newest", 0, "list the N newest published items")
-	flag.IntVar(&articlesOldest, "articles-oldest", 0, "list the N oldest published articles")
 	flag.IntVar(&articlesNewest, "articles-newest", 0, "list the N newest published articles")
+	flag.BoolVar(&genSelectLists, "s", false, "generate select lists in dataset")
+	flag.BoolVar(&genSelectLists, "select", false, "generate select lists in dataset")
 }
 
 func check(cfg *cli.Config, key, value string) string {
@@ -186,6 +185,16 @@ func main() {
 			log.Fatal(err)
 		}
 		log.Println("Export completed")
+		log.Println("Generating Select lists")
+		api.BuildSelectLists()
+		log.Println("Select lists complete")
+		os.Exit(0)
+	}
+	if genSelectLists == true {
+		log.Printf("%s %s", appName, epgo.Version)
+		log.Println("Generating Select lists")
+		api.BuildSelectLists()
+		log.Println("Select lists complete")
 		os.Exit(0)
 	}
 
@@ -198,13 +207,9 @@ func main() {
 	)
 	switch {
 	case publishedNewest > 0:
-		data, err = api.GetPublications(0, publishedNewest, epgo.Descending)
-	case publishedOldest > 0:
-		data, err = api.GetPublications(0, publishedOldest, epgo.Ascending)
+		data, err = api.GetPublications(0, publishedNewest)
 	case articlesNewest > 0:
-		data, err = api.GetArticles(0, articlesNewest, epgo.Descending)
-	case articlesOldest > 0:
-		data, err = api.GetArticles(0, articlesOldest, epgo.Ascending)
+		data, err = api.GetArticles(0, articlesNewest)
 	case useAPI == true:
 		if len(args) == 1 {
 			data, err = api.GetEPrint(args[0])

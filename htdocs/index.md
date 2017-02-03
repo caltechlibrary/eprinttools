@@ -13,7 +13,8 @@ Each directory under the root is a branch.  The following branches are generated
 	+ /persons/ORCID_OR_ISNI - content of a person (author) in repository
 	+ /person/ORCID_OR_ISNI/recent - content sorted by descending publication date, limited to 25 items
 + [/affiliation/](/affiliation/) - lists affiliation taken from the "local groups" field in EPrints
-+ [/search/](/search/) - Additionally you can use an interactive search (does not currently support output other than HTML pages)
++ [/funder/](/funder/) - a list of publications by funder (e.g. NSF)
+
 
 ## The leafs
 

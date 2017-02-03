@@ -26,27 +26,46 @@
 </nav>
 
 <section>
-<h1>Action items</h1>
+<h1>USAGE</h1>
+
+<pre><code>epgo-indexpages [OPTIONS] [BLEVE_INDEX_NAME]
+</code></pre>
+
+<h2>SYNOPSIS</h2>
+
+<p>epgo-indexpages is a command line utility to indexes content in the htdocs directory.
+It produces a Bleve search index used by servepages web service.
+Configuration is done through environmental variables.</p>
+
+<h2>CONFIGURATION</h2>
+
+<p>epgo-indexpages relies on the following environment variables for
+configuration when overriding the defaults:</p>
 
 <ul>
-<li>Separate out select construction from export and have them generated after all exported data is complete</li>
-<li>Add option to epgo to regenerate select lists from collection</li>
-<li>Debug Person and Group feeds with dataset integration</li>
-<li>Add feeds for Grant Numbers and Funders</li>
-<li>Add ORCID API harvest for person biographies and profiles, populating the person landing page with this content</li>
+<li><p>EPGO_HTDOCS This should be the path to the directory tree
+          containings the content (e.g. JSON files) to be index.
+          This is generally populated with the caitpage command.
+        Defaults to ./htdocs.</p></li>
+
+<li><p>EPGO_BLEVE This is is the directory that will contain all the Bleve
+         indexes. Defaults to ./htdocs.bleve</p></li>
 </ul>
 
-<h1>Someday, Maybe</h1>
+<h2>OPTIONS</h2>
 
-<ul>
-<li>Integrate ISNI content</li>
-<li>Integrate VIAF numbers (viaf.org) and links to other numbers (e.g. ISNI)</li>
-<li>Add support for the MLA citation style in the HTML markup for HTML found in browse by person/year in both the website and include files
-
-<ul>
-<li>Does it make more sense to include BibTeX and let BibTeX format different citation formats?</li>
-</ul></li>
-</ul>
+<pre><code>    -batch    Set the batch index size
+    -bleve    a colon delimited list of Bleve index db names
+    -h    display help
+    -help    display help
+    -htdocs    The document root for the website
+    -l    display license
+    -license    display license
+    -r    Replace the index if it exists
+    -repository-path    Path of rendered repository content
+    -v    display version
+    -version    display version
+</code></pre>
 
 </section>
 

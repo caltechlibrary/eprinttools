@@ -202,7 +202,7 @@ func (q *QueryOptions) Parse(m map[string]interface{}) error {
 
 	//Note: We're vetting the string for specific values before assigning to q.Format or choosing the default.
 	switch {
-	case strings.Compare(raw.Format, "json") == 0:
+	case raw.Format == "json":
 		q.Format = "application/json"
 	default:
 		q.Format = "text/html"
@@ -396,7 +396,7 @@ func resultsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Handle json formated results request, eventually should also support things like BibTeX and RSS results.
-	if strings.Compare(q.Format, "application/json") == 0 {
+	if q.Format == "application/json" {
 		src, err := json.Marshal(searchResults)
 		if err != nil {
 			responseLogger(r, http.StatusInternalServerError, fmt.Errorf("Marshal JSON results, %s", err))
@@ -563,7 +563,7 @@ func switchIndex() error {
 	if len(indexList) > 1 {
 		// Find the name of the next index
 		for i, iName := range indexList {
-			if strings.Compare(iName, curName) == 0 {
+			if iName == curName {
 				i++
 				// Wrap to the beginning if we go off end of list
 				if i >= len(indexList) {

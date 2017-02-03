@@ -16,36 +16,36 @@ package: epgo.go
 
 epgo: bin/epgo
 
-bin/epgo: epgo.go api.go export.go cmds/epgo/epgo.go
+bin/epgo: epgo.go api.go harvest.go grantNumbers.go funders.go cmds/epgo/epgo.go
 	go build -o bin/epgo cmds/epgo/epgo.go
 
 epgo-genpages: bin/epgo-genpages
 
-bin/epgo-genpages: epgo.go api.go export.go cmds/epgo-genpages/epgo-genpages.go
+bin/epgo-genpages: epgo.go api.go harvest.go grantNumbers.go funders.go cmds/epgo-genpages/epgo-genpages.go
 	go build -o bin/epgo-genpages cmds/epgo-genpages/epgo-genpages.go
 
 epgo-indexpages: bin/epgo-indexpages
 
-bin/epgo-indexpages: epgo.go api.go export.go cmds/epgo-indexpages/epgo-indexpages.go
+bin/epgo-indexpages: epgo.go api.go harvest.go grantNumbers.go funders.go cmds/epgo-indexpages/epgo-indexpages.go
 	go build -o bin/epgo-indexpages cmds/epgo-indexpages/epgo-indexpages.go
 
 epgo-sitemapper: bin/epgo-sitemapper
 
-bin/epgo-sitemapper: epgo.go api.go export.go cmds/epgo-sitemapper/epgo-sitemapper.go
+bin/epgo-sitemapper: epgo.go api.go harvest.go grantNumbers.go funders.go cmds/epgo-sitemapper/epgo-sitemapper.go
 	go build -o bin/epgo-sitemapper cmds/epgo-sitemapper/epgo-sitemapper.go
 
 epgo-servepages: bin/epgo-servepages
 
-bin/epgo-servepages: epgo.go api.go export.go cmds/epgo-servepages/epgo-servepages.go
+bin/epgo-servepages: epgo.go api.go harvest.go grantNumbers.go funders.go cmds/epgo-servepages/epgo-servepages.go
 	go build -o bin/epgo-servepages cmds/epgo-servepages/epgo-servepages.go
 	mkpage "content=htdocs/index.md" templates/default/index.html > htdocs/index.html
 
 install: $(PROJECT_LIST)
-	go install cmds/epgo/epgo.go
-	go install cmds/epgo-genpages/epgo-genpages.go
-	go install cmds/epgo-indexpages/epgo-indexpages.go
-	go install cmds/epgo-sitemapper/epgo-sitemapper.go
-	go install cmds/epgo-servepages/epgo-servepages.go
+	env GOBIN=$(HOME)/bin go install cmds/epgo/epgo.go
+	env GOBIN=$(HOME)/bin go install cmds/epgo-genpages/epgo-genpages.go
+	env GOBIN=$(HOME)/bin go install cmds/epgo-indexpages/epgo-indexpages.go
+	env GOBIN=$(HOME)/bin go install cmds/epgo-sitemapper/epgo-sitemapper.go
+	env GOBIN=$(HOME)/bin go install cmds/epgo-servepages/epgo-servepages.go
 
 website: page.tmpl README.md nav.md INSTALL.md LICENSE css/site.css htdocs/index.md
 	mkpage "content=htdocs/index.md" templates/default/index.html > htdocs/index.html
@@ -86,6 +86,8 @@ clean:
 	if [ -d htdocs/affiliation ]; then /bin/rm -fR htdocs/affiliation; fi
 	if [ -d htdocs/recent ]; then /bin/rm -fR htdocs/recent; fi
 	if [ -d htdocs/repository ]; then /bin/rm -fR htdocs/repository; fi
+	if [ -d htdocs/funder ]; then /bin/rm -fR htdocs/funder; fi
+	if [ -d htdocs/grantNumber ]; then /bin/rm -fR htdocs/grantNumber; fi
 	if [ "$(EPGO_REPOSITORY_PATH)" != "" ] && [ -d htdocs/$(EPGO_REPOSITORY_PATH) ]; then /bin/rm -fR htdocs/$(EPGO_REPOSITORY_PATH); fi
 	if [ -d bin ]; then /bin/rm -fR bin; fi
 	if [ -d dist ]; then /bin/rm -fR dist; fi

@@ -186,7 +186,6 @@ func newIndex(indexName string) (bleve.Index, error) {
 		Note:         jsonDoc.Note,
 		Authors:      jsonDoc.Creators.ToNames(),
 		ORCIDs:       jsonDoc.Creators.ToORCIDs(),
-		ISNIs:        jsonDoc.Creators.ToISNIs(),
 		Rights:       jsonDoc.Rights,
 		Funders:      jsonDoc.Funders.ToAgencies(),
 		GrantNumbers: jsonDoc.Funders.ToGrantNumbers(),
@@ -255,12 +254,6 @@ func newIndex(indexName string) (bleve.Index, error) {
 	orcidMapping.Index = true
 	eprintMapping.AddFieldMappingsAt("ORCIDs", orcidMapping)
 
-	isniMapping := bleve.NewTextFieldMapping()
-	isniMapping.Analyzer = "en"
-	isniMapping.Store = true
-	isniMapping.Index = true
-	eprintMapping.AddFieldMappingsAt("ISNIs", isniMapping)
-
 	createdMapping := bleve.NewDateTimeFieldMapping()
 	createdMapping.Store = true
 	createdMapping.Index = false
@@ -325,7 +318,6 @@ func indexSite(htdocs, eprintsDotJSON string, index bleve.Index, batchSize int) 
 				Note         string
 				Authors      []string
 				ORCIDs       []string
-				ISNIs        []string
 				Type         string
 				Rights       string
 				Funders      []string
@@ -345,7 +337,6 @@ func indexSite(htdocs, eprintsDotJSON string, index bleve.Index, batchSize int) 
 				Note:         jsonDoc.Note,
 				Authors:      jsonDoc.Creators.ToNames(),
 				ORCIDs:       jsonDoc.Creators.ToORCIDs(),
-				ISNIs:        jsonDoc.Creators.ToISNIs(),
 				Rights:       jsonDoc.Rights,
 				Funders:      jsonDoc.Funders.ToAgencies(),
 				GrantNumbers: jsonDoc.Funders.ToGrantNumbers(),

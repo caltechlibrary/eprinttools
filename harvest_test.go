@@ -26,7 +26,7 @@ import (
 	"github.com/caltechlibrary/dataset"
 )
 
-var recordCount = 100
+var recordCount = 2000
 
 func TestHarvest(t *testing.T) {
 	api, err := New(cfg)
@@ -59,6 +59,7 @@ func TestHarvest(t *testing.T) {
 		t.FailNow()
 	}
 
+<<<<<<< HEAD:export_test.go
 <<<<<<< HEAD:epgo_test.go
 <<<<<<< HEAD
 	err = api.BuildPages(5, "Recently Published", "recent/published", func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
@@ -70,11 +71,16 @@ func TestHarvest(t *testing.T) {
 >>>>>>> abcc7ee6eafe8b458dd68cbe6866dbcd01041fdd:export_test.go
 		return api.GetPublications(start, count, direction)
 >>>>>>> cda6473fc5a2f7f66e04669f3544a953c2eaa373
+=======
+	err = api.BuildPages(recordCount, "Recently Published", "recently-published", func(api *EPrintsAPI, start, count int) ([]*Record, error) {
+		return api.GetPublications(start, count)
+>>>>>>> 067b85bd2a3ce958162ef2734a6373976764142f:harvest_test.go
 	})
 	if err != nil {
 		t.Errorf("Cannot build test site %q", err)
 		t.FailNow()
 	}
+<<<<<<< HEAD:export_test.go
 <<<<<<< HEAD:epgo_test.go
 <<<<<<< HEAD
 	err = api.BuildPages(5, "Recent Articles", "recent/articles", func(api *EPrintsAPI, start, count, direction int) ([]*Record, error) {
@@ -86,5 +92,9 @@ func TestHarvest(t *testing.T) {
 >>>>>>> abcc7ee6eafe8b458dd68cbe6866dbcd01041fdd:export_test.go
 		return api.GetArticles(start, count, direction)
 >>>>>>> cda6473fc5a2f7f66e04669f3544a953c2eaa373
+=======
+	err = api.BuildPages(recordCount, "Recent Articles", "recent-articles", func(api *EPrintsAPI, start, count int) ([]*Record, error) {
+		return api.GetArticles(start, count)
+>>>>>>> 067b85bd2a3ce958162ef2734a6373976764142f:harvest_test.go
 	})
 }

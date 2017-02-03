@@ -1,6 +1,8 @@
 
 # Action items
 
++ Separate out select construction from export and have them generated after all exported data is complete
++ Add option to epgo to regenerate select lists from collection
 + Debug Person and Group feeds with dataset integration
 + Add feeds for Grant Numbers and Funders
 + Add ORCID API harvest for person biographies and profiles, populating the person landing page with this content
