@@ -55,44 +55,13 @@ EXAMPLE
 
 `
 
-	license = `
-%s %s
-
-Copyright (c) 2017, Caltech
-All rights not granted herein are expressly reserved by Caltech.
-
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions are met:
-
-* Redistributions of source code must retain the above copyright notice, this
-  list of conditions and the following disclaimer.
-
-* Redistributions in binary form must reproduce the above copyright notice,
-  this list of conditions and the following disclaimer in the documentation
-  and/or other materials provided with the distribution.
-
-* Neither the name of epgo nor the names of its
-  contributors may be used to endorse or promote products derived from
-  this software without specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-`
-	// Standard cli options
+	// Standard Options
 	showHelp    bool
 	showVersion bool
 	showLicense bool
+	outputFName string
 
-	// App specific options
+	// App Options
 	apiURL       string
 	datatsetName string
 	bleveName    string
@@ -111,25 +80,6 @@ func check(cfg *cli.Config, key, value string) string {
 		return ""
 	}
 	return value
-}
-
-func init() {
-	// Log to standard out
-	log.SetOutput(os.Stdout)
-
-	// Setup options
-	flag.BoolVar(&showHelp, "h", false, "display help")
-	flag.BoolVar(&showHelp, "help", false, "display help")
-	flag.BoolVar(&showVersion, "v", false, "display version")
-	flag.BoolVar(&showVersion, "version", false, "display version")
-	flag.BoolVar(&showLicense, "l", false, "display license")
-	flag.BoolVar(&showLicense, "license", false, "display license")
-
-	// App specific options
-	flag.StringVar(&changefreq, "u", "daily", "Set the change frequencely value, e.g. daily, weekly, monthly")
-	flag.StringVar(&changefreq, "update-frequency", "daily", "Set the change frequencely value, e.g. daily, weekly, monthly")
-	flag.StringVar(&excludeList, "e", "", "A colon delimited list of path parts to exclude from sitemap")
-	flag.StringVar(&excludeList, "exclude", "", "A colon delimited list of path parts to exclude from sitemap")
 }
 
 type ExcludeList []string
@@ -151,29 +101,56 @@ func (dirList ExcludeList) Exclude(p string) bool {
 	return false
 }
 
+func init() {
+	// Setup options
+	flag.BoolVar(&showHelp, "h", false, "display help")
+	flag.BoolVar(&showHelp, "help", false, "display help")
+	flag.BoolVar(&showLicense, "l", false, "display license")
+	flag.BoolVar(&showLicense, "license", false, "display license")
+	flag.BoolVar(&showVersion, "v", false, "display version")
+	flag.BoolVar(&showVersion, "version", false, "display version")
+	flag.StringVar(&outputFName, "o", "", "output filename (logging)")
+	flag.StringVar(&outputFName, "output", "", "output filename (logging)")
+
+	// App specific options
+	flag.StringVar(&changefreq, "u", "daily", "Set the change frequencely value, e.g. daily, weekly, monthly")
+	flag.StringVar(&changefreq, "update-frequency", "daily", "Set the change frequencely value, e.g. daily, weekly, monthly")
+	flag.StringVar(&excludeList, "e", "", "A colon delimited list of path parts to exclude from sitemap")
+	flag.StringVar(&excludeList, "exclude", "", "A colon delimited list of path parts to exclude from sitemap")
+}
+
 func main() {
 	appName := path.Base(os.Args[0])
 	flag.Parse()
+	args := flag.Args()
 
-	cfg := cli.New(appName, "EPGO", fmt.Sprintf(license, appName, epgo.Version), epgo.Version)
+	cfg := cli.New(appName, "EPGO", fmt.Sprintf(epgo.LicenseText, appName, epgo.Version), epgo.Version)
 	cfg.UsageText = fmt.Sprintf(usage, appName)
 	cfg.DescriptionText = fmt.Sprintf(description, appName)
-	cfg.OptionsText = "OPTIONS\n"
 	cfg.ExampleText = fmt.Sprintf(examples, appName)
 
-	args := flag.Args()
 	if showHelp == true {
 		fmt.Println(cfg.Usage())
-		os.Exit(0)
-	}
-	if showVersion == true {
-		fmt.Println(cfg.Version())
 		os.Exit(0)
 	}
 	if showLicense == true {
 		fmt.Println(cfg.License())
 		os.Exit(0)
 	}
+	if showVersion == true {
+		fmt.Println(cfg.Version())
+		os.Exit(0)
+	}
+
+	out, err := cli.Create(outputFName, os.Stdout)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "%s\n", err)
+		os.Exit(1)
+	}
+	defer cli.CloseFile(outputFName, out)
+
+	// Log to out
+	log.SetOutput(out)
 
 	if len(args) != 3 {
 		fmt.Printf("%s requires 3 parameters, see %s --help\n", appName, appName)
