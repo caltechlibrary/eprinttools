@@ -1,6 +1,8 @@
 
 # Action items
 
++ Parrallelize epgo export and epgo-genpages
+    + See https://gobyexample.com/worker-pools for example
 + Separate out select construction from export and have them generated after all exported data is complete
 + Add option to epgo to regenerate select lists from collection
 + Debug Person and Group feeds with dataset integration
