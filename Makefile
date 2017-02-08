@@ -151,11 +151,7 @@ status:
 	git status
 
 save:
-ifndef msg
-	git commit -am "Quick Save"
-else
-	git commit -am "$(msg)"
-endif
+	git commit -am $(or "$(msg)","Quick Save")
 	git push origin $(BRANCH)
 
 publish:
