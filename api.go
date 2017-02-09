@@ -1072,7 +1072,7 @@ func (api *EPrintsAPI) BuildSite(feedSize int, buildEPrintMirror bool) error {
 	// Collect the rencently published  articles
 	log.Printf("Building Recent Articles")
 	err = api.BuildPages(feedSize, "Recent Articles", path.Join("recent", "articles"), func(api *EPrintsAPI, start, count int) ([]*Record, error) {
-		return api.GetArticles(start, count)
+		return api.GetArticles(0, feedSize)
 	})
 	if err != nil {
 		return err
