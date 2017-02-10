@@ -1084,7 +1084,7 @@ func (api *EPrintsAPI) BuildSite(feedSize int, buildEPrintMirror bool) error {
 	if err != nil {
 		return err
 	}
-	log.Printf("Found %d orcids", len(orcids))
+	log.Printf("Found %d orcids\n", len(orcids))
 	for _, orcid := range orcids {
 		// Build a list of recent ORCID Publications
 		err = api.BuildPages(-1, fmt.Sprintf("ORCID: %s", orcid), path.Join("person", fmt.Sprintf("%s", orcid), "recent", "publications"), func(api *EPrintsAPI, start, count int) ([]*Record, error) {
@@ -1122,7 +1122,7 @@ func (api *EPrintsAPI) BuildSite(feedSize int, buildEPrintMirror bool) error {
 	if err != nil {
 		return err
 	}
-	log.Printf("Found %d groups", len(groupNames))
+	log.Printf("Found %d groups\n", len(groupNames))
 	for _, groupName := range groupNames {
 		// Build recently for each affiliation
 		slug, err := slugify(groupName)
@@ -1165,7 +1165,7 @@ func (api *EPrintsAPI) BuildSite(feedSize int, buildEPrintMirror bool) error {
 	if err != nil {
 		return err
 	}
-	log.Printf("Found %s funders", len(funderNames))
+	log.Printf("Found %d funders\n", len(funderNames))
 	for _, funderName := range funderNames {
 		slug, err := slugify(funderName)
 		if err != nil {
@@ -1208,7 +1208,7 @@ func (api *EPrintsAPI) BuildSite(feedSize int, buildEPrintMirror bool) error {
 		if err != nil {
 			return err
 		}
-		log.Printf("Found %s funders/grant numbers", len(funderGrantNames))
+		log.Printf("Found %d funders/grant numbers", len(funderGrantNames))
 		for _, funderGrantName := range funderGrantNames {
 			parts := strings.Split(funderGrantName, indexDelimiter)
 			funderName := first(parts)

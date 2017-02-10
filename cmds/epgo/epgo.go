@@ -64,6 +64,10 @@ EXAMPLE
 
 Would export the entire EPrints reportory public content defined by the
 environment virables EPGO_API_URL, EPGO_DATASET.
+
+    %s -select
+
+Would (re)build the select lists based on contents of $EPGO_DATASET.
 `
 
 	// Standard Options
@@ -132,7 +136,7 @@ func main() {
 	cfg := cli.New(appName, appName, fmt.Sprintf(epgo.LicenseText, appName, epgo.Version), epgo.Version)
 	cfg.UsageText = fmt.Sprintf(usage, appName)
 	cfg.DescriptionText = fmt.Sprintf(description, appName, appName)
-	cfg.ExampleText = fmt.Sprintf(examples, appName)
+	cfg.ExampleText = fmt.Sprintf(examples, appName, appName)
 
 	// Handle the default options
 	if showHelp == true {
@@ -174,9 +178,7 @@ func main() {
 			log.Fatal(err)
 		}
 		log.Println("Export completed")
-		log.Println("Generating Select lists")
-		api.BuildSelectLists()
-		log.Println("Select lists complete")
+		log.Printf("Ready to run `%s -select` to rebuild select lists\n", appName)
 		os.Exit(0)
 	}
 	if genSelectLists == true {

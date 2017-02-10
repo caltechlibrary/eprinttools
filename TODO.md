@@ -1,6 +1,7 @@
 
 # Action items
 
++ Figure out why select lists are empty!
 + Parrallelize epgo export and epgo-genpages
     + See https://gobyexample.com/worker-pools for worker pool example
     + See https://gobyexample.com/rate-limiting for rate limitting example
