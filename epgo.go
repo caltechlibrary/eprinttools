@@ -983,7 +983,6 @@ func (api *EPrintsAPI) BuildPages(feedSize int, title, target string, filter fun
 	}
 	// Collect the published records
 	docPath := path.Join(api.Htdocs, target)
-	log.Printf("Building %s", docPath)
 	records, err := filter(api, 0, feedSize)
 	if err != nil {
 		return fmt.Errorf("Can't get records for %q %s, %s", title, docPath, err)
@@ -991,7 +990,7 @@ func (api *EPrintsAPI) BuildPages(feedSize int, title, target string, filter fun
 	if len(records) == 0 {
 		log.Printf("No records found for %q %s", title, docPath)
 	} else {
-		log.Printf("%d records found.", len(records))
+		log.Printf("%d records found for %q %s", len(records), title, docPath)
 	}
 	if err := api.RenderDocuments(title, fmt.Sprintf("Building pages 0 to %d descending", feedSize), target, records); err != nil {
 		return fmt.Errorf("%q %s error, %s", title, docPath, err)
