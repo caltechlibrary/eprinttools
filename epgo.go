@@ -302,7 +302,7 @@ func slugify(s string) (string, error) {
 	if len(s) > 250 {
 		return "", fmt.Errorf("string to long (%d), %q", len(s), s)
 	}
-	return url.QueryEscape(s), nil
+	return url.PathEscape(s), nil
 }
 
 // ToBibTeXElement takes an epgo.Record and turns it into a bibtex.Element record
