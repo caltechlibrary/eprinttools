@@ -905,6 +905,10 @@ func (api *EPrintsAPI) RenderDocuments(docTitle, docDescription, docpath string,
 		return fmt.Errorf("Can't write %s, %s", fname, err)
 	}
 
+	//FIXME: create the template should be outside the RenderDocuments function to lower the overhead
+	// on the CPU usage and memory usage for compiling the template at each envocation.
+	// Could also use rss2 package built in RSS render and skip template altogher.
+
 	// Write out RSS 2.0 file
 	fname = path.Join(api.TemplatePath, "rss.xml")
 	rss20, err := ioutil.ReadFile(fname)
@@ -949,6 +953,9 @@ func (api *EPrintsAPI) BuildPages(feedSize int, title, target string, filter fun
 	records, err := filter(api, 0, feedSize)
 	if err != nil {
 		return fmt.Errorf("Can't get records for %q %s, %s", title, docPath, err)
+	}
+	if len(records) == 0 {
+		return fmt.Errorf("Zero records for %q, %s", title, docPath)
 	}
 	log.Printf("%d records found for %q %s", len(records), title, docPath)
 	if err := api.RenderDocuments(title, fmt.Sprintf("Building pages 0 to %d descending", feedSize), target, records); err != nil {
