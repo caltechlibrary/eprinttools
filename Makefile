@@ -40,7 +40,7 @@ bin/epgo-servepages: epgo.go  harvest.go grantNumbers.go funders.go cmds/epgo-se
 	go build -o bin/epgo-servepages cmds/epgo-servepages/epgo-servepages.go
 	mkpage "content=htdocs/index.md" templates/default/index.html > htdocs/index.html
 
-install: $(PROJECT_LIST)
+install: 
 	env GOBIN=$(HOME)/bin go install cmds/epgo/epgo.go
 	env GOBIN=$(HOME)/bin go install cmds/epgo-genpages/epgo-genpages.go
 	env GOBIN=$(HOME)/bin go install cmds/epgo-indexpages/epgo-indexpages.go

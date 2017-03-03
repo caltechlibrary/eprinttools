@@ -297,10 +297,15 @@ func last(s []string) string {
 	return ""
 }
 
-// Turn a string into a URL friendly path part
+// slugify ensures we have a path friendly name or returns an error.
+// NOTE: The web server does not expect to look on disc for URL Encoded paths, instead
+// we need to ensure the name does not have a slash or other path unfriendly value.
 func slugify(s string) (string, error) {
 	if len(s) > 250 {
 		return "", fmt.Errorf("string to long (%d), %q", len(s), s)
+	}
+	if strings.Contains(s, "/") == true {
+		return "", fmt.Errorf("string contains a slash and cannot be a directory name, %q", s)
 	}
 	return s, nil
 }
