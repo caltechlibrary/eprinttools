@@ -42,7 +42,7 @@ import (
 
 const (
 	// Version is the revision number for this implementation of epgo
-	Version = "v0.0.10-alpha2"
+	Version = "v0.0.10-alpha3"
 
 	// LicenseText holds the string for rendering License info on the command line
 	LicenseText = `
@@ -302,7 +302,7 @@ func slugify(s string) (string, error) {
 	if len(s) > 250 {
 		return "", fmt.Errorf("string to long (%d), %q", len(s), s)
 	}
-	return url.PathEscape(s), nil
+	return s, nil
 }
 
 // ToBibTeXElement takes an epgo.Record and turns it into a bibtex.Element record
@@ -1039,6 +1039,7 @@ func (api *EPrintsAPI) BuildSelectLists() error {
 				}
 			}
 		}
+
 		// Update orcid select list
 		if len(rec.Creators) > 0 {
 			for _, person := range rec.Creators {
@@ -1121,44 +1122,6 @@ func (api *EPrintsAPI) BuildSite(feedSize int, buildEPrintMirror bool) error {
 	})
 	if err != nil {
 		return err
-	}
-
-	// Collect EPrints by orcid ID and publish
-	log.Printf("Building Person (orcid) works")
-	orcids, err := api.GetORCIDs()
-	if err != nil {
-		return err
-	}
-	log.Printf("Found %d orcids\n", len(orcids))
-	for _, orcid := range orcids {
-		// Build a list of recent ORCID Publications
-		err = api.BuildPages(-1, fmt.Sprintf("ORCID: %s", orcid), path.Join("person", fmt.Sprintf("%s", orcid), "recent", "publications"), func(api *EPrintsAPI, start, count int) ([]*Record, error) {
-			return api.GetORCIDPublications(orcid, start, count)
-		})
-		if err != nil {
-			return err
-		}
-		// Build complete list for each orcid
-		err = api.BuildPages(-1, fmt.Sprintf("ORCID: %s", orcid), path.Join("person", fmt.Sprintf("%s", orcid), "publications"), func(api *EPrintsAPI, start, count int) ([]*Record, error) {
-			return api.GetORCIDPublications(orcid, 0, -1)
-		})
-		if err != nil {
-			return err
-		}
-		// Build a list of recent ORCID Articles
-		err = api.BuildPages(-1, fmt.Sprintf("ORCID: %s", orcid), path.Join("person", fmt.Sprintf("%s", orcid), "recent", "articles"), func(api *EPrintsAPI, start, count int) ([]*Record, error) {
-			return api.GetORCIDArticles(orcid, start, count)
-		})
-		if err != nil {
-			return err
-		}
-		// Build complete list of articels for each ORCID
-		err = api.BuildPages(-1, fmt.Sprintf("ORCID: %s", orcid), path.Join("person", fmt.Sprintf("%s", orcid), "articles"), func(api *EPrintsAPI, start, count int) ([]*Record, error) {
-			return api.GetORCIDArticles(orcid, 0, -1)
-		})
-		if err != nil {
-			return err
-		}
 	}
 
 	// Collect EPrints by Group/Affiliation
@@ -1293,5 +1256,44 @@ func (api *EPrintsAPI) BuildSite(feedSize int, buildEPrintMirror bool) error {
 			}
 		}
 	*/
+
+	// Collect EPrints by orcid ID and publish
+	log.Printf("Building Person (orcid) works")
+	orcids, err := api.GetORCIDs()
+	if err != nil {
+		return err
+	}
+	log.Printf("Found %d orcids\n", len(orcids))
+	for _, orcid := range orcids {
+		// Build a list of recent ORCID Publications
+		err = api.BuildPages(-1, fmt.Sprintf("ORCID: %s", orcid), path.Join("person", fmt.Sprintf("%s", orcid), "recent", "publications"), func(api *EPrintsAPI, start, count int) ([]*Record, error) {
+			return api.GetORCIDPublications(orcid, start, count)
+		})
+		if err != nil {
+			return err
+		}
+		// Build complete list for each orcid
+		err = api.BuildPages(-1, fmt.Sprintf("ORCID: %s", orcid), path.Join("person", fmt.Sprintf("%s", orcid), "publications"), func(api *EPrintsAPI, start, count int) ([]*Record, error) {
+			return api.GetORCIDPublications(orcid, 0, -1)
+		})
+		if err != nil {
+			return err
+		}
+		// Build a list of recent ORCID Articles
+		err = api.BuildPages(-1, fmt.Sprintf("ORCID: %s", orcid), path.Join("person", fmt.Sprintf("%s", orcid), "recent", "articles"), func(api *EPrintsAPI, start, count int) ([]*Record, error) {
+			return api.GetORCIDArticles(orcid, start, count)
+		})
+		if err != nil {
+			return err
+		}
+		// Build complete list of articels for each ORCID
+		err = api.BuildPages(-1, fmt.Sprintf("ORCID: %s", orcid), path.Join("person", fmt.Sprintf("%s", orcid), "articles"), func(api *EPrintsAPI, start, count int) ([]*Record, error) {
+			return api.GetORCIDArticles(orcid, 0, -1)
+		})
+		if err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
