@@ -1132,7 +1132,7 @@ func (api *EPrintsAPI) BuildSite(feedSize int, buildEPrintMirror bool) error {
 	if err != nil {
 		log.Printf("error: %s", err)
 	} else {
-		log.Printf("Found %d funders\n", len(funderNames))
+		log.Printf("Found %d records with funders\n", len(funderNames))
 		for _, funderName := range funderNames {
 			slug, err := slugify(funderName)
 			if err != nil {
