@@ -868,7 +868,7 @@ func (api *EPrintsAPI) RenderEPrint(basepath string, record *Record) error {
 	return ioutil.WriteFile(fname, src, 0664)
 }
 
-// RenderDocuments writes JSON, HTML, include and rss to the directory indicated by docpath
+// RenderDocuments writes JSON, BibTeX and RSS 2 document to the directory indicated by docpath
 func (api *EPrintsAPI) RenderDocuments(docTitle, docDescription, docpath string, records []*Record) error {
 	// Create the the directory part of docpath if neccessary
 	if _, err := os.Open(path.Join(api.Htdocs, docpath)); err != nil && os.IsNotExist(err) == true {
@@ -935,53 +935,11 @@ func (api *EPrintsAPI) RenderDocuments(docTitle, docDescription, docpath string,
 	if err != nil {
 		return fmt.Errorf("Can't write %s, %s", fname, err)
 	}
-
-	// Write out include file
-	fname = path.Join(api.TemplatePath, "page.include")
-	pageInclude, err := ioutil.ReadFile(fname)
-	if err != nil {
-		return fmt.Errorf("Can't open template %s, %s", fname, err)
-	}
-	pageIncludeTmpl, err := template.New("page.include").Funcs(TmplFuncs).Parse(string(pageInclude))
-	if err != nil {
-		return fmt.Errorf("Can't parse %s, %s", fname, err)
-	}
-	fname = path.Join(api.Htdocs, docpath+".include")
-	out, err = os.Create(fname)
-	if err != nil {
-		return fmt.Errorf("Can't write %s, %s", fname, err)
-	}
-	//log.Printf("Writing %s", fname)
-	if err := pageIncludeTmpl.Execute(out, pageData); err != nil {
-		return fmt.Errorf("Can't render %s, %s", fname, err)
-	}
-	out.Close()
-
-	pageHTMLTmpl, err := template.New("page.html").Funcs(TmplFuncs).ParseFiles(
-		path.Join(api.TemplatePath, "page.include"),
-		path.Join(api.TemplatePath, "page.html"),
-	)
-	if err != nil {
-		return fmt.Errorf("Can't parse %s, %s", fname, err)
-	}
-	fname = path.Join(api.Htdocs, docpath+".html")
-	out, err = os.Create(fname)
-	if err != nil {
-		return fmt.Errorf("Can't write %s, %s", fname, err)
-	}
-
-	//log.Printf("Writing %s", fname)
-	if err := pageHTMLTmpl.Execute(out, pageData); err != nil {
-		return fmt.Errorf("Can't render %s, %s", fname, err)
-	}
-	out.Close()
-
 	return nil
 }
 
-// BuildPages generates webpages based on the contents of the exported EPrints data.
-// The site builder needs to know the name of the BoltDB, the root directory
-// for the website and directory to find the templates
+// BuildPages generates JSON, BibTeX and RSS versions of collected records
+// by calling RenderDocuments with the appropriate data.
 func (api *EPrintsAPI) BuildPages(feedSize int, title, target string, filter func(*EPrintsAPI, int, int) ([]*Record, error)) error {
 	if feedSize < 1 {
 		feedSize = DefaultFeedSize
@@ -992,11 +950,7 @@ func (api *EPrintsAPI) BuildPages(feedSize int, title, target string, filter fun
 	if err != nil {
 		return fmt.Errorf("Can't get records for %q %s, %s", title, docPath, err)
 	}
-	if len(records) == 0 {
-		log.Printf("No records found for %q %s", title, docPath)
-	} else {
-		log.Printf("%d records found for %q %s", len(records), title, docPath)
-	}
+	log.Printf("%d records found for %q %s", len(records), title, docPath)
 	if err := api.RenderDocuments(title, fmt.Sprintf("Building pages 0 to %d descending", feedSize), target, records); err != nil {
 		return fmt.Errorf("%q %s error, %s", title, docPath, err)
 	}

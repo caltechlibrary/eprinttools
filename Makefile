@@ -7,7 +7,7 @@ VERSION = $(shell grep -m 1 'Version =' $(PROJECT).go | cut -d\"  -f 2)
 
 BRANCH = $(shell git branch | grep '* ' | cut -d\  -f 2)
 
-PROJECT_LIST = epgo epgo-genpages epgo-indexpages epgo-sitemapper epgo-servepages
+PROJECT_LIST = epgo epgo-genpages
 
 build: package $(PROJECT_LIST)
 
@@ -24,58 +24,31 @@ epgo-genpages: bin/epgo-genpages
 bin/epgo-genpages: epgo.go  harvest.go grantNumbers.go funders.go cmds/epgo-genpages/epgo-genpages.go
 	go build -o bin/epgo-genpages cmds/epgo-genpages/epgo-genpages.go
 
-epgo-indexpages: bin/epgo-indexpages
-
-bin/epgo-indexpages: epgo.go  harvest.go grantNumbers.go funders.go cmds/epgo-indexpages/epgo-indexpages.go
-	go build -o bin/epgo-indexpages cmds/epgo-indexpages/epgo-indexpages.go
-
-epgo-sitemapper: bin/epgo-sitemapper
-
-bin/epgo-sitemapper: epgo.go  harvest.go grantNumbers.go funders.go cmds/epgo-sitemapper/epgo-sitemapper.go
-	go build -o bin/epgo-sitemapper cmds/epgo-sitemapper/epgo-sitemapper.go
-
-epgo-servepages: bin/epgo-servepages
-
-bin/epgo-servepages: epgo.go  harvest.go grantNumbers.go funders.go cmds/epgo-servepages/epgo-servepages.go
-	go build -o bin/epgo-servepages cmds/epgo-servepages/epgo-servepages.go
-	mkpage "content=htdocs/index.md" templates/default/index.html > htdocs/index.html
-
 install: 
 	env GOBIN=$(HOME)/bin go install cmds/epgo/epgo.go
 	env GOBIN=$(HOME)/bin go install cmds/epgo-genpages/epgo-genpages.go
-	env GOBIN=$(HOME)/bin go install cmds/epgo-indexpages/epgo-indexpages.go
-	env GOBIN=$(HOME)/bin go install cmds/epgo-sitemapper/epgo-sitemapper.go
-	env GOBIN=$(HOME)/bin go install cmds/epgo-servepages/epgo-servepages.go
 
 website: page.tmpl README.md nav.md INSTALL.md LICENSE css/site.css htdocs/index.md
 	mkpage "content=htdocs/index.md" templates/default/index.html > htdocs/index.html
 	./mk-website.bash
 
 format:
-	goimports -w epgo.go
-	goimports -w epgo_test.go
-	goimports -w cmds/epgo/epgo.go
-	goimports -w cmds/epgo-genpages/epgo-genpages.go
-	goimports -w cmds/epgo-indexpages/epgo-indexpages.go
-	goimports -w cmds/epgo-sitemapper/epgo-sitemapper.go
-	goimports -w cmds/epgo-servepages/epgo-servepages.go
 	gofmt -w epgo.go
 	gofmt -w epgo_test.go
+	gofmt -w harvest.go
+	gofmt -w funders.go
+	gofmt -w grantNumbers.go
 	gofmt -w cmds/epgo/epgo.go
 	gofmt -w cmds/epgo-genpages/epgo-genpages.go
-	gofmt -w cmds/epgo-indexpages/epgo-indexpages.go
-	gofmt -w cmds/epgo-sitemapper/epgo-sitemapper.go
-	gofmt -w cmds/epgo-servepages/epgo-servepages.go
 
 lint:
 	golint epgo.go
 	golint epgo_test.go
+	golint harvest.go
+	golint funders.go
+	golint grantNumbers.go
 	golint cmds/epgo/epgo.go
 	golint cmds/epgo-genpages/epgo-genpages.go
-	golint cmds/epgo-indexpages/epgo-indexpages.go
-	golint cmds/epgo-sitemapper/epgo-sitemapper.go
-	golint cmds/epgo-servepages/epgo-servepages.go
-
 
 test:
 	go test
@@ -96,30 +69,18 @@ clean:
 dist/linux-amd64:
 	env  GOOS=linux GOARCH=amd64 go build -o dist/linux-amd64/epgo cmds/epgo/epgo.go
 	env  GOOS=linux GOARCH=amd64 go build -o dist/linux-amd64/epgo-genpages cmds/epgo-genpages/epgo-genpages.go
-	env  GOOS=linux GOARCH=amd64 go build -o dist/linux-amd64/epgo-indexpages cmds/epgo-indexpages/epgo-indexpages.go
-	env  GOOS=linux GOARCH=amd64 go build -o dist/linux-amd64/epgo-servepages cmds/epgo-servepages/epgo-servepages.go
-	env  GOOS=linux GOARCH=amd64 go build -o dist/linux-amd64/epgo-sitemapper cmds/epgo-sitemapper/epgo-sitemapper.go
 
 dist/windows-amd64:
 	env  GOOS=windows GOARCH=amd64 go build -o dist/windows-amd64/epgo.exe cmds/epgo/epgo.go
 	env  GOOS=windows GOARCH=amd64 go build -o dist/windows-amd64/epgo-genpages.exe cmds/epgo-genpages/epgo-genpages.go
-	env  GOOS=windows GOARCH=amd64 go build -o dist/windows-amd64/epgo-indexpages.exe cmds/epgo-indexpages/epgo-indexpages.go
-	env  GOOS=windows GOARCH=amd64 go build -o dist/windows-amd64/epgo-servepages.exe cmds/epgo-servepages/epgo-servepages.go
-	env  GOOS=windows GOARCH=amd64 go build -o dist/windows-amd64/epgo-sitemapper.exe cmds/epgo-sitemapper/epgo-sitemapper.go
 
 dist/macosx-amd64:
 	env  GOOS=darwin GOARCH=amd64 go build -o dist/macosx-amd64/epgo cmds/epgo/epgo.go
 	env  GOOS=darwin GOARCH=amd64 go build -o dist/macosx-amd64/epgo-genpages cmds/epgo-genpages/epgo-genpages.go
-	env  GOOS=darwin GOARCH=amd64 go build -o dist/macosx-amd64/epgo-indexpages cmds/epgo-indexpages/epgo-indexpages.go
-	env  GOOS=darwin GOARCH=amd64 go build -o dist/macosx-amd64/epgo-servepages cmds/epgo-servepages/epgo-servepages.go
-	env  GOOS=darwin GOARCH=amd64 go build -o dist/macosx-amd64/epgo-sitemapper cmds/epgo-sitemapper/epgo-sitemapper.go
 
 dist/raspbian-arm7:
 	env  GOOS=linux GOARCH=arm GOARM=7 go build -o dist/raspberrypi-arm7/epgo cmds/epgo/epgo.go
 	env  GOOS=linux GOARCH=arm GOARM=7 go build -o dist/raspberrypi-arm7/epgo-genpages cmds/epgo-genpages/epgo-genpages.go
-	env  GOOS=linux GOARCH=arm GOARM=7 go build -o dist/raspberrypi-arm7/epgo-indexpages cmds/epgo-indexpages/epgo-indexpages.go
-	env  GOOS=linux GOARCH=arm GOARM=7 go build -o dist/raspberrypi-arm7/epgo-servepages cmds/epgo-servepages/epgo-servepages.go
-	env  GOOS=linux GOARCH=arm GOARM=7 go build -o dist/raspberrypi-arm7/epgo-sitemapper cmds/epgo-sitemapper/epgo-sitemapper.go
   
 release: dist/linux-amd64 dist/windows-amd64 macosx-amd64 raspbian-arm7
 	mkdir -p dist/etc/systemd/system
