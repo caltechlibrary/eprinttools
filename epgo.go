@@ -868,7 +868,7 @@ func (api *EPrintsAPI) RenderEPrint(basepath string, record *Record) error {
 	return ioutil.WriteFile(fname, src, 0664)
 }
 
-// RenderDocuments writes JSON, BibTeX and RSS 2 document to the directory indicated by docpath
+// RenderDocuments writes JSON, BibTeX documents to the directory indicated by docpath
 func (api *EPrintsAPI) RenderDocuments(docTitle, docDescription, docpath string, records []*Record) error {
 	// Create the the directory part of docpath if neccessary
 	if _, err := os.Open(path.Join(api.Htdocs, docpath)); err != nil && os.IsNotExist(err) == true {
@@ -905,29 +905,30 @@ func (api *EPrintsAPI) RenderDocuments(docTitle, docDescription, docpath string,
 		return fmt.Errorf("Can't write %s, %s", fname, err)
 	}
 
-	//FIXME: create the template should be outside the RenderDocuments function to lower the overhead
-	// on the CPU usage and memory usage for compiling the template at each envocation.
-	// Could also use rss2 package built in RSS render and skip template altogher.
+	/*
+		//FIXME: Skip the template, map data into RSS2 structure and render
+		// using XML Marshal.
 
-	// Write out RSS 2.0 file
-	fname = path.Join(api.TemplatePath, "rss.xml")
-	rss20, err := ioutil.ReadFile(fname)
-	if err != nil {
-		return fmt.Errorf("Can't open template %s, %s", fname, err)
-	}
-	rssTmpl, err := template.New("rss").Funcs(TmplFuncs).Parse(string(rss20))
-	if err != nil {
-		return fmt.Errorf("Can't convert records to RSS %s, %s", fname, err)
-	}
-	fname = path.Join(api.Htdocs, docpath) + ".rss"
-	out, err := os.Create(fname)
-	if err != nil {
-		return fmt.Errorf("Can't write %s, %s", fname, err)
-	}
-	if err := rssTmpl.Execute(out, pageData); err != nil {
-		return fmt.Errorf("Can't render %s, %s", fname, err)
-	}
-	out.Close()
+		// Write out RSS 2.0 file
+		fname = path.Join(api.TemplatePath, "rss.xml")
+		rss20, err := ioutil.ReadFile(fname)
+		if err != nil {
+			return fmt.Errorf("Can't open template %s, %s", fname, err)
+		}
+		rssTmpl, err := template.New("rss").Funcs(TmplFuncs).Parse(string(rss20))
+		if err != nil {
+			return fmt.Errorf("Can't convert records to RSS %s, %s", fname, err)
+		}
+		fname = path.Join(api.Htdocs, docpath) + ".rss"
+		out, err := os.Create(fname)
+		if err != nil {
+			return fmt.Errorf("Can't write %s, %s", fname, err)
+		}
+		if err := rssTmpl.Execute(out, pageData); err != nil {
+			return fmt.Errorf("Can't render %s, %s", fname, err)
+		}
+		out.Close()
+	*/
 
 	// Write out BibTeX file.
 	bibDoc := []string{}
