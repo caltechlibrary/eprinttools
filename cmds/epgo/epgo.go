@@ -25,6 +25,7 @@ import (
 	"log"
 	"os"
 	"path"
+	"strconv"
 	"strings"
 
 	// Caltech Library Packages
@@ -60,15 +61,22 @@ var (
 	examples = `
 EXAMPLE
 
-    %s -export -1
+    %s -export all
 
-Would export the entire EPrints reportory public content defined by the
+Would export the entire EPrints repository public content defined by the
 environment virables EPGO_API_URL, EPGO_DATASET.
+
+    %s -export 2000
+
+Would export 2000 EPrints from the repository with the heighest ID values.
 
     %s -select
 
 Would (re)build the select lists based on contents of $EPGO_DATASET.
-`
+
+    %s -select -export all
+
+Would export all eprints and rebuild the select lists.`
 
 	// Standard Options
 	showHelp    bool
@@ -83,7 +91,7 @@ Would (re)build the select lists based on contents of $EPGO_DATASET.
 	apiURL      string
 	datasetName string
 
-	exportEPrints   int
+	exportEPrints   string
 	feedSize        int
 	publishedNewest int
 	articlesNewest  int
@@ -112,7 +120,7 @@ func init() {
 	flag.BoolVar(&prettyPrint, "p", false, "pretty print JSON output")
 	flag.BoolVar(&useAPI, "read-api", false, "read the contents from the API without saving in the database")
 	flag.IntVar(&feedSize, "feed-size", feedSize, "number of items rendering in feeds")
-	flag.IntVar(&exportEPrints, "export", 0, "export N EPrints from highest ID to lowest")
+	flag.StringVar(&exportEPrints, "export", "", "export N EPrints from highest ID to lowest")
 	flag.IntVar(&publishedNewest, "published-newest", 0, "list the N newest published items")
 	flag.IntVar(&articlesNewest, "articles-newest", 0, "list the N newest published articles")
 	flag.BoolVar(&genSelectLists, "s", false, "generate select lists in dataset")
@@ -136,7 +144,7 @@ func main() {
 	cfg := cli.New(appName, appName, fmt.Sprintf(epgo.LicenseText, appName, epgo.Version), epgo.Version)
 	cfg.UsageText = fmt.Sprintf(usage, appName)
 	cfg.DescriptionText = fmt.Sprintf(description, appName, appName)
-	cfg.ExampleText = fmt.Sprintf(examples, appName, appName)
+	cfg.ExampleText = fmt.Sprintf(examples, appName, appName, appName, appName)
 
 	// Handle the default options
 	if showHelp == true {
@@ -171,22 +179,25 @@ func main() {
 		log.Fatal(err)
 	}
 
-	if exportEPrints != 0 {
+	if exportEPrints != "" {
+		exportNo := -1
+		if exportEPrints != "all" {
+			exportNo, err = strconv.Atoi(exportEPrints)
+			if err != nil {
+				log.Fatalf("Export count should be %q or an integer, %s", exportEPrints, err)
+			}
+		}
 		log.Printf("%s %s", appName, epgo.Version)
 		log.Println("Export started")
-		if err := api.ExportEPrints(exportEPrints); err != nil {
+		if err := api.ExportEPrints(exportNo); err != nil {
 			log.Printf("%s", err)
 		} else {
 			log.Println("Export completed")
 		}
-		if genSelectLists == true {
-			log.Println("Generating Select lists")
-			api.BuildSelectLists()
-			log.Println("Select lists complete")
+		if genSelectLists != true {
 			os.Exit(0)
 		}
 		log.Printf("Ready to run `%s -select` to rebuild select lists\n", appName)
-		os.Exit(0)
 	}
 	if genSelectLists == true {
 		log.Printf("%s %s", appName, epgo.Version)

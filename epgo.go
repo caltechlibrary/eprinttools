@@ -41,7 +41,7 @@ import (
 
 const (
 	// Version is the revision number for this implementation of epgo
-	Version = "v0.0.10-alpha4"
+	Version = "v0.0.10-alpha5"
 
 	// LicenseText holds the string for rendering License info on the command line
 	LicenseText = `
