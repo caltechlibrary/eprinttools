@@ -35,34 +35,28 @@ var (
 	usage = `USAGE: %s [OPTIONS]`
 
 	description = `
+SYNOPSIS
 
- OVERVIEW
+%s generates JSON and BibTeX pages.
 
-	%s generates HTML, .include pages, BibTeX and normalized JSON based 
-	on the JSON output form epgo and templates associated with 
-	the command.
+CONFIGURATION
 
- CONFIGURATION
+%s can be configured through setting the following environment
+variables-
 
-    %s can be configured through setting the following environment
-	variables-
+EPGO_DATASET    this is the dataset and collection directory (e.g. dataset/eprints)
 
-    EPGO_DATASET    this is the dataset and collection directory (e.g. dataset/eprints)
-
-    EPGO_TEMPLATE_PATH  this is the directory that contains the templates
+EPGO_TEMPLATE_PATH  this is the directory that contains the templates
                    used used to generate the static content of the website.
 
-    EPGO_HTDOCS    this is the directory where the HTML files are written.
-
-`
+EPGO_HTDOCS    this is the directory where the HTML files are written.`
 
 	examples = `
 EXAMPLE
 
 	%s 
 
-Generates webpages in EPGO_HTDOCS from EPGO_DATASET.
-`
+Generates webpages in EPGO_HTDOCS from EPGO_DATASET.`
 
 	// Standard Options
 	showHelp    bool

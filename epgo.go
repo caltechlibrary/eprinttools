@@ -896,50 +896,6 @@ func (api *EPrintsAPI) RenderDocuments(docTitle, docDescription, docpath string,
 		return fmt.Errorf("Can't write %s, %s", fname, err)
 	}
 
-	/*
-		        //FIXME: Skip the template, map data into RSS2 structure and render
-				// using XML Marshal.
-
-				//NOTE: create a data wrapper for HTML page creation
-				pageData := &struct {
-					Version        string
-					Basepath       string
-					ApiURL         string
-					SiteURL        string
-					DocTitle       string
-					DocDescription string
-					Records        []*Record
-				}{
-					Version:        Version,
-					Basepath:       docpath,
-					ApiURL:         api.URL.String(),
-					SiteURL:        api.SiteURL.String(),
-					DocTitle:       docTitle,
-					DocDescription: docDescription,
-					Records:        records,
-				}
-
-					// Write out RSS 2.0 file
-					fname = path.Join(api.TemplatePath, "rss.xml")
-					rss20, err := ioutil.ReadFile(fname)
-					if err != nil {
-						return fmt.Errorf("Can't open template %s, %s", fname, err)
-					}
-					rssTmpl, err := template.New("rss").Funcs(TmplFuncs).Parse(string(rss20))
-					if err != nil {
-						return fmt.Errorf("Can't convert records to RSS %s, %s", fname, err)
-					}
-					fname = path.Join(api.Htdocs, docpath) + ".rss"
-					out, err := os.Create(fname)
-					if err != nil {
-						return fmt.Errorf("Can't write %s, %s", fname, err)
-					}
-					if err := rssTmpl.Execute(out, pageData); err != nil {
-						return fmt.Errorf("Can't render %s, %s", fname, err)
-					}
-					out.Close()
-	*/
-
 	return nil
 }
 
@@ -1054,6 +1010,7 @@ func (api *EPrintsAPI) BuildSelectLists() error {
 // BuildSite generates a website based on the contents of the exported EPrints data.
 // The site builder needs to know the name of the BoltDB, the root directory
 // for the website and directory to find the templates
+// FIXME: This should be in the cli code, not the library code.
 func (api *EPrintsAPI) BuildSite(feedSize int, buildEPrintMirror bool) error {
 	var err error
 
