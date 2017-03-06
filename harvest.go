@@ -69,10 +69,10 @@ func (api *EPrintsAPI) ExportEPrints(count int) error {
 			}
 		}
 		if (i % EPrintsExportBatchSize) == 0 {
-			log.Printf("%d uri processed, %d exported, %d unexported", i+1, j, k)
+			log.Printf("%d/%d uri processed, %d exported, %d unexported", i+1, count, j, k)
 		}
 	}
-	log.Printf("%d uri processed, %d exported, %d unexported", len(uris), j, k)
+	log.Printf("%d/%d uri processed, %d exported, %d unexported", len(uris), count, j, k)
 
 	return nil
 }
