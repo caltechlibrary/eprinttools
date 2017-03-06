@@ -175,9 +175,16 @@ func main() {
 		log.Printf("%s %s", appName, epgo.Version)
 		log.Println("Export started")
 		if err := api.ExportEPrints(exportEPrints); err != nil {
-			log.Fatal(err)
+			log.Printf("%s", err)
+		} else {
+			log.Println("Export completed")
 		}
-		log.Println("Export completed")
+		if genSelectLists == true {
+			log.Println("Generating Select lists")
+			api.BuildSelectLists()
+			log.Println("Select lists complete")
+			os.Exit(0)
+		}
 		log.Printf("Ready to run `%s -select` to rebuild select lists\n", appName)
 		os.Exit(0)
 	}
