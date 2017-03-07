@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>epgo</title>
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="css/site.css">
+</head>
+<body>
+<header>
+<a href="http://library.caltech.edu" title="link to Caltech Library Homepage"><img src="assets/liblogo.gif" alt="Caltech Library logo"></a>
+</header>
+<nav>
+<ul>
+<li><a href="/">Home</a></li>
+<li><a href="./">README</a></li>
+<li><a href="license.html">LICENSE</a></li>
+<li><a href="install.html">INSTALL</a></li>
+<li><a href="epgo.html">epgo</a></li>
+<li><a href="epgo-genpages.html">epgo-genpages</a></li>
+<li><a href="https://github.com/caltechlibrary/epgo">Github</a></li>
+</ul>
+
+</nav>
+
+<section>
+<h1>Action items</h1>
+
+<h2>Next</h2>
+
+<ul>
+<li>[ ] Update how BibTeX and JSON blobs are written, I need to support articles, publications, thesis from two EPrints repositories with same utility
+
+<ul>
+<li>[ ] provide a mechanism to create groupings of EPrint records to handle Eprint Object types (e.g. articles vs. thesis), groups, orcids, etc.</li>
+<li>[ ] move BuildSite() into cmds/epgo-genpages/epgo-genpages.go</li>
+<li>[ ] Find out why we have 12+ hour render sessions on AWS</li>
+</ul></li>
+<li>[ ] ORCID person outputs need to include name (e.g. could do a look up via ORCID API)</li>
+<li>[ ] Remove epgo dependency on tmplfn package in favor of <em>mkpage</em> template rendering</li>
+</ul>
+
+<h2>Someday, Maybe</h2>
+
+<ul>
+<li>export single EPrint record to dataset so we can do fast additions on breaking publications</li>
+<li>export lists of groups, funders, EPrint object types, and other fields that might be useful for filtering/sorting output</li>
+<li>ORCID A-Z list
+
+<ul>
+<li>for each ORCID harvest as public ORCID profile write out to $ORCID_ID/orcid-profile.json</li>
+<li>From orcid-profile.json rendering a Markdown document $ORCID_ID/index.md</li>
+<li>Render index.html and index.include from $ORCID_ID/index.md</li>
+</ul></li>
+<li>Find epgo-genpage bottleneck and improve performance</li>
+<li>Debug Person and Group feeds with dataset integration between CaltechAUTHORS and CaltechTHESIS</li>
+<li>Add feeds for Grant Numbers (use CrossREF API for naming grant sources)</li>
+<li>Integrate VIAF numbers (viaf.org) and links to other numbers (e.g. ISNI)</li>
+<li>Add support for the MLA citation style in the HTML markup for HTML found in browse by person/year in both the website and include files
+
+<ul>
+<li>Does it make more sense to include BibTeX and let BibTeX format different citation formats?</li>
+</ul></li>
+</ul>
+
+<h2>Completed</h2>
+
+<ul>
+<li>[x] convert epgo-genpages HTML/HTML Include templates into <em>mkpage</em> friendly templates</li>
+<li>[x] Replace templated RSS2 output with output generated from epgo-genpages to <em>mkpage</em> or other system</li>
+</ul>
+
+</section>
+
+<footer>
+<span>&copy; 2017 <a href="http://library.caltech.edu/CLS_Copyright.htm">Caltech Library</a></span>
+<address>1200 E California Blvd, Mail Code 1-32, Pasadena, CA 91125-3200</address>
+<span><a href="mailto:library@caltech.edu">Email Us</a></span> 
+<span>Phone: <a href="tel:+1-626-395-3405">(626)395-3405</a></span>
+</footer>
+</body>
+</html>

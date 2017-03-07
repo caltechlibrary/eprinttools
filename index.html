@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>epgo</title>
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="css/site.css">
+</head>
+<body>
+<header>
+<a href="http://library.caltech.edu" title="link to Caltech Library Homepage"><img src="assets/liblogo.gif" alt="Caltech Library logo"></a>
+</header>
+<nav>
+<ul>
+<li><a href="/">Home</a></li>
+<li><a href="./">README</a></li>
+<li><a href="license.html">LICENSE</a></li>
+<li><a href="install.html">INSTALL</a></li>
+<li><a href="epgo.html">epgo</a></li>
+<li><a href="epgo-genpages.html">epgo-genpages</a></li>
+<li><a href="https://github.com/caltechlibrary/epgo">Github</a></li>
+</ul>
+
+</nav>
+
+<section>
+<h1>epgo</h1>
+
+<p>This project contains the <em>epgo</em> go package for working with EPrints REST API. It also includes
+a set of command line utilities for harvesting content,  building feeds and website pages
+that run indepenantly of EPrints itself (e.g. You could have a website/feeds generated from
+an EPrints repository running on a different system).</p>
+
+<h2>The command line utilities</h2>
+
+<ul>
+<li><em>epgo</em> is a command line utility utilizing EPrints&rsquo; REST API to produce alternative
+feeds and formats. Currently it supports generating a feed of repository items based
+on publication dates.</li>
+<li><em>epgo-genpages</em> is a command line utility that builds JSON documents based on the content harvested with <em>epgo</em>.
+
+<ul>
+<li>For HTML, HTML include, RSS 2 documents <em>mkpage</em> can be used render JSON render Markdown and HTML</li>
+</ul></li>
+</ul>
+
+<p>All the utilities can be configured from the environment.  The environment
+can be overridden by command line options. For details run the individual command wiht the &lsquo;-help&rsquo;
+option.  E.g. <code>./bin/epgo -help</code></p>
+
+</section>
+
+<footer>
+<span>&copy; 2017 <a href="http://library.caltech.edu/CLS_Copyright.htm">Caltech Library</a></span>
+<address>1200 E California Blvd, Mail Code 1-32, Pasadena, CA 91125-3200</address>
+<span><a href="mailto:library@caltech.edu">Email Us</a></span> 
+<span>Phone: <a href="tel:+1-626-395-3405">(626)395-3405</a></span>
+</footer>
+</body>
+</html>
