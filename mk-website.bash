@@ -34,7 +34,7 @@ makePage "epgo" TODO.md nav.md todo.html
 git add index.html install.html license.html notes.html todo.html 
 
 # Loop through commands docs
-for FNAME in epgo epgo-genpages epgo-indexpages epgo-servepages epgo-sitemapper; do
+for FNAME in epgo epgo-genpages; do
     makePage "epgo" $FNAME.md nav.md $FNAME.html
     git add $FNAME.md $FNAME.html
 done

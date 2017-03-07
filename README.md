@@ -1,4 +1,3 @@
-[![Go Report Card](http://goreportcard.com/badge/caltechlibrary/epgo)](http://goreportcard.com/report/caltechlibrary/epgo)
 
 # epgo
 
@@ -12,10 +11,8 @@ an EPrints repository running on a different system).
 + _epgo_ is a command line utility utilizing EPrints' REST API to produce alternative
 feeds and formats. Currently it supports generating a feed of repository items based
 on publication dates.
-+ _epgo-genpages_ is a command line utility that builds HTML and feed pages from content harvested with _epgo_
-+ _epgo-indexpages_ is a command line utlity that will build a [Bleve](https://blevesearch.com) index to support website search
-+ _epgo-servepages_ is a web server for serving the static content generated with _genpages_ as well as supporting search from the index created with _epgo-indexpages_
-+ _epgo-sitemapper_ is a command line utility for generating a sitemap.xml file
++ _epgo-genpages_ is a command line utility that builds JSON documents based on the content harvested with _epgo_.
+    + For HTML, HTML include, RSS 2 documents _mkpage_ can be used render JSON render Markdown and HTML
 
 All the utilities can be configured from the environment.  The environment
 can be overridden by command line options. For details run the individual command wiht the '-help'

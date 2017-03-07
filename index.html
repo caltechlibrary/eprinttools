@@ -17,17 +17,12 @@
 <li><a href="install.html">INSTALL</a></li>
 <li><a href="epgo.html">epgo</a></li>
 <li><a href="epgo-genpages.html">epgo-genpages</a></li>
-<li><a href="epgo-indexpages.html">epgo-indexpages</a></li>
-<li><a href="epgo-servepages.html">epgo-servepages</a></li>
-<li><a href="epgo-sitemapper.html">epgo-sitemapper</a></li>
 <li><a href="https://github.com/caltechlibrary/epgo">Github</a></li>
 </ul>
 
 </nav>
 
 <section>
-<p><a href="http://goreportcard.com/report/caltechlibrary/epgo"><img src="http://goreportcard.com/badge/caltechlibrary/epgo" alt="Go Report Card" /></a></p>
-
 <h1>epgo</h1>
 
 <p>This project contains the <em>epgo</em> go package for working with EPrints REST API. It also includes
@@ -41,10 +36,11 @@ an EPrints repository running on a different system).</p>
 <li><em>epgo</em> is a command line utility utilizing EPrints&rsquo; REST API to produce alternative
 feeds and formats. Currently it supports generating a feed of repository items based
 on publication dates.</li>
-<li><em>epgo-genpages</em> is a command line utility that builds HTML and feed pages from content harvested with <em>epgo</em></li>
-<li><em>epgo-indexpages</em> is a command line utlity that will build a <a href="https://blevesearch.com">Bleve</a> index to support website search</li>
-<li><em>epgo-servepages</em> is a web server for serving the static content generated with <em>genpages</em> as well as supporting search from the index created with <em>epgo-indexpages</em></li>
-<li><em>epgo-sitemapper</em> is a command line utility for generating a sitemap.xml file</li>
+<li><em>epgo-genpages</em> is a command line utility that builds JSON documents based on the content harvested with <em>epgo</em>.
+
+<ul>
+<li>For HTML, HTML include, RSS 2 documents <em>mkpage</em> can be used render JSON render Markdown and HTML</li>
+</ul></li>
 </ul>
 
 <p>All the utilities can be configured from the environment.  The environment

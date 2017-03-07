@@ -17,9 +17,6 @@
 <li><a href="install.html">INSTALL</a></li>
 <li><a href="epgo.html">epgo</a></li>
 <li><a href="epgo-genpages.html">epgo-genpages</a></li>
-<li><a href="epgo-indexpages.html">epgo-indexpages</a></li>
-<li><a href="epgo-servepages.html">epgo-servepages</a></li>
-<li><a href="epgo-sitemapper.html">epgo-sitemapper</a></li>
 <li><a href="https://github.com/caltechlibrary/epgo">Github</a></li>
 </ul>
 
@@ -28,30 +25,23 @@
 <section>
 <h1>USAGE</h1>
 
-<pre><code>epgo [OPTIONS] [EPRINT_URI]
+<pre><code>epgo [OPTIONS] [EPGO_EPRINTS_URL]
 </code></pre>
 
-<h2>SYSNOPSIS</h2>
+<h2>SYNOPSIS</h2>
 
-<p>epgo wraps the REST API for E-Prints 3.3 or better. It can return a list of uri,
-a JSON view of the XML presentation as well as generates feeds and web pages.</p>
+<p>epgo wraps the REST API for E-Prints 3.3 or better. It can return a list
+of uri, a JSON view of the XML presentation as well as generates feeds
+and web pages.</p>
 
-<h2>CONFIG</h2>
+<h2>CONFIGURATION</h2>
 
 <p>epgo can be configured with following environment variables</p>
 
 <ul>
-<li>EPGO_API_URL (required) the URL to your E-Prints installation</li>
-<li>EPGO_DATASET   (required) the dataset and collection name for exporting, site building, and content retrieval</li>
-<li>EPGO_BLEVE (optional) the name for the Bleve index/db</li>
-<li>EPGO_SITE_URL (optional) the URL to your public website (might be the same as E-Prints)</li>
-<li>EPGO_HTDOCS   (optional) the htdocs root for site building</li>
-<li>EPGO_TEMPLATE_PATH (optional) the template directory to use for site building</li>
+<li>EPGO_EPRINTS_URL the URL to your E-Prints installation</li>
+<li>EPGO_DATASET the dataset and collection name for exporting, site building, and content retrieval</li>
 </ul>
-
-<p>If EPRINT_URI is provided then an individual EPrint is return as
-a JSON structure (e.g. /rest/eprint/34.xml). Otherwise a list of EPrint paths are
-returned.</p>
 
 <h2>OPTIONS</h2>
 
@@ -64,6 +54,8 @@ returned.</p>
 	-help	display help
 	-l	display license
 	-license	display license
+	-o	output filename (logging)
+	-output	output filename (logging)
 	-p	pretty print JSON output
 	-published-newest	list the N newest published items
 	-read-api	read the contents from the API without saving in the database
@@ -72,6 +64,29 @@ returned.</p>
 	-v	display version
 	-version	display version
 </code></pre>
+
+<h2>EXAMPLE</h2>
+
+<pre><code class="language-shell">    epgo -export all
+</code></pre>
+
+<p>Would export the entire EPrints repository public content defined by the
+environment virables EPGO_API_URL, EPGO_DATASET.</p>
+
+<pre><code class="language-shell">    epgo -export 2000
+</code></pre>
+
+<p>Would export 2000 EPrints from the repository with the heighest ID values.</p>
+
+<pre><code class="language-shell">    epgo -select
+</code></pre>
+
+<p>Would (re)build the select lists based on contents of $EPGO_DATASET.</p>
+
+<pre><code class="language-shell">    epgo -select -export all
+</code></pre>
+
+<p>Would export all eprints and rebuild the select lists.</p>
 
 </section>
 

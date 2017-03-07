@@ -29,13 +29,16 @@ import (
 
 // ExportEPrints from highest ID to lowest for cnt. Saves each record in a DB and indexes published ones
 func (api *EPrintsAPI) ExportEPrints(count int) error {
-	var errs []error
 	c, err := dataset.Create(api.Dataset, dataset.GenerateBucketNames(dataset.DefaultAlphabet, 2))
-	failCheck(err, fmt.Sprintf("ExportEPrints() %s, %s", api.Dataset, err))
+	if err != nil {
+		return fmt.Errorf("ExportEPrints() %s, %s", api.Dataset, err)
+	}
 	defer c.Close()
 
 	uris, err := api.ListEPrintsURI()
-	failCheck(err, fmt.Sprintf("Export %s failed, %s", api.URL.String(), err))
+	if err != nil {
+		return fmt.Errorf("Export %s failed, %s", api.URL.String(), err)
+	}
 
 	//NOTE: I am sorting the URI by decscending ID number so that the newest articles
 	// are exported first
@@ -57,23 +60,19 @@ func (api *EPrintsAPI) ExportEPrints(count int) error {
 		} else {
 			key := fmt.Sprintf("%d", rec.ID)
 			err := c.Create(key, rec)
-			if err != nil {
-				errs = append(errs, err)
-			} else {
+			if err == nil {
 				// We've exported a record successfully, now update select lists
 				j++
-			}
-
-			if err != nil {
+			} else {
 				log.Printf("Failed to save eprint %s, %s\n", uri, err)
 				k++
 			}
 		}
 		if (i % EPrintsExportBatchSize) == 0 {
-			log.Printf("%d uri processed, %d exported, %d unexported", i+1, j, k)
+			log.Printf("%d/%d uri processed, %d exported, %d unexported", i+1, count, j, k)
 		}
 	}
-	log.Printf("%d uri processed, %d exported, %d unexported", len(uris), j, k)
+	log.Printf("%d/%d uri processed, %d exported, %d unexported", len(uris), count, j, k)
 
 	return nil
 }
