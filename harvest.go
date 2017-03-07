@@ -40,8 +40,8 @@ func (api *EPrintsAPI) ExportEPrints(count int) error {
 		return fmt.Errorf("Export %s failed, %s", api.URL.String(), err)
 	}
 
-	//NOTE: I am sorting the URI by decscending ID number so that the newest articles
-	// are exported first
+	// NOTE: I am sorting the URI by decscending ID number so that the
+	// newest articles are exported first
 	sort.Sort(byURI(uris))
 
 	uriCount := len(uris)

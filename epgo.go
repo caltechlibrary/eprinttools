@@ -342,16 +342,17 @@ func (rec *Record) ToBibTeXElement() *bibtex.Element {
 // New creates a new API instance
 func New(cfg *cli.Config) (*EPrintsAPI, error) {
 	var err error
-	apiURL := cfg.Get("eprint_url")
+	EPrintURL := cfg.Get("eprint_url")
 	htdocs := cfg.Get("htdocs")
 	datasetName := cfg.Get("dataset")
 
 	api := new(EPrintsAPI)
-	if apiURL != "" {
-		api.URL, err = url.Parse(apiURL)
-		if err != nil {
-			return nil, fmt.Errorf("api url is malformed %s, %s", apiURL, err)
-		}
+	if EPrintURL == "" {
+		EPrintURL = "http://localhost:8080"
+	}
+	api.URL, err = url.Parse(EPrintURL)
+	if err != nil {
+		return nil, fmt.Errorf("eprint url is malformed %s, %s", EPrintURL, err)
 	}
 	if htdocs == "" {
 		htdocs = "htdocs"
