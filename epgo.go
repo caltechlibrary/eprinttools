@@ -94,14 +94,13 @@ func failCheck(err error, msg string) {
 
 // EPrintsAPI holds the basic connectin information to read the REST API for EPrints
 type EPrintsAPI struct {
-	XMLName        xml.Name `json:"-"`
-	URL            *url.URL `xml:"epgo>api_url" json:"api_url"`                 // EPGO_API_URL
-	Dataset        string   `xml:"epgo>dataset" json:"dataset"`                 // EPGO_DATASET
-	BleveName      string   `xml:"epgo>bleve" json:"bleve"`                     // EPGO_BLEVE
-	Htdocs         string   `xml:"epgo>htdocs" json:"htdocs"`                   // EPGO_HTDOCS
-	TemplatePath   string   `xml:"epgo>template_path" json:"template_path"`     // EPGO_TEMPLATES
-	SiteURL        *url.URL `xml:"epgo>site_url" json:"site_url"`               // EPGO_SITE_URL
-	RepositoryPath string   `xml:"epgo>repository_path" json:"repository_path"` // EPGO_REPOSITORY_PATH
+	XMLName xml.Name `json:"-"`
+	// EPGO_EPRINT_URL
+	URL *url.URL `xml:"epgo>eprint_url" json:"eprint_url"`
+	// EPGO_DATASET
+	Dataset string `xml:"epgo>dataset" json:"dataset"`
+	// EPGO_HTDOCS
+	Htdocs string `xml:"epgo>htdocs" json:"htdocs"`
 }
 
 // Person returns the contents of eprint>creators>item>name as a struct
@@ -343,25 +342,16 @@ func (rec *Record) ToBibTeXElement() *bibtex.Element {
 // New creates a new API instance
 func New(cfg *cli.Config) (*EPrintsAPI, error) {
 	var err error
-	apiURL := cfg.Get("api_url")
-	siteURL := cfg.Get("site_url")
+	apiURL := cfg.Get("eprint_url")
 	htdocs := cfg.Get("htdocs")
 	datasetName := cfg.Get("dataset")
-	bleveName := cfg.Get("bleve")
-	templatePath := cfg.Get("template_path")
-	repositoryPath := cfg.Get("repository_path")
 
-	if apiURL == "" {
-		return nil, fmt.Errorf("Environment not configured, missing eprint api url")
-	}
 	api := new(EPrintsAPI)
-	api.URL, err = url.Parse(apiURL)
-	if err != nil {
-		return nil, fmt.Errorf("api url is malformed %s, %s", apiURL, err)
-	}
-	api.SiteURL, err = url.Parse(siteURL)
-	if err != nil {
-		return nil, fmt.Errorf("site url malformed %s, %s", siteURL, err)
+	if apiURL != "" {
+		api.URL, err = url.Parse(apiURL)
+		if err != nil {
+			return nil, fmt.Errorf("api url is malformed %s, %s", apiURL, err)
+		}
 	}
 	if htdocs == "" {
 		htdocs = "htdocs"
@@ -369,20 +359,8 @@ func New(cfg *cli.Config) (*EPrintsAPI, error) {
 	if datasetName == "" {
 		datasetName = "eprints"
 	}
-	if bleveName == "" {
-		bleveName = "eprints.bleve"
-	}
-	if templatePath == "" {
-		templatePath = "templates"
-	}
-	if repositoryPath == "" {
-		repositoryPath = "repository"
-	}
 	api.Htdocs = htdocs
 	api.Dataset = datasetName
-	api.TemplatePath = templatePath
-	api.BleveName = bleveName
-	api.RepositoryPath = repositoryPath
 	return api, nil
 }
 
