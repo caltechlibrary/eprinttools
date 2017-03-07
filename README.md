@@ -11,8 +11,8 @@ an EPrints repository running on a different system).
 + _epgo_ is a command line utility utilizing EPrints' REST API to produce alternative
 feeds and formats. Currently it supports generating a feed of repository items based
 on publication dates.
-+ _epgo-genpages_ is a command line utility that builds JSON, BibTeX and RSS 2 documents based on content harvested with _epgo_
-    + For HTML or HTML include documents _mkpage_ can be used render JSON render Markdown and HTML
++ _epgo-genpages_ is a command line utility that builds JSON documents based on the content harvested with _epgo_.
+    + For HTML, HTML include, RSS 2 documents _mkpage_ can be used render JSON render Markdown and HTML
 
 All the utilities can be configured from the environment.  The environment
 can be overridden by command line options. For details run the individual command wiht the '-help'
