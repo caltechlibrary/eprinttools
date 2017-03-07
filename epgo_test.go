@@ -33,7 +33,7 @@ var (
 
 func TestMain(m *testing.M) {
 	cfg = cli.New("epgo", "EPGO", "", Version)
-	cfg.MergeEnv("epint_url", "")
+	cfg.MergeEnv("eprint_url", "")
 	cfg.MergeEnv("dataset", "")
 	cfg.MergeEnv("htdocs", "")
 	os.Exit(m.Run())
