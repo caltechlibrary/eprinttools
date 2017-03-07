@@ -1,40 +1,45 @@
 
 # USAGE
 
-   epgo-indexpages [OPTIONS] [BLEVE_INDEX_NAME]
+    epgo-genpages [OPTIONS]
 
 ## SYNOPSIS
 
-epgo-indexpages is a command line utility to indexes content in the htdocs directory.
-It produces a Bleve search index used by servepages web service.
-Configuration is done through environmental variables.
+epgo-genpages generates JSON documents in a htdocs directory tree.
 
 ## CONFIGURATION
 
-epgo-indexpages relies on the following environment variables for
-configuration when overriding the defaults:
+epgo-genpages can be configured through setting the following environment
+variables-
 
-+ EPGO_HTDOCS This should be the path to the directory tree
-              containings the content (e.g. JSON files) to be index.
-              This is generally populated with the caitpage command.
-              Defaults to ./htdocs.
-
-+ EPGO_BLEVE  This is is the directory that will contain all the Bleve
-              indexes. Defaults to ./htdocs.bleve
++ EPGO_DATASET this is the dataset and collection directory (e.g. dataset/eprints)
++ EPGO_HTDOCS this is the directory where the JSON documents will be written.
 
 ## OPTIONS
 
 ```
-    -batch    Set the batch index size
-    -bleve    a colon delimited list of Bleve index db names
-    -h    display help
-    -help    display help
-    -htdocs    The document root for the website
-    -l    display license
-    -license    display license
-    -r    Replace the index if it exists
-    -repository-path    Path of rendered repository content
-    -v    display version
-    -version    display version
+	-api-url	the EPrints API url
+	-build-eprint-mirror	Build a mirror of EPrint content rendered as JSON documents
+	-dataset	the dataset/collection name
+	-h	display help
+	-help	display help
+	-htdocs	specify where to write the HTML files to
+	-l	display license
+	-license	display license
+	-o	output filename (log message)
+	-output	output filename (log message)
+	-repository-path	specify the repository path to use for generated content
+	-site-url	the website url
+	-template-path	specify where to read the templates from
+	-v	display version
+	-version	display version
 ```
+
+## EXAMPLE
+
+```shell
+	epgo-genpages 
+```
+
+Generates JSON documents in EPGO_HTDOCS from EPGO_DATASET.
 

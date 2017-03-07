@@ -37,7 +37,7 @@ var (
 	description = `
 SYNOPSIS
 
-%s generates JSON and BibTeX pages.
+%s generates JSON documents in a htdocs directory tree.
 
 CONFIGURATION
 
@@ -46,17 +46,14 @@ variables-
 
 EPGO_DATASET    this is the dataset and collection directory (e.g. dataset/eprints)
 
-EPGO_TEMPLATE_PATH  this is the directory that contains the templates
-                   used used to generate the static content of the website.
-
-EPGO_HTDOCS    this is the directory where the HTML files are written.`
+EPGO_HTDOCS    this is the directory where the JSON documents will be written.`
 
 	examples = `
 EXAMPLE
 
 	%s 
 
-Generates webpages in EPGO_HTDOCS from EPGO_DATASET.`
+Generates JSON documents in EPGO_HTDOCS from EPGO_DATASET.`
 
 	// Standard Options
 	showHelp    bool
@@ -140,12 +137,6 @@ func main() {
 	// Check to see we can merge the required fields are merged.
 	htdocs = check(cfg, "htdocs", cfg.MergeEnv("htdocs", htdocs))
 	datasetName = check(cfg, "dataset", cfg.MergeEnv("dataset", datasetName))
-	templatePath = check(cfg, "template_path", cfg.MergeEnv("template_path", templatePath))
-	apiURL = check(cfg, "api_url", cfg.MergeEnv("api_url", apiURL))
-	siteURL = check(cfg, "site_url", cfg.MergeEnv("site_url", siteURL))
-
-	// Merge any optional data
-	repositoryPath = cfg.MergeEnv("repository_path", repositoryPath)
 
 	if htdocs != "" {
 		if _, err := os.Stat(htdocs); os.IsNotExist(err) {
