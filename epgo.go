@@ -31,7 +31,6 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	"unicode/utf8"
 
 	// Caltech Library packages
 	"github.com/caltechlibrary/bibtex"
@@ -58,8 +57,7 @@ Redistribution and use in source and binary forms, with or without modification,
 
 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
 
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-`
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.`
 
 	// EPrintsExportBatchSize sets the summary output frequency when exporting content from E-Prints
 	EPrintsExportBatchSize = 1000
@@ -75,15 +73,6 @@ var (
 
 	// Select lists delimiter
 	indexDelimiter = "|"
-	// expected select lists used by epgo
-	slNames = []string{
-		"keys",
-		"pubDate",
-		"localGroup",
-		"orcid",
-		"funder",
-		"grantNumber",
-	}
 )
 
 func failCheck(err error, msg string) {
@@ -275,22 +264,6 @@ func last(s []string) string {
 		return s[l]
 	}
 	return ""
-}
-
-// slugify ensures we have a path friendly name or returns an error.
-// NOTE: The web server does not expect to look on disc for URL Encoded paths, instead
-// we need to ensure the name does not have a slash or other path unfriendly value.
-func slugify(s string) (string, error) {
-	if utf8.RuneCountInString(s) > 200 {
-		return "", fmt.Errorf("string to long (%d), %q", utf8.RuneCountInString(s), s)
-	}
-	if strings.Contains(s, "/") == true {
-		return "", fmt.Errorf("string contains a slash and cannot be a directory name, %q", s)
-	}
-	if strings.Contains(s, `\`) == true {
-		return "", fmt.Errorf("string contains a back slash and should be a directory name, %q", s)
-	}
-	return s, nil
 }
 
 // ToBibTeXElement takes an epgo.Record and turns it into a bibtex.Element record
@@ -895,16 +868,30 @@ func (api *EPrintsAPI) BuildSelectLists() error {
 	sLists := map[string]*dataset.SelectList{}
 	// Clear the select lists
 	log.Println("Clearing select lists")
+	// expected select lists used by epgo
+	slNames := []string{
+		"keys",
+		"pubDate",
+		"localGroup",
+		"orcid",
+		"funder",
+		"grantNumber",
+		"type",
+		"keywords",
+		"subjects",
+	}
+
+	// Clear the select lists if they already exist
 	for _, name := range slNames {
 		c.Clear(name)
 		sLists[name], err = c.Select(name)
 		if err != nil {
 			return err
 		}
-		sLists[name].CustomLessFn = nil
+		sLists[name].CustomLessFn = customLessFn
 	}
 
-	// Now iterate over the records and populate fresh select lists
+	// Now iterate over the records and populate select lists
 	log.Println("Building select lists")
 	for i, ky := range c.Keys() {
 		rec := new(Record)
@@ -961,174 +948,10 @@ func (api *EPrintsAPI) BuildSelectLists() error {
 	}
 	log.Printf("Sorting and save %d lists", len(sLists))
 	for name, _ := range sLists {
-		log.Printf("Sorting %s\n", name)
-		sLists[name].CustomLessFn = customLessFn
+		log.Printf("Sorting and saving %s", name)
 		sLists[name].Sort(dataset.ASC)
 		// Finally we want to save our sorted results...
 		sLists[name].SaveList()
 	}
-
-	return nil
-}
-
-// BuildSite generates a website based on the contents of the exported EPrints data.
-// The site builder needs to know the name of the BoltDB, the root directory
-// for the website and directory to find the templates
-// FIXME: This should be in the cli code, not the library code.
-func (api *EPrintsAPI) BuildSite(feedSize int, buildEPrintMirror bool) error {
-	var err error
-
-	if feedSize < 1 {
-		feedSize = DefaultFeedSize
-	}
-
-	// FIXME: This could be replaced by copying all the records in dataset/COLLECTION
-	// that are public and published.
-
-	// Collect the recent publications (all types)
-	log.Printf("Building Recently Published (feed size %d)", feedSize)
-	err = api.BuildPages(feedSize, "Recently Published", path.Join("recent", "publications"), func(api *EPrintsAPI, start, count int) ([]*Record, error) {
-		return api.GetPublications(0, feedSize)
-	})
-	if err != nil {
-		log.Printf("error: %s", err)
-	}
-
-	// Collect the rencently published  articles
-	log.Printf("Building Recent Articles")
-	err = api.BuildPages(feedSize, "Recent Articles", path.Join("recent", "articles"), func(api *EPrintsAPI, start, count int) ([]*Record, error) {
-		return api.GetArticles(0, feedSize)
-	})
-	if err != nil {
-		log.Printf("error: %s", err)
-	}
-
-	// Collect EPrints by Group/Affiliation
-	log.Printf("Building Local Groups")
-	groupNames, err := api.GetLocalGroups()
-	if err != nil {
-		log.Printf("error: %s", err)
-	} else {
-		log.Printf("Found %d groups\n", len(groupNames))
-		for _, groupName := range groupNames {
-			// Build recently for each affiliation
-			slug, err := slugify(groupName)
-			if err != nil {
-				log.Printf("Skipping %q, %s\n", groupName, err)
-			} else {
-				err = api.BuildPages(-1, fmt.Sprintf("%s", groupName), path.Join("affiliation", slug, "recent", "publications"), func(api *EPrintsAPI, start, count int) ([]*Record, error) {
-					return api.GetLocalGroupPublications(groupName, start, count)
-				})
-				if err != nil {
-					log.Printf("Skipped: %s", err)
-				}
-				// Build complete list for each affiliation
-				err = api.BuildPages(-1, fmt.Sprintf("%s", groupName), path.Join("affiliation", slug, "publications"), func(api *EPrintsAPI, start, count int) ([]*Record, error) {
-					return api.GetLocalGroupPublications(groupName, 0, -1)
-				})
-				if err != nil {
-					log.Printf("Skipped: %s", err)
-				}
-				// Build recent articles for each affiliation
-				err = api.BuildPages(-1, fmt.Sprintf("%s", groupName), path.Join("affiliation", slug, "recent", "articles"), func(api *EPrintsAPI, start, count int) ([]*Record, error) {
-					return api.GetLocalGroupArticles(groupName, start, count)
-				})
-				if err != nil {
-					log.Printf("Skipped: %s", err)
-				}
-				// Build complete list of articles for each affiliation
-				err = api.BuildPages(-1, fmt.Sprintf("%s", groupName), path.Join("affiliation", slug, "articles"), func(api *EPrintsAPI, start, count int) ([]*Record, error) {
-					return api.GetLocalGroupArticles(groupName, 0, -1)
-				})
-				if err != nil {
-					log.Printf("Skipped: %s", err)
-				}
-			}
-		}
-	}
-
-	// Collect EPrints by Funders
-	log.Printf("Building Funders")
-	funderNames, err := api.GetFunders()
-	if err != nil {
-		log.Printf("error: %s", err)
-	} else {
-		log.Printf("Found %d records with funders\n", len(funderNames))
-		for _, funderName := range funderNames {
-			slug, err := slugify(funderName)
-			if err != nil {
-				log.Printf("Skipping %q, %s\n", funderName, err)
-			} else {
-				// Build recently for each funder
-				err = api.BuildPages(-1, fmt.Sprintf("%s", funderName), path.Join("funder", slug, "recent", "publications"), func(api *EPrintsAPI, start, count int) ([]*Record, error) {
-					return api.GetFunderPublications(funderName, start, count)
-				})
-				if err != nil {
-					log.Printf("Skipped: %s", err)
-				}
-				// Build complete list for each funder
-				err = api.BuildPages(-1, fmt.Sprintf("%s", funderName), path.Join("funder", slug, "publications"), func(api *EPrintsAPI, start, count int) ([]*Record, error) {
-					return api.GetFunderPublications(funderName, 0, -1)
-				})
-				if err != nil {
-					log.Printf("Skipped: %s", err)
-				}
-				// Build recent articles for each funder
-				err = api.BuildPages(-1, fmt.Sprintf("%s", funderName), path.Join("funder", slug, "recent", "articles"), func(api *EPrintsAPI, start, count int) ([]*Record, error) {
-					return api.GetFunderArticles(funderName, start, count)
-				})
-				if err != nil {
-					log.Printf("Skipped: %s", err)
-				}
-				// Build complete list of articles for each funder
-				err = api.BuildPages(-1, fmt.Sprintf("%s", funderName), path.Join("funder", slug, "articles"), func(api *EPrintsAPI, start, count int) ([]*Record, error) {
-					return api.GetFunderArticles(funderName, 0, -1)
-				})
-				if err != nil {
-					log.Printf("Skipped: %s", err)
-				}
-			}
-		}
-	}
-
-	// Collect EPrints by orcid ID and publish
-	log.Printf("Building Person (orcid) works")
-	orcids, err := api.GetORCIDs()
-	if err != nil {
-		log.Printf("error: %s", err)
-	} else {
-		log.Printf("Found %d orcids\n", len(orcids))
-		for _, orcid := range orcids {
-			// Build a list of recent ORCID Publications
-			err = api.BuildPages(-1, fmt.Sprintf("ORCID: %s", orcid), path.Join("person", fmt.Sprintf("%s", orcid), "recent", "publications"), func(api *EPrintsAPI, start, count int) ([]*Record, error) {
-				return api.GetORCIDPublications(orcid, start, count)
-			})
-			if err != nil {
-				log.Printf("Skipped: %s", err)
-			}
-			// Build complete list for each orcid
-			err = api.BuildPages(-1, fmt.Sprintf("ORCID: %s", orcid), path.Join("person", fmt.Sprintf("%s", orcid), "publications"), func(api *EPrintsAPI, start, count int) ([]*Record, error) {
-				return api.GetORCIDPublications(orcid, 0, -1)
-			})
-			if err != nil {
-				log.Printf("Skipped: %s", err)
-			}
-			// Build a list of recent ORCID Articles
-			err = api.BuildPages(-1, fmt.Sprintf("ORCID: %s", orcid), path.Join("person", fmt.Sprintf("%s", orcid), "recent", "articles"), func(api *EPrintsAPI, start, count int) ([]*Record, error) {
-				return api.GetORCIDArticles(orcid, start, count)
-			})
-			if err != nil {
-				log.Printf("Skipped: %s", err)
-			}
-			// Build complete list of articels for each ORCID
-			err = api.BuildPages(-1, fmt.Sprintf("ORCID: %s", orcid), path.Join("person", fmt.Sprintf("%s", orcid), "articles"), func(api *EPrintsAPI, start, count int) ([]*Record, error) {
-				return api.GetORCIDArticles(orcid, 0, -1)
-			})
-			if err != nil {
-				log.Printf("Skipped: %s", err)
-			}
-		}
-	}
-
 	return nil
 }
