@@ -847,7 +847,7 @@ func (api *EPrintsAPI) BuildPages(feedSize int, title, target string, filter fun
 	// Collect the published records
 	records, err := filter(api, 0, feedSize)
 	if err != nil {
-		return fmt.Errorf("Can't get records for %q %s, %s", title, docPath, err)
+		return err
 	}
 	if len(records) == 0 {
 		return fmt.Errorf("Zero records for %q, %s", title, docPath)
