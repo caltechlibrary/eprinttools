@@ -205,7 +205,7 @@ func main() {
 		api.BuildSelectLists()
 		log.Println("Generating select lists completed")
 		t1 := time.Now()
-		log.Printf("Running time %s", t1.Sub(t0))
+		log.Printf("Running time %v", t1.Sub(t0))
 		os.Exit(0)
 	}
 

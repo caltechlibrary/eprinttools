@@ -340,5 +340,5 @@ func main() {
 	}
 	log.Printf("Rendering complete")
 	t1 := time.Now()
-	log.Printf("Running time %s", t1.Sub(t0))
+	log.Printf("Running time %v", t1.Sub(t0))
 }
