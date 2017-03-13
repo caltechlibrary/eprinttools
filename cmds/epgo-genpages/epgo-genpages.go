@@ -25,6 +25,7 @@ import (
 	"os"
 	"path"
 	"strings"
+	"time"
 	"unicode/utf8"
 
 	// Caltech Library packages
@@ -330,6 +331,7 @@ func main() {
 	// Read the dataset indicated in configuration and
 	// render pages in the various formats supported.
 	//
+	t0 := time.Now()
 	log.Printf("%s %s\n", appName, epgo.Version)
 	log.Printf("Rendering pages from %s\n", datasetName)
 	err = buildSite(api, -1)
@@ -337,4 +339,6 @@ func main() {
 		log.Fatal(err)
 	}
 	log.Printf("Rendering complete")
+	t1 := time.Now()
+	log.Printf("Running time %s", t1.Sub(t0))
 }
