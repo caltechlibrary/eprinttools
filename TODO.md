@@ -3,17 +3,19 @@
 
 ## Next
 
++ [ ] Generalize _epgo -select_ option so it make sense for both thesis and authors.
++ [ ] Generalize _epgo-genpages_ to make sense based on available select lists defind by _epgo -select_ (articles vs. thesis)
 + [ ] Update how BibTeX and JSON blobs are written, I need to support articles, publications, thesis from two EPrints repositories with same utility
     + [ ] provide a mechanism to create groupings of EPrint records to handle Eprint Object types (e.g. articles vs. thesis), groups, orcids, etc.
     + [ ] move BuildSite() into cmds/epgo-genpages/epgo-genpages.go
     + [ ] Find out why we have 12+ hour render sessions on AWS
-+ [ ] ORCID person outputs need to include name (e.g. could do a look up via ORCID API)
 + [ ] Remove epgo dependency on tmplfn package in favor of _mkpage_ template rendering
 
 ## Someday, Maybe
 
 + export single EPrint record to dataset so we can do fast additions on breaking publications
 + export lists of groups, funders, EPrint object types, and other fields that might be useful for filtering/sorting output
++ ORCID person outputs need to include name (e.g. could do a look up via ORCID API)
 + ORCID A-Z list
     + for each ORCID harvest as public ORCID profile write out to $ORCID_ID/orcid-profile.json
     + From orcid-profile.json rendering a Markdown document $ORCID_ID/index.md
