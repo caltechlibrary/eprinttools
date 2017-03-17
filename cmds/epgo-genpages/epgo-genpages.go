@@ -160,51 +160,53 @@ func buildSite(api *epgo.EPrintsAPI, feedSize int) error {
 		}
 	}
 
-	// Collect EPrints by Funders
-	log.Printf("Building Funders")
-	funderNames, err := api.GetFunders()
-	if err != nil {
-		log.Printf("error: %s", err)
-	} else {
-		log.Printf("Found %d records with funders\n", len(funderNames))
-		for _, funderName := range funderNames {
-			slug, err := slugify(funderName)
-			if err != nil {
-				log.Printf("Skipping %q, %s\n", funderName, err)
-			} else {
-				// Build complete list for each funder
-				err = api.BuildPages(-1, fmt.Sprintf("%s", funderName), path.Join("funder", slug, "publications"), func(api *epgo.EPrintsAPI, start, count int) ([]*epgo.Record, error) {
-					return api.GetFunderPublications(funderName, 0, -1)
-				})
+	/*
+		// Collect EPrints by Funders
+		log.Printf("Building Funders")
+		funderNames, err := api.GetFunders()
+		if err != nil {
+			log.Printf("error: %s", err)
+		} else {
+			log.Printf("Found %d records with funders\n", len(funderNames))
+			for _, funderName := range funderNames {
+				slug, err := slugify(funderName)
 				if err != nil {
-					log.Printf("Skipped: %s", err)
+					log.Printf("Skipping %q, %s\n", funderName, err)
 				} else {
-					// Build recently for each funder
-					err = api.BuildPages(-1, fmt.Sprintf("%s", funderName), path.Join("funder", slug, "recent", "publications"), func(api *epgo.EPrintsAPI, start, count int) ([]*epgo.Record, error) {
-						return api.GetFunderPublications(funderName, start, count)
-					})
-					if err != nil {
-						log.Printf("Skipped: %s", err)
-					}
-					// Build complete list of articles for each funder
-					err = api.BuildPages(-1, fmt.Sprintf("%s", funderName), path.Join("funder", slug, "articles"), func(api *epgo.EPrintsAPI, start, count int) ([]*epgo.Record, error) {
-						return api.GetFunderArticles(funderName, 0, -1)
+					// Build complete list for each funder
+					err = api.BuildPages(-1, fmt.Sprintf("%s", funderName), path.Join("funder", slug, "publications"), func(api *epgo.EPrintsAPI, start, count int) ([]*epgo.Record, error) {
+						return api.GetFunderPublications(funderName, 0, -1)
 					})
 					if err != nil {
 						log.Printf("Skipped: %s", err)
 					} else {
-						// Build recent articles for each funder
-						err = api.BuildPages(-1, fmt.Sprintf("%s", funderName), path.Join("funder", slug, "recent", "articles"), func(api *epgo.EPrintsAPI, start, count int) ([]*epgo.Record, error) {
-							return api.GetFunderArticles(funderName, start, count)
+						// Build recently for each funder
+						err = api.BuildPages(-1, fmt.Sprintf("%s", funderName), path.Join("funder", slug, "recent", "publications"), func(api *epgo.EPrintsAPI, start, count int) ([]*epgo.Record, error) {
+							return api.GetFunderPublications(funderName, start, count)
 						})
 						if err != nil {
 							log.Printf("Skipped: %s", err)
+						}
+						// Build complete list of articles for each funder
+						err = api.BuildPages(-1, fmt.Sprintf("%s", funderName), path.Join("funder", slug, "articles"), func(api *epgo.EPrintsAPI, start, count int) ([]*epgo.Record, error) {
+							return api.GetFunderArticles(funderName, 0, -1)
+						})
+						if err != nil {
+							log.Printf("Skipped: %s", err)
+						} else {
+							// Build recent articles for each funder
+							err = api.BuildPages(-1, fmt.Sprintf("%s", funderName), path.Join("funder", slug, "recent", "articles"), func(api *epgo.EPrintsAPI, start, count int) ([]*epgo.Record, error) {
+								return api.GetFunderArticles(funderName, start, count)
+							})
+							if err != nil {
+								log.Printf("Skipped: %s", err)
+							}
 						}
 					}
 				}
 			}
 		}
-	}
+	*/
 
 	// Collect EPrints by orcid ID and publish
 	log.Printf("Building Person (orcid) works")
