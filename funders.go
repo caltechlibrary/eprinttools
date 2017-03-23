@@ -56,6 +56,9 @@ func (api *EPrintsAPI) GetFunderPublications(funderName string, start, count int
 			ids = append(ids, eprintID)
 		}
 	}
+	if len(ids) == 0 {
+		return nil, fmt.Errorf("zero ids in select list")
+	}
 	return getRecordList(c, ids, start, count, func(rec *Record) bool {
 		if rec.IsPublished == "pub" {
 			return true

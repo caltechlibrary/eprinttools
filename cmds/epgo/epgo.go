@@ -27,6 +27,7 @@ import (
 	"path"
 	"strconv"
 	"strings"
+	"time"
 
 	// Caltech Library Packages
 	"github.com/caltechlibrary/cli"
@@ -173,6 +174,7 @@ func main() {
 		log.Fatal(err)
 	}
 
+	t0 := time.Now()
 	if exportEPrints != "" {
 		exportNo := -1
 		if exportEPrints != "all" {
@@ -189,15 +191,21 @@ func main() {
 			log.Println("Export completed")
 		}
 		if genSelectLists != true {
+			t1 := time.Now()
+			log.Printf("Running time %v", t1.Sub(t0))
+			log.Printf("Ready to run `%s -select` to rebuild select lists\n", appName)
 			os.Exit(0)
 		}
-		log.Printf("Ready to run `%s -select` to rebuild select lists\n", appName)
 	}
 	if genSelectLists == true {
-		log.Printf("%s %s", appName, epgo.Version)
-		log.Println("Generating Select lists")
+		if exportEPrints == "" {
+			log.Printf("%s %s", appName, epgo.Version)
+		}
+		log.Println("Generating select lists")
 		api.BuildSelectLists()
-		log.Println("Select lists complete")
+		log.Println("Generating select lists completed")
+		t1 := time.Now()
+		log.Printf("Running time %v", t1.Sub(t0))
 		os.Exit(0)
 	}
 

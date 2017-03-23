@@ -31,7 +31,6 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	"unicode/utf8"
 
 	// Caltech Library packages
 	"github.com/caltechlibrary/bibtex"
@@ -41,7 +40,7 @@ import (
 
 const (
 	// Version is the revision number for this implementation of epgo
-	Version = "v0.0.10-alpha5"
+	Version = "v0.0.10-alpha7"
 
 	// LicenseText holds the string for rendering License info on the command line
 	LicenseText = `
@@ -50,31 +49,15 @@ const (
 Copyright (c) 2017, Caltech
 All rights not granted herein are expressly reserved by Caltech.
 
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions are met:
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
 
-* Redistributions of source code must retain the above copyright notice, this
-  list of conditions and the following disclaimer.
+1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
 
-* Redistributions in binary form must reproduce the above copyright notice,
-  this list of conditions and the following disclaimer in the documentation
-  and/or other materials provided with the distribution.
+2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
 
-* Neither the name of epgo nor the names of its
-  contributors may be used to endorse or promote products derived from
-  this software without specific prior written permission.
+3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
 
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-`
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.`
 
 	// EPrintsExportBatchSize sets the summary output frequency when exporting content from E-Prints
 	EPrintsExportBatchSize = 1000
@@ -111,6 +94,7 @@ var (
 =======
 	// Select lists delimiter
 	indexDelimiter = "|"
+<<<<<<< HEAD
 	// expected select lists used by epgo
 	slNames = []string{
 		"keys",
@@ -121,6 +105,8 @@ var (
 		"grantNumber",
 	}
 >>>>>>> fe42d4ce40092da445cbcc0e764d66efb1daa2b0
+=======
+>>>>>>> 7c556f04f5335ed86ebad6eb0c63821415997b0e
 )
 
 func failCheck(err error, msg string) {
@@ -131,6 +117,7 @@ func failCheck(err error, msg string) {
 
 // EPrintsAPI holds the basic connectin information to read the REST API for EPrints
 type EPrintsAPI struct {
+<<<<<<< HEAD
 	XMLName        xml.Name `json:"-"`
 	URL            *url.URL `xml:"epgo>api_url" json:"api_url"`                 // EPGO_API_URL
 <<<<<<< HEAD
@@ -143,6 +130,15 @@ type EPrintsAPI struct {
 	TemplatePath   string   `xml:"epgo>template_path" json:"template_path"`     // EPGO_TEMPLATES
 	SiteURL        *url.URL `xml:"epgo>site_url" json:"site_url"`               // EPGO_SITE_URL
 	RepositoryPath string   `xml:"epgo>repository_path" json:"repository_path"` // EPGO_REPOSITORY_PATH
+=======
+	XMLName xml.Name `json:"-"`
+	// EPGO_EPRINT_URL
+	URL *url.URL `xml:"epgo>eprint_url" json:"eprint_url"`
+	// EPGO_DATASET
+	Dataset string `xml:"epgo>dataset" json:"dataset"`
+	// EPGO_HTDOCS
+	Htdocs string `xml:"epgo>htdocs" json:"htdocs"`
+>>>>>>> 7c556f04f5335ed86ebad6eb0c63821415997b0e
 }
 
 // Person returns the contents of eprint>creators>item>name as a struct
@@ -336,6 +332,7 @@ func last(s []string) string {
 	return ""
 }
 
+<<<<<<< HEAD
 // slugify ensures we have a path friendly name or returns an error.
 // NOTE: The web server does not expect to look on disc for URL Encoded paths, instead
 // we need to ensure the name does not have a slash or other path unfriendly value.
@@ -353,6 +350,8 @@ func slugify(s string) (string, error) {
 }
 
 >>>>>>> fe42d4ce40092da445cbcc0e764d66efb1daa2b0
+=======
+>>>>>>> 7c556f04f5335ed86ebad6eb0c63821415997b0e
 // ToBibTeXElement takes an epgo.Record and turns it into a bibtex.Element record
 func (rec *Record) ToBibTeXElement() *bibtex.Element {
 	bib := &bibtex.Element{}
@@ -402,29 +401,27 @@ func (rec *Record) ToBibTeXElement() *bibtex.Element {
 // New creates a new API instance
 func New(cfg *cli.Config) (*EPrintsAPI, error) {
 	var err error
-	apiURL := cfg.Get("api_url")
-	siteURL := cfg.Get("site_url")
+	EPrintURL := cfg.Get("eprint_url")
 	htdocs := cfg.Get("htdocs")
 <<<<<<< HEAD
 	dbName := cfg.Get("dbname")
 =======
 	datasetName := cfg.Get("dataset")
+<<<<<<< HEAD
 >>>>>>> fe42d4ce40092da445cbcc0e764d66efb1daa2b0
 	bleveName := cfg.Get("bleve")
 	templatePath := cfg.Get("template_path")
 	repositoryPath := cfg.Get("repository_path")
+=======
+>>>>>>> 7c556f04f5335ed86ebad6eb0c63821415997b0e
 
-	if apiURL == "" {
-		return nil, fmt.Errorf("Environment not configured, missing eprint api url")
-	}
 	api := new(EPrintsAPI)
-	api.URL, err = url.Parse(apiURL)
-	if err != nil {
-		return nil, fmt.Errorf("api url is malformed %s, %s", apiURL, err)
+	if EPrintURL == "" {
+		EPrintURL = "http://localhost:8080"
 	}
-	api.SiteURL, err = url.Parse(siteURL)
+	api.URL, err = url.Parse(EPrintURL)
 	if err != nil {
-		return nil, fmt.Errorf("site url malformed %s, %s", siteURL, err)
+		return nil, fmt.Errorf("eprint url is malformed %s, %s", EPrintURL, err)
 	}
 	if htdocs == "" {
 		htdocs = "htdocs"
@@ -437,24 +434,18 @@ func New(cfg *cli.Config) (*EPrintsAPI, error) {
 		datasetName = "eprints"
 >>>>>>> fe42d4ce40092da445cbcc0e764d66efb1daa2b0
 	}
-	if bleveName == "" {
-		bleveName = "eprints.bleve"
-	}
-	if templatePath == "" {
-		templatePath = "templates"
-	}
-	if repositoryPath == "" {
-		repositoryPath = "repository"
-	}
 	api.Htdocs = htdocs
 <<<<<<< HEAD
 	api.DBName = dbName
 =======
 	api.Dataset = datasetName
+<<<<<<< HEAD
 >>>>>>> fe42d4ce40092da445cbcc0e764d66efb1daa2b0
 	api.TemplatePath = templatePath
 	api.BleveName = bleveName
 	api.RepositoryPath = repositoryPath
+=======
+>>>>>>> 7c556f04f5335ed86ebad6eb0c63821415997b0e
 	return api, nil
 }
 
@@ -1920,7 +1911,7 @@ func (api *EPrintsAPI) BuildPages(feedSize int, title, target string, filter fun
 	records, err := filter(api, 0, feedSize)
 >>>>>>> fe42d4ce40092da445cbcc0e764d66efb1daa2b0
 	if err != nil {
-		return fmt.Errorf("Can't get records for %q %s, %s", title, docPath, err)
+		return err
 	}
 	if len(records) == 0 {
 <<<<<<< HEAD
@@ -1998,16 +1989,30 @@ func (api *EPrintsAPI) BuildSelectLists() error {
 	sLists := map[string]*dataset.SelectList{}
 	// Clear the select lists
 	log.Println("Clearing select lists")
+	// expected select lists used by epgo
+	slNames := []string{
+		"keys",
+		"pubDate",
+		"localGroup",
+		"orcid",
+		"funder",
+		"grantNumber",
+		"type",
+		"keywords",
+		"subjects",
+	}
+
+	// Clear the select lists if they already exist
 	for _, name := range slNames {
 		c.Clear(name)
 		sLists[name], err = c.Select(name)
 		if err != nil {
 			return err
 		}
-		sLists[name].CustomLessFn = nil
+		sLists[name].CustomLessFn = customLessFn
 	}
 
-	// Now iterate over the records and populate fresh select lists
+	// Now iterate over the records and populate select lists
 	log.Println("Building select lists")
 	for i, ky := range c.Keys() {
 		rec := new(Record)
@@ -2064,12 +2069,12 @@ func (api *EPrintsAPI) BuildSelectLists() error {
 	}
 	log.Printf("Sorting and save %d lists", len(sLists))
 	for name, _ := range sLists {
-		log.Printf("Sorting %s\n", name)
-		sLists[name].CustomLessFn = customLessFn
+		log.Printf("Sorting and saving %s", name)
 		sLists[name].Sort(dataset.ASC)
 		// Finally we want to save our sorted results...
 		sLists[name].SaveList()
 	}
+<<<<<<< HEAD
 
 	return nil
 >>>>>>> fe42d4ce40092da445cbcc0e764d66efb1daa2b0
@@ -2375,6 +2380,8 @@ func (api *EPrintsAPI) BuildSite(feedSize int, buildEPrintMirror bool) error {
 		}
 	}
 
+=======
+>>>>>>> 7c556f04f5335ed86ebad6eb0c63821415997b0e
 	return nil
 }
 >>>>>>> fe42d4ce40092da445cbcc0e764d66efb1daa2b0

@@ -25,6 +25,8 @@ import (
 	"os"
 	"path"
 	"strings"
+	"time"
+	"unicode/utf8"
 
 	// Caltech Library packages
 	"github.com/caltechlibrary/cli"
@@ -44,14 +46,14 @@ CONFIGURATION
 %s can be configured through setting the following environment
 variables-
 
-EPGO_DATASET    this is the dataset and collection directory (e.g. dataset/eprints)
+EPGO_DATASET this is the dataset and collection directory (e.g. dataset/eprints)
 
-EPGO_HTDOCS    this is the directory where the JSON documents will be written.`
+EPGO_HTDOCS  this is the directory where the JSON documents will be written.`
 
 	examples = `
 EXAMPLE
 
-	%s 
+    %s 
 
 Generates JSON documents in EPGO_HTDOCS from EPGO_DATASET.`
 
@@ -62,19 +64,198 @@ Generates JSON documents in EPGO_HTDOCS from EPGO_DATASET.`
 	outputFName string
 
 	// App Options
-	htdocs         string
-	datasetName    string
-	templatePath   string
-	apiURL         string
-	siteURL        string
-	repositoryPath string
-
-	buildEPrintMirror bool
+	htdocs      string
+	datasetName string
 )
+
+// slugify ensures we have a path friendly name or returns an error.
+// NOTE: The web server does not expect to look on disc for URL Encoded paths, instead
+// we need to ensure the name does not have a slash or other path unfriendly value.
+func slugify(s string) (string, error) {
+	if utf8.RuneCountInString(s) > 200 {
+		return "", fmt.Errorf("string to long (%d), %q", utf8.RuneCountInString(s), s)
+	}
+	if strings.Contains(s, "/") == true {
+		return "", fmt.Errorf("string contains a slash and cannot be a directory name, %q", s)
+	}
+	if strings.Contains(s, `\`) == true {
+		return "", fmt.Errorf("string contains a back slash and should be a directory name, %q", s)
+	}
+	return s, nil
+}
+
+// buildSite generates a website based on the contents of the exported EPrints data.
+// The site builder needs to know the name of the BoltDB, the root directory
+// for the website and directory to find the templates
+func buildSite(api *epgo.EPrintsAPI, feedSize int) error {
+	var err error
+
+	if feedSize < 1 {
+		feedSize = epgo.DefaultFeedSize
+	}
+
+	// FIXME: This could be replaced by copying all the records in dataset/COLLECTION
+	// that are public and published.
+
+	// Collect the recent publications (all types)
+	log.Printf("Building Recently Published (feed size %d)", feedSize)
+	err = api.BuildPages(feedSize, "Recently Published", path.Join("recent", "publications"), func(api *epgo.EPrintsAPI, start, count int) ([]*epgo.Record, error) {
+		return api.GetPublications(0, feedSize)
+	})
+	if err != nil {
+		log.Printf("error: %s", err)
+	}
+	// Collect the rencently published  articles
+	log.Printf("Building Recent Articles")
+	err = api.BuildPages(feedSize, "Recent Articles", path.Join("recent", "articles"), func(api *epgo.EPrintsAPI, start, count int) ([]*epgo.Record, error) {
+		return api.GetArticles(0, feedSize)
+	})
+	if err != nil {
+		log.Printf("error: %s", err)
+	}
+
+	// Collect EPrints by Group/Affiliation
+	log.Printf("Building Local Groups")
+	groupNames, err := api.GetLocalGroups()
+	if err != nil {
+		log.Printf("error: %s", err)
+	} else {
+		log.Printf("Found %d groups\n", len(groupNames))
+		for _, groupName := range groupNames {
+			// Build recently for each affiliation
+			slug, err := slugify(groupName)
+			if err != nil {
+				log.Printf("Skipping %q, %s\n", groupName, err)
+			} else {
+				// Build complete list for each affiliation
+				err = api.BuildPages(-1, fmt.Sprintf("%s", groupName), path.Join("affiliation", slug, "publications"), func(api *epgo.EPrintsAPI, start, count int) ([]*epgo.Record, error) {
+					return api.GetLocalGroupPublications(groupName, 0, -1)
+				})
+				if err != nil {
+					log.Printf("Skipped: %s", err)
+				} else {
+					err = api.BuildPages(-1, fmt.Sprintf("%s", groupName), path.Join("affiliation", slug, "recent", "publications"), func(api *epgo.EPrintsAPI, start, count int) ([]*epgo.Record, error) {
+						return api.GetLocalGroupPublications(groupName, start, count)
+					})
+					if err != nil {
+						log.Printf("Skipped: %s", err)
+					}
+					// Build complete list of articles for each affiliation
+					err = api.BuildPages(-1, fmt.Sprintf("%s", groupName), path.Join("affiliation", slug, "articles"), func(api *epgo.EPrintsAPI, start, count int) ([]*epgo.Record, error) {
+						return api.GetLocalGroupArticles(groupName, 0, -1)
+					})
+					if err != nil {
+						log.Printf("Skipped: %s", err)
+					} else {
+						// Build recent articles for each affiliation
+						err = api.BuildPages(-1, fmt.Sprintf("%s", groupName), path.Join("affiliation", slug, "recent", "articles"), func(api *epgo.EPrintsAPI, start, count int) ([]*epgo.Record, error) {
+							return api.GetLocalGroupArticles(groupName, start, count)
+						})
+						if err != nil {
+							log.Printf("Skipped: %s", err)
+						}
+					}
+				}
+			}
+		}
+	}
+
+	/*
+		// Collect EPrints by Funders
+		log.Printf("Building Funders")
+		funderNames, err := api.GetFunders()
+		if err != nil {
+			log.Printf("error: %s", err)
+		} else {
+			log.Printf("Found %d records with funders\n", len(funderNames))
+			for _, funderName := range funderNames {
+				slug, err := slugify(funderName)
+				if err != nil {
+					log.Printf("Skipping %q, %s\n", funderName, err)
+				} else {
+					// Build complete list for each funder
+					err = api.BuildPages(-1, fmt.Sprintf("%s", funderName), path.Join("funder", slug, "publications"), func(api *epgo.EPrintsAPI, start, count int) ([]*epgo.Record, error) {
+						return api.GetFunderPublications(funderName, 0, -1)
+					})
+					if err != nil {
+						log.Printf("Skipped: %s", err)
+					} else {
+						// Build recently for each funder
+						err = api.BuildPages(-1, fmt.Sprintf("%s", funderName), path.Join("funder", slug, "recent", "publications"), func(api *epgo.EPrintsAPI, start, count int) ([]*epgo.Record, error) {
+							return api.GetFunderPublications(funderName, start, count)
+						})
+						if err != nil {
+							log.Printf("Skipped: %s", err)
+						}
+						// Build complete list of articles for each funder
+						err = api.BuildPages(-1, fmt.Sprintf("%s", funderName), path.Join("funder", slug, "articles"), func(api *epgo.EPrintsAPI, start, count int) ([]*epgo.Record, error) {
+							return api.GetFunderArticles(funderName, 0, -1)
+						})
+						if err != nil {
+							log.Printf("Skipped: %s", err)
+						} else {
+							// Build recent articles for each funder
+							err = api.BuildPages(-1, fmt.Sprintf("%s", funderName), path.Join("funder", slug, "recent", "articles"), func(api *epgo.EPrintsAPI, start, count int) ([]*epgo.Record, error) {
+								return api.GetFunderArticles(funderName, start, count)
+							})
+							if err != nil {
+								log.Printf("Skipped: %s", err)
+							}
+						}
+					}
+				}
+			}
+		}
+	*/
+
+	// Collect EPrints by orcid ID and publish
+	log.Printf("Building Person (orcid) works")
+	orcids, err := api.GetORCIDs()
+	if err != nil {
+		log.Printf("error: %s", err)
+	} else {
+		log.Printf("Found %d orcids\n", len(orcids))
+		for _, orcid := range orcids {
+
+			// Build complete list for each orcid
+			err = api.BuildPages(-1, fmt.Sprintf("ORCID: %s", orcid), path.Join("person", fmt.Sprintf("%s", orcid), "publications"), func(api *epgo.EPrintsAPI, start, count int) ([]*epgo.Record, error) {
+				return api.GetORCIDPublications(orcid, 0, -1)
+			})
+			if err != nil {
+				log.Printf("Skipped: %s", err)
+			} else {
+				// Build a list of recent ORCID Publications
+				err = api.BuildPages(-1, fmt.Sprintf("ORCID: %s", orcid), path.Join("person", fmt.Sprintf("%s", orcid), "recent", "publications"), func(api *epgo.EPrintsAPI, start, count int) ([]*epgo.Record, error) {
+					return api.GetORCIDPublications(orcid, start, count)
+				})
+				if err != nil {
+					log.Printf("Skipped: %s", err)
+				}
+				// Build complete list of articels for each ORCID
+				err = api.BuildPages(-1, fmt.Sprintf("ORCID: %s", orcid), path.Join("person", fmt.Sprintf("%s", orcid), "articles"), func(api *epgo.EPrintsAPI, start, count int) ([]*epgo.Record, error) {
+					return api.GetORCIDArticles(orcid, 0, -1)
+				})
+				if err != nil {
+					log.Printf("Skipped: %s", err)
+				} else {
+					// Build a list of recent ORCID Articles
+					err = api.BuildPages(-1, fmt.Sprintf("ORCID: %s", orcid), path.Join("person", fmt.Sprintf("%s", orcid), "recent", "articles"), func(api *epgo.EPrintsAPI, start, count int) ([]*epgo.Record, error) {
+						return api.GetORCIDArticles(orcid, start, count)
+					})
+					if err != nil {
+						log.Printf("Skipped: %s", err)
+					}
+				}
+			}
+		}
+	}
+
+	return nil
+}
 
 func check(cfg *cli.Config, key, value string) string {
 	if value == "" {
-		log.Fatal("Missing %s_%s", cfg.EnvPrefix, strings.ToUpper(key))
+		log.Fatalf("Missing %s_%s", cfg.EnvPrefix, strings.ToUpper(key))
 		return ""
 	}
 	return value
@@ -92,14 +273,12 @@ func init() {
 	flag.StringVar(&outputFName, "output", "", "output filename (log message)")
 
 	// App Specific options
-	flag.StringVar(&htdocs, "htdocs", "", "specify where to write the HTML files to")
-	flag.StringVar(&datasetName, "dataset", "", "the dataset/collection name")
-	flag.StringVar(&apiURL, "api-url", "", "the EPrints API url")
-	flag.StringVar(&siteURL, "site-url", "", "the website url")
-	flag.StringVar(&templatePath, "template-path", "", "specify where to read the templates from")
-	flag.StringVar(&repositoryPath, "repository-path", "", "specify the repository path to use for generated content")
+	// NOTE: htdocs uses "d" and "docs" to align with mkpage option practice
+	flag.StringVar(&htdocs, "d", "", "specify where to write the HTML files to")
+	flag.StringVar(&htdocs, "docs", "", "specify where to write the HTML files to")
 
-	flag.BoolVar(&buildEPrintMirror, "build-eprint-mirror", true, "Build a mirror of EPrint content rendered as JSON documents")
+	// NOTE: "d" is taken so I am only including a long form
+	flag.StringVar(&datasetName, "dataset", "", "the dataset/collection name")
 }
 
 func main() {
@@ -154,11 +333,14 @@ func main() {
 	// Read the dataset indicated in configuration and
 	// render pages in the various formats supported.
 	//
+	t0 := time.Now()
 	log.Printf("%s %s\n", appName, epgo.Version)
 	log.Printf("Rendering pages from %s\n", datasetName)
-	err = api.BuildSite(-1, buildEPrintMirror)
+	err = buildSite(api, -1)
 	if err != nil {
 		log.Fatal(err)
 	}
 	log.Printf("Rendering complete")
+	t1 := time.Now()
+	log.Printf("Running time %v", t1.Sub(t0))
 }
