@@ -40,7 +40,7 @@ import (
 
 const (
 	// Version is the revision number for this implementation of epgo
-	Version = "v0.0.10-alpha7"
+	Version = "v0.0.10-alpha8"
 
 	// LicenseText holds the string for rendering License info on the command line
 	LicenseText = `
@@ -517,27 +517,28 @@ func (api *EPrintsAPI) ListEPrintsURI() ([]string, error) {
 	return results, nil
 }
 
-// GetEPrint retrieves an EPrint record via REST API and returns a Record structure and error
-func (api *EPrintsAPI) GetEPrint(uri string) (*Record, error) {
+// GetEPrint retrieves an EPrint record via REST API
+// Returns a Record structure, the raw XML and an error.
+func (api *EPrintsAPI) GetEPrint(uri string) (*Record, []byte, error) {
 	api.URL.Path = uri
 	resp, err := http.Get(api.URL.String())
 	if err != nil {
-		return nil, fmt.Errorf("requested %s, %s", api.URL.String(), err)
+		return nil, nil, fmt.Errorf("requested %s, %s", api.URL.String(), err)
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != 200 {
-		return nil, fmt.Errorf("http error %s, %s", api.URL.String(), resp.Status)
+		return nil, nil, fmt.Errorf("http error %s, %s", api.URL.String(), resp.Status)
 	}
 	content, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return nil, fmt.Errorf("content can't be read %s, %s", api.URL.String(), err)
+		return nil, nil, fmt.Errorf("content can't be read %s, %s", api.URL.String(), err)
 	}
 	rec := new(Record)
 	err = xml.Unmarshal(content, &rec)
 	if err != nil {
-		return nil, err
+		return nil, content, err
 	}
-	return rec, nil
+	return rec, content, nil
 }
 
 // ToNames takes an array of pointers to Person and returns a list of names (family, given)

@@ -53,7 +53,7 @@ func (api *EPrintsAPI) ExportEPrints(count int) error {
 	log.Printf("Exporting %d of %d uris", count, uriCount)
 	for i := 0; i < uriCount && i < count; i++ {
 		uri := uris[i]
-		rec, err := api.GetEPrint(uri)
+		rec, xmlSrc, err := api.GetEPrint(uri)
 		if err != nil {
 			log.Printf("Failed to get %s, %s\n", uri, err)
 			k++
@@ -67,6 +67,7 @@ func (api *EPrintsAPI) ExportEPrints(count int) error {
 				log.Printf("Failed to save eprint %s, %s\n", uri, err)
 				k++
 			}
+			c.Attach(key, &dataset.Attachment{key + ".xml", xmlSrc})
 		}
 		if (i % EPrintsExportBatchSize) == 0 {
 			log.Printf("%d/%d uri processed, %d exported, %d unexported", i+1, count, j, k)

@@ -10,8 +10,11 @@
     + [ ] move BuildSite() into cmds/epgo-genpages/epgo-genpages.go
     + [ ] Find out why we have 12+ hour render sessions on AWS
 + [ ] Remove epgo dependency on tmplfn package in favor of _mkpage_ template rendering
++ [ ] Save raw EPrint XML with harvested EPrint
++ [ ] Use privileged account for Harvest
 
 ## Someday, Maybe
+
 
 + export single EPrint record to dataset so we can do fast additions on breaking publications
 + export lists of groups, funders, EPrint object types, and other fields that might be useful for filtering/sorting output
