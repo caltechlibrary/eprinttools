@@ -24,7 +24,7 @@ makePage "epgo" INSTALL.md nav.md install.html
 makePage "epgo" "markdown:$(cat LICENSE)" nav.md license.html
 
 # Add the files to git as needed
-git add index.html install.html license.html notes.html todo.html
+git add index.html install.html license.html
 
 # Loop through commands docs
 for FNAME in epgo epgo-genpages; do
