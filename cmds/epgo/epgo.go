@@ -223,7 +223,7 @@ func main() {
 		data, err = api.GetArticles(0, articlesNewest)
 	case useAPI == true:
 		if len(args) == 1 {
-			data, err = api.GetEPrint(args[0])
+			data, _, err = api.GetEPrint(args[0])
 		} else {
 			data, err = api.ListEPrintsURI()
 		}

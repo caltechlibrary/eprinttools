@@ -82,10 +82,10 @@ dist/raspbian-arm7:
 	env  GOOS=linux GOARCH=arm GOARM=7 go build -o dist/raspberrypi-arm7/epgo cmds/epgo/epgo.go
 	env  GOOS=linux GOARCH=arm GOARM=7 go build -o dist/raspberrypi-arm7/epgo-genpages cmds/epgo-genpages/epgo-genpages.go
   
-release: dist/linux-amd64 dist/windows-amd64 macosx-amd64 raspbian-arm7
+release: dist/linux-amd64 dist/windows-amd64 dist/macosx-amd64 dist/raspbian-arm7
 	mkdir -p dist/htdocs/css
-	mkdir -p dist/htdocs/js
 	mkdir -p dist/htdocs/assets
+	mkdir -p dist/etc
 	cp -v README.md dist/
 	cp -v LICENSE dist/
 	cp -v INSTALL.md dist/
@@ -94,7 +94,6 @@ release: dist/linux-amd64 dist/windows-amd64 macosx-amd64 raspbian-arm7
 	cp -vR etc/*-example dist/etc/
 	cp -vR htdocs/index.* dist/htdocs/
 	cp -vR htdocs/css dist/htdocs/
-	cp -vR htdocs/js dist/htdocs/
 	cp -vR htdocs/assets dist/htdocs/
 	zip -r $(PROJECT)-$(VERSION)-release.zip dist/*
 
