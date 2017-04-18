@@ -19,10 +19,10 @@ body {
      width: 100%;
      height: 100%;
      color: black;
-     background-color: #AAA99F; /* #76777B;*/
+     background-color: white;
      /*
      color: #FF6E1E;
-     background-color: white;
+     background-color: #AAA99F; /* #76777B;*/
      */
      font-family: Open Sans, Helvetica, Sans-Serif;
      font-size: 16px;
@@ -151,6 +151,16 @@ section {
      padding-right: 0;
 }
 
+section p {
+    width: 86%;
+    height: auto;
+}
+
+section pre, section code {
+    font-size: small;
+    line-height: 1;
+}
+
 section h1 {
     font-size: 1.32em;
 }
@@ -229,7 +239,7 @@ aside ul > ul {
 }
 
 footer {
-     position: relative;
+     position: fixed;
      bottom: 0;
      display: block;
      width: 100%;
