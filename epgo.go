@@ -868,8 +868,6 @@ func (api *EPrintsAPI) BuildSelectLists() error {
 	failCheck(err, fmt.Sprintf("BuildSelectLists() %s, %s", api.Dataset, err))
 	defer c.Close()
 
-	log.Printf("DEBUG BuildSelectLists() c.KeyMap (%d) -> %+v", len(c.KeyMap), c.KeyMap)
-
 	sLists := map[string]*dataset.SelectList{}
 	// Clear the select lists
 	log.Println("Clearing select lists")
