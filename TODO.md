@@ -1,6 +1,10 @@
 
 # Action items
 
+## Bugs
+
++ [ ] saving select lists  when storage is S3 whipes out collections.keymap and keys.json
+
 ## Next
 
 + [ ] Generalize _epgo -select_ option so it make sense for both thesis and authors.
