@@ -878,9 +878,6 @@ func (api *EPrintsAPI) BuildSelectLists() error {
 		"orcid",
 		"funder",
 		"grantNumber",
-		"type",
-		"keywords",
-		"subjects",
 	}
 
 	// Clear the select lists if they already exist
