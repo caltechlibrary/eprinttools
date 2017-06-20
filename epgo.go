@@ -40,7 +40,7 @@ import (
 
 const (
 	// Version is the revision number for this implementation of epgo
-	Version = "v0.0.10-alpha8"
+	Version = "v0.0.10-alpha10"
 
 	// LicenseText holds the string for rendering License info on the command line
 	LicenseText = `
@@ -1983,7 +1983,9 @@ func (api *EPrintsAPI) BuildEPrintMirror() error {
 =======
 // BuildSelectLists iterates over the exported data and creates fresh selectLists
 func (api *EPrintsAPI) BuildSelectLists() error {
-	c, err := dataset.Create(api.Dataset, dataset.GenerateBucketNames(dataset.DefaultAlphabet, 2))
+	//FIXME: This should probably be Open not Create on dataset...
+	//c, err := dataset.Create(api.Dataset, dataset.GenerateBucketNames(dataset.DefaultAlphabet, 2))
+	c, err := dataset.Open(api.Dataset)
 	failCheck(err, fmt.Sprintf("BuildSelectLists() %s, %s", api.Dataset, err))
 	defer c.Close()
 
@@ -1992,15 +1994,11 @@ func (api *EPrintsAPI) BuildSelectLists() error {
 	log.Println("Clearing select lists")
 	// expected select lists used by epgo
 	slNames := []string{
-		"keys",
 		"pubDate",
 		"localGroup",
 		"orcid",
 		"funder",
 		"grantNumber",
-		"type",
-		"keywords",
-		"subjects",
 	}
 
 	// Clear the select lists if they already exist

@@ -231,7 +231,7 @@ func buildSite(api *epgo.EPrintsAPI, feedSize int) error {
 				if err != nil {
 					log.Printf("Skipped: %s", err)
 				}
-				// Build complete list of articels for each ORCID
+				// Build complete list of articles for each ORCID
 				err = api.BuildPages(-1, fmt.Sprintf("ORCID: %s", orcid), path.Join("person", fmt.Sprintf("%s", orcid), "articles"), func(api *epgo.EPrintsAPI, start, count int) ([]*epgo.Record, error) {
 					return api.GetORCIDArticles(orcid, 0, -1)
 				})
