@@ -1,24 +1,25 @@
 
-# USAGE 
+# ep
 
-    epgo [OPTIONS] [EPGO_EPRINTS_URL]
+## USAGE 
+
+    ep [OPTIONS] [EP_EPRINTS_URL]
 
 ## SYNOPSIS
 
-epgo wraps the REST API for E-Prints 3.3 or better. It can return a list 
+ep wraps the REST API for E-Prints 3.3 or better. It can return a list 
 of uri, a JSON view of the XML presentation as well as generates feeds 
 and web pages.
 
 ## CONFIGURATION
 
-epgo can be configured with following environment variables
+ep can be configured with following environment variables
 
-+ EPGO_EPRINTS_URL the URL to your E-Prints installation
-+ EPGO_DATASET the dataset and collection name for exporting, site building, and content retrieval
++ EP_EPRINTS_URL the URL to your E-Prints installation
++ EP_DATASET the dataset and collection name for exporting, site building, and content retrieval
 
 ## OPTIONS
 
-```
 	-api	url for EPrints API
 	-articles-newest	list the N newest published articles
 	-dataset	dataset/collection name
@@ -37,31 +38,30 @@ epgo can be configured with following environment variables
 	-select	generate select lists in dataset
 	-v	display version
 	-version	display version
-```
 
 ## EXAMPLE
 
 ```shell
-    epgo -export all
+    ep -export all
 ```
 
 Would export the entire EPrints repository public content defined by the
-environment virables EPGO_API_URL, EPGO_DATASET.
+environment virables EP_API_URL, EP_DATASET.
 
 ```shell
-    epgo -export 2000
+    ep -export 2000
 ```
 
 Would export 2000 EPrints from the repository with the heighest ID values.
 
 ```shell
-    epgo -select
+    ep -select
 ```
 
-Would (re)build the select lists based on contents of $EPGO_DATASET.
+Would (re)build the select lists based on contents of $EP_DATASET.
 
 ```shell
-    epgo -select -export all
+    ep -select -export all
 ```
 
 Would export all eprints and rebuild the select lists.

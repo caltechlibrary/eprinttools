@@ -27,7 +27,7 @@ makePage "ep" "markdown:$(cat LICENSE)" nav.md license.html
 git add index.html install.html license.html
 
 # Loop through commands docs
-for FNAME in ep ep-genpages; do
+for FNAME in ep; do
 	makePage "ep" docs/$FNAME.md nav.md docs/$FNAME.html
 	git add docs/$FNAME.md docs/$FNAME.html
 done

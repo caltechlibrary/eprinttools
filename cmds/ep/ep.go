@@ -36,7 +36,7 @@ import (
 
 var (
 	// cli help text
-	usage = `USAGE %s [OPTIONS] [EPGO_EPRINTS_URL]`
+	usage = `USAGE %s [OPTIONS] [EP_EPRINTS_URL]`
 
 	description = `
 SYNOPSIS
@@ -49,9 +49,9 @@ CONFIGURATION
 
 %s can be configured with following environment variables
 
-EPGO_EPRINTS_URL the URL to your E-Prints installation
+EP_EPRINTS_URL the URL to your E-Prints installation
 
-EPGO_DATASET the dataset and collection name for exporting, site building, and content retrieval`
+EP_DATASET the dataset and collection name for exporting, site building, and content retrieval`
 
 	examples = `
 EXAMPLE
@@ -59,7 +59,7 @@ EXAMPLE
     %s -export all
 
 Would export the entire EPrints repository public content defined by the
-environment virables EPGO_API_URL, EPGO_DATASET.
+environment virables EP_API_URL, EP_DATASET.
 
     %s -export 2000
 
@@ -67,7 +67,7 @@ Would export 2000 EPrints from the repository with the heighest ID values.
 
     %s -select
 
-Would (re)build the select lists based on contents of $EPGO_DATASET.
+Would (re)build the select lists based on contents of $EP_DATASET.
 
     %s -select -export all
 
