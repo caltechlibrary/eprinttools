@@ -3,20 +3,18 @@
 
 ## Bugs
 
-+ [ ] saving select lists when storage is S3 whipes out collections.keymap and keys.json
-+ [ ] When harvesting recent 1200 articles, collection.json and keys.json are being cleared (switch from dataset.Create() to dataset.Open())
 + [ ] Missing committee and advisor data from thesis harvest
 
 ## Next
 
-+ [ ] Rename _epgo_ to _ep_
++ [ ] Update specific structure targeting CaltechAUTHORS EPrint repository to general purpose EPrint repository (e.g. CaltechTHESIS)
++ [ ] Depreciate _ep -select_ in favor of _dataset_ command with filter options
++ [ ] Depreciate _epgo-genpages_ in favor of _dataset_ plus _mkpage_
 + [ ] Add Authentication support for harvesting all EPrints records if the REST API is enabled
     + [ ] Use privileged account for Harvest so we can get all content
     + [ ] Export should have options to include/exclude embargoed/restricted records
 + [ ] Calculate a "changed since" return of records
     + Use fielded REST API calls to pull out the change dates with EPrint ID, then calculate the subset of records in date range requested
-+ [ ] Depreciate _epgo -select_ in favor of _dataset_ command with filter options
-+ [ ] Depreciate _epgo-genpages_ in favor of _dataset_ plus _mkpage_
 
 ## Someday, Maybe
 
@@ -37,6 +35,9 @@
 
 ## Completed
 
++ [x] Rename _epgo_ to _ep_
++ [x] When harvesting recent 1200 articles, collection.json and keys.json are being cleared (switch from dataset.Create() to dataset.Open())
++ [x] saving select lists when storage is S3 whipes out collections.keymap and keys.json
 + [x] move BuildSite() into cmds/epgo-genpages/epgo-genpages.go
 + [x] Save raw EPrint XML with harvested EPrint
 + [x] convert epgo-genpages HTML/HTML Include templates into _mkpage_ friendly templates
