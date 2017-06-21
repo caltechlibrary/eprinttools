@@ -1,101 +1,89 @@
 #
 # Simple Makefile for conviently testing, building and deploying experiment.
 #
-PROJECT = epgo
+PROJECT = ep
 
 VERSION = $(shell grep -m 1 'Version =' $(PROJECT).go | cut -d\"  -f 2)
 
 BRANCH = $(shell git branch | grep '* ' | cut -d\  -f 2)
 
-PROJECT_LIST = epgo epgo-genpages
+PROJECT_LIST = ep
 
 build: package $(PROJECT_LIST)
 
-package: epgo.go
+package: ep.go
 	go build
 
-epgo: bin/epgo
+ep: bin/ep
 
-bin/epgo: epgo.go  harvest.go grantNumbers.go funders.go cmds/epgo/epgo.go
-	go build -o bin/epgo cmds/epgo/epgo.go
-
-epgo-genpages: bin/epgo-genpages
-
-bin/epgo-genpages: epgo.go  harvest.go grantNumbers.go funders.go cmds/epgo-genpages/epgo-genpages.go
-	go build -o bin/epgo-genpages cmds/epgo-genpages/epgo-genpages.go
+bin/ep: ep.go  harvest.go grantNumbers.go funders.go cmds/ep/ep.go
+	go build -o bin/ep cmds/ep/ep.go
 
 install: 
-	env GOBIN=$(HOME)/bin go install cmds/epgo/epgo.go
-	env GOBIN=$(HOME)/bin go install cmds/epgo-genpages/epgo-genpages.go
+	env GOBIN=$(HOME)/bin go install cmds/ep/ep.go
 
-website: page.tmpl README.md nav.md INSTALL.md LICENSE css/site.css htdocs/index.md
-	mkpage "content=htdocs/index.md" templates/default/index.html > htdocs/index.html
+website: page.tmpl README.md nav.md INSTALL.md LICENSE css/site.css
 	./mk-website.bash
 
 format:
-	gofmt -w epgo.go
-	gofmt -w epgo_test.go
+	gofmt -w ep.go
+	gofmt -w ep_test.go
 	gofmt -w harvest.go
 	gofmt -w funders.go
 	gofmt -w grantNumbers.go
-	gofmt -w cmds/epgo/epgo.go
-	gofmt -w cmds/epgo-genpages/epgo-genpages.go
+	gofmt -w cmds/ep/ep.go
 
 lint:
-	golint epgo.go
-	golint epgo_test.go
+	golint ep.go
+	golint ep_test.go
 	golint harvest.go
 	golint funders.go
 	golint grantNumbers.go
-	golint cmds/epgo/epgo.go
-	golint cmds/epgo-genpages/epgo-genpages.go
+	golint cmds/ep/ep.go
 
 test:
 	go test
 
 clean:
-	if [ -f index.html ]; then /bin/rm *.html; fi
-	if [ -d htdocs/person ]; then /bin/rm -fR htdocs/person; fi
-	if [ -d htdocs/affiliation ]; then /bin/rm -fR htdocs/affiliation; fi
-	if [ -d htdocs/recent ]; then /bin/rm -fR htdocs/recent; fi
-	if [ -d htdocs/repository ]; then /bin/rm -fR htdocs/repository; fi
-	if [ -d htdocs/funder ]; then /bin/rm -fR htdocs/funder; fi
-	if [ -d htdocs/grantNumber ]; then /bin/rm -fR htdocs/grantNumber; fi
-	if [ "$(EPGO_REPOSITORY_PATH)" != "" ] && [ -d htdocs/$(EPGO_REPOSITORY_PATH) ]; then /bin/rm -fR htdocs/$(EPGO_REPOSITORY_PATH); fi
-	if [ -d bin ]; then /bin/rm -fR bin; fi
-	if [ -d dist ]; then /bin/rm -fR dist; fi
-	if [ -f $(PROJECT)-$(VERSION)-release.zip ]; then /bin/rm $(PROJECT)-$(VERSION)-release.zip; fi
+	if [ -d bin ]; then rm -f bin; fi
+	if [ -d dist ]; then rm -f bin; fi
 
 dist/linux-amd64:
-	env  GOOS=linux GOARCH=amd64 go build -o dist/linux-amd64/epgo cmds/epgo/epgo.go
-	env  GOOS=linux GOARCH=amd64 go build -o dist/linux-amd64/epgo-genpages cmds/epgo-genpages/epgo-genpages.go
+	mkdir -p dist/bin
+	env  GOOS=linux GOARCH=amd64 go build -o dist/bin/ep cmds/ep/ep.go
+	cd dist && zip -r $(PROJECT)-$(VERSION)-linux-amd64.zip README.md LICENSE INSTALL.md docs/* scripts/* etc/* bin/*
+	rm -fR dist/bin
 
 dist/windows-amd64:
-	env  GOOS=windows GOARCH=amd64 go build -o dist/windows-amd64/epgo.exe cmds/epgo/epgo.go
-	env  GOOS=windows GOARCH=amd64 go build -o dist/windows-amd64/epgo-genpages.exe cmds/epgo-genpages/epgo-genpages.go
+	mkdir -p dist/bin
+	env  GOOS=windows GOARCH=amd64 go build -o dist/windows-amd64/ep.exe cmds/ep/ep.go
+	cd dist && zip -r $(PROJECT)-$(VERSION)-windows-amd64.zip README.md LICENSE INSTALL.md docs/* scripts/* etc/* bin/*
+	rm -fR dist/bin
 
 dist/macosx-amd64:
-	env  GOOS=darwin GOARCH=amd64 go build -o dist/macosx-amd64/epgo cmds/epgo/epgo.go
-	env  GOOS=darwin GOARCH=amd64 go build -o dist/macosx-amd64/epgo-genpages cmds/epgo-genpages/epgo-genpages.go
+	mkdir -p dist/bin
+	env  GOOS=darwin GOARCH=amd64 go build -o dist/macosx-amd64/ep cmds/ep/ep.go
+	cd dist && zip -r $(PROJECT)-$(VERSION)-macosx-amd64.zip README.md LICENSE INSTALL.md docs/* scripts/* etc/* bin/*
+	rm -fR dist/bin
 
 dist/raspbian-arm7:
-	env  GOOS=linux GOARCH=arm GOARM=7 go build -o dist/raspberrypi-arm7/epgo cmds/epgo/epgo.go
-	env  GOOS=linux GOARCH=arm GOARM=7 go build -o dist/raspberrypi-arm7/epgo-genpages cmds/epgo-genpages/epgo-genpages.go
+	mkdir -p dist/bin
+	env  GOOS=linux GOARCH=arm GOARM=7 go build -o dist/raspberrypi-arm7/ep cmds/ep/ep.go
+	cd dist && zip -r $(PROJECT)-$(VERSION)-raspbian-arm7.zip README.md LICENSE INSTALL.md docs/* scripts/* etc/* bin/*
+	rm -fR dist/bin
   
-release: dist/linux-amd64 dist/windows-amd64 dist/macosx-amd64 dist/raspbian-arm7
-	mkdir -p dist/htdocs/css
-	mkdir -p dist/htdocs/assets
+distribute_docs:
 	mkdir -p dist/etc
+	mkdir -p dist/scripts
+	mkdir -p dist/docs
 	cp -v README.md dist/
 	cp -v LICENSE dist/
 	cp -v INSTALL.md dist/
-	cp -vR templates dist/
-	cp -vR scripts dist/
+	cp -vR docs/* dist/docs/
+	cp -vR scripts/* dist/scripts/
 	cp -vR etc/*-example dist/etc/
-	cp -vR htdocs/index.* dist/htdocs/
-	cp -vR htdocs/css dist/htdocs/
-	cp -vR htdocs/assets dist/htdocs/
-	zip -r $(PROJECT)-$(VERSION)-release.zip dist/*
+
+release: dist/linux-amd64 dist/windows-amd64 dist/macosx-amd64 dist/raspbian-arm7
 
 status:
 	git status

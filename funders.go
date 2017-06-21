@@ -1,4 +1,4 @@
-package epgo
+package ep
 
 import (
 	"fmt"

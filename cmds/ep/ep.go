@@ -1,5 +1,5 @@
 //
-// Package epgo is a collection of structures and functions for working with the E-Prints REST API
+// Package ep is a collection of structures and functions for working with the E-Prints REST API
 //
 // @author R. S. Doiel, <rsdoiel@caltech.edu>
 //
@@ -31,7 +31,7 @@ import (
 
 	// Caltech Library Packages
 	"github.com/caltechlibrary/cli"
-	"github.com/caltechlibrary/epgo"
+	"github.com/caltechlibrary/ep"
 )
 
 var (
@@ -97,7 +97,7 @@ Would export all eprints and rebuild the select lists.`
 func init() {
 	// Setup options
 	publishedNewest = 0
-	feedSize = epgo.DefaultFeedSize
+	feedSize = ep.DefaultFeedSize
 
 	flag.BoolVar(&showHelp, "h", false, "display help")
 	flag.BoolVar(&showHelp, "help", false, "display help")
@@ -136,7 +136,7 @@ func main() {
 	args := flag.Args()
 
 	// Populate cfg from the environment
-	cfg := cli.New(appName, appName, fmt.Sprintf(epgo.LicenseText, appName, epgo.Version), epgo.Version)
+	cfg := cli.New(appName, appName, fmt.Sprintf(ep.LicenseText, appName, ep.Version), ep.Version)
 	cfg.UsageText = fmt.Sprintf(usage, appName)
 	cfg.DescriptionText = fmt.Sprintf(description, appName, appName)
 	cfg.ExampleText = fmt.Sprintf(examples, appName, appName, appName, appName)
@@ -169,7 +169,7 @@ func main() {
 	datasetName = check(cfg, "dataset", cfg.MergeEnv("dataset", datasetName))
 
 	// This will read in any settings from the environment
-	api, err := epgo.New(cfg)
+	api, err := ep.New(cfg)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -183,7 +183,7 @@ func main() {
 				log.Fatalf("Export count should be %q or an integer, %s", exportEPrints, err)
 			}
 		}
-		log.Printf("%s %s", appName, epgo.Version)
+		log.Printf("%s %s", appName, ep.Version)
 		log.Println("Export started")
 		if err := api.ExportEPrints(exportNo); err != nil {
 			log.Printf("%s", err)
@@ -199,7 +199,7 @@ func main() {
 	}
 	if genSelectLists == true {
 		if exportEPrints == "" {
-			log.Printf("%s %s", appName, epgo.Version)
+			log.Printf("%s %s", appName, ep.Version)
 		}
 		log.Println("Generating select lists")
 		api.BuildSelectLists()
