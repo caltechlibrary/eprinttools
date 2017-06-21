@@ -3,7 +3,7 @@ export EP_EPRINT_URL=http://lemurprints.local
 # DB Name used to exporting from E-Prints and for site building
 # for S3 storage use an S3 URL like s3://dataset.library.example.edu/eprints
 export EP_DATASET=dataset/eprints
-# Htdocs directory used to write the JSON blobs with epgo-genpages
+# Htdocs directory used to write the JSON blobs with ep-genpages
 export EP_HTDOCS=htdocs
 
 # If you want to use access the dataset command you can export the DATASET environment variable
