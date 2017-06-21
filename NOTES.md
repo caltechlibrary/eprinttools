@@ -2,10 +2,10 @@
 # Overview
 
 E-Prints produces a list of recently added items to the repository but doesn't provide a feed of items by publication dates.
-The epgo command line utility provides a way to generate that list by leveraging E-Prints REST API.
+The ep command line utility provides a way to generate that list by leveraging E-Prints REST API.
 
 
-## epgo functions
+## ep functions
 
 + New() - returns an new API structure
 + ListEPrintsURI() - returns a list of eprint URI from the REST API
@@ -42,9 +42,9 @@ Additional functions working off lists
 + PubDate() - from a Record structure, return a publication date or empty string
 
 
-## epgo Search
+## ep Search
 
-A feature that needs to be added to accessing simple and advanced search via the *epgo* library.
+A feature that needs to be added to accessing simple and advanced search via the *ep* library.
 
 Two examples of "search" using *curl* for titles starting with "flood characteristic of alluvial"
 
@@ -60,11 +60,11 @@ Two examples of "search" using *curl* for titles starting with "flood characteri
 
 ## environment vars
 
-+ EPGO_API_URL - base URL for your eprints repository (e.g. http://lemurprints.local)
-+ EPGO_SITE_URL - the website url (might be the same as your eprints repository)
-+ EPGO_DBNAME - the database name used in exporting or building
-+ EPGO_HTDOCS - the htdocs directory where files are written in building
-+ EPGO_TEMPLATES - the template directory holding the templates for building
++ EP_API_URL - base URL for your eprints repository (e.g. http://lemurprints.local)
++ EP_SITE_URL - the website url (might be the same as your eprints repository)
++ EP_DBNAME - the database name used in exporting or building
++ EP_HTDOCS - the htdocs directory where files are written in building
++ EP_TEMPLATES - the template directory holding the templates for building
 
 
 ## htdocs layout
