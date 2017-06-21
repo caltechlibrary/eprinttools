@@ -56,19 +56,19 @@ dist/linux-amd64:
 
 dist/windows-amd64:
 	mkdir -p dist/bin
-	env  GOOS=windows GOARCH=amd64 go build -o dist/windows-amd64/ep.exe cmds/ep/ep.go
+	env  GOOS=windows GOARCH=amd64 go build -o dist/bin/ep.exe cmds/ep/ep.go
 	cd dist && zip -r $(PROJECT)-$(VERSION)-windows-amd64.zip README.md LICENSE INSTALL.md docs/* scripts/* etc/* bin/*
 	rm -fR dist/bin
 
 dist/macosx-amd64:
 	mkdir -p dist/bin
-	env  GOOS=darwin GOARCH=amd64 go build -o dist/macosx-amd64/ep cmds/ep/ep.go
+	env  GOOS=darwin GOARCH=amd64 go build -o dist/bin/ep cmds/ep/ep.go
 	cd dist && zip -r $(PROJECT)-$(VERSION)-macosx-amd64.zip README.md LICENSE INSTALL.md docs/* scripts/* etc/* bin/*
 	rm -fR dist/bin
 
 dist/raspbian-arm7:
 	mkdir -p dist/bin
-	env  GOOS=linux GOARCH=arm GOARM=7 go build -o dist/raspberrypi-arm7/ep cmds/ep/ep.go
+	env  GOOS=linux GOARCH=arm GOARM=7 go build -o dist/bin/ep cmds/ep/ep.go
 	cd dist && zip -r $(PROJECT)-$(VERSION)-raspbian-arm7.zip README.md LICENSE INSTALL.md docs/* scripts/* etc/* bin/*
 	rm -fR dist/bin
   
@@ -83,7 +83,7 @@ distribute_docs:
 	cp -vR scripts/* dist/scripts/
 	cp -vR etc/*-example dist/etc/
 
-release: dist/linux-amd64 dist/windows-amd64 dist/macosx-amd64 dist/raspbian-arm7
+release: distribute_docs dist/linux-amd64 dist/windows-amd64 dist/macosx-amd64 dist/raspbian-arm7
 
 status:
 	git status
