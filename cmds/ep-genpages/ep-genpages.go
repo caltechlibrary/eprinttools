@@ -46,16 +46,16 @@ CONFIGURATION
 %s can be configured through setting the following environment
 variables-
 
-EPGO_DATASET this is the dataset and collection directory (e.g. dataset/eprints)
+EP_DATASET this is the dataset and collection directory (e.g. dataset/eprints)
 
-EPGO_HTDOCS  this is the directory where the JSON documents will be written.`
+EP_HTDOCS  this is the directory where the JSON documents will be written.`
 
 	examples = `
 EXAMPLE
 
     %s 
 
-Generates JSON documents in EPGO_HTDOCS from EPGO_DATASET.`
+Generates JSON documents in EP_HTDOCS from EP_DATASET.`
 
 	// Standard Options
 	showHelp    bool
@@ -285,7 +285,7 @@ func main() {
 	appName := path.Base(os.Args[0])
 	flag.Parse()
 
-	cfg := cli.New(appName, "EPGO", fmt.Sprintf(ep.LicenseText, appName, ep.Version), ep.Version)
+	cfg := cli.New(appName, "EP", fmt.Sprintf(ep.LicenseText, appName, ep.Version), ep.Version)
 	cfg.UsageText = fmt.Sprintf(usage, appName)
 	cfg.DescriptionText = fmt.Sprintf(description, appName, appName)
 	cfg.ExampleText = fmt.Sprintf(examples, appName)
