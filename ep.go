@@ -98,7 +98,11 @@ type Person struct {
 	Given   string   `xml:"name>given" json:"given"`
 	Family  string   `xml:"name>family" json:"family"`
 	ID      string   `xml:"id,omitempty" json:"id"`
-	ORCID   string   `xml:"orcid,omitempty" json:"orcid"`
+
+	// Customizations for Caltech Library
+	ORCID string `xml:"orcid,omitempty" json:"orcid,omitempty"`
+	EMail string `xml:"email,omitempty" json:"email,omitempty"`
+	Role  string `xml:"role,omitempty" json:"role,omitempty"`
 }
 
 // PersonList is an array of pointers to Person structs
@@ -196,7 +200,7 @@ type Record struct {
 	Number               string             `xml:"eprint>number" json:"number"`
 	PageRange            string             `xml:"eprint>pagerange" json:"pagerange"`
 	IDNumber             string             `xml:"eprint>id_number" json:"id_number"`
-	Referred             bool               `xml:"eprint>refereed" json:"refereed"`
+	Refereed             bool               `xml:"eprint>refereed" json:"refereed"`
 	ISSN                 string             `xml:"eprint>issn" json:"issn"`
 	OfficialURL          string             `xml:"eprint>official_url" json:"official_url"`
 	RelatedURL           []*RelatedURL      `xml:"eprint>related_url>item" json:"related_url"`
@@ -206,8 +210,20 @@ type Record struct {
 	OtherNumberingSystem []*NumberingSystem `xml:"eprint>other_numbering_system>item,omitempty" json:"other_numbering_system"`
 	Funders              FunderList         `xml:"eprint>funders>item" json:"funders"`
 	Collection           string             `xml:"eprint>collection" json:"collection"`
-	Reviewer             string             `xml:"eprint>reviewer" json:"reviewer"`
-	LocalGroup           []string           `xml:"eprint>local_group>item" json:"local_group"`
+
+	// Thesis repository Customizations
+	ThesisType          string     `xml:"eprint>thesis_type,omitempty" json:"thesis_type"`
+	ThesisAdvisors      PersonList `xml:"eprint>thesis_advisor>item,omitempty" json:"thesis_advisor,omitempty"`
+	ThesisCommittee     PersonList `xml:"eprint>thesis_committee>item,omitempty" json:"thesis_committee,omitempty"`
+	ThesisDegree        string     `xml:"eprint>thesis_degree,omitempty" json:"thesis_degree,omitempty"`
+	ThesisDegreeGrantor string     `xml:"eprint>thesis_degree_grantor,omitempty" json:"thesis_degree_grantor,omitempty"`
+	ThesisDefenseDate   string     `xml:"eprint>thesis_defense_date,omitempty" json:"thesis_defense_date,omitempty"`
+	OptionMajor         string     `xml:"eprint>option_major>item,omitempty" json:"option_major,omitempty"`
+	OptionMinor         string     `xml:"eprint>option_minor>item,omitempty" json:"option_minor,omitempty"`
+	GradOfcApprovalDate string     `xml:"eprint>gradofc_approval_date,omitempty" json:"gradofc_approval_date,omitempty"`
+
+	Reviewer   string   `xml:"eprint>reviewer" json:"reviewer"`
+	LocalGroup []string `xml:"eprint>local_group>item" json:"local_group"`
 }
 
 type ePrintIDs struct {
