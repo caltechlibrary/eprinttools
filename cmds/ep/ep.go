@@ -92,6 +92,10 @@ Would export all eprints and rebuild the select lists.`
 	articlesNewest  int
 
 	genSelectLists bool
+
+	authMethod string
+	userName   string
+	userSecret string
 )
 
 func init() {
@@ -109,10 +113,16 @@ func init() {
 	flag.StringVar(&outputFName, "output", "", "output filename (logging)")
 
 	// App Specific options
+	flag.StringVar(&authMethod, "auth", "", "set the authentication method (e.g. none, basic, oauth, shib)")
+	flag.StringVar(&userName, "username", "", "set the username")
+	flag.StringVar(&userName, "un", "", "set the username")
+	flag.StringVar(&userSecret, "pw", "", "set the password")
+
 	flag.StringVar(&apiURL, "api", "", "url for EPrints API")
 	flag.StringVar(&datasetName, "dataset", "", "dataset/collection name")
 
 	flag.BoolVar(&prettyPrint, "p", false, "pretty print JSON output")
+	flag.BoolVar(&prettyPrint, "pretty", false, "pretty print JSON output")
 	flag.BoolVar(&useAPI, "read-api", false, "read the contents from the API without saving in the database")
 	flag.IntVar(&feedSize, "feed-size", feedSize, "number of items rendering in feeds")
 	flag.StringVar(&exportEPrints, "export", "", "export N EPrints from highest ID to lowest")
@@ -165,8 +175,14 @@ func main() {
 	// Log to out
 	log.SetOutput(out)
 
+	// Required configuration
 	apiURL = check(cfg, "eprint_url", cfg.MergeEnv("eprint_url", apiURL))
 	datasetName = check(cfg, "dataset", cfg.MergeEnv("dataset", datasetName))
+
+	// Optional configuration
+	authMethod = cfg.MergeEnv("auth_method", authMethod)
+	userName = cfg.MergeEnv("username", userName)
+	userSecret = cfg.MergeEnv("password", userSecret)
 
 	// This will read in any settings from the environment
 	api, err := ep.New(cfg)

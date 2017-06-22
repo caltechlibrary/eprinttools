@@ -85,16 +85,18 @@ func failCheck(err error, msg string) {
 // EPrintsAPI holds the basic connectin information to read the REST API for EPrints
 type EPrintsAPI struct {
 	XMLName xml.Name `json:"-"`
-	// EPGO_EPRINT_URL
+	// EP_EPRINT_URL
 	URL *url.URL `xml:"epgo>eprint_url" json:"eprint_url"`
-	// EPGO_DATASET
+	// EP_DATASET
 	Dataset string `xml:"epgo>dataset" json:"dataset"`
-	// EPGO_HTDOCS
+	// EP_HTDOCS
 	Htdocs string `xml:"epgo>htdocs" json:"htdocs"`
-	// EPGO_AUTH_TYPE
-	AuthType     int
-	AuthUsername string
-	AuthSecret   string
+	// EP_AUTH_METHOD
+	AuthType int
+	// EP_USERNAME
+	Username string
+	// EP_PASSWORD
+	Secret string
 }
 
 // Person returns the contents of eprint>creators>item>name as a struct
@@ -340,6 +342,11 @@ func New(cfg *cli.Config) (*EPrintsAPI, error) {
 	htdocs := cfg.Get("htdocs")
 	datasetName := cfg.Get("dataset")
 
+	// Optional Authentication
+	authMethod := strings.ToLower(cfg.Get("auth_method"))
+	userName := cfg.Get("username")
+	userSecret := cfg.Get("password")
+
 	api := new(EPrintsAPI)
 	if EPrintURL == "" {
 		EPrintURL = "http://localhost:8080"
@@ -356,6 +363,21 @@ func New(cfg *cli.Config) (*EPrintsAPI, error) {
 	}
 	api.Htdocs = htdocs
 	api.Dataset = datasetName
+
+	// Optional authentication settings
+	switch authMethod {
+	case "basic":
+		api.AuthType = rc.BasicAuth
+	case "oauth":
+		api.AuthType = rc.OAuth
+	case "shib":
+		api.AuthType = rc.Shibboleth
+	default:
+		api.AuthType = rc.AuthNone
+	}
+	api.Username = userName
+	api.Secret = userSecret
+
 	return api, nil
 }
 
@@ -391,7 +413,7 @@ func (api *EPrintsAPI) ListEPrintsURI() ([]string, error) {
 
 	api.URL.Path = path.Join("rest", "eprint") + "/"
 	// Switch to use Rest Client Wrapper
-	rest, err := rc.New(api.URL.String(), api.AuthType, api.AuthUsername, api.AuthSecret)
+	rest, err := rc.New(api.URL.String(), api.AuthType, api.Username, api.Secret)
 	if err != nil {
 		return nil, fmt.Errorf("requesting %s, %s", api.URL.String(), err)
 	}
@@ -440,7 +462,7 @@ func (api *EPrintsAPI) GetEPrint(uri string) (*Record, []byte, error) {
 	api.URL.Path = uri
 
 	// Switch to use Rest Client Wrapper
-	rest, err := rc.New(api.URL.String(), api.AuthType, api.AuthUsername, api.AuthSecret)
+	rest, err := rc.New(api.URL.String(), api.AuthType, api.Username, api.Secret)
 	if err != nil {
 		return nil, nil, fmt.Errorf("requesting %s, %s", api.URL.String(), err)
 	}
