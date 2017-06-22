@@ -24,7 +24,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
-	"net/http"
+	//"net/http"
 	"net/url"
 	"os"
 	"path"
@@ -36,6 +36,7 @@ import (
 	"github.com/caltechlibrary/bibtex"
 	"github.com/caltechlibrary/cli"
 	"github.com/caltechlibrary/dataset"
+	"github.com/caltechlibrary/rc"
 )
 
 const (
@@ -90,6 +91,10 @@ type EPrintsAPI struct {
 	Dataset string `xml:"epgo>dataset" json:"dataset"`
 	// EPGO_HTDOCS
 	Htdocs string `xml:"epgo>htdocs" json:"htdocs"`
+	// EPGO_AUTH_TYPE
+	AuthType     int
+	AuthUsername string
+	AuthSecret   string
 }
 
 // Person returns the contents of eprint>creators>item>name as a struct
@@ -385,18 +390,29 @@ func (api *EPrintsAPI) ListEPrintsURI() ([]string, error) {
 	)
 
 	api.URL.Path = path.Join("rest", "eprint") + "/"
-	resp, err := http.Get(api.URL.String())
+	// Switch to use Rest Client Wrapper
+	rest, err := rc.New(api.URL.String(), api.AuthType, api.AuthUsername, api.AuthSecret)
+	if err != nil {
+		return nil, fmt.Errorf("requesting %s, %s", api.URL.String(), err)
+	}
+	content, err := rest.Request("GET", api.URL.Path, map[string]string{})
 	if err != nil {
 		return nil, fmt.Errorf("requested %s, %s", api.URL.String(), err)
 	}
-	defer resp.Body.Close()
-	if resp.StatusCode != 200 {
-		return nil, fmt.Errorf("http error %s, %s", api.URL.String(), resp.Status)
-	}
-	content, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("content can't be read %s, %s", api.URL.String(), err)
-	}
+	/*
+		resp, err := http.Get(api.URL.String())
+		if err != nil {
+			return nil, fmt.Errorf("requested %s, %s", api.URL.String(), err)
+		}
+		defer resp.Body.Close()
+		if resp.StatusCode != 200 {
+			return nil, fmt.Errorf("http error %s, %s", api.URL.String(), resp.Status)
+		}
+		content, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return nil, fmt.Errorf("content can't be read %s, %s", api.URL.String(), err)
+		}
+	*/
 	eIDs := new(ePrintIDs)
 	err = xml.Unmarshal(content, &eIDs)
 	if err != nil {
@@ -422,18 +438,31 @@ func (api *EPrintsAPI) ListEPrintsURI() ([]string, error) {
 // Returns a Record structure, the raw XML and an error.
 func (api *EPrintsAPI) GetEPrint(uri string) (*Record, []byte, error) {
 	api.URL.Path = uri
-	resp, err := http.Get(api.URL.String())
+
+	// Switch to use Rest Client Wrapper
+	rest, err := rc.New(api.URL.String(), api.AuthType, api.AuthUsername, api.AuthSecret)
+	if err != nil {
+		return nil, nil, fmt.Errorf("requesting %s, %s", api.URL.String(), err)
+	}
+	content, err := rest.Request("GET", api.URL.Path, map[string]string{})
 	if err != nil {
 		return nil, nil, fmt.Errorf("requested %s, %s", api.URL.String(), err)
 	}
-	defer resp.Body.Close()
-	if resp.StatusCode != 200 {
-		return nil, nil, fmt.Errorf("http error %s, %s", api.URL.String(), resp.Status)
-	}
-	content, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return nil, nil, fmt.Errorf("content can't be read %s, %s", api.URL.String(), err)
-	}
+
+	/*
+		resp, err := http.Get(api.URL.String())
+		if err != nil {
+			return nil, nil, fmt.Errorf("requested %s, %s", api.URL.String(), err)
+		}
+		defer resp.Body.Close()
+		if resp.StatusCode != 200 {
+			return nil, nil, fmt.Errorf("http error %s, %s", api.URL.String(), resp.Status)
+		}
+		content, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return nil, nil, fmt.Errorf("content can't be read %s, %s", api.URL.String(), err)
+		}
+	*/
 	rec := new(Record)
 	err = xml.Unmarshal(content, &rec)
 	if err != nil {
