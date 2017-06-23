@@ -6,9 +6,10 @@ export EP_DATASET=dataset/eprints
 # Htdocs directory used to write the JSON blobs with ep-genpages
 export EP_HTDOCS=htdocs
 
-# If you want to use access the dataset command you can export the DATASET environment variable
-# export DATASET="${EP_DATASET}"
 # For S3 support with S3's aws commands' configuration do
 # export AWS_SDK_LOAD_CONFIG=1
+
+# If you want to use access the dataset command you can export the DATASET environment variable
+# export DATASET="${EP_DATASET}"
 
 
