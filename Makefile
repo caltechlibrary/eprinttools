@@ -19,8 +19,12 @@ ep: bin/ep
 bin/ep: ep.go  harvest.go grantNumbers.go funders.go cmds/ep/ep.go
 	go build -o bin/ep cmds/ep/ep.go
 
+bin/ep-genfeeds: ep.go harvest.go grantNumnberrs.go funders.go cmds/ep-genfeeds/ep-genfeeds.go
+	go build -o bin/ep-genfeeds cmds/ep-genfeeds.go
+
 install: 
 	env GOBIN=$(HOME)/bin go install cmds/ep/ep.go
+	env GOBIN=$(HOME)/bin go install cmds/ep-genfeeds/ep-genfeeds.go
 
 website: page.tmpl README.md nav.md INSTALL.md LICENSE css/site.css
 	./mk-website.bash

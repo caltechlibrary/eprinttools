@@ -33,7 +33,6 @@ import (
 	"time"
 
 	// Caltech Library packages
-	"github.com/caltechlibrary/bibtex"
 	"github.com/caltechlibrary/cli"
 	"github.com/caltechlibrary/dataset"
 	"github.com/caltechlibrary/rc"
@@ -287,52 +286,6 @@ func last(s []string) string {
 		return s[l]
 	}
 	return ""
-}
-
-// ToBibTeXElement takes an epgo.Record and turns it into a bibtex.Element record
-func (rec *Record) ToBibTeXElement() *bibtex.Element {
-	bib := &bibtex.Element{}
-	bib.Set("type", rec.Type)
-	bib.Set("id", fmt.Sprintf("eprint-%d", rec.ID))
-	bib.Set("title", rec.Title)
-	if len(rec.Abstract) > 0 {
-		bib.Set("abstract", rec.Abstract)
-	}
-	if rec.DateType == "pub" {
-		dt, err := time.Parse("2006-01-02", rec.Date)
-		if err != nil {
-			bib.Set("year", dt.Format("2006"))
-			bib.Set("month", dt.Format("January"))
-		}
-	}
-	if len(rec.PageRange) > 0 {
-		bib.Set("pages", rec.PageRange)
-	}
-	/*
-		if len(rec.Note) > 0 {
-			bib.Set("note", rec.Note)
-		}
-	*/
-	if len(rec.Creators) > 0 {
-		people := []string{}
-		for _, person := range rec.Creators {
-			people = append(people, fmt.Sprintf("%s, %s", person.Family, person.Given))
-		}
-		bib.Set("author", strings.Join(people, " and "))
-	}
-	switch rec.Type {
-	case "article":
-		bib.Set("journal", rec.Publication)
-	case "book":
-		bib.Set("publisher", rec.Publication)
-	}
-	if len(rec.Volume) > 0 {
-		bib.Set("volume", rec.Volume)
-	}
-	if len(rec.Number) > 0 {
-		bib.Set("number", rec.Number)
-	}
-	return bib
 }
 
 // New creates a new API instance
@@ -872,7 +825,7 @@ func (api *EPrintsAPI) RenderEPrint(basepath string, record *Record) error {
 	return ioutil.WriteFile(fname, src, 0664)
 }
 
-// RenderDocuments writes JSON, BibTeX documents to the directory indicated by docpath
+// RenderDocuments writes JSON to the directory indicated by docpath
 func (api *EPrintsAPI) RenderDocuments(docTitle, docDescription, docpath string, records []*Record) error {
 	// Create the the directory part of docpath if neccessary
 	if _, err := os.Open(path.Join(api.Htdocs, docpath)); err != nil && os.IsNotExist(err) == true {
@@ -889,24 +842,12 @@ func (api *EPrintsAPI) RenderDocuments(docTitle, docDescription, docpath string,
 	if err != nil {
 		return fmt.Errorf("Can't write %s, %s", fname, err)
 	}
-
-	// Write out BibTeX file.
-	bibDoc := []string{}
-	for _, rec := range records {
-		bibDoc = append(bibDoc, rec.ToBibTeXElement().String())
-	}
-	fname = path.Join(api.Htdocs, docpath+".bib")
-	err = ioutil.WriteFile(fname, []byte(strings.Join(bibDoc, "\n\n")), 0664)
-	if err != nil {
-		return fmt.Errorf("Can't write %s, %s", fname, err)
-	}
-
 	return nil
 }
 
-// BuildPages generates JSON and BibTeX versions of collected records
+// BuildFeed generates JSON versions of collected records
 // by calling RenderDocuments with the appropriate data.
-func (api *EPrintsAPI) BuildPages(feedSize int, title, target string, filter func(*EPrintsAPI, int, int) ([]*Record, error)) error {
+func (api *EPrintsAPI) BuildFeed(feedSize int, title, target string, filter func(*EPrintsAPI, int, int) ([]*Record, error)) error {
 	if feedSize < 1 {
 		feedSize = DefaultFeedSize
 	}
