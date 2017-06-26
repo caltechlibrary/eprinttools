@@ -7,45 +7,49 @@
 </head>
 <body>
 <header>
-<a href="http://library.caltech.edu" title="link to Caltech Library Homepage"><img src="assets/liblogo.gif" alt="Caltech Library logo"></a>
+<a href="http://library.caltech.edu" title="link to Caltech Library Homepage"><img src="/assets/liblogo.gif" alt="Caltech Library logo"></a>
 </header>
 <nav>
 <ul>
 <li><a href="/">Home</a></li>
-<li><a href="./">README</a></li>
-<li><a href="license.html">LICENSE</a></li>
-<li><a href="install.html">INSTALL</a></li>
-<li><a href="docs/ep.html">ep</a></li>
+<li><a href="../">README</a></li>
+<li><a href="../license.html">LICENSE</a></li>
+<li><a href="../install.html">INSTALL</a></li>
+<li><a href="ep.html">ep</a></li>
+<li><a href="ep-genfeeds.html">ep-genfeeds</a></li>
 <li><a href="https://github.com/caltechlibrary/ep">Github</a></li>
 </ul>
 
 </nav>
 
 <section>
-<h1>USAGE</h1>
+<h1>ep</h1>
 
-<pre><code>epgo [OPTIONS] [EPGO_EPRINTS_URL]
+<h2>USAGE</h2>
+
+<pre><code>ep [OPTIONS] [EP_EPRINTS_URL]
 </code></pre>
 
 <h2>SYNOPSIS</h2>
 
-<p>epgo wraps the REST API for E-Prints 3.3 or better. It can return a list
+<p>ep wraps the REST API for E-Prints 3.3 or better. It can return a list
 of uri, a JSON view of the XML presentation as well as generates feeds
 and web pages.</p>
 
 <h2>CONFIGURATION</h2>
 
-<p>epgo can be configured with following environment variables</p>
+<p>ep can be configured with following environment variables</p>
 
 <ul>
-<li>EPGO_EPRINTS_URL the URL to your E-Prints installation</li>
-<li>EPGO_DATASET the dataset and collection name for exporting, site building, and content retrieval</li>
+<li>EP_EPRINTS_URL the URL to your E-Prints installation</li>
+<li>EP_DATASET the dataset and collection name for exporting, site building, and content retrieval</li>
 </ul>
 
 <h2>OPTIONS</h2>
 
 <pre><code>	-api	url for EPrints API
 	-articles-newest	list the N newest published articles
+	-auth	set the authentication method (e.g. none, basic, oauth, shib)
 	-dataset	dataset/collection name
 	-export	export N EPrints from highest ID to lowest
 	-feed-size	number of items rendering in feeds
@@ -56,36 +60,42 @@ and web pages.</p>
 	-o	output filename (logging)
 	-output	output filename (logging)
 	-p	pretty print JSON output
+	-pretty	pretty print JSON output
 	-published-newest	list the N newest published items
+	-pw	set the password
 	-read-api	read the contents from the API without saving in the database
 	-s	generate select lists in dataset
 	-select	generate select lists in dataset
+	-un	set the username
+	-username	set the username
 	-v	display version
 	-version	display version
 </code></pre>
 
 <h2>EXAMPLE</h2>
 
-<pre><code class="language-shell">    epgo -export all
+<pre><code class="language-shell">    ep -export all
 </code></pre>
 
 <p>Would export the entire EPrints repository public content defined by the
-environment virables EPGO_API_URL, EPGO_DATASET.</p>
+environment virables EP_API_URL, EP_DATASET.</p>
 
-<pre><code class="language-shell">    epgo -export 2000
+<pre><code class="language-shell">    ep -export 2000
 </code></pre>
 
 <p>Would export 2000 EPrints from the repository with the heighest ID values.</p>
 
-<pre><code class="language-shell">    epgo -select
+<pre><code class="language-shell">    ep -select
 </code></pre>
 
-<p>Would (re)build the select lists based on contents of $EPGO_DATASET.</p>
+<p>Would (re)build the select lists based on contents of $EP_DATASET.</p>
 
-<pre><code class="language-shell">    epgo -select -export all
+<pre><code class="language-shell">    ep -select -export all
 </code></pre>
 
 <p>Would export all eprints and rebuild the select lists.</p>
+
+<p>ep v0.0.10-beta1</p>
 
 </section>
 

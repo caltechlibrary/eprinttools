@@ -20,8 +20,10 @@ ep can be configured with following environment variables
 
 ## OPTIONS
 
+```
 	-api	url for EPrints API
 	-articles-newest	list the N newest published articles
+	-auth	set the authentication method (e.g. none, basic, oauth, shib)
 	-dataset	dataset/collection name
 	-export	export N EPrints from highest ID to lowest
 	-feed-size	number of items rendering in feeds
@@ -32,12 +34,18 @@ ep can be configured with following environment variables
 	-o	output filename (logging)
 	-output	output filename (logging)
 	-p	pretty print JSON output
+	-pretty	pretty print JSON output
 	-published-newest	list the N newest published items
+	-pw	set the password
 	-read-api	read the contents from the API without saving in the database
 	-s	generate select lists in dataset
 	-select	generate select lists in dataset
+	-un	set the username
+	-username	set the username
 	-v	display version
 	-version	display version
+```
+
 
 ## EXAMPLE
 
@@ -66,3 +74,4 @@ Would (re)build the select lists based on contents of $EP_DATASET.
 
 Would export all eprints and rebuild the select lists.
 
+ep v0.0.10-beta1
