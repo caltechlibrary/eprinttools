@@ -30,7 +30,6 @@ import (
 	"path"
 	"strconv"
 	"strings"
-	"time"
 
 	// Caltech Library packages
 	"github.com/caltechlibrary/cli"

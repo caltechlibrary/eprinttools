@@ -39,7 +39,7 @@ var (
 	description = `
 SYNOPSIS
 
-%s generates JSON documents in a htdocs directory tree.
+%s generates JSON documents (feeds) in a htdocs directory tree.
 
 CONFIGURATION
 
