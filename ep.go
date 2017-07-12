@@ -217,7 +217,7 @@ type Record struct {
 	Collection           string             `xml:"eprint>collection" json:"collection"`
 
 	// Thesis repository Customizations
-	ThesisType          string     `xml:"eprint>thesis_type,omitempty" json:"thesis_type"`
+	ThesisType          string     `xml:"eprint>thesis_type,omitempty" json:"thesis_type,omitempty"`
 	ThesisAdvisors      PersonList `xml:"eprint>thesis_advisor>item,omitempty" json:"thesis_advisor,omitempty"`
 	ThesisCommittee     PersonList `xml:"eprint>thesis_committee>item,omitempty" json:"thesis_committee,omitempty"`
 	ThesisDegree        string     `xml:"eprint>thesis_degree,omitempty" json:"thesis_degree,omitempty"`
