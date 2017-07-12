@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>epgo</title>
+    <title>ep</title>
     <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" href="css/site.css">
+    <link rel="stylesheet" href="/css/site.css">
 </head>
 <body>
 <header>
-<a href="http://library.caltech.edu" title="link to Caltech Library Homepage"><img src="assets/liblogo.gif" alt="Caltech Library logo"></a>
+<a href="http://library.caltech.edu" title="link to Caltech Library Homepage"><img src="/assets/liblogo.gif" alt="Caltech Library logo"></a>
 </header>
 <nav>
 <ul>
@@ -15,9 +15,8 @@
 <li><a href="./">README</a></li>
 <li><a href="license.html">LICENSE</a></li>
 <li><a href="install.html">INSTALL</a></li>
-<li><a href="epgo.html">epgo</a></li>
-<li><a href="epgo-genpages.html">epgo-genpages</a></li>
-<li><a href="https://github.com/caltechlibrary/epgo">Github</a></li>
+<li><a href="docs/ep.html">ep</a></li>
+<li><a href="https://github.com/caltechlibrary/ep">Github</a></li>
 </ul>
 
 </nav>
@@ -26,22 +25,21 @@
 <h1>ep</h1>
 
 <p>This project contains the <em>ep</em> go package for working with EPrints
-REST API. It also includes <em>epgo</em> a command line utility for
-harvesting content,  building feeds and website pages that run
-indepenantly of EPrints itself (e.g. You could have a website/feeds
-generated from an EPrints repository running on a different system).</p>
+REST API. It also includes <em>ep</em> command line utilities for
+harvesting content into a <a href="https://github.com/caltechlibrary/dataset">dataset</a>
+collection and rendering JSON documents for web feeds.</p>
 
 <h2>The command line</h2>
 
 <ul>
-<li><em>epgo</em> is a command line utility utilizing EPrints&rsquo; REST API to
+<li><em>ep</em> is a command line utility utilizing EPrints&rsquo; REST API to
 produce alternative feeds and formats. Save the harvest content in
 <a href="https://github.com/caltechlibrary/dataset">dataset</a> collection(s).</li>
 </ul>
 
-<p>The utilities can be configured from the environment.  The environment
-can be overridden by command line options. For details run the individual command wiht the &lsquo;-help&rsquo;
-option.</p>
+<p>The utility is from the environment and command line options.  The environment
+is overridden by command line options. For details run the individual command
+with the &lsquo;-help&rsquo; option.</p>
 
 </section>
 

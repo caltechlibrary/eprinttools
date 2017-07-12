@@ -51,3 +51,5 @@ dist/*
 *.csv
 *.dat
 *gz
+CaltechTHESIS/*
+CaltechAUTHORS/*

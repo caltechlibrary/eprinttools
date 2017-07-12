@@ -1,5 +1,5 @@
 //
-// Package epgo is a collection of structures and functions for working with the E-Prints REST API
+// Package ep is a collection of structures and functions for working with the E-Prints REST API
 //
 // @author R. S. Doiel, <rsdoiel@caltech.edu>
 //
@@ -16,7 +16,7 @@
 //
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-package epgo
+package ep
 
 import (
 	"encoding/json"
@@ -24,23 +24,22 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
-	"net/http"
+	//"net/http"
 	"net/url"
 	"os"
 	"path"
 	"strconv"
 	"strings"
-	"time"
 
 	// Caltech Library packages
-	"github.com/caltechlibrary/bibtex"
 	"github.com/caltechlibrary/cli"
 	"github.com/caltechlibrary/dataset"
+	"github.com/caltechlibrary/rc"
 )
 
 const (
 	// Version is the revision number for this implementation of epgo
-	Version = "v0.0.10-alpha10"
+	Version = "v0.0.10-beta2"
 
 	// LicenseText holds the string for rendering License info on the command line
 	LicenseText = `
@@ -74,6 +73,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 var (
 	// Primary collection
 	ePrintBucket = []byte("eprints")
+<<<<<<< HEAD:epgo.go
 
 <<<<<<< HEAD
 	// Indexes available
@@ -107,6 +107,8 @@ var (
 >>>>>>> fe42d4ce40092da445cbcc0e764d66efb1daa2b0
 =======
 >>>>>>> 7c556f04f5335ed86ebad6eb0c63821415997b0e
+=======
+>>>>>>> 5332e838a039fb9c37f35d0d448d99ca55e5c85b:ep.go
 )
 
 func failCheck(err error, msg string) {
@@ -132,13 +134,22 @@ type EPrintsAPI struct {
 	RepositoryPath string   `xml:"epgo>repository_path" json:"repository_path"` // EPGO_REPOSITORY_PATH
 =======
 	XMLName xml.Name `json:"-"`
-	// EPGO_EPRINT_URL
+	// EP_EPRINT_URL
 	URL *url.URL `xml:"epgo>eprint_url" json:"eprint_url"`
-	// EPGO_DATASET
+	// EP_DATASET
 	Dataset string `xml:"epgo>dataset" json:"dataset"`
-	// EPGO_HTDOCS
+	// EP_HTDOCS
 	Htdocs string `xml:"epgo>htdocs" json:"htdocs"`
+<<<<<<< HEAD:epgo.go
 >>>>>>> 7c556f04f5335ed86ebad6eb0c63821415997b0e
+=======
+	// EP_AUTH_METHOD
+	AuthType int
+	// EP_USERNAME
+	Username string
+	// EP_PASSWORD
+	Secret string
+>>>>>>> 5332e838a039fb9c37f35d0d448d99ca55e5c85b:ep.go
 }
 
 // Person returns the contents of eprint>creators>item>name as a struct
@@ -147,11 +158,19 @@ type Person struct {
 	Given   string   `xml:"name>given" json:"given"`
 	Family  string   `xml:"name>family" json:"family"`
 	ID      string   `xml:"id,omitempty" json:"id"`
+<<<<<<< HEAD:epgo.go
 	ORCID   string   `xml:"orcid,omitempty" json:"orcid"`
 <<<<<<< HEAD
 	ISNI    string   `xml:"isni,omitempty" json:"isni"`
 =======
 >>>>>>> fe42d4ce40092da445cbcc0e764d66efb1daa2b0
+=======
+
+	// Customizations for Caltech Library
+	ORCID string `xml:"orcid,omitempty" json:"orcid,omitempty"`
+	EMail string `xml:"email,omitempty" json:"email,omitempty"`
+	Role  string `xml:"role,omitempty" json:"role,omitempty"`
+>>>>>>> 5332e838a039fb9c37f35d0d448d99ca55e5c85b:ep.go
 }
 
 // PersonList is an array of pointers to Person structs
@@ -249,7 +268,7 @@ type Record struct {
 	Number               string             `xml:"eprint>number" json:"number"`
 	PageRange            string             `xml:"eprint>pagerange" json:"pagerange"`
 	IDNumber             string             `xml:"eprint>id_number" json:"id_number"`
-	Referred             bool               `xml:"eprint>refereed" json:"refereed"`
+	Refereed             bool               `xml:"eprint>refereed" json:"refereed"`
 	ISSN                 string             `xml:"eprint>issn" json:"issn"`
 	OfficialURL          string             `xml:"eprint>official_url" json:"official_url"`
 	RelatedURL           []*RelatedURL      `xml:"eprint>related_url>item" json:"related_url"`
@@ -259,8 +278,20 @@ type Record struct {
 	OtherNumberingSystem []*NumberingSystem `xml:"eprint>other_numbering_system>item,omitempty" json:"other_numbering_system"`
 	Funders              FunderList         `xml:"eprint>funders>item" json:"funders"`
 	Collection           string             `xml:"eprint>collection" json:"collection"`
-	Reviewer             string             `xml:"eprint>reviewer" json:"reviewer"`
-	LocalGroup           []string           `xml:"eprint>local_group>item" json:"local_group"`
+
+	// Thesis repository Customizations
+	ThesisType          string     `xml:"eprint>thesis_type,omitempty" json:"thesis_type,omitempty"`
+	ThesisAdvisors      PersonList `xml:"eprint>thesis_advisor>item,omitempty" json:"thesis_advisor,omitempty"`
+	ThesisCommittee     PersonList `xml:"eprint>thesis_committee>item,omitempty" json:"thesis_committee,omitempty"`
+	ThesisDegree        string     `xml:"eprint>thesis_degree,omitempty" json:"thesis_degree,omitempty"`
+	ThesisDegreeGrantor string     `xml:"eprint>thesis_degree_grantor,omitempty" json:"thesis_degree_grantor,omitempty"`
+	ThesisDefenseDate   string     `xml:"eprint>thesis_defense_date,omitempty" json:"thesis_defense_date,omitempty"`
+	OptionMajor         string     `xml:"eprint>option_major>item,omitempty" json:"option_major,omitempty"`
+	OptionMinor         string     `xml:"eprint>option_minor>item,omitempty" json:"option_minor,omitempty"`
+	GradOfcApprovalDate string     `xml:"eprint>gradofc_approval_date,omitempty" json:"gradofc_approval_date,omitempty"`
+
+	Reviewer   string   `xml:"eprint>reviewer" json:"reviewer"`
+	LocalGroup []string `xml:"eprint>local_group>item" json:"local_group"`
 }
 
 type ePrintIDs struct {
@@ -332,6 +363,7 @@ func last(s []string) string {
 	return ""
 }
 
+<<<<<<< HEAD:epgo.go
 <<<<<<< HEAD
 // slugify ensures we have a path friendly name or returns an error.
 // NOTE: The web server does not expect to look on disc for URL Encoded paths, instead
@@ -398,6 +430,8 @@ func (rec *Record) ToBibTeXElement() *bibtex.Element {
 	return bib
 }
 
+=======
+>>>>>>> 5332e838a039fb9c37f35d0d448d99ca55e5c85b:ep.go
 // New creates a new API instance
 func New(cfg *cli.Config) (*EPrintsAPI, error) {
 	var err error
@@ -414,6 +448,11 @@ func New(cfg *cli.Config) (*EPrintsAPI, error) {
 	repositoryPath := cfg.Get("repository_path")
 =======
 >>>>>>> 7c556f04f5335ed86ebad6eb0c63821415997b0e
+
+	// Optional Authentication
+	authMethod := strings.ToLower(cfg.Get("auth_method"))
+	userName := cfg.Get("username")
+	userSecret := cfg.Get("password")
 
 	api := new(EPrintsAPI)
 	if EPrintURL == "" {
@@ -439,6 +478,7 @@ func New(cfg *cli.Config) (*EPrintsAPI, error) {
 	api.DBName = dbName
 =======
 	api.Dataset = datasetName
+<<<<<<< HEAD:epgo.go
 <<<<<<< HEAD
 >>>>>>> fe42d4ce40092da445cbcc0e764d66efb1daa2b0
 	api.TemplatePath = templatePath
@@ -446,6 +486,23 @@ func New(cfg *cli.Config) (*EPrintsAPI, error) {
 	api.RepositoryPath = repositoryPath
 =======
 >>>>>>> 7c556f04f5335ed86ebad6eb0c63821415997b0e
+=======
+
+	// Optional authentication settings
+	switch authMethod {
+	case "basic":
+		api.AuthType = rc.BasicAuth
+	case "oauth":
+		api.AuthType = rc.OAuth
+	case "shib":
+		api.AuthType = rc.Shibboleth
+	default:
+		api.AuthType = rc.AuthNone
+	}
+	api.Username = userName
+	api.Secret = userSecret
+
+>>>>>>> 5332e838a039fb9c37f35d0d448d99ca55e5c85b:ep.go
 	return api, nil
 }
 
@@ -484,18 +541,29 @@ func (api *EPrintsAPI) ListEPrintsURI() ([]string, error) {
 	)
 
 	api.URL.Path = path.Join("rest", "eprint") + "/"
-	resp, err := http.Get(api.URL.String())
+	// Switch to use Rest Client Wrapper
+	rest, err := rc.New(api.URL.String(), api.AuthType, api.Username, api.Secret)
+	if err != nil {
+		return nil, fmt.Errorf("requesting %s, %s", api.URL.String(), err)
+	}
+	content, err := rest.Request("GET", api.URL.Path, map[string]string{})
 	if err != nil {
 		return nil, fmt.Errorf("requested %s, %s", api.URL.String(), err)
 	}
-	defer resp.Body.Close()
-	if resp.StatusCode != 200 {
-		return nil, fmt.Errorf("http error %s, %s", api.URL.String(), resp.Status)
-	}
-	content, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("content can't be read %s, %s", api.URL.String(), err)
-	}
+	/*
+		resp, err := http.Get(api.URL.String())
+		if err != nil {
+			return nil, fmt.Errorf("requested %s, %s", api.URL.String(), err)
+		}
+		defer resp.Body.Close()
+		if resp.StatusCode != 200 {
+			return nil, fmt.Errorf("http error %s, %s", api.URL.String(), resp.Status)
+		}
+		content, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return nil, fmt.Errorf("content can't be read %s, %s", api.URL.String(), err)
+		}
+	*/
 	eIDs := new(ePrintIDs)
 	err = xml.Unmarshal(content, &eIDs)
 	if err != nil {
@@ -521,18 +589,31 @@ func (api *EPrintsAPI) ListEPrintsURI() ([]string, error) {
 // Returns a Record structure, the raw XML and an error.
 func (api *EPrintsAPI) GetEPrint(uri string) (*Record, []byte, error) {
 	api.URL.Path = uri
-	resp, err := http.Get(api.URL.String())
+
+	// Switch to use Rest Client Wrapper
+	rest, err := rc.New(api.URL.String(), api.AuthType, api.Username, api.Secret)
+	if err != nil {
+		return nil, nil, fmt.Errorf("requesting %s, %s", api.URL.String(), err)
+	}
+	content, err := rest.Request("GET", api.URL.Path, map[string]string{})
 	if err != nil {
 		return nil, nil, fmt.Errorf("requested %s, %s", api.URL.String(), err)
 	}
-	defer resp.Body.Close()
-	if resp.StatusCode != 200 {
-		return nil, nil, fmt.Errorf("http error %s, %s", api.URL.String(), resp.Status)
-	}
-	content, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return nil, nil, fmt.Errorf("content can't be read %s, %s", api.URL.String(), err)
-	}
+
+	/*
+		resp, err := http.Get(api.URL.String())
+		if err != nil {
+			return nil, nil, fmt.Errorf("requested %s, %s", api.URL.String(), err)
+		}
+		defer resp.Body.Close()
+		if resp.StatusCode != 200 {
+			return nil, nil, fmt.Errorf("http error %s, %s", api.URL.String(), resp.Status)
+		}
+		content, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return nil, nil, fmt.Errorf("content can't be read %s, %s", api.URL.String(), err)
+		}
+	*/
 	rec := new(Record)
 	err = xml.Unmarshal(content, &rec)
 	if err != nil {
@@ -898,6 +979,7 @@ func (api *EPrintsAPI) Get(uri string) (*Record, error) {
 	return record, nil
 }
 
+<<<<<<< HEAD:epgo.go
 // customLessFn provides a Less() for ascending sorts non pubDate keys and descending sort for pubDate keys
 func customLessFn(s []string, i, j int) bool {
 	a, b := strings.Split(s[i], indexDelimiter), strings.Split(s[j], indexDelimiter)
@@ -1748,6 +1830,8 @@ func (api *EPrintsAPI) GetORCIDArticles(orcid string, start, count int) ([]*Reco
 >>>>>>> fe42d4ce40092da445cbcc0e764d66efb1daa2b0
 }
 
+=======
+>>>>>>> 5332e838a039fb9c37f35d0d448d99ca55e5c85b:ep.go
 // RenderEPrint writes a single EPrint record to disc.
 func (api *EPrintsAPI) RenderEPrint(basepath string, record *Record) error {
 	// Convert record to JSON
@@ -1765,8 +1849,12 @@ func (api *EPrintsAPI) RenderEPrint(basepath string, record *Record) error {
 =======
 }
 
+<<<<<<< HEAD:epgo.go
 // RenderDocuments writes JSON, BibTeX documents to the directory indicated by docpath
 >>>>>>> fe42d4ce40092da445cbcc0e764d66efb1daa2b0
+=======
+// RenderDocuments writes JSON to the directory indicated by docpath
+>>>>>>> 5332e838a039fb9c37f35d0d448d99ca55e5c85b:ep.go
 func (api *EPrintsAPI) RenderDocuments(docTitle, docDescription, docpath string, records []*Record) error {
 	// Create the the directory part of docpath if neccessary
 	if _, err := os.Open(path.Join(api.Htdocs, docpath)); err != nil && os.IsNotExist(err) == true {
@@ -1805,6 +1893,7 @@ func (api *EPrintsAPI) RenderDocuments(docTitle, docDescription, docpath string,
 	if err != nil {
 		return fmt.Errorf("Can't write %s, %s", fname, err)
 	}
+<<<<<<< HEAD:epgo.go
 
 <<<<<<< HEAD
 	// Write out RSS 2.0 file
@@ -1897,12 +1986,14 @@ func (api *EPrintsAPI) BuildPages(feedSize int, title, target string, filter fun
 	log.Printf("Building %s", docPath)
 	records, err := filter(api, 0, feedSize, Descending)
 =======
+=======
+>>>>>>> 5332e838a039fb9c37f35d0d448d99ca55e5c85b:ep.go
 	return nil
 }
 
-// BuildPages generates JSON and BibTeX versions of collected records
+// BuildFeed generates JSON versions of collected records
 // by calling RenderDocuments with the appropriate data.
-func (api *EPrintsAPI) BuildPages(feedSize int, title, target string, filter func(*EPrintsAPI, int, int) ([]*Record, error)) error {
+func (api *EPrintsAPI) BuildFeed(feedSize int, title, target string, filter func(*EPrintsAPI, int, int) ([]*Record, error)) error {
 	if feedSize < 1 {
 		feedSize = DefaultFeedSize
 	}
@@ -1930,6 +2021,7 @@ func (api *EPrintsAPI) BuildPages(feedSize int, title, target string, filter fun
 	}
 	return nil
 }
+<<<<<<< HEAD:epgo.go
 
 <<<<<<< HEAD
 func (api *EPrintsAPI) BuildEPrintMirror() error {
@@ -2384,3 +2476,5 @@ func (api *EPrintsAPI) BuildSite(feedSize int, buildEPrintMirror bool) error {
 	return nil
 }
 >>>>>>> fe42d4ce40092da445cbcc0e764d66efb1daa2b0
+=======
+>>>>>>> 5332e838a039fb9c37f35d0d448d99ca55e5c85b:ep.go

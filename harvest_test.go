@@ -1,5 +1,5 @@
 //
-// Package epgo is a collection of structures and functions for working with the E-Prints REST API
+// Package ep is a collection of structures and functions for working with the E-Prints REST API
 //
 // @author R. S. Doiel, <rsdoiel@caltech.edu>
 //
@@ -16,7 +16,7 @@
 //
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-package epgo
+package ep
 
 import (
 	"os"
@@ -26,7 +26,7 @@ import (
 	"github.com/caltechlibrary/dataset"
 )
 
-var recordCount = 2000
+var recordCount = 1024
 
 func TestHarvest(t *testing.T) {
 	api, err := New(cfg)
@@ -58,6 +58,7 @@ func TestHarvest(t *testing.T) {
 		t.Errorf("Cannot harvest for test site %q", err)
 		t.FailNow()
 	}
+<<<<<<< HEAD
 
 <<<<<<< HEAD:export_test.go
 <<<<<<< HEAD:epgo_test.go
@@ -97,4 +98,6 @@ func TestHarvest(t *testing.T) {
 		return api.GetArticles(start, count)
 >>>>>>> 067b85bd2a3ce958162ef2734a6373976764142f:harvest_test.go
 	})
+=======
+>>>>>>> 5332e838a039fb9c37f35d0d448d99ca55e5c85b
 }

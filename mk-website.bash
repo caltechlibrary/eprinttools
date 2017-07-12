@@ -15,19 +15,19 @@ function makePage() {
 }
 
 # index.html
-makePage "epgo" README.md nav.md index.html
+makePage "ep" README.md nav.md index.html
 
 # install.html
-makePage "epgo" INSTALL.md nav.md install.html
+makePage "ep" INSTALL.md nav.md install.html
 
 # license.html
-makePage "epgo" "markdown:$(cat LICENSE)" nav.md license.html
+makePage "ep" "markdown:$(cat LICENSE)" nav.md license.html
 
 # Add the files to git as needed
 git add index.html install.html license.html
 
 # Loop through commands docs
-for FNAME in epgo epgo-genpages; do
-	makePage "epgo" $FNAME.md nav.md $FNAME.html
-	git add $FNAME.md $FNAME.html
+for FNAME in ep; do
+	makePage "ep" docs/$FNAME.md docs/nav.md docs/$FNAME.html
+	git add docs/$FNAME.md docs/$FNAME.html
 done

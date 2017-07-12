@@ -5,18 +5,18 @@
 # Examples:
 #     List the eprint URI
 #
-#           ./script/list.sh eprint/
+#           ./script/list.bash eprint/
 #
 #     List the eprint id number 3
 #
-#           ./script/list.sh eprint/3.xml
+#           ./script/list.bash eprint/3.xml
 #
 #     List subjects
 #
-#           ./script/list.sh subject/
+#           ./script/list.bash subject/
 #
 #
-if [ "$EPGO_API_URL" = "" ]; then
+if [ "$EP_API_URL" = "" ]; then
     echo "Environment not configured."
     exit 1
 fi
@@ -26,13 +26,13 @@ if [ "$1" != "" ]; then
     TARGET=$1
 fi
 
-if [ "$EPGO_USERNAME" != "" ] && [ "$EPGO_PASSWORD" != "" ]; then
+if [ "$EP_USERNAME" != "" ] && [ "$EP_PASSWORD" != "" ]; then
     curl \
         -X GET \
-        -u "$EPGO_USERNAME:$EPGO_PASSWORD" \
-        $EPGO_API_URL/rest/$TARGET
+        -u "$EP_USERNAME:$EP_PASSWORD" \
+        $EP_API_URL/rest/$TARGET
 else
     curl \
         -X GET \
-        $EPGO_API_URL/rest/$TARGET
+        $EP_API_URL/rest/$TARGET
 fi

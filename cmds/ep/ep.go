@@ -1,5 +1,5 @@
 //
-// Package epgo is a collection of structures and functions for working with the E-Prints REST API
+// Package ep is a collection of structures and functions for working with the EPrints REST API
 //
 // @author R. S. Doiel, <rsdoiel@caltech.edu>
 //
@@ -31,17 +31,17 @@ import (
 
 	// Caltech Library Packages
 	"github.com/caltechlibrary/cli"
-	"github.com/caltechlibrary/epgo"
+	"github.com/caltechlibrary/ep"
 )
 
 var (
 	// cli help text
-	usage = `USAGE %s [OPTIONS] [EPGO_EPRINTS_URL]`
+	usage = `USAGE %s [OPTIONS] [EP_EPRINTS_URL]`
 
 	description = `
 SYNOPSIS
 
-%s wraps the REST API for E-Prints 3.3 or better. It can return a list 
+%s wraps the REST API for EPrints 3.3 or better. It can return a list 
 of uri, a JSON view of the XML presentation as well as generates feeds 
 and web pages.
 
@@ -49,9 +49,9 @@ CONFIGURATION
 
 %s can be configured with following environment variables
 
-EPGO_EPRINTS_URL the URL to your E-Prints installation
+EP_EPRINTS_URL the URL to your EPrints installation
 
-EPGO_DATASET the dataset and collection name for exporting, site building, and content retrieval`
+EP_DATASET the dataset and collection name for exporting, site building, and content retrieval`
 
 	examples = `
 EXAMPLE
@@ -59,19 +59,12 @@ EXAMPLE
     %s -export all
 
 Would export the entire EPrints repository public content defined by the
-environment virables EPGO_API_URL, EPGO_DATASET.
+environment virables EP_API_URL, EP_DATASET.
 
     %s -export 2000
 
 Would export 2000 EPrints from the repository with the heighest ID values.
-
-    %s -select
-
-Would (re)build the select lists based on contents of $EPGO_DATASET.
-
-    %s -select -export all
-
-Would export all eprints and rebuild the select lists.`
+`
 
 	// Standard Options
 	showHelp    bool
@@ -86,18 +79,17 @@ Would export all eprints and rebuild the select lists.`
 	apiURL      string
 	datasetName string
 
-	exportEPrints   string
-	feedSize        int
-	publishedNewest int
-	articlesNewest  int
+	exportEPrints string
+	feedSize      int
 
-	genSelectLists bool
+	authMethod string
+	userName   string
+	userSecret string
 )
 
 func init() {
 	// Setup options
-	publishedNewest = 0
-	feedSize = epgo.DefaultFeedSize
+	feedSize = ep.DefaultFeedSize
 
 	flag.BoolVar(&showHelp, "h", false, "display help")
 	flag.BoolVar(&showHelp, "help", false, "display help")
@@ -109,17 +101,18 @@ func init() {
 	flag.StringVar(&outputFName, "output", "", "output filename (logging)")
 
 	// App Specific options
+	flag.StringVar(&authMethod, "auth", "", "set the authentication method (e.g. none, basic, oauth, shib)")
+	flag.StringVar(&userName, "username", "", "set the username")
+	flag.StringVar(&userName, "un", "", "set the username")
+	flag.StringVar(&userSecret, "pw", "", "set the password")
+
 	flag.StringVar(&apiURL, "api", "", "url for EPrints API")
 	flag.StringVar(&datasetName, "dataset", "", "dataset/collection name")
 
 	flag.BoolVar(&prettyPrint, "p", false, "pretty print JSON output")
+	flag.BoolVar(&prettyPrint, "pretty", false, "pretty print JSON output")
 	flag.BoolVar(&useAPI, "read-api", false, "read the contents from the API without saving in the database")
-	flag.IntVar(&feedSize, "feed-size", feedSize, "number of items rendering in feeds")
 	flag.StringVar(&exportEPrints, "export", "", "export N EPrints from highest ID to lowest")
-	flag.IntVar(&publishedNewest, "published-newest", 0, "list the N newest published items")
-	flag.IntVar(&articlesNewest, "articles-newest", 0, "list the N newest published articles")
-	flag.BoolVar(&genSelectLists, "s", false, "generate select lists in dataset")
-	flag.BoolVar(&genSelectLists, "select", false, "generate select lists in dataset")
 }
 
 func check(cfg *cli.Config, key, value string) string {
@@ -136,10 +129,10 @@ func main() {
 	args := flag.Args()
 
 	// Populate cfg from the environment
-	cfg := cli.New(appName, appName, fmt.Sprintf(epgo.LicenseText, appName, epgo.Version), epgo.Version)
+	cfg := cli.New(appName, appName, fmt.Sprintf(ep.LicenseText, appName, ep.Version), ep.Version)
 	cfg.UsageText = fmt.Sprintf(usage, appName)
 	cfg.DescriptionText = fmt.Sprintf(description, appName, appName)
-	cfg.ExampleText = fmt.Sprintf(examples, appName, appName, appName, appName)
+	cfg.ExampleText = fmt.Sprintf(examples, appName, appName)
 
 	// Handle the default options
 	if showHelp == true {
@@ -165,17 +158,23 @@ func main() {
 	// Log to out
 	log.SetOutput(out)
 
+	// Required configuration
 	apiURL = check(cfg, "eprint_url", cfg.MergeEnv("eprint_url", apiURL))
 	datasetName = check(cfg, "dataset", cfg.MergeEnv("dataset", datasetName))
 
+	// Optional configuration
+	authMethod = cfg.MergeEnv("auth_method", authMethod)
+	userName = cfg.MergeEnv("username", userName)
+	userSecret = cfg.MergeEnv("password", userSecret)
+
 	// This will read in any settings from the environment
-	api, err := epgo.New(cfg)
+	api, err := ep.New(cfg)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	t0 := time.Now()
 	if exportEPrints != "" {
+		t0 := time.Now()
 		exportNo := -1
 		if exportEPrints != "all" {
 			exportNo, err = strconv.Atoi(exportEPrints)
@@ -183,29 +182,13 @@ func main() {
 				log.Fatalf("Export count should be %q or an integer, %s", exportEPrints, err)
 			}
 		}
-		log.Printf("%s %s", appName, epgo.Version)
-		log.Println("Export started")
+		log.Printf("%s %s", appName, ep.Version)
+		log.Println("Export started, %s", t0)
 		if err := api.ExportEPrints(exportNo); err != nil {
 			log.Printf("%s", err)
-		} else {
-			log.Println("Export completed")
+			os.Exit(1)
 		}
-		if genSelectLists != true {
-			t1 := time.Now()
-			log.Printf("Running time %v", t1.Sub(t0))
-			log.Printf("Ready to run `%s -select` to rebuild select lists\n", appName)
-			os.Exit(0)
-		}
-	}
-	if genSelectLists == true {
-		if exportEPrints == "" {
-			log.Printf("%s %s", appName, epgo.Version)
-		}
-		log.Println("Generating select lists")
-		api.BuildSelectLists()
-		log.Println("Generating select lists completed")
-		t1 := time.Now()
-		log.Printf("Running time %v", t1.Sub(t0))
+		log.Println("Export completed, running time %s", time.Now().Sub(t0))
 		os.Exit(0)
 	}
 
@@ -217,10 +200,6 @@ func main() {
 		data interface{}
 	)
 	switch {
-	case publishedNewest > 0:
-		data, err = api.GetPublications(0, publishedNewest)
-	case articlesNewest > 0:
-		data, err = api.GetArticles(0, articlesNewest)
 	case useAPI == true:
 		if len(args) == 1 {
 			data, _, err = api.GetEPrint(args[0])
