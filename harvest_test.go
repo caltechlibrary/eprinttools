@@ -26,7 +26,7 @@ import (
 	"github.com/caltechlibrary/dataset"
 )
 
-var recordCount = 2000
+var recordCount = 1024
 
 func TestHarvest(t *testing.T) {
 	api, err := New(cfg)
@@ -58,15 +58,4 @@ func TestHarvest(t *testing.T) {
 		t.Errorf("Cannot harvest for test site %q", err)
 		t.FailNow()
 	}
-
-	err = api.BuildPages(recordCount, "Recently Published", "recently-published", func(api *EPrintsAPI, start, count int) ([]*Record, error) {
-		return api.GetPublications(start, count)
-	})
-	if err != nil {
-		t.Errorf("Cannot build test site %q", err)
-		t.FailNow()
-	}
-	err = api.BuildPages(recordCount, "Recent Articles", "recent-articles", func(api *EPrintsAPI, start, count int) ([]*Record, error) {
-		return api.GetArticles(start, count)
-	})
 }

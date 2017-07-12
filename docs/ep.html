@@ -16,7 +16,6 @@
 <li><a href="../license.html">LICENSE</a></li>
 <li><a href="../install.html">INSTALL</a></li>
 <li><a href="ep.html">ep</a></li>
-<li><a href="ep-genfeeds.html">ep-genfeeds</a></li>
 <li><a href="https://github.com/caltechlibrary/ep">Github</a></li>
 </ul>
 
@@ -32,27 +31,25 @@
 
 <h2>SYNOPSIS</h2>
 
-<p>ep wraps the REST API for E-Prints 3.3 or better. It can return a list
+<p><em>ep</em> wraps the REST API for EPrints 3.3 or better. It can return a list
 of uri, a JSON view of the XML presentation as well as generates feeds
 and web pages.</p>
 
 <h2>CONFIGURATION</h2>
 
-<p>ep can be configured with following environment variables</p>
+<p><em>ep</em> can be configured with following environment variables</p>
 
 <ul>
-<li>EP_EPRINTS_URL the URL to your E-Prints installation</li>
-<li>EP_DATASET the dataset and collection name for exporting, site building, and content retrieval</li>
+<li><em>EP_EPRINTS_URL</em> the URL to your EPrints installation</li>
+<li><em>EP_DATASET</em> the dataset and collection name for exporting, site building, and content retrieval</li>
 </ul>
 
 <h2>OPTIONS</h2>
 
 <pre><code>	-api	url for EPrints API
-	-articles-newest	list the N newest published articles
 	-auth	set the authentication method (e.g. none, basic, oauth, shib)
 	-dataset	dataset/collection name
 	-export	export N EPrints from highest ID to lowest
-	-feed-size	number of items rendering in feeds
 	-h	display help
 	-help	display help
 	-l	display license
@@ -61,15 +58,13 @@ and web pages.</p>
 	-output	output filename (logging)
 	-p	pretty print JSON output
 	-pretty	pretty print JSON output
-	-published-newest	list the N newest published items
 	-pw	set the password
 	-read-api	read the contents from the API without saving in the database
-	-s	generate select lists in dataset
-	-select	generate select lists in dataset
 	-un	set the username
 	-username	set the username
 	-v	display version
 	-version	display version
+
 </code></pre>
 
 <h2>EXAMPLE</h2>
@@ -85,17 +80,7 @@ environment virables EP_API_URL, EP_DATASET.</p>
 
 <p>Would export 2000 EPrints from the repository with the heighest ID values.</p>
 
-<pre><code class="language-shell">    ep -select
-</code></pre>
-
-<p>Would (re)build the select lists based on contents of $EP_DATASET.</p>
-
-<pre><code class="language-shell">    ep -select -export all
-</code></pre>
-
-<p>Would export all eprints and rebuild the select lists.</p>
-
-<p>ep v0.0.10-beta1</p>
+<p>ep v0.0.10-beta2</p>
 
 </section>
 
