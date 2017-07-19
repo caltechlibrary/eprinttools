@@ -40,7 +40,7 @@ func TestListEPrintURI(t *testing.T) {
 	}
 
 	start, _ := time.Parse("2006-01-02", "2017-06-01")
-	end, _ := time.Parse("2006-01-02", "2017-06-28")
+	end, _ := time.Parse("2006-01-02", "2017-06-02")
 	uris, err := ListModifiedEPrintURI(start, end)
 	if err != nil {
 		t.Errorf("listEPrintURI() %s", err)
