@@ -26,22 +26,22 @@
 
 <h2>USAGE</h2>
 
-<pre><code>ep [OPTIONS] [EP_EPRINTS_URL]
+<pre><code>ep [OPTIONS] [EP_EPRINTS_URL|ONE_OR_MORE_EPRINT_ID]
 </code></pre>
 
 <h2>SYNOPSIS</h2>
 
-<p><em>ep</em> wraps the REST API for EPrints 3.3 or better. It can return a list
+<p>ep wraps the REST API for EPrints 3.3 or better. It can return a list
 of uri, a JSON view of the XML presentation as well as generates feeds
 and web pages.</p>
 
 <h2>CONFIGURATION</h2>
 
-<p><em>ep</em> can be configured with following environment variables</p>
+<p>ep can be configured with following environment variables</p>
 
 <ul>
-<li><em>EP_EPRINTS_URL</em> the URL to your EPrints installation</li>
-<li><em>EP_DATASET</em> the dataset and collection name for exporting, site building, and content retrieval</li>
+<li>EP_EPRINTS_URL the URL to your EPrints installation</li>
+<li>EP_DATASET the dataset and collection name for exporting, site building, and content retrieval</li>
 </ul>
 
 <h2>OPTIONS</h2>
@@ -50,6 +50,7 @@ and web pages.</p>
 	-auth	set the authentication method (e.g. none, basic, oauth, shib)
 	-dataset	dataset/collection name
 	-export	export N EPrints from highest ID to lowest
+	-export-since	export  EPrints from a given date to present (e.g. 2017-07-01)
 	-h	display help
 	-help	display help
 	-l	display license
@@ -61,10 +62,10 @@ and web pages.</p>
 	-pw	set the password
 	-read-api	read the contents from the API without saving in the database
 	-un	set the username
+	-updated-since	list EPrint IDs updated since a given date (e.g 2017-07-01)
 	-username	set the username
 	-v	display version
 	-version	display version
-
 </code></pre>
 
 <h2>EXAMPLE</h2>

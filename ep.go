@@ -24,6 +24,8 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"net/http"
+	"time"
 	//"net/http"
 	"net/url"
 	"os"
@@ -270,6 +272,7 @@ type Record struct {
 	IDNumber             string             `xml:"eprint>id_number" json:"id_number"`
 	Refereed             bool               `xml:"eprint>refereed" json:"refereed"`
 	ISSN                 string             `xml:"eprint>issn" json:"issn"`
+	DOI                  string             `xml:"eprint>doi,omitempty" json:"doi,omitempty"`
 	OfficialURL          string             `xml:"eprint>official_url" json:"official_url"`
 	RelatedURL           []*RelatedURL      `xml:"eprint>related_url>item" json:"related_url"`
 	ReferenceText        []string           `xml:"eprint>referencetext>item" json:"referencetext"`
@@ -550,20 +553,6 @@ func (api *EPrintsAPI) ListEPrintsURI() ([]string, error) {
 	if err != nil {
 		return nil, fmt.Errorf("requested %s, %s", api.URL.String(), err)
 	}
-	/*
-		resp, err := http.Get(api.URL.String())
-		if err != nil {
-			return nil, fmt.Errorf("requested %s, %s", api.URL.String(), err)
-		}
-		defer resp.Body.Close()
-		if resp.StatusCode != 200 {
-			return nil, fmt.Errorf("http error %s, %s", api.URL.String(), resp.Status)
-		}
-		content, err := ioutil.ReadAll(resp.Body)
-		if err != nil {
-			return nil, fmt.Errorf("content can't be read %s, %s", api.URL.String(), err)
-		}
-	*/
 	eIDs := new(ePrintIDs)
 	err = xml.Unmarshal(content, &eIDs)
 	if err != nil {
@@ -579,6 +568,38 @@ func (api *EPrintsAPI) ListEPrintsURI() ([]string, error) {
 				m[uri] = true
 				// Only store Unique IDs in result
 				results = append(results, uri)
+			}
+		}
+	}
+	return results, nil
+}
+
+// ListModifiedEPrintURI return a list of modifed EPrint URI (eprint_ids) in start and end times
+func (api *EPrintsAPI) ListModifiedEPrintURI(start, end time.Time) ([]string, error) {
+	var (
+		results []string
+	)
+
+	uris, err := api.ListEPrintsURI()
+	if err != nil {
+		return nil, err
+	}
+
+	api.URL.Path = path.Join("rest", "eprint") + "/"
+
+	u := api.URL
+	for _, uri := range uris {
+		u.Path = strings.TrimSuffix(uri, ".xml") + "/lastmod.txt"
+		if res, err := http.Get(u.String()); err == nil {
+			if buf, err := ioutil.ReadAll(res.Body); err == nil {
+				res.Body.Close()
+				datestring := fmt.Sprintf("%s", buf)
+				if len(datestring) > 9 {
+					datestring = datestring[0:10]
+				}
+				if dt, err := time.Parse("2006-01-02", datestring); err == nil && dt.Unix() >= start.Unix() && dt.Unix() <= end.Unix() {
+					results = append(results, uri)
+				}
 			}
 		}
 	}
@@ -690,6 +711,7 @@ func (record *Record) PubDate() string {
 	return ""
 }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 // initBuckets initializes expected buckets if necessary for boltdb
 func initBuckets(db *bolt.DB) error {
@@ -951,19 +973,26 @@ func (api *EPrintsAPI) GetAllRecords(direction int) ([]*Record, error) {
 =======
 // ListURI returns a list of eprint record ids from the dataset
 func (api *EPrintsAPI) ListURI(start, count int) ([]string, error) {
+=======
+// ListID returns a list of eprint record ids from the dataset
+func (api *EPrintsAPI) ListID(start, count int) ([]string, error) {
+>>>>>>> 273eebbbec5249c13fb2d489d5b5030cd403b263
 	c, err := dataset.Open(api.Dataset)
-	failCheck(err, fmt.Sprintf("ListURI() %s, %s", api.Dataset, err))
+	failCheck(err, fmt.Sprintf("ListID() %s, %s", api.Dataset, err))
 	defer c.Close()
 
 	ids := c.Keys()
-	results := []string{}
-	if count <= 0 {
-		count = len(ids) + 1
+	if len(ids) == 0 {
+		return []string{}, nil
 	}
-	for i := start; count > 0; count-- {
-		results = append(results, ids[i])
+	end := start + count
+	if count <= 0 || end >= len(ids) {
+		return ids[start:], nil
 	}
-	return results, nil
+	if start < end {
+		return ids[start:end], nil
+	}
+	return nil, fmt.Errorf("Invalid range")
 }
 
 // Get retrieves an EPrint record from the dataset

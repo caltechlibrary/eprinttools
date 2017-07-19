@@ -19,8 +19,10 @@
 package ep
 
 import (
+	"log"
 	"os"
 	"testing"
+	"time"
 
 	// Caltech Library packages
 	"github.com/caltechlibrary/cli"
@@ -30,6 +32,21 @@ import (
 var (
 	cfg *cli.Config
 )
+
+func TestListEPrintURI(t *testing.T) {
+	_, err := ListEPrintURI()
+	if err != nil {
+		t.Errorf("listEPrintURI() %s", err)
+	}
+
+	start, _ := time.Parse("2006-01-02", "2017-06-01")
+	end, _ := time.Parse("2006-01-02", "2017-06-02")
+	uris, err := ListModifiedEPrintURI(start, end)
+	if err != nil {
+		t.Errorf("listEPrintURI() %s", err)
+	}
+	log.Printf("DEBUG uri: %+v\n", uris)
+}
 
 func TestMain(m *testing.M) {
 	cfg = cli.New("ep", "EP", "", Version)

@@ -11,7 +11,7 @@ function isMissingORCID() {
 	person="$1"
 	while read P; do
 		EID=$(basename -s ".json" "$P")
-		jq -c '.creators[] | {"url":"'"$EP_API_URL"'/'"$EID"'/","eprint_record": "'"$EID"'", "id": .id, "orcid": .orcid} | join(", ")' "$P" \
+		jq -c '.creators[] | {"url":"'"$EP_EPRINT_URL"'/'"$EID"'/","eprint_record": "'"$EID"'", "id": .id, "orcid": .orcid} | join(", ")' "$P" \
 			| sed -E 's/"//g' \
 			| grep "$person"
 	done <"${person}.dat"
@@ -21,9 +21,9 @@ function isMissingORCID() {
 # Main processing
 #
 
-# If $EP_API_URL is missing stop
-if [ "$EP_API_URL" = "" ]; then
-	echo "Missing EP_API_URL environment setting"
+# If $EP_EPRINT_URL is missing stop
+if [ "$EP_EPRINT_URL" = "" ]; then
+	echo "Missing EP_EPRINT_URL environment setting"
 	exit 1
 fi
 # Make sure we have an id to work with

@@ -36,7 +36,7 @@ import (
 
 var (
 	// cli help text
-	usage = `USAGE %s [OPTIONS] [EP_EPRINTS_URL]`
+	usage = `USAGE %s [OPTIONS] [EP_EPRINTS_URL|ONE_OR_MORE_EPRINT_ID]`
 
 	description = `
 SYNOPSIS
@@ -79,8 +79,10 @@ Would export 2000 EPrints from the repository with the heighest ID values.
 	apiURL      string
 	datasetName string
 
-	exportEPrints string
-	feedSize      int
+	updatedSince       string
+	exportEPrints      string
+	exportEPrintsSince string
+	feedSize           int
 
 	authMethod string
 	userName   string
@@ -113,6 +115,8 @@ func init() {
 	flag.BoolVar(&prettyPrint, "pretty", false, "pretty print JSON output")
 	flag.BoolVar(&useAPI, "read-api", false, "read the contents from the API without saving in the database")
 	flag.StringVar(&exportEPrints, "export", "", "export N EPrints from highest ID to lowest")
+	flag.StringVar(&exportEPrintsSince, "export-since", "", "export  EPrints from a given date to present (e.g. 2017-07-01)")
+	flag.StringVar(&updatedSince, "updated-since", "", "list EPrint IDs updated since a given date (e.g 2017-07-01)")
 }
 
 func check(cfg *cli.Config, key, value string) string {
@@ -183,12 +187,29 @@ func main() {
 			}
 		}
 		log.Printf("%s %s", appName, ep.Version)
-		log.Println("Export started, %s", t0)
+		log.Printf("Export started, %s", t0)
 		if err := api.ExportEPrints(exportNo); err != nil {
 			log.Printf("%s", err)
 			os.Exit(1)
 		}
-		log.Println("Export completed, running time %s", time.Now().Sub(t0))
+		log.Printf("Export completed, running time %s", time.Now().Sub(t0))
+		os.Exit(0)
+	}
+	if exportEPrintsSince != "" {
+		start, err := time.Parse("2006-01-02", exportEPrintsSince)
+		if err != nil {
+			log.Printf("%s", err)
+			os.Exit(1)
+		}
+		end := time.Now()
+		t0 := time.Now()
+		log.Printf("%s %s", appName, ep.Version)
+		log.Printf("Export from %s to %s, started %s", start.Format("2006-01-02"), end.Format("2006-01-02"), t0)
+		if err := api.ExportModifiedEPrints(start, end); err != nil {
+			log.Printf("%s", err)
+			os.Exit(1)
+		}
+		log.Printf("Export completed, running time %s", time.Now().Sub(t0))
 		os.Exit(0)
 	}
 
@@ -200,6 +221,15 @@ func main() {
 		data interface{}
 	)
 	switch {
+	case updatedSince != "":
+		// date should be formatted YYYY-MM-DD, 2006-01-02
+		end := time.Now()
+		start, err := time.Parse("2006-01-02", updatedSince)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "updated since %q, %s", updatedSince, err)
+			os.Exit(1)
+		}
+		data, err = api.ListModifiedEPrintURI(start, end)
 	case useAPI == true:
 		if len(args) == 1 {
 			data, _, err = api.GetEPrint(args[0])
@@ -209,8 +239,18 @@ func main() {
 	default:
 		if len(args) == 1 {
 			data, err = api.Get(args[0])
+		} else if len(args) > 1 {
+			records := []*ep.Record{}
+			for _, id := range args {
+				if rec, err := api.Get(id); err == nil {
+					records = append(records, rec)
+				} else {
+					fmt.Fprintf(os.Stderr, "Can't read EPrint id %s, %s\n", id, err)
+				}
+			}
+			data = records
 		} else {
-			data, err = api.ListURI(0, 1000000)
+			data, err = api.ListID(0, -1)
 		}
 	}
 	if err != nil {

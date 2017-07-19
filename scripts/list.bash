@@ -16,7 +16,7 @@
 #           ./script/list.bash subject/
 #
 #
-if [ "$EP_API_URL" = "" ]; then
+if [ "$EP_EPRINT_URL" = "" ]; then
     echo "Environment not configured."
     exit 1
 fi
@@ -30,9 +30,9 @@ if [ "$EP_USERNAME" != "" ] && [ "$EP_PASSWORD" != "" ]; then
     curl \
         -X GET \
         -u "$EP_USERNAME:$EP_PASSWORD" \
-        $EP_API_URL/rest/$TARGET
+        $EP_EPRINT_URL/rest/$TARGET
 else
     curl \
         -X GET \
-        $EP_API_URL/rest/$TARGET
+        $EP_EPRINT_URL/rest/$TARGET
 fi

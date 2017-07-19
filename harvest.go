@@ -22,6 +22,7 @@ import (
 	"fmt"
 	"log"
 	"sort"
+	"time"
 
 	// CaltechLibrary packages
 	"github.com/caltechlibrary/dataset"
@@ -75,5 +76,52 @@ func (api *EPrintsAPI) ExportEPrints(count int) error {
 	}
 	log.Printf("%d/%d uri processed, %d exported, %d unexported", len(uris), count, j, k)
 
+	return nil
+}
+
+// ExportModifiedEPrints returns a list of ids modified in one or between the start, end times
+func (api *EPrintsAPI) ExportModifiedEPrints(start, end time.Time) error {
+	c, err := dataset.Create(api.Dataset, dataset.GenerateBucketNames(dataset.DefaultAlphabet, 2))
+	if err != nil {
+		return fmt.Errorf("ExportEPrints() %s, %s", api.Dataset, err)
+	}
+	defer c.Close()
+
+	uris, err := api.ListModifiedEPrintURI(start, end)
+	if err != nil {
+		return fmt.Errorf("Export modified %s to %s failed, %s", start, end, err)
+	}
+
+	// NOTE: I am sorting the URI by decscending ID number so that the
+	// newest articles are exported first
+	sort.Sort(byURI(uris))
+
+	count := len(uris)
+	j := 0 // success count
+	k := 0 // error count
+	log.Printf("Exporting %d uris", count)
+	for i := 0; i < count && i < count; i++ {
+		uri := uris[i]
+		rec, xmlSrc, err := api.GetEPrint(uri)
+		if err != nil {
+			log.Printf("Failed to get %s, %s\n", uri, err)
+			k++
+		} else {
+			key := fmt.Sprintf("%d", rec.ID)
+			err := c.Create(key, rec)
+			if err == nil {
+				// We've exported a record successfully, now update select lists
+				j++
+			} else {
+				log.Printf("Failed to save eprint %s, %s\n", uri, err)
+				k++
+			}
+			c.Attach(key, &dataset.Attachment{key + ".xml", xmlSrc})
+		}
+		if (i % EPrintsExportBatchSize) == 0 {
+			log.Printf("%d/%d uri processed, %d exported, %d unexported", i+1, count, j, k)
+		}
+	}
+	log.Printf("%d/%d uri processed, %d exported, %d unexported", len(uris), count, j, k)
 	return nil
 }
