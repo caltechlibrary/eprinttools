@@ -400,6 +400,7 @@ func (api *EPrintsAPI) ListModifiedEPrintURI(start, end time.Time) ([]string, er
 		results []string
 	)
 
+	log.Printf("Getting EPrints ids")
 	uris, err := api.ListEPrintsURI()
 	if err != nil {
 		return nil, err
@@ -407,8 +408,10 @@ func (api *EPrintsAPI) ListModifiedEPrintURI(start, end time.Time) ([]string, er
 
 	api.URL.Path = path.Join("rest", "eprint") + "/"
 
+	log.Printf("Getting EPrints ids modification dates")
+	total := len(uris)
 	u := api.URL
-	for _, uri := range uris {
+	for i, uri := range uris {
 		u.Path = strings.TrimSuffix(uri, ".xml") + "/lastmod.txt"
 		if res, err := http.Get(u.String()); err == nil {
 			if buf, err := ioutil.ReadAll(res.Body); err == nil {
@@ -422,7 +425,11 @@ func (api *EPrintsAPI) ListModifiedEPrintURI(start, end time.Time) ([]string, er
 				}
 			}
 		}
+		if (i%100) == 0 || i == total {
+			log.Printf("%d/%d ids checked", i, total)
+		}
 	}
+	log.Printf("%d records in modified range", len(results))
 	return results, nil
 }
 
