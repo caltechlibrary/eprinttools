@@ -103,7 +103,6 @@ func init() {
 	flag.StringVar(&outputFName, "o", "", "output filename (logging)")
 	flag.StringVar(&outputFName, "output", "", "output filename (logging)")
 	flag.BoolVar(&verbose, "verbose", true, "verbose logging")
-	flag.BoolVar(&verbose, "V", true, "verbose logging")
 
 	// App Specific options
 	flag.StringVar(&authMethod, "auth", "", "set the authentication method (e.g. none, basic, oauth, shib)")
