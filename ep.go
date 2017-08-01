@@ -395,7 +395,7 @@ func (api *EPrintsAPI) ListEPrintsURI() ([]string, error) {
 }
 
 // ListModifiedEPrintURI return a list of modifed EPrint URI (eprint_ids) in start and end times
-func (api *EPrintsAPI) ListModifiedEPrintURI(start, end time.Time) ([]string, error) {
+func (api *EPrintsAPI) ListModifiedEPrintURI(start, end time.Time, verbose bool) ([]string, error) {
 	var (
 		results []string
 	)
@@ -408,8 +408,11 @@ func (api *EPrintsAPI) ListModifiedEPrintURI(start, end time.Time) ([]string, er
 
 	api.URL.Path = path.Join("rest", "eprint") + "/"
 
-	log.Printf("Getting EPrints ids modification dates")
+	if verbose {
+		log.Printf("Getting EPrints ids modification dates %s to %s", start.Format("2006-01-02"), end.Format("2006-01-02"))
+	}
 	total := len(uris)
+	lastI := total - 1
 	u := api.URL
 	for i, uri := range uris {
 		u.Path = strings.TrimSuffix(uri, ".xml") + "/lastmod.txt"
@@ -425,11 +428,13 @@ func (api *EPrintsAPI) ListModifiedEPrintURI(start, end time.Time) ([]string, er
 				}
 			}
 		}
-		if (i%100) == 0 || i == total {
+		if verbose == true && ((i%100) == 0 || i == lastI) {
 			log.Printf("%d/%d ids checked", i, total)
 		}
 	}
-	log.Printf("%d records in modified range", len(results))
+	if verbose == true {
+		log.Printf("%d records in modified range", len(results))
+	}
 	return results, nil
 }
 

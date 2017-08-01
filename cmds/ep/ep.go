@@ -71,6 +71,7 @@ Would export 2000 EPrints from the repository with the heighest ID values.
 	showVersion bool
 	showLicense bool
 	outputFName string
+	verbose     bool
 
 	// App Options
 	useAPI      bool
@@ -101,6 +102,8 @@ func init() {
 	flag.BoolVar(&showVersion, "version", false, "display version")
 	flag.StringVar(&outputFName, "o", "", "output filename (logging)")
 	flag.StringVar(&outputFName, "output", "", "output filename (logging)")
+	flag.BoolVar(&verbose, "verbose", true, "verbose logging")
+	flag.BoolVar(&verbose, "V", true, "verbose logging")
 
 	// App Specific options
 	flag.StringVar(&authMethod, "auth", "", "set the authentication method (e.g. none, basic, oauth, shib)")
@@ -205,7 +208,7 @@ func main() {
 		t0 := time.Now()
 		log.Printf("%s %s", appName, ep.Version)
 		log.Printf("Export from %s to %s, started %s", start.Format("2006-01-02"), end.Format("2006-01-02"), t0.Format("2006-01-02 15:04:05 MST"))
-		if err := api.ExportModifiedEPrints(start, end); err != nil {
+		if err := api.ExportModifiedEPrints(start, end, verbose); err != nil {
 			log.Printf("%s", err)
 			os.Exit(1)
 		}
@@ -229,7 +232,7 @@ func main() {
 			fmt.Fprintf(os.Stderr, "updated since %q, %s", updatedSince, err)
 			os.Exit(1)
 		}
-		data, err = api.ListModifiedEPrintURI(start, end)
+		data, err = api.ListModifiedEPrintURI(start, end, verbose)
 	case useAPI == true:
 		if len(args) == 1 {
 			data, _, err = api.GetEPrint(args[0])
