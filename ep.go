@@ -400,7 +400,9 @@ func (api *EPrintsAPI) ListModifiedEPrintURI(start, end time.Time, verbose bool)
 		results []string
 	)
 
-	t0 := time.Now()
+	now := time.Now()
+	t0 := now
+	t1 := now
 	if verbose == true {
 		log.Printf("Getting EPrints Ids")
 	}
@@ -408,9 +410,9 @@ func (api *EPrintsAPI) ListModifiedEPrintURI(start, end time.Time, verbose bool)
 	if err != nil {
 		return nil, err
 	}
-	t1 := time.Now()
 	if verbose == true {
-		log.Printf("Retrieved %d ids, %s", len(uris), t1.Sub(t0))
+		now = time.Now()
+		log.Printf("Retrieved %d ids, %s", len(uris), now.Sub(t0))
 	}
 
 	api.URL.Path = path.Join("rest", "eprint") + "/"
@@ -435,13 +437,19 @@ func (api *EPrintsAPI) ListModifiedEPrintURI(start, end time.Time, verbose bool)
 				}
 			}
 		}
-		if verbose == true && ((i%100) == 0 || i == lastI) {
-			log.Printf("%d/%d ids checked, %s, running time %s", (i + 1), total, time.Now().Sub(t1), t1.Sub(t0))
-			t1 = time.Now()
+		if verbose == true {
+			now = time.Now()
+			if i == lastI {
+				log.Printf("%d/%d ids checked, batch %s, running time %s", total, total, now.Sub(t1), now.Sub(t0))
+			} else if (i % 100) == 0 {
+				log.Printf("%d/%d ids checked, batch %s, running time %s", i, total, now.Sub(t1), now.Sub(t0))
+			}
+			t1 = now
 		}
 	}
 	if verbose == true {
-		log.Printf("%d records in modified range, running time %s", len(results), t1.Sub(t0))
+		now = time.Now()
+		log.Printf("%d records in modified range, running time %s", len(results), now.Sub(t0))
 	}
 	return results, nil
 }
