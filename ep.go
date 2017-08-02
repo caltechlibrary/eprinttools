@@ -441,7 +441,7 @@ func (api *EPrintsAPI) ListModifiedEPrintURI(start, end time.Time, verbose bool)
 			now = time.Now()
 			if i == lastI {
 				log.Printf("%d/%d ids checked, batch %s, running time %s", total, total, now.Sub(t1), now.Sub(t0))
-			} else if (i % 100) == 0 {
+			} else if (i % 1000) == 0 {
 				log.Printf("%d/%d ids checked, batch %s, running time %s", i, total, now.Sub(t1), now.Sub(t0))
 			}
 			t1 = now
