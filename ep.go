@@ -436,13 +436,12 @@ func (api *EPrintsAPI) ListModifiedEPrintURI(start, end time.Time, verbose bool)
 			}
 		}
 		if verbose == true && ((i%100) == 0 || i == lastI) {
+			log.Printf("%d/%d ids checked, %s, running time %s", (i + 1), total, time.Now().Sub(t1), t1.Sub(t0))
 			t1 = time.Now()
-			log.Printf("%d/%d ids checked, %s", i, total, t1.Sub(t0))
 		}
 	}
 	if verbose == true {
-		t1 = time.Now()
-		log.Printf("%d records in modified range, %s", len(results), t1.Sub(t0))
+		log.Printf("%d records in modified range, running time %s", len(results), t1.Sub(t0))
 	}
 	return results, nil
 }
