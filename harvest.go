@@ -20,8 +20,10 @@ package ep
 
 import (
 	"fmt"
+	"io/ioutil"
 	"log"
 	"sort"
+	"strings"
 	"time"
 
 	// CaltechLibrary packages
@@ -29,7 +31,9 @@ import (
 )
 
 // ExportEPrints from highest ID to lowest for cnt. Saves each record in a DB and indexes published ones
-func (api *EPrintsAPI) ExportEPrints(count int) error {
+func (api *EPrintsAPI) ExportEPrints(count int, saveKeys string, verbose bool) error {
+	var exportedKeys []string
+
 	c, err := dataset.Create(api.Dataset, dataset.GenerateBucketNames(dataset.DefaultAlphabet, 2))
 	if err != nil {
 		return fmt.Errorf("ExportEPrints() %s, %s", api.Dataset, err)
@@ -51,7 +55,9 @@ func (api *EPrintsAPI) ExportEPrints(count int) error {
 	}
 	j := 0 // success count
 	k := 0 // error count
-	log.Printf("Exporting %d of %d uris", count, uriCount)
+	if verbose == true {
+		log.Printf("Exporting %d of %d uris", count, uriCount)
+	}
 	for i := 0; i < uriCount && i < count; i++ {
 		uri := uris[i]
 		rec, xmlSrc, err := api.GetEPrint(uri)
@@ -62,25 +68,38 @@ func (api *EPrintsAPI) ExportEPrints(count int) error {
 			key := fmt.Sprintf("%d", rec.ID)
 			err := c.Create(key, rec)
 			if err == nil {
+				if len(saveKeys) > 0 {
+					exportedKeys = append(exportedKeys, key)
+				}
 				// We've exported a record successfully, now update select lists
 				j++
 			} else {
-				log.Printf("Failed to save eprint %s, %s\n", uri, err)
+				if verbose == true {
+					log.Printf("Failed to save eprint %s, %s\n", uri, err)
+				}
 				k++
 			}
 			c.Attach(key, &dataset.Attachment{key + ".xml", xmlSrc})
 		}
-		if (i % EPrintsExportBatchSize) == 0 {
+		if verbose == true && (i%EPrintsExportBatchSize) == 0 {
 			log.Printf("%d/%d uri processed, %d exported, %d unexported", i+1, count, j, k)
 		}
 	}
-	log.Printf("%d/%d uri processed, %d exported, %d unexported", len(uris), count, j, k)
-
+	if verbose == true {
+		log.Printf("%d/%d uri processed, %d exported, %d unexported", len(uris), count, j, k)
+	}
+	if len(saveKeys) > 0 {
+		if err := ioutil.WriteFile(saveKeys, []byte(strings.Join(exportedKeys, "\n")), 0664); err != nil {
+			return fmt.Errorf("Failed to export %s, %s", saveKeys, err)
+		}
+	}
 	return nil
 }
 
 // ExportModifiedEPrints returns a list of ids modified in one or between the start, end times
-func (api *EPrintsAPI) ExportModifiedEPrints(start, end time.Time, verbose bool) error {
+func (api *EPrintsAPI) ExportModifiedEPrints(start, end time.Time, saveKeys string, verbose bool) error {
+	var exportedKeys []string
+
 	c, err := dataset.Create(api.Dataset, dataset.GenerateBucketNames(dataset.DefaultAlphabet, 2))
 	if err != nil {
 		return fmt.Errorf("ExportEPrints() %s, %s", api.Dataset, err)
@@ -114,6 +133,9 @@ func (api *EPrintsAPI) ExportModifiedEPrints(start, end time.Time, verbose bool)
 			key := fmt.Sprintf("%d", rec.ID)
 			err := c.Create(key, rec)
 			if err == nil {
+				if len(saveKeys) > 0 {
+					exportedKeys = append(exportedKeys, key)
+				}
 				// We've exported a record successfully, now update select lists
 				j++
 			} else {
@@ -130,6 +152,11 @@ func (api *EPrintsAPI) ExportModifiedEPrints(start, end time.Time, verbose bool)
 	}
 	if verbose == true {
 		log.Printf("%d/%d uri processed, %d exported, %d unexported", len(uris), count, j, k)
+	}
+	if len(saveKeys) > 0 {
+		if err := ioutil.WriteFile(saveKeys, []byte(strings.Join(exportedKeys, "\n")), 0664); err != nil {
+			return fmt.Errorf("Failed to export %s, %s", saveKeys, err)
+		}
 	}
 	return nil
 }
