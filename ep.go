@@ -157,12 +157,12 @@ type File struct {
 type Document struct {
 	XMLName   xml.Name `json:"-"`
 	ID        string   `xml:"id,attr" json:"id"`
-	DocID     int      `xml:"docid" json:"docid"`
-	RevNumber int      `xml:"rev_number" json:"rev_number"`
+	DocID     int      `xml:"docid" json:"doc_id"`
+	RevNumber int      `xml:"rev_number" json:"rev_number,omitempty"`
 	Files     []*File  `xml:"files>file" json:"files"`
-	EPrintID  int      `xml:"eprintid" json:"eprintid"`
-	Pos       int      `xml:"pos" json:"pos"`
-	Placement int      `xml:"placement" json:"placement"`
+	EPrintID  int      `xml:"eprintid" json:"eprint_id"`
+	Pos       int      `xml:"pos" json:"pos,omitempty"`
+	Placement int      `xml:"placement" json:"placement,omitempty"`
 	MimeType  string   `xml:"mime_type" json:"mime_type"`
 	Format    string   `xml:"format" json:"format"`
 	Language  string   `xml:"language" json:"language"`
@@ -182,10 +182,10 @@ type Record struct {
 	URI                  string             `json:"uri"`
 	Abstract             string             `xml:"eprint>abstract" json:"abstract"`
 	Documents            DocumentList       `xml:"eprint>documents>document" json:"documents"`
-	Note                 string             `xml:"eprint>note" json:"note"`
+	Note                 string             `xml:"eprint>note" json:"note,omitempty"`
 	ID                   int                `xml:"eprint>eprintid" json:"id"`
 	RevNumber            int                `xml:"eprint>rev_number" json:"rev_number"`
-	UserID               int                `xml:"eprint>userid" json:"userid"`
+	UserID               int                `xml:"eprint>userid" json:"user_id,omitempty"`
 	Dir                  string             `xml:"eprint>dir" json:"eprint_dir"`
 	Datestamp            string             `xml:"eprint>datestamp" json:"datestamp"`
 	LastModified         string             `xml:"eprint>lastmod" json:"lastmod"`
@@ -193,27 +193,27 @@ type Record struct {
 	Type                 string             `xml:"eprint>type" json:"type"`
 	MetadataVisibility   string             `xml:"eprint>metadata_visibility" json:"metadata_visibility"`
 	Creators             PersonList         `xml:"eprint>creators>item" json:"creators"`
-	IsPublished          string             `xml:"eprint>ispublished" json:"ispublished"`
-	Subjects             []string           `xml:"eprint>subjects>item" json:"subjects"`
+	IsPublished          string             `xml:"eprint>ispublished" json:"is_published"`
+	Subjects             []string           `xml:"eprint>subjects>item" json:"subjects,omitempty"`
 	FullTextStatus       string             `xml:"eprint>full_text_status" json:"full_text_status"`
-	Keywords             string             `xml:"eprint>keywords" json:"keywords"`
+	Keywords             string             `xml:"eprint>keywords" json:"keywords,omitempty"`
 	Date                 string             `xml:"eprint>date" json:"date"`
 	DateType             string             `xml:"eprint>date_type" json:"date_type"`
-	Publication          string             `xml:"eprint>publication" json:"publication"`
-	Volume               string             `xml:"eprint>volume" json:"volume"`
-	Number               string             `xml:"eprint>number" json:"number"`
-	PageRange            string             `xml:"eprint>pagerange" json:"pagerange"`
-	IDNumber             string             `xml:"eprint>id_number" json:"id_number"`
-	Refereed             bool               `xml:"eprint>refereed" json:"refereed"`
-	ISSN                 string             `xml:"eprint>issn" json:"issn"`
+	Publication          string             `xml:"eprint>publication" json:"publication,omitempty"`
+	Volume               string             `xml:"eprint>volume" json:"volume,omitempty"`
+	Number               string             `xml:"eprint>number" json:"number,omitempty"`
+	PageRange            string             `xml:"eprint>pagerange" json:"pagerange,omitempty"`
+	IDNumber             string             `xml:"eprint>id_number" json:"id_number,omitempty"`
+	Refereed             bool               `xml:"eprint>refereed" json:"refereed,omitempty"`
+	ISSN                 string             `xml:"eprint>issn" json:"issn,omitempty"`
 	DOI                  string             `xml:"eprint>doi,omitempty" json:"doi,omitempty"`
 	OfficialURL          string             `xml:"eprint>official_url" json:"official_url"`
-	RelatedURL           []*RelatedURL      `xml:"eprint>related_url>item" json:"related_url"`
-	ReferenceText        []string           `xml:"eprint>referencetext>item" json:"referencetext"`
+	RelatedURL           []*RelatedURL      `xml:"eprint>related_url>item" json:"related_url,omitempty"`
+	ReferenceText        []string           `xml:"eprint>referencetext>item" json:"referencetext,omitempty"`
 	Rights               string             `xml:"eprint>rights" json:"rights"`
 	OfficialCitation     string             `xml:"eprint>official_cit" json:"official_citation"`
-	OtherNumberingSystem []*NumberingSystem `xml:"eprint>other_numbering_system>item,omitempty" json:"other_numbering_system"`
-	Funders              FunderList         `xml:"eprint>funders>item" json:"funders"`
+	OtherNumberingSystem []*NumberingSystem `xml:"eprint>other_numbering_system>item,omitempty" json:"other_numbering_system,omitempty"`
+	Funders              FunderList         `xml:"eprint>funders>item" json:"funders,omitempty"`
 	Collection           string             `xml:"eprint>collection" json:"collection"`
 
 	// Thesis repository Customizations
@@ -227,8 +227,8 @@ type Record struct {
 	OptionMinor         string     `xml:"eprint>option_minor>item,omitempty" json:"option_minor,omitempty"`
 	GradOfcApprovalDate string     `xml:"eprint>gradofc_approval_date,omitempty" json:"gradofc_approval_date,omitempty"`
 
-	Reviewer   string   `xml:"eprint>reviewer" json:"reviewer"`
-	LocalGroup []string `xml:"eprint>local_group>item" json:"local_group"`
+	Reviewer   string   `xml:"eprint>reviewer" json:"reviewer,omitempty"`
+	LocalGroup []string `xml:"eprint>local_group>item" json:"local_group,omitempty"`
 }
 
 type ePrintIDs struct {
@@ -470,20 +470,6 @@ func (api *EPrintsAPI) GetEPrint(uri string) (*Record, []byte, error) {
 		return nil, nil, fmt.Errorf("requested %s, %s", api.URL.String(), err)
 	}
 
-	/*
-		resp, err := http.Get(api.URL.String())
-		if err != nil {
-			return nil, nil, fmt.Errorf("requested %s, %s", api.URL.String(), err)
-		}
-		defer resp.Body.Close()
-		if resp.StatusCode != 200 {
-			return nil, nil, fmt.Errorf("http error %s, %s", api.URL.String(), resp.Status)
-		}
-		content, err := ioutil.ReadAll(resp.Body)
-		if err != nil {
-			return nil, nil, fmt.Errorf("content can't be read %s, %s", api.URL.String(), err)
-		}
-	*/
 	rec := new(Record)
 	err = xml.Unmarshal(content, &rec)
 	if err != nil {
