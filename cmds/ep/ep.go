@@ -200,7 +200,7 @@ func main() {
 				log.Fatalf("Export count should be %q or an integer, %s", exportEPrints, err)
 			}
 		}
-		log.Printf("%s %s", appName, ep.Version)
+		log.Printf("%s %s (pid %d)", appName, ep.Version, os.Getpid())
 		log.Printf("Export started, %s", t0)
 		if err := api.ExportEPrints(exportNo, exportSaveKeys, verbose); err != nil {
 			log.Printf("%s", err)
