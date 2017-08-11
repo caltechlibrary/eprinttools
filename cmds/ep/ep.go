@@ -227,7 +227,7 @@ func main() {
 			os.Exit(1)
 		}
 		t0 := time.Now()
-		log.Printf("%s %s", appName, ep.Version)
+		log.Printf("%s %s (pid %d)", appName, ep.Version, os.Getpid())
 		log.Printf("Export from %s to %s, started %s", start.Format("2006-01-02"), end.Format("2006-01-02"), t0.Format("2006-01-02 15:04:05 MST"))
 		if err := api.ExportModifiedEPrints(start, end, exportSaveKeys, verbose); err != nil {
 			log.Printf("%s", err)
