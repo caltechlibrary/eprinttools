@@ -7,6 +7,8 @@
 
 ## Someday, Maybe
 
++ [ ] Normalize logging between ep and other harvesters
++ [ ] Add write support to ep cli so we can full circle data from other sources into EPrints
 + [ ] Add Authentication support for harvesting all EPrints records if the REST API is enabled
     + [ ] Use privileged account for Harvest so we can get all content
     + [ ] Export should have options to include/exclude embargoed/restricted records
