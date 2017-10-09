@@ -1,8 +1,8 @@
 
 # eprinttools
 
-This project contains the _ep_ go package for working with EPrints 
-REST API. It also includes _ep_ command line utilities for 
+This project contains the _eprinttools_ go package for working with EPrints 
+REST API. It also includes _ep_ command line utility for 
 harvesting content into a [dataset](https://github.com/caltechlibrary/dataset)
 collection and rendering JSON documents for web feeds.
 

@@ -16,7 +16,7 @@ VERSION_NUMBER is a [symantic version number](http://semver.org/) (e.g. v0.1.2)
 
 For all the released version go to the project page on Github and click latest release
 
->    https://github.com/caltechlibrary/ep/releases/latest
+>    https://github.com/caltechlibrary/eprinttools/releases/latest
 
 
 | Platform    | Zip Filename                             |
@@ -127,15 +127,15 @@ _ep_ is "go gettable".  Use the "go get" command to download the dependant packa
 as well as _ep_'s source code.
 
 ```shell
-    go get -u github.com/caltechlibrary/ep/...
+    go get -u github.com/caltechlibrary/eprinttools/...
 ```
 
 Or clone the repstory and then compile
 
 ```shell
     cd
-    git clone https://github.com/caltechlibrary/ep src/github.com/caltechlibrary/ep
-    cd src/github.com/caltechlibrary/ep
+    git clone https://github.com/caltechlibrary/eprinttools src/github.com/caltechlibrary/eprinttools
+    cd src/github.com/caltechlibrary/eprinttools
     make
     make test
     make install
