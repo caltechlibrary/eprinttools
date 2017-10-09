@@ -1,7 +1,7 @@
 #
 # Simple Makefile for conviently testing, building and deploying experiment.
 #
-PROJECT = ep
+PROJECT = eprinttools
 
 VERSION = $(shell grep -m 1 'Version =' $(PROJECT).go | cut -d\"  -f 2)
 
