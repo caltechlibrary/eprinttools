@@ -1,5 +1,5 @@
 
-# ep
+# eprinttools
 
 This project contains the _ep_ go package for working with EPrints 
 REST API. It also includes _ep_ command line utilities for 
