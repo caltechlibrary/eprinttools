@@ -31,7 +31,7 @@ import (
 
 	// Caltech Library Packages
 	"github.com/caltechlibrary/cli"
-	"github.com/caltechlibrary/ep"
+	ep "github.com/caltechlibrary/eprinttools"
 )
 
 var (
