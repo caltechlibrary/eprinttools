@@ -1,5 +1,5 @@
 //
-// Package ep is a collection of structures and functions for working with the E-Prints REST API
+// Package eprinttools is a collection of structures and functions for working with the E-Prints REST API
 //
 // @author R. S. Doiel, <rsdoiel@caltech.edu>
 //
@@ -16,7 +16,7 @@
 //
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-package ep
+package eprinttools
 
 import (
 	"encoding/json"
@@ -41,7 +41,7 @@ import (
 
 const (
 	// Version is the revision number for this implementation of epgo
-	Version = "v0.0.10-beta2"
+	Version = "v0.0.10-beta5"
 
 	// LicenseText holds the string for rendering License info on the command line
 	LicenseText = `
@@ -223,12 +223,12 @@ type File struct {
 type Document struct {
 	XMLName   xml.Name `json:"-"`
 	ID        string   `xml:"id,attr" json:"id"`
-	DocID     int      `xml:"docid" json:"docid"`
-	RevNumber int      `xml:"rev_number" json:"rev_number"`
+	DocID     int      `xml:"docid" json:"doc_id"`
+	RevNumber int      `xml:"rev_number" json:"rev_number,omitempty"`
 	Files     []*File  `xml:"files>file" json:"files"`
-	EPrintID  int      `xml:"eprintid" json:"eprintid"`
-	Pos       int      `xml:"pos" json:"pos"`
-	Placement int      `xml:"placement" json:"placement"`
+	EPrintID  int      `xml:"eprintid" json:"eprint_id"`
+	Pos       int      `xml:"pos" json:"pos,omitempty"`
+	Placement int      `xml:"placement" json:"placement,omitempty"`
 	MimeType  string   `xml:"mime_type" json:"mime_type"`
 	Format    string   `xml:"format" json:"format"`
 	Language  string   `xml:"language" json:"language"`
@@ -248,10 +248,10 @@ type Record struct {
 	URI                  string             `json:"uri"`
 	Abstract             string             `xml:"eprint>abstract" json:"abstract"`
 	Documents            DocumentList       `xml:"eprint>documents>document" json:"documents"`
-	Note                 string             `xml:"eprint>note" json:"note"`
+	Note                 string             `xml:"eprint>note" json:"note,omitempty"`
 	ID                   int                `xml:"eprint>eprintid" json:"id"`
 	RevNumber            int                `xml:"eprint>rev_number" json:"rev_number"`
-	UserID               int                `xml:"eprint>userid" json:"userid"`
+	UserID               int                `xml:"eprint>userid" json:"user_id,omitempty"`
 	Dir                  string             `xml:"eprint>dir" json:"eprint_dir"`
 	Datestamp            string             `xml:"eprint>datestamp" json:"datestamp"`
 	LastModified         string             `xml:"eprint>lastmod" json:"lastmod"`
@@ -259,27 +259,27 @@ type Record struct {
 	Type                 string             `xml:"eprint>type" json:"type"`
 	MetadataVisibility   string             `xml:"eprint>metadata_visibility" json:"metadata_visibility"`
 	Creators             PersonList         `xml:"eprint>creators>item" json:"creators"`
-	IsPublished          string             `xml:"eprint>ispublished" json:"ispublished"`
-	Subjects             []string           `xml:"eprint>subjects>item" json:"subjects"`
+	IsPublished          string             `xml:"eprint>ispublished" json:"is_published"`
+	Subjects             []string           `xml:"eprint>subjects>item" json:"subjects,omitempty"`
 	FullTextStatus       string             `xml:"eprint>full_text_status" json:"full_text_status"`
-	Keywords             string             `xml:"eprint>keywords" json:"keywords"`
+	Keywords             string             `xml:"eprint>keywords" json:"keywords,omitempty"`
 	Date                 string             `xml:"eprint>date" json:"date"`
 	DateType             string             `xml:"eprint>date_type" json:"date_type"`
-	Publication          string             `xml:"eprint>publication" json:"publication"`
-	Volume               string             `xml:"eprint>volume" json:"volume"`
-	Number               string             `xml:"eprint>number" json:"number"`
-	PageRange            string             `xml:"eprint>pagerange" json:"pagerange"`
-	IDNumber             string             `xml:"eprint>id_number" json:"id_number"`
-	Refereed             bool               `xml:"eprint>refereed" json:"refereed"`
-	ISSN                 string             `xml:"eprint>issn" json:"issn"`
+	Publication          string             `xml:"eprint>publication" json:"publication,omitempty"`
+	Volume               string             `xml:"eprint>volume" json:"volume,omitempty"`
+	Number               string             `xml:"eprint>number" json:"number,omitempty"`
+	PageRange            string             `xml:"eprint>pagerange" json:"pagerange,omitempty"`
+	IDNumber             string             `xml:"eprint>id_number" json:"id_number,omitempty"`
+	Refereed             bool               `xml:"eprint>refereed" json:"refereed,omitempty"`
+	ISSN                 string             `xml:"eprint>issn" json:"issn,omitempty"`
 	DOI                  string             `xml:"eprint>doi,omitempty" json:"doi,omitempty"`
 	OfficialURL          string             `xml:"eprint>official_url" json:"official_url"`
-	RelatedURL           []*RelatedURL      `xml:"eprint>related_url>item" json:"related_url"`
-	ReferenceText        []string           `xml:"eprint>referencetext>item" json:"referencetext"`
+	RelatedURL           []*RelatedURL      `xml:"eprint>related_url>item" json:"related_url,omitempty"`
+	ReferenceText        []string           `xml:"eprint>referencetext>item" json:"referencetext,omitempty"`
 	Rights               string             `xml:"eprint>rights" json:"rights"`
 	OfficialCitation     string             `xml:"eprint>official_cit" json:"official_citation"`
-	OtherNumberingSystem []*NumberingSystem `xml:"eprint>other_numbering_system>item,omitempty" json:"other_numbering_system"`
-	Funders              FunderList         `xml:"eprint>funders>item" json:"funders"`
+	OtherNumberingSystem []*NumberingSystem `xml:"eprint>other_numbering_system>item,omitempty" json:"other_numbering_system,omitempty"`
+	Funders              FunderList         `xml:"eprint>funders>item" json:"funders,omitempty"`
 	Collection           string             `xml:"eprint>collection" json:"collection"`
 
 	// Thesis repository Customizations
@@ -293,8 +293,8 @@ type Record struct {
 	OptionMinor         string     `xml:"eprint>option_minor>item,omitempty" json:"option_minor,omitempty"`
 	GradOfcApprovalDate string     `xml:"eprint>gradofc_approval_date,omitempty" json:"gradofc_approval_date,omitempty"`
 
-	Reviewer   string   `xml:"eprint>reviewer" json:"reviewer"`
-	LocalGroup []string `xml:"eprint>local_group>item" json:"local_group"`
+	Reviewer   string   `xml:"eprint>reviewer" json:"reviewer,omitempty"`
+	LocalGroup []string `xml:"eprint>local_group>item" json:"local_group,omitempty"`
 }
 
 type ePrintIDs struct {
@@ -575,20 +575,35 @@ func (api *EPrintsAPI) ListEPrintsURI() ([]string, error) {
 }
 
 // ListModifiedEPrintURI return a list of modifed EPrint URI (eprint_ids) in start and end times
-func (api *EPrintsAPI) ListModifiedEPrintURI(start, end time.Time) ([]string, error) {
+func (api *EPrintsAPI) ListModifiedEPrintURI(start, end time.Time, verbose bool) ([]string, error) {
 	var (
 		results []string
 	)
 
+	now := time.Now()
+	t0 := now
+	t1 := now
+	if verbose == true {
+		log.Printf("Getting EPrints Ids")
+	}
 	uris, err := api.ListEPrintsURI()
 	if err != nil {
 		return nil, err
 	}
+	if verbose == true {
+		now = time.Now()
+		log.Printf("Retrieved %d ids, %s", len(uris), now.Sub(t0))
+	}
 
 	api.URL.Path = path.Join("rest", "eprint") + "/"
 
+	if verbose == true {
+		log.Printf("Filtering EPrints ids by modification dates, %s to %s", start.Format("2006-01-02"), end.Format("2006-01-02"))
+	}
+	total := len(uris)
+	lastI := total - 1
 	u := api.URL
-	for _, uri := range uris {
+	for i, uri := range uris {
 		u.Path = strings.TrimSuffix(uri, ".xml") + "/lastmod.txt"
 		if res, err := http.Get(u.String()); err == nil {
 			if buf, err := ioutil.ReadAll(res.Body); err == nil {
@@ -602,6 +617,20 @@ func (api *EPrintsAPI) ListModifiedEPrintURI(start, end time.Time) ([]string, er
 				}
 			}
 		}
+		if verbose == true {
+			now = time.Now()
+			if i == lastI {
+				log.Printf("%d/%d ids checked, batch %s, running time %s", total, total, now.Sub(t1), now.Sub(t0))
+				t1 = now
+			} else if (i % 1000) == 0 {
+				log.Printf("%d/%d ids checked, batch %s, running time %s", i, total, now.Sub(t1), now.Sub(t0))
+				t1 = now
+			}
+		}
+	}
+	if verbose == true {
+		now = time.Now()
+		log.Printf("%d records in modified range, running time %s", len(results), now.Sub(t0))
 	}
 	return results, nil
 }
@@ -621,20 +650,6 @@ func (api *EPrintsAPI) GetEPrint(uri string) (*Record, []byte, error) {
 		return nil, nil, fmt.Errorf("requested %s, %s", api.URL.String(), err)
 	}
 
-	/*
-		resp, err := http.Get(api.URL.String())
-		if err != nil {
-			return nil, nil, fmt.Errorf("requested %s, %s", api.URL.String(), err)
-		}
-		defer resp.Body.Close()
-		if resp.StatusCode != 200 {
-			return nil, nil, fmt.Errorf("http error %s, %s", api.URL.String(), resp.Status)
-		}
-		content, err := ioutil.ReadAll(resp.Body)
-		if err != nil {
-			return nil, nil, fmt.Errorf("content can't be read %s, %s", api.URL.String(), err)
-		}
-	*/
 	rec := new(Record)
 	err = xml.Unmarshal(content, &rec)
 	if err != nil {

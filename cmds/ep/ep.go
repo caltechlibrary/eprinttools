@@ -31,7 +31,7 @@ import (
 
 	// Caltech Library Packages
 	"github.com/caltechlibrary/cli"
-	"github.com/caltechlibrary/ep"
+	ep "github.com/caltechlibrary/eprinttools"
 )
 
 var (
@@ -47,7 +47,7 @@ and web pages.
 
 CONFIGURATION
 
-%s can be configured with following environment variables
+ep can be configured with following environment variables
 
 EP_EPRINTS_URL the URL to your EPrints installation
 
@@ -64,6 +64,16 @@ environment virables EP_API_URL, EP_DATASET.
     %s -export 2000
 
 Would export 2000 EPrints from the repository with the heighest ID values.
+
+   %s -export-modified 2017-07-01
+
+Would export the EPrint records modified since July 1, 2017.
+
+   %s -export-modified 2017-07-01,2017-07-31 \
+      -export-save-keys=july-keys.txt 
+
+Would export the EPrint records with modified times in July 2017 and
+save the keys for the records exported with one key per line. 
 `
 
 	// Standard Options
@@ -71,6 +81,7 @@ Would export 2000 EPrints from the repository with the heighest ID values.
 	showVersion bool
 	showLicense bool
 	outputFName string
+	verbose     bool
 
 	// App Options
 	useAPI      bool
@@ -79,10 +90,11 @@ Would export 2000 EPrints from the repository with the heighest ID values.
 	apiURL      string
 	datasetName string
 
-	updatedSince       string
-	exportEPrints      string
-	exportEPrintsSince string
-	feedSize           int
+	updatedSince          string
+	exportEPrints         string
+	exportEPrintsModified string
+	exportSaveKeys        string
+	feedSize              int
 
 	authMethod string
 	userName   string
@@ -101,6 +113,7 @@ func init() {
 	flag.BoolVar(&showVersion, "version", false, "display version")
 	flag.StringVar(&outputFName, "o", "", "output filename (logging)")
 	flag.StringVar(&outputFName, "output", "", "output filename (logging)")
+	flag.BoolVar(&verbose, "verbose", true, "verbose logging")
 
 	// App Specific options
 	flag.StringVar(&authMethod, "auth", "", "set the authentication method (e.g. none, basic, oauth, shib)")
@@ -115,7 +128,8 @@ func init() {
 	flag.BoolVar(&prettyPrint, "pretty", false, "pretty print JSON output")
 	flag.BoolVar(&useAPI, "read-api", false, "read the contents from the API without saving in the database")
 	flag.StringVar(&exportEPrints, "export", "", "export N EPrints from highest ID to lowest")
-	flag.StringVar(&exportEPrintsSince, "export-since", "", "export  EPrints from a given date to present (e.g. 2017-07-01)")
+	flag.StringVar(&exportEPrintsModified, "export-modified", "", "export records by date or date range (e.g. 2017-07-01)")
+	flag.StringVar(&exportSaveKeys, "export-save-keys", "", "save the keys exported in a file with provided filename")
 	flag.StringVar(&updatedSince, "updated-since", "", "list EPrint IDs updated since a given date (e.g 2017-07-01)")
 }
 
@@ -186,26 +200,36 @@ func main() {
 				log.Fatalf("Export count should be %q or an integer, %s", exportEPrints, err)
 			}
 		}
-		log.Printf("%s %s", appName, ep.Version)
+		log.Printf("%s %s (pid %d)", appName, ep.Version, os.Getpid())
 		log.Printf("Export started, %s", t0)
-		if err := api.ExportEPrints(exportNo); err != nil {
+		if err := api.ExportEPrints(exportNo, exportSaveKeys, verbose); err != nil {
 			log.Printf("%s", err)
 			os.Exit(1)
 		}
 		log.Printf("Export completed, running time %s", time.Now().Sub(t0))
 		os.Exit(0)
 	}
-	if exportEPrintsSince != "" {
-		start, err := time.Parse("2006-01-02", exportEPrintsSince)
+	if exportEPrintsModified != "" {
+		s := exportEPrintsModified
+		e := time.Now().Format("2006-01-02")
+		if strings.Contains(s, ",") {
+			p := strings.SplitN(s, ",", 2)
+			s, e = p[0], p[1]
+		}
+		start, err := time.Parse("2006-01-02", s)
 		if err != nil {
 			log.Printf("%s", err)
 			os.Exit(1)
 		}
-		end := time.Now()
+		end, err := time.Parse("2006-01-02", e)
+		if err != nil {
+			log.Printf("%s", err)
+			os.Exit(1)
+		}
 		t0 := time.Now()
-		log.Printf("%s %s", appName, ep.Version)
-		log.Printf("Export from %s to %s, started %s", start.Format("2006-01-02"), end.Format("2006-01-02"), t0)
-		if err := api.ExportModifiedEPrints(start, end); err != nil {
+		log.Printf("%s %s (pid %d)", appName, ep.Version, os.Getpid())
+		log.Printf("Export from %s to %s, started %s", start.Format("2006-01-02"), end.Format("2006-01-02"), t0.Format("2006-01-02 15:04:05 MST"))
+		if err := api.ExportModifiedEPrints(start, end, exportSaveKeys, verbose); err != nil {
 			log.Printf("%s", err)
 			os.Exit(1)
 		}
@@ -229,7 +253,7 @@ func main() {
 			fmt.Fprintf(os.Stderr, "updated since %q, %s", updatedSince, err)
 			os.Exit(1)
 		}
-		data, err = api.ListModifiedEPrintURI(start, end)
+		data, err = api.ListModifiedEPrintURI(start, end, verbose)
 	case useAPI == true:
 		if len(args) == 1 {
 			data, _, err = api.GetEPrint(args[0])

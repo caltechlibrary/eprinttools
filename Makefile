@@ -21,7 +21,7 @@ bin/ep: ep.go harvest.go cmds/ep/ep.go
 
 
 install: 
-	env GOBIN=$(HOME)/bin go install cmds/ep/ep.go
+	env GOBIN=$(GOPATH)/bin go install cmds/ep/ep.go
 
 website: page.tmpl README.md nav.md INSTALL.md LICENSE css/site.css
 	./mk-website.bash

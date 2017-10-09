@@ -5,15 +5,13 @@
 
 ## Next
 
+## Someday, Maybe
+
++ [ ] Normalize logging between ep and other harvesters
++ [ ] Add write support to ep cli so we can full circle data from other sources into EPrints
 + [ ] Add Authentication support for harvesting all EPrints records if the REST API is enabled
     + [ ] Use privileged account for Harvest so we can get all content
     + [ ] Export should have options to include/exclude embargoed/restricted records
-+ [ ] export should work on ID ranges as well as modified dates so we can pickup changes frequently
-    + [ ] Calculate a "changed since" return of records
-        + Use fielded REST API calls to pull out the change dates with EPrint ID, then calculate the subset of records in date range requested
-
-## Someday, Maybe
-
 
 ## Completed
 
@@ -28,3 +26,9 @@
 + [x] Save raw EPrint XML with harvested EPrint
 + [x] convert epgo-genpages HTML/HTML Include templates into _mkpage_ friendly templates
 + [x] Replace templated RSS2 output with output generated from epgo-genpages to _mkpage_ or other system
++ [x] export should work on modified dates as well as ID ranges so we can pickup changes frequently
+    + [x] Calculate a "changed since" return of records
+        + Use fielded REST API calls to pull out the change dates with EPrint ID, then calculate the subset of records in date range requested
++ [x] Add option to export a list of keys (one per line) for exported records
+    + this would let you streaming line ORCID harvests for changed records versus whole dataset collection
+
