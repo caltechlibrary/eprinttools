@@ -154,7 +154,7 @@ func main() {
 	cfg.UsageText = fmt.Sprintf(usage, appName)
 	cfg.DescriptionText = fmt.Sprintf(description, appName, appName)
 	cfg.OptionText = "OPTIONS"
-	cfg.ExampleText = fmt.Sprintf(examples, appName, appName)
+	cfg.ExampleText = fmt.Sprintf(examples, appName, appName, appName, appName)
 
 	// Handle the default options
 	if showHelp == true {
