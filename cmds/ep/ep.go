@@ -77,11 +77,12 @@ save the keys for the records exported with one key per line.
 `
 
 	// Standard Options
-	showHelp    bool
-	showVersion bool
-	showLicense bool
-	outputFName string
-	verbose     bool
+	showHelp     bool
+	showVersion  bool
+	showLicense  bool
+	showExamples bool
+	outputFName  string
+	verbose      bool
 
 	// App Options
 	useAPI      bool
@@ -111,6 +112,7 @@ func init() {
 	flag.BoolVar(&showLicense, "license", false, "display license")
 	flag.BoolVar(&showVersion, "v", false, "display version")
 	flag.BoolVar(&showVersion, "version", false, "display version")
+	flag.BoolVar(&showExamples, "example", false, "display example(s)")
 	flag.StringVar(&outputFName, "o", "", "output filename (logging)")
 	flag.StringVar(&outputFName, "output", "", "output filename (logging)")
 	flag.BoolVar(&verbose, "verbose", true, "verbose logging")
@@ -147,16 +149,32 @@ func main() {
 	args := flag.Args()
 
 	// Populate cfg from the environment
-	cfg := cli.New(appName, appName, fmt.Sprintf(ep.LicenseText, appName, ep.Version), ep.Version)
+	cfg := cli.New(appName, "EP", ep.Version)
+	cfg.LicenseText = fmt.Sprintf(ep.LicenseText, appName, ep.Version)
 	cfg.UsageText = fmt.Sprintf(usage, appName)
 	cfg.DescriptionText = fmt.Sprintf(description, appName, appName)
+	cfg.OptionText = "OPTIONS"
 	cfg.ExampleText = fmt.Sprintf(examples, appName, appName)
 
 	// Handle the default options
 	if showHelp == true {
-		fmt.Println(cfg.Usage())
+		if len(args) > 0 {
+			fmt.Println(cfg.Help(args...))
+		} else {
+			fmt.Println(cfg.Usage())
+		}
 		os.Exit(0)
 	}
+
+	if showExamples == true {
+		if len(args) > 0 {
+			fmt.Println(cfg.Example(args...))
+		} else {
+			fmt.Println(cfg.ExampleText)
+		}
+		os.Exit(0)
+	}
+
 	if showVersion == true {
 		fmt.Println(cfg.Version())
 		os.Exit(0)
