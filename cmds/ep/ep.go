@@ -39,6 +39,7 @@ var (
 	usage = `USAGE %s [OPTIONS] [EP_EPRINTS_URL|ONE_OR_MORE_EPRINT_ID]`
 
 	description = `
+
 SYNOPSIS
 
 %s wraps the REST API for EPrints 3.3 or better. It can return a list 
@@ -51,9 +52,12 @@ ep can be configured with following environment variables
 
 EP_EPRINTS_URL the URL to your EPrints installation
 
-EP_DATASET the dataset and collection name for exporting, site building, and content retrieval`
+EP_DATASET the dataset and collection name for exporting, site building, and content retrieval
+
+`
 
 	examples = `
+
 EXAMPLE
 
     %s -export all
@@ -74,6 +78,7 @@ Would export the EPrint records modified since July 1, 2017.
 
 Would export the EPrint records with modified times in July 2017 and
 save the keys for the records exported with one key per line. 
+
 `
 
 	// Standard Options
