@@ -157,8 +157,8 @@ func main() {
 	cfg := cli.New(appName, "EP", ep.Version)
 	cfg.LicenseText = fmt.Sprintf(ep.LicenseText, appName, ep.Version)
 	cfg.UsageText = fmt.Sprintf(usage, appName)
-	cfg.DescriptionText = fmt.Sprintf(description, appName, appName)
-	cfg.OptionText = "OPTIONS"
+	cfg.DescriptionText = fmt.Sprintf(description, appName)
+	cfg.OptionText = "OPTIONS\n"
 	cfg.ExampleText = fmt.Sprintf(examples, appName, appName, appName, appName)
 
 	// Handle the default options
