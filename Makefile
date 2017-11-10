@@ -11,12 +11,12 @@ PROJECT_LIST = ep
 
 build: package $(PROJECT_LIST)
 
-package: ep.go
+package: eprinttools.go
 	go build
 
 ep: bin/ep
 
-bin/ep: ep.go harvest.go cmds/ep/ep.go
+bin/ep: eprinttools.go harvest.go cmds/ep/ep.go
 	go build -o bin/ep cmds/ep/ep.go
 
 
@@ -27,14 +27,14 @@ website: page.tmpl README.md nav.md INSTALL.md LICENSE css/site.css
 	./mk-website.bash
 
 format:
-	gofmt -w ep.go
-	gofmt -w ep_test.go
+	gofmt -w eprinttools.go
+	gofmt -w eprinttools_test.go
 	gofmt -w harvest.go
 	gofmt -w cmds/ep/ep.go
 
 lint:
-	golint ep.go
-	golint ep_test.go
+	golint eprinttools.go
+	golint eprinttools_test.go
 	golint harvest.go
 	golint cmds/ep/ep.go
 
@@ -79,6 +79,7 @@ distribute_docs:
 	cp -vR docs/* dist/docs/
 	cp -vR scripts/* dist/scripts/
 	cp -vR etc/*-example dist/etc/
+	./package-versions.bash > dist/package-versions.txt
 
 release: distribute_docs dist/linux-amd64 dist/windows-amd64 dist/macosx-amd64 dist/raspbian-arm7
 
