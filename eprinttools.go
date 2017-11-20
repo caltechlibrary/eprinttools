@@ -105,8 +105,8 @@ type Person struct {
 
 	// Customizations for Caltech Library
 	ORCID string `xml:"orcid,omitempty" json:"orcid,omitempty"`
-	EMail string `xml:"email,omitempty" json:"email,omitempty"`
-	Role  string `xml:"role,omitempty" json:"role,omitempty"`
+	//EMail string `xml:"email,omitempty" json:"email,omitempty"`
+	Role string `xml:"role,omitempty" json:"role,omitempty"`
 }
 
 // PersonList is an array of pointers to Person structs
@@ -177,12 +177,12 @@ type DocumentList []*Document
 
 // Record returns a structure that can be converted to JSON easily
 type Record struct {
-	XMLName              xml.Name           `json:"-"`
-	Title                string             `xml:"eprint>title" json:"title"`
-	URI                  string             `json:"uri"`
-	Abstract             string             `xml:"eprint>abstract" json:"abstract"`
-	Documents            DocumentList       `xml:"eprint>documents>document" json:"documents"`
-	Note                 string             `xml:"eprint>note" json:"note,omitempty"`
+	XMLName   xml.Name     `json:"-"`
+	Title     string       `xml:"eprint>title" json:"title"`
+	URI       string       `json:"uri"`
+	Abstract  string       `xml:"eprint>abstract" json:"abstract"`
+	Documents DocumentList `xml:"eprint>documents>document" json:"documents"`
+	//Note                 string             `xml:"eprint>note" json:"note,omitempty"`
 	ID                   int                `xml:"eprint>eprintid" json:"id"`
 	RevNumber            int                `xml:"eprint>rev_number" json:"rev_number"`
 	UserID               int                `xml:"eprint>userid" json:"user_id,omitempty"`
