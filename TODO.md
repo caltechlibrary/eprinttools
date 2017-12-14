@@ -3,7 +3,12 @@
 
 ## Bugs
 
++ [ ] On some repositories <note> should be suppressed in public view, in others it is public (e.g. CaltechAUTHORS Note holds copyright info)
+
 ## Next
+
++ [ ] Add support to update EPrint record's attribute paths where we have permission (e.g. add ORCID to creator objects)
+
 
 ## Someday, Maybe
 

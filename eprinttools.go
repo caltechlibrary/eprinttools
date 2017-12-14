@@ -182,6 +182,7 @@ type Record struct {
 	URI       string       `json:"uri"`
 	Abstract  string       `xml:"eprint>abstract" json:"abstract"`
 	Documents DocumentList `xml:"eprint>documents>document" json:"documents"`
+	//FIXME: On CaltechAUTHORS I want to keep note, on CaltechTHESIS I don't want Note to be public, need to have a way optionally showing or remove the Note
 	//Note                 string             `xml:"eprint>note" json:"note,omitempty"`
 	ID                   int                `xml:"eprint>eprintid" json:"id"`
 	RevNumber            int                `xml:"eprint>rev_number" json:"rev_number"`
