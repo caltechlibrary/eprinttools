@@ -23,35 +23,29 @@ import (
 	"os"
 	"testing"
 	"time"
-
-	// Caltech Library packages
-	"github.com/caltechlibrary/cli"
 )
 
-// cfg is configuration to access the EPrints REST API for tests
-var (
-	cfg *cli.Config
-)
+func TestListEPrintsURI(t *testing.T) {
+	eprintURL := os.Getenv("EP_EPRINT_URL")
+	datasetName := os.Getenv("EP_DATASET")
+	suppressNote := true
 
-func TestListEPrintURI(t *testing.T) {
-	_, err := ListEPrintURI()
+	api, err := New(eprintURL, datasetName, suppressNote, "", "", "")
 	if err != nil {
-		t.Errorf("listEPrintURI() %s", err)
+		t.Errorf("Failed to create new api, %s", err)
+		t.FailNow()
+	}
+
+	_, err = api.ListEPrintsURI()
+	if err != nil {
+		t.Errorf("listEPrintsURI() %s", err)
 	}
 
 	start, _ := time.Parse("2006-01-02", "2017-06-01")
 	end, _ := time.Parse("2006-01-02", "2017-06-02")
-	uris, err := ListModifiedEPrintURI(start, end)
+	uris, err := api.ListModifiedEPrintURI(start, end, true)
 	if err != nil {
 		t.Errorf("listEPrintURI() %s", err)
 	}
 	log.Printf("DEBUG uri: %+v\n", uris)
-}
-
-func TestMain(m *testing.M) {
-	cfg = cli.New("ep", "EP", "", Version)
-	cfg.MergeEnv("eprint_url", "")
-	cfg.MergeEnv("dataset", "")
-	cfg.MergeEnv("htdocs", "")
-	os.Exit(m.Run())
 }

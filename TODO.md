@@ -7,11 +7,13 @@
 
 ## Next
 
++ [ ] Add support to create/update an full EPrint record from JSON 
 + [ ] Add support to update EPrint record's attribute paths where we have permission (e.g. add ORCID to creator objects)
 
 
 ## Someday, Maybe
 
++ [ ] Add support to show CURL version of action without running command
 + [ ] Normalize logging between ep and other harvesters
 + [ ] Add write support to ep cli so we can full circle data from other sources into EPrints
 + [ ] Add Authentication support for harvesting all EPrints records if the REST API is enabled
