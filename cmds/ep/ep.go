@@ -34,11 +34,7 @@ import (
 
 var (
 	// cli help text
-
 	description = `
-
-SYNOPSIS
-
 %s wraps the REST API for EPrints 3.3 or better. It can return a list 
 of uri, a JSON view of the XML presentation as well as generates feeds 
 and web pages.
@@ -51,36 +47,28 @@ EP_EPRINTS_URL the URL to your EPrints installation
 
 EP_DATASET the dataset and collection name for exporting, site building, and content retrieval
 
+EP_SUPPRESS_NOTE if set to true or 1 will suppress the note field in harvesting
 `
 
 	examples = `
-
-EXAMPLE
-
-    %s -export all
-
 Would export the entire EPrints repository public content defined by the
 environment virables EP_API_URL, EP_DATASET.
 
-    %s -export 2000
+    %s -export all
 
 Would export 2000 EPrints from the repository with the heighest ID values.
 
-   %s -export-modified 2017-07-01
+    %s -export 2000
 
 Would export the EPrint records modified since July 1, 2017.
 
-   %s -export-modified 2017-07-01,2017-07-31 \
-      -export-save-keys=july-keys.txt 
+    %s -export-modified 2017-07-01
 
 Would export the EPrint records with modified times in July 2017 and
 save the keys for the records exported with one key per line. 
 
-SUPPRESSING NOTES FIELD
-
-Sometimes the notes field is used for internal processing and should
-not be harvested. If this is the case for you use the "-suppress-notes"
-option.
+    %s -export-modified 2017-07-01,2017-07-31 \
+       -export-save-keys=july-keys.txt 
 `
 
 	// Standard Options
@@ -158,7 +146,10 @@ func main() {
 	app.StringVar(&updatedSince, "updated-since", "", "list EPrint IDs updated since a given date (e.g 2017-07-01)")
 
 	// Parse environment and options
-	app.Parse()
+	if err := app.Parse(); err != nil {
+		fmt.Fprintf(os.Stderr, "Something went wrong parsing env and options!, %s\n", err)
+		os.Exit(1)
+	}
 	args := app.Args()
 
 	// Setup IO
@@ -176,7 +167,13 @@ func main() {
 	// Set log to output
 	log.SetOutput(app.Out)
 
+	fmt.Printf("DEBUG showHelp %t\n", showHelp)
+
 	// Process Options
+	if generateMarkdownDocs {
+		app.GenerateMarkdownDocs(app.Out)
+		os.Exit(0)
+	}
 	if showHelp || showExamples {
 		if len(args) > 0 {
 			fmt.Println(app.Help(args...))
