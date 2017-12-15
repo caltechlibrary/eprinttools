@@ -7,7 +7,11 @@ VERSION = $(shell grep -m 1 'Version =' $(PROJECT).go | cut -d\`  -f 2)
 
 BRANCH = $(shell git branch | grep '* ' | cut -d\  -f 2)
 
-PROJECT_LIST = ep
+PROJECT_LIST = ep epharvester epplanter
+
+OS = $(shell uname)
+
+EXT = ""
 
 build: package $(PROJECT_LIST)
 
@@ -16,12 +20,23 @@ package: eprinttools.go
 
 ep: bin/ep
 
+epharvester: bin/epharvester
+
+epplanter: bin/epplanter
+
 bin/ep: eprinttools.go harvest.go cmds/ep/ep.go
 	go build -o bin/ep cmds/ep/ep.go
 
+bin/epharvester: eprinttools.go harvest.go cmds/epharvester/epharvester.go
+	go build -o bin/epharvester cmds/epharvester/epharvester.go
+
+bin/epplanter: eprinttools.go harvest.go cmds/epplanter/epplanter.go
+	go build -o bin/epplanter cmds/epplanter/epplanter.go
 
 install: 
 	env GOBIN=$(GOPATH)/bin go install cmds/ep/ep.go
+	env GOBIN=$(GOPATH)/bin go install cmds/epharvester/epharvester.go
+	env GOBIN=$(GOPATH)/bin go install cmds/epplanter/epplanter.go
 
 website: page.tmpl README.md nav.md INSTALL.md LICENSE css/site.css
 	./mk-website.bash
