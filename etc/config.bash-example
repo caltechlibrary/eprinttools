@@ -1,5 +1,5 @@
 # URL for E-Prints repository
-export EP_EPRINT_URL=http://lemurprints.local
+export EP_EPRINT_URL=https://lemurprints.local
 # DB Name used to exporting from E-Prints and for site building
 # for S3 storage use an S3 URL like s3://dataset.library.example.edu/eprints
 export EP_DATASET=dataset/eprints
