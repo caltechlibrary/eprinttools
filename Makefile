@@ -7,21 +7,33 @@ VERSION = $(shell grep -m 1 'Version =' $(PROJECT).go | cut -d\`  -f 2)
 
 BRANCH = $(shell git branch | grep '* ' | cut -d\  -f 2)
 
-PROJECT_LIST = ep
+OS = $(shell uname)
+
+EXT = 
+ifeq ($(OS), Windows)
+        EXT = .exe
+endif
+
+PROJECT_LIST = ep epparsexml
 
 build: package $(PROJECT_LIST)
 
-package: eprinttools.go
+package: eprinttools.go harvest.go eprint3x.go
 	go build
 
 ep: bin/ep
 
-bin/ep: eprinttools.go harvest.go cmds/ep/ep.go
-	go build -o bin/ep cmds/ep/ep.go
+epparsexml: bin/epparsexml
 
+bin/ep$(EXT): eprinttools.go harvest.go cmd/ep/ep.go
+	go build -o bin/ep$(EXT) cmd/ep/ep.go
+
+bin/epparsexml$(EXT): eprinttools.go harvest.go eprint3x.go cmd/epparsexml/epparsexml.go
+	go build -o bin/epparsexml$(EXT) cmd/epparsexml/epparsexml.go
 
 install: 
-	env GOBIN=$(GOPATH)/bin go install cmds/ep/ep.go
+	env GOBIN=$(GOPATH)/bin go install cmd/ep/ep.go
+	env GOBIN=$(GOPATH)/bin go install cmd/epparsexml/epparsexml.go
 
 website: page.tmpl README.md nav.md INSTALL.md LICENSE css/site.css
 	./mk-website.bash
@@ -30,13 +42,13 @@ format:
 	gofmt -w eprinttools.go
 	gofmt -w eprinttools_test.go
 	gofmt -w harvest.go
-	gofmt -w cmds/ep/ep.go
+	gofmt -w cmd/ep/ep.go
 
 lint:
 	golint eprinttools.go
 	golint eprinttools_test.go
 	golint harvest.go
-	golint cmds/ep/ep.go
+	golint cmd/ep/ep.go
 
 test:
 	go test
@@ -47,25 +59,29 @@ clean:
 
 dist/linux-amd64:
 	mkdir -p dist/bin
-	env  GOOS=linux GOARCH=amd64 go build -o dist/bin/ep cmds/ep/ep.go
+	env  GOOS=linux GOARCH=amd64 go build -o dist/bin/ep cmd/ep/ep.go
+	env  GOOS=linux GOARCH=amd64 go build -o dist/bin/epparsexml cmd/epparsexml/epparsexml.go
 	cd dist && zip -r $(PROJECT)-$(VERSION)-linux-amd64.zip README.md LICENSE INSTALL.md docs/* scripts/* etc/* bin/*
 	rm -fR dist/bin
 
 dist/windows-amd64:
 	mkdir -p dist/bin
-	env  GOOS=windows GOARCH=amd64 go build -o dist/bin/ep.exe cmds/ep/ep.go
+	env  GOOS=windows GOARCH=amd64 go build -o dist/bin/ep.exe cmd/ep/ep.go
+	env  GOOS=windows GOARCH=amd64 go build -o dist/bin/epparsexml.exe cmd/epparsexml/epparsexml.go
 	cd dist && zip -r $(PROJECT)-$(VERSION)-windows-amd64.zip README.md LICENSE INSTALL.md docs/* scripts/* etc/* bin/*
 	rm -fR dist/bin
 
 dist/macosx-amd64:
 	mkdir -p dist/bin
-	env  GOOS=darwin GOARCH=amd64 go build -o dist/bin/ep cmds/ep/ep.go
+	env  GOOS=darwin GOARCH=amd64 go build -o dist/bin/ep cmd/ep/ep.go
+	env  GOOS=darwin GOARCH=amd64 go build -o dist/bin/epparsexml cmd/epparsexml/epparsexml.go
 	cd dist && zip -r $(PROJECT)-$(VERSION)-macosx-amd64.zip README.md LICENSE INSTALL.md docs/* scripts/* etc/* bin/*
 	rm -fR dist/bin
 
 dist/raspbian-arm7:
 	mkdir -p dist/bin
-	env  GOOS=linux GOARCH=arm GOARM=7 go build -o dist/bin/ep cmds/ep/ep.go
+	env  GOOS=linux GOARCH=arm GOARM=7 go build -o dist/bin/ep cmd/ep/ep.go
+	env  GOOS=linux GOARCH=arm GOARM=7 go build -o dist/bin/epparsexml cmd/epparsexml/epparsexml.go
 	cd dist && zip -r $(PROJECT)-$(VERSION)-raspbian-arm7.zip README.md LICENSE INSTALL.md docs/* scripts/* etc/* bin/*
 	rm -fR dist/bin
   

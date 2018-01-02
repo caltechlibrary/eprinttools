@@ -17,6 +17,9 @@
 + [ ] Add Authentication support for harvesting all EPrints records if the REST API is enabled
     + [ ] Use privileged account for Harvest so we can get all content
     + [ ] Export should have options to include/exclude embargoed/restricted records
++ [ ] Rethink how I have named the elements of the EPrint Document and Record structures. Should they more closely represent their XML structures?
+    + What about versions of EPrints' data structures (e.g. how many name spaces do I need to support? http://eprints.org/ep2/data/2.0 or others?)
+    + Should Record be named EPrints and Document be named EPrint?
 
 ## Completed
 

@@ -41,7 +41,7 @@ import (
 
 const (
 	// Version is the revision number for this implementation of epgo
-	Version = `v0.0.10-beta6`
+	Version = `v0.0.10-beta7`
 
 	// LicenseText holds the string for rendering License info on the command line
 	LicenseText = `
@@ -153,31 +153,35 @@ type File struct {
 	URL       string   `xml:"url" json:"url"`
 }
 
-// Document structures in Record
+// Document structures inside a Record (i.e. <eprint>...<documents><document>...</document>...</documents>...</eprint>)
 type Document struct {
-	XMLName   xml.Name `json:"-"`
-	ID        string   `xml:"id,attr" json:"id"`
-	DocID     int      `xml:"docid" json:"doc_id"`
-	RevNumber int      `xml:"rev_number" json:"rev_number,omitempty"`
-	Files     []*File  `xml:"files>file" json:"files"`
-	EPrintID  int      `xml:"eprintid" json:"eprint_id"`
-	Pos       int      `xml:"pos" json:"pos,omitempty"`
-	Placement int      `xml:"placement" json:"placement,omitempty"`
-	MimeType  string   `xml:"mime_type" json:"mime_type"`
-	Format    string   `xml:"format" json:"format"`
-	Language  string   `xml:"language" json:"language"`
-	Security  string   `xml:"security" json:"security"`
-	License   string   `xml:"license" json:"license"`
-	Main      string   `xml:"main" json:"main"`
-	Content   string   `xml:"content" json:"content"`
+	XMLName    xml.Name `json:"-"`
+	XMLNS      string   `xml:"xmlns,attr,omitempty" json:"name_space,omitempty"`
+	ID         string   `xml:"id,attr" json:"id"`
+	DocID      int      `xml:"docid" json:"doc_id"`
+	RevNumber  int      `xml:"rev_number" json:"rev_number,omitempty"`
+	Files      []*File  `xml:"files>file" json:"files,omitempty"`
+	EPrintID   int      `xml:"eprintid" json:"eprint_id"`
+	Pos        int      `xml:"pos" json:"pos,omitempty"`
+	Placement  int      `xml:"placement" json:"placement,omitempty"`
+	MimeType   string   `xml:"mime_type" json:"mime_type"`
+	Format     string   `xml:"format" json:"format"`
+	FormatDesc string   `xml:"formatdesc,omitempty" json:"format_desc,omitempty"`
+	Language   string   `xml:"language" json:"language"`
+	Security   string   `xml:"security" json:"security"`
+	License    string   `xml:"license" json:"license"`
+	Main       string   `xml:"main" json:"main"`
+	Content    string   `xml:"content" json:"content"`
+	Relation   []*Item  `xml:"relation>item,omitempty" json:"relation,omitempty"`
 }
 
 // DocumentList is an array of pointers to Document structs
 type DocumentList []*Document
 
-// Record returns a structure that can be converted to JSON easily
+// Record returns a structure that can be converted to JSON easily, in the XML is everything inside an <eprint> element.
 type Record struct {
 	XMLName   xml.Name     `json:"-"`
+	XMLNS     string       `xml:"xmlns,attr,omitempty" json:"name_space,omitempty"`
 	Title     string       `xml:"eprint>title" json:"title"`
 	URI       string       `json:"uri"`
 	Abstract  string       `xml:"eprint>abstract" json:"abstract"`
