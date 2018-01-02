@@ -29,12 +29,18 @@ import (
 var recordCount = 1024
 
 func TestHarvest(t *testing.T) {
-	api, err := New(cfg)
+	eprintURL := os.Getenv("EP_EPRINT_URL")
+	datasetName := os.Getenv("EP_DATASET")
+	suppressNote := true
+
+	api, err := New(eprintURL, datasetName, suppressNote, "", "", "")
 	if err != nil {
 		t.Errorf("Cannot create a new API instance %q", err)
 		t.FailNow()
 	}
-	api.Dataset = "dataset/testdata"
+	if api.Dataset == "" {
+		api.Dataset = "EP_TEST_DATA"
+	}
 	if _, err = os.Stat(api.Dataset); os.IsNotExist(err) {
 		_, err = dataset.Create(api.Dataset, dataset.GenerateBucketNames(dataset.DefaultAlphabet, 2))
 		if err != nil {
@@ -43,17 +49,7 @@ func TestHarvest(t *testing.T) {
 		}
 	}
 
-	api.Htdocs = "testsite"
-	_, err = os.Stat(api.Htdocs)
-	if err != nil && os.IsNotExist(err) == true {
-		err = os.Mkdir(api.Htdocs, 0770)
-		if err != nil {
-			t.Errorf("Cannot create %s %q", api.Htdocs, err)
-			t.FailNow()
-		}
-	}
-
-	err = api.ExportEPrints(recordCount)
+	err = api.ExportEPrints(recordCount, api.Dataset+".keys", true)
 	if err != nil {
 		t.Errorf("Cannot harvest for test site %q", err)
 		t.FailNow()

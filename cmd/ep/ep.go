@@ -20,11 +20,9 @@ package main
 
 import (
 	"encoding/json"
-	"flag"
 	"fmt"
 	"log"
 	"os"
-	"path"
 	"strconv"
 	"strings"
 	"time"
@@ -36,12 +34,7 @@ import (
 
 var (
 	// cli help text
-	usage = `USAGE %s [OPTIONS] [EP_EPRINTS_URL|ONE_OR_MORE_EPRINT_ID]`
-
 	description = `
-
-SYNOPSIS
-
 %s wraps the REST API for EPrints 3.3 or better. It can return a list 
 of uri, a JSON view of the XML presentation as well as generates feeds 
 and web pages.
@@ -54,42 +47,41 @@ EP_EPRINTS_URL the URL to your EPrints installation
 
 EP_DATASET the dataset and collection name for exporting, site building, and content retrieval
 
+EP_SUPPRESS_NOTE if set to true or 1 will suppress the note field in harvesting
 `
 
 	examples = `
-
-EXAMPLE
-
-    %s -export all
-
 Would export the entire EPrints repository public content defined by the
 environment virables EP_API_URL, EP_DATASET.
 
-    %s -export 2000
+    %s -export all
 
 Would export 2000 EPrints from the repository with the heighest ID values.
 
-   %s -export-modified 2017-07-01
+    %s -export 2000
 
 Would export the EPrint records modified since July 1, 2017.
 
-   %s -export-modified 2017-07-01,2017-07-31 \
-      -export-save-keys=july-keys.txt 
+    %s -export-modified 2017-07-01
 
 Would export the EPrint records with modified times in July 2017 and
 save the keys for the records exported with one key per line. 
 
+    %s -export-modified 2017-07-01,2017-07-31 \
+       -export-save-keys=july-keys.txt 
 `
 
 	// Standard Options
-	showHelp     bool
-	showVersion  bool
-	showLicense  bool
-	showExamples bool
-	outputFName  string
-	verbose      bool
+	showHelp             bool
+	showVersion          bool
+	showLicense          bool
+	showExamples         bool
+	outputFName          string
+	quiet                bool
+	generateMarkdownDocs bool
 
 	// App Options
+	verbose     bool
 	useAPI      bool
 	prettyPrint bool
 
@@ -100,118 +92,121 @@ save the keys for the records exported with one key per line.
 	exportEPrints         string
 	exportEPrintsModified string
 	exportSaveKeys        string
-	feedSize              int
 
 	authMethod string
 	userName   string
 	userSecret string
+
+	// NOTE: supressNote added to handle the case where Note field is internal use only and not to be harvested
+	suppressNote bool
 )
 
-func init() {
-	// Setup options
-	feedSize = ep.DefaultFeedSize
+func main() {
+	app := cli.NewCli(ep.Version)
+	appName := app.AppName()
 
-	flag.BoolVar(&showHelp, "h", false, "display help")
-	flag.BoolVar(&showHelp, "help", false, "display help")
-	flag.BoolVar(&showLicense, "l", false, "display license")
-	flag.BoolVar(&showLicense, "license", false, "display license")
-	flag.BoolVar(&showVersion, "v", false, "display version")
-	flag.BoolVar(&showVersion, "version", false, "display version")
-	flag.BoolVar(&showExamples, "example", false, "display example(s)")
-	flag.StringVar(&outputFName, "o", "", "output filename (logging)")
-	flag.StringVar(&outputFName, "output", "", "output filename (logging)")
-	flag.BoolVar(&verbose, "verbose", true, "verbose logging")
+	// Document non-option parameters
+	app.AddParams("[EP_EPRINTS_URL|ONE_OR_MORE_EPRINT_ID]")
+
+	// Add Help Docs
+	app.AddHelp("license", []byte(fmt.Sprintf(ep.LicenseText, appName, ep.Version)))
+	app.AddHelp("description", []byte(fmt.Sprintf(description, appName)))
+	app.AddHelp("examples", []byte(fmt.Sprintf(examples, appName, appName, appName, appName)))
+
+	// App Environment
+	app.EnvStringVar(&apiURL, "EP_EPRINT_URL", "", "Sets the EPRints API URL")
+	app.EnvStringVar(&datasetName, "EP_DATASET", "", "Sets the dataset collection for storing EPrint harvested records")
+	app.EnvBoolVar(&suppressNote, "EP_SUPPRESS_NOTE", false, "Suppress the note field on harvesting")
+
+	// Standard Options
+	app.BoolVar(&showHelp, "h,help", false, "display help")
+	app.BoolVar(&showLicense, "l,license", false, "display license")
+	app.BoolVar(&showVersion, "v,version", false, "display version")
+	app.BoolVar(&showExamples, "examples", false, "display example(s)")
+	app.StringVar(&outputFName, "o,output", "", "output filename")
+	app.BoolVar(&generateMarkdownDocs, "generate-markdown-docs", false, "generation markdown documentation")
+	app.BoolVar(&quiet, "quiet", false, "suppress error output")
+	//app.BoolVar(&newLine, "nl,newline", true, "include trailing newline in output")
 
 	// App Specific options
-	flag.StringVar(&authMethod, "auth", "", "set the authentication method (e.g. none, basic, oauth, shib)")
-	flag.StringVar(&userName, "username", "", "set the username")
-	flag.StringVar(&userName, "un", "", "set the username")
-	flag.StringVar(&userSecret, "pw", "", "set the password")
+	app.BoolVar(&suppressNote, "suppress-note", false, "suppress note")
+	app.BoolVar(&verbose, "verbose", true, "verbose logging")
+	app.StringVar(&authMethod, "auth", "", "set the authentication method (e.g. none, basic, oauth, shib)")
+	app.StringVar(&userName, "un,username", "", "set the username")
+	app.StringVar(&userSecret, "pw,password", "", "set the password")
 
-	flag.StringVar(&apiURL, "api", "", "url for EPrints API")
-	flag.StringVar(&datasetName, "dataset", "", "dataset/collection name")
+	app.StringVar(&apiURL, "api", "", "url for EPrints API")
+	app.StringVar(&datasetName, "dataset", "", "dataset/collection name")
 
-	flag.BoolVar(&prettyPrint, "p", false, "pretty print JSON output")
-	flag.BoolVar(&prettyPrint, "pretty", false, "pretty print JSON output")
-	flag.BoolVar(&useAPI, "read-api", false, "read the contents from the API without saving in the database")
-	flag.StringVar(&exportEPrints, "export", "", "export N EPrints from highest ID to lowest")
-	flag.StringVar(&exportEPrintsModified, "export-modified", "", "export records by date or date range (e.g. 2017-07-01)")
-	flag.StringVar(&exportSaveKeys, "export-save-keys", "", "save the keys exported in a file with provided filename")
-	flag.StringVar(&updatedSince, "updated-since", "", "list EPrint IDs updated since a given date (e.g 2017-07-01)")
-}
+	app.BoolVar(&prettyPrint, "p,pretty", false, "pretty print JSON output")
+	app.BoolVar(&useAPI, "read-api", false, "read the contents from the API without saving in the database")
+	app.StringVar(&exportEPrints, "export", "", "export N EPrints from highest ID to lowest")
+	app.StringVar(&exportEPrintsModified, "export-modified", "", "export records by date or date range (e.g. 2017-07-01)")
+	app.StringVar(&exportSaveKeys, "export-save-keys", "", "save the keys exported in a file with provided filename")
+	app.StringVar(&updatedSince, "updated-since", "", "list EPrint IDs updated since a given date (e.g 2017-07-01)")
 
-func check(cfg *cli.Config, key, value string) string {
-	if value == "" {
-		log.Fatalf("Missing %s_%s", cfg.EnvPrefix, strings.ToUpper(key))
-		return ""
-	}
-	return value
-}
-
-func main() {
-	appName := path.Base(os.Args[0])
-	flag.Parse()
-	args := flag.Args()
-
-	// Populate cfg from the environment
-	cfg := cli.New(appName, "EP", ep.Version)
-	cfg.LicenseText = fmt.Sprintf(ep.LicenseText, appName, ep.Version)
-	cfg.UsageText = fmt.Sprintf(usage, appName)
-	cfg.DescriptionText = fmt.Sprintf(description, appName)
-	cfg.OptionText = "OPTIONS\n"
-	cfg.ExampleText = fmt.Sprintf(examples, appName, appName, appName, appName)
-
-	// Handle the default options
-	if showHelp == true {
-		if len(args) > 0 {
-			fmt.Println(cfg.Help(args...))
-		} else {
-			fmt.Println(cfg.Usage())
-		}
-		os.Exit(0)
-	}
-
-	if showExamples == true {
-		if len(args) > 0 {
-			fmt.Println(cfg.Example(args...))
-		} else {
-			fmt.Println(cfg.ExampleText)
-		}
-		os.Exit(0)
-	}
-
-	if showVersion == true {
-		fmt.Println(cfg.Version())
-		os.Exit(0)
-	}
-	if showLicense == true {
-		fmt.Println(cfg.License())
-		os.Exit(0)
-	}
-
-	out, err := cli.Create(outputFName, os.Stdout)
-	if err != nil {
-		fmt.Fprint(os.Stderr, "%s\n", err)
+	// Parse environment and options
+	if err := app.Parse(); err != nil {
+		fmt.Fprintf(os.Stderr, "Something went wrong parsing env and options!, %s\n", err)
 		os.Exit(1)
 	}
-	defer cli.CloseFile(outputFName, out)
+	args := app.Args()
 
-	// Log to out
-	log.SetOutput(out)
+	// Setup IO
+	var err error
+
+	app.Eout = os.Stderr
+
+	app.Out, err = cli.Create(outputFName, os.Stdout)
+	if err != nil {
+		fmt.Fprintf(app.Eout, "%s\n", err)
+		os.Exit(1)
+	}
+	defer cli.CloseFile(outputFName, app.In)
+
+	// Set log to output
+	log.SetOutput(app.Out)
+
+	fmt.Printf("DEBUG showHelp %t\n", showHelp)
+
+	// Process Options
+	if generateMarkdownDocs {
+		app.GenerateMarkdownDocs(app.Out)
+		os.Exit(0)
+	}
+	if showHelp || showExamples {
+		if len(args) > 0 {
+			fmt.Println(app.Help(args...))
+		} else {
+			app.Usage(app.Out)
+		}
+		os.Exit(0)
+	}
+	if showVersion {
+		fmt.Println(app.Version())
+		os.Exit(0)
+	}
+	if showLicense {
+		fmt.Println(app.License())
+		os.Exit(0)
+	}
 
 	// Required configuration
-	apiURL = check(cfg, "eprint_url", cfg.MergeEnv("eprint_url", apiURL))
-	datasetName = check(cfg, "dataset", cfg.MergeEnv("dataset", datasetName))
+	if apiURL == "" {
+		fmt.Fprintf(app.Eout, "EPrint URL not provided\n")
+		os.Exit(1)
+	}
+	if datasetName == "" {
+		fmt.Fprintf(app.Eout, "Missing dataset (EP_DATASET) name\n")
+		os.Exit(1)
+	}
 
-	// Optional configuration
-	authMethod = cfg.MergeEnv("auth_method", authMethod)
-	userName = cfg.MergeEnv("username", userName)
-	userSecret = cfg.MergeEnv("password", userSecret)
-
-	// This will read in any settings from the environment
-	api, err := ep.New(cfg)
+	// This will read in the settings from the app
+	// and configure access to the EPrints API
+	api, err := ep.New(apiURL, datasetName, suppressNote, authMethod, userName, userSecret)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Fprintf(app.Eout, "%s\n", err)
+		os.Exit(1)
 	}
 
 	if exportEPrints != "" {
@@ -226,8 +221,7 @@ func main() {
 		log.Printf("%s %s (pid %d)", appName, ep.Version, os.Getpid())
 		log.Printf("Export started, %s", t0)
 		if err := api.ExportEPrints(exportNo, exportSaveKeys, verbose); err != nil {
-			log.Printf("%s", err)
-			os.Exit(1)
+			log.Fatalf("%s", err)
 		}
 		log.Printf("Export completed, running time %s", time.Now().Sub(t0))
 		os.Exit(0)
@@ -241,20 +235,17 @@ func main() {
 		}
 		start, err := time.Parse("2006-01-02", s)
 		if err != nil {
-			log.Printf("%s", err)
-			os.Exit(1)
+			log.Fatalf("%s", err)
 		}
 		end, err := time.Parse("2006-01-02", e)
 		if err != nil {
-			log.Printf("%s", err)
-			os.Exit(1)
+			log.Fatalf("%s", err)
 		}
 		t0 := time.Now()
 		log.Printf("%s %s (pid %d)", appName, ep.Version, os.Getpid())
 		log.Printf("Export from %s to %s, started %s", start.Format("2006-01-02"), end.Format("2006-01-02"), t0.Format("2006-01-02 15:04:05 MST"))
 		if err := api.ExportModifiedEPrints(start, end, exportSaveKeys, verbose); err != nil {
-			log.Printf("%s", err)
-			os.Exit(1)
+			log.Fatalf("%s", err)
 		}
 		log.Printf("Export completed, running time %s", time.Now().Sub(t0))
 		os.Exit(0)
@@ -309,5 +300,5 @@ func main() {
 	} else {
 		src, _ = json.Marshal(data)
 	}
-	fmt.Printf("%s", src)
+	fmt.Fprintf(app.Out, "%s", src)
 }

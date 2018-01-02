@@ -1,10 +1,10 @@
 # URL for E-Prints repository
-export EP_EPRINT_URL=http://lemurprints.local
+export EP_EPRINT_URL=https://lemurprints.local
 # DB Name used to exporting from E-Prints and for site building
 # for S3 storage use an S3 URL like s3://dataset.library.example.edu/eprints
 export EP_DATASET=dataset/eprints
-# Htdocs directory used to write the JSON blobs with ep-genpages
-export EP_HTDOCS=htdocs
+# Suppress the note field
+# export EP_SUPPRESS_NOTE=true
 
 # For S3 support with S3's aws commands' configuration do
 # export AWS_SDK_LOAD_CONFIG=1

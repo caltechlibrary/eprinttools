@@ -19,7 +19,6 @@
 package eprinttools
 
 import (
-	"encoding/json"
 	"encoding/xml"
 	"fmt"
 	"io/ioutil"
@@ -28,13 +27,11 @@ import (
 	"time"
 	//"net/http"
 	"net/url"
-	"os"
 	"path"
 	"strconv"
 	"strings"
 
 	// Caltech Library packages
-	"github.com/caltechlibrary/cli"
 	"github.com/caltechlibrary/dataset"
 	"github.com/caltechlibrary/rc"
 )
@@ -62,9 +59,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 	// EPrintsExportBatchSize sets the summary output frequency when exporting content from E-Prints
 	EPrintsExportBatchSize = 1000
-
-	// DefaultFeedSize sets the default size of rss, JSON, HTML include and index lists
-	DefaultFeedSize = 25
 )
 
 // These are our main bucket and index buckets
@@ -86,14 +80,14 @@ type EPrintsAPI struct {
 	URL *url.URL `xml:"epgo>eprint_url" json:"eprint_url"`
 	// EP_DATASET
 	Dataset string `xml:"epgo>dataset" json:"dataset"`
-	// EP_HTDOCS
-	Htdocs string `xml:"epgo>htdocs" json:"htdocs"`
 	// EP_AUTH_METHOD
 	AuthType int
 	// EP_USERNAME
 	Username string
 	// EP_PASSWORD
 	Secret string
+	// SuppressNote suppresses the Note field
+	SuppressNote bool
 }
 
 // Person returns the contents of eprint>creators>item>name as a struct
@@ -293,35 +287,25 @@ func last(s []string) string {
 }
 
 // New creates a new API instance
-func New(cfg *cli.Config) (*EPrintsAPI, error) {
+func New(eprintURL, datasetName string, suppressNote bool, authMethod, userName, userSecret string) (*EPrintsAPI, error) {
 	var err error
-	EPrintURL := cfg.Get("eprint_url")
-	htdocs := cfg.Get("htdocs")
-	datasetName := cfg.Get("dataset")
 
-	// Optional Authentication
-	authMethod := strings.ToLower(cfg.Get("auth_method"))
-	userName := cfg.Get("username")
-	userSecret := cfg.Get("password")
-
+	// Setup required
 	api := new(EPrintsAPI)
-	if EPrintURL == "" {
-		EPrintURL = "http://localhost:8080"
+	api.SuppressNote = suppressNote
+	if eprintURL == "" {
+		eprintURL = "http://localhost:8080"
 	}
-	api.URL, err = url.Parse(EPrintURL)
+	api.URL, err = url.Parse(eprintURL)
 	if err != nil {
-		return nil, fmt.Errorf("eprint url is malformed %s, %s", EPrintURL, err)
-	}
-	if htdocs == "" {
-		htdocs = "htdocs"
+		return nil, fmt.Errorf("eprint url is malformed %s, %s", eprintURL, err)
 	}
 	if datasetName == "" {
 		datasetName = "eprints"
 	}
-	api.Htdocs = htdocs
 	api.Dataset = datasetName
 
-	// Optional authentication settings
+	// Handle Optional authentication settings
 	switch authMethod {
 	case "basic":
 		api.AuthType = rc.BasicAuth
@@ -480,6 +464,9 @@ func (api *EPrintsAPI) GetEPrint(uri string) (*Record, []byte, error) {
 	if err != nil {
 		return nil, content, err
 	}
+	if api.SuppressNote {
+		rec.Note = ""
+	}
 	return rec, content, nil
 }
 
@@ -563,59 +550,8 @@ func (api *EPrintsAPI) Get(uri string) (*Record, error) {
 	if err := c.Read(uri, record); err != nil {
 		return nil, err
 	}
+	if api.SuppressNote {
+		record.Note = ""
+	}
 	return record, nil
-}
-
-// RenderEPrint writes a single EPrint record to disc.
-func (api *EPrintsAPI) RenderEPrint(basepath string, record *Record) error {
-	// Convert record to JSON
-	src, err := json.Marshal(record)
-	if err != nil {
-		return err
-	}
-	fname := path.Join(basepath, fmt.Sprintf("%d.json", record.ID))
-	return ioutil.WriteFile(fname, src, 0664)
-}
-
-// RenderDocuments writes JSON to the directory indicated by docpath
-func (api *EPrintsAPI) RenderDocuments(docTitle, docDescription, docpath string, records []*Record) error {
-	// Create the the directory part of docpath if neccessary
-	if _, err := os.Open(path.Join(api.Htdocs, docpath)); err != nil && os.IsNotExist(err) == true {
-		os.MkdirAll(path.Join(api.Htdocs, path.Dir(docpath)), 0775)
-	}
-
-	// Writing JSON file
-	fname := path.Join(api.Htdocs, docpath+".json")
-	src, err := json.Marshal(records)
-	if err != nil {
-		return fmt.Errorf("Can't convert records to JSON %s, %s", fname, err)
-	}
-	err = ioutil.WriteFile(fname, src, 0664)
-	if err != nil {
-		return fmt.Errorf("Can't write %s, %s", fname, err)
-	}
-	return nil
-}
-
-// BuildFeed generates JSON versions of collected records
-// by calling RenderDocuments with the appropriate data.
-func (api *EPrintsAPI) BuildFeed(feedSize int, title, target string, filter func(*EPrintsAPI, int, int) ([]*Record, error)) error {
-	if feedSize < 1 {
-		feedSize = DefaultFeedSize
-	}
-	docPath := path.Join(api.Htdocs, target)
-
-	// Collect the published records
-	records, err := filter(api, 0, feedSize)
-	if err != nil {
-		return err
-	}
-	if len(records) == 0 {
-		return fmt.Errorf("Zero records for %q, %s", title, docPath)
-	}
-	log.Printf("%d records found for %q %s", len(records), title, docPath)
-	if err := api.RenderDocuments(title, fmt.Sprintf("Building pages 0 to %d descending", feedSize), target, records); err != nil {
-		return fmt.Errorf("%q %s error, %s", title, docPath, err)
-	}
-	return nil
 }
