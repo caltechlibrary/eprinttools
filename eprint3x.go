@@ -18,7 +18,9 @@
 package eprinttools
 
 import (
+	"encoding/json"
 	"encoding/xml"
+	"strings"
 )
 
 //
@@ -92,11 +94,10 @@ type EPrint struct {
 	Contributors         []*Item     `xml:"contributors>item,omitempty" json:"contributors,omitempty"`
 	MonographType        string      `xml:"monograph_type,omitempty" json:"monograph_type,omitempty"`
 
-	// Misc fields discoverd exploring REST API records, not used at Caltech Library
+	// NOTE: Misc fields discoverd exploring REST API records, not currently used at Caltech Library (RSD, 2018-01-02)
 	Subjects           []*Item `xml:"subjects>item,omitempty" json:"subjects,omitempty"`
 	PresType           string  `xml:"pres_type,omitempty" json:"presentation_type,omitempty"`
 	Suggestions        string  `xml:"suggestions,omitempty" json:"suggestions,omitempty"`
-	ImportID           string  `xml:"importid,omitempty" json:"import_id,omitempty"`
 	Succeeds           string  `xml:"succeeds,omitempty" json:"succeeds,omitempty"`
 	Commentary         string  `xml:"commentary,omitempty" json:"commentary,omitempty"`
 	ContactEMail       string  `xml:"contact_email,omitempty" json:"contect_email,omitempty"`
@@ -138,9 +139,10 @@ type EPrint struct {
 	ClassificationCode string  `xml:"classification_code,omitempty" json:"classification_code,omitempty"`
 	Shelves            []*Item `xml:"shelves>item,omitempty" json:"shelves,omitempty"`
 
-	// Sword deposit fields
+	// NOTE: Sword deposit fields
 	SwordDepository string `xml:"sword_depository,omitempty" json:"sword_depository,omitempty"`
 	SwordSlug       string `xml:"sword_slug,omitempty" json:"sword_slug,omitempty"`
+	ImportID        string `xml:"importid,omitempty" json:"import_id,omitempty"`
 
 	// Patent related fields
 	PatentApplicant      string  `xml:"patent_applicant,omitempty" json:"patent_applicant,omitempty"`
@@ -186,20 +188,148 @@ type Item struct {
 	GrantNumber string   `xml:"grant_number,omitempty" json:"grant_number,omitempty"`
 	URI         string   `xml:"uri,omitempty" json:"uri,omitempty"`
 	ORCID       string   `xml:"orcid,omitempty" json:"orcid,omitempty"`
-	InnerText   string   `xml:",chardata" json:"inner_text,omitempty"`
+	Value       string   `xml:",chardata" json:"value,omitempty"`
 }
 
-// This handles the "name" types found in Items.
+// Name handles the "name" types found in Items.
 type Name struct {
-	XMLName   xml.Name `json:"-"`
-	Family    string   `xml:"family,omitempty" json:"family,omitempty"`
-	Given     string   `xml:"given,omitempty" json:"given,omitempty"`
-	ID        string   `xml:"id,omitempty" json:"id,omitempty"`
-	InnerText string   `xml:",chardata" json:"inner_text,omitempty"`
+	XMLName xml.Name `json:"-"`
+	Family  string   `xml:"family,omitempty" json:"family,omitempty"`
+	Given   string   `xml:"given,omitempty" json:"given,omitempty"`
+	ID      string   `xml:"id,omitempty" json:"id,omitempty"`
+	Value   string   `xml:",chardata" json:"value,omitempty"`
 }
 
 // EPrintsDataSet is a struct for parsing the HTML page that returns a list of available EPrint IDs with links.
 type EPrintsDataSet struct {
 	XMLName xml.Name `xml:"html" json:"-"`
 	Paths   []string `xml:"body>ul>li>a,omitempty" json:"paths"`
+}
+
+// MarshalJSON() is a custom JSON marshaler for Name
+func (name *Name) MarshalJSON() ([]byte, error) {
+	m := map[string]interface{}{}
+	flatten := true
+	if s := strings.TrimSpace(name.Family); s != "" {
+		m["family"] = s
+		flatten = false
+	}
+
+	if s := strings.TrimSpace(name.Given); s != "" {
+		m["given"] = s
+		flatten = false
+	}
+	if s := strings.TrimSpace(name.Value); s != "" {
+		if flatten == true {
+			return json.Marshal(s)
+		}
+		m["value"] = s
+	}
+	return json.Marshal(m)
+}
+
+// MarshalJSON() is a custom JSON marshaler for Item
+func (item *Item) MarshalJSON() ([]byte, error) {
+	m := map[string]interface{}{}
+	flatten := true
+	if item.Name != nil {
+		m["name"] = item.Name
+		flatten = false
+	}
+	if strings.TrimSpace(item.ID) != "" {
+		m["id"] = item.ID
+		flatten = false
+	}
+	if strings.TrimSpace(item.EMail) != "" {
+		m["email"] = item.EMail
+		flatten = false
+	}
+	if strings.TrimSpace(item.ShowEMail) != "" {
+		m["show_email"] = item.ShowEMail
+		flatten = false
+	}
+	if strings.TrimSpace(item.Role) != "" {
+		m["role"] = item.Role
+		flatten = false
+	}
+	if strings.TrimSpace(item.URL) != "" {
+		m["url"] = item.URL
+		flatten = false
+	}
+	if strings.TrimSpace(item.Type) != "" {
+		m["type"] = item.Type
+		flatten = false
+	}
+	if strings.TrimSpace(item.Description) != "" {
+		m["description"] = item.Description
+		flatten = false
+	}
+	if strings.TrimSpace(item.Agency) != "" {
+		m["agency"] = item.Agency
+		flatten = false
+	}
+	if strings.TrimSpace(item.GrantNumber) != "" {
+		m["grant_number"] = item.GrantNumber
+		flatten = false
+	}
+	if strings.TrimSpace(item.URI) != "" {
+		m["uri"] = item.URI
+		flatten = false
+	}
+	if s := strings.TrimSpace(item.ORCID); s != "" {
+		//FIXME: should validate the orcid to avoid legacy data issues
+		m["orcid"] = s
+		flatten = false
+	}
+	if s := strings.TrimSpace(item.Value); s != "" {
+		m["value"] = s
+		if flatten == true {
+			return json.Marshal(s)
+		}
+	}
+	return json.Marshal(m)
+}
+
+// Chardata let's us wrap a custom JSON marshaler which invokes strings.TrimSpace() before returning.
+type Chardata string
+
+// MarshalJSON() is a custom marshaler for Chardata so that when Item.Value == "\n        \n        \n      " the .Value is not encoded
+func (v Chardata) MarshalJSON() ([]byte, error) {
+	return json.Marshal(strings.TrimSpace(string(v)))
+}
+
+// Generic attempts to parse a generic XML fragment into an array of JSON items
+type Generic struct {
+	XMLName   xml.Name
+	EPrints   *EPrints    `xml:"eprints,omitempty" json:"eprints,omitempty"`
+	EPrint    *EPrint     `xml:"eprint,omitempty" json:"eprint,omitempty"`
+	Documents []*Document `xml:"document,omitempty" json:"documents,omitempty"`
+	Files     []*File     `xml:"file,omitempty" json:"files,omitempty"`
+	Items     []*Item     `xml:"item" json:"items,omitempty"`
+	Value     string      `xml:",chardata" json:"value,omitempty"`
+}
+
+func (g *Generic) MarshalJSON() ([]byte, error) {
+	var k string
+	m := map[string]interface{}{}
+
+	if g.XMLName.Local != "" {
+		m["xml_name"] = g.XMLName
+		k = g.XMLName.Local
+	} else {
+		k = "items"
+	}
+	if len(g.Documents) > 0 {
+		m[k] = g.Documents
+	}
+	if len(g.Files) > 0 {
+		m[k] = g.Files
+	}
+	if len(g.Items) > 0 {
+		m[k] = g.Items
+	}
+	if s := strings.TrimSpace(g.Value); s != "" {
+		m["value"] = s
+	}
+	return json.Marshal(m)
 }

@@ -14,7 +14,7 @@ ifeq ($(OS), Windows)
         EXT = .exe
 endif
 
-PROJECT_LIST = ep epparsexml
+PROJECT_LIST = ep eprint
 
 build: package $(PROJECT_LIST)
 
@@ -23,17 +23,17 @@ package: eprinttools.go harvest.go eprint3x.go
 
 ep: bin/ep
 
-epparsexml: bin/epparsexml
+eprint: bin/eprint
 
 bin/ep$(EXT): eprinttools.go harvest.go cmd/ep/ep.go
 	go build -o bin/ep$(EXT) cmd/ep/ep.go
 
-bin/epparsexml$(EXT): eprinttools.go harvest.go eprint3x.go cmd/epparsexml/epparsexml.go
-	go build -o bin/epparsexml$(EXT) cmd/epparsexml/epparsexml.go
+bin/eprint$(EXT): eprinttools.go harvest.go eprint3x.go cmd/eprint/eprint.go
+	go build -o bin/eprint$(EXT) cmd/eprint/eprint.go
 
 install: 
 	env GOBIN=$(GOPATH)/bin go install cmd/ep/ep.go
-	env GOBIN=$(GOPATH)/bin go install cmd/epparsexml/epparsexml.go
+	env GOBIN=$(GOPATH)/bin go install cmd/eprint/eprint.go
 
 website: page.tmpl README.md nav.md INSTALL.md LICENSE css/site.css
 	./mk-website.bash
@@ -60,28 +60,28 @@ clean:
 dist/linux-amd64:
 	mkdir -p dist/bin
 	env  GOOS=linux GOARCH=amd64 go build -o dist/bin/ep cmd/ep/ep.go
-	env  GOOS=linux GOARCH=amd64 go build -o dist/bin/epparsexml cmd/epparsexml/epparsexml.go
+	env  GOOS=linux GOARCH=amd64 go build -o dist/bin/eprint cmd/eprint/eprint.go
 	cd dist && zip -r $(PROJECT)-$(VERSION)-linux-amd64.zip README.md LICENSE INSTALL.md docs/* scripts/* etc/* bin/*
 	rm -fR dist/bin
 
 dist/windows-amd64:
 	mkdir -p dist/bin
 	env  GOOS=windows GOARCH=amd64 go build -o dist/bin/ep.exe cmd/ep/ep.go
-	env  GOOS=windows GOARCH=amd64 go build -o dist/bin/epparsexml.exe cmd/epparsexml/epparsexml.go
+	env  GOOS=windows GOARCH=amd64 go build -o dist/bin/eprint.exe cmd/eprint/eprint.go
 	cd dist && zip -r $(PROJECT)-$(VERSION)-windows-amd64.zip README.md LICENSE INSTALL.md docs/* scripts/* etc/* bin/*
 	rm -fR dist/bin
 
 dist/macosx-amd64:
 	mkdir -p dist/bin
 	env  GOOS=darwin GOARCH=amd64 go build -o dist/bin/ep cmd/ep/ep.go
-	env  GOOS=darwin GOARCH=amd64 go build -o dist/bin/epparsexml cmd/epparsexml/epparsexml.go
+	env  GOOS=darwin GOARCH=amd64 go build -o dist/bin/eprint cmd/eprint/eprint.go
 	cd dist && zip -r $(PROJECT)-$(VERSION)-macosx-amd64.zip README.md LICENSE INSTALL.md docs/* scripts/* etc/* bin/*
 	rm -fR dist/bin
 
 dist/raspbian-arm7:
 	mkdir -p dist/bin
 	env  GOOS=linux GOARCH=arm GOARM=7 go build -o dist/bin/ep cmd/ep/ep.go
-	env  GOOS=linux GOARCH=arm GOARM=7 go build -o dist/bin/epparsexml cmd/epparsexml/epparsexml.go
+	env  GOOS=linux GOARCH=arm GOARM=7 go build -o dist/bin/eprint cmd/eprint/eprint.go
 	cd dist && zip -r $(PROJECT)-$(VERSION)-raspbian-arm7.zip README.md LICENSE INSTALL.md docs/* scripts/* etc/* bin/*
 	rm -fR dist/bin
   

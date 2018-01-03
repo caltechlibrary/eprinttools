@@ -42,6 +42,7 @@ Parse an EPrint reversion XML file.
 	eprints  bool
 	eprint   bool
 	getPaths bool
+	asJSON   bool
 )
 
 func main() {
@@ -71,6 +72,7 @@ func main() {
 	app.StringVar(&getURL, "url", "", "do an HTTP GET to fetch the XML from the URL then parse")
 	app.BoolVar(&eprints, "document,eprints", false, "parse an eprints (e.g. rest response) document")
 	app.BoolVar(&eprint, "revision,eprint", false, "parse a eprint (revision) document")
+	app.BoolVar(&asJSON, "json", false, "attempt to parse XML into generaic JSON structure")
 	app.BoolVar(&getPaths, "paths", false, "get a list of doc paths (e.g. ids or sub-fields depending on the URL provided")
 
 	// We're ready to process args
@@ -132,6 +134,13 @@ func main() {
 		cli.ExitOnError(app.Eout, err, quiet)
 	case eprint:
 		data := eprinttools.EPrint{}
+		err = xml.Unmarshal(src, &data)
+		cli.ExitOnError(app.Eout, err, quiet)
+
+		src, err = json.MarshalIndent(data, "", " ")
+		cli.ExitOnError(app.Eout, err, quiet)
+	case asJSON:
+		data := eprinttools.Generic{}
 		err = xml.Unmarshal(src, &data)
 		cli.ExitOnError(app.Eout, err, quiet)
 
