@@ -93,30 +93,61 @@ type EPrint struct {
 	MonographType        string      `xml:"monograph_type,omitempty" json:"monograph_type,omitempty"`
 
 	// Misc fields discoverd exploring REST API records, not used at Caltech Library
-	Subjects        []*Item `xml:"subjects>item,omitempty" json:"subjects,omitempty"`
-	PresType        string  `xml:"pres_type,omitempty" json:"presentation_type,omitempty"`
-	Suggestions     string  `xml:"suggestions,omitempty" json:"suggestions,omitempty"`
-	ImportID        string  `xml:"importid,omitempty" json:"import_id,omitempty"`
-	Succeeds        string  `xml:"succeeds,omitempty" json:"succeeds,omitempty"`
-	Commentary      string  `xml:"commentary,omitempty" json:"commentary,omitempty"`
-	ContactEMail    string  `xml:"contact_email,omitempty" json:"contect_email,omitempty"`
-	FileInfo        string  `xml:"fileinfo,omitempty" json:"file_info,omitempty"`
-	Latitude        string  `xml:"latitude,omitempty" json:"latitude,omitempty"`
-	Longitude       string  `xml:"longitude,omitempty" json:"longitude,omitempty"`
-	ItemIssues      []*Item `xml:"item_issues>item,omitempty" json:"item_issues,omitempty"`
-	ItemIssuesCount int     `xml:"item_issues_count,omitempty" json:"item_issues_count,omitempty"`
-	CorpCreators    []*Item `xml:"corp_creators>item,omitempty" json:"corp_creators,omitempty"`
-	Department      string  `xml:"department,omitempty" josn:"department,omitempty"`
-	OutputMedia     string  `xml:"output_media,omitempty" json:"output_media,omitempty"`
-	Exhibitors      []*Item `xml:"exhibitors,omitempty" json:"exhibitors,omitempty"`
-	NumPieces       string  `xml:"num_pieces,omitempty" json:"num_pieces,omitempty"`
+	Subjects           []*Item `xml:"subjects>item,omitempty" json:"subjects,omitempty"`
+	PresType           string  `xml:"pres_type,omitempty" json:"presentation_type,omitempty"`
+	Suggestions        string  `xml:"suggestions,omitempty" json:"suggestions,omitempty"`
+	ImportID           string  `xml:"importid,omitempty" json:"import_id,omitempty"`
+	Succeeds           string  `xml:"succeeds,omitempty" json:"succeeds,omitempty"`
+	Commentary         string  `xml:"commentary,omitempty" json:"commentary,omitempty"`
+	ContactEMail       string  `xml:"contact_email,omitempty" json:"contect_email,omitempty"`
+	FileInfo           string  `xml:"fileinfo,omitempty" json:"file_info,omitempty"`
+	Latitude           string  `xml:"latitude,omitempty" json:"latitude,omitempty"`
+	Longitude          string  `xml:"longitude,omitempty" json:"longitude,omitempty"`
+	ItemIssues         []*Item `xml:"item_issues>item,omitempty" json:"item_issues,omitempty"`
+	ItemIssuesCount    int     `xml:"item_issues_count,omitempty" json:"item_issues_count,omitempty"`
+	CorpCreators       []*Item `xml:"corp_creators>item,omitempty" json:"corp_creators,omitempty"`
+	Department         string  `xml:"department,omitempty" json:"department,omitempty"`
+	OutputMedia        string  `xml:"output_media,omitempty" json:"output_media,omitempty"`
+	Exhibitors         []*Item `xml:"exhibitors,omitempty" json:"exhibitors,omitempty"`
+	NumPieces          string  `xml:"num_pieces,omitempty" json:"num_pieces,omitempty"`
+	CompositionType    string  `xml:"composition_type,omitempty" json:"composition_type,omitempty"`
+	Producers          []*Item `xml:"producers>item,omitempty" json:"producers,omitempty"`
+	Conductors         []*Item `xml:"conductors>item,omitempty" json:"conductors,omitempty"`
+	Lyricists          []*Item `xml:"lyricists>item,omitempty" json:"lyricists,omitempty"`
+	Accompaniment      []*Item `xml:"accompaniment>item,omitempty" json:"accompaniment,omitempty"`
+	DataType           string  `xml:"data_type,omitempty" json:"data_type,omitempty"`
+	PedagogicType      string  `xml:"pedagogic_type,omitempty" json:"pedagogic_type,omitempty"`
+	CompletionTime     string  `xml:"completion_time,omitempty" json:"completion_time,omitempty"`
+	TaskPurpose        string  `xml:"task_purpose,omitempty" json:"task_purpose,omitempty"`
+	SkillAreas         []*Item `xml:"skill_areas>item,omitempty" json:"skill_areas,omitempty"`
+	CopyrightHolders   []*Item `xml:"copyright_holders>item,omitempty" json:"copyright_holders,omitempty"`
+	LearningLevel      []*Item `xml:"learning_level>item,omitempty" json:"learning_level,omitempty"`
+	DOI                string  `xml:"doi,omitempty" json:"doi,omitempty"`
+	PMCID              string  `xml:"pmc_id,omitempty" json:"pmc_id,omitempty"`
+	PMID               string  `xml:"pmid,omitempty" json:"pmid,omitempty"`
+	ParentURL          string  `xml:"parent_url,omitempty" json:"parent_url,omitempty"`
+	AltURL             string  `xml:"alt_url,omitempty" json:"alt_url,omitempty"`
+	Reference          []*Item `xml:"reference>item,omitempty" json:"reference,omitempty"`
+	ConfCreators       []*Item `xml:"conf_creators>item,omitempty" json:"conf_creators,omitempty"`
+	AltTitle           []*Item `xml:"alt_title>item,omitempty" json:"alt_title,omitempty"`
+	TOC                string  `xml:"toc,omitempty" json:"toc,omitempty"`
+	Interviewer        string  `xml:"interviewer,omitempty" json:"interviewer,omitempty"`
+	InterviewDate      string  `xml:"interviewdate,omitempty" json:"interviewdate,omitempty"`
+	NonSubjKeywords    string  `xml:"nonsubj_keywords,omitempty" json:"nonsubj_keywords,omitempty"`
+	Season             string  `xml:"season,omitempty" json:"season,omitempty"`
+	ClassificationCode string  `xml:"classification_code,omitempty" json:"classification_code,omitempty"`
+	Shelves            []*Item `xml:"shelves>item,omitempty" json:"shelves,omitempty"`
 
 	// Sword deposit fields
 	SwordDepository string `xml:"sword_depository,omitempty" json:"sword_depository,omitempty"`
 	SwordSlug       string `xml:"sword_slug,omitempty" json:"sword_slug,omitempty"`
 
 	// Patent related fields
-	PatentApplicant string `xml:"patent_applicant,omitempty" json:"patent_applicant,omitempty"`
+	PatentApplicant      string  `xml:"patent_applicant,omitempty" json:"patent_applicant,omitempty"`
+	PatentNumber         string  `xml:"patent_number,omitempty" json:"patent_number,omitempty"`
+	PatentAssignee       []*Item `xml:"patent_assignee>item,omitempty" json:"patent_assignee,omitempty"`
+	PatentClassification string  `xml:"patent_classification>item,omitempty" json:"patent_classification,omitempty"`
+	RelatedPatents       []*Item `xml:"related_patents>item,omitempty" json:"related_patents,omitempty"`
 
 	// Thesis oriented fields
 	Divisions              []*Item `xml:"divisions>item,omitemmpty" json:"divisions,omitempty"`
@@ -126,9 +157,13 @@ type EPrint struct {
 	ThesisCommittee        []*Item `xml:"thesis_committee>item,omitempty" json:"thesis_committee,omitempty"`
 	ThesisDegree           string  `xml:"thesis_degree,omitempty" json:"thesis_degree,omitempty"`
 	ThesisDegreeGrantor    string  `xml:"thesis_degree_grantor,omitempty" json:"thesis_degree_grantor,omitempty"`
+	ThesisDegreeDate       string  `xml:"thesis_degree_date,omitempty" json:"thesis_degree_date,omitempty"`
 	ThesisSubmittedDate    string  `xml:"thesis_submit_date,omitempty" json:"thesis_submit_date,omitempty"`
 	ThesisDefenseDate      string  `xml:"thesis_defense_date,omitempty" json:"thesis_defense_date,omitempty"`
 	ThesisApprovedDate     string  `xml:"thesis_approved_date,omitempty" json:"thesis_approved_date,omitempty"`
+	ThesisPublicDate       string  `xml:"thesis_public_date,omitempty" json:"thesis_public_date,omitempty"`
+	ThesisAuthorEMail      string  `xml:"thesis_author_email,omitempty" json:"thesis_author_email,omitempty"`
+	HideThesisAuthorEMail  string  `xml:"hide_thesis_author_email,omitempty" json:"hide_thesis_author_email,omitempty"`
 	GradOfficeApprovalDate string  `xml:"gradofc_approval_date,omitempty" json:"gradofc_approval_date,omitempty"`
 	ThesisAwards           string  `xml:"thesis_awards,omitempty" json:"thesis_awards,omitempty"`
 	ReviewStatus           string  `xml:"review_status,omitempty" json:"review_status,omitempty"`
