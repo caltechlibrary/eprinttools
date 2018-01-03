@@ -5,6 +5,7 @@ import (
 	"encoding/xml"
 	"fmt"
 	"io/ioutil"
+	"net/http"
 	"os"
 
 	// Caltech Library Packages
@@ -37,11 +38,18 @@ Parse an EPrint reversion XML file.
 	outputFName          string
 
 	// App Options
-	eprints bool
-	eprint  bool
+	getURL   string
+	eprints  bool
+	eprint   bool
+	getPaths bool
 )
 
 func main() {
+	var (
+		src []byte
+		err error
+	)
+
 	app := cli.NewCli(eprinttools.Version)
 
 	// Add Help Docs
@@ -60,20 +68,22 @@ func main() {
 	app.BoolVar(&generateMarkdownDocs, "generate-markdown-docs", false, "output documentation in Markdown")
 
 	// App Options
+	app.StringVar(&getURL, "url", "", "do an HTTP GET to fetch the XML from the URL then parse")
 	app.BoolVar(&eprints, "document,eprints", false, "parse an eprints (e.g. rest response) document")
 	app.BoolVar(&eprint, "revision,eprint", false, "parse a eprint (revision) document")
+	app.BoolVar(&getPaths, "paths", false, "get a list of doc paths (e.g. ids or sub-fields depending on the URL provided")
 
 	// We're ready to process args
 	app.Parse()
 	args := app.Args()
 
 	// Setup IO
-	var err error
-
 	app.Eout = os.Stderr
-	app.In, err = cli.Open(inputFName, os.Stdin)
-	cli.ExitOnError(app.Eout, err, quiet)
-	defer cli.CloseFile(inputFName, app.In)
+	if getURL == "" {
+		app.In, err = cli.Open(inputFName, os.Stdin)
+		cli.ExitOnError(app.Eout, err, quiet)
+		defer cli.CloseFile(inputFName, app.In)
+	}
 
 	app.Out, err = cli.Create(outputFName, os.Stdout)
 	cli.ExitOnError(app.Eout, err, quiet)
@@ -101,8 +111,16 @@ func main() {
 		os.Exit(0)
 	}
 
-	src, err := ioutil.ReadAll(app.In)
-	cli.ExitOnError(app.Eout, err, quiet)
+	if getURL == "" {
+		src, err = ioutil.ReadAll(app.In)
+		cli.ExitOnError(app.Eout, err, quiet)
+	} else {
+		res, err := http.Get(getURL)
+		cli.ExitOnError(app.Eout, err, quiet)
+		defer res.Body.Close()
+		src, err = ioutil.ReadAll(res.Body)
+		cli.ExitOnError(app.Eout, err, quiet)
+	}
 
 	switch {
 	case eprints:
@@ -119,6 +137,13 @@ func main() {
 
 		src, err = json.MarshalIndent(data, "", " ")
 		cli.ExitOnError(app.Eout, err, quiet)
+	case getPaths:
+		data := eprinttools.EPrintsDataSet{}
+		err = xml.Unmarshal(src, &data)
+		cli.ExitOnError(app.Eout, err, quiet)
+		src, err = json.MarshalIndent(data, "", " ")
+	default:
+		// Don't do anything, just return the raw XML
 	}
 
 	fmt.Fprintf(os.Stdout, "%s\n", src)
