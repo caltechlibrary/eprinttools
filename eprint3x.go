@@ -319,17 +319,20 @@ func (g *Generic) MarshalJSON() ([]byte, error) {
 	} else {
 		k = "items"
 	}
-	if len(g.Documents) > 0 {
+	value := strings.TrimSpace(g.Value)
+	switch {
+	case g.EPrints != nil:
+		m[k] = g.EPrints
+	case g.EPrint != nil:
+		m[k] = g.EPrint
+	case len(g.Documents) > 0:
 		m[k] = g.Documents
-	}
-	if len(g.Files) > 0 {
+	case len(g.Files) > 0:
 		m[k] = g.Files
-	}
-	if len(g.Items) > 0 {
+	case len(g.Items) > 0:
 		m[k] = g.Items
-	}
-	if s := strings.TrimSpace(g.Value); s != "" {
-		m["value"] = s
+	case value != "":
+		m["value"] = value
 	}
 	return json.Marshal(m)
 }
