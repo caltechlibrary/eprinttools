@@ -20,6 +20,7 @@ package eprinttools
 import (
 	"encoding/json"
 	"encoding/xml"
+	"strconv"
 	"strings"
 )
 
@@ -191,43 +192,6 @@ type Item struct {
 	Value       string   `xml:",chardata" json:"value,omitempty"`
 }
 
-// Name handles the "name" types found in Items.
-type Name struct {
-	XMLName xml.Name `json:"-"`
-	Family  string   `xml:"family,omitempty" json:"family,omitempty"`
-	Given   string   `xml:"given,omitempty" json:"given,omitempty"`
-	ID      string   `xml:"id,omitempty" json:"id,omitempty"`
-	Value   string   `xml:",chardata" json:"value,omitempty"`
-}
-
-// EPrintsDataSet is a struct for parsing the HTML page that returns a list of available EPrint IDs with links.
-type EPrintsDataSet struct {
-	XMLName xml.Name `xml:"html" json:"-"`
-	Paths   []string `xml:"body>ul>li>a,omitempty" json:"paths"`
-}
-
-// MarshalJSON() is a custom JSON marshaler for Name
-func (name *Name) MarshalJSON() ([]byte, error) {
-	m := map[string]interface{}{}
-	flatten := true
-	if s := strings.TrimSpace(name.Family); s != "" {
-		m["family"] = s
-		flatten = false
-	}
-
-	if s := strings.TrimSpace(name.Given); s != "" {
-		m["given"] = s
-		flatten = false
-	}
-	if s := strings.TrimSpace(name.Value); s != "" {
-		if flatten == true {
-			return json.Marshal(s)
-		}
-		m["value"] = s
-	}
-	return json.Marshal(m)
-}
-
 // MarshalJSON() is a custom JSON marshaler for Item
 func (item *Item) MarshalJSON() ([]byte, error) {
 	m := map[string]interface{}{}
@@ -282,20 +246,63 @@ func (item *Item) MarshalJSON() ([]byte, error) {
 		flatten = false
 	}
 	if s := strings.TrimSpace(item.Value); s != "" {
-		m["value"] = s
 		if flatten == true {
 			return json.Marshal(s)
 		}
+		m["value"] = s
 	}
 	return json.Marshal(m)
 }
 
-// Chardata let's us wrap a custom JSON marshaler which invokes strings.TrimSpace() before returning.
-type Chardata string
+// Name handles the "name" types found in Items.
+type Name struct {
+	XMLName xml.Name `json:"-"`
+	Family  string   `xml:"family,omitempty" json:"family,omitempty"`
+	Given   string   `xml:"given,omitempty" json:"given,omitempty"`
+	ID      string   `xml:"id,omitempty" json:"id,omitempty"`
+	Value   string   `xml:",chardata" json:"value,omitempty"`
+}
 
-// MarshalJSON() is a custom marshaler for Chardata so that when Item.Value == "\n        \n        \n      " the .Value is not encoded
-func (v Chardata) MarshalJSON() ([]byte, error) {
-	return json.Marshal(strings.TrimSpace(string(v)))
+// MarshalJSON() is a custom JSON marshaler for Name
+func (name *Name) MarshalJSON() ([]byte, error) {
+	m := map[string]interface{}{}
+	flatten := true
+	if s := strings.TrimSpace(name.Family); s != "" {
+		m["family"] = s
+		flatten = false
+	}
+
+	if s := strings.TrimSpace(name.Given); s != "" {
+		m["given"] = s
+		flatten = false
+	}
+	if s := strings.TrimSpace(name.Value); s != "" {
+		if flatten == true {
+			return json.Marshal(s)
+		}
+		m["value"] = s
+	}
+	return json.Marshal(m)
+}
+
+// EPrintsDataSet is a struct for parsing the HTML page that returns a list of available EPrint IDs with links.
+type EPrintsDataSet struct {
+	XMLName xml.Name `xml:"html" json:"-"`
+	Paths   []string `xml:"body>ul>li>a,omitempty" json:"paths"`
+}
+
+// MarshalJSON() renders the EPrintsDataSet HTML/XML as a list of ids
+func (epds EPrintsDataSet) MarshalJSON() ([]byte, error) {
+	ids := []int{}
+	for _, p := range epds.Paths {
+		if strings.HasSuffix(p, "/") {
+			s := strings.TrimSuffix(p, "/")
+			if i, err := strconv.Atoi(s); err == nil {
+				ids = append(ids, i)
+			}
+		}
+	}
+	return json.Marshal(ids)
 }
 
 // Generic attempts to parse a generic XML fragment into an array of JSON items
@@ -309,8 +316,11 @@ type Generic struct {
 	Value     string      `xml:",chardata" json:"value,omitempty"`
 }
 
+// MarshalJSON() normalizes Generic into a sensible JSON structure
 func (g *Generic) MarshalJSON() ([]byte, error) {
-	var k string
+	var (
+		k string
+	)
 	m := map[string]interface{}{}
 
 	if g.XMLName.Local != "" {
@@ -319,20 +329,27 @@ func (g *Generic) MarshalJSON() ([]byte, error) {
 	} else {
 		k = "items"
 	}
-	value := strings.TrimSpace(g.Value)
+	flatten := true
 	switch {
 	case g.EPrints != nil:
 		m[k] = g.EPrints
+		flatten = false
 	case g.EPrint != nil:
 		m[k] = g.EPrint
+		flatten = false
 	case len(g.Documents) > 0:
 		m[k] = g.Documents
+		flatten = false
 	case len(g.Files) > 0:
 		m[k] = g.Files
+		flatten = false
 	case len(g.Items) > 0:
 		m[k] = g.Items
-	case value != "":
-		m["value"] = value
+		flatten = false
+	}
+	if flatten {
+		s := strings.TrimSpace(g.Value)
+		return json.Marshal(s)
 	}
 	return json.Marshal(m)
 }

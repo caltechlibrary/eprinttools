@@ -333,16 +333,22 @@ func (s byURI) Swap(i, j int) {
 }
 
 func (s byURI) Less(i, j int) bool {
+	var (
+		a1  int
+		a2  int
+		err error
+	)
 	s1 := strings.TrimSuffix(path.Base(s[i]), path.Ext(s[i]))
 	s2 := strings.TrimSuffix(path.Base(s[j]), path.Ext(s[j]))
-	a1, err := strconv.Atoi(s1)
+	a1, err = strconv.Atoi(s1)
 	if err != nil {
 		return false
 	}
-	a2, err := strconv.Atoi(s2)
+	a2, err = strconv.Atoi(s2)
 	if err != nil {
 		return false
 	}
+	//NOTE: We're creating a descending sort, so a1 should be larger than a2
 	return a1 > a2
 }
 

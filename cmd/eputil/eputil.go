@@ -19,6 +19,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
@@ -53,6 +54,10 @@ Fetch the creators.xml as JSON for an EPrint with the id of 123.
 Parse an EPrint reversion XML document
 
     eputil -i revision/2.xml -eprint
+
+Get a JSON array of eprint ids from the REST API
+
+    eputil -url https://eprints.example.org/rest/eprint/ -ids
 `)
 
 	// Standard Options
@@ -68,11 +73,11 @@ Parse an EPrint reversion XML document
 	outputFName          string
 
 	// App Options
-	getURL   string
-	eprints  bool
-	eprint   bool
-	getPaths bool
-	asJSON   bool
+	getURL  string
+	eprints bool
+	eprint  bool
+	getIDs  bool
+	asJSON  bool
 )
 
 func main() {
@@ -103,7 +108,7 @@ func main() {
 	app.BoolVar(&eprints, "document,eprints", false, "parse an eprints (e.g. rest response) document")
 	app.BoolVar(&eprint, "revision,eprint", false, "parse a eprint (revision) document")
 	app.BoolVar(&asJSON, "json", false, "attempt to parse XML into generaic JSON structure")
-	app.BoolVar(&getPaths, "paths", false, "get a list of doc paths (e.g. ids or sub-fields depending on the URL provided")
+	app.BoolVar(&getIDs, "ids", false, "get a list of doc paths (e.g. ids or sub-fields depending on the URL provided")
 
 	// We're ready to process args
 	app.Parse()
@@ -150,8 +155,15 @@ func main() {
 		res, err := http.Get(getURL)
 		cli.ExitOnError(app.Eout, err, quiet)
 		defer res.Body.Close()
-		src, err = ioutil.ReadAll(res.Body)
-		cli.ExitOnError(app.Eout, err, quiet)
+		if res.StatusCode == 200 {
+			src, err = ioutil.ReadAll(res.Body)
+			cli.ExitOnError(app.Eout, err, quiet)
+		} else {
+			cli.ExitOnError(app.Eout, fmt.Errorf("%s for %s", res.Status, getURL), quiet)
+		}
+	}
+	if len(bytes.TrimSpace(src)) == 0 {
+		os.Exit(0)
 	}
 
 	switch {
@@ -176,7 +188,7 @@ func main() {
 
 		src, err = json.MarshalIndent(data, "", " ")
 		cli.ExitOnError(app.Eout, err, quiet)
-	case getPaths:
+	case getIDs:
 		data := eprinttools.EPrintsDataSet{}
 		err = xml.Unmarshal(src, &data)
 		cli.ExitOnError(app.Eout, err, quiet)
@@ -185,6 +197,10 @@ func main() {
 		// Don't do anything, just return the raw XML
 	}
 
-	fmt.Fprintf(os.Stdout, "%s\n", src)
+	if newLine {
+		fmt.Fprintf(os.Stdout, "%s\n", src)
+	} else {
+		fmt.Fprintf(os.Stdout, "%s", src)
+	}
 	os.Exit(0)
 }
