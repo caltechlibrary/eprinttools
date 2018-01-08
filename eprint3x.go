@@ -135,6 +135,7 @@ type EPrint struct {
 	TOC                string  `xml:"toc,omitempty" json:"toc,omitempty"`
 	Interviewer        string  `xml:"interviewer,omitempty" json:"interviewer,omitempty"`
 	InterviewDate      string  `xml:"interviewdate,omitempty" json:"interviewdate,omitempty"`
+	GScholar           []*Item `xml:"gscholar,omitempty" json:"gscholar,omitempty"`
 	NonSubjKeywords    string  `xml:"nonsubj_keywords,omitempty" json:"nonsubj_keywords,omitempty"`
 	Season             string  `xml:"season,omitempty" json:"season,omitempty"`
 	ClassificationCode string  `xml:"classification_code,omitempty" json:"classification_code,omitempty"`
