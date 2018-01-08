@@ -167,8 +167,6 @@ func main() {
 	// Set log to output
 	log.SetOutput(app.Out)
 
-	fmt.Printf("DEBUG showHelp %t\n", showHelp)
-
 	// Process Options
 	if generateMarkdownDocs {
 		app.GenerateMarkdownDocs(app.Out)

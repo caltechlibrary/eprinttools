@@ -358,15 +358,22 @@ func (api *EPrintsAPI) ListEPrintsURI() ([]string, error) {
 		results []string
 	)
 
-	api.URL.Path = path.Join("rest", "eprint") + "/"
-	// Switch to use Rest Client Wrapper
-	rest, err := rc.New(api.URL.String(), api.AuthType, api.Username, api.Secret)
-	if err != nil {
-		return nil, fmt.Errorf("requesting %s, %s", api.URL.String(), err)
+	workingURL, _ := url.Parse(api.URL.String())
+	if workingURL.Path == "" {
+		workingURL.Path = path.Join("rest", "eprint") + "/"
+	} else {
+		p := api.URL.Path
+		workingURL.Path = path.Join(p, "rest", "eprint") + "/"
 	}
-	content, err := rest.Request("GET", api.URL.Path, map[string]string{})
+	fmt.Printf("DEBUG ListEPrintsURI workingURL %q\n", workingURL.String())
+	// Switch to use Rest Client Wrapper
+	rest, err := rc.New(workingURL.String(), api.AuthType, api.Username, api.Secret)
 	if err != nil {
-		return nil, fmt.Errorf("requested %s, %s", api.URL.String(), err)
+		return nil, fmt.Errorf("requesting %s, %s", workingURL.String(), err)
+	}
+	content, err := rest.Request("GET", workingURL.Path, map[string]string{})
+	if err != nil {
+		return nil, fmt.Errorf("requested %s, %s", workingURL.String(), err)
 	}
 	eIDs := new(ePrintIDs)
 	err = xml.Unmarshal(content, &eIDs)
@@ -410,17 +417,30 @@ func (api *EPrintsAPI) ListModifiedEPrintURI(start, end time.Time, verbose bool)
 		log.Printf("Retrieved %d ids, %s", len(uris), now.Sub(t0))
 	}
 
-	api.URL.Path = path.Join("rest", "eprint") + "/"
+	workingURL, _ := url.Parse(api.URL.String())
+	if workingURL.Path == "" {
+		workingURL.Path = path.Join("rest", "eprint") + "/"
+	} else {
+		p := workingURL.Path
+		workingURL.Path = path.Join(p, "rest", "eprint") + "/"
+	}
+	fmt.Printf("DEBUG workingURL %q\n", workingURL.String())
 
 	if verbose == true {
 		log.Printf("Filtering EPrints ids by modification dates, %s to %s", start.Format("2006-01-02"), end.Format("2006-01-02"))
 	}
 	total := len(uris)
 	lastI := total - 1
-	u := api.URL
+	u := workingURL
+	client := &http.Client{}
 	for i, uri := range uris {
 		u.Path = strings.TrimSuffix(uri, ".xml") + "/lastmod.txt"
-		if res, err := http.Get(u.String()); err == nil {
+		req, err := http.NewRequest("GET", u.String(), nil)
+		if err != nil {
+			return nil, err
+		}
+		req.Header.Set("User-Agent", fmt.Sprintf("eprinttools %s", Version))
+		if res, err := client.Do(req); err == nil {
 			if buf, err := ioutil.ReadAll(res.Body); err == nil {
 				res.Body.Close()
 				datestring := fmt.Sprintf("%s", buf)
@@ -453,16 +473,23 @@ func (api *EPrintsAPI) ListModifiedEPrintURI(start, end time.Time, verbose bool)
 // GetEPrint retrieves an EPrint record via REST API
 // Returns a Record structure, the raw XML and an error.
 func (api *EPrintsAPI) GetEPrint(uri string) (*Record, []byte, error) {
-	api.URL.Path = uri
+	workingURL, _ := url.Parse(api.URL.String())
+	if workingURL.Path == "" {
+		workingURL.Path = uri
+	} else {
+		p := api.URL.Path
+		workingURL.Path = path.Join(p, uri)
+	}
+	fmt.Printf("DEBUG GetEPrint workingURL %q\n", workingURL.String())
 
 	// Switch to use Rest Client Wrapper
-	rest, err := rc.New(api.URL.String(), api.AuthType, api.Username, api.Secret)
+	rest, err := rc.New(workingURL.String(), api.AuthType, api.Username, api.Secret)
 	if err != nil {
-		return nil, nil, fmt.Errorf("requesting %s, %s", api.URL.String(), err)
+		return nil, nil, fmt.Errorf("requesting %s, %s", workingURL.String(), err)
 	}
-	content, err := rest.Request("GET", api.URL.Path, map[string]string{})
+	content, err := rest.Request("GET", workingURL.Path, map[string]string{})
 	if err != nil {
-		return nil, nil, fmt.Errorf("requested %s, %s", api.URL.String(), err)
+		return nil, nil, fmt.Errorf("requested %s, %s", workingURL.String(), err)
 	}
 
 	rec := new(Record)

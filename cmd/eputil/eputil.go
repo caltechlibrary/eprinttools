@@ -171,6 +171,7 @@ func main() {
 		if username != "" {
 			req.SetBasicAuth(username, password)
 		}
+		req.Header.Set("User-Agent", app.Version())
 		client := &http.Client{}
 		res, err := client.Do(req)
 		cli.ExitOnError(app.Eout, err, quiet)
@@ -227,13 +228,14 @@ func main() {
 	} else {
 		switch {
 		case putURL != "":
-			fmt.Fprintf(app.Eout, "DEBUG trying to PUT a change to a REST URL end point\n\t%s\n%q\n", putURL, src)
+			fmt.Fprintf(app.Out, "PUT: %s\nDATA: %q\n", putURL, src)
 			// NOTE: We build our client request object so we can
 			// set authentication if necessary.
 			req, err := http.NewRequest("PUT", putURL, strings.NewReader(fmt.Sprintf("%s", src)))
 			if username != "" {
 				req.SetBasicAuth(username, password)
 			}
+			req.Header.Set("User-Agent", app.Version())
 			client := &http.Client{}
 			res, err := client.Do(req)
 			cli.ExitOnError(app.Eout, err, quiet)
@@ -250,13 +252,14 @@ func main() {
 				cli.ExitOnError(app.Eout, fmt.Errorf("%s for %s", res.Status, putURL), quiet)
 			}
 		case postURL != "":
-			fmt.Fprintf(app.Eout, "DEBUG trying to POST a change to a REST URL end point\n\t%s\n%q\n", postURL, src)
+			fmt.Fprintf(app.Out, "POST: %s\nDATA: %q\n", postURL, src)
 			// NOTE: We build our client request object so we can
 			// set authentication if necessary.
 			req, err := http.NewRequest("POST", postURL, strings.NewReader(fmt.Sprintf("%s", src)))
 			if username != "" {
 				req.SetBasicAuth(username, password)
 			}
+			req.Header.Set("User-Agent", app.Version())
 			client := &http.Client{}
 			res, err := client.Do(req)
 			cli.ExitOnError(app.Eout, err, quiet)
