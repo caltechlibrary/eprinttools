@@ -43,7 +43,7 @@ CONFIGURATION
 
 ep can be configured with following environment variables
 
-EP_EPRINTS_URL the URL to your EPrints installation
+EP_EPRINT_URL the URL to your EPrints installation
 
 EP_DATASET the dataset and collection name for exporting, site building, and content retrieval
 
@@ -106,7 +106,7 @@ func main() {
 	appName := app.AppName()
 
 	// Document non-option parameters
-	app.AddParams("[EP_EPRINTS_URL|ONE_OR_MORE_EPRINT_ID]")
+	app.AddParams("[EP_EPRINT_URL|ONE_OR_MORE_EPRINT_ID]")
 
 	// Add Help Docs
 	app.AddHelp("license", []byte(fmt.Sprintf(ep.LicenseText, appName, ep.Version)))
