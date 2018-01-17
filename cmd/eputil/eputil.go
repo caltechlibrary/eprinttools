@@ -75,21 +75,32 @@ Get a JSON array of eprint ids from the REST API
 	outputFName          string
 
 	// App Options
-	username string
-	password string
-	getURL   string
-	putURL   string
-	postURL  string
-	eprints  bool
-	eprint   bool
-	getIDs   bool
-	asJSON   bool
+	user    string
+	getURL  string
+	putURL  string
+	postURL string
+	eprints bool
+	eprint  bool
+	getIDs  bool
+	asJSON  bool
 )
+
+func basicAuth(username, password string) string {
+	auth := username + ":" + password
+	return base64.StdEncoding.EncodeToString([]byte(auth))
+}
+
+func redirectPolicyFunc(req *http.Request, via []*http.Request) error {
+	req.Header.Add("Authorization", "Basic "+basicAuth("username1", "password123"))
+	return nil
+}
 
 func main() {
 	var (
-		src []byte
-		err error
+		src      []byte
+		err      error
+		username string
+		password string
 	)
 
 	app := cli.NewCli(eprinttools.Version)
@@ -99,8 +110,7 @@ func main() {
 	app.AddHelp("examples", examples)
 
 	// Add Environment variables
-	app.EnvStringVar(&username, "EP_USERNAME", "", "Sets the eprint username to use with URL basic auth")
-	app.EnvStringVar(&password, "EP_PASSWORD", "", "Sets the eprint username to use with URL basic auth")
+	app.EnvStringVar(&user, "EP_USER", "", "Sets the eprint USERNAME:PASSWORD to use with URL basic auth")
 
 	// Standard Options
 	app.BoolVar(&showHelp, "h,help", false, "display help")
@@ -121,8 +131,7 @@ func main() {
 	app.BoolVar(&eprint, "revision,eprint", false, "parse a eprint (revision) document")
 	app.BoolVar(&asJSON, "json", false, "attempt to parse XML into generaic JSON structure")
 	app.BoolVar(&getIDs, "ids", false, "get a list of doc paths (e.g. ids or sub-fields depending on the URL provided")
-	app.StringVar(&username, "u,un,username", "", "set the username for authentication for url access")
-	app.StringVar(&password, "p,pw,password", "", "set the password to use for authentication for url access")
+	app.StringVar(&user, "u,user", "", "set the username:password for authentication authenticated access")
 
 	// We're ready to process args
 	app.Parse()
@@ -162,6 +171,15 @@ func main() {
 		os.Exit(0)
 	}
 
+	if user != "" {
+		if strings.Contains(user, ":") {
+			p := strings.SplitN(user, ":", 2)
+			username, password = p[0], p[1]
+		} else {
+			username = user
+		}
+	}
+
 	if getURL == "" {
 		src, err = ioutil.ReadAll(app.In)
 		cli.ExitOnError(app.Eout, err, quiet)
@@ -169,7 +187,7 @@ func main() {
 		// NOTE: We build our client request object so we can
 		// set authentication if necessary.
 		req, err := http.NewRequest("GET", getURL, nil)
-		if username != "" {
+		if user != "" {
 			req.SetBasicAuth(username, password)
 		}
 		req.Header.Set("User-Agent", app.Version())
@@ -234,6 +252,7 @@ func main() {
 			// set authentication if necessary.
 			req, err := http.NewRequest("PUT", putURL, strings.NewReader(fmt.Sprintf("%s", src)))
 			if username != "" {
+				fmt.Printf("DEBUG username %q, password %q\n", username, password)
 				req.SetBasicAuth(username, password)
 			}
 			req.Header.Set("User-Agent", app.Version())
@@ -257,7 +276,7 @@ func main() {
 			// NOTE: We build our client request object so we can
 			// set authentication if necessary.
 			req, err := http.NewRequest("POST", postURL, strings.NewReader(fmt.Sprintf("%s", src)))
-			if username != "" {
+			if user != "" {
 				req.SetBasicAuth(username, password)
 			}
 			req.Header.Set("User-Agent", app.Version())
