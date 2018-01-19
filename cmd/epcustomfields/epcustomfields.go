@@ -1,5 +1,5 @@
 //
-// epfieldgen An experimental field generator for customizing an EPrints 3.3.x repository
+// epcustomfields, An experimental custom field manager for EPrints 3.3.x repositories
 //
 // @author R. S. Doiel, <rsdoiel@library.caltech.edu>
 //
@@ -20,37 +20,38 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
+	//"io/ioutil"
 	"os"
-	"strings"
+	//"strings"
 
 	// Caltech Library Packages
 	"github.com/caltechlibrary/cli"
+	"github.com/caltechlibrary/eprinttools"
 )
 
 var (
-	description = `An experimental field generator for customizing an EPrints 3.3.x repository
+	description = `An experimental custom field manager for EPrints 3.3.x repositories
 `
 
 	examples = `Generating eprints>eprint>item>id and eprints>eprint>item>orcid fields in a stock EPrints 3.3.15 repo
 
     # Generate a configuration file to track field additions.	
-    epfieldgen init custom-fields.json
+    epcustomfields init custom-fields.json
 	# Add the "id" and "orcid" fields, respond to the prompts
-	epfieldgen add custom-fields id orcid
+	epcustomfields update custom-fields id orcid
 	# Review the custom fields
-	epfieldgen review custom-fields.json
+	epcustomfields review custom-fields.json
 	# Apply the fieldname changes if they are OK.
-	epfieldgen apply custom-fields.json
+	epcustomfields apply custom-fields.json
 
 Updating the existing orcid field (constrained by EPrints' own code)
 
 	# Respond to the prompts
-	epfieldgen update custom-fields.json orcid
+	epcustomfields update custom-fields.json orcid
 	# Review the custom-fields.json
-	epfieldgen review custom-fields.json
+	epcustomfields review custom-fields.json
 	# Apply changes
-	epfeildgen apply custom-fields.json
+	epcustomfields apply custom-fields.json
 `
 
 	// Standard Options
