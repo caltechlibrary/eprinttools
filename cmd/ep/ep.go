@@ -102,11 +102,16 @@ save the keys for the records exported with one key per line.
 )
 
 func main() {
+	var (
+		apiURLEnv       string
+		datasetNameEnv  string
+		suppressNoteEnv bool
+	)
 	app := cli.NewCli(ep.Version)
 	appName := app.AppName()
 
 	// Document non-option parameters
-	app.AddParams("[EP_EPRINT_URL|ONE_OR_MORE_EPRINT_ID]")
+	app.AddParams("[EP_EPRINT_URL]", "[ONE_OR_MORE_EPRINT_ID]")
 
 	// Add Help Docs
 	app.AddHelp("license", []byte(fmt.Sprintf(ep.LicenseText, appName, ep.Version)))
@@ -114,9 +119,9 @@ func main() {
 	app.AddHelp("examples", []byte(fmt.Sprintf(examples, appName, appName, appName, appName)))
 
 	// App Environment
-	app.EnvStringVar(&apiURL, "EP_EPRINT_URL", "", "Sets the EPRints API URL")
-	app.EnvStringVar(&datasetName, "EP_DATASET", "", "Sets the dataset collection for storing EPrint harvested records")
-	app.EnvBoolVar(&suppressNote, "EP_SUPPRESS_NOTE", false, "Suppress the note field on harvesting")
+	app.EnvStringVar(&apiURLEnv, "EP_EPRINT_URL", "", "Sets the EPRints API URL")
+	app.EnvStringVar(&datasetNameEnv, "EP_DATASET", "", "Sets the dataset collection for storing EPrint harvested records")
+	app.EnvBoolVar(&suppressNoteEnv, "EP_SUPPRESS_NOTE", false, "Suppress the note field on harvesting")
 
 	// Standard Options
 	app.BoolVar(&showHelp, "h,help", false, "display help")
@@ -151,6 +156,20 @@ func main() {
 		os.Exit(1)
 	}
 	args := app.Args()
+	if apiURL == "" {
+		apiURL = app.Getenv("EP_EPRINT_URL")
+		if len(args) > 0 {
+			for _, val := range args {
+				if strings.Contains(val, "://") {
+					apiURL = val
+					break
+				}
+			}
+		}
+	}
+	if datasetName == "" {
+		datasetName = app.Getenv("EP_DATASET")
+	}
 
 	// Setup IO
 	var err error
@@ -189,14 +208,23 @@ func main() {
 		os.Exit(0)
 	}
 
-	// Required configuration
+	// Required configuration, let Env overide options if not options are defaults
 	if apiURL == "" {
-		fmt.Fprintf(app.Eout, "EPrint URL not provided\n")
-		os.Exit(1)
+		if apiURLEnv == "" {
+			fmt.Fprintf(app.Eout, "EPrint URL not provided\n")
+			os.Exit(1)
+		}
+		apiURL = apiURLEnv
 	}
 	if datasetName == "" {
-		fmt.Fprintf(app.Eout, "Missing dataset (EP_DATASET) name\n")
-		os.Exit(1)
+		if datasetNameEnv == "" {
+			fmt.Fprintf(app.Eout, "Missing dataset (EP_DATASET) name\n")
+			os.Exit(1)
+		}
+		datasetName = datasetNameEnv
+	}
+	if suppressNote == false && suppressNoteEnv == true {
+		suppressNote = true
 	}
 
 	// This will read in the settings from the app

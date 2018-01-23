@@ -365,7 +365,7 @@ func (api *EPrintsAPI) ListEPrintsURI() ([]string, error) {
 		p := api.URL.Path
 		workingURL.Path = path.Join(p, "rest", "eprint") + "/"
 	}
-	fmt.Printf("DEBUG ListEPrintsURI workingURL %q\n", workingURL.String())
+	//fmt.Printf("DEBUG ListEPrintsURI workingURL %q\n", workingURL.String())
 	// Switch to use Rest Client Wrapper
 	rest, err := rc.New(workingURL.String(), api.AuthType, api.Username, api.Secret)
 	if err != nil {
@@ -424,7 +424,7 @@ func (api *EPrintsAPI) ListModifiedEPrintURI(start, end time.Time, verbose bool)
 		p := workingURL.Path
 		workingURL.Path = path.Join(p, "rest", "eprint") + "/"
 	}
-	fmt.Printf("DEBUG workingURL %q\n", workingURL.String())
+	//fmt.Printf("DEBUG workingURL %q\n", workingURL.String())
 
 	if verbose == true {
 		log.Printf("Filtering EPrints ids by modification dates, %s to %s", start.Format("2006-01-02"), end.Format("2006-01-02"))
@@ -480,7 +480,7 @@ func (api *EPrintsAPI) GetEPrint(uri string) (*Record, []byte, error) {
 		p := api.URL.Path
 		workingURL.Path = path.Join(p, uri)
 	}
-	fmt.Printf("DEBUG GetEPrint workingURL %q\n", workingURL.String())
+	//fmt.Printf("DEBUG GetEPrint workingURL %q\n", workingURL.String())
 
 	// Switch to use Rest Client Wrapper
 	rest, err := rc.New(workingURL.String(), api.AuthType, api.Username, api.Secret)
