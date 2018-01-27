@@ -19,6 +19,7 @@
 package eprinttools
 
 import (
+	"bytes"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -30,11 +31,83 @@ import (
 	"github.com/caltechlibrary/dataset"
 )
 
+// ExportEPrintsKeyList export a list of eprints from a list of keys
+func (api *EPrintsAPI) ExportEPrintsKeyList(keys []string, saveKeys string, verbose bool) error {
+	var (
+		exportedKeys []string
+		err          error
+	)
+
+	c, err := dataset.Open(api.Dataset)
+	if err != nil {
+		return fmt.Errorf("ExportEPrints() %s, %s", api.Dataset, err)
+	}
+	defer c.Close()
+
+	uris := []string{}
+	for _, key := range keys {
+		uri := fmt.Sprintf("/rest/eprint/%s.xml", strings.TrimSpace(key))
+		uris = append(uris, uri)
+	}
+
+	uriCount := len(uris)
+	count := uriCount
+	j := 0 // success count
+	k := 0 // error count
+	if verbose == true {
+		log.Printf("Exporting %d of %d uris", count, uriCount)
+	}
+	for i := 0; i < uriCount && i < count; i++ {
+		uri := uris[i]
+		rec, xmlSrc, err := api.GetEPrint(uri)
+		if err != nil {
+			log.Printf("Failed, %s\n", err)
+			k++
+		} else {
+			key := fmt.Sprintf("%d", rec.ID)
+			// NOTE: Check to see if we're doing an update or create
+			if c.HasKey(key) == true {
+				err = c.UpdateFrom(key, rec)
+			} else {
+				err = c.CreateFrom(key, rec)
+			}
+			if err == nil {
+				if len(saveKeys) > 0 {
+					exportedKeys = append(exportedKeys, key)
+				}
+				// We've exported a record successfully, now update select lists
+				j++
+			} else {
+				if verbose == true {
+					log.Printf("Failed to save eprint %s, %s\n", uri, err)
+				}
+				k++
+			}
+			c.AttachFile(key, key+".xml", bytes.NewReader(xmlSrc))
+		}
+		if verbose == true && (i%EPrintsExportBatchSize) == 0 {
+			log.Printf("%d/%d uri processed, %d exported, %d unexported", i+1, count, j, k)
+		}
+	}
+	if verbose == true {
+		log.Printf("%d/%d uri processed, %d exported, %d unexported", len(uris), count, j, k)
+	}
+	if len(saveKeys) > 0 {
+		if err := ioutil.WriteFile(saveKeys, []byte(strings.Join(exportedKeys, "\n")), 0664); err != nil {
+			return fmt.Errorf("Failed to export %s, %s", saveKeys, err)
+		}
+	}
+	return nil
+}
+
 // ExportEPrints from highest ID to lowest for cnt. Saves each record in a DB and indexes published ones
 func (api *EPrintsAPI) ExportEPrints(count int, saveKeys string, verbose bool) error {
-	var exportedKeys []string
+	var (
+		exportedKeys []string
+		err          error
+	)
 
-	c, err := dataset.Create(api.Dataset, dataset.GenerateBucketNames(dataset.DefaultAlphabet, 2))
+	c, err := dataset.InitCollection(api.Dataset)
 	if err != nil {
 		return fmt.Errorf("ExportEPrints() %s, %s", api.Dataset, err)
 	}
@@ -62,11 +135,18 @@ func (api *EPrintsAPI) ExportEPrints(count int, saveKeys string, verbose bool) e
 		uri := uris[i]
 		rec, xmlSrc, err := api.GetEPrint(uri)
 		if err != nil {
-			log.Printf("Failed to get %s, %s\n", uri, err)
+			log.Printf("Failed, %s\n", err)
 			k++
 		} else {
 			key := fmt.Sprintf("%d", rec.ID)
-			err := c.Create(key, rec)
+			//NOTE: Check to see if we're doing an update or create
+			if rec.ID > 0 && c.HasKey(key) == true {
+				log.Printf("DEBUG updating %q", key)
+				err = c.UpdateFrom(key, rec)
+			} else {
+				log.Printf("DEBUG creating %q", key)
+				err = c.CreateFrom(key, rec)
+			}
 			if err == nil {
 				if len(saveKeys) > 0 {
 					exportedKeys = append(exportedKeys, key)
@@ -79,7 +159,7 @@ func (api *EPrintsAPI) ExportEPrints(count int, saveKeys string, verbose bool) e
 				}
 				k++
 			}
-			c.Attach(key, &dataset.Attachment{key + ".xml", xmlSrc})
+			c.AttachFile(key, key+".xml", bytes.NewReader(xmlSrc))
 		}
 		if verbose == true && (i%EPrintsExportBatchSize) == 0 {
 			log.Printf("%d/%d uri processed, %d exported, %d unexported", i+1, count, j, k)
@@ -98,9 +178,12 @@ func (api *EPrintsAPI) ExportEPrints(count int, saveKeys string, verbose bool) e
 
 // ExportModifiedEPrints returns a list of ids modified in one or between the start, end times
 func (api *EPrintsAPI) ExportModifiedEPrints(start, end time.Time, saveKeys string, verbose bool) error {
-	var exportedKeys []string
+	var (
+		exportedKeys []string
+		err          error
+	)
 
-	c, err := dataset.Create(api.Dataset, dataset.GenerateBucketNames(dataset.DefaultAlphabet, 2))
+	c, err := dataset.InitCollection(api.Dataset)
 	if err != nil {
 		return fmt.Errorf("ExportEPrints() %s, %s", api.Dataset, err)
 	}
@@ -131,7 +214,12 @@ func (api *EPrintsAPI) ExportModifiedEPrints(start, end time.Time, saveKeys stri
 			k++
 		} else {
 			key := fmt.Sprintf("%d", rec.ID)
-			err := c.Create(key, rec)
+			// NOTE: Check to see if we're doing an update or create
+			if c.HasKey(key) {
+				err = c.UpdateFrom(key, rec)
+			} else {
+				err = c.CreateFrom(key, rec)
+			}
 			if err == nil {
 				if len(saveKeys) > 0 {
 					exportedKeys = append(exportedKeys, key)
@@ -144,7 +232,7 @@ func (api *EPrintsAPI) ExportModifiedEPrints(start, end time.Time, saveKeys stri
 				}
 				k++
 			}
-			c.Attach(key, &dataset.Attachment{key + ".xml", xmlSrc})
+			c.AttachFile(key, key+".xml", bytes.NewReader(xmlSrc))
 		}
 		if verbose == true && (i%EPrintsExportBatchSize) == 0 {
 			log.Printf("%d/%d uri processed, %d exported, %d unexported", i+1, count, j, k)

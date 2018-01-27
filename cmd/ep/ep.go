@@ -64,6 +64,10 @@ Would export the EPrint records modified since July 1, 2017.
 
     %s -export-modified 2017-07-01
 
+Explore a specific listof keys (e.g. "101,102,1304")
+
+	%s -export-keys "101,102,1304"
+
 Would export the EPrint records with modified times in July 2017 and
 save the keys for the records exported with one key per line. 
 
@@ -92,6 +96,7 @@ save the keys for the records exported with one key per line.
 	exportEPrints         string
 	exportEPrintsModified string
 	exportSaveKeys        string
+	exportEPrintsKeyList  string
 
 	authMethod string
 	userName   string
@@ -116,7 +121,7 @@ func main() {
 	// Add Help Docs
 	app.AddHelp("license", []byte(fmt.Sprintf(ep.LicenseText, appName, ep.Version)))
 	app.AddHelp("description", []byte(fmt.Sprintf(description, appName)))
-	app.AddHelp("examples", []byte(fmt.Sprintf(examples, appName, appName, appName, appName)))
+	app.AddHelp("examples", []byte(fmt.Sprintf(examples, appName, appName, appName, appName, appName)))
 
 	// App Environment
 	app.EnvStringVar(&apiURLEnv, "EP_EPRINT_URL", "", "Sets the EPRints API URL")
@@ -148,6 +153,7 @@ func main() {
 	app.StringVar(&exportEPrints, "export", "", "export N EPrints from highest ID to lowest")
 	app.StringVar(&exportEPrintsModified, "export-modified", "", "export records by date or date range (e.g. 2017-07-01)")
 	app.StringVar(&exportSaveKeys, "export-save-keys", "", "save the keys exported in a file with provided filename")
+	app.StringVar(&exportEPrintsKeyList, "export-key-list", "", "export a comma delimited list of EPrint keys")
 	app.StringVar(&updatedSince, "updated-since", "", "list EPrint IDs updated since a given date (e.g 2017-07-01)")
 
 	// Parse environment and options
@@ -235,6 +241,16 @@ func main() {
 		os.Exit(1)
 	}
 
+	if exportEPrintsKeyList != "" {
+		t0 := time.Now()
+		log.Printf("%s %s (pid %d)", appName, ep.Version, os.Getpid())
+		log.Printf("Export started, %s", t0)
+		if err := api.ExportEPrintsKeyList(strings.Split(exportEPrintsKeyList, ","), exportSaveKeys, verbose); err != nil {
+			log.Fatalf("%s", err)
+		}
+		log.Printf("Export completed, running time %s", time.Now().Sub(t0))
+		os.Exit(0)
+	}
 	if exportEPrints != "" {
 		t0 := time.Now()
 		exportNo := -1

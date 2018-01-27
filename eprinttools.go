@@ -480,7 +480,6 @@ func (api *EPrintsAPI) GetEPrint(uri string) (*Record, []byte, error) {
 		p := api.URL.Path
 		workingURL.Path = path.Join(p, uri)
 	}
-	//fmt.Printf("DEBUG GetEPrint workingURL %q\n", workingURL.String())
 
 	// Switch to use Rest Client Wrapper
 	rest, err := rc.New(workingURL.String(), api.AuthType, api.Username, api.Secret)
@@ -579,8 +578,9 @@ func (api *EPrintsAPI) Get(uri string) (*Record, error) {
 	failCheck(err, fmt.Sprintf("Get() %s, %s", api.Dataset, err))
 	defer c.Close()
 
+	// Convert record to a map[string]interface{}...
 	record := new(Record)
-	if err := c.Read(uri, record); err != nil {
+	if err := c.ReadInto(uri, &record); err != nil {
 		return nil, err
 	}
 	if api.SuppressNote {

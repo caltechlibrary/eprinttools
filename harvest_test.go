@@ -42,7 +42,7 @@ func TestHarvest(t *testing.T) {
 		api.Dataset = "EP_TEST_DATA"
 	}
 	if _, err = os.Stat(api.Dataset); os.IsNotExist(err) {
-		_, err = dataset.Create(api.Dataset, dataset.GenerateBucketNames(dataset.DefaultAlphabet, 2))
+		_, err = dataset.InitCollection(api.Dataset)
 		if err != nil {
 			t.Errorf("Can't create %s, %s", api.Dataset, err)
 			t.FailNow()
