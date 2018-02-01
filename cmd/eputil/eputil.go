@@ -59,7 +59,7 @@ Parse an EPrint reversion XML document
 
 Get a JSON array of eprint ids from the REST API
 
-    eputil -url https://eprints.example.org/rest/eprint/ -ids
+    eputil -get https://eprints.example.org/rest/eprint/ -ids
 `)
 
 	// Standard Options

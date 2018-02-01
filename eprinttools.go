@@ -19,6 +19,7 @@
 package eprinttools
 
 import (
+	"encoding/json"
 	"encoding/xml"
 	"fmt"
 	"io/ioutil"
@@ -587,4 +588,12 @@ func (api *EPrintsAPI) Get(uri string) (*Record, error) {
 		record.Note = ""
 	}
 	return record, nil
+}
+
+func (person *Person) String() string {
+	src, err := json.Marshal(person)
+	if err != nil {
+		return ""
+	}
+	return fmt.Sprintf("%s", src)
 }
