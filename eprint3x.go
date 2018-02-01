@@ -356,6 +356,9 @@ func (g *Generic) MarshalJSON() ([]byte, error) {
 }
 
 func (name *Name) String() string {
-	src, _ := json.Marshal(name)
+	src, err := json.Marshal(name)
+	if err != nil {
+		return ""
+	}
 	return string(src)
 }
