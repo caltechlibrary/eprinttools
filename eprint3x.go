@@ -40,7 +40,7 @@ type EPrints struct {
 // EPrint is the record contated in a EPrints XML document such as they used
 // to store revisions.
 type EPrint struct {
-	XMLName              xml.Name    `json:"-"`
+	XMLName              xml.Name    `xml:"eprint" json:"-"`
 	XMLNS                string      `xml:"xmlns,attr,omitempty" json:"xmlns,omitempty"`
 	ID                   string      `xml:"id,attr,omitempty" json:"id,omitempty"`
 	EPrintID             int         `xml:"eprintid,omitempty" json:"eprint_id,omitempty"`
