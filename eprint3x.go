@@ -260,7 +260,7 @@ type ItemList []*Item
 
 // DocumentItemList holds the eprint documents
 type DocumentItemList struct {
-	XMLName xml.Name `xml:"creators" json:"-"`
+	XMLName xml.Name `xml:"documents" json:"-"`
 	Items   []*Item  `xml:"item,omitempty" json:"item,omitempty"`
 }
 
@@ -272,193 +272,193 @@ type CreatorItemList struct {
 
 // EditorItemList holds a list of editors
 type EditorItemList struct {
-	XMLName xml.Name `xml:"creators" json:"-"`
+	XMLName xml.Name `xml:"editors" json:"-"`
 	Items   []*Item  `xml:"item,omitempty" json:"item,omitempty"`
 }
 
 // RelatedURLItemList holds the related URLs (e.g. doi, aux material doi)
 type RelatedURLItemList struct {
-	XMLName xml.Name `xml:"creators" json:"-"`
+	XMLName xml.Name `xml:"related_url" json:"-"`
 	Items   []*Item  `xml:"item,omitempty" json:"item,omitempty"`
 }
 
 // ReferenceTextItemList
 type ReferenceTextItemList struct {
-	XMLName xml.Name `xml:"creators" json:"-"`
+	XMLName xml.Name `xml:"reference_text" json:"-"`
 	Items   []*Item  `xml:"item,omitempty" json:"item,omitempty"`
 }
 
 // ProjectItemList
 type ProjectItemList struct {
-	XMLName xml.Name `xml:"creators" json:"-"`
+	XMLName xml.Name `xml:"projects" json:"-"`
 	Items   []*Item  `xml:"item,omitempty" json:"item,omitempty"`
 }
 
 // FunderItemList
 type FunderItemList struct {
-	XMLName xml.Name `xml:"creators" json:"-"`
+	XMLName xml.Name `xml:"funders" json:"-"`
 	Items   []*Item  `xml:"item,omitempty" json:"item,omitempty"`
 }
 
 // LocalGroupItemList holds the related URLs (e.g. doi, aux material doi)
 type LocalGroupItemList struct {
-	XMLName xml.Name `xml:"creators" json:"-"`
+	XMLName xml.Name `xml:"local_groups" json:"-"`
 	Items   []*Item  `xml:"item,omitempty" json:"item,omitempty"`
 }
 
 // OtherNumberingSystemItemList
 type OtherNumberingSystemItemList struct {
-	XMLName xml.Name `xml:"creators" json:"-"`
+	XMLName xml.Name `xml:"other_numbering_system" json:"-"`
 	Items   []*Item  `xml:"item,omitempty" json:"item,omitempty"`
 }
 
 // ErrataItemList
 type ErrataItemList struct {
-	XMLName xml.Name `xml:"creators" json:"-"`
+	XMLName xml.Name `xml:"errata" json:"-"`
 	Items   []*Item  `xml:"item,omitempty" json:"item,omitempty"`
 }
 
 // ContributorItemList
 type ContributorItemList struct {
-	XMLName xml.Name `xml:"creators" json:"-"`
+	XMLName xml.Name `xml:"contributors" json:"-"`
 	Items   []*Item  `xml:"item,omitempty" json:"item,omitempty"`
 }
 
 // SubjectItemList
 type SubjectItemList struct {
-	XMLName xml.Name `xml:"creators" json:"-"`
+	XMLName xml.Name `xml:"subjects" json:"-"`
 	Items   []*Item  `xml:"item,omitempty" json:"item,omitempty"`
 }
 
 // ItemIssueItemList
 type ItemIssueItemList struct {
-	XMLName xml.Name `xml:"creators" json:"-"`
+	XMLName xml.Name `xml:"item_issues" json:"-"`
 	Items   []*Item  `xml:"item,omitempty" json:"item,omitempty"`
 }
 
 // CorpCreatorItemList
 type CorpCreatorItemList struct {
-	XMLName xml.Name `xml:"creators" json:"-"`
+	XMLName xml.Name `xml:"corp_creators" json:"-"`
 	Items   []*Item  `xml:"item,omitempty" json:"item,omitempty"`
 }
 
 // ExhibitorItemList
 type ExhibitorItemList struct {
-	XMLName xml.Name `xml:"creators" json:"-"`
+	XMLName xml.Name `xml:"exhibitors" json:"-"`
 	Items   []*Item  `xml:"item,omitempty" json:"item,omitempty"`
 }
 
 // ProducerItemList
 type ProducerItemList struct {
-	XMLName xml.Name `xml:"creators" json:"-"`
+	XMLName xml.Name `xml:"producers" json:"-"`
 	Items   []*Item  `xml:"item,omitempty" json:"item,omitempty"`
 }
 
 // ConductorItemList
 type ConductorItemList struct {
-	XMLName xml.Name `xml:"creators" json:"-"`
+	XMLName xml.Name `xml:"conductors" json:"-"`
 	Items   []*Item  `xml:"item,omitempty" json:"item,omitempty"`
 }
 
 // LyricistItemList
 type LyricistItemList struct {
-	XMLName xml.Name `xml:"creators" json:"-"`
+	XMLName xml.Name `xml:"lyricists" json:"-"`
 	Items   []*Item  `xml:"item,omitempty" json:"item,omitempty"`
 }
 
 // OptionMajorItemList
 type OptionMajorItemList struct {
-	XMLName xml.Name `xml:"creators" json:"-"`
+	XMLName xml.Name `xml:"option_majors" json:"-"`
 	Items   []*Item  `xml:"item,omitempty" json:"item,omitempty"`
 }
 
 // ThesisCommitteeItemList
 type ThesisCommitteeItemList struct {
-	XMLName xml.Name `xml:"creators" json:"-"`
+	XMLName xml.Name `xml:"thesis_committee" json:"-"`
 	Items   []*Item  `xml:"item,omitempty" json:"item,omitempty"`
 }
 
 // ThesisAdvisorItemList
 type ThesisAdvisorItemList struct {
-	XMLName xml.Name `xml:"creators" json:"-"`
+	XMLName xml.Name `xml:"thesis_advisors" json:"-"`
 	Items   []*Item  `xml:"item,omitempty" json:"item,omitempty"`
 }
 
 // DivisionItemList
 type DivisionItemList struct {
-	XMLName xml.Name `xml:"creators" json:"-"`
+	XMLName xml.Name `xml:"divisions" json:"-"`
 	Items   []*Item  `xml:"item,omitempty" json:"item,omitempty"`
 }
 
 // RelatedPatentItemList
 type RelatedPatentItemList struct {
-	XMLName xml.Name `xml:"creators" json:"-"`
+	XMLName xml.Name `xml:"related_patents" json:"-"`
 	Items   []*Item  `xml:"item,omitempty" json:"item,omitempty"`
 }
 
 // PatentClassificationItemList
 type PatentClassificationItemList struct {
-	XMLName xml.Name `xml:"creators" json:"-"`
+	XMLName xml.Name `xml:"patent_classicification" json:"-"`
 	Items   []*Item  `xml:"item,omitempty" json:"item,omitempty"`
 }
 
 // PatentAssigneeItemList
 type PatentAssigneeItemList struct {
-	XMLName xml.Name `xml:"creators" json:"-"`
+	XMLName xml.Name `xml:"patent_assignee" json:"-"`
 	Items   []*Item  `xml:"item,omitempty" json:"item,omitempty"`
 }
 
 // ShelfItemList
 type ShelfItemList struct {
-	XMLName xml.Name `xml:"creators" json:"-"`
+	XMLName xml.Name `xml:"shelves" json:"-"`
 	Items   []*Item  `xml:"item,omitempty" json:"item,omitempty"`
 }
 
 // GScholarItemList
 type GScholarItemList struct {
-	XMLName xml.Name `xml:"creators" json:"-"`
+	XMLName xml.Name `xml:"gscholars" json:"-"`
 	Items   []*Item  `xml:"item,omitempty" json:"item,omitempty"`
 }
 
 // AltTitleItemList
 type AltTitleItemList struct {
-	XMLName xml.Name `xml:"creators" json:"-"`
+	XMLName xml.Name `xml:"alt_title" json:"-"`
 	Items   []*Item  `xml:"item,omitempty" json:"item,omitempty"`
 }
 
 // ConfCreatorItemList
 type ConfCreatorItemList struct {
-	XMLName xml.Name `xml:"creators" json:"-"`
+	XMLName xml.Name `xml:"conf_creators" json:"-"`
 	Items   []*Item  `xml:"item,omitempty" json:"item,omitempty"`
 }
 
 // ReferenceItemList
 type ReferenceItemList struct {
-	XMLName xml.Name `xml:"creators" json:"-"`
+	XMLName xml.Name `xml:"references" json:"-"`
 	Items   []*Item  `xml:"item,omitempty" json:"item,omitempty"`
 }
 
 // LearningLevelItemList
 type LearningLevelItemList struct {
-	XMLName xml.Name `xml:"creators" json:"-"`
+	XMLName xml.Name `xml:"learning_levels" json:"-"`
 	Items   []*Item  `xml:"item,omitempty" json:"item,omitempty"`
 }
 
 // CopyrightHolderItemList
 type CopyrightHolderItemList struct {
-	XMLName xml.Name `xml:"creators" json:"-"`
+	XMLName xml.Name `xml:"copyright_holders" json:"-"`
 	Items   []*Item  `xml:"item,omitempty" json:"item,omitempty"`
 }
 
 // SkillAreaItemList
 type SkillAreaItemList struct {
-	XMLName xml.Name `xml:"creators" json:"-"`
+	XMLName xml.Name `xml:"skill_areas" json:"-"`
 	Items   []*Item  `xml:"item,omitempty" json:"item,omitempty"`
 }
 
 // AccompanimentItemList
 type AccompanimentItemList struct {
-	XMLName xml.Name `xml:"creators" json:"-"`
+	XMLName xml.Name `xml:"accompaniment" json:"-"`
 	Items   []*Item  `xml:"item,omitempty" json:"item,omitempty"`
 }
 
