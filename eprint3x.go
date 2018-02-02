@@ -284,7 +284,7 @@ type RelatedURLItemList struct {
 
 // ReferenceTextItemList
 type ReferenceTextItemList struct {
-	XMLName xml.Name `xml:"reference_text" json:"-"`
+	XMLName xml.Name `xml:"referencetext" json:"-"`
 	Items   []*Item  `xml:"item,omitempty" json:"item,omitempty"`
 }
 
@@ -302,7 +302,7 @@ type FunderItemList struct {
 
 // LocalGroupItemList holds the related URLs (e.g. doi, aux material doi)
 type LocalGroupItemList struct {
-	XMLName xml.Name `xml:"local_groups" json:"-"`
+	XMLName xml.Name `xml:"local_group" json:"-"`
 	Items   []*Item  `xml:"item,omitempty" json:"item,omitempty"`
 }
 
@@ -368,7 +368,7 @@ type LyricistItemList struct {
 
 // OptionMajorItemList
 type OptionMajorItemList struct {
-	XMLName xml.Name `xml:"option_majors" json:"-"`
+	XMLName xml.Name `xml:"option_major" json:"-"`
 	Items   []*Item  `xml:"item,omitempty" json:"item,omitempty"`
 }
 
@@ -380,7 +380,7 @@ type ThesisCommitteeItemList struct {
 
 // ThesisAdvisorItemList
 type ThesisAdvisorItemList struct {
-	XMLName xml.Name `xml:"thesis_advisors" json:"-"`
+	XMLName xml.Name `xml:"thesis_advisor" json:"-"`
 	Items   []*Item  `xml:"item,omitempty" json:"item,omitempty"`
 }
 
@@ -398,7 +398,7 @@ type RelatedPatentItemList struct {
 
 // PatentClassificationItemList
 type PatentClassificationItemList struct {
-	XMLName xml.Name `xml:"patent_classicification" json:"-"`
+	XMLName xml.Name `xml:"patent_classification" json:"-"`
 	Items   []*Item  `xml:"item,omitempty" json:"item,omitempty"`
 }
 
@@ -416,7 +416,7 @@ type ShelfItemList struct {
 
 // GScholarItemList
 type GScholarItemList struct {
-	XMLName xml.Name `xml:"gscholars" json:"-"`
+	XMLName xml.Name `xml:"gscholar" json:"-"`
 	Items   []*Item  `xml:"item,omitempty" json:"item,omitempty"`
 }
 
@@ -434,13 +434,13 @@ type ConfCreatorItemList struct {
 
 // ReferenceItemList
 type ReferenceItemList struct {
-	XMLName xml.Name `xml:"references" json:"-"`
+	XMLName xml.Name `xml:"reference" json:"-"`
 	Items   []*Item  `xml:"item,omitempty" json:"item,omitempty"`
 }
 
 // LearningLevelItemList
 type LearningLevelItemList struct {
-	XMLName xml.Name `xml:"learning_levels" json:"-"`
+	XMLName xml.Name `xml:"learning_level" json:"-"`
 	Items   []*Item  `xml:"item,omitempty" json:"item,omitempty"`
 }
 
@@ -568,15 +568,4 @@ func (name *Name) String() string {
 		return ""
 	}
 	return string(src)
-}
-
-func (eprints *EPrints) String() string {
-	parts := []string{}
-	parts = append(parts, `<?xml version="1.0" encoding="utf-8" ?>`)
-	src, err := xml.MarshalIndent(eprints, "", "  ")
-	if err != nil {
-		return ""
-	}
-	parts = append(parts, string(src))
-	return strings.Join(parts, "\n")
 }
