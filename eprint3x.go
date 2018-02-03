@@ -65,7 +65,7 @@ type EPrint struct {
 	DateType             string                        `xml:"date_type,omitempty" json:"date_type,omitempty"`
 	Series               string                        `xml:"series,omitempty" json:"series,omitempty"`
 	Publication          string                        `xml:"publication,omitempty" json:"publication,omitempty"`
-	Volumne              string                        `xml:"volumne,omitempty" json:"volumne,omitempty"`
+	Volume               string                        `xml:"volume,omitempty" json:"volume,omitempty"`
 	Publisher            string                        `xml:"publisher,omitempty" json:"publisher,omitempty"`
 	PlaceOfPub           string                        `xml:"place_of_pub,omitempty" json:"place_of_pub,omitempty"`
 	Edition              string                        `xml:"edition,omitempty" json:"edition,omitempty"`
