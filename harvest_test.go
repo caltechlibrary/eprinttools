@@ -31,6 +31,10 @@ var recordCount = 1024
 func TestHarvest(t *testing.T) {
 	eprintURL := os.Getenv("EP_EPRINT_URL")
 	datasetName := os.Getenv("EP_DATASET")
+	if len(eprintURL) == 0 || len(datasetName) == 0 {
+		t.Log("Skipping TestHarvest, environment not set")
+		return
+	}
 	suppressNote := true
 
 	api, err := New(eprintURL, datasetName, suppressNote, "", "", "")

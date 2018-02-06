@@ -28,6 +28,10 @@ import (
 func TestListEPrintsURI(t *testing.T) {
 	eprintURL := os.Getenv("EP_EPRINT_URL")
 	datasetName := os.Getenv("EP_DATASET")
+	if len(eprintURL) == 0 || len(datasetName) == 0 {
+		t.Log("Skipping TestListEPrintsURI(), environment not set")
+		return
+	}
 	suppressNote := true
 
 	api, err := New(eprintURL, datasetName, suppressNote, "", "", "")
@@ -48,4 +52,8 @@ func TestListEPrintsURI(t *testing.T) {
 		t.Errorf("listEPrintURI() %s", err)
 	}
 	log.Printf("DEBUG uri: %+v\n", uris)
+}
+
+func TestMain(m *testing.M) {
+	os.Exit(m.Run())
 }

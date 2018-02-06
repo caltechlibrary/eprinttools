@@ -32,9 +32,9 @@ import (
 // E.g. curl -L -O https://eprints3.example.org/rest/eprint/1234.xml
 // Then parse the 1234.xml document stucture.
 type EPrints struct {
-	XMLName xml.Name `xml:"eprints" json:"-"`
-	XMLNS   string   `xml:"xmlns,attr,omitempty" json:"xmlns,omitempty"`
-	EPrint  *EPrint  `xml:"eprint" json:"eprint"`
+	XMLName xml.Name  `xml:"eprints" json:"-"`
+	XMLNS   string    `xml:"xmlns,attr,omitempty" json:"xmlns,omitempty"`
+	EPrint  []*EPrint `xml:"eprint" json:"eprint"`
 }
 
 // EPrint is the record contated in a EPrints XML document such as they used

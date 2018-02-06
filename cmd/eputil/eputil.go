@@ -216,12 +216,13 @@ func main() {
 			src, err = json.MarshalIndent(data, "", " ")
 			cli.ExitOnError(app.Eout, err, quiet)
 		case eprint:
-			data := eprinttools.EPrint{}
+			data := eprinttools.EPrints{}
 			err = xml.Unmarshal(src, &data)
 			cli.ExitOnError(app.Eout, err, quiet)
-
-			src, err = json.MarshalIndent(data, "", " ")
-			cli.ExitOnError(app.Eout, err, quiet)
+			if len(data.EPrint) == 1 {
+				src, err = json.MarshalIndent(data.EPrint[0], "", " ")
+				cli.ExitOnError(app.Eout, err, quiet)
+			}
 		case asJSON:
 			data := eprinttools.Generic{}
 			err = xml.Unmarshal(src, &data)
@@ -247,12 +248,12 @@ func main() {
 	} else {
 		switch {
 		case putURL != "":
-			fmt.Fprintf(app.Out, "PUT: %s\nDATA: %q\n", putURL, src)
+			//fmt.Fprintf(app.Out, "DEBUG PUT: %s\nDATA: %q\n", putURL, src)
 			// NOTE: We build our client request object so we can
 			// set authentication if necessary.
 			req, err := http.NewRequest("PUT", putURL, strings.NewReader(fmt.Sprintf("%s", src)))
 			if username != "" {
-				fmt.Printf("DEBUG username %q, password %q\n", username, password)
+				//fmt.Printf("DEBUG username %q, password %q\n", username, password)
 				req.SetBasicAuth(username, password)
 			}
 			req.Header.Set("User-Agent", app.Version())
@@ -272,11 +273,12 @@ func main() {
 				cli.ExitOnError(app.Eout, fmt.Errorf("%s for %s", res.Status, putURL), quiet)
 			}
 		case postURL != "":
-			fmt.Fprintf(app.Out, "POST: %s\nDATA: %q\n", postURL, src)
+			//fmt.Fprintf(app.Out, "DEBUG POST: %s\nDATA: %q\n", postURL, src)
 			// NOTE: We build our client request object so we can
 			// set authentication if necessary.
 			req, err := http.NewRequest("POST", postURL, strings.NewReader(fmt.Sprintf("%s", src)))
 			if user != "" {
+				//fmt.Printf("DEBUG username %q, password %q\n", username, password)
 				req.SetBasicAuth(username, password)
 			}
 			req.Header.Set("User-Agent", app.Version())
