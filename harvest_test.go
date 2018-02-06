@@ -32,8 +32,9 @@ func TestHarvest(t *testing.T) {
 	eprintURL := os.Getenv("EP_EPRINT_URL")
 	datasetName := os.Getenv("EP_DATASET")
 	if len(eprintURL) == 0 || len(datasetName) == 0 {
-		t.Log("Skipping TestHarvest, environment not set")
-		return
+		//t.Log("Skipping TestHarvest, environment not set")
+		//t.SkipNow()
+		t.Skip()
 	}
 	suppressNote := true
 
