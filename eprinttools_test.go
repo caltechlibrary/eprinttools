@@ -19,7 +19,6 @@
 package eprinttools
 
 import (
-	"log"
 	"os"
 	"testing"
 	"time"
@@ -29,8 +28,8 @@ func TestListEPrintsURI(t *testing.T) {
 	eprintURL := os.Getenv("EP_EPRINT_URL")
 	datasetName := os.Getenv("EP_DATASET")
 	if len(eprintURL) == 0 || len(datasetName) == 0 {
-		//t.Skipf("Skipping TestListEPrintsURI(), environment not set")
-		t.Skip()
+		t.Log("Skipping TestListEPrintsURI(), environment not set")
+		t.SkipNow()
 	}
 	suppressNote := true
 
@@ -45,11 +44,14 @@ func TestListEPrintsURI(t *testing.T) {
 		t.Errorf("listEPrintsURI() %s", err)
 	}
 
-	start, _ := time.Parse("2006-01-02", "2017-06-01")
-	end, _ := time.Parse("2006-01-02", "2017-06-02")
+	start, _ := time.Parse("2006-01-02", "2016-01-01")
+	end, _ := time.Parse("2006-01-02", "2018-02-06")
 	uris, err := api.ListModifiedEPrintURI(start, end, true)
 	if err != nil {
 		t.Errorf("listEPrintURI() %s", err)
+	}
+	if len(uris) == 0 {
+		t.Errorf("Expected more uris, got %d", len(uris))
 	}
 	//log.Printf("DEBUG uri: %+v\n", uris)
 }

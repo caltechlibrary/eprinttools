@@ -20,7 +20,12 @@ package eprinttools
 
 import (
 	"encoding/xml"
+	"net/url"
+	"os"
 	"testing"
+
+	// Caltech Library Packages
+	"github.com/caltechlibrary/rc"
 )
 
 func TestEPrint3x(t *testing.T) {
@@ -751,5 +756,33 @@ of the target materials, and validate these computations against experimental da
 	}
 	if len(records.EPrint) != 3 {
 		t.Errorf("Expected 3 records, got %d", records.EPrint)
+	}
+}
+
+func TestGetEPrint(t *testing.T) {
+	getURL := os.Getenv("EP_EPRINT_URL")
+	testKey := os.Getenv("EP_TEST_KEY")
+	if getURL == "" || testKey == "" {
+		t.Log("Skipping TestGetEPrint(), environment not setup")
+		t.SkipNow()
+	}
+	t.Log("Runnning TestGetEPrint() with %s", getURL)
+	restPath := "/rest/eprint/" + testKey + ".xml"
+	u, _ := url.Parse(getURL + restPath)
+	records := new(EPrints)
+	records, xmlSrc, err := GetEPrints(u.String(), rc.AuthNone, "", "")
+	if err != nil {
+		t.Errorf("can't get %s, %s", u.String(), err)
+	}
+	if len(xmlSrc) == 0 {
+		t.Errorf("Expected some XML data from %s", u.String())
+	}
+	if len(records.EPrint) == 0 {
+		t.Errorf("Expected a populated record for %s, got %+v", testKey)
+	}
+	for i, rec := range records.EPrint {
+		if rec.ID == "0" {
+			t.Errorf("Expected a populated record key (%d) for %s, got %+v", i, testKey, rec)
+		}
 	}
 }

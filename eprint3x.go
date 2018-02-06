@@ -20,8 +20,12 @@ package eprinttools
 import (
 	"encoding/json"
 	"encoding/xml"
+	"net/url"
 	"strconv"
 	"strings"
+
+	// Caltech Library packages
+	"github.com/caltechlibrary/rc"
 )
 
 //
@@ -568,4 +572,30 @@ func (name *Name) String() string {
 		return ""
 	}
 	return string(src)
+}
+
+// GetEPrints retrieves an EPrint record (e.g. via REST API)
+// A populated EPrints structure, the raw XML and an error.
+func GetEPrints(uri string, authType int, username, secret string) (*EPrints, []byte, error) {
+	workURL, err := url.Parse(uri)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	// Switch to use Rest Client Wrapper
+	rest, err := rc.New(workURL.String(), authType, username, secret)
+	if err != nil {
+		return nil, nil, err
+	}
+	content, err := rest.Request("GET", workURL.Path, map[string]string{})
+	if err != nil {
+		return nil, nil, err
+	}
+
+	rec := new(EPrints)
+	err = xml.Unmarshal(content, &rec)
+	if err != nil {
+		return nil, content, err
+	}
+	return rec, content, nil
 }

@@ -21,9 +21,8 @@ package eprinttools
 import (
 	"os"
 	"testing"
-
 	// CaltechLibrary packages
-	"github.com/caltechlibrary/dataset"
+	//"github.com/caltechlibrary/dataset"
 )
 
 var recordCount = 1024
@@ -32,9 +31,8 @@ func TestHarvest(t *testing.T) {
 	eprintURL := os.Getenv("EP_EPRINT_URL")
 	datasetName := os.Getenv("EP_DATASET")
 	if len(eprintURL) == 0 || len(datasetName) == 0 {
-		//t.Log("Skipping TestHarvest, environment not set")
-		//t.SkipNow()
-		t.Skip()
+		t.Log("Skipping TestHarvest, environment not setup")
+		t.SkipNow()
 	}
 	suppressNote := true
 
@@ -44,16 +42,11 @@ func TestHarvest(t *testing.T) {
 		t.FailNow()
 	}
 	if api.Dataset == "" {
-		api.Dataset = "EP_TEST_DATA"
-	}
-	if _, err = os.Stat(api.Dataset); os.IsNotExist(err) {
-		_, err = dataset.InitCollection(api.Dataset)
-		if err != nil {
-			t.Errorf("Can't create %s, %s", api.Dataset, err)
-			t.FailNow()
-		}
+		t.Errorf("api.Dataset not set, expected %q", datasetName)
+		t.FailNow()
 	}
 
+	// Skip, this needs to evolve to the new data structure
 	err = api.ExportEPrints(recordCount, api.Dataset+".keys", true)
 	if err != nil {
 		t.Errorf("Cannot harvest for test site %q", err)

@@ -40,7 +40,7 @@ func (api *EPrintsAPI) ExportEPrintsKeyList(keys []string, saveKeys string, verb
 
 	c, err := dataset.Open(api.Dataset)
 	if err != nil {
-		return fmt.Errorf("ExportEPrints() %s, %s", api.Dataset, err)
+		return fmt.Errorf("ExportEPrintsKeyList() %s, %s", api.Dataset, err)
 	}
 	defer c.Close()
 
@@ -79,7 +79,7 @@ func (api *EPrintsAPI) ExportEPrintsKeyList(keys []string, saveKeys string, verb
 				j++
 			} else {
 				if verbose == true {
-					log.Printf("Failed to save eprint %s, %s\n", uri, err)
+					log.Printf("Failed to save eprint %s (%s) to %s, %s\n", key, uri, api.Dataset, err)
 				}
 				k++
 			}
@@ -139,12 +139,10 @@ func (api *EPrintsAPI) ExportEPrints(count int, saveKeys string, verbose bool) e
 			k++
 		} else {
 			key := fmt.Sprintf("%d", rec.ID)
-			//NOTE: Check to see if we're doing an update or create
-			if rec.ID > 0 && c.HasKey(key) == true {
-				//log.Printf("DEBUG updating %q", key)
+			// NOTE: Check to see if we're doing an update or create
+			if c.HasKey(key) == true {
 				err = c.UpdateFrom(key, rec)
 			} else {
-				//log.Printf("DEBUG creating %q", key)
 				err = c.CreateFrom(key, rec)
 			}
 			if err == nil {
@@ -155,7 +153,7 @@ func (api *EPrintsAPI) ExportEPrints(count int, saveKeys string, verbose bool) e
 				j++
 			} else {
 				if verbose == true {
-					log.Printf("Failed to save eprint %s, %s\n", uri, err)
+					log.Printf("Failed to save eprint %s (%s) to %s, %s\n", key, uri, api.Dataset, err)
 				}
 				k++
 			}
@@ -185,7 +183,7 @@ func (api *EPrintsAPI) ExportModifiedEPrints(start, end time.Time, saveKeys stri
 
 	c, err := dataset.InitCollection(api.Dataset)
 	if err != nil {
-		return fmt.Errorf("ExportEPrints() %s, %s", api.Dataset, err)
+		return fmt.Errorf("ExportModifiedEPrints() %s, %s", api.Dataset, err)
 	}
 	defer c.Close()
 
@@ -215,7 +213,7 @@ func (api *EPrintsAPI) ExportModifiedEPrints(start, end time.Time, saveKeys stri
 		} else {
 			key := fmt.Sprintf("%d", rec.ID)
 			// NOTE: Check to see if we're doing an update or create
-			if c.HasKey(key) {
+			if c.HasKey(key) == true {
 				err = c.UpdateFrom(key, rec)
 			} else {
 				err = c.CreateFrom(key, rec)
@@ -228,7 +226,7 @@ func (api *EPrintsAPI) ExportModifiedEPrints(start, end time.Time, saveKeys stri
 				j++
 			} else {
 				if verbose == true {
-					log.Printf("Failed to save eprint %s, %s\n", uri, err)
+					log.Printf("Failed to save eprint %s (%s) to %s, %s\n", key, uri, api.Dataset, err)
 				}
 				k++
 			}
