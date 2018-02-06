@@ -141,10 +141,10 @@ func (api *EPrintsAPI) ExportEPrints(count int, saveKeys string, verbose bool) e
 			key := fmt.Sprintf("%d", rec.ID)
 			//NOTE: Check to see if we're doing an update or create
 			if rec.ID > 0 && c.HasKey(key) == true {
-				log.Printf("DEBUG updating %q", key)
+				//log.Printf("DEBUG updating %q", key)
 				err = c.UpdateFrom(key, rec)
 			} else {
-				log.Printf("DEBUG creating %q", key)
+				//log.Printf("DEBUG creating %q", key)
 				err = c.CreateFrom(key, rec)
 			}
 			if err == nil {

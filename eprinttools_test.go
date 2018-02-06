@@ -51,5 +51,5 @@ func TestListEPrintsURI(t *testing.T) {
 	if err != nil {
 		t.Errorf("listEPrintURI() %s", err)
 	}
-	log.Printf("DEBUG uri: %+v\n", uris)
+	//log.Printf("DEBUG uri: %+v\n", uris)
 }
