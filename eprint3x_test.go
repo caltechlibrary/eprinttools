@@ -786,3 +786,390 @@ func TestGetEPrint(t *testing.T) {
 		}
 	}
 }
+
+func TestUnmarshal(t *testing.T) {
+	src := []byte(`
+<?xml version='1.0' encoding='utf-8'?>
+<eprints xmlns='http://eprints.org/ep2/data/2.0'>
+  <eprint id='https://authors.library.caltech.edu/id/eprint/58360'>
+    <eprintid>58360</eprintid>
+    <rev_number>16</rev_number>
+    <documents>
+      <document id='https://authors.library.caltech.edu/id/document/218414'>
+        <docid>218414</docid>
+        <rev_number>2</rev_number>
+        <files>
+          <file id='https://authors.library.caltech.edu/id/file/931167'>
+            <fileid>931167</fileid>
+            <datasetid>document</datasetid>
+            <objectid>218414</objectid>
+            <filename>0004-637X_805_1_8.pdf</filename>
+            <mime_type>application/pdf</mime_type>
+            <hash>a4ad22c244df31a919bff6d7c8667fe9</hash>
+            <hash_type>MD5</hash_type>
+            <filesize>1209530</filesize>
+            <mtime>2015-06-19 15:28:54</mtime>
+            <url>https://authors.library.caltech.edu/58360/1/0004-637X_805_1_8.pdf</url>
+          </file>
+        </files>
+        <eprintid>58360</eprintid>
+        <pos>1</pos>
+        <placement>1</placement>
+        <mime_type>application/pdf</mime_type>
+        <format>application/pdf</format>
+        <language>en</language>
+        <security>public</security>
+        <license>other</license>
+        <main>0004-637X_805_1_8.pdf</main>
+        <content>published</content>
+      </document>
+      <document id='https://authors.library.caltech.edu/id/document/218415'>
+        <docid>218415</docid>
+        <rev_number>2</rev_number>
+        <files>
+          <file id='https://authors.library.caltech.edu/id/file/931173'>
+            <fileid>931173</fileid>
+            <datasetid>document</datasetid>
+            <objectid>218415</objectid>
+            <filename>1501.04107v2.pdf</filename>
+            <mime_type>application/pdf</mime_type>
+            <hash>c475d5def259d6f04e54aa1dd363de1d</hash>
+            <hash_type>MD5</hash_type>
+            <filesize>1251916</filesize>
+            <mtime>2015-06-19 15:37:19</mtime>
+            <url>https://authors.library.caltech.edu/58360/2/1501.04107v2.pdf</url>
+          </file>
+        </files>
+        <eprintid>58360</eprintid>
+        <pos>2</pos>
+        <placement>2</placement>
+        <mime_type>application/pdf</mime_type>
+        <format>application/pdf</format>
+        <language>en</language>
+        <security>public</security>
+        <license>other</license>
+        <main>1501.04107v2.pdf</main>
+        <content>submitted</content>
+      </document>
+    </documents>
+    <eprint_status>archive</eprint_status>
+    <userid>772</userid>
+    <dir>disk0/00/05/83/60</dir>
+    <datestamp>2015-06-19 16:32:16</datestamp>
+    <lastmod>2017-11-08 22:52:49</lastmod>
+    <status_changed>2015-06-19 16:32:16</status_changed>
+    <type>article</type>
+    <metadata_visibility>show</metadata_visibility>
+    <creators>
+      <item>
+        <name>
+          <family>Zhu</family>
+          <given>Wei</given>
+        </name>
+        <id>Zhu-Wei</id>
+        <orcid>0000-0003-4027-4711</orcid>
+      </item>
+      <item>
+        <name>
+          <family>Udalski</family>
+          <given>A.</given>
+        </name>
+        <id>Udalski-A</id>
+      </item>
+      <item>
+        <name>
+          <family>Gould</family>
+          <given>A.</given>
+        </name>
+        <id>Gould-A</id>
+      </item>
+      <item>
+        <name>
+          <family>Dominik</family>
+          <given>M.</given>
+        </name>
+        <id>Dominik-M</id>
+      </item>
+      <item>
+        <name>
+          <family>Bozza</family>
+          <given>V.</given>
+        </name>
+        <id>Bozza-V</id>
+      </item>
+      <item>
+        <name>
+          <family>Han</family>
+          <given>C.</given>
+        </name>
+        <id>Han-C</id>
+      </item>
+      <item>
+        <name>
+          <family>Yee</family>
+          <given>J. C.</given>
+        </name>
+        <id>Yee-Jennifer-C</id>
+      </item>
+      <item>
+        <name>
+          <family>Calchi Novati</family>
+          <given>S.</given>
+        </name>
+        <id>Calchi-Novati-S</id>
+        <orcid>0000-0002-7669-1069</orcid>
+      </item>
+      <item>
+        <name>
+          <family>Beichman</family>
+          <given>C. A.</given>
+        </name>
+        <id>Beichman-C-A</id>
+      </item>
+      <item>
+        <name>
+          <family>Carey</family>
+          <given>S.</given>
+        </name>
+        <id>Carey-S-J</id>
+        <orcid>0000-0002-0221-6871</orcid>
+      </item>
+      <item>
+        <name>
+          <family>Poleski</family>
+          <given>R.</given>
+        </name>
+        <id>Poleski-R</id>
+      </item>
+      <item>
+        <name>
+          <family>Skowron</family>
+          <given>J.</given>
+        </name>
+        <id>Skowron-J</id>
+      </item>
+      <item>
+        <name>
+          <family>Kozłowski</family>
+          <given>S.</given>
+        </name>
+        <id>Kozłowski-S</id>
+      </item>
+      <item>
+        <name>
+          <family>Mrόz</family>
+          <given>P.</given>
+        </name>
+        <id>Mrόz-P</id>
+      </item>
+      <item>
+        <name>
+          <family>Pietrukowicz</family>
+          <given>P.</given>
+        </name>
+        <id>Pietrukowicz-P</id>
+      </item>
+      <item>
+        <name>
+          <family>Pietrzyński</family>
+          <given>G.</given>
+        </name>
+        <id>Pietrzyński-G</id>
+      </item>
+      <item>
+        <name>
+          <family>Szymański</family>
+          <given>M. K.</given>
+        </name>
+        <id>Szymański-M-K</id>
+      </item>
+      <item>
+        <name>
+          <family>Soszyński</family>
+          <given>I.</given>
+        </name>
+        <id>Soszyński-I</id>
+      </item>
+      <item>
+        <name>
+          <family>Ulaczyk</family>
+          <given>K.</given>
+        </name>
+        <id>Ulaczyk-K</id>
+      </item>
+      <item>
+        <name>
+          <family>Wyrzykowski</family>
+          <given>Ł.</given>
+        </name>
+        <id>Wyrzykowski-Ł</id>
+      </item>
+    </creators>
+    <corp_creators>
+      <item>
+        <name>OGLE Collaboration</name>
+        <id>OGLE-Collaboration</id>
+      </item>
+      <item>
+        <name>µFUN Collaboration</name>
+        <id>µFUN-Collaboration</id>
+      </item>
+    </corp_creators>
+    <title>Spitzer as a Microlens Parallax Satellite: Mass and Distance Measurements of the Binary Lens System OGLE-2014-BLG-1050L</title>
+    <ispublished>pub</ispublished>
+    <full_text_status>public</full_text_status>
+    <keywords>binaries: general; gravitational lensing: micro</keywords>
+    <note>© 2015 American Astronomical Society. 
+
+Received 2015 January 20; accepted 2015 March 12; published 2015 May 13. 
+
+Work by W.Z., A.G., and B.S.G. was supported by NSF grant AST 1103471. Work by J.C.Y., A.G., and S.C. was supported by JPL grant 1500811. A.G., B.S.G., and R.W.P. were supported by NASA grant NNX12AB99G. Work by C.H. was supported by the Creative Research Initiative Program (2009-0081561) of the National Research Foundation of Korea. Work by J.C.Y. was performed under contract with the California Institute of Technology (Caltech)/Jet Propulsion Laboratory (JPL) funded by NASA through the Sagan Fellowship Program executed by the NASA Exoplanet Science Institute. Work by C.A.B. was carried out in part at the Jet Propulsion Laboratory (JPL), California Institute of Technology, under a contract with the National Aeronautics and Space Administration. The OGLE project has received funding from the European Research Council under the European Community’s Seventh Framework Programme (FP7/2007–2013)/ERC grant agreement no. 246678 to AU. This work is based in part on observations made with the Spitzer Space Telescope, which is operated by the Jet Propulsion Laboratory, California Institute of Technology, under a contract with NASA.</note>
+    <abstract>We report the first mass and distance measurements of a caustic-crossing binary system OGLE-2014-BLG-1050 L using the space-based microlens parallax method. Spitzer captured the second caustic crossing of the event, which occurred ~10 days before that seen from Earth. Due to the coincidence that the source-lens relative motion was almost parallel to the direction of the binary-lens axis, the fourfold degeneracy, which was known before only to occur in single-lens events, persists in this case, leading to either a lower-mass (0.2 and 0.07 M_☉) binary at ~1.1 kpc or a higher-mass (0.9 and 0.35 M_☉) binary at ~3.5 kpc. However, the latter solution is strongly preferred for reasons including blending and lensing probability. OGLE-2014-BLG-1050 L demonstrates the power of microlens parallax in probing stellar and substellar binaries.</abstract>
+    <date>2015-05-20</date>
+    <date_type>published</date_type>
+    <publication>Astrophysical Journal</publication>
+    <volume>805</volume>
+    <number>1</number>
+    <publisher>American Astronomical Society</publisher>
+    <pagerange>Art. No. 8</pagerange>
+    <id_number>CaltechAUTHORS:20150619-082837114</id_number>
+    <refereed>TRUE</refereed>
+    <issn>0004-637X</issn>
+    <official_url>http://resolver.caltech.edu/CaltechAUTHORS:20150619-082837114</official_url>
+    <related_url>
+      <item>
+        <url>http://dx.doi.org/10.1088/0004-637X/805/1/8</url>
+        <type>doi</type>
+        <description>Article</description>
+      </item>
+      <item>
+        <url>http://iopscience.iop.org/0004-637X/805/1/8/</url>
+        <type>pub</type>
+        <description>Article</description>
+      </item>
+      <item>
+        <url>http://arxiv.org/abs/1501.04107</url>
+        <type>arxiv</type>
+        <description>Discussion Paper</description>
+      </item>
+    </related_url>
+    <referencetext>
+      <item>Albrow, M. D., Beaulieu, J.-P., Caldwell, J. A. R., et al. 1999, ApJ, 522, 1022
+Alcock, C., Allsman, R. A., Alves, D., et al. 1995, ApJL, 454, L125
+Alcock, C., Allsman, R. A., Alves, D. R., et al. 2001, Natur, 414, 617
+Batista, V., Beaulieu, J.-P., Gould, A., et al. 2014, ApJ, 780, 54
+Batista, V., Gould, A., Dieters, S., et al. 2011, A&amp;A, 529, A102
+Bennett, D. P., Anderson, J., Bond, I. A., Udalski, A., &amp; Gould, A. 2006,
+ApJL, 647, L171
+Bensby, T., Yee, J. C., Feltzing, S., et al. 2013, A&amp;A, 549, A147
+Bessell, M. S., &amp; Brett, J. M. 1988, PASP, 100, 1134
+Bozza, V. 2010, MNRAS, 408, 2188
+Calchi Novati, S., Gould, A., Udalski, A., et al. 2014, arXiv:1411.7378
+Cassan, A. 2008, A&amp;A, 491, 587
+Cassan, A., Horne, K., Kains, N., Tsapras, Y., &amp; Browne, P. 2010, A&amp;A,
+515, A52
+Choi, J.-Y., Han, C., Udalski, A., et al. 2013, ApJ, 768, 129
+Dominik, M. 1998, A&amp;A, 333, L79
+Dong, S., DePoy, D. L., Gaudi, B. S., et al. 2006, ApJ, 642, 842
+Dong, S., Gould, A., Udalski, A., et al. 2009, ApJ, 695, 970
+Dong, S., Udalski, A., Gould, A., et al. 2007, ApJ, 664, 862
+Duchêne, G., &amp; Kraus, A. 2013, ARA&amp;A, 51, 269
+Gaudi, B. S., Bennett, D. P., Udalski, A., et al. 2008, Sci, 319, 927
+Gould, A. 1992, ApJ, 392, 442
+Gould, A. 1994, ApJL, 421, L75
+Gould, A. 1997, ApJ, 480, 188
+Gould, A. 2004, ApJ, 606, 319
+Gould, A. 2008, ApJ, 681, 1593
+Gould, A. 2013, ApJL, 763, L35
+Gould, A. 2014, JKAS, 47, 215
+Gould, A., Carey, S., &amp; Yee, J. 2014, sptz prop, 11006
+Gould, A., &amp; Gaucherel, C. 1997, ApJ, 477, 580
+Gould, A., &amp; Horne, K. 2013, ApJL, 779, L28
+Gould, A., Udalski, A., Monard, B., et al. 2009, ApJL, 698, L147
+Gould, A., &amp; Yee, J. C. 2012, ApJL, 755, L17
+Gould, A., &amp; Yee, J. C. 2014, ApJ, 784, 64
+Graff, D. S., &amp; Gould, A. 2002, ApJ, 580, 253
+Hardy, S. J., &amp; Walker, M. A. 1995, MNRAS, 276, L79
+Honma, M. 1999, ApJL, 517, L35
+Jiang, G., DePoy, D. L., Gal-Yam, A., et al. 2004, ApJ, 617, 1307
+Jung, Y. K., Udalski, A., Sumi, T., et al. 2015, ApJ, 798, 123
+Kains, N., Cassan, A., Horne, K., et al. 2009, MNRAS, 395, 787
+Kervella, P., Thévenin, F., di Folco, E., &amp; Ségransan, D. 2004, A&amp;A, 426, 297
+Nataf, D. M., Gould, A., Fouqué, P., et al. 2013, ApJ, 769, 88
+Park, H., Udalski, A., Han, C., et al. 2013, ApJ, 778, 134
+Pejcha, O., &amp; Heyrovský, D. 2009, ApJ, 690, 1772
+Penny, M. T., Kerins, E., Rattenbury, N., et al. 2013, MNRAS, 434, 2
+Poindexter, S., Afonso, C., Bennett, D. P., et al. 2005, ApJ, 633, 914
+Ramírez, I., Michel, R., Sefako, R., et al. 2012, ApJ, 752, 5
+Refsdal, S. 1966, MNRAS, 134, 315
+Spergel, D., Gehrels, N., Breckinridge, J., et al. 2013, arXiv:1305.5422
+Skowron, J., Udalski, A., Gould, A., et al. 2011, ApJ, 738, 87
+Udalski, A. 2003, AcA, 53, 291
+Udalski, A., Yee, J. C., Gould, A., et al. 2015, ApJ, 799, 237
+Walker, M. A. 1995, ApJ, 453, 37
+Yee, J. C., Hung, L.-W., Bond, I. A., et al. 2013, ApJ, 769, 77
+Yee, J. C., Udalski, A., Calchi Novati, S., et al. 2015, ApJ, 802, 76
+Yee, J. C., Udalski, A., Sumi, T., et al. 2009, ApJ, 703, 2082
+Yoo, J., DePoy, D. L., Gal-Yam, A., et al. 2004, ApJ, 603, 139
+Zhu, W., Penny, M., Mao, S., Gould, A., &amp; Gendron, R. 2014, ApJ, 788, 73</item>
+    </referencetext>
+    <rights>No commercial reproduction, distribution, display or performance rights in this work are provided.</rights>
+    <official_cit>Spitzer as a Microlens Parallax Satellite: Mass and Distance Measurements of the Binary Lens System OGLE-2014-BLG-1050L
+Wei Zhu (祝伟) et al. 2015 ApJ 805 8</official_cit>
+    <funders>
+      <item>
+        <agency>NSF</agency>
+        <grant_number>AST-1103471</grant_number>
+      </item>
+      <item>
+        <agency>JPL</agency>
+        <grant_number>1500811</grant_number>
+      </item>
+      <item>
+        <agency>NASA</agency>
+        <grant_number>NNX12AB99G</grant_number>
+      </item>
+      <item>
+        <agency>National Research Foundation of Korea</agency>
+        <grant_number>2009-0081561</grant_number>
+      </item>
+      <item>
+        <agency>NASA Sagan Fellowship</agency>
+      </item>
+      <item>
+        <agency>NASA/JPL/Caltech</agency>
+      </item>
+      <item>
+        <agency>European Research Council (ERC)</agency>
+        <grant_number>246678</grant_number>
+      </item>
+    </funders>
+    <collection>CaltechAUTHORS</collection>
+    <reviewer>George Porter</reviewer>
+    <local_group>
+      <item>Infrared Processing and Analysis Center (IPAC)</item>
+    </local_group>
+  </eprint>
+</eprints>
+`)
+	records := new(EPrints)
+	err := xml.Unmarshal(src, &records)
+	if err != nil {
+		t.Errorf("unmashal failed, %s", err)
+		t.FailNow()
+	}
+	if len(records.EPrint) != 1 {
+		t.Errorf("Should have found at least one eprint")
+		t.FailNow()
+	}
+	record := records.EPrint[0]
+	if record.Publication != "Astrophysical Journal" {
+		t.Errorf("expected %q, got %q", "Astrophysical Journal", record.Publication)
+	}
+	if record.Volume != "805" {
+		t.Errorf("expected %q, got %q", "805", record.Volume)
+	}
+	if record.Number != "1" {
+		t.Errorf("expected %q, got %q", "1", record.Number)
+	}
+}
