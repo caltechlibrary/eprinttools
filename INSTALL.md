@@ -1,8 +1,8 @@
 
 # Installation
 
-*ep* is a command line program run from a shell like Bash. It allows you to harvest EPrint repository
-content and save it in a [dataset](https://github.com/caltechlibrary/dataset) collection.
+*eputil* and *ep* are command line programs run from a shell like Bash. They allow you to 
+harvest and work with EPrint repository content.
 
 This is generalized instructions for a release.  For deployment suggestions see NOTES.md
 

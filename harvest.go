@@ -64,7 +64,7 @@ func (api *EPrintsAPI) ExportEPrintsKeyList(keys []string, saveKeys string, verb
 			log.Printf("Failed, %s\n", err)
 			k++
 		} else {
-			key := fmt.Sprintf("%d", rec.ID)
+			key := rec.ID
 			// NOTE: Check to see if we're doing an update or create
 			if c.HasKey(key) == true {
 				err = c.UpdateFrom(key, rec)
@@ -138,7 +138,7 @@ func (api *EPrintsAPI) ExportEPrints(count int, saveKeys string, verbose bool) e
 			log.Printf("Failed, %s\n", err)
 			k++
 		} else {
-			key := fmt.Sprintf("%d", rec.ID)
+			key := rec.ID
 			// NOTE: Check to see if we're doing an update or create
 			if c.HasKey(key) == true {
 				err = c.UpdateFrom(key, rec)
@@ -211,7 +211,7 @@ func (api *EPrintsAPI) ExportModifiedEPrints(start, end time.Time, saveKeys stri
 			}
 			k++
 		} else {
-			key := fmt.Sprintf("%d", rec.ID)
+			key := rec.ID
 			// NOTE: Check to see if we're doing an update or create
 			if c.HasKey(key) == true {
 				err = c.UpdateFrom(key, rec)

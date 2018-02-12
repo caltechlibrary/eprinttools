@@ -5,23 +5,23 @@
 
 ## Next
 
-+ [ ] Upgrade to dataset v0.0.14-dev or better
-+ [ ] Add support to create/update an full EPrint record from JSON  (
 + [ ] Add write support to ep cli so we can full circle data from other sources into EPrints
     + e.g. find an author with an ORCID and propogate the ORCID to all other occurrences of the author
     + e.g. take a relative link of type "DOI" and populate the DOI field (without the URL prefix)
-+ [ ] Migrate from _ep_ to _eprint_ as harvester for CaltechAUTHORS and CaltechTHESIS
 
 
 ## Someday, Maybe
 
-+ [ ] Normalize logging between ep and other harvesters
++ [ ] Migrate from _ep_ to _epharvest_ for CaltechAUTHORS and CaltechTHESIS
++ [ ] Normalize logging between eputil and ep
 + [ ] Add Authentication support for harvesting all EPrints records if the REST API is enabled
     + [ ] Use privileged account for Harvest so we can get all content
     + [ ] Export should have options to include/exclude embargoed/restricted records
 
 ## Completed
 
++ [x] Upgrade to dataset v0.0.14-dev or better
++ [x] Add support to create/update an full EPrint record from JSON  (
 + [x] Rethink how I have named the elements of the EPrint Document and Record structures. Should they more closely represent their XML structures?
     + What about versions of EPrints' data structures (e.g. how many name spaces do I need to support? http://eprints.org/ep2/data/2.0 or others?)
     + Should Record be named EPrints and Document be named EPrint?

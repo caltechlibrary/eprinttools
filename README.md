@@ -2,20 +2,16 @@
 # eprinttools
 
 This project contains the _eprinttools_, a go package for working with EPrints 
-REST API. It also includes _ep_ and command line utility for 
-harvesting content into a [dataset](https://github.com/caltechlibrary/dataset)
-collection and rendering JSON documents for web feeds.
+REST API. 
 
-## The command line 
+## The command line programs
 
 + _eputil_ is a command line utility for interacting (e.g. harvesting) JSON and XML from EPrints' REST API
     + uses minimal configuration because it does less!
     + will supercede _ep_
-+ _ep_ is an older version of a EPrints harvester. It features an integration with 
-       [dataset](https://github.com/caltechlibrary/dataset) and can be used to produce 
-       alternative feeds and formats. 
++ _ep_ is a EPrints harvester that integrates with [dataset](https://github.com/caltechlibrary/dataset).
 
-The _ep_ utility is configured from the environment or command line options. The environment
+Both utilities can be configured from the environment or command line options. The environment
 settings are overridden by command line options. For details running either command envoke the
 tool name with the '-help' option. 
 

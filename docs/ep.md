@@ -1,4 +1,3 @@
-DEBUG showHelp false
 
 # USAGE
 
@@ -15,11 +14,10 @@ CONFIGURATION
 
 ep can be configured with following environment variables
 
-EP_EPRINTS_URL the URL to your EPrints installation
+EPRINTS_URL the URL to your EPrints installation
 
-EP_DATASET the dataset and collection name for exporting, site building, and content retrieval
+DATASET the dataset and collection name for exporting, site building, and content retrieval
 
-EP_SUPPRESS_NOTE if set to true or 1 will suppress the note field in harvesting
 
 
 ## ENVIRONMENT

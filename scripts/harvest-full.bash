@@ -2,7 +2,7 @@
 
 # Setup working environment
 WEEKDAY=$(date +%A)
-cd "$HOME/src/github.com/caltechlibrary/ep"
+cd "$HOME/src/github.com/caltechlibrary/eprinttools"
 if [ -f "etc/production.bash" ]; then
 	. etc/production.bash
 fi

@@ -1,15 +1,12 @@
+#!/bin/bash
+
 # URL for E-Prints repository
-export EP_EPRINT_URL=https://lemurprints.local
-# DB Name used to exporting from E-Prints and for site building
-# for S3 storage use an S3 URL like s3://dataset.library.example.edu/eprints
-export EP_DATASET=dataset/eprints
-# Suppress the note field
-# export EP_SUPPRESS_NOTE=true
+export EPRINT_URL="https://lemurprints.local"
 
-# For S3 support with S3's aws commands' configuration do
-# export AWS_SDK_LOAD_CONFIG=1
-
-# If you want to use access the dataset command you can export the DATASET environment variable
-# export DATASET="${EP_DATASET}"
+# Use
+#export AWS_SDK_LOAD_CONFIG=1
+# for S3 storage use an S3 URL like s3://eprints.dataset.edu/eprints
+#export DATASET="s3://eprints.dataset.example.edu/eprints"
+export DATASET="eprints"
 
 

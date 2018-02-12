@@ -16,7 +16,7 @@
 #           ./script/list.bash subject/
 #
 #
-if [ "$EP_EPRINT_URL" = "" ]; then
+if [ "$EPRINT_URL" = "" ]; then
     echo "Environment not configured."
     exit 1
 fi

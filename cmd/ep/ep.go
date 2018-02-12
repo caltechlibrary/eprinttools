@@ -1,9 +1,9 @@
 //
-// Package ep is a collection of structures and functions for working with the EPrints REST API
+// epharvest is an eprinttools based cli for harvesting EPrints content into a dataset collection.
 //
 // @author R. S. Doiel, <rsdoiel@caltech.edu>
 //
-// Copyright (c) 2017, Caltech
+// Copyright (c) 2018, Caltech
 // All rights not granted herein are expressly reserved by Caltech.
 //
 // Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -19,9 +19,9 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
+	"net/url"
 	"os"
 	"strconv"
 	"strings"
@@ -29,38 +29,41 @@ import (
 
 	// Caltech Library Packages
 	"github.com/caltechlibrary/cli"
-	ep "github.com/caltechlibrary/eprinttools"
+	"github.com/caltechlibrary/eprinttools"
 )
 
 var (
 	// cli help text
 	description = `
-%s wraps the REST API for EPrints 3.3 or better. It can return a list 
-of uri, a JSON view of the XML presentation as well as generates feeds 
-and web pages.
+%s uses the REST API for EPrints 3.x to harvest EPrints content into
+a dataset collection. If you don't need dataset integration use eputil 
+instead. If you want to view  the harvested content then use the
+dataset command.
 
 CONFIGURATION
 
 ep can be configured with following environment variables
 
-EP_EPRINT_URL the URL to your EPrints installation
+EPRINT_URL the URL to your EPrints installation
 
-EP_DATASET the dataset and collection name for exporting, site building, and content retrieval
-
-EP_SUPPRESS_NOTE if set to true or 1 will suppress the note field in harvesting
+DATASET the dataset collection name to use for storing your harvested EPrint content.
 `
 
 	examples = `
-Would export the entire EPrints repository public content defined by the
-environment virables EP_API_URL, EP_DATASET.
+Save a list the URI end points for eprint records found at EPRINT_URL.
+
+	%s -o uris.txt
+
+Export the entire EPrints repository public content defined by the
+environment variables EPRINT_URL, DATASET.
 
     %s -export all
 
-Would export 2000 EPrints from the repository with the heighest ID values.
+Export 2000 EPrints from the repository with the heighest ID values.
 
     %s -export 2000
 
-Would export the EPrint records modified since July 1, 2017.
+Export the EPrint records modified since July 1, 2017.
 
     %s -export-modified 2017-07-01
 
@@ -68,7 +71,7 @@ Explore a specific listof keys (e.g. "101,102,1304")
 
 	%s -export-keys "101,102,1304"
 
-Would export the EPrint records with modified times in July 2017 and
+Export the EPrint records with modified times in July 2017 and
 save the keys for the records exported with one key per line. 
 
     %s -export-modified 2017-07-01,2017-07-31 \
@@ -83,6 +86,7 @@ save the keys for the records exported with one key per line.
 	outputFName          string
 	quiet                bool
 	generateMarkdownDocs bool
+	newLine              bool
 
 	// App Options
 	verbose     bool
@@ -112,21 +116,20 @@ func main() {
 		datasetNameEnv  string
 		suppressNoteEnv bool
 	)
-	app := cli.NewCli(ep.Version)
+	app := cli.NewCli(eprinttools.Version)
 	appName := app.AppName()
 
 	// Document non-option parameters
-	app.AddParams("[EP_EPRINT_URL]", "[ONE_OR_MORE_EPRINT_ID]")
+	app.AddParams("[EPRINT_URL]", "[ONE_OR_MORE_EPRINT_ID]")
 
 	// Add Help Docs
-	app.AddHelp("license", []byte(fmt.Sprintf(ep.LicenseText, appName, ep.Version)))
+	app.AddHelp("license", []byte(fmt.Sprintf(eprinttools.LicenseText, appName, eprinttools.Version)))
 	app.AddHelp("description", []byte(fmt.Sprintf(description, appName)))
-	app.AddHelp("examples", []byte(fmt.Sprintf(examples, appName, appName, appName, appName, appName)))
+	app.AddHelp("examples", []byte(fmt.Sprintf(examples, appName, appName, appName, appName, appName, appName)))
 
 	// App Environment
-	app.EnvStringVar(&apiURLEnv, "EP_EPRINT_URL", "", "Sets the EPRints API URL")
-	app.EnvStringVar(&datasetNameEnv, "EP_DATASET", "", "Sets the dataset collection for storing EPrint harvested records")
-	app.EnvBoolVar(&suppressNoteEnv, "EP_SUPPRESS_NOTE", false, "Suppress the note field on harvesting")
+	app.EnvStringVar(&apiURLEnv, "EPRINT_URL", "", "Sets the EPRints API URL")
+	app.EnvStringVar(&datasetNameEnv, "DATASET", "", "Sets the dataset collection for storing EPrint harvested records")
 
 	// Standard Options
 	app.BoolVar(&showHelp, "h,help", false, "display help")
@@ -136,17 +139,16 @@ func main() {
 	app.StringVar(&outputFName, "o,output", "", "output filename")
 	app.BoolVar(&generateMarkdownDocs, "generate-markdown-docs", false, "generation markdown documentation")
 	app.BoolVar(&quiet, "quiet", false, "suppress error output")
-	//app.BoolVar(&newLine, "nl,newline", true, "include trailing newline in output")
+	app.BoolVar(&newLine, "nl,newline", true, "set to false to exclude trailing newline")
 
 	// App Specific options
-	app.BoolVar(&suppressNote, "suppress-note", false, "suppress note")
 	app.BoolVar(&verbose, "verbose", true, "verbose logging")
 	app.StringVar(&authMethod, "auth", "", "set the authentication method (e.g. none, basic, oauth, shib)")
 	app.StringVar(&userName, "un,username", "", "set the username")
 	app.StringVar(&userSecret, "pw,password", "", "set the password")
 
 	app.StringVar(&apiURL, "api", "", "url for EPrints API")
-	app.StringVar(&datasetName, "dataset", "", "dataset/collection name")
+	app.StringVar(&datasetName, "dataset", "", "dataset collection name")
 
 	app.BoolVar(&prettyPrint, "p,pretty", false, "pretty print JSON output")
 	app.BoolVar(&useAPI, "read-api", false, "read the contents from the API without saving in the database")
@@ -163,7 +165,7 @@ func main() {
 	}
 	args := app.Args()
 	if apiURL == "" {
-		apiURL = app.Getenv("EP_EPRINT_URL")
+		apiURL = app.Getenv("EPRINT_URL")
 		if len(args) > 0 {
 			for _, val := range args {
 				if strings.Contains(val, "://") {
@@ -174,7 +176,7 @@ func main() {
 		}
 	}
 	if datasetName == "" {
-		datasetName = app.Getenv("EP_DATASET")
+		datasetName = app.Getenv("DATASET")
 	}
 
 	// Setup IO
@@ -188,9 +190,6 @@ func main() {
 		os.Exit(1)
 	}
 	defer cli.CloseFile(outputFName, app.In)
-
-	// Set log to output
-	log.SetOutput(app.Out)
 
 	// Process Options
 	if generateMarkdownDocs {
@@ -235,40 +234,31 @@ func main() {
 
 	// This will read in the settings from the app
 	// and configure access to the EPrints API
-	api, err := ep.New(apiURL, datasetName, suppressNote, authMethod, userName, userSecret)
+	if u, err := url.Parse(apiURL); err == nil {
+		if strings.HasSuffix(u.Path, "/rest/eprint") == true {
+			u.Path = strings.TrimSuffix(u.Path, "/rest/eprint")
+			apiURL = u.String()
+		}
+	} else {
+		fmt.Fprintf(app.Eout, "%s\n", err)
+		os.Exit(1)
+	}
+	api, err := eprinttools.New(apiURL, datasetName, suppressNote, authMethod, userName, userSecret)
 	if err != nil {
 		fmt.Fprintf(app.Eout, "%s\n", err)
 		os.Exit(1)
 	}
 
-	if exportEPrintsKeyList != "" {
-		t0 := time.Now()
-		log.Printf("%s %s (pid %d)", appName, ep.Version, os.Getpid())
+	log.Printf("%s %s (pid %d)", appName, eprinttools.Version, os.Getpid())
+	log.Printf("Harvesting from %s", apiURL)
+	t0 := time.Now()
+	switch {
+	case exportEPrintsKeyList != "":
 		log.Printf("Export started, %s", t0)
 		if err := api.ExportEPrintsKeyList(strings.Split(exportEPrintsKeyList, ","), exportSaveKeys, verbose); err != nil {
 			log.Fatalf("%s", err)
 		}
-		log.Printf("Export completed, running time %s", time.Now().Sub(t0))
-		os.Exit(0)
-	}
-	if exportEPrints != "" {
-		t0 := time.Now()
-		exportNo := -1
-		if exportEPrints != "all" {
-			exportNo, err = strconv.Atoi(exportEPrints)
-			if err != nil {
-				log.Fatalf("Export count should be %q or an integer, %s", exportEPrints, err)
-			}
-		}
-		log.Printf("%s %s (pid %d)", appName, ep.Version, os.Getpid())
-		log.Printf("Export started, %s", t0)
-		if err := api.ExportEPrints(exportNo, exportSaveKeys, verbose); err != nil {
-			log.Fatalf("%s", err)
-		}
-		log.Printf("Export completed, running time %s", time.Now().Sub(t0))
-		os.Exit(0)
-	}
-	if exportEPrintsModified != "" {
+	case exportEPrintsModified != "":
 		s := exportEPrintsModified
 		e := time.Now().Format("2006-01-02")
 		if strings.Contains(s, ",") {
@@ -283,64 +273,29 @@ func main() {
 		if err != nil {
 			log.Fatalf("%s", err)
 		}
-		t0 := time.Now()
-		log.Printf("%s %s (pid %d)", appName, ep.Version, os.Getpid())
 		log.Printf("Export from %s to %s, started %s", start.Format("2006-01-02"), end.Format("2006-01-02"), t0.Format("2006-01-02 15:04:05 MST"))
 		if err := api.ExportModifiedEPrints(start, end, exportSaveKeys, verbose); err != nil {
 			log.Fatalf("%s", err)
 		}
-		log.Printf("Export completed, running time %s", time.Now().Sub(t0))
-		os.Exit(0)
-	}
-
-	//
-	// Generate JSON output
-	//
-	var (
-		src  []byte
-		data interface{}
-	)
-	switch {
-	case updatedSince != "":
-		// date should be formatted YYYY-MM-DD, 2006-01-02
-		end := time.Now()
-		start, err := time.Parse("2006-01-02", updatedSince)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "updated since %q, %s", updatedSince, err)
-			os.Exit(1)
+	case exportEPrints != "":
+		exportNo := -1
+		if exportEPrints != "all" {
+			exportNo, err = strconv.Atoi(exportEPrints)
+			if err != nil {
+				log.Fatalf("Export count should be %q or an integer, %s", exportEPrints, err)
+			}
 		}
-		data, err = api.ListModifiedEPrintURI(start, end, verbose)
-	case useAPI == true:
-		if len(args) == 1 {
-			data, _, err = api.GetEPrint(args[0])
-		} else {
-			data, err = api.ListEPrintsURI()
+		log.Printf("Export started, %s", t0)
+		if err := api.ExportEPrints(exportNo, exportSaveKeys, verbose); err != nil {
+			log.Fatalf("%s", err)
 		}
 	default:
-		if len(args) == 1 {
-			data, err = api.Get(args[0])
-		} else if len(args) > 1 {
-			records := []*ep.Record{}
-			for _, id := range args {
-				if rec, err := api.Get(id); err == nil {
-					records = append(records, rec)
-				} else {
-					fmt.Fprintf(os.Stderr, "Can't read EPrint id %s, %s\n", id, err)
-				}
-			}
-			data = records
+		if uris, err := api.ListEPrintsURI(); err != nil {
+			log.Fatalf("%s", err)
 		} else {
-			data, err = api.ListID(0, -1)
+			fmt.Fprintf(app.Out, strings.Join(uris, "\n"))
 		}
 	}
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	if prettyPrint == true {
-		src, _ = json.MarshalIndent(data, "", "    ")
-	} else {
-		src, _ = json.Marshal(data)
-	}
-	fmt.Fprintf(app.Out, "%s", src)
+	log.Printf("Export completed, running time %s", time.Now().Sub(t0))
+	os.Exit(0)
 }
