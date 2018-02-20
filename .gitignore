@@ -57,3 +57,4 @@ scratch/*
 authors2orcid/*
 thesis2orcid/*
 *.dataset
+*.ds
