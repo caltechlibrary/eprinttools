@@ -100,10 +100,12 @@ type EPrint struct {
 	Contributors         *ContributorItemList          `xml:"contributors,omitempty" json:"contributors,omitempty"`
 	MonographType        string                        `xml:"monograph_type,omitempty" json:"monograph_type,omitempty"`
 
+	// Caltech Library uses suggestions as an internal note field (RSD, 2018-02-15)
+	Suggestions string `xml:"suggestions,omitempty" json:"suggestions,omitempty"`
+
 	// NOTE: Misc fields discoverd exploring REST API records, not currently used at Caltech Library (RSD, 2018-01-02)
 	Subjects           *SubjectItemList         `xml:"subjects,omitempty" json:"subjects,omitempty"`
 	PresType           string                   `xml:"pres_type,omitempty" json:"presentation_type,omitempty"`
-	Suggestions        string                   `xml:"suggestions,omitempty" json:"suggestions,omitempty"`
 	Succeeds           string                   `xml:"succeeds,omitempty" json:"succeeds,omitempty"`
 	Commentary         string                   `xml:"commentary,omitempty" json:"commentary,omitempty"`
 	ContactEMail       string                   `xml:"contact_email,omitempty" json:"contect_email,omitempty"`

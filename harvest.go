@@ -202,7 +202,7 @@ func (api *EPrintsAPI) ExportModifiedEPrints(start, end time.Time, saveKeys stri
 	if verbose == true {
 		log.Printf("Exporting %d uris", count)
 	}
-	for i := 0; i < count && i < count; i++ {
+	for i := 0; i < count; i++ {
 		uri := uris[i]
 		rec, xmlSrc, err := api.GetEPrint(uri)
 		if err != nil {

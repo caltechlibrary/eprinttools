@@ -755,7 +755,7 @@ of the target materials, and validate these computations against experimental da
 		t.FailNow()
 	}
 	if len(records.EPrint) != 3 {
-		t.Errorf("Expected 3 records, got %d", records.EPrint)
+		t.Errorf("Expected 3 records, got %d", len(records.EPrint))
 	}
 }
 
@@ -766,7 +766,7 @@ func TestGetEPrint(t *testing.T) {
 		t.Log("Skipping TestGetEPrint(), environment not setup")
 		t.SkipNow()
 	}
-	t.Log("Runnning TestGetEPrint() with %s", getURL)
+	t.Log("Runnning TestGetEPrint() with", getURL)
 	restPath := "/rest/eprint/" + testKey + ".xml"
 	u, _ := url.Parse(getURL + restPath)
 	records := new(EPrints)
@@ -778,7 +778,7 @@ func TestGetEPrint(t *testing.T) {
 		t.Errorf("Expected some XML data from %s", u.String())
 	}
 	if len(records.EPrint) == 0 {
-		t.Errorf("Expected a populated record for %s, got %+v", testKey)
+		t.Errorf("Expected a populated record for %s, got %+v", testKey, records.EPrint)
 	}
 	for i, rec := range records.EPrint {
 		if rec.ID == "0" {
