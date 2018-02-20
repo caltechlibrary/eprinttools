@@ -15,14 +15,15 @@
 Environment variables can be overridden by corresponding options
 
 ```
-    EP_USER   Sets the eprint USERNAME:PASSWORD to use with URL basic auth
-
+    EP_USER   # Sets the eprint USERNAME:PASSWORD to use with URL basic auth
+```
 
 ## OPTIONS
 
 Options will override any corresponding environment settings.
 
 ```
+    -auth                     set the authorization type, e.g. basic
     -document, -eprints       parse an eprints (e.g. rest response) document
     -e, -examples             display examples
     -generate-markdown-docs   output documentation in Markdown
@@ -36,9 +37,11 @@ Options will override any corresponding environment settings.
     -o, -output               output file name
     -post                     do an HTTP POST to add/update a record (e.g. update a URL endpoint
     -put                      do an HTTP POST to add/update a record (e.g. update a URL endpoint
+    -pw, -password            set the password for authenticated access
     -quiet                    suppress error messages
     -revision, -eprint        parse a eprint (revision) document
-    -u, -user                 set the username:password for authentication authenticated access
+    -u, -user                 set the basic auth string to 'username:password' for authenticated access
+    -un, -username            set the username for authenticated access
     -v, -version              display version
 ```
 
@@ -64,7 +67,7 @@ Parse an EPrint reversion XML document
 
 Get a JSON array of eprint ids from the REST API
 
-    eputil -url https://eprints.example.org/rest/eprint/ -ids
+    eputil -get https://eprints.example.org/rest/eprint/ -ids
 
 
-eputil v0.0.10-beta7
+eputil v0.0.13-dev
