@@ -3,6 +3,8 @@
 
 ## Bugs
 
++ [ ] ep tool is exporting whole URL as key rather than the eprint id number.
+
 ## Next
 
 + [ ] Add write support to ep cli so we can full circle data from other sources into EPrints

@@ -101,6 +101,7 @@ func main() {
 		err      error
 		username string
 		password string
+		auth     string
 	)
 
 	app := cli.NewCli(eprinttools.Version)
@@ -131,7 +132,10 @@ func main() {
 	app.BoolVar(&eprint, "revision,eprint", false, "parse a eprint (revision) document")
 	app.BoolVar(&asJSON, "json", false, "attempt to parse XML into generaic JSON structure")
 	app.BoolVar(&getIDs, "ids", false, "get a list of doc paths (e.g. ids or sub-fields depending on the URL provided")
-	app.StringVar(&user, "u,user", "", "set the username:password for authentication authenticated access")
+	app.StringVar(&user, "u,user", "", "set the basic auth string to 'username:password' for authenticated access")
+	app.StringVar(&username, "un,username", "", "set the username for authenticated access")
+	app.StringVar(&password, "pw,password", "", "set the password for authenticated access")
+	app.StringVar(&auth, "auth", "", "set the authorization type, e.g. basic")
 
 	// We're ready to process args
 	app.Parse()
@@ -175,6 +179,7 @@ func main() {
 		if strings.Contains(user, ":") {
 			p := strings.SplitN(user, ":", 2)
 			username, password = p[0], p[1]
+			auth = "basic"
 		} else {
 			username = user
 		}

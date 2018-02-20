@@ -155,7 +155,7 @@ func main() {
 	app.StringVar(&exportEPrints, "export", "", "export N EPrints from highest ID to lowest")
 	app.StringVar(&exportEPrintsModified, "export-modified", "", "export records by date or date range (e.g. 2017-07-01)")
 	app.StringVar(&exportSaveKeys, "export-save-keys", "", "save the keys exported in a file with provided filename")
-	app.StringVar(&exportEPrintsKeyList, "export-key-list", "", "export a comma delimited list of EPrint keys")
+	app.StringVar(&exportEPrintsKeyList, "export-keys", "", "export a comma delimited list of EPrint keys")
 	app.StringVar(&updatedSince, "updated-since", "", "list EPrint IDs updated since a given date (e.g 2017-07-01)")
 
 	// Parse environment and options
