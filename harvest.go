@@ -20,6 +20,7 @@ package eprinttools
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -36,6 +37,7 @@ func (api *EPrintsAPI) ExportEPrintsKeyList(keys []string, saveKeys string, verb
 	var (
 		exportedKeys []string
 		err          error
+		src          []byte
 	)
 
 	c, err := dataset.Open(api.Dataset)
@@ -65,11 +67,16 @@ func (api *EPrintsAPI) ExportEPrintsKeyList(keys []string, saveKeys string, verb
 			k++
 		} else {
 			key := fmt.Sprintf("%d", rec.EPrintID)
-			// NOTE: Check to see if we're doing an update or create
-			if c.HasKey(key) == true {
-				err = c.UpdateFrom(key, rec)
+			src, err = json.Marshal(rec)
+			if err != nil {
+				log.Printf("can't marshal key %s, %s", key, err)
 			} else {
-				err = c.CreateFrom(key, rec)
+				// NOTE: Check to see if we're doing an update or create
+				if c.HasKey(key) == true {
+					err = c.UpdateJSON(key, src)
+				} else {
+					err = c.CreateJSON(key, src)
+				}
 			}
 			if err == nil {
 				if len(saveKeys) > 0 {
@@ -105,6 +112,7 @@ func (api *EPrintsAPI) ExportEPrints(count int, saveKeys string, verbose bool) e
 	var (
 		exportedKeys []string
 		err          error
+		src          []byte
 	)
 
 	c, err := dataset.InitCollection(api.Dataset)
@@ -138,12 +146,17 @@ func (api *EPrintsAPI) ExportEPrints(count int, saveKeys string, verbose bool) e
 			log.Printf("Failed, %s\n", err)
 			k++
 		} else {
-			key := rec.ID
-			// NOTE: Check to see if we're doing an update or create
-			if c.HasKey(key) == true {
-				err = c.UpdateFrom(key, rec)
+			key := fmt.Sprintf("%d", rec.EPrintID)
+			src, err = json.Marshal(rec)
+			if err != nil {
+				log.Printf("Can't marshal key %s, %s", key, err)
 			} else {
-				err = c.CreateFrom(key, rec)
+				// NOTE: Check to see if we're doing an update or create
+				if c.HasKey(key) == true {
+					err = c.UpdateJSON(key, src)
+				} else {
+					err = c.CreateJSON(key, src)
+				}
 			}
 			if err == nil {
 				if len(saveKeys) > 0 {
@@ -179,6 +192,7 @@ func (api *EPrintsAPI) ExportModifiedEPrints(start, end time.Time, saveKeys stri
 	var (
 		exportedKeys []string
 		err          error
+		src          []byte
 	)
 
 	c, err := dataset.InitCollection(api.Dataset)
@@ -211,12 +225,17 @@ func (api *EPrintsAPI) ExportModifiedEPrints(start, end time.Time, saveKeys stri
 			}
 			k++
 		} else {
-			key := rec.ID
-			// NOTE: Check to see if we're doing an update or create
-			if c.HasKey(key) == true {
-				err = c.UpdateFrom(key, rec)
+			key := fmt.Sprintf("%d", rec.EPrintID)
+			src, err = json.Marshal(rec)
+			if err != nil {
+				log.Printf("Can't marshel key %s, %s", key, err)
 			} else {
-				err = c.CreateFrom(key, rec)
+				// NOTE: Check to see if we're doing an update or create
+				if c.HasKey(key) == true {
+					err = c.UpdateJSON(key, src)
+				} else {
+					err = c.CreateJSON(key, src)
+				}
 			}
 			if err == nil {
 				if len(saveKeys) > 0 {
