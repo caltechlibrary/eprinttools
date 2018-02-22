@@ -216,14 +216,14 @@ func main() {
 	// Required configuration, let Env overide options if not options are defaults
 	if apiURL == "" {
 		if apiURLEnv == "" {
-			fmt.Fprintf(app.Eout, "EPrint URL not provided\n")
+			fmt.Fprintf(app.Eout, "EPrint URL not provided, -api ..., 'export EPRINT_URL=...'\n")
 			os.Exit(1)
 		}
 		apiURL = apiURLEnv
 	}
 	if datasetName == "" {
 		if datasetNameEnv == "" {
-			fmt.Fprintf(app.Eout, "Missing dataset (EP_DATASET) name\n")
+			fmt.Fprintf(app.Eout, "Missing dataset (e.g. --dataset ..., 'export DATASET=...') name\n")
 			os.Exit(1)
 		}
 		datasetName = datasetNameEnv
