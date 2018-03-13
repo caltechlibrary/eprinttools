@@ -20,7 +20,9 @@ package eprinttools
 import (
 	"encoding/json"
 	"encoding/xml"
+	"fmt"
 	"net/url"
+	"path"
 	"strconv"
 	"strings"
 
@@ -790,10 +792,16 @@ func (eprints *EPrints) AddEPrint(eprint *EPrint) int {
 
 // GetEPrints retrieves an EPrint record (e.g. via REST API)
 // A populated EPrints structure, the raw XML and an error.
-func GetEPrints(uri string, authType int, username, secret string) (*EPrints, []byte, error) {
-	workURL, err := url.Parse(uri)
+func GetEPrints(base_url string, authType int, username string, secret string, key string) (*EPrints, []byte, error) {
+	workURL, err := url.Parse(base_url)
 	if err != nil {
 		return nil, nil, err
+	}
+	if workURL.Path == "" {
+		workURL.Path = path.Join("rest", "eprint") + "/" + key + ".xml"
+	} else {
+		p := workURL.Path
+		workURL.Path = path.Join(p, "rest", "eprint") + "/" + key + ".xml"
 	}
 
 	// Switch to use Rest Client Wrapper
@@ -812,4 +820,50 @@ func GetEPrints(uri string, authType int, username, secret string) (*EPrints, []
 		return nil, content, err
 	}
 	return rec, content, nil
+}
+
+// GetKeys returns a list of eprint record ids from the EPrints REST API
+func GetKeys(base_url string, authType int, username string, secret string) ([]string, error) {
+	var (
+		results []string
+	)
+
+	workURL, err := url.Parse(base_url)
+	if err != nil {
+		return nil, err
+	}
+	if workURL.Path == "" {
+		workURL.Path = path.Join("rest", "eprint") + "/"
+	} else {
+		p := workURL.Path
+		workURL.Path = path.Join(p, "rest", "eprint") + "/"
+	}
+	// Switch to use Rest Client Wrapper
+	rest, err := rc.New(workURL.String(), authType, username, secret)
+	if err != nil {
+		return nil, fmt.Errorf("requesting %s, %s", workURL.String(), err)
+	}
+	content, err := rest.Request("GET", workURL.Path, map[string]string{})
+	if err != nil {
+		return nil, fmt.Errorf("requested %s, %s", workURL.String(), err)
+	}
+	eIDs := new(ePrintIDs)
+	err = xml.Unmarshal(content, &eIDs)
+	if err != nil {
+		return nil, err
+	}
+	// Build a list of Unique IDs in a map, then convert unique querys to results array
+	m := make(map[string]bool)
+	for _, val := range eIDs.IDs {
+		if strings.HasSuffix(val, ".xml") == true {
+			eprintID := strings.TrimSuffix(val, ".xml")
+			if _, hasID := m[eprintID]; hasID == false {
+				// Save the new ID found
+				m[eprintID] = true
+				// Only store Unique IDs in result
+				results = append(results, eprintID)
+			}
+		}
+	}
+	return results, nil
 }

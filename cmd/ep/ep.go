@@ -106,7 +106,7 @@ save the keys for the records exported with one key per line.
 	userName   string
 	userSecret string
 
-	// NOTE: supressNote added to handle the case where Note field is internal use only and not to be harvested
+	// NOTE: supressNote (Internal Note) added to handle the case where Note field is internal use only and not to be harvested
 	suppressNote bool
 )
 

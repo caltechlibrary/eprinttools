@@ -1,0 +1,33 @@
+{
+    "@type": "SoftwareSourceCode",
+    "description": "A command line tools, package and Python module for working with the EPrints 3.x REST API",
+    "name": "eprinttools",
+    "codeRepository": "https://github.com/caltechlibrary/eprinttools",
+    "issueTracker": "https://github.com/caltechlibrary/eprinttools/issues",
+    "license": "https://caltechlibrary.github.io/eprinttools/license.html",
+    "version": "v0.0.13",
+    "author": [
+        {
+            "@type": "Person",
+            "givenName": "Robert",
+            "familyName": "Doiel",
+            "affiliation": "Caltech Library",
+            "email": "rsdoiel@caltech.edu",
+            "@id": "https://orcid.org/0000-0003-0900-6903"
+        }
+    ],
+    "developmentStatus": "active",
+    "downloadUrl": "https://github.com/caltechlibrary/eprinttools/archive/v0.0.13.zip",
+    "keywords": [
+        "GitHub",
+        "metadata",
+        "repository",
+        "EPrints",
+        "software"
+    ],
+    "maintainer": "https://orcid.org/0000-0003-0900-6903",
+    "programmingLanguage": [
+        "Go",
+        "Python"
+    ]
+}

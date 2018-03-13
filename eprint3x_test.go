@@ -20,8 +20,11 @@ package eprinttools
 
 import (
 	"encoding/xml"
+	"fmt"
+	"log"
 	"net/url"
 	"os"
+	"strings"
 	"testing"
 
 	// Caltech Library Packages
@@ -770,7 +773,7 @@ func TestGetEPrint(t *testing.T) {
 	restPath := "/rest/eprint/" + testKey + ".xml"
 	u, _ := url.Parse(getURL + restPath)
 	records := new(EPrints)
-	records, xmlSrc, err := GetEPrints(u.String(), rc.AuthNone, "", "")
+	records, xmlSrc, err := GetEPrints(getURL, rc.AuthNone, "", "", testKey)
 	if err != nil {
 		t.Errorf("can't get %s, %s", u.String(), err)
 	}
@@ -1171,5 +1174,46 @@ Wei Zhu (祝伟) et al. 2015 ApJ 805 8</official_cit>
 	}
 	if record.Number != "1" {
 		t.Errorf("expected %q, got %q", "1", record.Number)
+	}
+}
+
+func TestLibSupport(t *testing.T) {
+	eprintURL := os.Getenv("EPRINT_URL")
+	if eprintURL == "" {
+		log.Println("Skipping TestLibSupport(), requires EPRINT_URL to be set in the environment")
+		return
+	}
+	authType := 0
+	username := os.Getenv("EPRINT_USER")
+	secret := os.Getenv("EPRINT_PASSWD")
+	keys, err := GetKeys(eprintURL, 0, username, secret)
+	//log.Printf("DEBUG testing GetKeys()")
+	if err != nil {
+		t.Errorf("GetKeys(%q, %d, %q, %q) returned an error, %s", eprintURL, authType, username, secret, err)
+		t.FailNow()
+	}
+	if len(keys) < 1 {
+		t.Errorf("Expected some keys form Get(%q, %d, %q, %q)", eprintURL, authType, username, secret)
+		t.FailNow()
+	}
+	//FIXME: pick a middle range of IDs to test against
+	for i, key := range keys {
+		//log.Printf("DEBUG %d testing GetEPrint() for key %q", i, key)
+		//FIXME: need to make sure what we are getting back sSrc, and xmlSrc are realisitic
+		_, _, err := GetEPrints(eprintURL, authType, username, secret, key)
+		if strings.HasSuffix(key, ".xml") {
+			t.Errorf("key %q should be the number only", key)
+			t.FailNow()
+		}
+		if err != nil {
+			sErr := fmt.Sprintf("%s", err)
+			if strings.HasPrefix(sErr, "401") == false {
+				t.Errorf("%d GetEPrints(%q, %d, %q, %q, %q) -> %q", i, eprintURL, authType, username, secret, key, err)
+				t.FailNow()
+			}
+		}
+		if i > 500 {
+			break
+		}
 	}
 }
