@@ -53,14 +53,11 @@ dist/*
 *.csv
 *.dat
 *gz
-CaltechTHESIS/*
-CaltechAUTHORS/*
 scratch/*
-authors2orcid/*
-thesis2orcid/*
 *.dataset
 *.ds
 build
 __pycache__
 *.h
 py/files.txt
+py/MANIFEST

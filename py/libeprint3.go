@@ -66,9 +66,12 @@ func error_dispatch(err error, s string, values ...interface{}) {
 
 //export error_message
 func error_message() *C.char {
-	s := fmt.Sprintf("%s", errorValue)
-	errorValue = nil
-	return C.CString(s)
+	if errorValue != nil {
+		s := fmt.Sprintf("%s", errorValue)
+		errorValue = nil
+		return C.CString(s)
+	}
+	return C.CString("")
 }
 
 //export version
