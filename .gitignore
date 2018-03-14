@@ -2,6 +2,8 @@
 *.o
 *.a
 *.so
+*.dll
+*.dylib
 
 # Folders
 _obj
@@ -58,3 +60,5 @@ authors2orcid/*
 thesis2orcid/*
 *.dataset
 *.ds
+build
+__pycache__

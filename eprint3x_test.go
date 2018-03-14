@@ -1197,7 +1197,18 @@ func TestLibSupport(t *testing.T) {
 		t.FailNow()
 	}
 	//FIXME: pick a middle range of IDs to test against
-	for i, key := range keys {
+	first := 0
+	last := first + 50
+	if len(keys) > 100 {
+		first = 0
+		first = (len(keys) / 2) - 50
+		last = first + 50
+	}
+	if len(keys) < last {
+		last = len(keys) - 1
+	}
+
+	for i, key := range keys[first:last] {
 		//log.Printf("DEBUG %d testing GetEPrint() for key %q", i, key)
 		//FIXME: need to make sure what we are getting back sSrc, and xmlSrc are realisitic
 		_, _, err := GetEPrints(eprintURL, authType, username, secret, key)
@@ -1211,9 +1222,6 @@ func TestLibSupport(t *testing.T) {
 				t.Errorf("%d GetEPrints(%q, %d, %q, %q, %q) -> %q", i, eprintURL, authType, username, secret, key, err)
 				t.FailNow()
 			}
-		}
-		if i > 500 {
-			break
 		}
 	}
 }

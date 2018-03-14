@@ -40,10 +40,12 @@ website: page.tmpl README.md nav.md INSTALL.md LICENSE css/site.css docs/index.m
 
 test:
 	go test
+	cd py && $(MAKE) test
 
 clean:
 	if [ -d bin ]; then rm -fR bin; fi
 	if [ -d dist ]; then rm -fR dist; fi
+	cd py && $(MAKE) clean
 
 dist/linux-amd64:
 	mkdir -p dist/bin
