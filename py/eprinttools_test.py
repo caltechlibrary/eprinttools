@@ -3,6 +3,7 @@ import os
 import sys
 import eprinttools
 import random
+import datetime
 
 #
 # Tests
@@ -13,6 +14,21 @@ def test_get_keys(t, eprint_url, auth_type = "", username = "", secret = ""):
     keys = eprinttools.get_keys(cfg)
     if len(keys) == 0:
         t.error(f"Expected more than zero keys for {cfg}")
+    else:
+        t.print("found", len(keys), f"for {cfg}")
+
+
+def test_get_modified_keys(t, eprint_url, auth_type = "", username = "", secret = ""):
+    #t.verbose_on() # turn verboseness on for debugging
+    cfg = eprinttools.cfg(eprint_url, auth_type, username, secret)
+    # we are checking to see if we have recently modified keys (last 30 days)
+    end = datetime.datetime.now()
+    start = end - datetime.timedelta(days = 30)
+    t.verbose_on()
+    t.print(f"Checking for time range {start} to {end}")
+    keys = eprinttools.get_modified_keys(cfg, start, end)
+    if len(keys) == 0:
+        t.error(f"expected more than zero keys for get_modified_keys({cfg}, {start}, {end}")
     else:
         t.print("found", len(keys), f"for {cfg}")
 
@@ -132,6 +148,7 @@ if __name__ == "__main__":
         sys.exit(0)
     test_runner = TestRunner(os.path.basename(__file__))
     test_runner.add(test_get_keys, [eprint_url, auth_type, username, secret])
+    test_runner.add(test_get_modified_keys, [eprint_url, auth_type, username, secret])
     test_runner.add(test_get_metadata, [eprint_url, auth_type, username, secret])
     test_runner.run()
 

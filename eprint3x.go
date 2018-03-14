@@ -25,6 +25,7 @@ import (
 	"path"
 	"strconv"
 	"strings"
+	"time"
 
 	// Caltech Library packages
 	"github.com/caltechlibrary/rc"
@@ -863,6 +864,48 @@ func GetKeys(base_url string, authType int, username string, secret string) ([]s
 				// Only store Unique IDs in result
 				results = append(results, eprintID)
 			}
+		}
+	}
+	return results, nil
+}
+
+// GetModifiedKeys returns a list of eprint record ids from the EPrints REST API that match the modification date range
+func GetModifiedKeys(base_url string, authType int, username string, secret string, start time.Time, end time.Time) ([]string, error) {
+	var (
+		results []string
+	)
+	workURL, err := url.Parse(base_url)
+	if err != nil {
+		return nil, err
+	}
+	if workURL.Path == "" {
+		workURL.Path = path.Join("rest", "eprint") + "/"
+	} else {
+		p := workURL.Path
+		workURL.Path = path.Join(p, "rest", "eprint") + "/"
+	}
+	// Switch to use Rest Client Wrapper
+	rest, err := rc.New(workURL.String(), authType, username, secret)
+	if err != nil {
+		return nil, fmt.Errorf("requesting %s, %s", workURL.String(), err)
+	}
+	// GetKeys() then filter for modified ones.
+	keys, err := GetKeys(base_url, authType, username, secret)
+	for _, key := range keys {
+		// form a request to the REST API for just the modified date
+		lastModPath := path.Join(workURL.Path, key, "lastmod.txt")
+		lastModified, err := rest.Request("GET", lastModPath, map[string]string{})
+		if err != nil {
+			return nil, fmt.Errorf("requested %s, %s", workURL.String(), err)
+		}
+		datestring := fmt.Sprintf("%s", lastModified)
+		if len(datestring) > 9 {
+			datestring = datestring[0:10]
+		}
+		// Parse the modified date and compare to our range
+		if dt, err := time.Parse("2006-01-02", datestring); err == nil && dt.Unix() >= start.Unix() && dt.Unix() <= end.Unix() {
+			// If range is OK then add the key to results
+			results = append(results, key)
 		}
 	}
 	return results, nil

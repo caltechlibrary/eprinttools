@@ -27,6 +27,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"time"
 
 	// Caltech Library Packages
 	"github.com/caltechlibrary/dataset"
@@ -120,7 +121,6 @@ func get_keys(cfg *C.char) *C.char {
 	src := []byte(C.GoString(cfg))
 	err := json.Unmarshal(src, &m)
 	if err != nil {
-		errorValue = err
 		error_dispatch(err, "can't unmarshal config, %s", err)
 		return C.CString("")
 	}
@@ -130,16 +130,54 @@ func get_keys(cfg *C.char) *C.char {
 		return C.CString("")
 	}
 
-	errorValue = nil
 	keys, err := eprinttools.GetKeys(base_url, authType, username, password)
 	if err != nil {
-		errorValue = err
 		error_dispatch(err, "Can't GetKeys(), %s", err)
 		return C.CString("")
 	}
 	src, err = json.Marshal(keys)
 	if err != nil {
-		errorValue = err
+		error_dispatch(err, "Can't marshal keys, %s", err)
+		return C.CString("")
+	}
+	return C.CString(fmt.Sprintf("%s", src))
+}
+
+//export get_modified_keys
+func get_modified_keys(cfg *C.char, cStart *C.char, cEnd *C.char) *C.char {
+	errorValue = nil
+	m := map[string]string{}
+	src := []byte(C.GoString(cfg))
+	err := json.Unmarshal(src, &m)
+	if err != nil {
+		error_dispatch(err, "can't unmarshal config, %s", err)
+		return C.CString("")
+	}
+	base_url, authType, username, password := apiCfg(m)
+	if base_url == "" {
+		error_dispatch(err, "Missing url for config %s", src)
+		return C.CString("")
+	}
+	sStart := C.GoString(cStart)
+	sEnd := C.GoString(cEnd)
+	start, err := time.Parse("2006-01-02", sStart)
+	if err != nil {
+		error_dispatch(err, "%s", err)
+		return C.CString("")
+	}
+	end, err := time.Parse("2006-01-02", sEnd)
+	if err != nil {
+		error_dispatch(err, "%s", err)
+		return C.CString("")
+	}
+
+	keys, err := eprinttools.GetModifiedKeys(base_url, authType, username, password, start, end)
+	if err != nil {
+		error_dispatch(err, "Can't GetModifiedKeys(), %s", err)
+		return C.CString("")
+	}
+	src, err = json.Marshal(keys)
+	if err != nil {
 		error_dispatch(err, "Can't marshal keys, %s", err)
 		return C.CString("")
 	}
@@ -157,20 +195,17 @@ func get_metadata(cfg *C.char, cKey *C.char, cSave C.int) *C.char {
 	src := []byte(C.GoString(cfg))
 	err := json.Unmarshal(src, &m)
 	if err != nil {
-		errorValue = err
 		error_dispatch(err, "can't unmarshal config, %s", err)
 		return C.CString("")
 	}
 	base_url, authType, username, password := apiCfg(m)
 	eprint, xml_src, err := eprinttools.GetEPrints(base_url, authType, username, password, key)
 	if err != nil {
-		errorValue = err
 		error_dispatch(err, "can't get eprint %s, %s", key, err)
 		return C.CString("")
 	}
 	src, err = json.Marshal(eprint)
 	if err != nil {
-		errorValue = err
 		error_dispatch(err, "can't marshal eprint %s, %s", key, err)
 		return C.CString("")
 	}

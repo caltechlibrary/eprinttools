@@ -19,7 +19,9 @@
 import ctypes
 import os
 import json
+import datetime
 
+now = datetime.datetime.now()
 
 # Figure out shared library extension
 go_basename = 'libeprint3'
@@ -53,6 +55,10 @@ go_error_message.restype = ctypes.c_char_p
 go_get_keys = lib.get_keys
 go_get_keys.argtypes = [ctypes.c_char_p]
 go_get_keys.restype = ctypes.c_char_p
+
+go_get_modified_keys = lib.get_modified_keys
+go_get_modified_keys.argtypes = [ctypes.c_char_p, ctypes.c_char_p, ctypes.c_char_p]
+go_get_modified_keys.restype = ctypes.c_char_p
 
 go_get_metadata = lib.get_metadata
 go_get_metadata.argtypes = [ctypes.c_char_p, ctypes.c_char_p, ctypes.c_int]
@@ -126,6 +132,18 @@ def readcfg(fname = "config.json"):
 def get_keys(cfg):
     c = json.dumps(cfg).encode("utf-8")
     value = go_get_keys(ctypes.c_char_p(c))
+    if not isinstance(value, bytes):
+        value = value.encode("utf-8")
+    rval = value.decode() 
+    if rval == "":
+        return []
+    return json.loads(rval)
+
+def get_modified_keys(cfg: dict, start = now, end = now):
+    c = json.dumps(cfg).encode("utf-8")
+    s = start.strftime("%Y-%m-%d").encode('utf-8')
+    e = end.strftime("%Y-%m-%d").encode('utf-8')
+    value = go_get_modified_keys(ctypes.c_char_p(c), ctypes.c_char_p(s), ctypes.c_char_p(e))
     if not isinstance(value, bytes):
         value = value.encode("utf-8")
     rval = value.decode() 
