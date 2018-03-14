@@ -51,11 +51,11 @@ platform = os.uname().sysname
 shared_library_name = "libeprint3.so"
 OS_Classifier = "Operating System :: POSIX :: Linux"
 if platform.startswith("Darwin"):
-    shared_library_name = "libeprints3.dylib"
+    shared_library_name = "libeprint3.dylib"
     platform = "Mac OS X"
     OS_Classifier = "Operating System :: MacOS :: MacOS X"
 elif platform.startswith("Win"):
-    shared_library_name = "libeprints3.dll"
+    shared_library_name = "libeprint3.dll"
     platform = "Windows"
     OS_Classifier = "Operating System :: Microsoft :: Windows :: Windows 10"
 
