@@ -34,7 +34,10 @@ import (
 	"github.com/caltechlibrary/rc"
 )
 
-var verbose = false
+var (
+	verbose    = false
+	errorValue error
+)
 
 //export is_verbose
 func is_verbose() C.int {
@@ -54,10 +57,18 @@ func verbose_off() {
 	verbose = false
 }
 
-func messagef(s string, values ...interface{}) {
+func error_dispatch(err error, s string, values ...interface{}) {
+	errorValue = err
 	if verbose == true {
 		log.Printf(s, values...)
 	}
+}
+
+//export error_message
+func error_message() *C.char {
+	s := fmt.Sprintf("%s", errorValue)
+	errorValue = nil
+	return C.CString(s)
 }
 
 //export version
@@ -68,11 +79,8 @@ func version() *C.char {
 func apiCfg(m map[string]string) (string, int, string, string) {
 	uri, username, password := "", "", ""
 	authType := rc.AuthNone
-	if _, ok := m["username"]; ok == true {
-		username = m["username"]
-	}
-	if _, ok := m["password"]; ok == true {
-		password = m["password"]
+	if _, ok := m["url"]; ok == true {
+		uri = m["url"]
 	}
 	if _, ok := m["auth_type"]; ok == true {
 		switch m["auth_type"] {
@@ -86,6 +94,12 @@ func apiCfg(m map[string]string) (string, int, string, string) {
 			authType = rc.AuthNone
 		}
 	}
+	if _, ok := m["username"]; ok == true {
+		username = m["username"]
+	}
+	if _, ok := m["password"]; ok == true {
+		password = m["password"]
+	}
 	return uri, authType, username, password
 }
 
@@ -98,23 +112,32 @@ func dsCfg(m map[string]string) string {
 
 //export get_keys
 func get_keys(cfg *C.char) *C.char {
+	errorValue = nil
 	m := map[string]string{}
 	src := []byte(C.GoString(cfg))
 	err := json.Unmarshal(src, &m)
 	if err != nil {
-		messagef("can't unmarshal config, %s", err)
+		errorValue = err
+		error_dispatch(err, "can't unmarshal config, %s", err)
 		return C.CString("")
 	}
 	base_url, authType, username, password := apiCfg(m)
+	if base_url == "" {
+		error_dispatch(err, "Missing url for config %s", src)
+		return C.CString("")
+	}
 
+	errorValue = nil
 	keys, err := eprinttools.GetKeys(base_url, authType, username, password)
 	if err != nil {
-		messagef("Can't GetKeys(), %s", err)
+		errorValue = err
+		error_dispatch(err, "Can't GetKeys(), %s", err)
 		return C.CString("")
 	}
 	src, err = json.Marshal(keys)
 	if err != nil {
-		messagef("Can't marshal keys, %s", err)
+		errorValue = err
+		error_dispatch(err, "Can't marshal keys, %s", err)
 		return C.CString("")
 	}
 	return C.CString(fmt.Sprintf("%s", src))
@@ -131,18 +154,21 @@ func get_metadata(cfg *C.char, cKey *C.char, cSave C.int) *C.char {
 	src := []byte(C.GoString(cfg))
 	err := json.Unmarshal(src, &m)
 	if err != nil {
-		messagef("can't unmarshal config, %s", err)
+		errorValue = err
+		error_dispatch(err, "can't unmarshal config, %s", err)
 		return C.CString("")
 	}
 	base_url, authType, username, password := apiCfg(m)
 	eprint, xml_src, err := eprinttools.GetEPrints(base_url, authType, username, password, key)
 	if err != nil {
-		messagef("can't get eprint %s, %s", key, err)
+		errorValue = err
+		error_dispatch(err, "can't get eprint %s, %s", key, err)
 		return C.CString("")
 	}
 	src, err = json.Marshal(eprint)
 	if err != nil {
-		messagef("can't marshal eprint %s, %s", key, err)
+		errorValue = err
+		error_dispatch(err, "can't marshal eprint %s, %s", key, err)
 		return C.CString("")
 	}
 
@@ -150,23 +176,23 @@ func get_metadata(cfg *C.char, cKey *C.char, cSave C.int) *C.char {
 		collectionName := dsCfg(m)
 		c, err := dataset.Open(collectionName)
 		if err != nil {
-			messagef("failed to open collection %q, %s", collectionName, err)
+			error_dispatch(err, "failed to open collection %q, %s", collectionName, err)
 			return C.CString(fmt.Sprintf("%s", src))
 		}
 		c.Close()
 		if c.HasKey(key) {
 			if err := c.UpdateJSON(key, src); err != nil {
-				messagef("can't save %s to %s, %s", key, collectionName, err)
+				error_dispatch(err, "can't save %s to %s, %s", key, collectionName, err)
 				return C.CString(fmt.Sprintf("%s", src))
 			}
 		} else {
 			if err := c.CreateJSON(key, src); err != nil {
-				messagef("can't save %s to %s, %s", key, collectionName, err)
+				error_dispatch(err, "can't save %s to %s, %s", key, collectionName, err)
 				return C.CString(fmt.Sprintf("%s", src))
 			}
 		}
 		if err := c.AttachFile(key, key+".xml", bytes.NewReader(xml_src)); err != nil {
-			messagef("can't attach %s.xml to %s in %s, %s", key, key, collectionName, err)
+			error_dispatch(err, "can't attach %s.xml to %s in %s, %s", key, key, collectionName, err)
 			return C.CString(fmt.Sprintf("%s", src))
 		}
 	}

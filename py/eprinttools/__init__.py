@@ -22,7 +22,7 @@ import json
 
 
 # Figure out shared library extension
-go_basename = 'libeprinttools'
+go_basename = 'libeprint3'
 uname = os.uname().sysname
 ext = '.so'
 if uname == 'Darwin':
@@ -47,6 +47,9 @@ go_verbose_on.restype = ctypes.c_int
 go_verbose_off = lib.verbose_off
 go_verbose_off.restype = ctypes.c_int
 
+go_error_message = lib.error_message
+go_error_message.restype = ctypes.c_char_p
+
 go_get_keys = lib.get_keys
 go_get_keys.argtypes = [ctypes.c_char_p]
 go_get_keys.restype = ctypes.c_char_p
@@ -58,6 +61,13 @@ go_get_metadata.restype = ctypes.c_char_p
 #
 # Now write our Python idiomatic function
 #
+
+def error_message():
+    value = go_error_message()
+    if not isinstance(value, bytes):
+        value = value.encode('utf-8')
+    return value.decode() 
+
 
 # is_verbose returns true is verbose is enabled, false otherwise
 def is_verbose():
@@ -80,6 +90,32 @@ def version():
     if not isinstance(value, bytes):
         value = value.encode('utf-8')
     return value.decode() 
+
+def cfg(base_url, auth_type = "", username = "", secret = ""):
+    cfg = {
+        "url": base_url,
+        "auth_type": auth_type,
+        "username": username,
+        "password": secret
+    }
+    return cfg
+
+def envcfg():
+    cfg = {}
+    base_url = os.getenv("EPRINT_URL")
+    auth_type = os.getenv("EPRINT_AUTH_TYPE")
+    username = os.getenv("EPRINT_USER")
+    secret = os.getenv("EPRINT_PASSWD")
+
+    if base_url != None:
+        cfg["url"] = base_url
+    if auth_type!= None:
+        cfg["auth_type"] = auth_type
+    if username != None:
+        cfg["username"] = username
+    if secret != None:
+        cfg["password"] = secret
+    return cfg
 
 def readcfg(fname = "config.json"):
     with open(fname, mode = "r", encoding = "utf-8") as f:

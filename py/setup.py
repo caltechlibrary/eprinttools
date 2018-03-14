@@ -48,7 +48,7 @@ for obj in meta["author"]:
 
 # Setup for our Go based shared library as a "data_file" since Python doesn't grok Go.
 platform = os.uname().sysname
-shared_library_name = "libeprints3.so"
+shared_library_name = "libeprint3.so"
 OS_Classifier = "Operating System :: POSIX :: Linux"
 if platform.startswith("Darwin"):
     shared_library_name = "libeprints3.dylib"

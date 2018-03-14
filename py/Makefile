@@ -3,7 +3,7 @@
 #
 PROJECT = eprinttools
 
-LIB_NAME = libeprinttools
+LIB_NAME = libeprint3
 
 VERSION = $(shell grep -m 1 'Version =' ../$(PROJECT).go | cut -d\`  -f 2)
 
