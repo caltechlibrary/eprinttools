@@ -49,12 +49,15 @@ for obj in meta["author"]:
 # Setup for our Go based shared library as a "data_file" since Python doesn't grok Go.
 platform = os.uname().sysname
 shared_library_name = "libeprints3.so"
+OS_Classifier = "Operating System :: POSIX :: Linux"
 if platform.startswith("Darwin"):
     shared_library_name = "libeprints3.dylib"
     platform = "Mac OS X"
+    OS_Classifier = "Operating System :: MacOS :: MacOS X"
 elif platform.startswith("Win"):
     shared_library_name = "libeprints3.dll"
     platform = "Windows"
+    OS_Classifier = "Operating System :: Microsoft :: Windows :: Windows 10"
 
 site_package_location = os.path.join(getsitepackages()[0], "eprinttools")
 
@@ -83,7 +86,6 @@ setup(name = "eprinttools",
         "Programming Language :: Go",
         "Intended Audience :: Science/Research",
         "License :: OSI Approved :: BSD License",
-        "Operating System :: MacOS :: MacOS X",
-        "Operating System :: POSIX :: Linux",
+        OS_Classifier
     ]
 )
