@@ -5,7 +5,7 @@
     "codeRepository": "https://github.com/caltechlibrary/eprinttools",
     "issueTracker": "https://github.com/caltechlibrary/eprinttools/issues",
     "license": "https://caltechlibrary.github.io/eprinttools/license.html",
-    "version": "v0.0.13",
+    "version": "v0.0.14",
     "author": [
         {
             "@type": "Person",
@@ -17,7 +17,7 @@
         }
     ],
     "developmentStatus": "active",
-    "downloadUrl": "https://github.com/caltechlibrary/eprinttools/archive/v0.0.13.zip",
+    "downloadUrl": "https://github.com/caltechlibrary/eprinttools/archive/v0.0.14.zip",
     "keywords": [
         "GitHub",
         "metadata",
