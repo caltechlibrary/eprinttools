@@ -63,3 +63,4 @@ thesis2orcid/*
 build
 __pycache__
 *.h
+py/files.txt
