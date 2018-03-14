@@ -62,3 +62,4 @@ thesis2orcid/*
 *.ds
 build
 __pycache__
+*.h
