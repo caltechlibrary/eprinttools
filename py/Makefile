@@ -36,6 +36,11 @@ ifeq ($(ARCH), x86_64)
 	ARCH = amd64
 endif
 
+QUICK_TEST =
+ifeq ($(quick), true)
+	QUICK_TEST = -quick
+endif
+
 build: $(PROJECT)/$(LIB_NAME)$(EXT)
 	python3 setup.py build
 
@@ -52,7 +57,7 @@ clean:
 	if [ -d "$(PROJECT)/__pycache__" ]; then rm -fR "$(PROJECT)/__pycache__"; fi	
 
 test: clean $(PROJECT)/$(LIB_NAME)$(EXT)
-	python3 $(PROJECT)_test.py
+	python3 $(PROJECT)_test.py $(QUICK_TEST)
 	python3 $(PROJECT)_dataset_test.py
 
 release: clean $(PROJECT)/$(LIB_NAME)$(EXT)
