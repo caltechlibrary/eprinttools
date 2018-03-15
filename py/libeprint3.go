@@ -191,8 +191,8 @@ func get_metadata(cfg *C.char, cKey *C.char, cSave C.int) *C.char {
 	}
 	key := C.GoString(cKey)
 	m := map[string]string{}
-	src := []byte(C.GoString(cfg))
-	err := json.Unmarshal(src, &m)
+	cfg_src := []byte(C.GoString(cfg))
+	err := json.Unmarshal(cfg_src, &m)
 	if err != nil {
 		error_dispatch(err, "can't unmarshal config, %s", err)
 		return C.CString("")
@@ -203,7 +203,7 @@ func get_metadata(cfg *C.char, cKey *C.char, cSave C.int) *C.char {
 		error_dispatch(err, "can't get eprint %s, %s", key, err)
 		return C.CString("")
 	}
-	src, err = json.Marshal(eprint)
+	src, err := json.Marshal(eprint)
 	if err != nil {
 		error_dispatch(err, "can't marshal eprint %s, %s", key, err)
 		return C.CString("")
@@ -211,12 +211,17 @@ func get_metadata(cfg *C.char, cKey *C.char, cSave C.int) *C.char {
 
 	if save {
 		collectionName := dsCfg(m)
+		if collectionName == "" {
+			err := fmt.Errorf("collection name is an empty string")
+			error_dispatch(err, "can't save key %s, ", key, err)
+			return C.CString("")
+		}
 		c, err := dataset.Open(collectionName)
 		if err != nil {
 			error_dispatch(err, "failed to open collection %q, %s", collectionName, err)
 			return C.CString(fmt.Sprintf("%s", src))
 		}
-		c.Close()
+		defer c.Close()
 		if c.HasKey(key) {
 			if err := c.UpdateJSON(key, src); err != nil {
 				error_dispatch(err, "can't save %s to %s, %s", key, collectionName, err)

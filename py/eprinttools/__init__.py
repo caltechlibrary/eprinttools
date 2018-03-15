@@ -158,10 +158,10 @@ def get_modified_keys(cfg: dict, start = now, end = now):
 def get_metadata(cfg, key, save = False):
     c = json.dumps(cfg).encode("utf-8")
     k = key.encode("utf-8")
-    i_save = 0
+    c_save = ctypes.c_int(0)
     if save == True:
-        i_save = 1 
-    value = go_get_metadata(ctypes.c_char_p(c), ctypes.c_char_p(k), ctypes.c_int(i_save))
+        c_save = ctypes.c_int(1 )
+    value = go_get_metadata(ctypes.c_char_p(c), ctypes.c_char_p(k), c_save)
     if not isinstance(value, bytes):
         value = value.encode("utf-8")
     rval = value.decode() 

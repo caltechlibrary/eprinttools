@@ -9,37 +9,9 @@ import datetime
 #
 # Tests
 #
-def test_get_keys(t, eprint_url, auth_type = "", username = "", secret = ""):
-    #t.verbose_on() # turn verboseness on for debugging
-    cfg = eprinttools.cfg(eprint_url, auth_type, username, secret)
-    keys = eprinttools.get_keys(cfg)
-    if len(keys) == 0:
-        t.error(f"Expected more than zero keys for {cfg}")
-    else:
-        t.print("found", len(keys), f"for {cfg}")
-
-
-def test_get_modified_keys(t, eprint_url, auth_type = "", username = "", secret = ""):
-    #t.verbose_on() # turn verboseness on for debugging
-    cfg = eprinttools.cfg(eprint_url, auth_type, username, secret)
-    # we are checking to see if we have recently modified keys (last 30 days)
-    end = datetime.datetime.now()
-    start = end - datetime.timedelta(days = 30)
-    t.verbose_on()
-    eprinttools.verbose_on()
-    t.print(f"Checking for datetime range {start} to {end} (this can take a while)")
-    keys = eprinttools.get_modified_keys(cfg, start, end)
-    if keys == None or len(keys) == 0:
-        t.error(f"expected more than zero keys for get_modified_keys({cfg}, {start}, {end}")
-    else:
-        t.print("found", len(keys), f"for {cfg}")
-    eprinttools.verbose_off()
-
-
-def test_get_metadata(t, eprint_url, auth_type = 0, username = "", secret = ""):
+def test_get_metadata(t, eprint_url, auth_type, username, secret, collection_name):
+    t.verbose_off() # turn verboseness on for debugging
     test_name = t.test_name()
-    #t.verbose_on() # turn verboseness on for debugging
-    collection_name = test_name + ".ds"
     cfg = eprinttools.cfg(eprint_url, auth_type, username, secret, collection_name)
     keys = eprinttools.get_keys(cfg)
     if len(keys) == 0:
@@ -54,6 +26,7 @@ def test_get_metadata(t, eprint_url, auth_type = 0, username = "", secret = ""):
             check_keys.append(key)
         if len(check_keys) > 50:
             break
+    t.print(f"Calculating the keys in sample that will get stored in the collection {collection_name}")
     for key in check_keys:
         # We are going to try to get the metadata for the EPrint record but not store it in a dataset collectin...
         data = eprinttools.get_metadata(cfg, key, False)
@@ -67,20 +40,30 @@ def test_get_metadata(t, eprint_url, auth_type = 0, username = "", secret = ""):
             t.print(f"found {key} with data")
             collection_keys.append(key)
 
+    #eprinttools.verbose_on() # DEBUG
+    #dataset.verbose_on() # DEBUG
+    key_cnt = len(collection_keys)
+    t.print(f"harvesting {key_cnt} keys to {collection_name}")
     for key in collection_keys:
         data = eprinttools.get_metadata(cfg, key, True)
-        if len(data) == 0:
-            e_msg = eprinttools.error_message()
-            if e_msg.startswith("401") == False:
-                t.error(f"Expected data for {key}, got {data}")
-            else:
-                t.print(f"found {key}, requires authentication")
+        e_msg = eprinttools.error_message()
+        if e_msg != "" and e_msg.startswith("401") == False:
+                t.error(f"Expected data for {key}, got {e_msg}")
+        elif e_msg != "":
+                t.print(f"Skipped {key}, requires authentication")
+        elif len(data) == 0:
+            t.print(f"warning: {key} did not return any data")
         else:
-            t.print(f"found {key} with data")
+            t.print(f"found {key} with data {cfg}")
+            rec = dataset.read(collection_name, key)
+            e_msg = dataset.error_message()
+            if len(rec) == 0 or e_msg != "":
+                t.error(f"Should be able to read '{key}' in '{collection_name}' {e_msg}")
+                return
 
-    keys = dataset.get_keys(collection_name)
-    if len(keys) != len(collection_keys):
-        t.error("expected collection keys to match batch harvested")
+    #keys = dataset.keys(collection_name)
+    #if len(keys) != len(collection_keys):
+    #    t.error("expected collection keys to match batch harvested")
 
 #
 # Test harness
@@ -145,33 +128,42 @@ class TestRunner:
 
 
 def setup():
+    ep_version = eprinttools.version()
+    ds_version = dataset.version()
+
     eprint_url = os.getenv("EPRINT_URL")
     auth_type = os.getenv("EPRINT_AUTH_TYPE")
     username = os.getenv("EPRINT_USER")
     secret = os.getenv("EPRINT_PASSWD")
+    collection_name = os.getenv("DATASET")
+
+    if eprint_url == None:
+        print(f"Skipping tests for eprinttools {ep_version}, EPRINT_URL not set in the environment")
+        sys.exit(1)
+    if collection_name == None:
+        print(f"Skipping tests for eprinttools with dataset {ds_version}, DATASET not set in the environment")
+        sys.exit(1)
+    if os.path.exists(collection_name) == False:
+        ok = dataset.init(collection_name)
+        if ok == False:
+            print(f"Could not init {collection_name}")
+            sys.exit(1)
+
+
     if auth_type == None:
         auth_type = ""
     if username == None:
         username = ""
     if secret == None:
         secret = ""
-    return eprint_url, auth_type, username, secret
+    return eprint_url, auth_type, username, secret, collection_name
 
 #
 # Run tests
 #
 if __name__ == "__main__":
-    version = eprinttools.version()
-    eprint_url, auth_type, username, secret = setup()
-    if eprint_url == None:
-        print(f"Skipping tests for eprinttools {version}, EPRINT_URL not set in the environment")
-        sys.exit(0)
+    eprint_url, auth_type, username, secret, collection_name = setup()
     test_runner = TestRunner(os.path.basename(__file__))
-    test_runner.add(test_get_keys, [eprint_url, auth_type, username, secret])
-    if "-quick" in sys.argv:
-        print("Skipping test_get_modified_keys, -quick option used")
-    else:
-        test_runner.add(test_get_modified_keys, [eprint_url, auth_type, username, secret])
-    test_runner.add(test_get_metadata, [eprint_url, auth_type, username, secret])
+    test_runner.add(test_get_metadata, [eprint_url, auth_type, username, secret, collection_name])
     test_runner.run()
 

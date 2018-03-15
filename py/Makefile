@@ -53,6 +53,7 @@ clean:
 
 test: clean $(PROJECT)/$(LIB_NAME)$(EXT)
 	python3 $(PROJECT)_test.py
+	python3 $(PROJECT)_dataset_test.py
 
 release: clean $(PROJECT)/$(LIB_NAME)$(EXT)
 	go build -buildmode=c-shared -o "$(PROJECT)/$(LIB_NAME)$(EXT)" "$(LIB_NAME).go"
