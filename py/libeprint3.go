@@ -170,8 +170,7 @@ func get_modified_keys(cfg *C.char, cStart *C.char, cEnd *C.char) *C.char {
 		error_dispatch(err, "%s", err)
 		return C.CString("")
 	}
-
-	keys, err := eprinttools.GetModifiedKeys(base_url, authType, username, password, start, end)
+	keys, err := eprinttools.GetModifiedKeys(base_url, authType, username, password, start, end, verbose)
 	if err != nil {
 		error_dispatch(err, "Can't GetModifiedKeys(), %s", err)
 		return C.CString("")

@@ -25,12 +25,14 @@ def test_get_modified_keys(t, eprint_url, auth_type = "", username = "", secret 
     end = datetime.datetime.now()
     start = end - datetime.timedelta(days = 30)
     t.verbose_on()
-    t.print(f"Checking for time range {start} to {end}")
+    eprinttools.verbose_on()
+    t.print(f"Checking for datetime range {start} to {end} (this can take a while)")
     keys = eprinttools.get_modified_keys(cfg, start, end)
-    if len(keys) == 0:
+    if keys == None or len(keys) == 0:
         t.error(f"expected more than zero keys for get_modified_keys({cfg}, {start}, {end}")
     else:
         t.print("found", len(keys), f"for {cfg}")
+    eprinttools.verbose_off()
 
 
 def test_get_metadata(t, eprint_url, auth_type = 0, username = "", secret = ""):

@@ -21,6 +21,7 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
+	"log"
 	"net/url"
 	"path"
 	"strconv"
@@ -793,8 +794,8 @@ func (eprints *EPrints) AddEPrint(eprint *EPrint) int {
 
 // GetEPrints retrieves an EPrint record (e.g. via REST API)
 // A populated EPrints structure, the raw XML and an error.
-func GetEPrints(base_url string, authType int, username string, secret string, key string) (*EPrints, []byte, error) {
-	workURL, err := url.Parse(base_url)
+func GetEPrints(baseURL string, authType int, username string, secret string, key string) (*EPrints, []byte, error) {
+	workURL, err := url.Parse(baseURL)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -824,12 +825,12 @@ func GetEPrints(base_url string, authType int, username string, secret string, k
 }
 
 // GetKeys returns a list of eprint record ids from the EPrints REST API
-func GetKeys(base_url string, authType int, username string, secret string) ([]string, error) {
+func GetKeys(baseURL string, authType int, username string, secret string) ([]string, error) {
 	var (
 		results []string
 	)
 
-	workURL, err := url.Parse(base_url)
+	workURL, err := url.Parse(baseURL)
 	if err != nil {
 		return nil, err
 	}
@@ -870,11 +871,12 @@ func GetKeys(base_url string, authType int, username string, secret string) ([]s
 }
 
 // GetModifiedKeys returns a list of eprint record ids from the EPrints REST API that match the modification date range
-func GetModifiedKeys(base_url string, authType int, username string, secret string, start time.Time, end time.Time) ([]string, error) {
+func GetModifiedKeys(baseURL string, authType int, username string, secret string, start time.Time, end time.Time, verbose bool) ([]string, error) {
 	var (
 		results []string
 	)
-	workURL, err := url.Parse(base_url)
+	// need to calculate the base restDocPath
+	workURL, err := url.Parse(baseURL)
 	if err != nil {
 		return nil, err
 	}
@@ -884,28 +886,33 @@ func GetModifiedKeys(base_url string, authType int, username string, secret stri
 		p := workURL.Path
 		workURL.Path = path.Join(p, "rest", "eprint") + "/"
 	}
+	restDocPath := workURL.Path
 	// Switch to use Rest Client Wrapper
-	rest, err := rc.New(workURL.String(), authType, username, secret)
+	rest, err := rc.New(baseURL, authType, username, secret)
 	if err != nil {
-		return nil, fmt.Errorf("requesting %s, %s", workURL.String(), err)
+		return nil, fmt.Errorf("requesting %s, %s", baseURL, err)
 	}
-	// GetKeys() then filter for modified ones.
-	keys, err := GetKeys(base_url, authType, username, secret)
+
+	// Pass baseURL to GetKeys(), get key list then filter for modified times.
+	keys, err := GetKeys(baseURL, authType, username, secret)
 	for _, key := range keys {
 		// form a request to the REST API for just the modified date
-		lastModPath := path.Join(workURL.Path, key, "lastmod.txt")
-		lastModified, err := rest.Request("GET", lastModPath, map[string]string{})
+		docPath := path.Join(restDocPath, key, "lastmod.txt")
+		lastModified, err := rest.Request("GET", docPath, map[string]string{})
 		if err != nil {
-			return nil, fmt.Errorf("requested %s, %s", workURL.String(), err)
-		}
-		datestring := fmt.Sprintf("%s", lastModified)
-		if len(datestring) > 9 {
-			datestring = datestring[0:10]
-		}
-		// Parse the modified date and compare to our range
-		if dt, err := time.Parse("2006-01-02", datestring); err == nil && dt.Unix() >= start.Unix() && dt.Unix() <= end.Unix() {
-			// If range is OK then add the key to results
-			results = append(results, key)
+			if verbose == true {
+				log.Printf("request failed, %s", err)
+			}
+		} else {
+			datestring := fmt.Sprintf("%s", lastModified)
+			if len(datestring) > 9 {
+				datestring = datestring[0:10]
+			}
+			// Parse the modified date and compare to our range
+			if dt, err := time.Parse("2006-01-02", datestring); err == nil && dt.Unix() >= start.Unix() && dt.Unix() <= end.Unix() {
+				// If range is OK then add the key to results
+				results = append(results, key)
+			}
 		}
 	}
 	return results, nil
