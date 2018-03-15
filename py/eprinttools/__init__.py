@@ -97,12 +97,13 @@ def version():
         value = value.encode('utf-8')
     return value.decode() 
 
-def cfg(base_url, auth_type = "", username = "", secret = ""):
+def cfg(base_url, auth_type = "", username = "", secret = "", dataset_collection = ""):
     cfg = {
         "url": base_url,
         "auth_type": auth_type,
         "username": username,
-        "password": secret
+        "password": secret,
+        "dataset": dataset_collection
     }
     return cfg
 
@@ -112,6 +113,7 @@ def envcfg():
     auth_type = os.getenv("EPRINT_AUTH_TYPE")
     username = os.getenv("EPRINT_USER")
     secret = os.getenv("EPRINT_PASSWD")
+    dataset_collection = os.getenv("DATASET")
 
     if base_url != None:
         cfg["url"] = base_url
@@ -121,6 +123,8 @@ def envcfg():
         cfg["username"] = username
     if secret != None:
         cfg["password"] = secret
+    if dataset_collection != None:
+        cfg["dataset"] = dataset_collection
     return cfg
 
 def readcfg(fname = "config.json"):

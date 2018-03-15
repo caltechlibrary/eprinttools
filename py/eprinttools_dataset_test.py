@@ -2,6 +2,7 @@
 import os
 import sys
 import eprinttools
+import dataset
 import random
 import datetime
 
@@ -77,6 +78,9 @@ def test_get_metadata(t, eprint_url, auth_type = 0, username = "", secret = ""):
         else:
             t.print(f"found {key} with data")
 
+    keys = dataset.get_keys(collection_name)
+    if len(keys) != len(collection_keys):
+        t.error("expected collection keys to match batch harvested")
 
 #
 # Test harness
