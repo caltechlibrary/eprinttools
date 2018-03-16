@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import os
+import shutil
 import sys
 import dataset
 import eprinttools
@@ -10,6 +11,12 @@ import datetime
 # Tests
 #
 def test_get_metadata(t, eprint_url, auth_type, username, secret, collection_name):
+    if os.path.exists(collection_name):
+        shutil.rmtree(collection_name)
+    ok = dataset.init(collection_name)
+    if ok == False:
+        t.error(f"Can't initialize {collection_name}")
+        return
     t.verbose_off() # turn verboseness on for debugging
     test_name = t.test_name()
     cfg = eprinttools.cfg(eprint_url, auth_type, username, secret, collection_name)
@@ -45,6 +52,8 @@ def test_get_metadata(t, eprint_url, auth_type, username, secret, collection_nam
     dataset.verbose_on() # DEBUG
     key_cnt = len(collection_keys)
     t.print(f"harvesting {key_cnt} keys to {collection_name}")
+    dataset.verbose_on() # DEBUG
+    t.verbose_on() # DEBUG
     for key in collection_keys:
         data = eprinttools.get_metadata(cfg, key, True)
         xml_src = eprinttools.get_buffered_xml()
@@ -58,11 +67,18 @@ def test_get_metadata(t, eprint_url, auth_type, username, secret, collection_nam
         else:
             t.print(f"found {key} with data {cfg}")
             rec = dataset.read(collection_name, key)
-            #FIXME: need to write xml to a tmp file and attach
             e_msg = dataset.error_message()
             if len(rec) == 0 or e_msg != "":
                 t.error(f"Should be able to read '{key}' in '{collection_name}' {e_msg}")
                 return
+            attachment_name = f"{key}.xml"
+            with open(attachment_name, mode = "w", encoding = "utf-8") as f:
+                f.write(xml_src)
+            ok = dataset.attach(collection_name, key, [attachment_name])
+            if ok == False:
+                t.error("Count not attach {attachment_name} to {key} in {collection_name}")
+                return
+            os.remove(attachment_name)        
 
     keys = dataset.keys(collection_name)
     if len(keys) != len(collection_keys):
@@ -138,7 +154,7 @@ def setup():
     auth_type = os.getenv("EPRINT_AUTH_TYPE")
     username = os.getenv("EPRINT_USER")
     secret = os.getenv("EPRINT_PASSWD")
-    collection_name = os.getenv("DATASET")
+    collection_name = "test_get_metadata.ds" #os.getenv("DATASET")
 
     if eprint_url == None:
         print(f"Skipping tests for eprinttools {ep_version}, EPRINT_URL not set in the environment")

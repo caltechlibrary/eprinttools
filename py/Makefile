@@ -55,6 +55,7 @@ clean:
 	if [ -d "build" ]; then rm -fR build; fi
 	if [ -d "__pycache__" ]; then rm -fR "__pycache__"; fi	
 	if [ -d "$(PROJECT)/__pycache__" ]; then rm -fR "$(PROJECT)/__pycache__"; fi	
+	if [ -d "test_get_metadata.ds" ]; then rm -fR "test_get_metadata.ds"; fi
 
 test: clean $(PROJECT)/$(LIB_NAME)$(EXT)
 	python3 $(PROJECT)_test.py $(QUICK_TEST)
