@@ -16,7 +16,7 @@
 //
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-package eprinttools
+package harvest
 
 import (
 	"bytes"
@@ -24,16 +24,54 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"path"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 
 	// CaltechLibrary packages
 	"github.com/caltechlibrary/dataset"
+	"github.com/caltechlibrary/eprinttools"
 )
 
+var (
+	// EPrintsExportBatchSize sets the summary output frequency when exporting content from E-Prints
+	EPrintsExportBatchSize = 1000
+)
+
+type byURI []string
+
+func (s byURI) Len() int {
+	return len(s)
+}
+
+func (s byURI) Swap(i, j int) {
+	s[i], s[j] = s[j], s[i]
+}
+
+func (s byURI) Less(i, j int) bool {
+	var (
+		a1  int
+		a2  int
+		err error
+	)
+	s1 := strings.TrimSuffix(path.Base(s[i]), path.Ext(s[i]))
+	s2 := strings.TrimSuffix(path.Base(s[j]), path.Ext(s[j]))
+	a1, err = strconv.Atoi(s1)
+	if err != nil {
+		return false
+	}
+	a2, err = strconv.Atoi(s2)
+	if err != nil {
+		return false
+	}
+	//NOTE: We're creating a descending sort, so a1 should be larger than a2
+	return a1 > a2
+}
+
 // ExportEPrintsKeyList export a list of eprints from a list of keys
-func (api *EPrintsAPI) ExportEPrintsKeyList(keys []string, saveKeys string, verbose bool) error {
+func ExportEPrintsKeyList(api *eprinttools.EPrintsAPI, keys []string, saveKeys string, verbose bool) error {
 	var (
 		exportedKeys []string
 		err          error
@@ -108,7 +146,7 @@ func (api *EPrintsAPI) ExportEPrintsKeyList(keys []string, saveKeys string, verb
 }
 
 // ExportEPrints from highest ID to lowest for cnt. Saves each record in a DB and indexes published ones
-func (api *EPrintsAPI) ExportEPrints(count int, saveKeys string, verbose bool) error {
+func ExportEPrints(api *eprinttools.EPrintsAPI, count int, saveKeys string, verbose bool) error {
 	var (
 		exportedKeys []string
 		err          error
@@ -188,7 +226,7 @@ func (api *EPrintsAPI) ExportEPrints(count int, saveKeys string, verbose bool) e
 }
 
 // ExportModifiedEPrints returns a list of ids modified in one or between the start, end times
-func (api *EPrintsAPI) ExportModifiedEPrints(start, end time.Time, saveKeys string, verbose bool) error {
+func ExportModifiedEPrints(api *eprinttools.EPrintsAPI, start, end time.Time, saveKeys string, verbose bool) error {
 	var (
 		exportedKeys []string
 		err          error

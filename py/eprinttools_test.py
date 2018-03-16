@@ -66,8 +66,10 @@ def test_get_metadata(t, eprint_url, auth_type = 0, username = "", secret = ""):
             t.print(f"found {key} with data")
             collection_keys.append(key)
 
+    # Check to see if we can retrieved the buffered XML
     for key in collection_keys:
         data = eprinttools.get_metadata(cfg, key, True)
+        xml_src = eprinttools.get_buffered_xml()
         if len(data) == 0:
             e_msg = eprinttools.error_message()
             if e_msg.startswith("401") == False:
@@ -76,6 +78,8 @@ def test_get_metadata(t, eprint_url, auth_type = 0, username = "", secret = ""):
                 t.print(f"found {key}, requires authentication")
         else:
             t.print(f"found {key} with data")
+            if len(xml_src) == 0:
+                t.error("Could not get xml buffer contents for {key}")
 
 
 #

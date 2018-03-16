@@ -16,12 +16,14 @@
 //
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-package eprinttools
+package harvest
 
 import (
 	"os"
 	"testing"
+
 	// CaltechLibrary packages
+	"github.com/caltechlibrary/eprinttools"
 	//"github.com/caltechlibrary/dataset"
 )
 
@@ -36,7 +38,7 @@ func TestHarvest(t *testing.T) {
 	}
 	suppressNote := true
 
-	api, err := New(eprintURL, datasetName, suppressNote, "", "", "")
+	api, err := eprinttools.New(eprintURL, datasetName, suppressNote, "", "", "")
 	if err != nil {
 		t.Errorf("Cannot create a new API instance %q", err)
 		t.FailNow()
@@ -47,7 +49,7 @@ func TestHarvest(t *testing.T) {
 	}
 
 	// Skip, this needs to evolve to the new data structure
-	err = api.ExportEPrints(recordCount, api.Dataset+".keys", true)
+	err = ExportEPrints(api, recordCount, api.Dataset+".keys", true)
 	if err != nil {
 		t.Errorf("Cannot harvest for test site %q", err)
 		t.FailNow()

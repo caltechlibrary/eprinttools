@@ -33,7 +33,6 @@ import (
 	"strings"
 
 	// Caltech Library packages
-	"github.com/caltechlibrary/dataset"
 	"github.com/caltechlibrary/rc"
 )
 
@@ -57,9 +56,6 @@ Redistribution and use in source and binary forms, with or without modification,
 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.`
-
-	// EPrintsExportBatchSize sets the summary output frequency when exporting content from E-Prints
-	EPrintsExportBatchSize = 1000
 )
 
 // These are our main bucket and index buckets
@@ -262,36 +258,6 @@ func New(eprintURL, datasetName string, suppressNote bool, authMethod, userName,
 	api.Username = userName
 	api.Secret = userSecret
 	return api, nil
-}
-
-type byURI []string
-
-func (s byURI) Len() int {
-	return len(s)
-}
-
-func (s byURI) Swap(i, j int) {
-	s[i], s[j] = s[j], s[i]
-}
-
-func (s byURI) Less(i, j int) bool {
-	var (
-		a1  int
-		a2  int
-		err error
-	)
-	s1 := strings.TrimSuffix(path.Base(s[i]), path.Ext(s[i]))
-	s2 := strings.TrimSuffix(path.Base(s[j]), path.Ext(s[j]))
-	a1, err = strconv.Atoi(s1)
-	if err != nil {
-		return false
-	}
-	a2, err = strconv.Atoi(s2)
-	if err != nil {
-		return false
-	}
-	//NOTE: We're creating a descending sort, so a1 should be larger than a2
-	return a1 > a2
 }
 
 // ListEPrintsURI returns a list of eprint record ids from the EPrints REST API
@@ -506,26 +472,6 @@ func (record *EPrint) PubDate() string {
 		return record.Date
 	}
 	return ""
-}
-
-// ListID returns a list of eprint record ids from the dataset
-func (api *EPrintsAPI) ListID(start, count int) ([]string, error) {
-	c, err := dataset.Open(api.Dataset)
-	failCheck(err, fmt.Sprintf("ListID() %s, %s", api.Dataset, err))
-	defer c.Close()
-
-	ids := c.Keys()
-	if len(ids) == 0 {
-		return []string{}, nil
-	}
-	end := start + count
-	if count <= 0 || end >= len(ids) {
-		return ids[start:], nil
-	}
-	if start < end {
-		return ids[start:end], nil
-	}
-	return nil, fmt.Errorf("Invalid range")
 }
 
 func (person *Person) String() string {

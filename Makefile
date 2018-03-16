@@ -14,21 +14,26 @@ ifeq ($(OS), Windows)
         EXT = .exe
 endif
 
+QUICK =
+ifeq ($(quick), true)
+	QUICK = quick=true
+endif
+
 PROJECT_LIST = ep eputil
 
 build: package $(PROJECT_LIST)
 
-package: eprinttools.go harvest.go eprint3x.go
+package: eprinttools.go harvest/harvest.go eprint3x.go
 	go build
 
 ep: bin/ep
 
 eputil: bin/eputil
 
-bin/ep$(EXT): eprinttools.go harvest.go cmd/ep/ep.go
+bin/ep$(EXT): eprinttools.go harvest/harvest.go cmd/ep/ep.go
 	go build -o bin/ep$(EXT) cmd/ep/ep.go
 
-bin/eputil$(EXT): eprinttools.go harvest.go eprint3x.go cmd/eputil/eputil.go
+bin/eputil$(EXT): eprinttools.go harvest/harvest.go eprint3x.go cmd/eputil/eputil.go
 	go build -o bin/eputil$(EXT) cmd/eputil/eputil.go
 
 install: 
@@ -40,7 +45,8 @@ website: page.tmpl README.md nav.md INSTALL.md LICENSE css/site.css docs/index.m
 
 test:
 	go test
-	cd py && $(MAKE) test
+	cd harvest && go test
+	cd py && $(MAKE) test $(QUICK)
 
 clean:
 	if [ -d bin ]; then rm -fR bin; fi

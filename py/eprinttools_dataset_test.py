@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 import os
 import sys
-import dataset
 import eprinttools
+import dataset
 import random
 import datetime
 
@@ -39,13 +39,15 @@ def test_get_metadata(t, eprint_url, auth_type, username, secret, collection_nam
         else:
             t.print(f"found {key} with data")
             collection_keys.append(key)
+            dataset.create(collection_name, key, data)
 
-    #eprinttools.verbose_on() # DEBUG
-    #dataset.verbose_on() # DEBUG
+    eprinttools.verbose_on() # DEBUG
+    dataset.verbose_on() # DEBUG
     key_cnt = len(collection_keys)
     t.print(f"harvesting {key_cnt} keys to {collection_name}")
     for key in collection_keys:
         data = eprinttools.get_metadata(cfg, key, True)
+        xml_src = eprinttools.get_buffered_xml()
         e_msg = eprinttools.error_message()
         if e_msg != "" and e_msg.startswith("401") == False:
                 t.error(f"Expected data for {key}, got {e_msg}")
@@ -56,14 +58,15 @@ def test_get_metadata(t, eprint_url, auth_type, username, secret, collection_nam
         else:
             t.print(f"found {key} with data {cfg}")
             rec = dataset.read(collection_name, key)
+            #FIXME: need to write xml to a tmp file and attach
             e_msg = dataset.error_message()
             if len(rec) == 0 or e_msg != "":
                 t.error(f"Should be able to read '{key}' in '{collection_name}' {e_msg}")
                 return
 
-    #keys = dataset.keys(collection_name)
-    #if len(keys) != len(collection_keys):
-    #    t.error("expected collection keys to match batch harvested")
+    keys = dataset.keys(collection_name)
+    if len(keys) != len(collection_keys):
+        t.error("expected collection keys to match batch harvested")
 
 #
 # Test harness

@@ -64,6 +64,9 @@ go_get_metadata = lib.get_metadata
 go_get_metadata.argtypes = [ctypes.c_char_p, ctypes.c_char_p, ctypes.c_int]
 go_get_metadata.restype = ctypes.c_char_p
 
+go_get_buffered_xml = lib.get_buffered_xml
+go_get_buffered_xml.restype = ctypes.c_char_p
+
 #
 # Now write our Python idiomatic function
 #
@@ -155,6 +158,7 @@ def get_modified_keys(cfg: dict, start = now, end = now):
         return []
     return json.loads(rval)
 
+# get_metadata gets an EPrints record as JONS and optionally save the raw XML to a buffer
 def get_metadata(cfg, key, save = False):
     c = json.dumps(cfg).encode("utf-8")
     k = key.encode("utf-8")
@@ -169,3 +173,9 @@ def get_metadata(cfg, key, save = False):
         return {}
     return json.loads(rval)
 
+# get_buffered_xml returns the current state of the XML buffer
+def get_buffered_xml():
+    value = go_get_buffered_xml()
+    if not isinstance(value, bytes):
+        value = value.encode("utf-8")
+    return value.decode()

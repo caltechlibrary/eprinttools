@@ -18,19 +18,22 @@
 //
 package main
 
-import (
+/*
 	// #cgo pkg-config: python-3.6
 	// #define Py_LIMITED_API
 	// #include <Python.h>
+*/
+
+import (
 	"C"
-	"bytes"
+	//"bytes"
 	"encoding/json"
 	"fmt"
 	"log"
 	"time"
 
 	// Caltech Library Packages
-	"github.com/caltechlibrary/dataset"
+	//"github.com/caltechlibrary/dataset"
 	"github.com/caltechlibrary/eprinttools"
 	"github.com/caltechlibrary/rc"
 )
@@ -38,6 +41,7 @@ import (
 var (
 	verbose    = false
 	errorValue error
+	xmlBuffer  []byte
 )
 
 //export is_verbose
@@ -210,35 +214,45 @@ func get_metadata(cfg *C.char, cKey *C.char, cSave C.int) *C.char {
 	}
 
 	if save {
-		collectionName := dsCfg(m)
-		if collectionName == "" {
-			err := fmt.Errorf("collection name is an empty string")
-			error_dispatch(err, "can't save key %s, ", key, err)
-			return C.CString("")
-		}
-		c, err := dataset.Open(collectionName)
-		if err != nil {
-			error_dispatch(err, "failed to open collection %q, %s", collectionName, err)
-			return C.CString(fmt.Sprintf("%s", src))
-		}
-		defer c.Close()
-		if c.HasKey(key) {
-			if err := c.UpdateJSON(key, src); err != nil {
-				error_dispatch(err, "can't save %s to %s, %s", key, collectionName, err)
+		xmlBuffer = xml_src
+		/*
+			collectionName := dsCfg(m)
+			if collectionName == "" {
+				err := fmt.Errorf("collection name is an empty string")
+				error_dispatch(err, "can't save key %s, ", key, err)
+				return C.CString("")
+			}
+			c, err := dataset.Open(collectionName)
+			if err != nil {
+				error_dispatch(err, "failed to open collection %q, %s", collectionName, err)
 				return C.CString(fmt.Sprintf("%s", src))
 			}
-		} else {
-			if err := c.CreateJSON(key, src); err != nil {
-				error_dispatch(err, "can't save %s to %s, %s", key, collectionName, err)
+			defer c.Close()
+			if c.HasKey(key) {
+				if err := c.UpdateJSON(key, src); err != nil {
+					error_dispatch(err, "can't save %s to %s, %s", key, collectionName, err)
+					return C.CString(fmt.Sprintf("%s", src))
+				}
+			} else {
+				if err := c.CreateJSON(key, src); err != nil {
+					error_dispatch(err, "can't save %s to %s, %s", key, collectionName, err)
+					return C.CString(fmt.Sprintf("%s", src))
+				}
+			}
+			if err := c.AttachFile(key, key+".xml", bytes.NewReader(xml_src)); err != nil {
+				error_dispatch(err, "can't attach %s.xml to %s in %s, %s", key, key, collectionName, err)
 				return C.CString(fmt.Sprintf("%s", src))
 			}
-		}
-		if err := c.AttachFile(key, key+".xml", bytes.NewReader(xml_src)); err != nil {
-			error_dispatch(err, "can't attach %s.xml to %s in %s, %s", key, key, collectionName, err)
-			return C.CString(fmt.Sprintf("%s", src))
-		}
+		*/
 	}
 	return C.CString(fmt.Sprintf("%s", src))
+}
+
+//export get_buffered_xml
+func get_buffered_xml() *C.char {
+	src := fmt.Sprintf("%s", xmlBuffer)
+	xmlBuffer = nil
+	return C.CString(src)
 }
 
 func main() {}

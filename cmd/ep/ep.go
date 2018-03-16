@@ -30,6 +30,7 @@ import (
 	// Caltech Library Packages
 	"github.com/caltechlibrary/cli"
 	"github.com/caltechlibrary/eprinttools"
+	"github.com/caltechlibrary/eprinttools/harvest"
 )
 
 var (
@@ -255,7 +256,7 @@ func main() {
 	switch {
 	case exportEPrintsKeyList != "":
 		log.Printf("Export started, %s", t0)
-		if err := api.ExportEPrintsKeyList(strings.Split(exportEPrintsKeyList, ","), exportSaveKeys, verbose); err != nil {
+		if err := harvest.ExportEPrintsKeyList(api, strings.Split(exportEPrintsKeyList, ","), exportSaveKeys, verbose); err != nil {
 			log.Fatalf("%s", err)
 		}
 	case exportEPrintsModified != "":
@@ -274,7 +275,7 @@ func main() {
 			log.Fatalf("%s", err)
 		}
 		log.Printf("Export from %s to %s, started %s", start.Format("2006-01-02"), end.Format("2006-01-02"), t0.Format("2006-01-02 15:04:05 MST"))
-		if err := api.ExportModifiedEPrints(start, end, exportSaveKeys, verbose); err != nil {
+		if err := harvest.ExportModifiedEPrints(api, start, end, exportSaveKeys, verbose); err != nil {
 			log.Fatalf("%s", err)
 		}
 	case exportEPrints != "":
@@ -286,7 +287,7 @@ func main() {
 			}
 		}
 		log.Printf("Export started, %s", t0)
-		if err := api.ExportEPrints(exportNo, exportSaveKeys, verbose); err != nil {
+		if err := harvest.ExportEPrints(api, exportNo, exportSaveKeys, verbose); err != nil {
 			log.Fatalf("%s", err)
 		}
 	default:
