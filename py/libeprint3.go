@@ -18,22 +18,14 @@
 //
 package main
 
-/*
-	// #cgo pkg-config: python-3.6
-	// #define Py_LIMITED_API
-	// #include <Python.h>
-*/
-
 import (
 	"C"
-	//"bytes"
 	"encoding/json"
 	"fmt"
 	"log"
 	"time"
 
 	// Caltech Library Packages
-	//"github.com/caltechlibrary/dataset"
 	"github.com/caltechlibrary/eprinttools"
 	"github.com/caltechlibrary/rc"
 )
