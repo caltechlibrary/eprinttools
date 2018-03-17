@@ -46,6 +46,11 @@ ifeq ($(use_sudo), true)
 endif
 
 
+USE_SUDO =
+ifeq ($(use_sudo), true)
+	USE_SUDO = sudo
+endif
+
 build: $(PROJECT)/$(LIB_NAME)$(EXT)
 	python3 setup.py build
 
@@ -60,7 +65,7 @@ clean:
 	if [ -d "build" ]; then $(USE_SUDO) rm -fR build; fi
 	if [ -d "__pycache__" ]; then $(USE_SUDO) rm -fR "__pycache__"; fi	
 	if [ -d "$(PROJECT)/__pycache__" ]; then $(USE_SUDO) rm -fR "$(PROJECT)/__pycache__"; fi	
-	if [ -d "test_get_metadata.ds" ]; then $(USE_SUDO) rm -fR "test_get_metadata.ds"; fi
+	if [ -d "test_get_eprint_xml.ds" ]; then $(USE_SUDO) rm -fR "test_get_eprint_xml.ds"; fi
 
 test: clean $(PROJECT)/$(LIB_NAME)$(EXT)
 	python3 $(PROJECT)_test.py $(QUICK)

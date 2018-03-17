@@ -10,7 +10,7 @@ import datetime
 #
 # Tests
 #
-def test_get_metadata(t, eprint_url, auth_type, username, secret, collection_name):
+def test_get_eprint_xml(t, eprint_url, auth_type, username, secret, collection_name):
     if os.path.exists(collection_name):
         shutil.rmtree(collection_name)
     ok = dataset.init(collection_name)
@@ -24,7 +24,7 @@ def test_get_metadata(t, eprint_url, auth_type, username, secret, collection_nam
     if len(keys) == 0:
         t.error(f"Can't test {test_name} without keys, got zero keys")
         return
-    #FIXME: Pick some random keys to test getting metadata records!
+
     collection_keys = []
     check_keys = []
     for i in range(100):
@@ -36,53 +36,22 @@ def test_get_metadata(t, eprint_url, auth_type, username, secret, collection_nam
     t.print(f"Calculating the keys in sample that will get stored in the collection {collection_name}")
     for key in check_keys:
         # We are going to try to get the metadata for the EPrint record but not store it in a dataset collectin...
-        data = eprinttools.get_metadata(cfg, key, False)
-        if len(data) == 0:
-            e_msg = eprinttools.error_message()
+        ok = eprinttools.get_eprint_xml(cfg, key)
+        e_msg = eprinttools.error_message()
+        if ok == False or e_msg != "":
             if e_msg.startswith("401") == False:
-                t.error(f"Expected data for {key}, got {data}")
+                t.error(f"Expected data for {key}, got {ok}, {e_msg}")
             else:
                 t.print(f"found {key}, requires authentication")
         else:
-            t.print(f"found {key} with data")
-            collection_keys.append(key)
-            dataset.create(collection_name, key, data)
-
-    eprinttools.verbose_on() # DEBUG
-    dataset.verbose_on() # DEBUG
-    key_cnt = len(collection_keys)
-    t.print(f"harvesting {key_cnt} keys to {collection_name}")
-    dataset.verbose_on() # DEBUG
-    t.verbose_on() # DEBUG
-    for key in collection_keys:
-        data = eprinttools.get_metadata(cfg, key, True)
-        xml_src = eprinttools.get_buffered_xml()
-        e_msg = eprinttools.error_message()
-        if e_msg != "" and e_msg.startswith("401") == False:
-                t.error(f"Expected data for {key}, got {e_msg}")
-        elif e_msg != "":
-                t.print(f"Skipped {key}, requires authentication")
-        elif len(data) == 0:
-            t.print(f"warning: {key} did not return any data")
-        else:
-            t.print(f"found {key} with data {cfg}")
-            rec = dataset.read(collection_name, key)
+            t.print(f"found {key} with data, checking dataset for record")
+            data = dataset.read(collection_name, key)
             e_msg = dataset.error_message()
-            if len(rec) == 0 or e_msg != "":
-                t.error(f"Should be able to read '{key}' in '{collection_name}' {e_msg}")
-                return
-            attachment_name = f"{key}.xml"
-            with open(attachment_name, mode = "w", encoding = "utf-8") as f:
-                f.write(xml_src)
-            ok = dataset.attach(collection_name, key, [attachment_name])
-            if ok == False:
-                t.error("Count not attach {attachment_name} to {key} in {collection_name}")
-                return
-            os.remove(attachment_name)        
+            if len(data) == 0:
+                t.error(f"{key} in {collection_name} empty record, {e_msg}")
+            if e_msg != "":
+                t.error(f"{key} in {collection_name} error, {e_msg}")
 
-    keys = dataset.keys(collection_name)
-    if len(keys) != len(collection_keys):
-        t.error("expected collection keys to match batch harvested")
 
 #
 # Test harness
@@ -154,13 +123,10 @@ def setup():
     auth_type = os.getenv("EPRINT_AUTH_TYPE")
     username = os.getenv("EPRINT_USER")
     secret = os.getenv("EPRINT_PASSWD")
-    collection_name = "test_get_metadata.ds" #os.getenv("DATASET")
+    collection_name = "test_get_eprint_xml.ds"
 
     if eprint_url == None:
         print(f"Skipping tests for eprinttools {ep_version}, EPRINT_URL not set in the environment")
-        sys.exit(1)
-    if collection_name == None:
-        print(f"Skipping tests for eprinttools with dataset {ds_version}, DATASET not set in the environment")
         sys.exit(1)
     if os.path.exists(collection_name) == False:
         ok = dataset.init(collection_name)
@@ -183,6 +149,6 @@ def setup():
 if __name__ == "__main__":
     eprint_url, auth_type, username, secret, collection_name = setup()
     test_runner = TestRunner(os.path.basename(__file__))
-    test_runner.add(test_get_metadata, [eprint_url, auth_type, username, secret, collection_name])
+    test_runner.add(test_get_eprint_xml, [eprint_url, auth_type, username, secret, collection_name])
     test_runner.run()
 

@@ -20,12 +20,14 @@ package main
 
 import (
 	"C"
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"log"
 	"time"
 
 	// Caltech Library Packages
+	"github.com/caltechlibrary/dataset"
 	"github.com/caltechlibrary/eprinttools"
 	"github.com/caltechlibrary/rc"
 )
@@ -207,35 +209,6 @@ func get_metadata(cfg *C.char, cKey *C.char, cSave C.int) *C.char {
 
 	if save {
 		xmlBuffer = xml_src
-		/*
-			collectionName := dsCfg(m)
-			if collectionName == "" {
-				err := fmt.Errorf("collection name is an empty string")
-				error_dispatch(err, "can't save key %s, ", key, err)
-				return C.CString("")
-			}
-			c, err := dataset.Open(collectionName)
-			if err != nil {
-				error_dispatch(err, "failed to open collection %q, %s", collectionName, err)
-				return C.CString(fmt.Sprintf("%s", src))
-			}
-			defer c.Close()
-			if c.HasKey(key) {
-				if err := c.UpdateJSON(key, src); err != nil {
-					error_dispatch(err, "can't save %s to %s, %s", key, collectionName, err)
-					return C.CString(fmt.Sprintf("%s", src))
-				}
-			} else {
-				if err := c.CreateJSON(key, src); err != nil {
-					error_dispatch(err, "can't save %s to %s, %s", key, collectionName, err)
-					return C.CString(fmt.Sprintf("%s", src))
-				}
-			}
-			if err := c.AttachFile(key, key+".xml", bytes.NewReader(xml_src)); err != nil {
-				error_dispatch(err, "can't attach %s.xml to %s in %s, %s", key, key, collectionName, err)
-				return C.CString(fmt.Sprintf("%s", src))
-			}
-		*/
 	}
 	return C.CString(fmt.Sprintf("%s", src))
 }
@@ -245,6 +218,58 @@ func get_buffered_xml() *C.char {
 	src := fmt.Sprintf("%s", xmlBuffer)
 	xmlBuffer = nil
 	return C.CString(src)
+}
+
+//export get_eprint_xml
+func get_eprint_xml(cfg *C.char, cKey *C.char) C.int {
+	key := C.GoString(cKey)
+	m := map[string]string{}
+	cfg_src := []byte(C.GoString(cfg))
+	err := json.Unmarshal(cfg_src, &m)
+	if err != nil {
+		error_dispatch(err, "can't unmarshal config, %s", err)
+		return C.int(0)
+	}
+	base_url, authType, username, password := apiCfg(m)
+	eprint, xml_src, err := eprinttools.GetEPrints(base_url, authType, username, password, key)
+	if err != nil {
+		error_dispatch(err, "can't get eprint %s, %s", key, err)
+		return C.int(0)
+	}
+	src, err := json.Marshal(eprint)
+	if err != nil {
+		error_dispatch(err, "can't marshal eprint %s, %s", key, err)
+		return C.int(0)
+	}
+
+	collectionName := dsCfg(m)
+	if collectionName == "" {
+		err := fmt.Errorf("collection name is an empty string")
+		error_dispatch(err, "can't save key %s, ", key, err)
+		return C.int(0)
+	}
+	c, err := dataset.Open(collectionName)
+	if err != nil {
+		error_dispatch(err, "failed to open collection %q, %s", collectionName, err)
+		return C.int(0)
+	}
+	defer c.Close()
+	if c.HasKey(key) {
+		if err := c.UpdateJSON(key, src); err != nil {
+			error_dispatch(err, "can't save %s to %s, %s", key, collectionName, err)
+			return C.int(0)
+		}
+	} else {
+		if err := c.CreateJSON(key, src); err != nil {
+			error_dispatch(err, "can't save %s to %s, %s", key, collectionName, err)
+			return C.int(0)
+		}
+	}
+	if err := c.AttachFile(key, key+".xml", bytes.NewReader(xml_src)); err != nil {
+		error_dispatch(err, "can't attach %s.xml to %s in %s, %s", key, key, collectionName, err)
+		return C.int(0)
+	}
+	return C.int(1)
 }
 
 func main() {}
