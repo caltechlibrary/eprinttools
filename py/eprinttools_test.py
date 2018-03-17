@@ -56,10 +56,10 @@ def test_get_metadata(t, eprint_url, auth_type = 0, username = "", secret = ""):
     for key in check_keys:
         # We are going to try to get the metadata for the EPrint record but not store it in a dataset collectin...
         data = eprinttools.get_metadata(cfg, key, False)
-        if len(data) == 0:
-            e_msg = eprinttools.error_message()
+        e_msg = eprinttools.error_message()
+        if len(data) == 0 or e_msg != "":
             if e_msg.startswith("401") == False:
-                t.error(f"Expected data for {key}, got {data}")
+                t.error(f"Expected data for {key}, got {data} {e_msg}")
             else:
                 t.print(f"found {key}, requires authentication")
         else:
@@ -69,11 +69,12 @@ def test_get_metadata(t, eprint_url, auth_type = 0, username = "", secret = ""):
     # Check to see if we can retrieved the buffered XML
     for key in collection_keys:
         data = eprinttools.get_metadata(cfg, key, True)
+        e_msg = eprinttools.error_message()
         xml_src = eprinttools.get_buffered_xml()
-        if len(data) == 0:
+        if len(data) == 0 or e_msg != "":
             e_msg = eprinttools.error_message()
             if e_msg.startswith("401") == False:
-                t.error(f"Expected data for {key}, got {data}")
+                t.error(f"Expected data for {key}, got {data} {e_msg}")
             else:
                 t.print(f"found {key}, requires authentication")
         else:

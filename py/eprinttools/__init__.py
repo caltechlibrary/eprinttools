@@ -67,6 +67,10 @@ go_get_metadata.restype = ctypes.c_char_p
 go_get_buffered_xml = lib.get_buffered_xml
 go_get_buffered_xml.restype = ctypes.c_char_p
 
+go_get_eprint_xml = lib.get_eprint_xml
+go_get_eprint_xml.argtypes = [ctypes.c_char_p, ctypes.c_char_p]
+go_get_eprint_xml.restype = ctypes.c_int
+
 #
 # Now write our Python idiomatic function
 #
@@ -100,13 +104,13 @@ def version():
         value = value.encode('utf-8')
     return value.decode() 
 
-def cfg(base_url, auth_type = "", username = "", secret = "", dataset_collection = ""):
+def cfg(base_url, auth_type = "", username = "", secret = "", collection_name = ""):
     cfg = {
         "url": base_url,
         "auth_type": auth_type,
         "username": username,
         "password": secret,
-        "dataset": dataset_collection
+        "dataset": collection_name
     }
     return cfg
 
@@ -179,3 +183,13 @@ def get_buffered_xml():
     if not isinstance(value, bytes):
         value = value.encode("utf-8")
     return value.decode()
+
+# get_eprint_xml gets an EPrints record as JSON and stores it along
+# with the EPrint XML in a dataset collection.
+def get_eprint_xml(cfg, key):
+    c = json.dumps(cfg).encode("utf-8")
+    k = key.encode("utf-8")
+    c_save = ctypes.c_int(0)
+    ok = go_get_eprint_xml(ctypes.c_char_p(c), ctypes.c_char_p(k))
+    return (ok == 1)
+

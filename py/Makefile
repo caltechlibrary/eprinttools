@@ -41,6 +41,11 @@ ifeq ($(quick), true)
 	QUICK_TEST = -quick
 endif
 
+USE_SUDO =
+ifeq ($(use_sudo), true)
+	USE_SUDO = sudo
+endif
+
 build: $(PROJECT)/$(LIB_NAME)$(EXT)
 	python3 setup.py build
 
@@ -48,14 +53,14 @@ $(PROJECT)/$(LIB_NAME)$(EXT): $(LIB_NAME).go
 	go build -buildmode=c-shared -o "$(PROJECT)/$(LIB_NAME)$(EXT)" "$(LIB_NAME).go"
 
 clean:
-	if [ -f "MANIFEST" ]; then rm MANIFEST; fi
-	if [ -f "$(PROJECT)/$(LIB_NAME)$(EXT)" ]; then rm "$(PROJECT)/$(LIB_NAME)$(EXT)"; fi
-	if [ -f "$(PROJECT)/$(LIB_NAME).h" ]; then rm "$(PROJECT)/$(LIB_NAME).h"; fi
-	if [ -d "dist" ]; then rm -fR dist; fi
-	if [ -d "build" ]; then rm -fR build; fi
-	if [ -d "__pycache__" ]; then rm -fR "__pycache__"; fi	
-	if [ -d "$(PROJECT)/__pycache__" ]; then rm -fR "$(PROJECT)/__pycache__"; fi	
-	if [ -d "test_get_metadata.ds" ]; then rm -fR "test_get_metadata.ds"; fi
+	if [ -f "MANIFEST" ]; then $(USE_SUDO) rm MANIFEST; fi
+	if [ -f "$(PROJECT)/$(LIB_NAME)$(EXT)" ]; then $(USE_SUDO) rm "$(PROJECT)/$(LIB_NAME)$(EXT)"; fi
+	if [ -f "$(PROJECT)/$(LIB_NAME).h" ]; then $(USE_SUDO) rm "$(PROJECT)/$(LIB_NAME).h"; fi
+	if [ -d "dist" ]; then $(USE_SUDO) rm -fR dist; fi
+	if [ -d "build" ]; then $(USE_SUDO) rm -fR build; fi
+	if [ -d "__pycache__" ]; then $(USE_SUDO) rm -fR "__pycache__"; fi	
+	if [ -d "$(PROJECT)/__pycache__" ]; then $(USE_SUDO) rm -fR "$(PROJECT)/__pycache__"; fi	
+	if [ -d "test_get_eprint_xml.ds" ]; then $(USE_SUDO) rm -fR "test_get_eprint_xml.ds"; fi
 
 test: clean $(PROJECT)/$(LIB_NAME)$(EXT)
 	python3 $(PROJECT)_test.py $(QUICK_TEST)
