@@ -1,4 +1,5 @@
 {
+    "@context": "https://doi.org/10.5063/schema/codemeta-2.0",
     "@type": "SoftwareSourceCode",
     "description": "A command line tools, package and Python module for working with the EPrints 3.x REST API",
     "name": "eprinttools",
