@@ -272,7 +272,8 @@ type ItemList []*Item
 // DocumentItemList holds the eprint documents
 type DocumentItemList struct {
 	XMLName xml.Name `xml:"documents" json:"-"`
-	Items   []*Item  `xml:"item,omitempty" json:"item,omitempty"`
+	//FIXME JSON item should just be the object itself
+	Items []*Item `xml:"item,omitempty" json:"items,omitempty"`
 }
 
 // AddItem adds a document item to the documents list and returns the new count of items
@@ -284,7 +285,8 @@ func (documentItemList *DocumentItemList) AddItem(item *Item) int {
 // CreatorItemList holds a list of authors
 type CreatorItemList struct {
 	XMLName xml.Name `xml:"creators" json:"-"`
-	Items   []*Item  `xml:"item,omitempty" json:"item,omitempty"`
+	//FIXME: JSON item should be the object itself
+	Items []*Item `xml:"item,omitempty" json:"items,omitempty"`
 }
 
 // AddItem adds an item to the Creator list and returns the new count of items
@@ -296,7 +298,7 @@ func (creatorItemList *CreatorItemList) AddItem(item *Item) int {
 // EditorItemList holds a list of editors
 type EditorItemList struct {
 	XMLName xml.Name `xml:"editors" json:"-"`
-	Items   []*Item  `xml:"item,omitempty" json:"item,omitempty"`
+	Items   []*Item  `xml:"item,omitempty" json:"items,omitempty"`
 }
 
 // AddItem adds an item to the Editor item list and returns the new count of items
@@ -308,7 +310,7 @@ func (editorItemList *EditorItemList) AddItem(item *Item) int {
 // RelatedURLItemList holds the related URLs (e.g. doi, aux material doi)
 type RelatedURLItemList struct {
 	XMLName xml.Name `xml:"related_url" json:"-"`
-	Items   []*Item  `xml:"item,omitempty" json:"item,omitempty"`
+	Items   []*Item  `xml:"item,omitempty" json:"items,omitempty"`
 }
 
 // AddItem adds an item to the related url item list and returns the new count of items
@@ -320,7 +322,7 @@ func (relatedURLItemList *RelatedURLItemList) AddItem(item *Item) int {
 // ReferenceTextItemList
 type ReferenceTextItemList struct {
 	XMLName xml.Name `xml:"referencetext" json:"-"`
-	Items   []*Item  `xml:"item,omitempty" json:"item,omitempty"`
+	Items   []*Item  `xml:"item,omitempty" json:"items,omitempty"`
 }
 
 // AddItem adds an item to the reference text url item list and returns the new count of items
@@ -332,7 +334,7 @@ func (referenceTextItemList *ReferenceTextItemList) AddItem(item *Item) int {
 // ProjectItemList
 type ProjectItemList struct {
 	XMLName xml.Name `xml:"projects" json:"-"`
-	Items   []*Item  `xml:"item,omitempty" json:"item,omitempty"`
+	Items   []*Item  `xml:"item,omitempty" json:"items,omitempty"`
 }
 
 // AddItem adds an item to the project item list and returns the new count of items
@@ -344,7 +346,7 @@ func (projectItemList *ProjectItemList) AddItem(item *Item) int {
 // FunderItemList
 type FunderItemList struct {
 	XMLName xml.Name `xml:"funders" json:"-"`
-	Items   []*Item  `xml:"item,omitempty" json:"item,omitempty"`
+	Items   []*Item  `xml:"item,omitempty" json:"items,omitempty"`
 }
 
 // AddItem adds an item to the funder item list and returns the new count of items
@@ -356,7 +358,7 @@ func (funderItemList *FunderItemList) AddItem(item *Item) int {
 // LocalGroupItemList holds the related URLs (e.g. doi, aux material doi)
 type LocalGroupItemList struct {
 	XMLName xml.Name `xml:"local_group" json:"-"`
-	Items   []*Item  `xml:"item,omitempty" json:"item,omitempty"`
+	Items   []*Item  `xml:"item,omitempty" json:"items,omitempty"`
 }
 
 // AddItem adds an item to the local group item list and returns the new count of items
@@ -368,7 +370,7 @@ func (localGroupItemList *LocalGroupItemList) AddItem(item *Item) int {
 // OtherNumberingSystemItemList
 type OtherNumberingSystemItemList struct {
 	XMLName xml.Name `xml:"other_numbering_system" json:"-"`
-	Items   []*Item  `xml:"item,omitempty" json:"item,omitempty"`
+	Items   []*Item  `xml:"item,omitempty" json:"items,omitempty"`
 }
 
 // AddItem adds an item to the other numbering system item list and returns the new count of items
@@ -380,7 +382,7 @@ func (otherNumberingSystemItemList *OtherNumberingSystemItemList) AddItem(item *
 // ErrataItemList
 type ErrataItemList struct {
 	XMLName xml.Name `xml:"errata" json:"-"`
-	Items   []*Item  `xml:"item,omitempty" json:"item,omitempty"`
+	Items   []*Item  `xml:"item,omitempty" json:"items,omitempty"`
 }
 
 // AddItem adds an item to the errata item list and returns the new count of items
@@ -392,7 +394,7 @@ func (errataItemList *ErrataItemList) AddItem(item *Item) int {
 // ContributorItemList
 type ContributorItemList struct {
 	XMLName xml.Name `xml:"contributors" json:"-"`
-	Items   []*Item  `xml:"item,omitempty" json:"item,omitempty"`
+	Items   []*Item  `xml:"item,omitempty" json:"items,omitempty"`
 }
 
 // AddItem adds an item to the contributor item list and returns the new count of items
@@ -404,7 +406,7 @@ func (contributorItemList *ContributorItemList) AddItem(item *Item) int {
 // SubjectItemList
 type SubjectItemList struct {
 	XMLName xml.Name `xml:"subjects" json:"-"`
-	Items   []*Item  `xml:"item,omitempty" json:"item,omitempty"`
+	Items   []*Item  `xml:"item,omitempty" json:"items,omitempty"`
 }
 
 // AddItem adds an item to the subject item list and returns the new count of items
@@ -416,7 +418,7 @@ func (subjectItemList *SubjectItemList) AddItem(item *Item) int {
 // ItemIssueItemList
 type ItemIssueItemList struct {
 	XMLName xml.Name `xml:"item_issues" json:"-"`
-	Items   []*Item  `xml:"item,omitempty" json:"item,omitempty"`
+	Items   []*Item  `xml:"item,omitempty" json:"items,omitempty"`
 }
 
 // AddItem adds an item to the issue item list and returns the new count of items
@@ -428,7 +430,7 @@ func (issueItemList *ItemIssueItemList) AddItem(item *Item) int {
 // CorpCreatorItemList
 type CorpCreatorItemList struct {
 	XMLName xml.Name `xml:"corp_creators" json:"-"`
-	Items   []*Item  `xml:"item,omitempty" json:"item,omitempty"`
+	Items   []*Item  `xml:"item,omitempty" json:"items,omitempty"`
 }
 
 // AddItem adds an item to the corp creator item list and returns the new count of items
@@ -440,7 +442,7 @@ func (corpCreatorItemList *CorpCreatorItemList) AddItem(item *Item) int {
 // ExhibitorItemList
 type ExhibitorItemList struct {
 	XMLName xml.Name `xml:"exhibitors" json:"-"`
-	Items   []*Item  `xml:"item,omitempty" json:"item,omitempty"`
+	Items   []*Item  `xml:"item,omitempty" json:"items,omitempty"`
 }
 
 // AddItem adds an item to the exhibitor item list and returns the new count of items
@@ -452,7 +454,7 @@ func (exhibitorItemList *ExhibitorItemList) AddItem(item *Item) int {
 // ProducerItemList
 type ProducerItemList struct {
 	XMLName xml.Name `xml:"producers" json:"-"`
-	Items   []*Item  `xml:"item,omitempty" json:"item,omitempty"`
+	Items   []*Item  `xml:"item,omitempty" json:"items,omitempty"`
 }
 
 // AddItem adds an item to the producer item list and returns the new count of items
@@ -464,7 +466,7 @@ func (producerItemList *ProducerItemList) AddItem(item *Item) int {
 // ConductorItemList
 type ConductorItemList struct {
 	XMLName xml.Name `xml:"conductors" json:"-"`
-	Items   []*Item  `xml:"item,omitempty" json:"item,omitempty"`
+	Items   []*Item  `xml:"item,omitempty" json:"items,omitempty"`
 }
 
 // AddItem adds an item to the conductor item list and returns the new count of items
@@ -476,7 +478,7 @@ func (conductorItemList *ConductorItemList) AddItem(item *Item) int {
 // LyricistItemList
 type LyricistItemList struct {
 	XMLName xml.Name `xml:"lyricists" json:"-"`
-	Items   []*Item  `xml:"item,omitempty" json:"item,omitempty"`
+	Items   []*Item  `xml:"item,omitempty" json:"items,omitempty"`
 }
 
 // AddItem adds an item to the lyricist item list and returns the new count of items
@@ -488,7 +490,7 @@ func (lyricistItemList *LyricistItemList) AddItem(item *Item) int {
 // OptionMajorItemList
 type OptionMajorItemList struct {
 	XMLName xml.Name `xml:"option_major" json:"-"`
-	Items   []*Item  `xml:"item,omitempty" json:"item,omitempty"`
+	Items   []*Item  `xml:"item,omitempty" json:"items,omitempty"`
 }
 
 // AddItem adds an item to the option major item list and returns the new count of items
@@ -500,7 +502,7 @@ func (optionMajorItemList *OptionMajorItemList) AddItem(item *Item) int {
 // ThesisCommitteeItemList
 type ThesisCommitteeItemList struct {
 	XMLName xml.Name `xml:"thesis_committee" json:"-"`
-	Items   []*Item  `xml:"item,omitempty" json:"item,omitempty"`
+	Items   []*Item  `xml:"item,omitempty" json:"items,omitempty"`
 }
 
 // AddItem adds an item to the thesis committee item list and returns the new count of items
@@ -512,7 +514,7 @@ func (thesisCommitteeItemList *ThesisCommitteeItemList) AddItem(item *Item) int 
 // ThesisAdvisorItemList
 type ThesisAdvisorItemList struct {
 	XMLName xml.Name `xml:"thesis_advisor" json:"-"`
-	Items   []*Item  `xml:"item,omitempty" json:"item,omitempty"`
+	Items   []*Item  `xml:"item,omitempty" json:"items,omitempty"`
 }
 
 // AddItem adds an item to the thesis advisor item list and returns the new count of items
@@ -524,7 +526,7 @@ func (thesisAdvisorItemList *ThesisAdvisorItemList) AddItem(item *Item) int {
 // DivisionItemList
 type DivisionItemList struct {
 	XMLName xml.Name `xml:"divisions" json:"-"`
-	Items   []*Item  `xml:"item,omitempty" json:"item,omitempty"`
+	Items   []*Item  `xml:"item,omitempty" json:"items,omitempty"`
 }
 
 // AddItem adds an item to the division item list and returns the new count of items
@@ -536,7 +538,7 @@ func (divisionItemList *DivisionItemList) AddItem(item *Item) int {
 // RelatedPatentItemList
 type RelatedPatentItemList struct {
 	XMLName xml.Name `xml:"related_patents" json:"-"`
-	Items   []*Item  `xml:"item,omitempty" json:"item,omitempty"`
+	Items   []*Item  `xml:"item,omitempty" json:"items,omitempty"`
 }
 
 // AddItem adds an item to the related patent item list and returns the new count of items
@@ -548,7 +550,7 @@ func (relatedPatentItemList *RelatedPatentItemList) AddItem(item *Item) int {
 // PatentClassificationItemList
 type PatentClassificationItemList struct {
 	XMLName xml.Name `xml:"patent_classification" json:"-"`
-	Items   []*Item  `xml:"item,omitempty" json:"item,omitempty"`
+	Items   []*Item  `xml:"item,omitempty" json:"items,omitempty"`
 }
 
 // AddItem adds an item to the patent classification item list and returns the new count of items
@@ -560,7 +562,7 @@ func (patentClassificationItemList *PatentClassificationItemList) AddItem(item *
 // PatentAssigneeItemList
 type PatentAssigneeItemList struct {
 	XMLName xml.Name `xml:"patent_assignee" json:"-"`
-	Items   []*Item  `xml:"item,omitempty" json:"item,omitempty"`
+	Items   []*Item  `xml:"item,omitempty" json:"items,omitempty"`
 }
 
 // AddItem adds an item to the patent assignee item list and returns the new count of items
@@ -572,7 +574,7 @@ func (patentAssigneeItemList *PatentAssigneeItemList) AddItem(item *Item) int {
 // ShelfItemList
 type ShelfItemList struct {
 	XMLName xml.Name `xml:"shelves" json:"-"`
-	Items   []*Item  `xml:"item,omitempty" json:"item,omitempty"`
+	Items   []*Item  `xml:"item,omitempty" json:"items,omitempty"`
 }
 
 // AddItem adds an item to the shelf item list and returns the new count of items
@@ -584,7 +586,7 @@ func (shelfItemList *ShelfItemList) AddItem(item *Item) int {
 // GScholarItemList
 type GScholarItemList struct {
 	XMLName xml.Name `xml:"gscholar" json:"-"`
-	Items   []*Item  `xml:"item,omitempty" json:"item,omitempty"`
+	Items   []*Item  `xml:"item,omitempty" json:"items,omitempty"`
 }
 
 // AddItem adds an item to the gScholar item list and returns the new count of items
@@ -596,7 +598,7 @@ func (gScholarItemList *GScholarItemList) AddItem(item *Item) int {
 // AltTitleItemList
 type AltTitleItemList struct {
 	XMLName xml.Name `xml:"alt_title" json:"-"`
-	Items   []*Item  `xml:"item,omitempty" json:"item,omitempty"`
+	Items   []*Item  `xml:"item,omitempty" json:"items,omitempty"`
 }
 
 // AddItem adds an item to the altTitle item list and returns the new count of items
@@ -608,7 +610,7 @@ func (altTitleItemList *AltTitleItemList) AddItem(item *Item) int {
 // ConfCreatorItemList
 type ConfCreatorItemList struct {
 	XMLName xml.Name `xml:"conf_creators" json:"-"`
-	Items   []*Item  `xml:"item,omitempty" json:"item,omitempty"`
+	Items   []*Item  `xml:"item,omitempty" json:"items,omitempty"`
 }
 
 // AddItem adds an item to the confCreator item list and returns the new count of items
@@ -620,7 +622,7 @@ func (confCreatorItemList *ConfCreatorItemList) AddItem(item *Item) int {
 // ReferenceItemList
 type ReferenceItemList struct {
 	XMLName xml.Name `xml:"reference" json:"-"`
-	Items   []*Item  `xml:"item,omitempty" json:"item,omitempty"`
+	Items   []*Item  `xml:"item,omitempty" json:"items,omitempty"`
 }
 
 // AddItem adds an item to the reference item list and returns the new count of items
@@ -632,7 +634,7 @@ func (referenceItemList *ReferenceItemList) AddItem(item *Item) int {
 // LearningLevelItemList
 type LearningLevelItemList struct {
 	XMLName xml.Name `xml:"learning_level" json:"-"`
-	Items   []*Item  `xml:"item,omitempty" json:"item,omitempty"`
+	Items   []*Item  `xml:"item,omitempty" json:"items,omitempty"`
 }
 
 // AddItem adds an item to the learningLevel item list and returns the new count of items
@@ -644,7 +646,7 @@ func (learningLevelItemList *LearningLevelItemList) AddItem(item *Item) int {
 // CopyrightHolderItemList
 type CopyrightHolderItemList struct {
 	XMLName xml.Name `xml:"copyright_holders" json:"-"`
-	Items   []*Item  `xml:"item,omitempty" json:"item,omitempty"`
+	Items   []*Item  `xml:"item,omitempty" json:"items,omitempty"`
 }
 
 // AddItem adds an item to the copyrightHolder item list and returns the new count of items
@@ -656,7 +658,7 @@ func (copyrightHolderItemList *CopyrightHolderItemList) AddItem(item *Item) int 
 // SkillAreaItemList
 type SkillAreaItemList struct {
 	XMLName xml.Name `xml:"skill_areas" json:"-"`
-	Items   []*Item  `xml:"item,omitempty" json:"item,omitempty"`
+	Items   []*Item  `xml:"item,omitempty" jsons:"item,omitempty"`
 }
 
 // AddItem adds an item to the skillArea item list and returns the new count of items
@@ -668,7 +670,7 @@ func (skillAreaItemList *SkillAreaItemList) AddItem(item *Item) int {
 // AccompanimentItemList
 type AccompanimentItemList struct {
 	XMLName xml.Name `xml:"accompaniment" json:"-"`
-	Items   []*Item  `xml:"item,omitempty" json:"item,omitempty"`
+	Items   []*Item  `xml:"item,omitempty" json:"items,omitempty"`
 }
 
 // AddItem adds an item to the accompaniment item list and returns the new count of items
