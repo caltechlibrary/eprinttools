@@ -28,17 +28,19 @@ import (
 	"time"
 	//"net/http"
 	"net/url"
+	"os"
 	"path"
 	"strconv"
 	"strings"
 
 	// Caltech Library packages
+	"github.com/caltechlibrary/dataset"
 	"github.com/caltechlibrary/rc"
 )
 
 const (
 	// Version is the revision number for this implementation of epgo
-	Version = `v0.0.16`
+	Version = `v0.0.10-beta6`
 
 	// LicenseText holds the string for rendering License info on the command line
 	LicenseText = `
@@ -56,6 +58,12 @@ Redistribution and use in source and binary forms, with or without modification,
 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.`
+
+	// EPrintsExportBatchSize sets the summary output frequency when exporting content from E-Prints
+	EPrintsExportBatchSize = 1000
+
+	// DefaultFeedSize sets the default size of rss, JSON, HTML include and index lists
+	DefaultFeedSize = 25
 )
 
 // These are our main bucket and index buckets
@@ -77,14 +85,14 @@ type EPrintsAPI struct {
 	URL *url.URL `xml:"epgo>eprint_url" json:"eprint_url"`
 	// EP_DATASET
 	Dataset string `xml:"epgo>dataset" json:"dataset"`
+	// EP_HTDOCS
+	Htdocs string `xml:"epgo>htdocs" json:"htdocs"`
 	// EP_AUTH_METHOD
 	AuthType int
 	// EP_USERNAME
 	Username string
 	// EP_PASSWORD
 	Secret string
-	// SuppressNote suppresses the Note field
-	SuppressNote bool
 }
 
 // Person returns the contents of eprint>creators>item>name as a struct
@@ -144,30 +152,84 @@ type File struct {
 	URL       string   `xml:"url" json:"url"`
 }
 
-// Document structures inside a Record (i.e. <eprint>...<documents><document>...</document>...</documents>...</eprint>)
+// Document structures in Record
 type Document struct {
-	XMLName    xml.Name `json:"-"`
-	XMLNS      string   `xml:"xmlns,attr,omitempty" json:"name_space,omitempty"`
-	ID         string   `xml:"id,attr" json:"id"`
-	DocID      int      `xml:"docid" json:"doc_id"`
-	RevNumber  int      `xml:"rev_number" json:"rev_number,omitempty"`
-	Files      []*File  `xml:"files>file" json:"files,omitempty"`
-	EPrintID   int      `xml:"eprintid" json:"eprint_id"`
-	Pos        int      `xml:"pos" json:"pos,omitempty"`
-	Placement  int      `xml:"placement" json:"placement,omitempty"`
-	MimeType   string   `xml:"mime_type" json:"mime_type"`
-	Format     string   `xml:"format" json:"format"`
-	FormatDesc string   `xml:"formatdesc,omitempty" json:"format_desc,omitempty"`
-	Language   string   `xml:"language" json:"language"`
-	Security   string   `xml:"security" json:"security"`
-	License    string   `xml:"license" json:"license"`
-	Main       string   `xml:"main" json:"main"`
-	Content    string   `xml:"content" json:"content"`
-	Relation   []*Item  `xml:"relation>item,omitempty" json:"relation,omitempty"`
+	XMLName   xml.Name `json:"-"`
+	ID        string   `xml:"id,attr" json:"id"`
+	DocID     int      `xml:"docid" json:"doc_id"`
+	RevNumber int      `xml:"rev_number" json:"rev_number,omitempty"`
+	Files     []*File  `xml:"files>file" json:"files"`
+	EPrintID  int      `xml:"eprintid" json:"eprint_id"`
+	Pos       int      `xml:"pos" json:"pos,omitempty"`
+	Placement int      `xml:"placement" json:"placement,omitempty"`
+	MimeType  string   `xml:"mime_type" json:"mime_type"`
+	Format    string   `xml:"format" json:"format"`
+	Language  string   `xml:"language" json:"language"`
+	Security  string   `xml:"security" json:"security"`
+	License   string   `xml:"license" json:"license"`
+	Main      string   `xml:"main" json:"main"`
+	Content   string   `xml:"content" json:"content"`
 }
 
 // DocumentList is an array of pointers to Document structs
 type DocumentList []*Document
+
+// Record returns a structure that can be converted to JSON easily
+type Record struct {
+	XMLName   xml.Name     `json:"-"`
+	Title     string       `xml:"eprint>title" json:"title"`
+	URI       string       `json:"uri"`
+	Abstract  string       `xml:"eprint>abstract" json:"abstract"`
+	Documents DocumentList `xml:"eprint>documents>document" json:"documents"`
+	//FIXME: On CaltechAUTHORS I want to keep note, on CaltechTHESIS I don't want Note to be public, need to have a way optionally showing or remove the Note
+	//Note                 string             `xml:"eprint>note" json:"note,omitempty"`
+	ID                   int                `xml:"eprint>eprintid" json:"id"`
+	RevNumber            int                `xml:"eprint>rev_number" json:"rev_number"`
+	UserID               int                `xml:"eprint>userid" json:"user_id,omitempty"`
+	Dir                  string             `xml:"eprint>dir" json:"eprint_dir"`
+	Datestamp            string             `xml:"eprint>datestamp" json:"datestamp"`
+	LastModified         string             `xml:"eprint>lastmod" json:"lastmod"`
+	StatusChange         string             `xml:"eprint>status_changed" json:"status_changed"`
+	Type                 string             `xml:"eprint>type" json:"type"`
+	MetadataVisibility   string             `xml:"eprint>metadata_visibility" json:"metadata_visibility"`
+	Creators             PersonList         `xml:"eprint>creators>item" json:"creators"`
+	IsPublished          string             `xml:"eprint>ispublished" json:"is_published"`
+	Subjects             []string           `xml:"eprint>subjects>item" json:"subjects,omitempty"`
+	FullTextStatus       string             `xml:"eprint>full_text_status" json:"full_text_status"`
+	Keywords             string             `xml:"eprint>keywords" json:"keywords,omitempty"`
+	Date                 string             `xml:"eprint>date" json:"date"`
+	DateType             string             `xml:"eprint>date_type" json:"date_type"`
+	Publication          string             `xml:"eprint>publication" json:"publication,omitempty"`
+	Volume               string             `xml:"eprint>volume" json:"volume,omitempty"`
+	Number               string             `xml:"eprint>number" json:"number,omitempty"`
+	PageRange            string             `xml:"eprint>pagerange" json:"pagerange,omitempty"`
+	IDNumber             string             `xml:"eprint>id_number" json:"id_number,omitempty"`
+	Refereed             bool               `xml:"eprint>refereed" json:"refereed,omitempty"`
+	ISSN                 string             `xml:"eprint>issn" json:"issn,omitempty"`
+	DOI                  string             `xml:"eprint>doi,omitempty" json:"doi,omitempty"`
+	OfficialURL          string             `xml:"eprint>official_url" json:"official_url"`
+	RelatedURL           []*RelatedURL      `xml:"eprint>related_url>item" json:"related_url,omitempty"`
+	ReferenceText        []string           `xml:"eprint>referencetext>item" json:"referencetext,omitempty"`
+	Rights               string             `xml:"eprint>rights" json:"rights"`
+	OfficialCitation     string             `xml:"eprint>official_cit" json:"official_citation"`
+	OtherNumberingSystem []*NumberingSystem `xml:"eprint>other_numbering_system>item,omitempty" json:"other_numbering_system,omitempty"`
+	Funders              FunderList         `xml:"eprint>funders>item" json:"funders,omitempty"`
+	Collection           string             `xml:"eprint>collection" json:"collection"`
+
+	// Thesis repository Customizations
+	ThesisType          string     `xml:"eprint>thesis_type,omitempty" json:"thesis_type,omitempty"`
+	ThesisAdvisors      PersonList `xml:"eprint>thesis_advisor>item,omitempty" json:"thesis_advisor,omitempty"`
+	ThesisCommittee     PersonList `xml:"eprint>thesis_committee>item,omitempty" json:"thesis_committee,omitempty"`
+	ThesisDegree        string     `xml:"eprint>thesis_degree,omitempty" json:"thesis_degree,omitempty"`
+	ThesisDegreeGrantor string     `xml:"eprint>thesis_degree_grantor,omitempty" json:"thesis_degree_grantor,omitempty"`
+	ThesisDefenseDate   string     `xml:"eprint>thesis_defense_date,omitempty" json:"thesis_defense_date,omitempty"`
+	OptionMajor         string     `xml:"eprint>option_major>item,omitempty" json:"option_major,omitempty"`
+	OptionMinor         string     `xml:"eprint>option_minor>item,omitempty" json:"option_minor,omitempty"`
+	GradOfcApprovalDate string     `xml:"eprint>gradofc_approval_date,omitempty" json:"gradofc_approval_date,omitempty"`
+
+	Reviewer   string   `xml:"eprint>reviewer" json:"reviewer,omitempty"`
+	LocalGroup []string `xml:"eprint>local_group>item" json:"local_group,omitempty"`
+}
 
 type ePrintIDs struct {
 	XMLName xml.Name `xml:"html" json:"-"`
@@ -231,7 +293,7 @@ func New(eprintURL, datasetName string, suppressNote bool, authMethod, userName,
 
 	// Setup required
 	api := new(EPrintsAPI)
-	api.SuppressNote = suppressNote
+	//api.SuppressNote = suppressNote
 	if eprintURL == "" {
 		eprintURL = "http://localhost:8080"
 	}
@@ -260,30 +322,45 @@ func New(eprintURL, datasetName string, suppressNote bool, authMethod, userName,
 	return api, nil
 }
 
+type byURI []string
+
+func (s byURI) Len() int {
+	return len(s)
+}
+
+func (s byURI) Swap(i, j int) {
+	s[i], s[j] = s[j], s[i]
+}
+
+func (s byURI) Less(i, j int) bool {
+	s1 := strings.TrimSuffix(path.Base(s[i]), path.Ext(s[i]))
+	s2 := strings.TrimSuffix(path.Base(s[j]), path.Ext(s[j]))
+	a1, err := strconv.Atoi(s1)
+	if err != nil {
+		return false
+	}
+	a2, err := strconv.Atoi(s2)
+	if err != nil {
+		return false
+	}
+	return a1 > a2
+}
+
 // ListEPrintsURI returns a list of eprint record ids from the EPrints REST API
 func (api *EPrintsAPI) ListEPrintsURI() ([]string, error) {
 	var (
 		results []string
 	)
 
-	workingURL, err := url.Parse(api.URL.String())
-	if err != nil {
-		return nil, err
-	}
-	if workingURL.Path == "" {
-		workingURL.Path = path.Join("rest", "eprint") + "/"
-	} else {
-		p := api.URL.Path
-		workingURL.Path = path.Join(p, "rest", "eprint") + "/"
-	}
+	api.URL.Path = path.Join("rest", "eprint") + "/"
 	// Switch to use Rest Client Wrapper
-	rest, err := rc.New(workingURL.String(), api.AuthType, api.Username, api.Secret)
+	rest, err := rc.New(api.URL.String(), api.AuthType, api.Username, api.Secret)
 	if err != nil {
-		return nil, fmt.Errorf("requesting %s, %s", workingURL.String(), err)
+		return nil, fmt.Errorf("requesting %s, %s", api.URL.String(), err)
 	}
-	content, err := rest.Request("GET", workingURL.Path, map[string]string{})
+	content, err := rest.Request("GET", api.URL.Path, map[string]string{})
 	if err != nil {
-		return nil, fmt.Errorf("requested %s, %s", workingURL.String(), err)
+		return nil, fmt.Errorf("requested %s, %s", api.URL.String(), err)
 	}
 	eIDs := new(ePrintIDs)
 	err = xml.Unmarshal(content, &eIDs)
@@ -327,32 +404,17 @@ func (api *EPrintsAPI) ListModifiedEPrintURI(start, end time.Time, verbose bool)
 		log.Printf("Retrieved %d ids, %s", len(uris), now.Sub(t0))
 	}
 
-	workingURL, err := url.Parse(api.URL.String())
-	if err != nil {
-		return nil, err
-	}
-	if workingURL.Path == "" {
-		workingURL.Path = path.Join("rest", "eprint") + "/"
-	} else {
-		p := workingURL.Path
-		workingURL.Path = path.Join(p, "rest", "eprint") + "/"
-	}
+	api.URL.Path = path.Join("rest", "eprint") + "/"
 
 	if verbose == true {
 		log.Printf("Filtering EPrints ids by modification dates, %s to %s", start.Format("2006-01-02"), end.Format("2006-01-02"))
 	}
 	total := len(uris)
 	lastI := total - 1
-	u := workingURL
-	client := &http.Client{}
+	u := api.URL
 	for i, uri := range uris {
 		u.Path = strings.TrimSuffix(uri, ".xml") + "/lastmod.txt"
-		req, err := http.NewRequest("GET", u.String(), nil)
-		if err != nil {
-			return nil, err
-		}
-		req.Header.Set("User-Agent", fmt.Sprintf("eprinttools %s", Version))
-		if res, err := client.Do(req); err == nil {
+		if res, err := http.Get(u.String()); err == nil {
 			if buf, err := ioutil.ReadAll(res.Body); err == nil {
 				res.Body.Close()
 				datestring := fmt.Sprintf("%s", buf)
@@ -383,45 +445,26 @@ func (api *EPrintsAPI) ListModifiedEPrintURI(start, end time.Time, verbose bool)
 }
 
 // GetEPrint retrieves an EPrint record via REST API
-// Returns a EPrint structure, the raw XML and an error value.
-func (api *EPrintsAPI) GetEPrint(uri string) (*EPrint, []byte, error) {
-	workingURL, err := url.Parse(api.URL.String())
-	if err != nil {
-		return nil, nil, err
-	}
-	if workingURL.Path == "" {
-		workingURL.Path = uri
-	} else {
-		p := api.URL.Path
-		workingURL.Path = path.Join(p, uri)
-	}
+// Returns a Record structure, the raw XML and an error.
+func (api *EPrintsAPI) GetEPrint(uri string) (*Record, []byte, error) {
+	api.URL.Path = uri
 
 	// Switch to use Rest Client Wrapper
-	rest, err := rc.New(workingURL.String(), api.AuthType, api.Username, api.Secret)
+	rest, err := rc.New(api.URL.String(), api.AuthType, api.Username, api.Secret)
 	if err != nil {
-		return nil, nil, fmt.Errorf("requesting %s, %s", workingURL.String(), err)
+		return nil, nil, fmt.Errorf("requesting %s, %s", api.URL.String(), err)
 	}
-	content, err := rest.Request("GET", workingURL.Path, map[string]string{})
+	content, err := rest.Request("GET", api.URL.Path, map[string]string{})
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, fmt.Errorf("requested %s, %s", api.URL.String(), err)
 	}
 
-	eprints := new(EPrints)
-	err = xml.Unmarshal(content, &eprints)
+	rec := new(Record)
+	err = xml.Unmarshal(content, &rec)
 	if err != nil {
 		return nil, content, err
 	}
-	if len(eprints.EPrint) == 1 {
-		if api.SuppressNote {
-			eprints.EPrint[0].Note = ""
-		}
-		return eprints.EPrint[0], content, nil
-
-	}
-	if len(eprints.EPrint) > 1 {
-		return nil, content, fmt.Errorf("Expected only one eprint for %s", uri)
-	}
-	return nil, content, fmt.Errorf("Expected an eprint for %s", uri)
+	return rec, content, nil
 }
 
 // ToNames takes an array of pointers to Person and returns a list of names (family, given)
@@ -467,17 +510,98 @@ func (funders FunderList) ToGrantNumbers() []string {
 	return result
 }
 
-func (record *EPrint) PubDate() string {
+func (record *Record) PubDate() string {
 	if record.DateType == "published" {
 		return record.Date
 	}
 	return ""
 }
 
-func (person *Person) String() string {
-	src, err := json.Marshal(person)
-	if err != nil {
-		return ""
+// ListID returns a list of eprint record ids from the dataset
+func (api *EPrintsAPI) ListID(start, count int) ([]string, error) {
+	c, err := dataset.Open(api.Dataset)
+	failCheck(err, fmt.Sprintf("ListID() %s, %s", api.Dataset, err))
+	defer c.Close()
+
+	ids := c.Keys()
+	if len(ids) == 0 {
+		return []string{}, nil
 	}
-	return fmt.Sprintf("%s", src)
+	end := start + count
+	if count <= 0 || end >= len(ids) {
+		return ids[start:], nil
+	}
+	if start < end {
+		return ids[start:end], nil
+	}
+	return nil, fmt.Errorf("Invalid range")
+}
+
+// Get retrieves an EPrint record from the dataset
+func (api *EPrintsAPI) Get(uri string) (*Record, error) {
+	c, err := dataset.Open(api.Dataset)
+	failCheck(err, fmt.Sprintf("Get() %s, %s", api.Dataset, err))
+	defer c.Close()
+
+	src, err := c.ReadJSON(uri)
+	if err != nil {
+		return nil, err
+	}
+	record := new(Record)
+	err = json.Unmarshal(src, &record)
+	return record, err
+}
+
+// RenderEPrint writes a single EPrint record to disc.
+func (api *EPrintsAPI) RenderEPrint(basepath string, record *Record) error {
+	// Convert record to JSON
+	src, err := json.Marshal(record)
+	if err != nil {
+		return err
+	}
+	fname := path.Join(basepath, fmt.Sprintf("%d.json", record.ID))
+	return ioutil.WriteFile(fname, src, 0664)
+}
+
+// RenderDocuments writes JSON to the directory indicated by docpath
+func (api *EPrintsAPI) RenderDocuments(docTitle, docDescription, docpath string, records []*Record) error {
+	// Create the the directory part of docpath if neccessary
+	if _, err := os.Open(path.Join(api.Htdocs, docpath)); err != nil && os.IsNotExist(err) == true {
+		os.MkdirAll(path.Join(api.Htdocs, path.Dir(docpath)), 0775)
+	}
+
+	// Writing JSON file
+	fname := path.Join(api.Htdocs, docpath+".json")
+	src, err := json.Marshal(records)
+	if err != nil {
+		return fmt.Errorf("Can't convert records to JSON %s, %s", fname, err)
+	}
+	err = ioutil.WriteFile(fname, src, 0664)
+	if err != nil {
+		return fmt.Errorf("Can't write %s, %s", fname, err)
+	}
+	return nil
+}
+
+// BuildFeed generates JSON versions of collected records
+// by calling RenderDocuments with the appropriate data.
+func (api *EPrintsAPI) BuildFeed(feedSize int, title, target string, filter func(*EPrintsAPI, int, int) ([]*Record, error)) error {
+	if feedSize < 1 {
+		feedSize = DefaultFeedSize
+	}
+	docPath := path.Join(api.Htdocs, target)
+
+	// Collect the published records
+	records, err := filter(api, 0, feedSize)
+	if err != nil {
+		return err
+	}
+	if len(records) == 0 {
+		return fmt.Errorf("Zero records for %q, %s", title, docPath)
+	}
+	log.Printf("%d records found for %q %s", len(records), title, docPath)
+	if err := api.RenderDocuments(title, fmt.Sprintf("Building pages 0 to %d descending", feedSize), target, records); err != nil {
+		return fmt.Errorf("%q %s error, %s", title, docPath, err)
+	}
+	return nil
 }

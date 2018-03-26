@@ -104,7 +104,7 @@ func ExportEPrintsKeyList(api *eprinttools.EPrintsAPI, keys []string, saveKeys s
 			log.Printf("Failed, %s\n", err)
 			k++
 		} else {
-			key := fmt.Sprintf("%d", rec.EPrintID)
+			key := fmt.Sprintf("%d", rec.ID)
 			src, err = json.Marshal(rec)
 			if err != nil {
 				log.Printf("can't marshal key %s, %s", key, err)
@@ -184,7 +184,7 @@ func ExportEPrints(api *eprinttools.EPrintsAPI, count int, saveKeys string, verb
 			log.Printf("Failed, %s\n", err)
 			k++
 		} else {
-			key := fmt.Sprintf("%d", rec.EPrintID)
+			key := fmt.Sprintf("%d", rec.ID)
 			src, err = json.Marshal(rec)
 			if err != nil {
 				log.Printf("Can't marshal key %s, %s", key, err)
@@ -197,18 +197,19 @@ func ExportEPrints(api *eprinttools.EPrintsAPI, count int, saveKeys string, verb
 				}
 			}
 			if err == nil {
+				// We've exported a record successfully, now update select lists
 				if len(saveKeys) > 0 {
 					exportedKeys = append(exportedKeys, key)
 				}
-				// We've exported a record successfully, now update select lists
+				c.AttachFile(key, key+".xml", bytes.NewReader(xmlSrc))
 				j++
 			} else {
 				if verbose == true {
 					log.Printf("Failed to save eprint %s (%s) to %s, %s\n", key, uri, api.Dataset, err)
 				}
-				k++
+				//NOTE: This is just a hack until we're ready to bump from v0.0.10-beta6 in production to the current eprints version
+				//c.Attach(key, &dataset.Attachment{key + ".xml", xmlSrc})
 			}
-			c.AttachFile(key, key+".xml", bytes.NewReader(xmlSrc))
 		}
 		if verbose == true && (i%EPrintsExportBatchSize) == 0 {
 			log.Printf("%d/%d uri processed, %d exported, %d unexported", i+1, count, j, k)
@@ -263,7 +264,7 @@ func ExportModifiedEPrints(api *eprinttools.EPrintsAPI, start, end time.Time, sa
 			}
 			k++
 		} else {
-			key := fmt.Sprintf("%d", rec.EPrintID)
+			key := fmt.Sprintf("%d", rec.ID)
 			src, err = json.Marshal(rec)
 			if err != nil {
 				log.Printf("Can't marshel key %s, %s", key, err)
@@ -276,18 +277,19 @@ func ExportModifiedEPrints(api *eprinttools.EPrintsAPI, start, end time.Time, sa
 				}
 			}
 			if err == nil {
+				c.AttachFile(key, key+".xml", bytes.NewReader(xmlSrc))
+				// We've exported a record successfully, now update select lists
 				if len(saveKeys) > 0 {
 					exportedKeys = append(exportedKeys, key)
 				}
-				// We've exported a record successfully, now update select lists
 				j++
 			} else {
 				if verbose == true {
 					log.Printf("Failed to save eprint %s (%s) to %s, %s\n", key, uri, api.Dataset, err)
 				}
-				k++
+				//NOTES: This is removed until we're able to migration from v0.0.10-beta6 in production to current version.
+				//c.Attach(key, &dataset.Attachment{key + ".xml", xmlSrc})
 			}
-			c.AttachFile(key, key+".xml", bytes.NewReader(xmlSrc))
 		}
 		if verbose == true && (i%EPrintsExportBatchSize) == 0 {
 			log.Printf("%d/%d uri processed, %d exported, %d unexported", i+1, count, j, k)
