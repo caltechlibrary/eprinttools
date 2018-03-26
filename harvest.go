@@ -19,6 +19,7 @@
 package eprinttools
 
 import (
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -34,7 +35,7 @@ import (
 func (api *EPrintsAPI) ExportEPrints(count int, saveKeys string, verbose bool) error {
 	var exportedKeys []string
 
-	c, err := dataset.Create(api.Dataset, dataset.GenerateBucketNames(dataset.DefaultAlphabet, 2))
+	c, err := dataset.InitCollection(api.Dataset)
 	if err != nil {
 		return fmt.Errorf("ExportEPrints() %s, %s", api.Dataset, err)
 	}
@@ -60,26 +61,34 @@ func (api *EPrintsAPI) ExportEPrints(count int, saveKeys string, verbose bool) e
 	}
 	for i := 0; i < uriCount && i < count; i++ {
 		uri := uris[i]
-		rec, xmlSrc, err := api.GetEPrint(uri)
+		//NOTE: This is just a hack until we're ready to bump from v0.0.10-beta6 in production to the current eprints version
+		//rec, xmlSrc, err := api.GetEPrint(uri)
+		rec, _, err := api.GetEPrint(uri)
 		if err != nil {
 			log.Printf("Failed to get %s, %s\n", uri, err)
 			k++
 		} else {
 			key := fmt.Sprintf("%d", rec.ID)
-			err := c.Create(key, rec)
-			if err == nil {
-				if len(saveKeys) > 0 {
-					exportedKeys = append(exportedKeys, key)
-				}
-				// We've exported a record successfully, now update select lists
-				j++
+			src, err := json.Marshal(rec)
+			if err != nil {
+				log.Printf("Failed to marshal %s, %s", key, err)
 			} else {
-				if verbose == true {
-					log.Printf("Failed to save eprint %s, %s\n", uri, err)
+				err = c.CreateJSON(key, src)
+				if err == nil {
+					if len(saveKeys) > 0 {
+						exportedKeys = append(exportedKeys, key)
+					}
+					// We've exported a record successfully, now update select lists
+					j++
+				} else {
+					if verbose == true {
+						log.Printf("Failed to save eprint %s, %s\n", uri, err)
+					}
+					k++
 				}
-				k++
+				//NOTE: This is just a hack until we're ready to bump from v0.0.10-beta6 in production to the current eprints version
+				//c.Attach(key, &dataset.Attachment{key + ".xml", xmlSrc})
 			}
-			c.Attach(key, &dataset.Attachment{key + ".xml", xmlSrc})
 		}
 		if verbose == true && (i%EPrintsExportBatchSize) == 0 {
 			log.Printf("%d/%d uri processed, %d exported, %d unexported", i+1, count, j, k)
@@ -100,7 +109,7 @@ func (api *EPrintsAPI) ExportEPrints(count int, saveKeys string, verbose bool) e
 func (api *EPrintsAPI) ExportModifiedEPrints(start, end time.Time, saveKeys string, verbose bool) error {
 	var exportedKeys []string
 
-	c, err := dataset.Create(api.Dataset, dataset.GenerateBucketNames(dataset.DefaultAlphabet, 2))
+	c, err := dataset.InitCollection(api.Dataset)
 	if err != nil {
 		return fmt.Errorf("ExportEPrints() %s, %s", api.Dataset, err)
 	}
@@ -123,7 +132,9 @@ func (api *EPrintsAPI) ExportModifiedEPrints(start, end time.Time, saveKeys stri
 	}
 	for i := 0; i < count && i < count; i++ {
 		uri := uris[i]
-		rec, xmlSrc, err := api.GetEPrint(uri)
+		//NOTE: This is just a hack until we're ready to bump from v0.0.10-beta6 in production to the current eprints version
+		//rec, xmlSrc, err := api.GetEPrint(uri)
+		rec, _, err := api.GetEPrint(uri)
 		if err != nil {
 			if verbose == true {
 				log.Printf("Failed to get %s, %s\n", uri, err)
@@ -131,20 +142,26 @@ func (api *EPrintsAPI) ExportModifiedEPrints(start, end time.Time, saveKeys stri
 			k++
 		} else {
 			key := fmt.Sprintf("%d", rec.ID)
-			err := c.Create(key, rec)
-			if err == nil {
-				if len(saveKeys) > 0 {
-					exportedKeys = append(exportedKeys, key)
-				}
-				// We've exported a record successfully, now update select lists
-				j++
+			src, err := json.Marshal(rec)
+			if err != nil {
+				log.Printf("Failed to marshal %s, %s\n", key, err)
 			} else {
-				if verbose == true {
-					log.Printf("Failed to save eprint %s, %s\n", uri, err)
+				err = c.CreateJSON(key, src)
+				if err == nil {
+					if len(saveKeys) > 0 {
+						exportedKeys = append(exportedKeys, key)
+					}
+					// We've exported a record successfully, now update select lists
+					j++
+				} else {
+					if verbose == true {
+						log.Printf("Failed to save eprint %s, %s\n", uri, err)
+					}
+					k++
 				}
-				k++
+				//NOTES: This is removed until we're able to migration from v0.0.10-beta6 in production to current version.
+				//c.Attach(key, &dataset.Attachment{key + ".xml", xmlSrc})
 			}
-			c.Attach(key, &dataset.Attachment{key + ".xml", xmlSrc})
 		}
 		if verbose == true && (i%EPrintsExportBatchSize) == 0 {
 			log.Printf("%d/%d uri processed, %d exported, %d unexported", i+1, count, j, k)

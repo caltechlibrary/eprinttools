@@ -555,11 +555,13 @@ func (api *EPrintsAPI) Get(uri string) (*Record, error) {
 	failCheck(err, fmt.Sprintf("Get() %s, %s", api.Dataset, err))
 	defer c.Close()
 
-	record := new(Record)
-	if err := c.Read(uri, record); err != nil {
+	src, err := c.ReadJSON(uri)
+	if err != nil {
 		return nil, err
 	}
-	return record, nil
+	record := new(Record)
+	err = json.Unmarshal(src, &record)
+	return record, err
 }
 
 // RenderEPrint writes a single EPrint record to disc.
