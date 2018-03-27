@@ -125,7 +125,7 @@ def setup():
     secret = os.getenv("EPRINT_PASSWD")
     collection_name = "test_get_eprint_xml.ds"
 
-    if eprint_url == None:
+    if eprint_url == None or eprint_url == "":
         print(f"Skipping tests for eprinttools {ep_version}, EPRINT_URL not set in the environment")
         sys.exit(1)
     if os.path.exists(collection_name) == False:

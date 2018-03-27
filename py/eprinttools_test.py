@@ -164,7 +164,7 @@ def setup():
 if __name__ == "__main__":
     version = eprinttools.version()
     eprint_url, auth_type, username, secret = setup()
-    if eprint_url == None:
+    if eprint_url == None or eprint_url == "":
         print(f"Skipping tests for eprinttools {version}, EPRINT_URL not set in the environment")
         sys.exit(0)
     test_runner = TestRunner(os.path.basename(__file__))

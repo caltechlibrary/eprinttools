@@ -54,8 +54,8 @@ endif
 build: $(PROJECT)/$(LIB_NAME)$(EXT)
 	python3 setup.py build
 
-$(PROJECT)/$(LIB_NAME)$(EXT): $(LIB_NAME).go
-	go build -buildmode=c-shared -o "$(PROJECT)/$(LIB_NAME)$(EXT)" "$(LIB_NAME).go"
+$(PROJECT)/$(LIB_NAME)$(EXT): ../$(LIB_NAME)/$(LIB_NAME).go
+	go build -buildmode=c-shared -o "$(PROJECT)/$(LIB_NAME)$(EXT)" "../$(LIB_NAME)/$(LIB_NAME).go"
 
 clean:
 	if [ -f "MANIFEST" ]; then $(USE_SUDO) rm MANIFEST; fi
@@ -69,14 +69,14 @@ clean:
 
 test: clean $(PROJECT)/$(LIB_NAME)$(EXT)
 	python3 $(PROJECT)_test.py $(QUICK)
-	python3 $(PROJECT)_dataset_test.py
+	if [ "$(OS)" != "macosx" ]; then python3 $(PROJECT)_dataset_test.py; fi
 
 install: clean $(PROJECT)/$(LIB_NAME)$(EXT)
 	$(USE_SUDO) python3 setup.py install --record files.txt
 
 
 release: clean $(PROJECT)/$(LIB_NAME)$(EXT)
-	go build -buildmode=c-shared -o "$(PROJECT)/$(LIB_NAME)$(EXT)" "$(LIB_NAME).go"
+	go build -buildmode=c-shared -o "$(PROJECT)/$(LIB_NAME)$(EXT)" "../$(LIB_NAME)/$(LIB_NAME).go"
 	python3 setup.py sdist
 	mkdir -p ../dist
 	cp -v dist/$(PROJECT)-$(VERSION).tar.gz "../dist/py3-$(PROJECT)-$(VERSION)-$(OS)-$(ARCH).tar.gz"
