@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
-from distutils.core import setup
-from site import getsitepackages
+
+#from distutils.core import setup
+#from site import getsitepackages
+#site_package_location = os.path.join(getsitepackages()[0], "eprinttools")
+from setuptools import setup, find_packages
 
 import sys
 import os
@@ -59,7 +62,9 @@ elif platform.startswith("Win"):
     platform = "Windows"
     OS_Classifier = "Operating System :: Microsoft :: Windows :: Windows 10"
 
-site_package_location = os.path.join(getsitepackages()[0], "eprinttools")
+if os.path.exists(os.path.join("eprinttools", shared_library_name)) == False:
+    print(f"Missing compiled shared library {shared_library_name} in eprinttools module.")
+    sys.exit(1)
 
 # Now that we know everything configure out setup
 setup(name = "eprinttools",
@@ -71,12 +76,13 @@ setup(name = "eprinttools",
     url = "https://caltechlibrary.github.io/eprinttools",
     download_url = "https://github.com/caltechlibrary/eprinttools/latest/releases",
     license = meta["license"],
-    packages = ["eprinttools"],
-    data_files = [
-        (site_package_location, [os.path.join("eprinttools", shared_library_name)]),
-    ],
+    packages = find_packages(exclude = ["*_test.py"]),
+    package_data = {
+        '': ['*.txt', '*.so', '*.dll', '*.dylib']
+    },
+    include_package_data = True,
     platforms = [platform],
-    keywords = ["API", "library", "repository"],
+    keywords = ["EPrints", "API", "library", "repository"],
     classifiers = [
         "Development Status :: Alpha",
         "Environment :: Console",
