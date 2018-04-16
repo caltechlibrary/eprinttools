@@ -22,8 +22,10 @@ import (
 	"C"
 	"bytes"
 	"encoding/json"
+	"encoding/xml"
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	// Caltech Library Packages
@@ -270,6 +272,257 @@ func get_eprint_xml(cfg *C.char, cKey *C.char) C.int {
 		return C.int(0)
 	}
 	return C.int(1)
+}
+
+// create_record adds an eprint structured record to a dataset collection. It takes a configuration (a map containing a 'DATASET' key/value pair),
+// a key (e.g. "20134", the eprint record id as a string) and a record which is the JSON representation of the EPrint XML
+//
+//export create_record
+func create_record(cfg *C.char, cKey *C.char, cRecord *C.char) C.int {
+	m := map[string]string{}
+	cfg_src := []byte(C.GoString(cfg))
+	err := json.Unmarshal(cfg_src, &m)
+	if err != nil {
+		error_dispatch(err, "can't unmarshal config, %s", err)
+		return C.int(0)
+	}
+	key := C.GoString(cKey)
+	src := []byte(C.GoString(cRecord))
+	collectionName := dsCfg(m)
+	if collectionName == "" {
+		err := fmt.Errorf("collection name is an empty string")
+		error_dispatch(err, "can't create key %s, ", key, err)
+		return C.int(0)
+	}
+	c, err := dataset.Open(collectionName)
+	if err != nil {
+		error_dispatch(err, "failed to open collection %q, %s", collectionName, err)
+		return C.int(0)
+	}
+	defer c.Close()
+
+	if err := c.CreateJSON(key, src); err != nil {
+		error_dispatch(err, "can't create %s in %s, %s", key, collectionName, err)
+		return C.int(0)
+	}
+	return C.int(1)
+}
+
+// read_record returns an eprint structured record from a dataset collection. It takes a configuration (a map containing a 'DATASET' key/value pair),
+// a key (e.g. "20134", the eprint record id as a string) and returns a JSON representation of the EPrint XML found in the collection.
+//
+//export read_record
+func read_record(cfg *C.char, cKey *C.char) *C.char {
+	m := map[string]string{}
+	cfg_src := []byte(C.GoString(cfg))
+	err := json.Unmarshal(cfg_src, &m)
+	if err != nil {
+		error_dispatch(err, "can't unmarshal config, %s", err)
+		return C.CString("")
+	}
+	key := C.GoString(cKey)
+	collectionName := dsCfg(m)
+	if collectionName == "" {
+		err := fmt.Errorf("collection name is an empty string")
+		error_dispatch(err, "can't read key %s, ", key, err)
+		return C.CString("")
+	}
+	c, err := dataset.Open(collectionName)
+	if err != nil {
+		error_dispatch(err, "failed to open collection %q, %s", collectionName, err)
+		return C.CString("")
+	}
+	defer c.Close()
+
+	src, err := c.ReadJSON(key)
+	if err != nil {
+		error_dispatch(err, "can't read %s from %s, %s", key, collectionName, err)
+		return C.CString("")
+	}
+	s := fmt.Sprintf("%s", src)
+	return C.CString(s)
+}
+
+// update_record replaces an eprint structured record in a dataset collection. It takes a configuration (a map containing a 'DATASET' key/value pair),
+// a key (e.g. "20134", the eprint record id as a string) and a record which is the JSON represetnation of the EPrint XML
+//
+//export update_record
+func update_record(cfg *C.char, cKey *C.char, cRecord *C.char) C.int {
+	m := map[string]string{}
+	cfg_src := []byte(C.GoString(cfg))
+	err := json.Unmarshal(cfg_src, &m)
+	if err != nil {
+		error_dispatch(err, "can't unmarshal config, %s", err)
+		return C.int(0)
+	}
+	key := C.GoString(cKey)
+	src := []byte(C.GoString(cRecord))
+	collectionName := dsCfg(m)
+	if collectionName == "" {
+		err := fmt.Errorf("collection name is an empty string")
+		error_dispatch(err, "can't update key %s, ", key, err)
+		return C.int(0)
+	}
+	c, err := dataset.Open(collectionName)
+	if err != nil {
+		error_dispatch(err, "failed to open collection %q, %s", collectionName, err)
+		return C.int(0)
+	}
+	defer c.Close()
+
+	if err := c.UpdateJSON(key, src); err != nil {
+		error_dispatch(err, "can't update %s in %s, %s", key, collectionName, err)
+		return C.int(0)
+	}
+	return C.int(1)
+}
+
+// delete_record removes an eprint structured record from a dataset collection. It takes a configuration (a map containing a 'DATASET' key/value pair),
+// a key (e.g. "20134", the eprint record id as a string).
+//
+//export delete_record
+func delete_record(cfg *C.char, cKey *C.char) C.int {
+	m := map[string]string{}
+	cfg_src := []byte(C.GoString(cfg))
+	err := json.Unmarshal(cfg_src, &m)
+	if err != nil {
+		error_dispatch(err, "can't unmarshal config, %s", err)
+		return C.int(0)
+	}
+	key := C.GoString(cKey)
+	collectionName := dsCfg(m)
+	if collectionName == "" {
+		err := fmt.Errorf("collection name is an empty string")
+		error_dispatch(err, "can't delete key %s, ", key, err)
+		return C.int(0)
+	}
+	c, err := dataset.Open(collectionName)
+	if err != nil {
+		error_dispatch(err, "failed to open collection %q, %s", collectionName, err)
+		return C.int(0)
+	}
+	defer c.Close()
+
+	if err := c.Delete(key); err != nil {
+		error_dispatch(err, "can't delete %s in %s, %s", key, collectionName, err)
+		return C.int(0)
+	}
+	return C.int(1)
+}
+
+// record_keys returns a list of keys in a dataset collection. It takes a configuration (a map containing a 'DATASET' key/value pair)
+//
+func record_keys(cfg *C.char) *C.char {
+	m := map[string]string{}
+	cfg_src := []byte(C.GoString(cfg))
+	err := json.Unmarshal(cfg_src, &m)
+	if err != nil {
+		error_dispatch(err, "can't unmarshal config, %s", err)
+		return C.CString("")
+	}
+	collectionName := dsCfg(m)
+	if collectionName == "" {
+		err := fmt.Errorf("collection name is an empty string")
+		error_dispatch(err, "can't get list of keys, ", err)
+		return C.CString("")
+	}
+	c, err := dataset.Open(collectionName)
+	if err != nil {
+		error_dispatch(err, "failed to open collection %q, %s", collectionName, err)
+		return C.CString("")
+	}
+	defer c.Close()
+	keys := c.Keys()
+	src, err := json.Marshal(keys)
+	if err != nil {
+		error_dispatch(err, "failed to marshal list of keys from collection %q, %s", collectionName, err)
+		return C.CString("")
+	}
+	s := fmt.Sprintf("%s", src)
+	return C.CString(s)
+}
+
+// has_record returns 1 if record is found in a dataset collection, 0 otherwise. It takes a configuration (a map containing a 'DATASET' key/value pair),
+// and a key (e.g. "20134", the eprint record id as a string).
+//
+//export has_record
+func has_record(cfg *C.char, cKey *C.char) C.int {
+	m := map[string]string{}
+	cfg_src := []byte(C.GoString(cfg))
+	err := json.Unmarshal(cfg_src, &m)
+	if err != nil {
+		error_dispatch(err, "can't unmarshal config, %s", err)
+		return C.int(0)
+	}
+	key := C.GoString(cKey)
+	collectionName := dsCfg(m)
+	if collectionName == "" {
+		err := fmt.Errorf("collection name is an empty string")
+		error_dispatch(err, "can't get list of keys, ", err)
+		return C.int(0)
+	}
+	c, err := dataset.Open(collectionName)
+	if err != nil {
+		error_dispatch(err, "failed to open collection %q, %s", collectionName, err)
+		return C.int(0)
+	}
+	defer c.Close()
+	if c.HasKey(key) == true {
+		return C.int(1)
+	}
+	return C.int(0)
+}
+
+// records_to_eprint_xml takes a list of keys matching those stored in a dataset collection and returns an EPrint XML document containing them.
+func records_to_eprint_xml(cfg *C.char, cKeys *C.char) *C.char {
+	m := map[string]string{}
+	cfg_src := []byte(C.GoString(cfg))
+	err := json.Unmarshal(cfg_src, &m)
+	if err != nil {
+		error_dispatch(err, "can't unmarshal config, %s", err)
+		return C.CString("")
+	}
+	collectionName := dsCfg(m)
+	if collectionName == "" {
+		err := fmt.Errorf("collection name is an empty string")
+		error_dispatch(err, "can't get list of keys, ", err)
+		return C.CString("")
+	}
+	c, err := dataset.Open(collectionName)
+	if err != nil {
+		error_dispatch(err, "failed to open collection %q, %s", collectionName, err)
+		return C.CString("")
+	}
+	defer c.Close()
+	src := []byte(C.GoString(cKeys))
+	keyList := []string{}
+	if err := json.Unmarshal(src, &keyList); err != nil {
+		error_dispatch(err, "failed to unmarshal keys for %q, %s", collectionName, err)
+		return C.CString("")
+	}
+	record_src := []string{}
+	for _, key := range keyList {
+		src, err := c.ReadJSON(key)
+		if err != nil {
+			error_dispatch(err, "can't read %s from %s, %s", key, collectionName, err)
+			return C.CString("")
+		}
+		eprint := new(eprinttools.EPrint)
+		err = json.Unmarshal(src, &eprint)
+		if err != nil {
+			error_dispatch(err, "can't unmarshal %s from %s, %s", key, collectionName, err)
+			return C.CString("")
+		}
+		src, err = xml.MarshalIndent(eprint, "", "    ")
+		if err != nil {
+			error_dispatch(err, "can't marshal %s from %s, %s", key, collectionName, err)
+			return C.CString("")
+		}
+		record_src = append(record_src, fmt.Sprintf("%s", src))
+	}
+	return C.CString(fmt.Sprintf(`<eprint>
+%s
+</eprint>`, strings.Join(record_src, "\n")))
 }
 
 func main() {}
