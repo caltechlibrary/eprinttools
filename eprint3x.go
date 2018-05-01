@@ -685,6 +685,7 @@ type Name struct {
 	Family  string   `xml:"family,omitempty" json:"family,omitempty"`
 	Given   string   `xml:"given,omitempty" json:"given,omitempty"`
 	ID      string   `xml:"id,omitempty" json:"id,omitempty"`
+	ORCID   string   `xml:"orcid,omitempty" json:"orcid,omitempty"`
 	Value   string   `xml:",chardata" json:"value,omitempty"`
 }
 
