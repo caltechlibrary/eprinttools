@@ -25,8 +25,8 @@ import (
 )
 
 func TestListEPrintsURI(t *testing.T) {
-	eprintURL := os.Getenv("EP_EPRINT_URL")
-	datasetName := os.Getenv("EP_DATASET")
+	eprintURL := os.Getenv("EPRINT_URL")
+	datasetName := os.Getenv("DATASET")
 	if len(eprintURL) == 0 || len(datasetName) == 0 {
 		t.Log("Skipping TestListEPrintsURI(), environment not set")
 		t.SkipNow()

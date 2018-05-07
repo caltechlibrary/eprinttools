@@ -3,8 +3,6 @@
 # URL for E-Prints repository
 export EPRINT_URL="https://lemurprints.local"
 
-# Use
-#export AWS_SDK_LOAD_CONFIG=1
 # for S3 storage use an S3 URL like s3://eprints.dataset.edu/eprints
 #export DATASET="s3://eprints.dataset.example.edu/eprints"
 export DATASET="eprints"

@@ -73,15 +73,15 @@ func failCheck(err error, msg string) {
 // EPrintsAPI holds the basic connectin information to read the REST API for EPrints
 type EPrintsAPI struct {
 	XMLName xml.Name `json:"-"`
-	// EP_EPRINT_URL
+	// EPRINT_URL
 	URL *url.URL `xml:"epgo>eprint_url" json:"eprint_url"`
-	// EP_DATASET
+	// EPRINT_DATASET
 	Dataset string `xml:"epgo>dataset" json:"dataset"`
-	// EP_AUTH_METHOD
+	// EPRINT_AUTH_METHOD
 	AuthType int
-	// EP_USERNAME
+	// EPRINT_USERNAME
 	Username string
-	// EP_PASSWORD
+	// EPRINT_PASSWORD
 	Secret string
 	// SuppressNote suppresses the Note field
 	SuppressNote bool
