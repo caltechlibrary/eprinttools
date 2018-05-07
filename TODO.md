@@ -3,6 +3,7 @@
 
 ## Bugs
 
++ [ ] ep should respect EPRINT_USERNAME, EPRINT_PASSWORD, and EPRINT_AUTH_METHOD in environment
 + [ ] ep tool is exporting whole URL as key rather than the eprint id number.
 
 ## Next

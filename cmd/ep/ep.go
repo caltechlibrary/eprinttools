@@ -129,7 +129,10 @@ func main() {
 	app.AddHelp("examples", []byte(fmt.Sprintf(examples, appName, appName, appName, appName, appName, appName)))
 
 	// App Environment
-	app.EnvStringVar(&apiURLEnv, "EPRINT_URL", "", "Sets the EPRints API URL")
+	app.EnvStringVar(&apiURLEnv, "EPRINT_URL", "", "Sets the EPrints API URL")
+	app.EnvStringVar(&userName, "EPRINT_USERNAME", "", "Sets the username to use when accessing EPrints API URL")
+	app.EnvStringVar(&userPassword, "EPRINT_PASSWORD", "", "Sets the password to use when accessing EPrints API URL")
+	app.EnvStringVar(&authMethod, "EPRINT_AUTH_METHOD", "", "Sets the password to use when accessing EPrints API URL")
 	app.EnvStringVar(&datasetNameEnv, "DATASET", "", "Sets the dataset collection for storing EPrint harvested records")
 
 	// Standard Options
@@ -243,6 +246,9 @@ func main() {
 	} else {
 		fmt.Fprintf(app.Eout, "%s\n", err)
 		os.Exit(1)
+	}
+	if userName != "" && authMethod == "" {
+		authMethod = "basic"
 	}
 	api, err := eprinttools.New(apiURL, datasetName, suppressNote, authMethod, userName, userSecret)
 	if err != nil {
