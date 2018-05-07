@@ -121,8 +121,8 @@ def setup():
 
     eprint_url = os.getenv("EPRINT_URL")
     auth_type = os.getenv("EPRINT_AUTH_TYPE")
-    username = os.getenv("EPRINT_USER")
-    secret = os.getenv("EPRINT_PASSWD")
+    username = os.getenv("EPRINT_USERNAME")
+    secret = os.getenv("EPRINT_PASSWORD")
     collection_name = "test_get_eprint_xml.ds"
 
     if eprint_url == None:

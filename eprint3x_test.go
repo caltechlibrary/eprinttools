@@ -1184,8 +1184,8 @@ func TestLibSupport(t *testing.T) {
 		return
 	}
 	authType := 0
-	username := os.Getenv("EPRINT_USER")
-	secret := os.Getenv("EPRINT_PASSWD")
+	username := os.Getenv("EPRINT_USERNAME")
+	secret := os.Getenv("EPRINT_PASSWORD")
 	keys, err := GetKeys(eprintURL, 0, username, secret)
 	//log.Printf("DEBUG testing GetKeys()")
 	if err != nil {

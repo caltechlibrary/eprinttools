@@ -227,8 +227,9 @@ type Record struct {
 	OptionMinor         string     `xml:"eprint>option_minor>item,omitempty" json:"option_minor,omitempty"`
 	GradOfcApprovalDate string     `xml:"eprint>gradofc_approval_date,omitempty" json:"gradofc_approval_date,omitempty"`
 
-	Reviewer   string   `xml:"eprint>reviewer" json:"reviewer,omitempty"`
-	LocalGroup []string `xml:"eprint>local_group>item" json:"local_group,omitempty"`
+	Reviewer     string   `xml:"eprint>reviewer" json:"reviewer,omitempty"`
+	ReviewStatus string   `xml:"eprint>review_status" json:"review_status,omitempty"`
+	LocalGroup   []string `xml:"eprint>local_group>item" json:"local_group,omitempty"`
 }
 
 type ePrintIDs struct {

@@ -118,8 +118,8 @@ def envcfg():
     cfg = {}
     base_url = os.getenv("EPRINT_URL")
     auth_type = os.getenv("EPRINT_AUTH_TYPE")
-    username = os.getenv("EPRINT_USER")
-    secret = os.getenv("EPRINT_PASSWD")
+    username = os.getenv("EPRINT_USERNAME")
+    secret = os.getenv("EPRINT_PASSWORD")
     dataset_collection = os.getenv("DATASET")
 
     if base_url != None:
