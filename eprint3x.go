@@ -285,8 +285,7 @@ func (documentItemList *DocumentItemList) AddItem(item *Item) int {
 // CreatorItemList holds a list of authors
 type CreatorItemList struct {
 	XMLName xml.Name `xml:"creators" json:"-"`
-	//FIXME: JSON item should be the object itself
-	Items []*Item `xml:"item,omitempty" json:"items,omitempty"`
+	Items   []*Item  `xml:"item,omitempty" json:"items,omitempty"`
 }
 
 // AddItem adds an item to the Creator list and returns the new count of items
