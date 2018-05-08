@@ -131,7 +131,7 @@ func main() {
 	// App Environment
 	app.EnvStringVar(&apiURLEnv, "EPRINT_URL", "", "Sets the EPrints API URL")
 	app.EnvStringVar(&userName, "EPRINT_USERNAME", "", "Sets the username to use when accessing EPrints API URL")
-	app.EnvStringVar(&userPassword, "EPRINT_PASSWORD", "", "Sets the password to use when accessing EPrints API URL")
+	app.EnvStringVar(&userSecret, "EPRINT_PASSWORD", "", "Sets the password to use when accessing EPrints API URL")
 	app.EnvStringVar(&authMethod, "EPRINT_AUTH_METHOD", "", "Sets the password to use when accessing EPrints API URL")
 	app.EnvStringVar(&datasetNameEnv, "DATASET", "", "Sets the dataset collection for storing EPrint harvested records")
 
