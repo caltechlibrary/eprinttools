@@ -300,6 +300,6 @@ func main() {
 			fmt.Fprintf(app.Out, strings.Join(uris, "\n"))
 		}
 	}
-	log.Printf("(pid %d) Export completed, running time %s", thisProcessID, time.Now().Sub(t0))
+	log.Printf("(pid %d) Export completed, running time %s", thisProcessID, time.Now().Sub(t0).Round(time.Second))
 	os.Exit(0)
 }
