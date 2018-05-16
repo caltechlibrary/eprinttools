@@ -253,7 +253,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	log.Printf("(pid %d) %s %s", appName, eprinttools.Version, thisProcessID)
+	log.Printf("(pid %d) %s %s", thisProcessID, appName, eprinttools.Version)
 	log.Printf("(pid %d) Harvesting from %s", thisProcessID, apiURL)
 	t0 := time.Now()
 	switch {
