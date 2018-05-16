@@ -97,19 +97,19 @@ func ExportEPrintsKeyList(api *eprinttools.EPrintsAPI, keys []string, saveKeys s
 	j := 0 // success count
 	k := 0 // error count
 	if verbose == true {
-		log.Printf("(pid %d) Exporting %d of %d uris", pid, count, uriCount)
+		log.Printf("(pid: %d) Exporting %d of %d uris", pid, count, uriCount)
 	}
 	for i := 0; i < uriCount && i < count; i++ {
 		uri := uris[i]
 		rec, xmlSrc, err := api.GetEPrint(uri)
 		if err != nil {
-			log.Printf("(pid %d) Failed, %s\n", pid, err)
+			log.Printf("(pid: %d) Failed, %s\n", pid, err)
 			k++
 		} else {
 			key := fmt.Sprintf("%d", rec.EPrintID)
 			src, err = json.Marshal(rec)
 			if err != nil {
-				log.Printf("(pid %d) can't marshal key %s, %s", pid, key, err)
+				log.Printf("(pid: %d) can't marshal key %s, %s", pid, key, err)
 			} else {
 				// NOTE: Check to see if we're doing an update or create
 				if c.HasKey(key) == true {
@@ -126,18 +126,18 @@ func ExportEPrintsKeyList(api *eprinttools.EPrintsAPI, keys []string, saveKeys s
 				j++
 			} else {
 				if verbose == true {
-					log.Printf("(pid %d) Failed to save eprint %s (%s) to %s, %s\n", pid, key, uri, api.Dataset, err)
+					log.Printf("(pid: %d) Failed to save eprint %s (%s) to %s, %s\n", pid, key, uri, api.Dataset, err)
 				}
 				k++
 			}
 			c.AttachFile(key, key+".xml", bytes.NewReader(xmlSrc))
 		}
 		if verbose == true && (i%EPrintsExportBatchSize) == 0 {
-			log.Printf("(pid %d) %d/%d uri processed, %d exported, %d unexported", pid, i+1, count, j, k)
+			log.Printf("(pid: %d) %d/%d uri processed, %d exported, %d unexported", pid, i+1, count, j, k)
 		}
 	}
 	if verbose == true {
-		log.Printf("(pid %d) %d/%d uri processed, %d exported, %d unexported", pid, len(uris), count, j, k)
+		log.Printf("(pid: %d) %d/%d uri processed, %d exported, %d unexported", pid, len(uris), count, j, k)
 	}
 	if len(saveKeys) > 0 {
 		if err := ioutil.WriteFile(saveKeys, []byte(strings.Join(exportedKeys, "\n")), 0664); err != nil {
@@ -178,19 +178,19 @@ func ExportEPrints(api *eprinttools.EPrintsAPI, count int, saveKeys string, verb
 	j := 0 // success count
 	k := 0 // error count
 	if verbose == true {
-		log.Printf("(pid %d) Exporting %d of %d uris", pid, count, uriCount)
+		log.Printf("(pid: %d) Exporting %d of %d uris", pid, count, uriCount)
 	}
 	for i := 0; i < uriCount && i < count; i++ {
 		uri := uris[i]
 		rec, xmlSrc, err := api.GetEPrint(uri)
 		if err != nil {
-			log.Printf("(pid %d) Failed, %s\n", pid, err)
+			log.Printf("(pid: %d) Failed, %s\n", pid, err)
 			k++
 		} else {
 			key := fmt.Sprintf("%d", rec.EPrintID)
 			src, err = json.Marshal(rec)
 			if err != nil {
-				log.Printf("(pid %d) Can't marshal key %s, %s", pid, key, err)
+				log.Printf("(pid: %d) Can't marshal key %s, %s", pid, key, err)
 			} else {
 				// NOTE: Check to see if we're doing an update or create
 				if c.HasKey(key) == true {
@@ -207,18 +207,18 @@ func ExportEPrints(api *eprinttools.EPrintsAPI, count int, saveKeys string, verb
 				j++
 			} else {
 				if verbose == true {
-					log.Printf("(pid %d) Failed to save eprint %s (%s) to %s, %s\n", pid, key, uri, api.Dataset, err)
+					log.Printf("(pid: %d) Failed to save eprint %s (%s) to %s, %s\n", pid, key, uri, api.Dataset, err)
 				}
 				k++
 			}
 			c.AttachFile(key, key+".xml", bytes.NewReader(xmlSrc))
 		}
 		if verbose == true && (i%EPrintsExportBatchSize) == 0 {
-			log.Printf("(pid %d) %d/%d uri processed, %d exported, %d unexported", pid, i+1, count, j, k)
+			log.Printf("(pid: %d) %d/%d uri processed, %d exported, %d unexported", pid, i+1, count, j, k)
 		}
 	}
 	if verbose == true {
-		log.Printf("(pid %d) %d/%d uri processed, %d exported, %d unexported", pid, len(uris), count, j, k)
+		log.Printf("(pid: %d) %d/%d uri processed, %d exported, %d unexported", pid, len(uris), count, j, k)
 	}
 	if len(saveKeys) > 0 {
 		if err := ioutil.WriteFile(saveKeys, []byte(strings.Join(exportedKeys, "\n")), 0664); err != nil {
@@ -256,21 +256,21 @@ func ExportModifiedEPrints(api *eprinttools.EPrintsAPI, start, end time.Time, sa
 	j := 0 // success count
 	k := 0 // error count
 	if verbose == true {
-		log.Printf("(pid %d) Exporting %d uris", pid, count)
+		log.Printf("(pid: %d) Exporting %d uris", pid, count)
 	}
 	for i := 0; i < count; i++ {
 		uri := uris[i]
 		rec, xmlSrc, err := api.GetEPrint(uri)
 		if err != nil {
 			if verbose == true {
-				log.Printf("(pid %d) Failed to get %s, %s\n", pid, uri, err)
+				log.Printf("(pid: %d) Failed to get %s, %s\n", pid, uri, err)
 			}
 			k++
 		} else {
 			key := fmt.Sprintf("%d", rec.EPrintID)
 			src, err = json.Marshal(rec)
 			if err != nil {
-				log.Printf("(pid %d) Can't marshel key %s, %s", pid, key, err)
+				log.Printf("(pid: %d) Can't marshel key %s, %s", pid, key, err)
 			} else {
 				// NOTE: Check to see if we're doing an update or create
 				if c.HasKey(key) == true {
@@ -287,18 +287,18 @@ func ExportModifiedEPrints(api *eprinttools.EPrintsAPI, start, end time.Time, sa
 				j++
 			} else {
 				if verbose == true {
-					log.Printf("(pid %d) Failed to save eprint %s (%s) to %s, %s\n", pid, key, uri, api.Dataset, err)
+					log.Printf("(pid: %d) Failed to save eprint %s (%s) to %s, %s\n", pid, key, uri, api.Dataset, err)
 				}
 				k++
 			}
 			c.AttachFile(key, key+".xml", bytes.NewReader(xmlSrc))
 		}
 		if verbose == true && (i%EPrintsExportBatchSize) == 0 {
-			log.Printf("(pid %d) %d/%d uri processed, %d exported, %d unexported", pid, i+1, count, j, k)
+			log.Printf("(pid: %d) %d/%d uri processed, %d exported, %d unexported", pid, i+1, count, j, k)
 		}
 	}
 	if verbose == true {
-		log.Printf("(pid %d) %d/%d uri processed, %d exported, %d unexported", pid, len(uris), count, j, k)
+		log.Printf("(pid: %d) %d/%d uri processed, %d exported, %d unexported", pid, len(uris), count, j, k)
 	}
 	if len(saveKeys) > 0 {
 		if err := ioutil.WriteFile(saveKeys, []byte(strings.Join(exportedKeys, "\n")), 0664); err != nil {

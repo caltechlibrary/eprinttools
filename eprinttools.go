@@ -68,7 +68,7 @@ var (
 func failCheck(err error, msg string) {
 	pid := os.Getpid()
 	if err != nil {
-		log.Fatalf("(pid %d) %s\n", pid, msg)
+		log.Fatalf("(pid: %d) %s\n", pid, msg)
 	}
 }
 
@@ -319,7 +319,7 @@ func (api *EPrintsAPI) ListModifiedEPrintURI(start, end time.Time, verbose bool)
 	t0 := now
 	t1 := now
 	if verbose == true {
-		log.Printf("(pid %d) Getting EPrints Ids", pid)
+		log.Printf("(pid: %d) Getting EPrints Ids", pid)
 	}
 	uris, err := api.ListEPrintsURI()
 	if err != nil {
@@ -327,7 +327,7 @@ func (api *EPrintsAPI) ListModifiedEPrintURI(start, end time.Time, verbose bool)
 	}
 	if verbose == true {
 		now = time.Now()
-		log.Printf("(pid %d) Retrieved %d ids, %s", pid, len(uris), now.Sub(t0).Round(time.Second))
+		log.Printf("(pid: %d) Retrieved %d ids, %s", pid, len(uris), now.Sub(t0).Round(time.Second))
 	}
 
 	workingURL, err := url.Parse(api.URL.String())
@@ -342,7 +342,7 @@ func (api *EPrintsAPI) ListModifiedEPrintURI(start, end time.Time, verbose bool)
 	}
 
 	if verbose == true {
-		log.Printf("(pid %d) Filtering EPrints ids by modification dates, %s to %s", pid, start.Format("2006-01-02"), end.Format("2006-01-02"))
+		log.Printf("(pid: %d) Filtering EPrints ids by modification dates, %s to %s", pid, start.Format("2006-01-02"), end.Format("2006-01-02"))
 	}
 	total := len(uris)
 	lastI := total - 1
@@ -370,17 +370,17 @@ func (api *EPrintsAPI) ListModifiedEPrintURI(start, end time.Time, verbose bool)
 		if verbose == true {
 			now = time.Now()
 			if i == lastI {
-				log.Printf("(pid %d) %d/%d ids checked, batch time %s, running time %s", pid, total, total, now.Sub(t1).Round(time.Second), now.Sub(t0).Round(time.Second))
+				log.Printf("(pid: %d) %d/%d ids checked, batch time %s, running time %s", pid, total, total, now.Sub(t1).Round(time.Second), now.Sub(t0).Round(time.Second))
 				t1 = now
 			} else if (i % 1000) == 0 {
-				log.Printf("(pid %d) %d/%d ids checked, batch time %s, running time %s", pid, i, total, now.Sub(t1).Round(time.Second), now.Sub(t0).Round(time.Second))
+				log.Printf("(pid: %d) %d/%d ids checked, batch time %s, running time %s", pid, i, total, now.Sub(t1).Round(time.Second), now.Sub(t0).Round(time.Second))
 				t1 = now
 			}
 		}
 	}
 	if verbose == true {
 		now = time.Now()
-		log.Printf("(pid %d) %d records in modified range, running time %s", pid, len(results), now.Sub(t0).Round(time.Second))
+		log.Printf("(pid: %d) %d records in modified range, running time %s", pid, len(results), now.Sub(t0).Round(time.Second))
 	}
 	return results, nil
 }

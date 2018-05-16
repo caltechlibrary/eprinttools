@@ -905,7 +905,7 @@ func GetModifiedKeys(baseURL string, authType int, username string, secret strin
 		lastModified, err := rest.Request("GET", docPath, map[string]string{})
 		if err != nil {
 			if verbose == true {
-				log.Printf("(pid %d) request failed, %s", pid, err)
+				log.Printf("(pid: %d) request failed, %s", pid, err)
 			}
 		} else {
 			datestring := fmt.Sprintf("%s", lastModified)
