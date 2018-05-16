@@ -23,6 +23,7 @@ import (
 	"fmt"
 	"log"
 	"net/url"
+	"os"
 	"path"
 	"strconv"
 	"strings"
@@ -896,6 +897,7 @@ func GetModifiedKeys(baseURL string, authType int, username string, secret strin
 	}
 
 	// Pass baseURL to GetKeys(), get key list then filter for modified times.
+	pid := os.Getpid()
 	keys, err := GetKeys(baseURL, authType, username, secret)
 	for _, key := range keys {
 		// form a request to the REST API for just the modified date
@@ -903,7 +905,7 @@ func GetModifiedKeys(baseURL string, authType int, username string, secret strin
 		lastModified, err := rest.Request("GET", docPath, map[string]string{})
 		if err != nil {
 			if verbose == true {
-				log.Printf("request failed, %s", err)
+				log.Printf("(pid %d) request failed, %s", pid, err)
 			}
 		} else {
 			datestring := fmt.Sprintf("%s", lastModified)

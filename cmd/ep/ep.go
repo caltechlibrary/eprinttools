@@ -109,6 +109,8 @@ save the keys for the records exported with one key per line.
 
 	// NOTE: supressNote (Internal Note) added to handle the case where Note field is internal use only and not to be harvested
 	suppressNote bool
+
+	thisProcessID int
 )
 
 func main() {
@@ -119,6 +121,7 @@ func main() {
 	)
 	app := cli.NewCli(eprinttools.Version)
 	appName := app.AppName()
+	thisProcessID = os.Getpid()
 
 	// Document non-option parameters
 	app.AddParams("[EPRINT_URL]", "[ONE_OR_MORE_EPRINT_ID]")
@@ -250,14 +253,14 @@ func main() {
 		os.Exit(1)
 	}
 
-	log.Printf("%s %s (pid %d)", appName, eprinttools.Version, os.Getpid())
-	log.Printf("Harvesting from %s", apiURL)
+	log.Printf("(pid %d) %s %s", appName, eprinttools.Version, thisProcessID)
+	log.Printf("(pid %d) Harvesting from %s", thisProcessID, apiURL)
 	t0 := time.Now()
 	switch {
 	case exportEPrintsKeyList != "":
-		log.Printf("Export started, %s", t0)
+		log.Printf("(pid %d) Export started, %s", thisProcessID, t0)
 		if err := harvest.ExportEPrintsKeyList(api, strings.Split(exportEPrintsKeyList, ","), exportSaveKeys, verbose); err != nil {
-			log.Fatalf("%s", err)
+			log.Fatalf("(pid %d) %s", thisProcessID, err)
 		}
 	case exportEPrintsModified != "":
 		s := exportEPrintsModified
@@ -268,35 +271,35 @@ func main() {
 		}
 		start, err := time.Parse("2006-01-02", s)
 		if err != nil {
-			log.Fatalf("%s", err)
+			log.Fatalf("(pid %d) %s", thisProcessID, err)
 		}
 		end, err := time.Parse("2006-01-02", e)
 		if err != nil {
-			log.Fatalf("%s", err)
+			log.Fatalf("(pid %d) %s", thisProcessID, err)
 		}
-		log.Printf("Export from %s to %s, started %s", start.Format("2006-01-02"), end.Format("2006-01-02"), t0.Format("2006-01-02 15:04:05 MST"))
+		log.Printf("(pid %d) Export from %s to %s, started %s", thisProcessID, start.Format("2006-01-02"), end.Format("2006-01-02"), t0.Format("2006-01-02 15:04:05 MST"))
 		if err := harvest.ExportModifiedEPrints(api, start, end, exportSaveKeys, verbose); err != nil {
-			log.Fatalf("%s", err)
+			log.Fatalf("(pid %d) %s", thisProcessID, err)
 		}
 	case exportEPrints != "":
 		exportNo := -1
 		if exportEPrints != "all" {
 			exportNo, err = strconv.Atoi(exportEPrints)
 			if err != nil {
-				log.Fatalf("Export count should be %q or an integer, %s", exportEPrints, err)
+				log.Fatalf("(pid %d) Export count should be %q or an integer, %s", thisProcessID, exportEPrints, err)
 			}
 		}
-		log.Printf("Export started, %s", t0)
+		log.Printf("(pid %d) Export started, %s", thisProcessID, t0)
 		if err := harvest.ExportEPrints(api, exportNo, exportSaveKeys, verbose); err != nil {
-			log.Fatalf("%s", err)
+			log.Fatalf("(pid %d) %s", thisProcessID, err)
 		}
 	default:
 		if uris, err := api.ListEPrintsURI(); err != nil {
-			log.Fatalf("%s", err)
+			log.Fatalf("(pid %d) %s", thisProcessID, err)
 		} else {
 			fmt.Fprintf(app.Out, strings.Join(uris, "\n"))
 		}
 	}
-	log.Printf("Export completed, running time %s", time.Now().Sub(t0))
+	log.Printf("(pid %d) Export completed, running time %s", thisProcessID, time.Now().Sub(t0))
 	os.Exit(0)
 }
