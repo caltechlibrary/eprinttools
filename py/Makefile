@@ -72,7 +72,7 @@ test: clean $(PROJECT)/$(LIB_NAME)$(EXT)
 	if [ "$(OS)" != "macosx" ]; then python3 $(PROJECT)_dataset_test.py; fi
 
 install: clean $(PROJECT)/$(LIB_NAME)$(EXT)
-	$(USE_SUDO) python3 setup.py install --record files.txt
+	$(USE_SUDO) python3 setup.py install --user --record files.txt
 
 
 release: clean $(PROJECT)/$(LIB_NAME)$(EXT)
