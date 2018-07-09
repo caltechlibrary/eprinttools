@@ -19,7 +19,7 @@ ifeq ($(quick), true)
 	QUICK = quick=true
 endif
 
-PROJECT_LIST = ep eputil doi2eprintsxml
+PROJECT_LIST = ep eputil crossref2eprintxml
 
 build: package $(PROJECT_LIST)
 
@@ -30,7 +30,7 @@ ep: bin/ep$(EXT)
 
 eputil: bin/eputil$(EXT)
 
-doi2eprintsxml: bin/doi2eprintsxml$(EXT)
+crossref2eprintxml: bin/crossref2eprintxml$(EXT) 
 
 bin/ep$(EXT): eprinttools.go harvest/harvest.go cmd/ep/ep.go
 	go build -o bin/ep$(EXT) cmd/ep/ep.go
@@ -38,13 +38,13 @@ bin/ep$(EXT): eprinttools.go harvest/harvest.go cmd/ep/ep.go
 bin/eputil$(EXT): eprinttools.go harvest/harvest.go eprint3x.go cmd/eputil/eputil.go
 	go build -o bin/eputil$(EXT) cmd/eputil/eputil.go
 
-bin/doi2eprintsxml$(EXT): eprinttools.go cmd/doi2eprintsxml/doi2eprintsxml.go 
-	go build -o bin/doi2eprintsxml$(EXT) cmd/doi2eprintsxml/doi2eprintsxml.go
+bin/crossref2eprintxml$(EXT): eprinttools.go crossref.go cmd/crossref2eprintxml/crossref2eprintxml.go 
+	go build -o bin/crossref2eprintxml$(EXT) cmd/crossref2eprintxml/crossref2eprintxml.go
 
 install: 
 	env GOBIN=$(GOPATH)/bin go install cmd/ep/ep.go
 	env GOBIN=$(GOPATH)/bin go install cmd/eputil/eputil.go
-	env GOBIN=$(GOPATH)/bin go install cmd/doi2eprintsxml/doi2eprintsxml.go
+	env GOBIN=$(GOPATH)/bin go install cmd/crossref2eprintxml/crossref2eprintxml.go
 
 
 website: page.tmpl README.md nav.md INSTALL.md LICENSE css/site.css docs/index.md docs/ep.md docs/eputil.md
@@ -71,7 +71,7 @@ dist/windows-amd64:
 	mkdir -p dist/bin
 	env  GOOS=windows GOARCH=amd64 go build -o dist/bin/ep.exe cmd/ep/ep.go
 	env  GOOS=windows GOARCH=amd64 go build -o dist/bin/eputil.exe cmd/eputil/eputil.go
-	env  GOOS=windows GOARCH=amd64 go build -o dist/bin/doi2eprintsxml.exe cmd/doi2eprintsxml/doi2eprintsxml.go
+	env  GOOS=windows GOARCH=amd64 go build -o dist/bin/crossref2eprintxml.exe cmd/crossref2eprintxml/crossref2eprintxml.go
 	cd dist && zip -r $(PROJECT)-$(VERSION)-windows-amd64.zip README.md LICENSE INSTALL.md docs/* scripts/* etc/* bin/*
 	rm -fR dist/bin
 
@@ -79,7 +79,7 @@ dist/macosx-amd64:
 	mkdir -p dist/bin
 	env  GOOS=darwin GOARCH=amd64 go build -o dist/bin/ep cmd/ep/ep.go
 	env  GOOS=darwin GOARCH=amd64 go build -o dist/bin/eputil cmd/eputil/eputil.go
-	env  GOOS=darwin GOARCH=amd64 go build -o dist/bin/doi2eprintsxml cmd/doi2eprintsxml/doi2eprintsxml.go
+	env  GOOS=darwin GOARCH=amd64 go build -o dist/bin/crossref2eprintxml cmd/crossref2eprintxml/crossref2eprintxml.go
 	cd dist && zip -r $(PROJECT)-$(VERSION)-macosx-amd64.zip README.md LICENSE INSTALL.md docs/* scripts/* etc/* bin/*
 	rm -fR dist/bin
 
@@ -87,7 +87,7 @@ dist/raspbian-arm7:
 	mkdir -p dist/bin
 	env  GOOS=linux GOARCH=arm GOARM=7 go build -o dist/bin/ep cmd/ep/ep.go
 	env  GOOS=linux GOARCH=arm GOARM=7 go build -o dist/bin/eputil cmd/eputil/eputil.go
-	env  GOOS=linux GOARCH=arm GOARM=7 go build -o dist/bin/doi2eprintsxml cmd/doi2eprintsxml/doi2eprintsxml.go
+	env  GOOS=linux GOARCH=arm GOARM=7 go build -o dist/bin/crossref2eprintxml cmd/crossref2eprintxml/crossref2eprintxml.go
 	cd dist && zip -r $(PROJECT)-$(VERSION)-raspbian-arm7.zip README.md LICENSE INSTALL.md docs/* scripts/* etc/* bin/*
 	rm -fR dist/bin
   

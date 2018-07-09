@@ -1,5 +1,5 @@
 //
-// doi2eprintsxml.go is a command line utility to query CrossRef.org
+// crossref2eprintsxml.go is a command line utility to query CrossRef API
 // for metadata and return the results as an EPrints XML file suitable
 // for importing into EPrints.
 //
@@ -21,9 +21,12 @@
 package main
 
 import (
+	"encoding/xml"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"path"
+	"strings"
 
 	// Caltech Library packages
 	"github.com/caltechlibrary/cli"
@@ -77,6 +80,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 	showLicense          bool
 	showVersion          bool
 	generateMarkdownDocs bool
+	inputFName           string
+	outputFName          string
+	quiet                bool
 
 	// App specific options
 	apiEPrintsURL string
@@ -99,6 +105,9 @@ func main() {
 	app.BoolVar(&showLicense, "l,license", false, "display license")
 	app.BoolVar(&showVersion, "v,version", false, "display app version")
 	app.BoolVar(&generateMarkdownDocs, "generate-markdown-docs", false, "output documentation in Markdown")
+	app.StringVar(&inputFName, "i,input", "", "set input filename")
+	app.StringVar(&outputFName, "o,output", "", "set output filename")
+	app.BoolVar(&quiet, "quiet", false, "set quiet output")
 
 	// Application Options
 	app.StringVar(&apiEPrintsURL, "eprints-url", "", "Sets the EPRints API URL")
@@ -134,14 +143,41 @@ func main() {
 		os.Exit(0)
 	}
 
-	if len(args) < 1 {
-		app.Usage(os.Stderr)
+	if len(args) < 1 && inputFName == "" {
+		app.Usage(app.Eout)
 		os.Exit(1)
 	}
 
-	eprintsList := new(*EPrints)
+	// Setup I/O
+	var (
+		err error
+	)
+	app.Eout = os.Stderr
+
+	app.Out, err = cli.Create(outputFName, os.Stdout)
+	cli.ExitOnError(app.Eout, err, quiet)
+	defer cli.CloseFile(outputFName, app.Out)
+
+	app.In, err = cli.Open(inputFName, os.Stdin)
+	cli.ExitOnError(app.Eout, err, quiet)
+	defer cli.CloseFile(inputFName, app.In)
+
+	if inputFName != "" {
+		src, err := ioutil.ReadAll(app.In)
+		cli.ExitOnError(app.Eout, err, quiet)
+		//FIXME: this bytes to string split is ugly...
+		for _, line := range strings.Split(fmt.Sprintf("%s", src), "\n") {
+			arg := strings.TrimSpace(line)
+			if len(arg) > 0 {
+				args = append(args, arg)
+			}
+		}
+	}
+
+	// NOTE: OK we're ready to run our conversions
+	eprintsList := new(eprinttools.EPrints)
 	//NOTE: need to support processing one or more DOI
-	for _, doi := range args {
+	for i, doi := range args {
 		api, err := crossrefapi.NewCrossRefClient(mailto)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "%s\n", err)
@@ -153,9 +189,17 @@ func main() {
 			fmt.Fprintf(os.Stderr, "%s\n", err)
 			os.Exit(1)
 		}
-		eprintsList.EPrint = append(eprintsList.Eprint, doi2EPrint(obj))
+		eprint, err := eprinttools.CrossRefWorksToEPrint(obj)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "%s\n", err)
+			os.Exit(1)
+		}
+		j := eprintsList.AddEPrint(eprint)
+		if (i + 1) != j {
+			fmt.Fprintf(os.Stderr, "DEBUG count doesn't match: i (%d) != j (%d)", i, j)
+		}
 	}
-	src, err := xml.Marshal(erpintsList)
+	src, err := xml.MarshalIndent(eprintsList, "", "   ")
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%s\n", err)
 		os.Exit(1)
