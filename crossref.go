@@ -1,6 +1,7 @@
 package eprinttools
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 
@@ -31,6 +32,17 @@ func indexInto(m map[string]interface{}, parts ...string) (interface{}, bool) {
 	}
 }
 
+// normalizeType converts content type from CrossRef to Authors (e.g.
+// "journal-article" to "Article"
+func normalizeType(s string) string {
+	switch strings.ToLower(s) {
+	case "journal-article":
+		return "Article"
+	default:
+		return s
+	}
+}
+
 // CrossRefWorksToEPrint takes a works object from the CrossRef API
 // and maps the fields into an EPrint struct return a new struct or
 // error.
@@ -38,7 +50,7 @@ func CrossRefWorksToEPrint(obj crossrefapi.Object) (*EPrint, error) {
 	eprint := new(EPrint)
 	// Type
 	if s, ok := indexInto(obj, "message", "type"); ok == true {
-		eprint.Type = fmt.Sprintf("%s", s)
+		eprint.Type = normalizeType(fmt.Sprintf("%s", s))
 	} else {
 		return nil, fmt.Errorf("Can't find type in object")
 	}
@@ -49,7 +61,11 @@ func CrossRefWorksToEPrint(obj crossrefapi.Object) (*EPrint, error) {
 		}
 	}
 
+	// NOTE: Assuming IsPublished is true given that we're talking to
+	// CrossRef API which holds published content.
 	// IsPublished
+	eprint.IsPublished = "pub"
+
 	// Publisher
 	if s, ok := indexInto(obj, "message", "publisher"); ok == true {
 		eprint.Publisher = fmt.Sprintf("%s", s)
@@ -61,29 +77,82 @@ func CrossRefWorksToEPrint(obj crossrefapi.Object) (*EPrint, error) {
 		}
 	}
 	// Series
-	// Volume
-	// Number
-	// Edition
-	// PlaceOfPub
-	// PageRange
-	// Pages
-	// FullTextStatus
-	// Keywords
-	// Note
-	// Abstract
-	// Refereed
-	// ISBN
-	// ISSN
-	// BookTitle
-	// Editors (*EditorItemList)
-	// Projects
-	// Funders
-	// Contributors (*ContriborItemList)
-	// MonographType???
-	// Subjects???
-	// PresType (presentation type)???
+	//FIXME: Need to find value in CrossRef works metadata for this
 
-	// DOI (added to the related URL field, not DOI field per normal EPrints)
+	// Volume
+	if s, ok := indexInto(obj, "message", "volume"); ok == true {
+		eprint.Volume = fmt.Sprintf("%s", s)
+	}
+	// Number
+	//FIXME: Need to find value in CrossRef works metadata for this
+
+	// Edition
+	//FIXME: Need to find value in CrossRef works metadata for this
+
+	// PlaceOfPub
+	//FIXME: Need to find value in CrossRef works metadata for this
+
+	// PageRange
+	//FIXME: Need to find value in CrossRef works metadata for this
+
+	// Pages
+	//FIXME: Need to find value in CrossRef works metadata for this
+
+	// FullTextStatus
+	//FIXME: Need to find value in CrossRef works metadata for this
+
+	// Keywords
+	//FIXME: Need to find value in CrossRef works metadata for this
+
+	// Note
+	//FIXME: Need to find value in CrossRef works metadata for this
+
+	// Abstract
+	//FIXME: Need to find value in CrossRef works metadata for this
+
+	// Refereed
+	//FIXME: Need to find value in CrossRef works metadata for this
+
+	// ISBN
+	if s, ok := indexInto(obj, "message", "ISBN"); ok == true {
+		eprint.ISSN = fmt.Sprintf("%s", s)
+	}
+
+	// ISSN
+	if a, ok := indexInto(obj, "message", "ISSN"); ok == true {
+		fmt.Printf("DEBUG ISSN type: %T, %+v\n", a, a)
+		if len(a.([]interface{})) > 0 {
+			eprint.ISSN = fmt.Sprintf("%s", a.([]interface{})[0])
+		}
+	}
+
+	// BookTitle
+	//FIXME: Need to find value in CrossRef works metadata for this
+
+	// Editors (*EditorItemList)
+	//FIXME: Need to find value in CrossRef works metadata for this
+
+	// Projects
+	//FIXME: Need to find value in CrossRef works metadata for this
+
+	// Funders
+	//FIXME: Need to find value in CrossRef works metadata for this
+
+	// Contributors (*ContriborItemList)
+	//FIXME: Need to find value in CrossRef works metadata for this
+
+	// MonographType???
+	//FIXME: Need to find value in CrossRef works metadata for this
+
+	// Subjects???
+	//FIXME: Need to find value in CrossRef works metadata for this
+
+	// PresType (presentation type)???
+	//FIXME: Need to find value in CrossRef works metadata for this
+
+	// NOTE: Caltech Library puts the DOI in a different field than
+	// EPrints' standard DOI location
+	// DOI
 	if doi, ok := indexInto(obj, "message", "DOI"); ok == true {
 		eprint.RelatedURL = new(RelatedURLItemList)
 		entry := new(Item)
@@ -93,10 +162,36 @@ func CrossRefWorksToEPrint(obj crossrefapi.Object) (*EPrint, error) {
 		eprint.RelatedURL.AddItem(entry)
 	}
 
-	// DateType
+	// RelatedURLs (links in message of CrossRef works object)
+	if l, ok := indexInto(obj, "message", "link"); ok == true {
+		if eprint.RelatedURL == nil {
+			eprint.RelatedURL = new(RelatedURLItemList)
+		}
+		src, _ := json.Marshal(l) // DEBUG
+		fmt.Printf("DEBUG %T -> %s\n", l, src)
+		for _, o := range l.([]interface{}) {
+			entry := new(Item)
+			if s, ok := indexInto(o.(map[string]interface{}), "URL"); ok == true {
+				entry.URL = fmt.Sprintf("%s", s)
+			}
+			if s, ok := indexInto(o.(map[string]interface{}), "content-type"); ok == true {
+				entry.Type = fmt.Sprintf("%s", s)
+			}
+			if len(entry.URL) > 0 && len(entry.Type) > 0 {
+				eprint.RelatedURL.AddItem(entry)
+			}
+		}
+	}
+
+	// NOTE: Assuming date is published given we're talking to CrossRef
 	// Date
 	if created, ok := indexInto(obj, "message", "created", "date-time"); ok == true {
+		// DateType
+		eprint.DateType = "published"
 		eprint.Date = fmt.Sprintf("%s", created)
+		if len(eprint.Date) > 10 {
+			eprint.Date = eprint.Date[0:10]
+		}
 	}
 	// Authors list
 	if l, ok := indexInto(obj, "message", "author"); ok == true {
