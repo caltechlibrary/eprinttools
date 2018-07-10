@@ -342,8 +342,7 @@ func CrossRefWorksToEPrint(obj crossrefapi.Object) (*EPrint, error) {
 	// Subjects
 	//FIXME: Need to find value in CrossRef works metadata for this
 
-	// PresType (presentation type)???
+	// PresType (presentation type)
 	//FIXME: Need to find value in CrossRef works metadata for this
-
 	return eprint, nil
 }

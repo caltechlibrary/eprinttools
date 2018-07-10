@@ -1,7 +1,6 @@
 //
-// crossref2eprintsxml.go is a command line utility to query CrossRef API
-// for metadata and return the results as an EPrints XML file suitable
-// for importing into EPrints.
+// crossref2eprintsxml.go is a Caltech Library centric command line utility // to query CrossRef API for metadata and return the results as an
+// EPrints XML file suitable for importing into EPrints.
 //
 // Author R. S. Doiel, <rsdoiel@library.caltech.edu>
 //
@@ -36,7 +35,8 @@ import (
 
 var (
 	description = `
-%s takes a one or more DOI, queries the CrossRef API
+%s is a Caltech Library centric application that 
+takes a one or more DOI, queries the CrossRef API
 and returns an EPrints XML document suitable for import into
 EPrints. The DOI can be in either their canonical form or
 URL form (e.g. "10.1021/acsami.7b15651" or 
@@ -53,7 +53,8 @@ Example generating an EPrintsXML for two DOI
 
 	%s "10.1021/acsami.7b15651" "10.1093/mnras/stu2495" > articles.xml
 
-Example processing a list of DOIs in a text file.
+Example processing a list of DOIs in a text file into
+an XML document called "articles.xml".
 
 	%s -i doi-list.txt -o articles.xml
 `
