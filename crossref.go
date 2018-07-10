@@ -1,7 +1,6 @@
 package eprinttools
 
 import (
-	"encoding/json"
 	"fmt"
 	"strings"
 
@@ -33,11 +32,11 @@ func indexInto(m map[string]interface{}, parts ...string) (interface{}, bool) {
 }
 
 // normalizeType converts content type from CrossRef to Authors (e.g.
-// "journal-article" to "Article"
+// "journal-article" to "article"
 func normalizeType(s string) string {
 	switch strings.ToLower(s) {
 	case "journal-article":
-		return "Article"
+		return "article"
 	default:
 		return s
 	}
@@ -60,6 +59,8 @@ func CrossRefWorksToEPrint(obj crossrefapi.Object) (*EPrint, error) {
 			eprint.Title = fmt.Sprintf("%s", a.([]interface{})[0].(string))
 		}
 	}
+	// ShortTitle
+	// SubTitle
 
 	// NOTE: Assuming IsPublished is true given that we're talking to
 	// CrossRef API which holds published content.
@@ -120,7 +121,6 @@ func CrossRefWorksToEPrint(obj crossrefapi.Object) (*EPrint, error) {
 
 	// ISSN
 	if a, ok := indexInto(obj, "message", "ISSN"); ok == true {
-		fmt.Printf("DEBUG ISSN type: %T, %+v\n", a, a)
 		if len(a.([]interface{})) > 0 {
 			eprint.ISSN = fmt.Sprintf("%s", a.([]interface{})[0])
 		}
@@ -161,14 +161,31 @@ func CrossRefWorksToEPrint(obj crossrefapi.Object) (*EPrint, error) {
 		entry.Description = eprint.Type
 		eprint.RelatedURL.AddItem(entry)
 	}
+	if l, ok := indexInto(obj, "message", "update-to"); ok == true {
+		for _, o := range l.([]interface{}) {
+			m := o.(map[string]interface{})
+			if newDoi, ok := indexInto(m, "DOI"); ok == true && newDoi != "" {
+				dt, _ := indexInto(m, "updated", "date-time")
+				when := dt.(string)
+				l, _ := indexInto(m, "label")
+				label := l.(string)
+				if len(when) > 10 {
+					when = when[0:10]
+				}
+				entry := new(Item)
+				entry.Type = "DOI"
+				entry.URL = fmt.Sprintf("https://doi.org/%s", newDoi)
+				entry.Description = fmt.Sprintf("%s, %s", label, when)
+				eprint.RelatedURL.AddItem(entry)
+			}
+		}
+	}
 
 	// RelatedURLs (links in message of CrossRef works object)
 	if l, ok := indexInto(obj, "message", "link"); ok == true {
 		if eprint.RelatedURL == nil {
 			eprint.RelatedURL = new(RelatedURLItemList)
 		}
-		src, _ := json.Marshal(l) // DEBUG
-		fmt.Printf("DEBUG %T -> %s\n", l, src)
 		for _, o := range l.([]interface{}) {
 			entry := new(Item)
 			if s, ok := indexInto(o.(map[string]interface{}), "URL"); ok == true {
