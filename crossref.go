@@ -8,33 +8,10 @@ import (
 	"github.com/caltechlibrary/crossrefapi"
 )
 
-// indexInto takes a map and walks the path and returns a string
-// value and succeess bool, if path not found string value is
-// an empty string and bool is false.
-func indexInto(m map[string]interface{}, parts ...string) (interface{}, bool) {
-	switch len(parts) {
-	case 0:
-		return "", false
-	case 1:
-		if val, ok := m[parts[0]]; ok == true {
-			return val, true
-		}
-		return "", false
-	default:
-		if val, ok := m[parts[0]]; ok == true {
-			switch val.(type) {
-			case map[string]interface{}:
-				return indexInto(val.(map[string]interface{}), parts[1:]...)
-			}
-		}
-		return "", false
-	}
-}
-
-// normalizeLocalGroup takes an affiliation from CrossRef author
+// normalizeCrossRefToLocalGroup takes an affiliation from CrossRef author
 // and attempts to determine if it is a Caltech Group and returns
 // the normalized name or an empty string.
-func normalizeLocalGroup(s string) string {
+func normalizeCrossRefToLocalGroup(s string) string {
 	s = strings.ToLower(s)
 	switch {
 	case strings.Contains(s, "california institute of technology"):
@@ -62,9 +39,9 @@ func normalizeLocalGroup(s string) string {
 	return ""
 }
 
-// normalizeType converts content type from CrossRef to Authors (e.g.
+// normalizeCrossRefType converts content type from CrossRef to Authors (e.g.
 // "journal-article" to "article"
-func normalizeType(s string) string {
+func normalizeCrossRefType(s string) string {
 	switch strings.ToLower(s) {
 	case "proceedings-article":
 		//NOTE: This seems vary idiosyncratic to CaltechAUTHORS
@@ -83,7 +60,7 @@ func CrossRefWorksToEPrint(obj crossrefapi.Object) (*EPrint, error) {
 	eprint := new(EPrint)
 	// Type
 	if s, ok := indexInto(obj, "message", "type"); ok == true {
-		eprint.Type = normalizeType(fmt.Sprintf("%s", s))
+		eprint.Type = normalizeCrossRefType(fmt.Sprintf("%s", s))
 	} else {
 		return nil, fmt.Errorf("Can't find type in object")
 	}
@@ -264,7 +241,7 @@ func CrossRefWorksToEPrint(obj crossrefapi.Object) (*EPrint, error) {
 				for _, affiliation := range affiliations.([]interface{}) {
 					if s, ok := indexInto(affiliation.(map[string]interface{}), "name"); ok == true {
 						group := new(Item)
-						group.Value = normalizeLocalGroup(s.(string))
+						group.Value = normalizeCrossRefToLocalGroup(s.(string))
 						if group.Value != "" {
 							localGroups.AddItem(group)
 						}

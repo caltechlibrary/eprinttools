@@ -1,12 +1,12 @@
 {
     "@context": "https://doi.org/10.5063/schema/codemeta-2.0",
     "@type": "SoftwareSourceCode",
-    "description": "A command line tools, package and Python module for working with the EPrints 3.x REST API",
+    "description": "Command line tools, Golang package and Python module for working with the EPrints 3.x REST API",
     "name": "eprinttools",
     "codeRepository": "https://github.com/caltechlibrary/eprinttools",
     "issueTracker": "https://github.com/caltechlibrary/eprinttools/issues",
     "license": "https://caltechlibrary.github.io/eprinttools/license.html",
-    "version": "0.0.16",
+    "version": "0.0.17",
     "author": [
         {
             "@type": "Person",
@@ -18,12 +18,14 @@
         }
     ],
     "developmentStatus": "active",
-    "downloadUrl": "https://github.com/caltechlibrary/eprinttools/archive/v0.0.16.zip",
+    "downloadUrl": "https://github.com/caltechlibrary/eprinttools/release/latest",
     "keywords": [
         "GitHub",
         "metadata",
         "repository",
         "EPrints",
+        "CrossRef",
+        "DataCite",
         "software"
     ],
     "maintainer": "https://orcid.org/0000-0003-0900-6903",
