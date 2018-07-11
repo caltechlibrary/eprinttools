@@ -7,6 +7,7 @@
 
 ## Next
 
++ [ ] Implement a DOI to EPrintXML cli (e.g. api.crossref.org, api.datacite.org)
 + [ ] Add write support to ep cli so we can full circle data from other sources into EPrints
     + e.g. find an author with an ORCID and propogate the ORCID to all other occurrences of the author
     + e.g. take a relative link of type "DOI" and populate the DOI field (without the URL prefix)

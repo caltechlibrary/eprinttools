@@ -125,7 +125,7 @@ func DataCiteWorksToEPrint(obj dataciteapi.Object) (*EPrint, error) {
 		eprint.Title = fmt.Sprintf("%s", s)
 	}
 
-	// publisher
+	// Publisher
 	if s, ok := indexInto(obj, "data", "attributes", "publisher"); ok == true {
 		eprint.Publisher = fmt.Sprintf("%s", s)
 	}
