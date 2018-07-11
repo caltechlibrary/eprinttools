@@ -58,9 +58,9 @@ Example generating an EPrintsXML for two DOI
 	%s "10.1021/acsami.7b15651" "10.1093/mnras/stu2495" > articles.xml
 
 Example processing a list of DOIs in a text file into
-an XML document called "articles.xml".
+an XML document called "import-articles.xml".
 
-	%s -i doi-list.txt -o articles.xml
+	%s -i doi-list.txt -o import-articles.xml
 `
 
 	license = `
