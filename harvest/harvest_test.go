@@ -16,44 +16,40 @@
 //
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-package eprinttools
+package harvest
 
 import (
 	"os"
 	"testing"
 
 	// CaltechLibrary packages
-	"github.com/caltechlibrary/dataset"
+	"github.com/caltechlibrary/eprinttools"
+	//"github.com/caltechlibrary/dataset"
 )
 
 var recordCount = 1024
 
 func TestHarvest(t *testing.T) {
-	api, err := New(cfg)
+	eprintURL := os.Getenv("EP_EPRINT_URL")
+	datasetName := os.Getenv("EP_DATASET")
+	if len(eprintURL) == 0 || len(datasetName) == 0 {
+		t.Log("Skipping TestHarvest, environment not setup")
+		t.SkipNow()
+	}
+	suppressNote := true
+
+	api, err := eprinttools.New(eprintURL, datasetName, suppressNote, "", "", "")
 	if err != nil {
 		t.Errorf("Cannot create a new API instance %q", err)
 		t.FailNow()
 	}
-	api.Dataset = "dataset/testdata"
-	if _, err = os.Stat(api.Dataset); os.IsNotExist(err) {
-		_, err = dataset.Create(api.Dataset, dataset.GenerateBucketNames(dataset.DefaultAlphabet, 2))
-		if err != nil {
-			t.Errorf("Can't create %s, %s", api.Dataset, err)
-			t.FailNow()
-		}
+	if api.Dataset == "" {
+		t.Errorf("api.Dataset not set, expected %q", datasetName)
+		t.FailNow()
 	}
 
-	api.Htdocs = "testsite"
-	_, err = os.Stat(api.Htdocs)
-	if err != nil && os.IsNotExist(err) == true {
-		err = os.Mkdir(api.Htdocs, 0770)
-		if err != nil {
-			t.Errorf("Cannot create %s %q", api.Htdocs, err)
-			t.FailNow()
-		}
-	}
-
-	err = api.ExportEPrints(recordCount)
+	// Skip, this needs to evolve to the new data structure
+	err = ExportEPrints(api, recordCount, api.Dataset+".keys", true)
 	if err != nil {
 		t.Errorf("Cannot harvest for test site %q", err)
 		t.FailNow()

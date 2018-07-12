@@ -19,39 +19,39 @@
 package eprinttools
 
 import (
-	"log"
 	"os"
 	"testing"
 	"time"
-
-	// Caltech Library packages
-	"github.com/caltechlibrary/cli"
 )
 
-// cfg is configuration to access the EPrints REST API for tests
-var (
-	cfg *cli.Config
-)
+func TestListEPrintsURI(t *testing.T) {
+	eprintURL := os.Getenv("EPRINT_URL")
+	datasetName := os.Getenv("DATASET")
+	if len(eprintURL) == 0 || len(datasetName) == 0 {
+		t.Log("Skipping TestListEPrintsURI(), environment not set")
+		t.SkipNow()
+	}
+	suppressNote := true
 
-func TestListEPrintURI(t *testing.T) {
-	_, err := ListEPrintURI()
+	api, err := New(eprintURL, datasetName, suppressNote, "", "", "")
+	if err != nil {
+		t.Errorf("Failed to create new api, %s", err)
+		t.FailNow()
+	}
+
+	_, err = api.ListEPrintsURI()
+	if err != nil {
+		t.Errorf("listEPrintsURI() %s", err)
+	}
+
+	start, _ := time.Parse("2006-01-02", "2016-01-01")
+	end, _ := time.Parse("2006-01-02", "2018-02-06")
+	uris, err := api.ListModifiedEPrintURI(start, end, true)
 	if err != nil {
 		t.Errorf("listEPrintURI() %s", err)
 	}
-
-	start, _ := time.Parse("2006-01-02", "2017-06-01")
-	end, _ := time.Parse("2006-01-02", "2017-06-02")
-	uris, err := ListModifiedEPrintURI(start, end)
-	if err != nil {
-		t.Errorf("listEPrintURI() %s", err)
+	if len(uris) == 0 {
+		t.Errorf("Expected more uris, got %d", len(uris))
 	}
-	log.Printf("DEBUG uri: %+v\n", uris)
-}
-
-func TestMain(m *testing.M) {
-	cfg = cli.New("ep", "EP", "", Version)
-	cfg.MergeEnv("eprint_url", "")
-	cfg.MergeEnv("dataset", "")
-	cfg.MergeEnv("htdocs", "")
-	os.Exit(m.Run())
+	//log.Printf("DEBUG uri: %+v\n", uris)
 }

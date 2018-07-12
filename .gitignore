@@ -2,6 +2,8 @@
 *.o
 *.a
 *.so
+*.dll
+*.dylib
 
 # Folders
 _obj
@@ -51,5 +53,14 @@ dist/*
 *.csv
 *.dat
 *gz
-CaltechTHESIS/*
-CaltechAUTHORS/*
+scratch/*
+*.dataset
+*.ds
+build
+__pycache__
+*.h
+py/files.txt
+py/MANIFEST
+dist
+eprinttools.egg-info
+

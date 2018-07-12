@@ -15,19 +15,19 @@ function makePage() {
 }
 
 # index.html
-makePage "ep" README.md nav.md index.html
+makePage "eprinttools" README.md nav.md index.html
 
 # install.html
-makePage "ep" INSTALL.md nav.md install.html
+makePage "eprinttools" INSTALL.md nav.md install.html
 
 # license.html
-makePage "ep" "markdown:$(cat LICENSE)" nav.md license.html
+makePage "eprinttools" "markdown:$(cat LICENSE)" nav.md license.html
 
 # Add the files to git as needed
 git add index.html install.html license.html
 
 # Loop through commands docs
-for FNAME in ep; do
-	makePage "ep" docs/$FNAME.md docs/nav.md docs/$FNAME.html
+for FNAME in index ep eputil; do
+	makePage "eprinttools" docs/$FNAME.md docs/nav.md docs/$FNAME.html
 	git add docs/$FNAME.md docs/$FNAME.html
 done

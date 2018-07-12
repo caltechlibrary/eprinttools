@@ -1,63 +1,92 @@
 
-# ep
+# USAGE
 
-## USAGE 
-
-    ep [OPTIONS] [EP_EPRINTS_URL|ONE_OR_MORE_EPRINT_ID]
+	ep [OPTIONS] [EPRINT_URL] [ONE_OR_MORE_EPRINT_ID]
 
 ## SYNOPSIS
 
-ep wraps the REST API for EPrints 3.3 or better. It can return a list 
-of uri, a JSON view of the XML presentation as well as generates feeds 
-and web pages.
 
-## CONFIGURATION
+ep uses the REST API for EPrints 3.x to harvest EPrints content into
+a dataset collection. If you don't need dataset integration use eputil 
+instead. If you want to view  the harvested content then use the
+dataset command.
+
+CONFIGURATION
 
 ep can be configured with following environment variables
 
-+ EP_EPRINTS_URL the URL to your EPrints installation
-+ EP_DATASET the dataset and collection name for exporting, site building, and content retrieval
+EPRINT_URL the URL to your EPrints installation
+
+DATASET the dataset collection name to use for storing your harvested EPrint content.
+
+
+## ENVIRONMENT
+
+Environment variables can be overridden by corresponding options
+
+```
+    DATASET      # Sets the dataset collection for storing EPrint harvested records
+    EPRINT_URL   # Sets the EPRints API URL
+```
 
 ## OPTIONS
 
+Options will override any corresponding environment settings.
+
 ```
-	-api	url for EPrints API
-	-auth	set the authentication method (e.g. none, basic, oauth, shib)
-	-dataset	dataset/collection name
-	-export	export N EPrints from highest ID to lowest
-	-export-since	export  EPrints from a given date to present (e.g. 2017-07-01)
-	-h	display help
-	-help	display help
-	-l	display license
-	-license	display license
-	-o	output filename (logging)
-	-output	output filename (logging)
-	-p	pretty print JSON output
-	-pretty	pretty print JSON output
-	-pw	set the password
-	-read-api	read the contents from the API without saving in the database
-	-un	set the username
-	-updated-since	list EPrint IDs updated since a given date (e.g 2017-07-01)
-	-username	set the username
-	-v	display version
-	-version	display version
+    -api                      url for EPrints API
+    -auth                     set the authentication method (e.g. none, basic, oauth, shib)
+    -dataset                  dataset collection name
+    -examples                 display example(s)
+    -export                   export N EPrints from highest ID to lowest
+    -export-keys              export a comma delimited list of EPrint keys
+    -export-modified          export records by date or date range (e.g. 2017-07-01)
+    -export-save-keys         save the keys exported in a file with provided filename
+    -generate-markdown-docs   generation markdown documentation
+    -h, -help                 display help
+    -l, -license              display license
+    -nl, -newline             set to false to exclude trailing newline
+    -o, -output               output filename
+    -p, -pretty               pretty print JSON output
+    -pw, -password            set the password
+    -quiet                    suppress error output
+    -read-api                 read the contents from the API without saving in the database
+    -un, -username            set the username
+    -updated-since            list EPrint IDs updated since a given date (e.g 2017-07-01)
+    -v, -version              display version
+    -verbose                  verbose logging
 ```
 
 
-## EXAMPLE
+## EXAMPLES
 
-```shell
+
+Save a list the URI end points for eprint records found at EPRINT_URL.
+
+	ep -o uris.txt
+
+Export the entire EPrints repository public content defined by the
+environment variables EPRINT_URL, DATASET.
+
     ep -export all
-```
 
-Would export the entire EPrints repository public content defined by the
-environment virables EP_API_URL, EP_DATASET.
+Export 2000 EPrints from the repository with the heighest ID values.
 
-```shell
     ep -export 2000
-```
 
-Would export 2000 EPrints from the repository with the heighest ID values.
+Export the EPrint records modified since July 1, 2017.
+
+    ep -export-modified 2017-07-01
+
+Explore a specific listof keys (e.g. "101,102,1304")
+
+	ep -export-keys "101,102,1304"
+
+Export the EPrint records with modified times in July 2017 and
+save the keys for the records exported with one key per line. 
+
+    ep -export-modified 2017-07-01,2017-07-31 \
+       -export-save-keys=july-keys.txt 
 
 
-ep v0.0.10-beta2
+ep v0.0.13-dev

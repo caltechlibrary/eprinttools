@@ -22,4 +22,4 @@
 # m h  dom mon dow   command
 0 3 * * 1 /Sites/eprints.example.edu/scripts/harvest-full.bash &> /Sites/eprints.example.edu/lgs/update.log
 0 3 * * 2-7 /Sites/eprints.example.edu/scripts/harvest-daily.bash &> /Sites/eprints.example.edu/lgs/update.log
-`
+
