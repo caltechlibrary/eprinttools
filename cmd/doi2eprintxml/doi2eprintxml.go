@@ -198,8 +198,7 @@ func main() {
 	}
 
 	//NOTE: need to support processing one or more DOI
-	for i, doi := range args {
-		fmt.Printf("DEBUG trying CrossRef\n")
+	for _, doi := range args {
 		obj, err := apiCrossRef.Works(doi)
 		if apiCrossRef.StatusCode == 200 {
 			if err != nil {
@@ -207,18 +206,13 @@ func main() {
 				os.Exit(1)
 			}
 			// NOTE: First we see if we can get a CrossRef record
-			fmt.Printf("DEBUG CrossRef OK\n")
 			eprint, err := eprinttools.CrossRefWorksToEPrint(obj)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "%s\n", err)
 				os.Exit(1)
 			}
-			j := eprintsList.AddEPrint(eprint)
-			if (i + 1) != j {
-				fmt.Fprintf(os.Stderr, "DEBUG count doesn't match: i (%d) != j (%d)\n", i, j)
-			}
+			eprintsList.AddEPrint(eprint)
 		} else {
-			fmt.Printf("DEBUG trying DataCite\n")
 			// NOTE: We try DataCite's API as a fallback...
 			obj, err := apiDataCite.Works(doi)
 			if apiDataCite.StatusCode == 200 {
@@ -226,16 +220,12 @@ func main() {
 					fmt.Fprintf(os.Stderr, "%s\n", err)
 					os.Exit(1)
 				}
-				fmt.Printf("DEBUG DataCite OK\n")
 				eprint, err := eprinttools.DataCiteWorksToEPrint(obj)
 				if err != nil {
 					fmt.Fprintf(os.Stderr, "%s\n", err)
 					os.Exit(1)
 				}
-				j := eprintsList.AddEPrint(eprint)
-				if (i + 1) != j {
-					fmt.Fprintf(os.Stderr, "DEBUG count doesn't match: i (%d) != j (%d)\n", i, j)
-				}
+				eprintsList.AddEPrint(eprint)
 			}
 		}
 	}
