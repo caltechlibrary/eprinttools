@@ -161,7 +161,7 @@ func DataCiteWorksToEPrint(obj dataciteapi.Object) (*EPrint, error) {
 	// the related url item list)
 	// DOI
 	if doi, ok := indexInto(obj, "data", "attributes"); ok == true {
-		eprint.RelateURL = new(RelatedURLItemList)
+		eprint.RelatedURL = new(RelatedURLItemList)
 		entry := new(Item)
 		entry.Type = "DOI"
 		entry.URL = fmt.Sprintf("https://doi.org/%s", doi)
