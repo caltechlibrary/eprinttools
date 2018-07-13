@@ -102,7 +102,7 @@ distribute_docs:
 	cp -vR scripts/* dist/scripts/
 	cp -vR etc/*-example dist/etc/
 	./package-versions.bash > dist/package-versions.txt
-	cd py && $(MAKE) release
+	#cd py && $(MAKE) release
 
 release: distribute_docs dist/linux-amd64 dist/windows-amd64 dist/macosx-amd64 dist/raspbian-arm7
 
