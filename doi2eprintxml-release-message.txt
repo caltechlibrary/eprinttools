@@ -1,0 +1,29 @@
+Good Morning everyone,
+
+I have a working command line tool that will queries both CrossRef and DataCite and generates an EPrint XML document suitable for importing into EPrints. I will continue testing today and have a release ready Monday for installation.
+
+The application is a command line program. It will run on will run on Mac OS X, Windows, and Linux (both Intel and ARM). The tool is tailored to
+CaltechAUTHOR's data practices as opposed to the general EPrints' community mappings (e.g. DOI are in the related URL field not in the DOI field). I am picking up more data than the old DOI import plugin because I am using CrossRef's and DataCite's newer public API. An example is CrossRef funder information is now being picked up.
+
+I have hooks for adding some additional data interpretation. But they are currently turned off. Depending on feed back I think we can implement
+Local Group detection (from affiliation values), improved name normalization and possibly Keyword generation.
+
+Outstanding Data issues:
+
+* Subtitles aren't populated from either CrossRef or DataCite metadata
+* Abstracts aren't populated from CrossRef metadata
+* Keywords aren't identified from CrossRef or DataCite metadata
+* Local Group identification
+* Publisher, Publication, Series and Volume could be better mapped normalized
+* Name detection and mapping could be improve (e.g. detecting Corporate authors versus individuals)
+
+
+Roadmap:
+
+* Add "Local Groups" detection
+* Add EPrint Author IDs mapping for exact author/orcid matches
+* Integration of other data sources (e.g. Dimensions data to identify which individuals are "Caltech" or integrating with our Caltech Directory person harvest)
+
+thanks,
+
+Robert

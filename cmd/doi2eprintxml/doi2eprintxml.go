@@ -38,17 +38,17 @@ import (
 
 var (
 	description = `
-%s is a Caltech Library centric application that 
-takes a one or more DOI, queries the CrossRef API
-and if that fails the DataCite API and returns an 
+%s is a Caltech Library centric application that
+takes one or more DOI, queries the CrossRef API
+and if that fails the DataCite API and returns an
 EPrints XML document suitable for import into
-EPrints. The DOI can be in either their canonical 
-form or URL form (e.g. "10.1021/acsami.7b15651" or 
+EPrints. The DOI can be in either their canonical
+form or URL form (e.g. "10.1021/acsami.7b15651" or
 "https://doi.org/10.1021/acsami.7b15651").
 
 `
 
-	example = `
+	examples = `
 Example generating an EPrintsXML for one DOI
 
 	%s "10.1021/acsami.7b15651" > article.xml
@@ -92,6 +92,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 	// App specific options
 	apiEPrintsURL string
 	mailto        string
+	crossrefOnly  bool
+	dataciteOnly  bool
 )
 
 func main() {
@@ -104,6 +106,7 @@ func main() {
 		[]byte(fmt.Sprintf(eprinttools.LicenseText,
 			appName, eprinttools.Version)))
 	app.AddHelp("description", []byte(fmt.Sprintf(description, appName)))
+	app.AddHelp("examples", []byte(fmt.Sprintf(examples, appName, appName, appName)))
 
 	// Standard Options
 	app.BoolVar(&showHelp, "h,help", false, "display help")
@@ -116,6 +119,8 @@ func main() {
 
 	// Application Options
 	app.StringVar(&apiEPrintsURL, "eprints-url", "", "Sets the EPRints API URL")
+	app.BoolVar(&crossrefOnly, "c,crossref", false, "only search CrossRef API for DOI records")
+	app.BoolVar(&dataciteOnly, "d,datacite", false, "only search DataCite API for DOI records")
 
 	//FIXME: Need to come up with a better way of setting this,
 	// perhaps a config mode and save the setting in
@@ -199,33 +204,80 @@ func main() {
 
 	//NOTE: need to support processing one or more DOI
 	for _, doi := range args {
-		obj, err := apiCrossRef.Works(doi)
-		if apiCrossRef.StatusCode == 200 {
+		switch {
+		case crossrefOnly:
+			obj, err := apiCrossRef.Works(doi)
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "%s\n", err)
+				fmt.Fprintf(os.Stderr, "ERROR (CrossRef API) %q, %s\n", doi, err)
 				os.Exit(1)
 			}
-			// NOTE: First we see if we can get a CrossRef record
-			eprint, err := eprinttools.CrossRefWorksToEPrint(obj)
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "%s\n", err)
-				os.Exit(1)
-			}
-			eprintsList.AddEPrint(eprint)
-		} else {
-			// NOTE: We try DataCite's API as a fallback...
-			obj, err := apiDataCite.Works(doi)
-			if apiDataCite.StatusCode == 200 {
+			if apiCrossRef.StatusCode == 200 {
+				// NOTE: First we see if we can get a CrossRef record
+				eprint, err := eprinttools.CrossRefWorksToEPrint(obj)
 				if err != nil {
-					fmt.Fprintf(os.Stderr, "%s\n", err)
-					os.Exit(1)
+					fmt.Fprintf(os.Stderr, "ERROR (CrossRef to EPrintXML): skipping %q, %s\n", doi, err)
+				} else {
+					eprintsList.AddEPrint(eprint)
 				}
+			} else {
+				fmt.Fprintf(os.Stderr, "WARNING (CrossRef API): %q, %s\n", doi, apiCrossRef.Status)
+			}
+		case dataciteOnly:
+			obj, err := apiDataCite.Works(doi)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "ERROR (DataCite API): %q, %s\n", err)
+				os.Exit(1)
+			}
+			if apiDataCite.StatusCode == 200 {
 				eprint, err := eprinttools.DataCiteWorksToEPrint(obj)
 				if err != nil {
-					fmt.Fprintf(os.Stderr, "%s\n", err)
+					fmt.Fprintf(os.Stderr, "ERROR (DataCite to EPrintXML): skipping %q, %s\n", doi, err)
+				} else {
+					eprintsList.AddEPrint(eprint)
+				}
+			} else {
+				fmt.Fprintf(os.Stderr, "WARNING (DataCite API): %q, %s\n", doi, apiDataCite.Status)
+			}
+		default:
+			// NOTE: just done for readability for flagging failed lookups
+			isCrossRefDOI := false
+			isDataCiteDOI := false
+
+			obj, err := apiCrossRef.Works(doi)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "ERROR (CrossRef API): %q, %s\n", doi, err)
+				os.Exit(1)
+			}
+			if apiCrossRef.StatusCode == 200 {
+				isCrossRefDOI = true
+				// NOTE: First we see if we can get a CrossRef record
+				eprint, err := eprinttools.CrossRefWorksToEPrint(obj)
+				if err != nil {
+					fmt.Fprintf(os.Stderr, "ERROR (CrossRef to EPrintXML): skipping %q, %s\n", doi, err)
+				} else {
+					eprintsList.AddEPrint(eprint)
+				}
+			}
+
+			// NOTE: We try DataCite's API as a fallback when CrossRef fials...
+			if isCrossRefDOI == false {
+				obj, err := apiDataCite.Works(doi)
+				if err != nil {
+					fmt.Fprintf(os.Stderr, "ERROR (DataCite API): %q, %s\n", doi, err)
 					os.Exit(1)
 				}
-				eprintsList.AddEPrint(eprint)
+				if apiDataCite.StatusCode == 200 {
+					isDataCiteDOI = true
+					eprint, err := eprinttools.DataCiteWorksToEPrint(obj)
+					if err != nil {
+						fmt.Fprintf(os.Stderr, "ERROR (DataCite to EPrintXML): skipping %q, %s\n", doi, err)
+					} else {
+						eprintsList.AddEPrint(eprint)
+					}
+				}
+			}
+			if isCrossRefDOI == false && isDataCiteDOI == false {
+				fmt.Fprintf(os.Stderr, "WARNING: %s not found in CrossRef or DataCite API lookup")
 			}
 		}
 	}
