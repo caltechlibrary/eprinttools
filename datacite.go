@@ -108,6 +108,9 @@ func normalizeDataCiteType(s string) string {
 // and maps the fields into an EPrint struct return a new struct or
 // error.
 func DataCiteWorksToEPrint(obj dataciteapi.Object) (*EPrint, error) {
+	if obj == nil {
+		return nil, fmt.Errorf("Nothing to convert")
+	}
 	eprint := new(EPrint)
 	// Type
 	if s, ok := indexInto(obj, "data", "attributes", "resource-type-id"); ok == true {
@@ -160,7 +163,7 @@ func DataCiteWorksToEPrint(obj dataciteapi.Object) (*EPrint, error) {
 	// EPrints' standard DOI location (i.e. not in eprint.DOI but in
 	// the related url item list)
 	// DOI
-	if doi, ok := indexInto(obj, "data", "attributes"); ok == true {
+	if doi, ok := indexInto(obj, "data", "attributes", "doi"); ok == true {
 		eprint.RelatedURL = new(RelatedURLItemList)
 		entry := new(Item)
 		entry.Type = "DOI"
@@ -213,7 +216,7 @@ func DataCiteWorksToEPrint(obj dataciteapi.Object) (*EPrint, error) {
 	// Abstract
 	//FIXME: Need to find value in DataCite works metadata for this
 	if s, ok := indexInto(obj, "data", "attributes", "description"); ok == true {
-		eprint.Abstract = fmt.Sprint("%s", s)
+		eprint.Abstract = fmt.Sprintf("%s", s)
 	}
 
 	// Refereed
