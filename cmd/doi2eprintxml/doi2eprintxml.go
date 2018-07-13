@@ -39,7 +39,7 @@ import (
 var (
 	description = `
 %s is a Caltech Library centric application that
-takes a one or more DOI, queries the CrossRef API
+takes one or more DOI, queries the CrossRef API
 and if that fails the DataCite API and returns an
 EPrints XML document suitable for import into
 EPrints. The DOI can be in either their canonical
@@ -48,7 +48,7 @@ form or URL form (e.g. "10.1021/acsami.7b15651" or
 
 `
 
-	example = `
+	examples = `
 Example generating an EPrintsXML for one DOI
 
 	%s "10.1021/acsami.7b15651" > article.xml
@@ -106,6 +106,7 @@ func main() {
 		[]byte(fmt.Sprintf(eprinttools.LicenseText,
 			appName, eprinttools.Version)))
 	app.AddHelp("description", []byte(fmt.Sprintf(description, appName)))
+	app.AddHelp("examples", []byte(fmt.Sprintf(examples, appName, appName, appName)))
 
 	// Standard Options
 	app.BoolVar(&showHelp, "h,help", false, "display help")

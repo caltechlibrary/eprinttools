@@ -70,4 +70,4 @@ Get a JSON array of eprint ids from the REST API
     eputil -get https://eprints.example.org/rest/eprint/ -ids
 
 
-eputil v0.0.13-dev
+eputil v0.0.17
