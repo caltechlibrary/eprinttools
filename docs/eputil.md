@@ -6,8 +6,8 @@
 ## SYNOPSIS
 
 
-	eputil parses XML content retrieved from disc or the EPrints API. It will 
-	render JSON if the XML is valid otherwise return errors.
+eputil parses XML content retrieved from disc or the EPrints API. It will 
+render JSON if the XML is valid otherwise return errors.
 
 
 ## ENVIRONMENT
@@ -51,23 +51,32 @@ Options will override any corresponding environment settings.
 
 Fetch an EPrints document as JSON from a URL for an EPrint with an id of 123
 
+```shell
     eputil -get https://eprints.example.org/rest/eprint/123.xml -json
+```
 
 Fetch an EPrints document as XML from a URL for an EPrint with an id of 123
 
+```shell
     eputil -get https://eprints.example.org/rest/eprint/123.xml
+```
 
 Fetch the creators.xml as JSON for an EPrint with the id of 123.
 
+```shell
     eputil -get https://eprints.example.org/rest/eprint/123/creators.xml -json
+```
 
 Parse an EPrint reversion XML document
 
+```shell
     eputil -i revision/2.xml -eprint
+```
 
 Get a JSON array of eprint ids from the REST API
 
+```shell
     eputil -get https://eprints.example.org/rest/eprint/ -ids
+```
 
-
-eputil v0.0.17
+eputil v0.0.18

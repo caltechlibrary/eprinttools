@@ -11,13 +11,12 @@ a dataset collection. If you don't need dataset integration use eputil
 instead. If you want to view  the harvested content then use the
 dataset command.
 
-CONFIGURATION
+## CONFIGURATION
 
 ep can be configured with following environment variables
 
-EPRINT_URL the URL to your EPrints installation
-
-DATASET the dataset collection name to use for storing your harvested EPrint content.
++ EPRINT_URL the URL to your EPrints installation
++ DATASET the dataset collection name to use for storing your harvested EPrint content.
 
 
 ## ENVIRONMENT
@@ -63,30 +62,41 @@ Options will override any corresponding environment settings.
 
 Save a list the URI end points for eprint records found at EPRINT_URL.
 
+```shell
 	ep -o uris.txt
+```
 
 Export the entire EPrints repository public content defined by the
 environment variables EPRINT_URL, DATASET.
 
+```shell
     ep -export all
+```
 
 Export 2000 EPrints from the repository with the heighest ID values.
 
+```shell
     ep -export 2000
+```
 
 Export the EPrint records modified since July 1, 2017.
 
+```shell
     ep -export-modified 2017-07-01
+```
 
 Explore a specific listof keys (e.g. "101,102,1304")
 
+```shell
 	ep -export-keys "101,102,1304"
+```
 
 Export the EPrint records with modified times in July 2017 and
 save the keys for the records exported with one key per line. 
 
+```shell
     ep -export-modified 2017-07-01,2017-07-31 \
        -export-save-keys=july-keys.txt 
+```
 
-
-ep v0.0.17
+ep v0.0.18

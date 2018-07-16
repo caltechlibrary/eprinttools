@@ -34,13 +34,14 @@ a dataset collection. If you don&rsquo;t need dataset integration use eputil
 instead. If you want to view  the harvested content then use the
 dataset command.</p>
 
-<p>CONFIGURATION</p>
+<h2>CONFIGURATION</h2>
 
 <p>ep can be configured with following environment variables</p>
 
-<p>EPRINT_URL the URL to your EPrints installation</p>
-
-<p>DATASET the dataset collection name to use for storing your harvested EPrint content.</p>
+<ul>
+<li>EPRINT_URL the URL to your EPrints installation</li>
+<li>DATASET the dataset collection name to use for storing your harvested EPrint content.</li>
+</ul>
 
 <h2>ENVIRONMENT</h2>
 
@@ -81,38 +82,38 @@ dataset command.</p>
 
 <p>Save a list the URI end points for eprint records found at EPRINT_URL.</p>
 
-<pre><code>ep -o uris.txt
+<pre><code class="language-shell">	ep -o uris.txt
 </code></pre>
 
 <p>Export the entire EPrints repository public content defined by the
 environment variables EPRINT_URL, DATASET.</p>
 
-<pre><code>ep -export all
+<pre><code class="language-shell">    ep -export all
 </code></pre>
 
 <p>Export 2000 EPrints from the repository with the heighest ID values.</p>
 
-<pre><code>ep -export 2000
+<pre><code class="language-shell">    ep -export 2000
 </code></pre>
 
 <p>Export the EPrint records modified since July 1, 2017.</p>
 
-<pre><code>ep -export-modified 2017-07-01
+<pre><code class="language-shell">    ep -export-modified 2017-07-01
 </code></pre>
 
 <p>Explore a specific listof keys (e.g. &ldquo;101,102,1304&rdquo;)</p>
 
-<pre><code>ep -export-keys &quot;101,102,1304&quot;
+<pre><code class="language-shell">	ep -export-keys &quot;101,102,1304&quot;
 </code></pre>
 
 <p>Export the EPrint records with modified times in July 2017 and
 save the keys for the records exported with one key per line.</p>
 
-<pre><code>ep -export-modified 2017-07-01,2017-07-31 \
-   -export-save-keys=july-keys.txt 
+<pre><code class="language-shell">    ep -export-modified 2017-07-01,2017-07-31 \
+       -export-save-keys=july-keys.txt 
 </code></pre>
 
-<p>ep v0.0.17</p>
+<p>ep v0.0.18</p>
 
 </section>
 
