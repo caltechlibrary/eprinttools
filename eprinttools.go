@@ -39,13 +39,13 @@ import (
 
 const (
 	// Version is the revision number for this implementation of epgo
-	Version = `v0.0.17`
+	Version = `v0.0.18`
 
 	// LicenseText holds the string for rendering License info on the command line
 	LicenseText = `
 %s %s
 
-Copyright (c) 2017, Caltech
+Copyright (c) 2018, Caltech
 All rights not granted herein are expressly reserved by Caltech.
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:

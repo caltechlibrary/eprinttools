@@ -29,9 +29,8 @@
 
 <h2>SYNOPSIS</h2>
 
-<pre><code>eputil parses XML content retrieved from disc or the EPrints API. It will 
-render JSON if the XML is valid otherwise return errors.
-</code></pre>
+<p>eputil parses XML content retrieved from disc or the EPrints API. It will
+render JSON if the XML is valid otherwise return errors.</p>
 
 <h2>ENVIRONMENT</h2>
 
@@ -70,35 +69,35 @@ render JSON if the XML is valid otherwise return errors.
 
 <p>Fetch an EPrints document as JSON from a URL for an EPrint with an id of 123</p>
 
-<pre><code>eputil -get https://eprints.example.org/rest/eprint/123.xml -json
+<pre><code class="language-shell">    eputil -get https://eprints.example.org/rest/eprint/123.xml -json
 </code></pre>
 
 <p>Fetch an EPrints document as XML from a URL for an EPrint with an id of 123</p>
 
-<pre><code>eputil -get https://eprints.example.org/rest/eprint/123.xml
+<pre><code class="language-shell">    eputil -get https://eprints.example.org/rest/eprint/123.xml
 </code></pre>
 
 <p>Fetch the creators.xml as JSON for an EPrint with the id of 123.</p>
 
-<pre><code>eputil -get https://eprints.example.org/rest/eprint/123/creators.xml -json
+<pre><code class="language-shell">    eputil -get https://eprints.example.org/rest/eprint/123/creators.xml -json
 </code></pre>
 
 <p>Parse an EPrint reversion XML document</p>
 
-<pre><code>eputil -i revision/2.xml -eprint
+<pre><code class="language-shell">    eputil -i revision/2.xml -eprint
 </code></pre>
 
 <p>Get a JSON array of eprint ids from the REST API</p>
 
-<pre><code>eputil -get https://eprints.example.org/rest/eprint/ -ids
+<pre><code class="language-shell">    eputil -get https://eprints.example.org/rest/eprint/ -ids
 </code></pre>
 
-<p>eputil v0.0.17</p>
+<p>eputil v0.0.18</p>
 
 </section>
 
 <footer>
-<span>&copy; 2017 <a href="https://www.library.caltech.edu/copyright">Caltech Library</a></span>
+<span>&copy; 2018 <a href="https://www.library.caltech.edu/copyright">Caltech Library</a></span>
 <address>1200 E California Blvd, Mail Code 1-32, Pasadena, CA 91125-3200</address>
 <span><a href="mailto:library@caltech.edu">Email Us</a></span> 
 <span>Phone: <a href="tel:+1-626-395-3405">(626)395-3405</a></span>

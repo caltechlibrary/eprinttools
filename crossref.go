@@ -48,6 +48,8 @@ func normalizeCrossRefType(s string) string {
 		return "book_section"
 	case "journal-article":
 		return "article"
+	case "book-chapter":
+		return "book_section"
 	default:
 		return s
 	}
@@ -174,7 +176,7 @@ func CrossRefWorksToEPrint(obj crossrefapi.Object) (*EPrint, error) {
 	if doi, ok := indexInto(obj, "message", "DOI"); ok == true {
 		eprint.RelatedURL = new(RelatedURLItemList)
 		entry := new(Item)
-		entry.Type = "DOI"
+		entry.Type = "doi"
 		entry.URL = fmt.Sprintf("https://doi.org/%s", doi)
 		entry.Description = eprint.Type
 		eprint.RelatedURL.AddItem(entry)
@@ -191,7 +193,7 @@ func CrossRefWorksToEPrint(obj crossrefapi.Object) (*EPrint, error) {
 					when = when[0:10]
 				}
 				entry := new(Item)
-				entry.Type = "DOI"
+				entry.Type = "doi"
 				entry.URL = fmt.Sprintf("https://doi.org/%s", newDoi)
 				entry.Description = fmt.Sprintf("%s, %s", label, when)
 				eprint.RelatedURL.AddItem(entry)
@@ -209,9 +211,13 @@ func CrossRefWorksToEPrint(obj crossrefapi.Object) (*EPrint, error) {
 			if s, ok := indexInto(o.(map[string]interface{}), "URL"); ok == true {
 				entry.URL = fmt.Sprintf("%s", s)
 			}
-			if s, ok := indexInto(o.(map[string]interface{}), "content-type"); ok == true {
-				entry.Type = fmt.Sprintf("%s", s)
-			}
+			// NOTE: Related URL Type is not Mime-Type in CaltechAUTHORS,
+			// import related URLs without type information.
+			/*
+				if s, ok := indexInto(o.(map[string]interface{}), "content-type"); ok == true {
+					entry.Type = fmt.Sprintf("%s", s)
+				}
+			*/
 			if len(entry.URL) > 0 && len(entry.Type) > 0 {
 				eprint.RelatedURL.AddItem(entry)
 			}

@@ -166,13 +166,14 @@ func DataCiteWorksToEPrint(obj dataciteapi.Object) (*EPrint, error) {
 	if doi, ok := indexInto(obj, "data", "attributes", "doi"); ok == true {
 		eprint.RelatedURL = new(RelatedURLItemList)
 		entry := new(Item)
-		entry.Type = "DOI"
+		entry.Type = "doi"
 		entry.URL = fmt.Sprintf("https://doi.org/%s", doi)
 		entry.Description = eprint.Type
 		eprint.RelatedURL.AddItem(entry)
 	}
 
 	// FIXME: RelatedURLs (links in message of DataCite works object)
+	// NOTE: related URL type is NOT Mime-Type in CaltechAUTHORS, import URL without type being set.
 
 	// NOTE: Assuming date is published given we're talking to DataCite
 	// Date, DateType, IsPublished

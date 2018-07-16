@@ -1,10 +1,10 @@
 
 # Installation
 
-*eputil* and *ep* are command line programs run from a shell like Bash. They allow you to 
-harvest and work with EPrint repository content.
+*ep*, *eputil*, and *doi2eprintxml* are command line programs run from 
+a shell like Bash. They allow you to harvest, work with EPrint repository content, and import content from CrossRef and DataCite.
 
-This is generalized instructions for a release.  For deployment suggestions see NOTES.md
+Below are generalized instructions for installation of a release.
 
 ## Compiled version
 
@@ -31,7 +31,7 @@ For all the released version go to the project page on Github and click latest r
 
 + Find the Zip file listed matching the architecture you're running and download it
     + (e.g. if you're on a Windows 10 laptop/Surface with a amd64 style CPU you'd choose the Zip file with "windows-amd64" in the name).
-+ Download the zip file and unzip the file.  
++ Download the zip file and unzip the file.
 + Copy the contents of the folder named "bin" to a folder that is in your path 
     + (e.g. "$HOME/bin" is common).
 + Adjust your PATH if needed
