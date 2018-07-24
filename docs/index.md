@@ -12,5 +12,8 @@
 
 ## Tutorials
 
-+ [Windows 10 Workflow](windows-10-workflow.html)
++ Converting DOIs to EPrints XML
+    + [Windows 10 Workflow](windows-10-workflow.html)
+    + [Mac OS X Workflow](macosx-workflow.html)
+
 
