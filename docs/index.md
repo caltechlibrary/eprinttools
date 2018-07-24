@@ -9,3 +9,11 @@
 
 + _eputil_ add support for importing content to an EPrint repository
 + _eputil_ add support for updating existing EPrint records (e.g. adding ORCID to creator items for a given author)
+
+## Tutorials
+
++ Converting DOIs to EPrints XML
+    + [Windows 10 Workflow](windows-10-workflow.html)
+    + [Mac OS X Workflow](macosx-workflow.html)
+
+

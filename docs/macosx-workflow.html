@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>eprinttools</title>
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="/css/site.css">
+</head>
+<body>
+<header>
+<a href="http://library.caltech.edu" title="link to Caltech Library Homepage"><img src="/assets/liblogo.gif" alt="Caltech Library logo"></a>
+</header>
+<nav>
+<ul>
+<li><a href="/">Home</a></li>
+<li><a href="../">README</a></li>
+<li><a href="../license.html">LICENSE</a></li>
+<li><a href="../install.html">INSTALL</a></li>
+<li><a href="./">Documentation</a></li>
+<li><a href="https://github.com/caltechlibrary/eprinttools">Github</a></li>
+</ul>
+
+</nav>
+
+<section>
+<h1>Notes on using doi2eprintxml on Mac OS X</h1>
+
+<h2>Installation and setup</h2>
+
+<ol>
+<li>With your web browser goto <a href="https://github.com/caltechlibrary/eprinttools/releases/">https://github.com/caltechlibrary/eprinttools/releases/</a></li>
+<li>Download the file called &ldquo;eprinttools-v0.0.18-macosx-amd64.zip&rdquo;.
+
+<ul>
+<li>if there is a newer version (e.g. v0.0.19) download that instead</li>
+</ul></li>
+<li>Unzip the downloaded zip file</li>
+<li>Copy &ldquo;bin/doi2eprintxml&rdquo; to your local <strong>bin</strong> folder
+(e.g. /Users/rsdoiel/bin)</li>
+<li>Make sure your <strong>bin</strong> directory is in your path
+(e.g. <code>export PATH=&quot;$HOME/bin:$PATH&quot;</code> in your <strong>.bashrc</strong> file)</li>
+<li>Open the your &ldquo;Terminal&rdquo; application</li>
+<li>Run <code>doi2printxml -h</code> to see the help page</li>
+</ol>
+
+<h2>Getting started</h2>
+
+<p>The tool <code>doi2eprintxml</code> is a command line program, it is normally
+run from the terminal&rsquo;s command prompt. The purpose of the program
+is to take a list of DOI contact CrossRef or DataCite and generate
+what is called an EPrint XML document. The EPrint XML document is
+used to import records into EPrints (e.g. CaltechAUTHORS) via
+the &ldquo;import&rdquo; button under &ldquo;Manage Deposits&rdquo; page.</p>
+
+<h3>Workflow</h3>
+
+<p>The typical workflow is to create a plain text file (UTF-8 encoded)
+using a text editor such as <a href="https://atom.io">Atom</a> with one DOI
+per line. The <code>doi2eprintxml</code> program can then read the list and
+generate an EPrint XML document for importing into EPrints. Follow
+the following steps to generate a file called <strong>eprint.xml</strong> based
+on a list of of DOI in a file called <strong>doi.txt</strong>.</p>
+
+<h4>General recipe</h4>
+
+<ol>
+<li>Open your text editor (e.g Atom)</li>
+<li>With your text editor create a list of DOI on per line</li>
+<li>Save this list to your desktop as <strong>doi.txt</strong>
+NOTE: <strong>doi.txt</strong> is the name of your file you saved on your desktop.</li>
+<li>Open the Terminal app and change directory to your desktop
+<code>cd ~/Desktop</code></li>
+<li>Generate <strong>eprint.xml</strong> with the following command
+<code>doi2eprintxml -i doi.txt &gt; eprint.xml</code></li>
+<li>From the file manager open <strong>eprint.xml</strong> and review the XML document (e.g. in your web browser or other text editor)</li>
+<li>With your web browser go to CaltechAUTHORS and log in</li>
+<li>Change to the &ldquo;manage deposits&rdquo; page and select &ldquo;EPrints XML&rdquo; from the pull down menu next to the &ldquo;import&rdquo; button</li>
+<li>Press the &ldquo;import&rdquo; button</li>
+<li>Click on &ldquo;Upload from file&rdquo;</li>
+<li>Click the &ldquo;browse&rdquo; button and find <strong>eprint.xml</strong> on the desktop</li>
+<li>From the pull down list next to the filename select &ldquo;UTF-8&rdquo;</li>
+<li>Click &ldquo;Test without importing&rdquo;, proceed to the next step if everything is OK</li>
+<li>Click the &ldquo;browse&rdquo; button and find <strong>eprint.xml</strong> on the desktop</li>
+<li>From the pulldown list next to the filename select &ldquo;UTF-8&rdquo;</li>
+<li>Click on &ldquo;import items&rdquo; buttons, this should import the items into your buffer to review</li>
+</ol>
+
+</section>
+
+<footer>
+<span>&copy; 2018 <a href="https://www.library.caltech.edu/copyright">Caltech Library</a></span>
+<address>1200 E California Blvd, Mail Code 1-32, Pasadena, CA 91125-3200</address>
+<span><a href="mailto:library@caltech.edu">Email Us</a></span> 
+<span>Phone: <a href="tel:+1-626-395-3405">(626)395-3405</a></span>
+</footer>
+</body>
+</html>
