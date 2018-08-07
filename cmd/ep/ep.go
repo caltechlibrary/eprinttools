@@ -80,14 +80,14 @@ save the keys for the records exported with one key per line.
 `
 
 	// Standard Options
-	showHelp             bool
-	showVersion          bool
-	showLicense          bool
-	showExamples         bool
-	outputFName          string
-	quiet                bool
-	generateMarkdownDocs bool
-	newLine              bool
+	showHelp         bool
+	showVersion      bool
+	showLicense      bool
+	showExamples     bool
+	outputFName      string
+	quiet            bool
+	generateMarkdown bool
+	newLine          bool
 
 	// App Options
 	verbose     bool
@@ -141,7 +141,7 @@ func main() {
 	app.BoolVar(&showVersion, "v,version", false, "display version")
 	app.BoolVar(&showExamples, "examples", false, "display example(s)")
 	app.StringVar(&outputFName, "o,output", "", "output filename")
-	app.BoolVar(&generateMarkdownDocs, "generate-markdown-docs", false, "generation markdown documentation")
+	app.BoolVar(&generateMarkdown, "generate-markdown", false, "generation markdown documentation")
 	app.BoolVar(&quiet, "quiet", false, "suppress error output")
 	app.BoolVar(&newLine, "nl,newline", true, "set to false to exclude trailing newline")
 
@@ -196,8 +196,8 @@ func main() {
 	defer cli.CloseFile(outputFName, app.In)
 
 	// Process Options
-	if generateMarkdownDocs {
-		app.GenerateMarkdownDocs(app.Out)
+	if generateMarkdown {
+		app.GenerateMarkdown(app.Out)
 		os.Exit(0)
 	}
 	if showHelp || showExamples {
