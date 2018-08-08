@@ -58,7 +58,14 @@ test:
 clean:
 	if [ -d bin ]; then rm -fR bin; fi
 	if [ -d dist ]; then rm -fR dist; fi
+	if [ -d man ]; then rm -fR man; fi
 	cd py && $(MAKE) clean
+
+man: build
+	mkdir -p man/man1
+	bin/ep -generate-manpage | nroff -Tutf8 -man > man/man1/ep.1
+	bin/eputil -generate-manpage | nroff -Tutf8 -man > man/man1/eputil.1
+	bin/doi2eprintxml -generate-manpage | nroff -Tutf8 -man > man/man1/doi2eprintxml.1
 
 dist/linux-amd64:
 	mkdir -p dist/bin

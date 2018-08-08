@@ -87,6 +87,7 @@ save the keys for the records exported with one key per line.
 	outputFName      string
 	quiet            bool
 	generateMarkdown bool
+	generateManPage  bool
 	newLine          bool
 
 	// App Options
@@ -142,6 +143,7 @@ func main() {
 	app.BoolVar(&showExamples, "examples", false, "display example(s)")
 	app.StringVar(&outputFName, "o,output", "", "output filename")
 	app.BoolVar(&generateMarkdown, "generate-markdown", false, "generation markdown documentation")
+	app.BoolVar(&generateManPage, "generate-manpage", false, "generation man page")
 	app.BoolVar(&quiet, "quiet", false, "suppress error output")
 	app.BoolVar(&newLine, "nl,newline", true, "set to false to exclude trailing newline")
 
@@ -198,6 +200,10 @@ func main() {
 	// Process Options
 	if generateMarkdown {
 		app.GenerateMarkdown(app.Out)
+		os.Exit(0)
+	}
+	if generateManPage {
+		app.GenerateManPage(app.Out)
 		os.Exit(0)
 	}
 	if showHelp || showExamples {

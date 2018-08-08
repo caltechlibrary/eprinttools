@@ -71,6 +71,7 @@ Get a JSON array of eprint ids from the REST API
 	quiet            bool
 	verbose          bool
 	generateMarkdown bool
+	generateManPage  bool
 	inputFName       string
 	outputFName      string
 
@@ -122,7 +123,8 @@ func main() {
 	app.StringVar(&outputFName, "o,output", "", "output file name")
 	app.BoolVar(&quiet, "quiet", false, "suppress error messages")
 	app.BoolVar(&newLine, "nl,newline", false, "if true add a trailing newline")
-	app.BoolVar(&generateMarkdown, "generate-markdown", false, "output documentation in Markdown")
+	app.BoolVar(&generateMarkdown, "generate-markdown", false, "generate Markdown documentation")
+	app.BoolVar(&generateManPage, "generate-manpage", false, "generate man page")
 
 	// App Options
 	app.StringVar(&getURL, "get,url", "", "do an HTTP GET to fetch the XML from the URL then parse")
@@ -156,6 +158,10 @@ func main() {
 	// Handle options
 	if generateMarkdown {
 		app.GenerateMarkdown(app.Out)
+		os.Exit(0)
+	}
+	if generateManPage {
+		app.GenerateManPage(app.Out)
 		os.Exit(0)
 	}
 	if showHelp || showExamples {
