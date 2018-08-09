@@ -33,6 +33,10 @@ import (
 	"github.com/caltechlibrary/rc"
 )
 
+const (
+	maxConsecutiveFailedRequests = 10
+)
+
 //
 // NOTE: This file contains the general structure in Caltech Libraries EPrints 3.x based repositories.
 //
@@ -899,6 +903,10 @@ func GetModifiedKeys(baseURL string, authType int, username string, secret strin
 	// Pass baseURL to GetKeys(), get key list then filter for modified times.
 	pid := os.Getpid()
 	keys, err := GetKeys(baseURL, authType, username, secret)
+	// NOTE: consecutiveFailedCount tracks repeated failures
+	// e.g. You need to authenticate with the server to get
+	// modified information.
+	consecutiveFailedCount := 0
 	for _, key := range keys {
 		// form a request to the REST API for just the modified date
 		docPath := path.Join(restDocPath, key, "lastmod.txt")
@@ -907,7 +915,12 @@ func GetModifiedKeys(baseURL string, authType int, username string, secret strin
 			if verbose == true {
 				log.Printf("(pid: %d) request failed, %s", pid, err)
 			}
+			consecutiveFailedCount++
+			if consecutiveFailedCount >= maxConsecutiveFailedRequests {
+				return results, err
+			}
 		} else {
+			consecutiveFailedCount = 0
 			datestring := fmt.Sprintf("%s", lastModified)
 			if len(datestring) > 9 {
 				datestring = datestring[0:10]
