@@ -34,6 +34,7 @@ import (
 	"github.com/caltechlibrary/crossrefapi"
 	"github.com/caltechlibrary/dataciteapi"
 	"github.com/caltechlibrary/eprinttools"
+	"github.com/caltechlibrary/eprinttools/clsrules"
 )
 
 var (
@@ -91,10 +92,11 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 	quiet            bool
 
 	// App specific options
-	apiEPrintsURL string
-	mailto        string
-	crossrefOnly  bool
-	dataciteOnly  bool
+	apiEPrintsURL                  string
+	mailto                         string
+	crossrefOnly                   bool
+	dataciteOnly                   bool
+	useCaltechLibrarySpecificRules bool
 )
 
 func main() {
@@ -123,6 +125,7 @@ func main() {
 	app.StringVar(&apiEPrintsURL, "eprints-url", "", "Sets the EPRints API URL")
 	app.BoolVar(&crossrefOnly, "c,crossref", false, "only search CrossRef API for DOI records")
 	app.BoolVar(&dataciteOnly, "d,datacite", false, "only search DataCite API for DOI records")
+	app.BoolVar(&useCaltechLibrarySpecificRules, "clsrules", true, "Apply Caltech Library Specific Rules to EPrintXML output")
 
 	//FIXME: Need to come up with a better way of setting this,
 	// perhaps a config mode and save the setting in
@@ -285,6 +288,15 @@ func main() {
 			if isCrossRefDOI == false && isDataCiteDOI == false {
 				fmt.Fprintf(os.Stderr, "WARNING: %s not found in CrossRef or DataCite API lookup")
 			}
+		}
+	}
+	//FIXME: We need to apply Caltech Library Special Rules
+	// before marshaling our results...
+	if useCaltechLibrarySpecificRules {
+		eprintsList, err = clsrules.Apply(eprintsList)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "%s\n", err)
+			os.Exit(1)
 		}
 	}
 	src, err := xml.MarshalIndent(eprintsList, "", "   ")
