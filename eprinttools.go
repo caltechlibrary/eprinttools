@@ -89,93 +89,6 @@ type EPrintsAPI struct {
 	SuppressNote bool
 }
 
-// Person returns the contents of eprint>creators>item>name as a struct
-type Person struct {
-	XMLName xml.Name `json:"-"`
-	Given   string   `xml:"name>given" json:"given"`
-	Family  string   `xml:"name>family" json:"family"`
-	ID      string   `xml:"id,omitempty" json:"id"`
-
-	// Customizations for Caltech Library
-	ORCID string `xml:"orcid,omitempty" json:"orcid,omitempty"`
-	//EMail string `xml:"email,omitempty" json:"email,omitempty"`
-	Role string `xml:"role,omitempty" json:"role,omitempty"`
-}
-
-// PersonList is an array of pointers to Person structs
-type PersonList []*Person
-
-// RelatedURL is a structure containing information about a relationship
-type RelatedURL struct {
-	XMLName     xml.Name `json:"-"`
-	URL         string   `xml:"url" json:"url"`
-	Type        string   `xml:"type" json:"type"`
-	Description string   `xml:"description" json:"description"`
-}
-
-// NumberingSystem is a structure describing other numbering systems for record
-type NumberingSystem struct {
-	XMLName xml.Name `json:"-"`
-	Name    string   `xml:"name" json:"name"`
-	ID      string   `xml:"id" json:"id"`
-}
-
-// Funder is a structure describing a funding source for record
-type Funder struct {
-	XMLName     xml.Name `json:"-"`
-	Agency      string   `xml:"agency" json:"agency"`
-	GrantNumber string   `xml:"grant_number,omitempty" json:"grant_number"`
-}
-
-// FunderList is an array of pointers to Funder structs
-type FunderList []*Funder
-
-// File structures in Document
-type File struct {
-	XMLName   xml.Name `json:"-"`
-	ID        string   `xml:"id,attr" json:"id"`
-	FileID    int      `xml:"fileid" json:"fileid"`
-	DatasetID string   `xml:"datasetid" json:"datasetid"`
-	ObjectID  int      `xml:"objectid" json:"objectid"`
-	Filename  string   `xml:"filename" json:"filename"`
-	MimeType  string   `xml:"mime_type" json:"mime_type"`
-	Hash      string   `xml:"hash" json:"hash"`
-	HashType  string   `xml:"hash_type" json:"hash_type"`
-	FileSize  int      `xml:"filesize" json:"filesize"`
-	MTime     string   `xml:"mtime" json:"mtime"`
-	URL       string   `xml:"url" json:"url"`
-}
-
-// Document structures inside a Record (i.e. <eprint>...<documents><document>...</document>...</documents>...</eprint>)
-type Document struct {
-	XMLName    xml.Name `json:"-"`
-	XMLNS      string   `xml:"xmlns,attr,omitempty" json:"name_space,omitempty"`
-	ID         string   `xml:"id,attr" json:"id"`
-	DocID      int      `xml:"docid" json:"doc_id"`
-	RevNumber  int      `xml:"rev_number" json:"rev_number,omitempty"`
-	Files      []*File  `xml:"files>file" json:"files,omitempty"`
-	EPrintID   int      `xml:"eprintid" json:"eprint_id"`
-	Pos        int      `xml:"pos" json:"pos,omitempty"`
-	Placement  int      `xml:"placement" json:"placement,omitempty"`
-	MimeType   string   `xml:"mime_type" json:"mime_type"`
-	Format     string   `xml:"format" json:"format"`
-	FormatDesc string   `xml:"formatdesc,omitempty" json:"format_desc,omitempty"`
-	Language   string   `xml:"language" json:"language"`
-	Security   string   `xml:"security" json:"security"`
-	License    string   `xml:"license" json:"license"`
-	Main       string   `xml:"main" json:"main"`
-	Content    string   `xml:"content" json:"content"`
-	Relation   []*Item  `xml:"relation>item,omitempty" json:"relation,omitempty"`
-}
-
-// DocumentList is an array of pointers to Document structs
-type DocumentList []*Document
-
-type ePrintIDs struct {
-	XMLName xml.Name `xml:"html" json:"-"`
-	IDs     []string `xml:"body>ul>li>a" json:"ids"`
-}
-
 func normalizeDate(in string) string {
 	var (
 		x   int
@@ -427,60 +340,9 @@ func (api *EPrintsAPI) GetEPrint(uri string) (*EPrint, []byte, error) {
 	return nil, content, fmt.Errorf("Expected an eprint for %s", uri)
 }
 
-// ToNames takes an array of pointers to Person and returns a list of names (family, given)
-func (persons PersonList) ToNames() []string {
-	var result []string
-
-	for _, person := range persons {
-		result = append(result, fmt.Sprintf("%s, %s", person.Family, person.Given))
-	}
-	return result
-}
-
-// ToORCIDs takes an an array of pointers to Person and returns a list of ORCID ids
-func (persons PersonList) ToORCIDs() []string {
-	var result []string
-
-	for _, person := range persons {
-		result = append(result, person.ORCID)
-	}
-
-	return result
-}
-
-// ToAgencies takes an array of pointers to Funders and returns a list of Agency names
-func (funders FunderList) ToAgencies() []string {
-	var result []string
-
-	for _, funder := range funders {
-		result = append(result, funder.Agency)
-	}
-
-	return result
-}
-
-// ToGrantNumbers takes an array of pointers to Funders and returns a list of Agency names
-func (funders FunderList) ToGrantNumbers() []string {
-	var result []string
-
-	for _, funder := range funders {
-		result = append(result, funder.GrantNumber)
-	}
-
-	return result
-}
-
 func (record *EPrint) PubDate() string {
 	if record.DateType == "published" {
 		return record.Date
 	}
 	return ""
-}
-
-func (person *Person) String() string {
-	src, err := json.Marshal(person)
-	if err != nil {
-		return ""
-	}
-	return fmt.Sprintf("%s", src)
 }

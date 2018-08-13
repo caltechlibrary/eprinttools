@@ -58,7 +58,7 @@ type EPrint struct {
 	ID                   string                        `xml:"id,attr,omitempty" json:"id,omitempty"`
 	EPrintID             int                           `xml:"eprintid,omitempty" json:"eprint_id,omitempty"`
 	RevNumber            int                           `xml:"rev_number,omitempty" json:"rev_number,omitempty"`
-	Documents            *DocumentItemList             `xml:"documents,omitempty" json:"documents,omitempty"`
+	Documents            *DocumentList                 `xml:"documents>document,omitempty" json:"documents,omitempty"`
 	EPrintStatus         string                        `xml:"eprint_status,omitempty" json:"eprint_status,omitempty"`
 	UserID               int                           `xml:"userid,omitempty" json:"userid,omitempty"`
 	Dir                  string                        `xml:"dir,omitempty" json:"dir,omitempty"`
@@ -273,19 +273,6 @@ func (item *Item) MarshalJSON() ([]byte, error) {
 
 // ItemList holds an array of items (e.g. creators, related urls, etc)
 type ItemList []*Item
-
-// DocumentItemList holds the eprint documents
-type DocumentItemList struct {
-	XMLName xml.Name `xml:"documents" json:"-"`
-	//FIXME JSON item should just be the object itself
-	Items []*Item `xml:"item,omitempty" json:"items,omitempty"`
-}
-
-// AddItem adds a document item to the documents list and returns the new count of items
-func (documentItemList *DocumentItemList) AddItem(item *Item) int {
-	documentItemList.Items = append(documentItemList.Items, item)
-	return len(documentItemList.Items)
-}
 
 // CreatorItemList holds a list of authors
 type CreatorItemList struct {
@@ -735,55 +722,6 @@ func (epds EPrintsDataSet) MarshalJSON() ([]byte, error) {
 	return json.Marshal(ids)
 }
 
-// Generic attempts to parse a generic XML fragment into an array of JSON items
-type Generic struct {
-	XMLName   xml.Name
-	EPrints   *EPrints    `xml:"eprints,omitempty" json:"eprints,omitempty"`
-	EPrint    *EPrint     `xml:"eprint,omitempty" json:"eprint,omitempty"`
-	Documents []*Document `xml:"document,omitempty" json:"documents,omitempty"`
-	Files     []*File     `xml:"file,omitempty" json:"files,omitempty"`
-	Items     []*Item     `xml:"item" json:"items,omitempty"`
-	Value     string      `xml:",chardata" json:"value,omitempty"`
-}
-
-// MarshalJSON() normalizes Generic into a sensible JSON structure
-func (g *Generic) MarshalJSON() ([]byte, error) {
-	var (
-		k string
-	)
-	m := map[string]interface{}{}
-
-	if g.XMLName.Local != "" {
-		m["xml_name"] = g.XMLName
-		k = g.XMLName.Local
-	} else {
-		k = "items"
-	}
-	flatten := true
-	switch {
-	case g.EPrints != nil:
-		m[k] = g.EPrints
-		flatten = false
-	case g.EPrint != nil:
-		m[k] = g.EPrint
-		flatten = false
-	case len(g.Documents) > 0:
-		m[k] = g.Documents
-		flatten = false
-	case len(g.Files) > 0:
-		m[k] = g.Files
-		flatten = false
-	case len(g.Items) > 0:
-		m[k] = g.Items
-		flatten = false
-	}
-	if flatten {
-		s := strings.TrimSpace(g.Value)
-		return json.Marshal(s)
-	}
-	return json.Marshal(m)
-}
-
 // String() returns a json marshaled *Name as a string
 func (name *Name) String() string {
 	src, err := json.Marshal(name)
@@ -933,4 +871,51 @@ func GetModifiedKeys(baseURL string, authType int, username string, secret strin
 		}
 	}
 	return results, nil
+}
+
+// File structures in Document
+type File struct {
+	XMLName   xml.Name `json:"-"`
+	ID        string   `xml:"id,attr" json:"id"`
+	FileID    int      `xml:"fileid" json:"fileid"`
+	DatasetID string   `xml:"datasetid" json:"datasetid"`
+	ObjectID  int      `xml:"objectid" json:"objectid"`
+	Filename  string   `xml:"filename" json:"filename"`
+	MimeType  string   `xml:"mime_type" json:"mime_type"`
+	Hash      string   `xml:"hash" json:"hash"`
+	HashType  string   `xml:"hash_type" json:"hash_type"`
+	FileSize  int      `xml:"filesize" json:"filesize"`
+	MTime     string   `xml:"mtime" json:"mtime"`
+	URL       string   `xml:"url" json:"url"`
+}
+
+// Document structures inside a Record (i.e. <eprint>...<documents><document>...</document>...</documents>...</eprint>)
+type Document struct {
+	XMLName xml.Name `json:"-"`
+	//XMLNS      string  `xml:"xmlns,attr,omitempty" json:"name_space,omitempty"`
+	ID         string  `xml:"id,attr" json:"id"`
+	DocID      int     `xml:"docid" json:"doc_id"`
+	RevNumber  int     `xml:"rev_number" json:"rev_number,omitempty"`
+	Files      []*File `xml:"files>file" json:"files,omitempty"`
+	EPrintID   int     `xml:"eprintid" json:"eprint_id"`
+	Pos        int     `xml:"pos" json:"pos,omitempty"`
+	Placement  int     `xml:"placement" json:"placement,omitempty"`
+	MimeType   string  `xml:"mime_type" json:"mime_type"`
+	Format     string  `xml:"format" json:"format"`
+	FormatDesc string  `xml:"formatdesc,omitempty" json:"format_desc,omitempty"`
+	Language   string  `xml:"language" json:"language"`
+	Security   string  `xml:"security" json:"security"`
+	License    string  `xml:"license" json:"license"`
+	Main       string  `xml:"main" json:"main"`
+	Content    string  `xml:"content" json:"content"`
+	Relation   []*Item `xml:"relation>item,omitempty" json:"relation,omitempty"`
+}
+
+// DocumentList is an array of pointers to Document structs
+type DocumentList []*Document
+
+// AddDocument adds a document to the documents list and returns the new count of items
+func (documentList DocumentList) AddDocument(document *Document) int {
+	documentList = append(documentList, document)
+	return len(documentList)
 }

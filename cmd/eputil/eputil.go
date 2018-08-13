@@ -20,7 +20,7 @@ package main
 
 import (
 	"bytes"
-	"encoding/base64"
+	//"encoding/base64"
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
@@ -76,33 +76,22 @@ Get a JSON array of eprint ids from the REST API
 	outputFName      string
 
 	// App Options
-	user    string
-	getURL  string
-	putURL  string
-	postURL string
-	eprints bool
-	eprint  bool
-	getIDs  bool
-	asJSON  bool
+	username string
+	password string
+	auth     string
+	getURL   string
+	putURL   string
+	postURL  string
+	eprints  bool
+	eprint   bool
+	getIDs   bool
+	asJSON   bool
 )
-
-func basicAuth(username, password string) string {
-	auth := username + ":" + password
-	return base64.StdEncoding.EncodeToString([]byte(auth))
-}
-
-func redirectPolicyFunc(req *http.Request, via []*http.Request) error {
-	req.Header.Add("Authorization", "Basic "+basicAuth("username1", "password123"))
-	return nil
-}
 
 func main() {
 	var (
-		src      []byte
-		err      error
-		username string
-		password string
-		auth     string
+		src []byte
+		err error
 	)
 
 	app := cli.NewCli(eprinttools.Version)
@@ -110,9 +99,6 @@ func main() {
 	// Add Help Docs
 	app.AddHelp("description", description)
 	app.AddHelp("examples", examples)
-
-	// Add Environment variables
-	app.EnvStringVar(&user, "EP_USER", "", "Sets the eprint USERNAME:PASSWORD to use with URL basic auth")
 
 	// Standard Options
 	app.BoolVar(&showHelp, "h,help", false, "display help")
@@ -134,10 +120,10 @@ func main() {
 	app.BoolVar(&eprint, "revision,eprint", false, "parse a eprint (revision) document")
 	app.BoolVar(&asJSON, "json", false, "attempt to parse XML into generaic JSON structure")
 	app.BoolVar(&getIDs, "ids", false, "get a list of doc paths (e.g. ids or sub-fields depending on the URL provided")
-	app.StringVar(&user, "u,user", "", "set the basic auth string to 'username:password' for authenticated access")
-	app.StringVar(&username, "un,username", "", "set the username for authenticated access")
+	app.StringVar(&username, "u,un,user,username", "", "set the username for authenticated access")
 	app.StringVar(&password, "pw,password", "", "set the password for authenticated access")
-	app.StringVar(&auth, "auth", "", "set the authorization type, e.g. basic")
+	//NOTE: Only basic auth is supported in this tool, auth gets set automatically by setting a username.
+	//	app.StringVar(&auth, "auth", "", "set the authorization type, e.g. basic")
 
 	// We're ready to process args
 	app.Parse()
@@ -181,24 +167,24 @@ func main() {
 		os.Exit(0)
 	}
 
-	if user != "" {
-		if strings.Contains(user, ":") {
-			p := strings.SplitN(user, ":", 2)
+	if username != "" {
+		if strings.Contains(username, ":") {
+			p := strings.SplitN(username, ":", 2)
 			username, password = p[0], p[1]
+		}
+		if auth == "" {
 			auth = "basic"
-		} else {
-			username = user
 		}
 	}
 
-	if getURL == "" {
-		src, err = ioutil.ReadAll(app.In)
-		cli.ExitOnError(app.Eout, err, quiet)
-	} else {
+	if getURL != "" {
 		// NOTE: We build our client request object so we can
 		// set authentication if necessary.
 		req, err := http.NewRequest("GET", getURL, nil)
-		if user != "" {
+		switch strings.ToLower(auth) {
+		case "basic":
+			req.SetBasicAuth(username, password)
+		case "basic_auth":
 			req.SetBasicAuth(username, password)
 		}
 		req.Header.Set("User-Agent", app.Version())
@@ -212,40 +198,49 @@ func main() {
 		} else {
 			cli.ExitOnError(app.Eout, fmt.Errorf("%s for %s", res.Status, getURL), quiet)
 		}
-	}
-	if len(bytes.TrimSpace(src)) == 0 {
-		os.Exit(0)
-	}
+		if len(bytes.TrimSpace(src)) == 0 {
+			os.Exit(0)
+		}
 
-	if postURL == "" && putURL == "" {
 		switch {
 		case eprints:
 			data := eprinttools.EPrints{}
 			err = xml.Unmarshal(src, &data)
 			cli.ExitOnError(app.Eout, err, quiet)
-
-			src, err = json.MarshalIndent(data, "", " ")
+			if asJSON {
+				src, err = json.MarshalIndent(data, "", "   ")
+			} else {
+				src, err = xml.MarshalIndent(data, "", "   ")
+			}
 			cli.ExitOnError(app.Eout, err, quiet)
 		case eprint:
 			data := eprinttools.EPrints{}
 			err = xml.Unmarshal(src, &data)
 			cli.ExitOnError(app.Eout, err, quiet)
 			if len(data.EPrint) == 1 {
-				src, err = json.MarshalIndent(data.EPrint[0], "", " ")
-				cli.ExitOnError(app.Eout, err, quiet)
+				if asJSON {
+					src, err = json.MarshalIndent(data.EPrint[0], "", "   ")
+				} else {
+					src, err = xml.MarshalIndent(data.EPrint[0], "", "   ")
+				}
+			} else {
+				if asJSON {
+					src, err = json.MarshalIndent(data, "", "   ")
+				} else {
+					src, err = xml.MarshalIndent(data, "", "   ")
+				}
 			}
-		case asJSON:
-			data := eprinttools.Generic{}
-			err = xml.Unmarshal(src, &data)
-			cli.ExitOnError(app.Eout, err, quiet)
-
-			src, err = json.MarshalIndent(data, "", " ")
 			cli.ExitOnError(app.Eout, err, quiet)
 		case getIDs:
 			data := eprinttools.EPrintsDataSet{}
 			err = xml.Unmarshal(src, &data)
-			cli.ExitOnError(app.Eout, err, quiet)
-			src, err = json.MarshalIndent(data, "", " ")
+			if asJSON {
+				src, err = json.MarshalIndent(data, "", "   ")
+				cli.ExitOnError(app.Eout, err, quiet)
+			} else {
+				src, err = xml.MarshalIndent(data, "", "   ")
+				cli.ExitOnError(app.Eout, err, quiet)
+			}
 		default:
 			// Don't do anything, just return the raw XML
 		}
@@ -256,60 +251,67 @@ func main() {
 			fmt.Fprintf(os.Stdout, "%s", src)
 		}
 		os.Exit(0)
-	} else {
-		switch {
-		case putURL != "":
-			//fmt.Fprintf(app.Out, "DEBUG PUT: %s\nDATA: %q\n", putURL, src)
-			// NOTE: We build our client request object so we can
-			// set authentication if necessary.
-			req, err := http.NewRequest("PUT", putURL, strings.NewReader(fmt.Sprintf("%s", src)))
-			if username != "" {
-				//fmt.Printf("DEBUG username %q, password %q\n", username, password)
-				req.SetBasicAuth(username, password)
-			}
-			req.Header.Set("User-Agent", app.Version())
-			client := &http.Client{}
-			res, err := client.Do(req)
-			cli.ExitOnError(app.Eout, err, quiet)
-			defer res.Body.Close()
-			if res.StatusCode == 200 {
-				src, err = ioutil.ReadAll(res.Body)
-				cli.ExitOnError(app.Eout, err, quiet)
-				if newLine {
-					fmt.Fprintf(app.Out, "%s\n", src)
-				} else {
-					fmt.Fprintf(app.Out, "%s", src)
-				}
-			} else {
-				cli.ExitOnError(app.Eout, fmt.Errorf("%s for %s", res.Status, putURL), quiet)
-			}
-		case postURL != "":
-			//fmt.Fprintf(app.Out, "DEBUG POST: %s\nDATA: %q\n", postURL, src)
-			// NOTE: We build our client request object so we can
-			// set authentication if necessary.
-			req, err := http.NewRequest("POST", postURL, strings.NewReader(fmt.Sprintf("%s", src)))
-			if user != "" {
-				//fmt.Printf("DEBUG username %q, password %q\n", username, password)
-				req.SetBasicAuth(username, password)
-			}
-			req.Header.Set("User-Agent", app.Version())
-			client := &http.Client{}
-			res, err := client.Do(req)
-			cli.ExitOnError(app.Eout, err, quiet)
-			defer res.Body.Close()
-			if res.StatusCode == 200 {
-				src, err = ioutil.ReadAll(res.Body)
-				cli.ExitOnError(app.Eout, err, quiet)
-				if newLine {
-					fmt.Fprintf(app.Out, "%s\n", src)
-				} else {
-					fmt.Fprintf(app.Out, "%s", src)
-				}
-			} else {
-				cli.ExitOnError(app.Eout, fmt.Errorf("%s for %s", res.Status, postURL), quiet)
-			}
-		default:
-			fmt.Fprintf(app.Eout, "HTTP Method not implemented.")
+	}
+
+	// NOTE: If we get this far we have a PUT or POST
+	src, err = ioutil.ReadAll(app.In)
+	cli.ExitOnError(app.Eout, err, quiet)
+	switch {
+	case putURL != "":
+		//fmt.Fprintf(app.Out, "DEBUG PUT: %s\nDATA: %q\n", putURL, src)
+		// NOTE: We build our client request object so we can
+		// set authentication if necessary.
+		req, err := http.NewRequest("PUT", putURL, strings.NewReader(fmt.Sprintf("%s", src)))
+		switch strings.ToLower(auth) {
+		case "basic":
+			req.SetBasicAuth(username, password)
+		case "basic_auth":
+			req.SetBasicAuth(username, password)
 		}
+		req.Header.Set("User-Agent", app.Version())
+		client := &http.Client{}
+		res, err := client.Do(req)
+		cli.ExitOnError(app.Eout, err, quiet)
+		defer res.Body.Close()
+		if res.StatusCode == 200 {
+			src, err = ioutil.ReadAll(res.Body)
+			cli.ExitOnError(app.Eout, err, quiet)
+			if newLine {
+				fmt.Fprintf(app.Out, "%s\n", src)
+			} else {
+				fmt.Fprintf(app.Out, "%s", src)
+			}
+		} else {
+			cli.ExitOnError(app.Eout, fmt.Errorf("%s for %s", res.Status, putURL), quiet)
+		}
+	case postURL != "":
+		//fmt.Fprintf(app.Out, "DEBUG POST: %s\nDATA: %q\n", postURL, src)
+		// NOTE: We build our client request object so we can
+		// set authentication if necessary.
+		req, err := http.NewRequest("POST", postURL, strings.NewReader(fmt.Sprintf("%s", src)))
+		switch strings.ToLower(auth) {
+		case "basic":
+			req.SetBasicAuth(username, password)
+		case "basic_auth":
+			req.SetBasicAuth(username, password)
+		}
+		req.Header.Set("User-Agent", app.Version())
+		client := &http.Client{}
+		res, err := client.Do(req)
+		cli.ExitOnError(app.Eout, err, quiet)
+		defer res.Body.Close()
+		if res.StatusCode == 200 {
+			src, err = ioutil.ReadAll(res.Body)
+			cli.ExitOnError(app.Eout, err, quiet)
+			if newLine {
+				fmt.Fprintf(app.Out, "%s\n", src)
+			} else {
+				fmt.Fprintf(app.Out, "%s", src)
+			}
+		} else {
+			cli.ExitOnError(app.Eout, fmt.Errorf("%s for %s", res.Status, postURL), quiet)
+		}
+	default:
+		fmt.Fprintf(app.Eout, "HTTP Method not implemented.")
 	}
 }
