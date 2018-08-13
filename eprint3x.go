@@ -919,3 +919,9 @@ func (documentList DocumentList) AddDocument(document *Document) int {
 	documentList = append(documentList, document)
 	return len(documentList)
 }
+
+// ePrintIDs is a struct for parsing the ids page of EPrints REST API
+type ePrintIDs struct {
+	XMLName xml.Name `xml:"html" json:"-"`
+	IDs     []string `xml:"body>ul>li>a" json:"ids"`
+}

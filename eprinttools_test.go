@@ -51,7 +51,6 @@ func TestListEPrintsURI(t *testing.T) {
 		t.Errorf("listEPrintURI() %s", err)
 	}
 	if len(uris) == 0 {
-		t.Errorf("Expected more uris, got %d", len(uris))
+		t.Errorf("Expected uris for list modified from %s to %s", start.String(), end.String())
 	}
-	//log.Printf("DEBUG uri: %+v\n", uris)
 }
