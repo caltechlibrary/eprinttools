@@ -5,7 +5,9 @@
 package eprinttools
 
 import (
+	"encoding/json"
 	"encoding/xml"
+	"fmt"
 )
 
 // Person returns the contents of eprint>creators>item>name as a struct

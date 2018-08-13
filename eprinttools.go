@@ -19,7 +19,6 @@
 package eprinttools
 
 import (
-	"encoding/json"
 	"encoding/xml"
 	"fmt"
 	"io/ioutil"
