@@ -52,28 +52,33 @@ Fetch the raw unmarshaled EPrint XML via the
 EPrint REST API for id 123.
 
 ` + "```" + `
-    eputil -raw -get https://example.org/rest/eprint/123.xml
+    eputil -raw https://example.org/rest/eprint/123.xml
 ` + "```" + `
 
 Fetch the EPrint XML marshaled as XML using the 
 EPrints REST API for id 123.
 
 ` + "```" + `
-    eputil -get https://example.org/rest/eprint/123.xml 
+    eputil https://example.org/rest/eprint/123.xml 
 ` + "```" + `
 
 Fetch the EPrint XML marshaled as JSON using the
 EPrints REST API for id 123.
 
 ` + "```" + `
-    eputil -get https://example.org/rest/eprint/123.xml \
-    -json
+    eputil -json https://example.org/rest/eprint/123.xml
 ` + "```" + `
 
 Get a JSON array of eprint ids from the REST API
 
 ` + "```" + `
-    eputil -get https://example.org/rest/eprint/ -json
+    eputil -json https://example.org/rest/eprint/ 
+` + "```" + `
+
+Get the last modified date for id 123 from REST API
+
+` + "```" + `
+    eputil -raw https://example.org/rest/eprint/123/lastmod.txt 
 ` + "```" + `
 
 `)
@@ -95,9 +100,9 @@ Get a JSON array of eprint ids from the REST API
 	username string
 	password string
 	auth     string
-	getURL   string
 	asJSON   bool
 	raw      bool
+	getURL   string
 )
 
 func main() {
@@ -126,7 +131,6 @@ func main() {
 
 	// App Options
 	app.BoolVar(&raw, "raw", false, "get the raw EPrint REST API response")
-	app.StringVar(&getURL, "get,url", "", "do an HTTP GET to fetch the XML from the URL then parse")
 	app.BoolVar(&asJSON, "json", false, "attempt to parse XML into generaic JSON structure")
 	app.StringVar(&username, "u,un,user,username", "", "set the username for authenticated access")
 	app.StringVar(&password, "pw,password", "", "set the password for authenticated access")
@@ -134,6 +138,10 @@ func main() {
 	// We're ready to process args
 	app.Parse()
 	args := app.Args()
+
+	if len(args) > 0 {
+		getURL = args[0]
+	}
 
 	// Setup IO
 	app.Eout = os.Stderr
@@ -213,7 +221,11 @@ func main() {
 			os.Exit(0)
 		}
 		if raw {
-			fmt.Fprintf(app.Out, "%s", src)
+			if newLine {
+				fmt.Fprintf(app.Out, "%s\n", src)
+			} else {
+				fmt.Fprintf(app.Out, "%s", src)
+			}
 			os.Exit(0)
 		}
 
