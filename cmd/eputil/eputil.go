@@ -37,14 +37,15 @@ import (
 var (
 	synopsis = []byte(`
 _eputil_ is a command line program for exploring 
-EPrint API and EPrint XML document structure.
+EPrint REST API and EPrint XML document structure.
 `)
 	description = []byte(`
-_eputil_ parses XML content retrieved from disc or via 
-EPrints 3.x.  REST API or from disc. It will render 
+_eputil_ parses XML content retrieved from 
+EPrints 3.x. REST API. It will render 
 results in JSON or XML.  With the ` + "`" + `-raw` + "`" + `
 option you can get the unmodified EPrintXML from the 
-REST API.
+REST API otherwise the XML is parsed before final 
+rendering as JSON or XML.
 `)
 
 	examples = []byte(`
@@ -81,6 +82,15 @@ Get the last modified date for id 123 from REST API
     eputil -raw https://example.org/rest/eprint/123/lastmod.txt 
 ` + "```" + `
 
+If the EPrint REST API is protected by basic auth then
+you can pass the username and password via the URL.
+In this example the username is "user" and password is
+"secret".
+
+` + "```" + `
+    eputil https://user:secret@example.org/rest/eprint/123.xml
+` + "```" + `
+
 `)
 
 	// Standard Options
@@ -114,6 +124,7 @@ func main() {
 	app := cli.NewCli(eprinttools.Version)
 
 	// Add Help Docs
+	app.AddHelp("synopsis", synopsis)
 	app.AddHelp("description", description)
 	app.AddHelp("examples", examples)
 
@@ -181,22 +192,25 @@ func main() {
 		os.Exit(0)
 	}
 
-	if username != "" {
-		if strings.Contains(username, ":") {
-			p := strings.SplitN(username, ":", 2)
-			username, password = p[0], p[1]
-		}
-		if auth == "" {
-			auth = "basic"
-		}
-	}
-
 	if getURL != "" {
 		u, err := url.Parse(getURL)
 		if err != nil {
 			fmt.Fprintf(app.Eout, "%s\n", err)
 			os.Exit(1)
 		}
+		if u.User != nil {
+			username = u.User.String()
+		}
+		if username != "" {
+			if strings.Contains(username, ":") {
+				p := strings.SplitN(username, ":", 2)
+				username, password = p[0], p[1]
+			}
+			if auth == "" {
+				auth = "basic"
+			}
+		}
+
 		// NOTE: We build our client request object so we can
 		// set authentication if necessary.
 		req, err := http.NewRequest("GET", getURL, nil)

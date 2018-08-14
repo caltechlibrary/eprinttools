@@ -267,7 +267,7 @@ func (api *EPrintsAPI) ListModifiedEPrintURI(start, end time.Time, verbose bool)
 			return nil, err
 		}
 		req.Header.Set("User-Agent", fmt.Sprintf("eprinttools %s", Version))
-		if res, err := client.Do(req); err == nil {
+		if res, err := client.Do(req); err == nil && res.StatusCode == 200 {
 			if buf, err := ioutil.ReadAll(res.Body); err == nil {
 				res.Body.Close()
 				datestring := fmt.Sprintf("%s", buf)
