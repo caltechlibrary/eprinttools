@@ -18,10 +18,5 @@ command line options. The environment settings are overridden by command
 line options. For details running either command envoke the
 tool name with the '-help' option. 
 
-## Python 3.6 module
-
-This repository also contains a Python 3.6 module that wraps the 
-basic Go package giving you the functionality of the command line tools 
-in a Python 3.6 package.
 
 
