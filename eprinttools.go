@@ -21,16 +21,13 @@ package eprinttools
 import (
 	"encoding/xml"
 	"fmt"
-	"io/ioutil"
 	"log"
-	"net/http"
-	"os"
-	"time"
-	//"net/http"
 	"net/url"
+	"os"
 	"path"
 	"strconv"
 	"strings"
+	"time"
 
 	// Caltech Library packages
 	"github.com/caltechlibrary/rc"
@@ -149,11 +146,11 @@ func New(eprintURL, datasetName string, suppressNote bool, authMethod, userName,
 	if eprintURL == "" {
 		eprintURL = "http://localhost:8080"
 	}
-	api.URL, err = url.Parse(eprintURL)
+	u, err := url.Parse(eprintURL)
 	if err != nil {
 		return nil, fmt.Errorf("eprint url is malformed %s, %s", eprintURL, err)
 	}
-	if userinfo := api.URL.User; userinfo != nil {
+	if userinfo := u.User; userinfo != nil {
 		userName = userinfo.Username()
 		if secret, isSet := userinfo.Password(); isSet {
 			userSecret = secret
@@ -162,6 +159,7 @@ func New(eprintURL, datasetName string, suppressNote bool, authMethod, userName,
 			authMethod = "baisc"
 		}
 	}
+	api.URL, _ = url.Parse(u.String())
 	if datasetName == "" {
 		return nil, fmt.Errorf("Must have a non-empty dataset collection name")
 	}
@@ -229,8 +227,8 @@ func (api *EPrintsAPI) ListEPrintsURI() ([]string, error) {
 	return results, nil
 }
 
-// ListModifiedEPrintURI return a list of modifed EPrint URI (eprint_ids) in start and end times
-func (api *EPrintsAPI) ListModifiedEPrintURI(start, end time.Time, verbose bool) ([]string, error) {
+// ListModifiedEPrintsURI return a list of modifed EPrint URI (eprint_ids) in start and end times
+func (api *EPrintsAPI) ListModifiedEPrintsURI(start, end time.Time, verbose bool) ([]string, error) {
 	var (
 		results []string
 	)
@@ -250,43 +248,33 @@ func (api *EPrintsAPI) ListModifiedEPrintURI(start, end time.Time, verbose bool)
 		now = time.Now()
 		log.Printf("(pid: %d) Retrieved %d ids, %s", pid, len(uris), now.Sub(t0).Round(time.Second))
 	}
-
-	workingURL, err := url.Parse(api.URL.String())
-	if err != nil {
-		return nil, err
-	}
-	if workingURL.Path == "" {
-		workingURL.Path = path.Join("rest", "eprint") + "/"
-	} else {
-		p := workingURL.Path
-		workingURL.Path = path.Join(p, "rest", "eprint") + "/"
-	}
-
 	if verbose == true {
 		log.Printf("(pid: %d) Filtering EPrints ids by modification dates, %s to %s", pid, start.Format("2006-01-02"), end.Format("2006-01-02"))
 	}
+
+	rest, err := rc.New(api.URL.String(), api.AuthType, api.Username, api.Secret)
+	if err != nil {
+		return nil, err
+	}
+	err = rest.Login()
+	if err != nil {
+		return nil, err
+	}
+
 	total := len(uris)
 	lastI := total - 1
-	u := workingURL
-	client := &http.Client{}
 	for i, uri := range uris {
-		u.Path = strings.TrimSuffix(uri, ".xml") + "/lastmod.txt"
-		req, err := http.NewRequest("GET", u.String(), nil)
+		p := strings.TrimSuffix(uri, ".xml") + "/lastmod.txt"
+		buf, err := rest.Request("GET", p, map[string]string{})
 		if err != nil {
 			return nil, err
 		}
-		req.Header.Set("User-Agent", fmt.Sprintf("eprinttools %s", Version))
-		if res, err := client.Do(req); err == nil && res.StatusCode == 200 {
-			if buf, err := ioutil.ReadAll(res.Body); err == nil {
-				res.Body.Close()
-				datestring := fmt.Sprintf("%s", buf)
-				if len(datestring) > 9 {
-					datestring = datestring[0:10]
-				}
-				if dt, err := time.Parse("2006-01-02", datestring); err == nil && dt.Unix() >= start.Unix() && dt.Unix() <= end.Unix() {
-					results = append(results, uri)
-				}
-			}
+		datestring := fmt.Sprintf("%s", buf)
+		if len(datestring) > 9 {
+			datestring = datestring[0:10]
+		}
+		if dt, err := time.Parse("2006-01-02", datestring); err == nil && dt.Unix() >= start.Unix() && dt.Unix() <= end.Unix() {
+			results = append(results, uri)
 		}
 		if verbose == true {
 			now = time.Now()

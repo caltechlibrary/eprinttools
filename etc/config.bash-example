@@ -1,7 +1,8 @@
 #!/bin/bash
 
 # URL for E-Prints repository
-export EPRINT_URL="https://USERNAME:SECRET@lemurprints.local"
+#export EPRINT_URL="https://USERNAME:SECRET@lemurprints.local"
+export EPRINT_URL="https://lemurprints.local"
 
 # for S3 storage use an S3 URL like s3://eprints.dataset.edu/eprints
 #export DATASET="s3://eprints.dataset.example.edu/eprints"

@@ -37,7 +37,8 @@ import (
 var (
 	synopsis = []byte(`
 _eputil_ is a command line program for exploring 
-EPrint REST API and EPrint XML document structure.
+EPrint REST API and EPrint XML document structure
+in XML as well as JSON.
 `)
 	description = []byte(`
 _eputil_ parses XML content retrieved from 
@@ -45,7 +46,13 @@ EPrints 3.x. REST API. It will render
 results in JSON or XML.  With the ` + "`" + `-raw` + "`" + `
 option you can get the unmodified EPrintXML from the 
 REST API otherwise the XML is parsed before final 
-rendering as JSON or XML.
+rendering as JSON or XML. It requires a basic knowledge
+of the layout of EPrint 3.x's REST API. It supports
+both unauthenticated and basic authentication access
+to the API. The REST API authentication mechanism 
+appears indepent of the primary website authentication
+setup of the installed EPrints (at least at Caltech
+Library). See the examples to start exploring the API.
 `)
 
 	examples = []byte(`
@@ -91,6 +98,10 @@ In this example the username is "user" and password is
     eputil https://user:secret@example.org/rest/eprint/123.xml
 ` + "```" + `
 
+Getting IDs doesn't typically require authentication but seeing
+specific records may depending on the roles and security
+setup implemented in the EPrint instance.
+
 `)
 
 	// Standard Options
@@ -103,8 +114,8 @@ In this example the username is "user" and password is
 	verbose          bool
 	generateMarkdown bool
 	generateManPage  bool
-	inputFName       string
-	outputFName      string
+	//inputFName       string
+	outputFName string
 
 	// App Options
 	username string
@@ -133,7 +144,7 @@ func main() {
 	app.BoolVar(&showLicense, "l,license", false, "display license")
 	app.BoolVar(&showVersion, "v,version", false, "display version")
 	app.BoolVar(&showExamples, "e,examples", false, "display examples")
-	app.StringVar(&inputFName, "i,input", "", "input file name")
+	//app.StringVar(&inputFName, "i,input", "", "input file name (read the URL connection string from the input file")
 	app.StringVar(&outputFName, "o,output", "", "output file name")
 	app.BoolVar(&quiet, "quiet", false, "suppress error messages")
 	app.BoolVar(&newLine, "nl,newline", false, "if true add a trailing newline")
@@ -145,6 +156,7 @@ func main() {
 	app.BoolVar(&asJSON, "json", false, "attempt to parse XML into generaic JSON structure")
 	app.StringVar(&username, "u,un,user,username", "", "set the username for authenticated access")
 	app.StringVar(&password, "pw,password", "", "set the password for authenticated access")
+	app.StringVar(&auth, "auth", "", "set the authentication type for access")
 
 	// We're ready to process args
 	app.Parse()
@@ -156,11 +168,13 @@ func main() {
 
 	// Setup IO
 	app.Eout = os.Stderr
-	if getURL == "" {
-		app.In, err = cli.Open(inputFName, os.Stdin)
-		cli.ExitOnError(app.Eout, err, quiet)
-		defer cli.CloseFile(inputFName, app.In)
-	}
+	/*
+		if getURL == "" {
+			app.In, err = cli.Open(inputFName, os.Stdin)
+			cli.ExitOnError(app.Eout, err, quiet)
+			defer cli.CloseFile(inputFName, app.In)
+		}
+	*/
 
 	app.Out, err = cli.Create(outputFName, os.Stdout)
 	cli.ExitOnError(app.Eout, err, quiet)
@@ -192,80 +206,53 @@ func main() {
 		os.Exit(0)
 	}
 
-	if getURL != "" {
-		u, err := url.Parse(getURL)
-		if err != nil {
-			fmt.Fprintf(app.Eout, "%s\n", err)
-			os.Exit(1)
-		}
-		if u.User != nil {
-			username = u.User.String()
-		}
-		if username != "" {
-			if strings.Contains(username, ":") {
-				p := strings.SplitN(username, ":", 2)
-				username, password = p[0], p[1]
-			}
-			if auth == "" {
-				auth = "basic"
-			}
-		}
+	if getURL == "" {
+		app.Usage(app.Eout)
+		os.Exit(1)
+	}
 
-		// NOTE: We build our client request object so we can
-		// set authentication if necessary.
-		req, err := http.NewRequest("GET", getURL, nil)
-		switch strings.ToLower(auth) {
-		case "basic":
-			req.SetBasicAuth(username, password)
-		case "basic_auth":
-			req.SetBasicAuth(username, password)
+	u, err := url.Parse(getURL)
+	if err != nil {
+		fmt.Fprintf(app.Eout, "%s\n", err)
+		os.Exit(1)
+	}
+	if u.User != nil {
+		username = u.User.String()
+	}
+	if username != "" {
+		if strings.Contains(username, ":") {
+			p := strings.SplitN(username, ":", 2)
+			username, password = p[0], p[1]
 		}
-		req.Header.Set("User-Agent", app.Version())
-		client := &http.Client{}
-		res, err := client.Do(req)
+		if auth == "" {
+			auth = "basic"
+		}
+	}
+
+	// NOTE: We build our client request object so we can
+	// set authentication if necessary.
+	req, err := http.NewRequest("GET", getURL, nil)
+	switch strings.ToLower(auth) {
+	case "basic":
+		req.SetBasicAuth(username, password)
+	case "basic_auth":
+		req.SetBasicAuth(username, password)
+	}
+	req.Header.Set("User-Agent", app.Version())
+	client := &http.Client{}
+	res, err := client.Do(req)
+	cli.ExitOnError(app.Eout, err, quiet)
+	defer res.Body.Close()
+	if res.StatusCode == 200 {
+		src, err = ioutil.ReadAll(res.Body)
 		cli.ExitOnError(app.Eout, err, quiet)
-		defer res.Body.Close()
-		if res.StatusCode == 200 {
-			src, err = ioutil.ReadAll(res.Body)
-			cli.ExitOnError(app.Eout, err, quiet)
-		} else {
-			cli.ExitOnError(app.Eout, fmt.Errorf("%s for %s", res.Status, getURL), quiet)
-		}
-		if len(bytes.TrimSpace(src)) == 0 {
-			os.Exit(0)
-		}
-		if raw {
-			if newLine {
-				fmt.Fprintf(app.Out, "%s\n", src)
-			} else {
-				fmt.Fprintf(app.Out, "%s", src)
-			}
-			os.Exit(0)
-		}
-
-		switch {
-		case u.Path == "/rest/eprint/":
-			data := eprinttools.EPrintsDataSet{}
-			err = xml.Unmarshal(src, &data)
-			if asJSON {
-				src, err = json.MarshalIndent(data, "", "   ")
-				cli.ExitOnError(app.Eout, err, quiet)
-			} else {
-				src, err = xml.MarshalIndent(data, "", "   ")
-				cli.ExitOnError(app.Eout, err, quiet)
-			}
-		default:
-			data := eprinttools.EPrints{}
-			err = xml.Unmarshal(src, &data)
-			cli.ExitOnError(app.Eout, err, quiet)
-			if asJSON {
-				src, err = json.MarshalIndent(data, "", "   ")
-			} else {
-				src, err = xml.MarshalIndent(data, "", "   ")
-			}
-			cli.ExitOnError(app.Eout, err, quiet)
-		}
-
+	} else {
+		cli.ExitOnError(app.Eout, fmt.Errorf("%s for %s", res.Status, getURL), quiet)
+	}
+	if len(bytes.TrimSpace(src)) == 0 {
+		os.Exit(0)
+	}
+	if raw {
 		if newLine {
 			fmt.Fprintf(app.Out, "%s\n", src)
 		} else {
@@ -274,22 +261,33 @@ func main() {
 		os.Exit(0)
 	}
 
-	// NOTE: If we get this far we're working with EPrint XML
-	// on disc.
-	src, err = ioutil.ReadAll(app.In)
-	cli.ExitOnError(app.Eout, err, quiet)
-	data := eprinttools.EPrints{}
-	err = xml.Unmarshal(src, &data)
-	cli.ExitOnError(app.Eout, err, quiet)
-	if asJSON {
-		src, err = json.MarshalIndent(data, "", "   ")
-	} else {
-		src, err = xml.MarshalIndent(data, "", "   ")
+	switch {
+	case u.Path == "/rest/eprint/":
+		data := eprinttools.EPrintsDataSet{}
+		err = xml.Unmarshal(src, &data)
+		if asJSON {
+			src, err = json.MarshalIndent(data, "", "   ")
+			cli.ExitOnError(app.Eout, err, quiet)
+		} else {
+			src, err = xml.MarshalIndent(data, "", "   ")
+			cli.ExitOnError(app.Eout, err, quiet)
+		}
+	default:
+		data := eprinttools.EPrints{}
+		err = xml.Unmarshal(src, &data)
+		cli.ExitOnError(app.Eout, err, quiet)
+		if asJSON {
+			src, err = json.MarshalIndent(data, "", "   ")
+		} else {
+			src, err = xml.MarshalIndent(data, "", "   ")
+		}
+		cli.ExitOnError(app.Eout, err, quiet)
 	}
-	cli.ExitOnError(app.Eout, err, quiet)
+
 	if newLine {
-		fmt.Fprintf(os.Stdout, "%s\n", src)
+		fmt.Fprintf(app.Out, "%s\n", src)
 	} else {
-		fmt.Fprintf(os.Stdout, "%s", src)
+		fmt.Fprintf(app.Out, "%s", src)
 	}
+	os.Exit(0)
 }
