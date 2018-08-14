@@ -39,8 +39,8 @@ func normalizeCrossRefToLocalGroup(s string) string {
 	return ""
 }
 
-// normalizeCrossRefType converts content type from CrossRef to Authors (e.g.
-// "journal-article" to "article"
+// normalizeCrossRefType converts content type from CrossRef
+// to Authors (e.g. "journal-article" to "article")
 func normalizeCrossRefType(s string) string {
 	switch strings.ToLower(s) {
 	case "proceedings-article":
@@ -158,15 +158,17 @@ func CrossRefWorksToEPrint(obj crossrefapi.Object) (*EPrint, error) {
 		for _, item := range a.([]interface{}) {
 			entry := new(Item)
 			m := item.(map[string]interface{})
-			if name, ok := indexInto(m, "name"); ok == true {
+			if name, ok := indexInto(m, "name"); ok == true && name != "N/A" {
 				entry.Agency = fmt.Sprintf("%s", name)
 			}
-			if a2, ok := indexInto(m, "award"); ok == true {
+			if a2, ok := indexInto(m, "award"); ok == true && a2 != "N/A" {
 				if len(a2.([]interface{})) > 0 {
 					entry.GrantNumber = fmt.Sprintf("%s", a2.([]interface{})[0])
 				}
 			}
-			eprint.Funders.AddItem(entry)
+			if entry.Agency != "" || entry.GrantNumber != "" {
+				eprint.Funders.AddItem(entry)
+			}
 		}
 	}
 

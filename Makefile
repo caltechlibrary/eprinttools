@@ -40,7 +40,7 @@ bin/ep$(EXT): eprinttools.go harvest/harvest.go cmd/ep/ep.go
 bin/eputil$(EXT): eprinttools.go harvest/harvest.go eprint3x.go cmd/eputil/eputil.go
 	go build -o bin/eputil$(EXT) cmd/eputil/eputil.go
 
-bin/doi2eprintxml$(EXT): eprinttools.go crossref.go datacite.go cmd/doi2eprintxml/doi2eprintxml.go 
+bin/doi2eprintxml$(EXT): eprinttools.go crossref.go datacite.go clsrules/clsrules.go cmd/doi2eprintxml/doi2eprintxml.go 
 	go build -o bin/doi2eprintxml$(EXT) cmd/doi2eprintxml/doi2eprintxml.go
 
 bin/eprintxml2json$(EXT): eprinttools.go eprint3x.go cmd/eprintxml2json/eprintxml2json.go 
