@@ -153,6 +153,15 @@ func New(eprintURL, datasetName string, suppressNote bool, authMethod, userName,
 	if err != nil {
 		return nil, fmt.Errorf("eprint url is malformed %s, %s", eprintURL, err)
 	}
+	if userinfo := api.URL.User; userinfo != nil {
+		userName = userinfo.Username()
+		if secret, isSet := userinfo.Password(); isSet {
+			userSecret = secret
+		}
+		if authMethod == "" {
+			authMethod = "baisc"
+		}
+	}
 	if datasetName == "" {
 		return nil, fmt.Errorf("Must have a non-empty dataset collection name")
 	}
