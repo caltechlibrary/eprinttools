@@ -27,7 +27,7 @@
 <pre><code>doi2eprintxml [OPTIONS] DOI
 </code></pre>
 
-<h2>SYNOPSIS</h2>
+<h2>DESCRIPTION</h2>
 
 <p>doi2eprintxml is a Caltech Library centric application that
 takes one or more DOI, queries the CrossRef API
@@ -39,38 +39,42 @@ form or URL form (e.g. &ldquo;10.1021/acsami.7b15651&rdquo; or
 
 <h2>OPTIONS</h2>
 
-<pre><code>    -c, -crossref             only search CrossRef API for DOI records
-    -d, -datacite             only search DataCite API for DOI records
-    -eprints-url              Sets the EPRints API URL
-    -generate-markdown-docs   output documentation in Markdown
-    -h, -help                 display help
-    -i, -input                set input filename
-    -l, -license              display license
-    -m, -mailto               set the mailto value for CrossRef API access
-    -o, -output               set output filename
-    -quiet                    set quiet output
-    -v, -version              display app version
+<p>Below are a set of options available.</p>
+
+<pre><code>    -c, -crossref       only search CrossRef API for DOI records
+    -clsrules           Apply Caltech Library Specific Rules to EPrintXML output
+    -d, -datacite       only search DataCite API for DOI records
+    -eprints-url        Sets the EPRints API URL
+    -generate-manpage   generate man page
+    -generate-markdown  generate Markdown documentation
+    -h, -help           display help
+    -i, -input          set input filename
+    -l, -license        display license
+    -m, -mailto         set the mailto value for CrossRef API access
+    -o, -output         set output filename
+    -quiet              set quiet output
+    -v, -version        display app version
 </code></pre>
 
 <h2>EXAMPLES</h2>
 
 <p>Example generating an EPrintsXML for one DOI</p>
 
-<pre><code class="language-shell">	doi2eprintxml &quot;10.1021/acsami.7b15651&quot; &gt; article.xml
+<pre><code>doi2eprintxml &quot;10.1021/acsami.7b15651&quot; &gt; article.xml
 </code></pre>
 
 <p>Example generating an EPrintsXML for two DOI</p>
 
-<pre><code class="language-shell">	doi2eprintxml &quot;10.1021/acsami.7b15651&quot; &quot;10.1093/mnras/stu2495&quot; &gt; articles.xml
+<pre><code>doi2eprintxml &quot;10.1021/acsami.7b15651&quot; &quot;10.1093/mnras/stu2495&quot; &gt; articles.xml
 </code></pre>
 
 <p>Example processing a list of DOIs in a text file into
 an XML document called &ldquo;import-articles.xml&rdquo;.</p>
 
-<pre><code class="language-shell">	doi2eprintxml -i doi-list.txt -o import-articles.xml
+<pre><code>doi2eprintxml -i doi-list.txt -o import-articles.xml
 </code></pre>
 
-<p>doi2eprintxml v0.0.18</p>
+<p>doi2eprintxml v0.0.20</p>
 
 </section>
 
