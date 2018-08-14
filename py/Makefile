@@ -69,7 +69,7 @@ clean:
 
 test: clean $(PROJECT)/$(LIB_NAME)$(EXT)
 	python3 $(PROJECT)_test.py $(QUICK)
-	if [ "$(OS)" != "macosx" ]; then python3 $(PROJECT)_dataset_test.py; fi
+	#if [ "$(OS)" != "macosx" ]; then python3 $(PROJECT)_dataset_test.py; fi
 
 install: clean $(PROJECT)/$(LIB_NAME)$(EXT)
 	$(USE_SUDO) python3 setup.py install --user --record files.txt
@@ -79,7 +79,7 @@ release: clean $(PROJECT)/$(LIB_NAME)$(EXT)
 	go build -buildmode=c-shared -o "$(PROJECT)/$(LIB_NAME)$(EXT)" "../$(LIB_NAME)/$(LIB_NAME).go"
 	python3 setup.py sdist
 	mkdir -p ../dist
-	cp -v dist/$(PROJECT)-$(VERSION).tar.gz "../dist/py3-$(PROJECT)-$(VERSION)-$(OS)-$(ARCH).tar.gz"
+	cp -v dist/$(PROJECT)-*.tar.gz "../dist/py3-$(PROJECT)-$(VERSION)-$(OS)-$(ARCH).tar.gz"
 
 status:
 	git status

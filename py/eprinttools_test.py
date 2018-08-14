@@ -14,6 +14,7 @@ def test_get_keys(t, eprint_url, auth_type = "", username = "", secret = ""):
     keys = eprinttools.get_keys(cfg)
     if len(keys) == 0:
         t.error(f"Expected more than zero keys for {cfg}")
+        t.fail_now()
     else:
         t.print("found", len(keys), f"for {cfg}")
 
@@ -26,10 +27,11 @@ def test_get_modified_keys(t, eprint_url, auth_type = "", username = "", secret 
     start = end - datetime.timedelta(days = 30)
     t.verbose_on()
     eprinttools.verbose_on()
-    t.print(f"Checking for datetime range {start} to {end} (this can take a while)")
+    t.print(f"Checking for {eprint_url} (auth: {auth_type}) datetime range {start} to {end} (this can take a while)")
     keys = eprinttools.get_modified_keys(cfg, start, end)
     if keys == None or len(keys) == 0:
         t.error(f"expected more than zero keys for get_modified_keys({cfg}, {start}, {end}")
+        t.fail_now()
     else:
         t.print("found", len(keys), f"for {cfg}")
     eprinttools.verbose_off()
@@ -43,6 +45,7 @@ def test_get_metadata(t, eprint_url, auth_type = 0, username = "", secret = ""):
     keys = eprinttools.get_keys(cfg)
     if len(keys) == 0:
         t.error(f"Can't test {test_name} without keys, got zero keys")
+        t.fail_now()
         return
     #FIXME: Pick some random keys to test getting metadata records!
     collection_keys = []
@@ -60,6 +63,7 @@ def test_get_metadata(t, eprint_url, auth_type = 0, username = "", secret = ""):
         if len(data) == 0 or e_msg != "":
             if e_msg.startswith("401") == False:
                 t.error(f"Expected data for {key}, got {data} {e_msg}")
+                t.fail_now()
             else:
                 t.print(f"found {key}, requires authentication")
         else:
@@ -75,6 +79,7 @@ def test_get_metadata(t, eprint_url, auth_type = 0, username = "", secret = ""):
             e_msg = eprinttools.error_message()
             if e_msg.startswith("401") == False:
                 t.error(f"Expected data for {key}, got {data} {e_msg}")
+                t.fail_now()
             else:
                 t.print(f"found {key}, requires authentication")
         else:
@@ -116,11 +121,19 @@ class ATest:
     def error_count(self):
         return self._error_count
 
+    def fail_now(self):
+        fn_name = self._test_name
+        error_count = self._error_count
+        print(f"{fn_name} failed, {error_count}")
+        sys.exit(1)
+
+
 class TestRunner:
     def __init__(self, set_name):
         self._set_name = set_name
         self._tests = []
         self._error_count = 0
+
 
     def add(self, fn, params = []):
         self._tests.append((fn, params))
@@ -156,6 +169,8 @@ def setup():
         username = ""
     if secret == None:
         secret = ""
+    if eprint_url == None:
+        eprint_url = ""
     return eprint_url, auth_type, username, secret
 
 #
@@ -164,9 +179,12 @@ def setup():
 if __name__ == "__main__":
     version = eprinttools.version()
     eprint_url, auth_type, username, secret = setup()
-    if eprint_url == None or eprint_url == "":
+    if eprint_url == "":
         print(f"Skipping tests for eprinttools {version}, EPRINT_URL not set in the environment")
         sys.exit(0)
+    if username != "" and auth_type == "":
+        print(f"Skipping tests for eprinttools {version}, EPRINT_AUTH_TYPE not set in the environment")
+        sys.exit(1)
     test_runner = TestRunner(os.path.basename(__file__))
     test_runner.add(test_get_keys, [eprint_url, auth_type, username, secret])
     if "-quick" in sys.argv:

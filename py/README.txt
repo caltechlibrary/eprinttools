@@ -9,8 +9,9 @@ REST API.
 + [eputil](docs/eputil.html) is a command line utility for interacting (e.g. harvesting) JSON and XML from EPrints' REST API
     + uses minimal configuration because it does less!
     + will supercede _ep_
-+ [ep](docs/ep.html) is a EPrints harvester that integrates with [dataset](https://github.com/caltechlibrary/dataset).
-+ [doi2eprintxml](docs/doi2eprintxml)_ is a command line program for turning metadata harvested from CrossRef and DataCite into an EPrint XML document based on one or more supplied DOI
++ [ep](docs/ep.html) is a EPrints harvester that integrates with [dataset](https://github.com/caltechlibrary/dataset)
++ [doi2eprintxml](docs/doi2eprintxml.html) is a command line program for turning metadata harvested from CrossRef and DataCite into an EPrint XML document based on one or more supplied DOI
++ [eprintxml2json](docs/eprintxml2json.html) is a command line program for taking EPrint XML and turning it into JSON 
 
 The first two utilities can be configured from the environment or 
 command line options. The environment settings are overridden by command 

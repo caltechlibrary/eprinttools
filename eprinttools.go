@@ -19,19 +19,15 @@
 package eprinttools
 
 import (
-	"encoding/json"
 	"encoding/xml"
 	"fmt"
-	"io/ioutil"
 	"log"
-	"net/http"
-	"os"
-	"time"
-	//"net/http"
 	"net/url"
+	"os"
 	"path"
 	"strconv"
 	"strings"
+	"time"
 
 	// Caltech Library packages
 	"github.com/caltechlibrary/rc"
@@ -39,7 +35,7 @@ import (
 
 const (
 	// Version is the revision number for this implementation of epgo
-	Version = `v0.0.18`
+	Version = `v0.0.20`
 
 	// LicenseText holds the string for rendering License info on the command line
 	LicenseText = `
@@ -87,93 +83,6 @@ type EPrintsAPI struct {
 	Secret string
 	// SuppressNote suppresses the Note field
 	SuppressNote bool
-}
-
-// Person returns the contents of eprint>creators>item>name as a struct
-type Person struct {
-	XMLName xml.Name `json:"-"`
-	Given   string   `xml:"name>given" json:"given"`
-	Family  string   `xml:"name>family" json:"family"`
-	ID      string   `xml:"id,omitempty" json:"id"`
-
-	// Customizations for Caltech Library
-	ORCID string `xml:"orcid,omitempty" json:"orcid,omitempty"`
-	//EMail string `xml:"email,omitempty" json:"email,omitempty"`
-	Role string `xml:"role,omitempty" json:"role,omitempty"`
-}
-
-// PersonList is an array of pointers to Person structs
-type PersonList []*Person
-
-// RelatedURL is a structure containing information about a relationship
-type RelatedURL struct {
-	XMLName     xml.Name `json:"-"`
-	URL         string   `xml:"url" json:"url"`
-	Type        string   `xml:"type" json:"type"`
-	Description string   `xml:"description" json:"description"`
-}
-
-// NumberingSystem is a structure describing other numbering systems for record
-type NumberingSystem struct {
-	XMLName xml.Name `json:"-"`
-	Name    string   `xml:"name" json:"name"`
-	ID      string   `xml:"id" json:"id"`
-}
-
-// Funder is a structure describing a funding source for record
-type Funder struct {
-	XMLName     xml.Name `json:"-"`
-	Agency      string   `xml:"agency" json:"agency"`
-	GrantNumber string   `xml:"grant_number,omitempty" json:"grant_number"`
-}
-
-// FunderList is an array of pointers to Funder structs
-type FunderList []*Funder
-
-// File structures in Document
-type File struct {
-	XMLName   xml.Name `json:"-"`
-	ID        string   `xml:"id,attr" json:"id"`
-	FileID    int      `xml:"fileid" json:"fileid"`
-	DatasetID string   `xml:"datasetid" json:"datasetid"`
-	ObjectID  int      `xml:"objectid" json:"objectid"`
-	Filename  string   `xml:"filename" json:"filename"`
-	MimeType  string   `xml:"mime_type" json:"mime_type"`
-	Hash      string   `xml:"hash" json:"hash"`
-	HashType  string   `xml:"hash_type" json:"hash_type"`
-	FileSize  int      `xml:"filesize" json:"filesize"`
-	MTime     string   `xml:"mtime" json:"mtime"`
-	URL       string   `xml:"url" json:"url"`
-}
-
-// Document structures inside a Record (i.e. <eprint>...<documents><document>...</document>...</documents>...</eprint>)
-type Document struct {
-	XMLName    xml.Name `json:"-"`
-	XMLNS      string   `xml:"xmlns,attr,omitempty" json:"name_space,omitempty"`
-	ID         string   `xml:"id,attr" json:"id"`
-	DocID      int      `xml:"docid" json:"doc_id"`
-	RevNumber  int      `xml:"rev_number" json:"rev_number,omitempty"`
-	Files      []*File  `xml:"files>file" json:"files,omitempty"`
-	EPrintID   int      `xml:"eprintid" json:"eprint_id"`
-	Pos        int      `xml:"pos" json:"pos,omitempty"`
-	Placement  int      `xml:"placement" json:"placement,omitempty"`
-	MimeType   string   `xml:"mime_type" json:"mime_type"`
-	Format     string   `xml:"format" json:"format"`
-	FormatDesc string   `xml:"formatdesc,omitempty" json:"format_desc,omitempty"`
-	Language   string   `xml:"language" json:"language"`
-	Security   string   `xml:"security" json:"security"`
-	License    string   `xml:"license" json:"license"`
-	Main       string   `xml:"main" json:"main"`
-	Content    string   `xml:"content" json:"content"`
-	Relation   []*Item  `xml:"relation>item,omitempty" json:"relation,omitempty"`
-}
-
-// DocumentList is an array of pointers to Document structs
-type DocumentList []*Document
-
-type ePrintIDs struct {
-	XMLName xml.Name `xml:"html" json:"-"`
-	IDs     []string `xml:"body>ul>li>a" json:"ids"`
 }
 
 func normalizeDate(in string) string {
@@ -237,10 +146,20 @@ func New(eprintURL, datasetName string, suppressNote bool, authMethod, userName,
 	if eprintURL == "" {
 		eprintURL = "http://localhost:8080"
 	}
-	api.URL, err = url.Parse(eprintURL)
+	u, err := url.Parse(eprintURL)
 	if err != nil {
 		return nil, fmt.Errorf("eprint url is malformed %s, %s", eprintURL, err)
 	}
+	if userinfo := u.User; userinfo != nil {
+		userName = userinfo.Username()
+		if secret, isSet := userinfo.Password(); isSet {
+			userSecret = secret
+		}
+		if authMethod == "" {
+			authMethod = "baisc"
+		}
+	}
+	api.URL, _ = url.Parse(u.String())
 	if datasetName == "" {
 		return nil, fmt.Errorf("Must have a non-empty dataset collection name")
 	}
@@ -308,8 +227,8 @@ func (api *EPrintsAPI) ListEPrintsURI() ([]string, error) {
 	return results, nil
 }
 
-// ListModifiedEPrintURI return a list of modifed EPrint URI (eprint_ids) in start and end times
-func (api *EPrintsAPI) ListModifiedEPrintURI(start, end time.Time, verbose bool) ([]string, error) {
+// ListModifiedEPrintsURI return a list of modifed EPrint URI (eprint_ids) in start and end times
+func (api *EPrintsAPI) ListModifiedEPrintsURI(start, end time.Time, verbose bool) ([]string, error) {
 	var (
 		results []string
 	)
@@ -329,43 +248,33 @@ func (api *EPrintsAPI) ListModifiedEPrintURI(start, end time.Time, verbose bool)
 		now = time.Now()
 		log.Printf("(pid: %d) Retrieved %d ids, %s", pid, len(uris), now.Sub(t0).Round(time.Second))
 	}
-
-	workingURL, err := url.Parse(api.URL.String())
-	if err != nil {
-		return nil, err
-	}
-	if workingURL.Path == "" {
-		workingURL.Path = path.Join("rest", "eprint") + "/"
-	} else {
-		p := workingURL.Path
-		workingURL.Path = path.Join(p, "rest", "eprint") + "/"
-	}
-
 	if verbose == true {
 		log.Printf("(pid: %d) Filtering EPrints ids by modification dates, %s to %s", pid, start.Format("2006-01-02"), end.Format("2006-01-02"))
 	}
+
+	rest, err := rc.New(api.URL.String(), api.AuthType, api.Username, api.Secret)
+	if err != nil {
+		return nil, err
+	}
+	err = rest.Login()
+	if err != nil {
+		return nil, err
+	}
+
 	total := len(uris)
 	lastI := total - 1
-	u := workingURL
-	client := &http.Client{}
 	for i, uri := range uris {
-		u.Path = strings.TrimSuffix(uri, ".xml") + "/lastmod.txt"
-		req, err := http.NewRequest("GET", u.String(), nil)
+		p := strings.TrimSuffix(uri, ".xml") + "/lastmod.txt"
+		buf, err := rest.Request("GET", p, map[string]string{})
 		if err != nil {
 			return nil, err
 		}
-		req.Header.Set("User-Agent", fmt.Sprintf("eprinttools %s", Version))
-		if res, err := client.Do(req); err == nil {
-			if buf, err := ioutil.ReadAll(res.Body); err == nil {
-				res.Body.Close()
-				datestring := fmt.Sprintf("%s", buf)
-				if len(datestring) > 9 {
-					datestring = datestring[0:10]
-				}
-				if dt, err := time.Parse("2006-01-02", datestring); err == nil && dt.Unix() >= start.Unix() && dt.Unix() <= end.Unix() {
-					results = append(results, uri)
-				}
-			}
+		datestring := fmt.Sprintf("%s", buf)
+		if len(datestring) > 9 {
+			datestring = datestring[0:10]
+		}
+		if dt, err := time.Parse("2006-01-02", datestring); err == nil && dt.Unix() >= start.Unix() && dt.Unix() <= end.Unix() {
+			results = append(results, uri)
 		}
 		if verbose == true {
 			now = time.Now()
@@ -427,60 +336,9 @@ func (api *EPrintsAPI) GetEPrint(uri string) (*EPrint, []byte, error) {
 	return nil, content, fmt.Errorf("Expected an eprint for %s", uri)
 }
 
-// ToNames takes an array of pointers to Person and returns a list of names (family, given)
-func (persons PersonList) ToNames() []string {
-	var result []string
-
-	for _, person := range persons {
-		result = append(result, fmt.Sprintf("%s, %s", person.Family, person.Given))
-	}
-	return result
-}
-
-// ToORCIDs takes an an array of pointers to Person and returns a list of ORCID ids
-func (persons PersonList) ToORCIDs() []string {
-	var result []string
-
-	for _, person := range persons {
-		result = append(result, person.ORCID)
-	}
-
-	return result
-}
-
-// ToAgencies takes an array of pointers to Funders and returns a list of Agency names
-func (funders FunderList) ToAgencies() []string {
-	var result []string
-
-	for _, funder := range funders {
-		result = append(result, funder.Agency)
-	}
-
-	return result
-}
-
-// ToGrantNumbers takes an array of pointers to Funders and returns a list of Agency names
-func (funders FunderList) ToGrantNumbers() []string {
-	var result []string
-
-	for _, funder := range funders {
-		result = append(result, funder.GrantNumber)
-	}
-
-	return result
-}
-
 func (record *EPrint) PubDate() string {
 	if record.DateType == "published" {
 		return record.Date
 	}
 	return ""
-}
-
-func (person *Person) String() string {
-	src, err := json.Marshal(person)
-	if err != nil {
-		return ""
-	}
-	return fmt.Sprintf("%s", src)
 }

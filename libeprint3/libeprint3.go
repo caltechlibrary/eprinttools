@@ -87,12 +87,20 @@ func apiCfg(m map[string]string) (string, int, string, string) {
 		uri = m["url"]
 	}
 	if _, ok := m["auth_type"]; ok == true {
-		switch m["auth_type"] {
-		case "BasicAuth":
+		switch strings.ToLower(m["auth_type"]) {
+		case "basic":
 			authType = rc.BasicAuth
-		case "OAuth":
+		case "basic_auth":
+			authType = rc.BasicAuth
+		case "basicauth":
+			authType = rc.BasicAuth
+		case "oauth":
 			authType = rc.OAuth
-		case "Shibboleth":
+		case "oauth2":
+			authType = rc.OAuth
+		case "shib":
+			authType = rc.Shibboleth
+		case "shibboleth":
 			authType = rc.Shibboleth
 		default:
 			authType = rc.AuthNone

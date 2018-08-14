@@ -34,6 +34,7 @@ import (
 	"github.com/caltechlibrary/crossrefapi"
 	"github.com/caltechlibrary/dataciteapi"
 	"github.com/caltechlibrary/eprinttools"
+	"github.com/caltechlibrary/eprinttools/clsrules"
 )
 
 var (
@@ -81,19 +82,21 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 `
 
 	// Standard Options
-	showHelp             bool
-	showLicense          bool
-	showVersion          bool
-	generateMarkdownDocs bool
-	inputFName           string
-	outputFName          string
-	quiet                bool
+	showHelp         bool
+	showLicense      bool
+	showVersion      bool
+	generateMarkdown bool
+	generateManPage  bool
+	inputFName       string
+	outputFName      string
+	quiet            bool
 
 	// App specific options
-	apiEPrintsURL string
-	mailto        string
-	crossrefOnly  bool
-	dataciteOnly  bool
+	apiEPrintsURL                  string
+	mailto                         string
+	crossrefOnly                   bool
+	dataciteOnly                   bool
+	useCaltechLibrarySpecificRules bool
 )
 
 func main() {
@@ -112,7 +115,8 @@ func main() {
 	app.BoolVar(&showHelp, "h,help", false, "display help")
 	app.BoolVar(&showLicense, "l,license", false, "display license")
 	app.BoolVar(&showVersion, "v,version", false, "display app version")
-	app.BoolVar(&generateMarkdownDocs, "generate-markdown-docs", false, "output documentation in Markdown")
+	app.BoolVar(&generateMarkdown, "generate-markdown", false, "generate Markdown documentation")
+	app.BoolVar(&generateManPage, "generate-manpage", false, "generate man page")
 	app.StringVar(&inputFName, "i,input", "", "set input filename")
 	app.StringVar(&outputFName, "o,output", "", "set output filename")
 	app.BoolVar(&quiet, "quiet", false, "set quiet output")
@@ -121,6 +125,7 @@ func main() {
 	app.StringVar(&apiEPrintsURL, "eprints-url", "", "Sets the EPRints API URL")
 	app.BoolVar(&crossrefOnly, "c,crossref", false, "only search CrossRef API for DOI records")
 	app.BoolVar(&dataciteOnly, "d,datacite", false, "only search DataCite API for DOI records")
+	app.BoolVar(&useCaltechLibrarySpecificRules, "clsrules", true, "Apply Caltech Library Specific Rules to EPrintXML output")
 
 	//FIXME: Need to come up with a better way of setting this,
 	// perhaps a config mode and save the setting in
@@ -130,8 +135,12 @@ func main() {
 	app.Parse()
 	args := app.Args()
 
-	if generateMarkdownDocs {
-		app.GenerateMarkdownDocs(os.Stdout)
+	if generateMarkdown {
+		app.GenerateMarkdown(os.Stdout)
+		os.Exit(0)
+	}
+	if generateManPage {
+		app.GenerateManPage(os.Stdout)
 		os.Exit(0)
 	}
 
@@ -279,6 +288,15 @@ func main() {
 			if isCrossRefDOI == false && isDataCiteDOI == false {
 				fmt.Fprintf(os.Stderr, "WARNING: %s not found in CrossRef or DataCite API lookup")
 			}
+		}
+	}
+	//FIXME: We need to apply Caltech Library Special Rules
+	// before marshaling our results...
+	if useCaltechLibrarySpecificRules {
+		eprintsList, err = clsrules.Apply(eprintsList)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "%s\n", err)
+			os.Exit(1)
 		}
 	}
 	src, err := xml.MarshalIndent(eprintsList, "", "   ")

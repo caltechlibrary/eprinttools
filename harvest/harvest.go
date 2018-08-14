@@ -242,7 +242,7 @@ func ExportModifiedEPrints(api *eprinttools.EPrintsAPI, start, end time.Time, sa
 	}
 	defer c.Close()
 
-	uris, err := api.ListModifiedEPrintURI(start, end, verbose)
+	uris, err := api.ListModifiedEPrintsURI(start, end, verbose)
 	if err != nil {
 		return fmt.Errorf("Export modified %s to %s failed, %s", start, end, err)
 	}

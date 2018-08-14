@@ -39,19 +39,22 @@ func TestListEPrintsURI(t *testing.T) {
 		t.FailNow()
 	}
 
-	_, err = api.ListEPrintsURI()
+	uris, err := api.ListEPrintsURI()
 	if err != nil {
 		t.Errorf("listEPrintsURI() %s", err)
 	}
+	if len(uris) == 0 {
+		t.Errorf("ListEPrintsURI() returned zero uri")
+		t.FailNow()
+	}
 
-	start, _ := time.Parse("2006-01-02", "2016-01-01")
-	end, _ := time.Parse("2006-01-02", "2018-02-06")
-	uris, err := api.ListModifiedEPrintURI(start, end, true)
+	start, _ := time.Parse("2006-01-02", "2018-01-01")
+	end, _ := time.Parse("2006-01-02", "2018-12-31")
+	uris, err = api.ListModifiedEPrintsURI(start, end, true)
 	if err != nil {
-		t.Errorf("listEPrintURI() %s", err)
+		t.Errorf("ListModifiedEPrintsURI(%q, %q, true) %s", start.String(), end.String(), err)
 	}
 	if len(uris) == 0 {
-		t.Errorf("Expected more uris, got %d", len(uris))
+		t.Errorf("Expected uris for list modified from %s to %s", start.String(), end.String())
 	}
-	//log.Printf("DEBUG uri: %+v\n", uris)
 }
