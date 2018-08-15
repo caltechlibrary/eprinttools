@@ -1,0 +1,37 @@
+package clsrules
+
+var (
+	doiPrefix = map[string]string{
+		"10.1103":  "American Physical Society",
+		"10.1063":  "American Institute of Physics",
+		"10.1039":  "Royal Society of Chemistry",
+		"10.1242":  "Company of Biologists",
+		"10.1073":  "PNAS",
+		"10.1109":  "IEEE",
+		"10.2514":  "AIAA",
+		"10.1029":  "AGU (pre-Wiley hosting)",
+		"10.1093":  "MNRAS",
+		"10.1046":  "Geophysical Journal International",
+		"10.1175":  "American Meteorological Society",
+		"10.1083":  "Rockefeller University Press",
+		"10.1084":  "Rockefeller University Press",
+		"10.1085":  "Rockefeller University Press",
+		"10.26508": "Rockefeller University Press",
+		"10.1371":  "PLOS",
+		"10.5194":  "European Geosciences Union",
+		"10.1051":  "EDP Sciences",
+		"10.2140":  "Mathematical Sciences Publishers",
+		"10.1074":  "ASBMB",
+		"10.1091":  "ASCB",
+		"10.1523":  "Society for Neuroscience",
+		"10.1101":  "Cold Spring Harbor",
+		"10.1128":  "American Society for Microbiology",
+		"10.1115":  "ASME",
+		"10.1061":  "ASCE",
+		"10.1038":  "Nature",
+		"10.1126":  "Science",
+		"10.1021":  "American Chemical Society",
+		"10.1002":  "Wiley",
+		"10.1016":  "Elsevier",
+	}
+)

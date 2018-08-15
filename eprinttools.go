@@ -35,7 +35,7 @@ import (
 
 const (
 	// Version is the revision number for this implementation of epgo
-	Version = `v0.0.20`
+	Version = `v0.0.21`
 
 	// LicenseText holds the string for rendering License info on the command line
 	LicenseText = `
@@ -199,6 +199,7 @@ func (api *EPrintsAPI) ListEPrintsURI() ([]string, error) {
 	}
 	// Switch to use Rest Client Wrapper
 	rest, err := rc.New(workingURL.String(), api.AuthType, api.Username, api.Secret)
+	rest.Timeout = 30 * time.Second
 	if err != nil {
 		return nil, fmt.Errorf("requesting %s, %s", workingURL.String(), err)
 	}
@@ -253,6 +254,7 @@ func (api *EPrintsAPI) ListModifiedEPrintsURI(start, end time.Time, verbose bool
 	}
 
 	rest, err := rc.New(api.URL.String(), api.AuthType, api.Username, api.Secret)
+	rest.Timeout = 30 * time.Second
 	if err != nil {
 		return nil, err
 	}
@@ -310,6 +312,7 @@ func (api *EPrintsAPI) GetEPrint(uri string) (*EPrint, []byte, error) {
 
 	// Switch to use Rest Client Wrapper
 	rest, err := rc.New(workingURL.String(), api.AuthType, api.Username, api.Secret)
+	rest.Timeout = 30 * time.Second
 	if err != nil {
 		return nil, nil, fmt.Errorf("requesting %s, %s", workingURL.String(), err)
 	}

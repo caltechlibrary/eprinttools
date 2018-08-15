@@ -40,7 +40,7 @@ bin/ep$(EXT): eprinttools.go harvest/harvest.go cmd/ep/ep.go
 bin/eputil$(EXT): eprinttools.go harvest/harvest.go eprint3x.go cmd/eputil/eputil.go
 	go build -o bin/eputil$(EXT) cmd/eputil/eputil.go
 
-bin/doi2eprintxml$(EXT): eprinttools.go crossref.go datacite.go cmd/doi2eprintxml/doi2eprintxml.go 
+bin/doi2eprintxml$(EXT): eprinttools.go crossref.go datacite.go clsrules/clsrules.go cmd/doi2eprintxml/doi2eprintxml.go 
 	go build -o bin/doi2eprintxml$(EXT) cmd/doi2eprintxml/doi2eprintxml.go
 
 bin/eprintxml2json$(EXT): eprinttools.go eprint3x.go cmd/eprintxml2json/eprintxml2json.go 
@@ -51,11 +51,11 @@ install:
 	env GOBIN=$(GOPATH)/bin go install cmd/eputil/eputil.go
 	env GOBIN=$(GOPATH)/bin go install cmd/doi2eprintxml/doi2eprintxml.go
 	env GOBIN=$(GOPATH)/bin go install cmd/eprintxml2json/eprintxml2json.go
-	if [ $(OS) = "Linux" ]; then mkdir -p "$(GOPATH)/man/man1"; fi
-	if [ $(OS) = "Linux" ]; then $(GOPATH)/bin/ep -generate-manpage | nroff -Tutf8 -man > $(GOPATH)/man/man1/ep.1; fi
-	if [ $(OS) = "Linux" ]; then $(GOPATH)/bin/eputil -generate-manpage | nroff -Tutf8 -man > $(GOPATH)/man/man1/eputil.1; fi
-	if [ $(OS) = "Linux" ]; then $(GOPATH)/bin/doi2eprintxml -generate-manpage | nroff -Tutf8 -man > $(GOPATH)/man/man1/doi2eprintxml.1; fi
-	if [ $(OS) = "Linux" ]; then $(GOPATH)/bin/eprintxml2json -generate-manpage | nroff -Tutf8 -man > $(GOPATH)/man/man1/eprintxml2json.1; fi
+	if [ "$(OS)" != "Windows" ]; then mkdir -p "$(GOPATH)/man/man1"; fi
+	if [ "$(OS)" != "Windows" ]; then $(GOPATH)/bin/ep -generate-manpage | nroff -Tutf8 -man > $(GOPATH)/man/man1/ep.1; fi
+	if [ "$(OS)" != "Windows" ]; then $(GOPATH)/bin/eputil -generate-manpage | nroff -Tutf8 -man > $(GOPATH)/man/man1/eputil.1; fi
+	if [ "$(OS)" != "Windows" ]; then $(GOPATH)/bin/doi2eprintxml -generate-manpage | nroff -Tutf8 -man > $(GOPATH)/man/man1/doi2eprintxml.1; fi
+	if [ "$(OS)" != "Windows" ]; then $(GOPATH)/bin/eprintxml2json -generate-manpage | nroff -Tutf8 -man > $(GOPATH)/man/man1/eprintxml2json.1; fi
 
 
 website: page.tmpl README.md nav.md INSTALL.md LICENSE css/site.css docs/index.md docs/ep.md docs/eputil.md

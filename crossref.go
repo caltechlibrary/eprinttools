@@ -39,8 +39,8 @@ func normalizeCrossRefToLocalGroup(s string) string {
 	return ""
 }
 
-// normalizeCrossRefType converts content type from CrossRef to Authors (e.g.
-// "journal-article" to "article"
+// normalizeCrossRefType converts content type from CrossRef
+// to Authors (e.g. "journal-article" to "article")
 func normalizeCrossRefType(s string) string {
 	switch strings.ToLower(s) {
 	case "proceedings-article":
@@ -158,28 +158,26 @@ func CrossRefWorksToEPrint(obj crossrefapi.Object) (*EPrint, error) {
 		for _, item := range a.([]interface{}) {
 			entry := new(Item)
 			m := item.(map[string]interface{})
-			if name, ok := indexInto(m, "name"); ok == true {
+			if name, ok := indexInto(m, "name"); ok == true && name != "N/A" {
 				entry.Agency = fmt.Sprintf("%s", name)
 			}
-			if a2, ok := indexInto(m, "award"); ok == true {
+			if a2, ok := indexInto(m, "award"); ok == true && a2 != "N/A" {
 				if len(a2.([]interface{})) > 0 {
 					entry.GrantNumber = fmt.Sprintf("%s", a2.([]interface{})[0])
 				}
 			}
-			eprint.Funders.AddItem(entry)
+			if entry.Agency != "" || entry.GrantNumber != "" {
+				eprint.Funders.AddItem(entry)
+			}
 		}
 	}
 
-	// NOTE: Caltech Library puts the DOI in a different field than
-	// EPrints' standard DOI location
-	// DOI
+	// NOTE: Caltech Library puts the DOI in the related URL field rather than
+	// in EPrint's default location. This code puts the DOI in the default
+	// location. If you need Caltech Library's bahavior use clsrules.Apply()
+	// to conform to that regime.
 	if doi, ok := indexInto(obj, "message", "DOI"); ok == true {
-		eprint.RelatedURL = new(RelatedURLItemList)
-		entry := new(Item)
-		entry.Type = "doi"
-		entry.URL = fmt.Sprintf("https://doi.org/%s", doi)
-		entry.Description = eprint.Type
-		eprint.RelatedURL.AddItem(entry)
+		eprint.DOI = doi.(string)
 	}
 	if l, ok := indexInto(obj, "message", "update-to"); ok == true {
 		for _, o := range l.([]interface{}) {
@@ -196,6 +194,9 @@ func CrossRefWorksToEPrint(obj crossrefapi.Object) (*EPrint, error) {
 				entry.Type = "doi"
 				entry.URL = fmt.Sprintf("https://doi.org/%s", newDoi)
 				entry.Description = fmt.Sprintf("%s, %s", label, when)
+				if eprint.RelatedURL == nil {
+					eprint.RelatedURL = new(RelatedURLItemList)
+				}
 				eprint.RelatedURL.AddItem(entry)
 			}
 		}
@@ -209,31 +210,33 @@ func CrossRefWorksToEPrint(obj crossrefapi.Object) (*EPrint, error) {
 		for _, o := range l.([]interface{}) {
 			entry := new(Item)
 			if s, ok := indexInto(o.(map[string]interface{}), "URL"); ok == true {
-				entry.URL = fmt.Sprintf("%s", s)
+				entry.URL = s.(string)
 			}
-			// NOTE: Related URL Type is not Mime-Type in CaltechAUTHORS,
+			// NOTE: Related URL Type is not related to mime-type,
 			// import related URLs without type information.
-			/*
-				if s, ok := indexInto(o.(map[string]interface{}), "content-type"); ok == true {
-					entry.Type = fmt.Sprintf("%s", s)
-				}
-			*/
-			if len(entry.URL) > 0 && len(entry.Type) > 0 {
+			if s, ok := indexInto(o.(map[string]interface{}), "type"); ok == true {
+				entry.Type = s.(string)
+			}
+			if len(entry.URL) > 0 { //&& len(entry.Type) > 0 {
 				eprint.RelatedURL.AddItem(entry)
 			}
 		}
 	}
 
 	// NOTE: Assuming date is published given we're talking to CrossRef
-	// Date
-	if created, ok := indexInto(obj, "message", "created", "date-time"); ok == true {
+	// Date. We prefer issued date but fallback to created date.
+	eprint.DateType = "published"
+	if issued, ok := indexInto(obj, "message", "issued", "date-time"); ok == true {
 		// DateType
-		eprint.DateType = "published"
+		eprint.Date = fmt.Sprintf("%s", issued)
+	} else if created, ok := indexInto(obj, "message", "created", "date-time"); ok == true {
+		// DateType
 		eprint.Date = fmt.Sprintf("%s", created)
-		if len(eprint.Date) > 10 {
-			eprint.Date = eprint.Date[0:10]
-		}
 	}
+	if len(eprint.Date) > 10 {
+		eprint.Date = eprint.Date[0:10]
+	}
+
 	// Authors list
 	if l, ok := indexInto(obj, "message", "author"); ok == true {
 		creators := new(CreatorItemList)

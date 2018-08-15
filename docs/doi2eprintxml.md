@@ -21,19 +21,19 @@ form or URL form (e.g. "10.1021/acsami.7b15651" or
 Below are a set of options available.
 
 ```
-    -c, -crossref       only search CrossRef API for DOI records
-    -clsrules           Apply Caltech Library Specific Rules to EPrintXML output
-    -d, -datacite       only search DataCite API for DOI records
-    -eprints-url        Sets the EPRints API URL
-    -generate-manpage   generate man page
-    -generate-markdown  generate Markdown documentation
-    -h, -help           display help
-    -i, -input          set input filename
-    -l, -license        display license
-    -m, -mailto         set the mailto value for CrossRef API access
-    -o, -output         set output filename
-    -quiet              set quiet output
-    -v, -version        display app version
+    -c, -crossref        only search CrossRef API for DOI records
+    -clsrules            Apply Caltech Library Specific Rules to EPrintXML output
+    -d, -datacite        only search DataCite API for DOI records
+    -eprints-url         Sets the EPRints API URL
+    -generate-manpage    generate man page
+    -generate-markdown   generate Markdown documentation
+    -h, -help            display help
+    -i, -input           set input filename
+    -l, -license         display license
+    -m, -mailto          set the mailto value for CrossRef API access
+    -o, -output          set output filename
+    -quiet               set quiet output
+    -v, -version         display app version
 ```
 
 
@@ -54,4 +54,4 @@ an XML document called "import-articles.xml".
 	doi2eprintxml -i doi-list.txt -o import-articles.xml
 
 
-doi2eprintxml v0.0.20
+doi2eprintxml v0.0.21
