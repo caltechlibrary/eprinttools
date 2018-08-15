@@ -1,0 +1,17 @@
+Hello everyone,
+
+I have put together a new release of eprinttools (including doi2eprintxml) 
+that has the additional customization requested.  The release 
+number is v0.0.21 and available (Thursday, Aug 15th) at 
+
+    https://github.com/caltechlibrary/eprinttools/releases/latest.  
+
+If there is interest I can be available at the next Tools Incubator 
+Meeting (Aug 21st, 10:00am) to answer questions and help install
+the updated version of doi2eprintxml.
+
+All the best,
+
+Robert
+
+
