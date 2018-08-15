@@ -51,11 +51,11 @@ install:
 	env GOBIN=$(GOPATH)/bin go install cmd/eputil/eputil.go
 	env GOBIN=$(GOPATH)/bin go install cmd/doi2eprintxml/doi2eprintxml.go
 	env GOBIN=$(GOPATH)/bin go install cmd/eprintxml2json/eprintxml2json.go
-	if [ $(OS) = "Linux" ]; then mkdir -p "$(GOPATH)/man/man1"; fi
-	if [ $(OS) = "Linux" ]; then $(GOPATH)/bin/ep -generate-manpage | nroff -Tutf8 -man > $(GOPATH)/man/man1/ep.1; fi
-	if [ $(OS) = "Linux" ]; then $(GOPATH)/bin/eputil -generate-manpage | nroff -Tutf8 -man > $(GOPATH)/man/man1/eputil.1; fi
-	if [ $(OS) = "Linux" ]; then $(GOPATH)/bin/doi2eprintxml -generate-manpage | nroff -Tutf8 -man > $(GOPATH)/man/man1/doi2eprintxml.1; fi
-	if [ $(OS) = "Linux" ]; then $(GOPATH)/bin/eprintxml2json -generate-manpage | nroff -Tutf8 -man > $(GOPATH)/man/man1/eprintxml2json.1; fi
+	if [ "$(OS)" != "Windows" ]; then mkdir -p "$(GOPATH)/man/man1"; fi
+	if [ "$(OS)" != "Windows" ]; then $(GOPATH)/bin/ep -generate-manpage | nroff -Tutf8 -man > $(GOPATH)/man/man1/ep.1; fi
+	if [ "$(OS)" != "Windows" ]; then $(GOPATH)/bin/eputil -generate-manpage | nroff -Tutf8 -man > $(GOPATH)/man/man1/eputil.1; fi
+	if [ "$(OS)" != "Windows" ]; then $(GOPATH)/bin/doi2eprintxml -generate-manpage | nroff -Tutf8 -man > $(GOPATH)/man/man1/doi2eprintxml.1; fi
+	if [ "$(OS)" != "Windows" ]; then $(GOPATH)/bin/eprintxml2json -generate-manpage | nroff -Tutf8 -man > $(GOPATH)/man/man1/eprintxml2json.1; fi
 
 
 website: page.tmpl README.md nav.md INSTALL.md LICENSE css/site.css docs/index.md docs/ep.md docs/eputil.md

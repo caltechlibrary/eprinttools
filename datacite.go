@@ -159,19 +159,13 @@ func DataCiteWorksToEPrint(obj dataciteapi.Object) (*EPrint, error) {
 
 	// FIXME: Funders
 
-	// NOTE: Caltech Library puts the DOI in a different field than
-	// EPrints' standard DOI location (i.e. not in eprint.DOI but in
-	// the related url item list)
-	// DOI
-	if doi, ok := indexInto(obj, "data", "attributes", "doi"); ok == true {
-		eprint.RelatedURL = new(RelatedURLItemList)
-		entry := new(Item)
-		entry.Type = "doi"
-		entry.URL = fmt.Sprintf("https://doi.org/%s", doi)
-		entry.Description = eprint.Type
-		eprint.RelatedURL.AddItem(entry)
+	// NOTE: Caltech Library puts the DOI in the related URL field rather than
+	// in EPrint's default location. This code puts the DOI in the default
+	// location. If you need Caltech Library's bahavior use clsrules.Apply()
+	// to conform to that regime.
+	if doi, ok := indexInto(obj, "message", "DOI"); ok == true {
+		eprint.DOI = doi.(string)
 	}
-
 	// FIXME: RelatedURLs (links in message of DataCite works object)
 	// NOTE: related URL type is NOT Mime-Type in CaltechAUTHORS, import URL without type being set.
 

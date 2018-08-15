@@ -9,11 +9,42 @@
 package clsrules
 
 import (
+	"fmt"
 	"strings"
 
 	// Caltech Library Packages
 	"github.com/caltechlibrary/eprinttools"
 )
+
+// migrateDOI - Caltech Library stores the EPrint's DOI in the related URL for historical reasons
+// If a DOI is in EPrint.DOI then it needs to migrate to EPrint.RelatedURLItemList as the initial item.
+// Returns a revised URL list and boolean true if list was modified to include doi
+func migrateDOI(doi string, description string, relatedURLs *eprinttools.RelatedURLItemList) (*eprinttools.RelatedURLItemList, bool) {
+	if doi != "" {
+		if relatedURLs == nil {
+			relatedURLs = new(eprinttools.RelatedURLItemList)
+		}
+		entry := new(eprinttools.Item)
+		entry.Type = "doi"
+		if strings.Contains(doi, "://") {
+			entry.URL = doi
+		} else {
+			entry.URL = fmt.Sprintf("https://doi.org/%s", doi)
+		}
+		if description != "" {
+			entry.Description = description
+		}
+
+		//NOTE: doi needs to be inserted in the initial position
+		newRelatedURLs := new(eprinttools.RelatedURLItemList)
+		newRelatedURLs.AddItem(entry)
+		if len(relatedURLs.Items) > 0 {
+			newRelatedURLs.Items = append(newRelatedURLs.Items, relatedURLs.Items...)
+		}
+		return newRelatedURLs, true
+	}
+	return relatedURLs, false
+}
 
 // normalizeRelatedURLDescriptions
 func normalizeRelatedURLDescriptions(relatedURLs *eprinttools.RelatedURLItemList) (*eprinttools.RelatedURLItemList, bool) {
@@ -44,16 +75,39 @@ func trimTitle(s string) string {
 func Apply(eprintsList *eprinttools.EPrints) (*eprinttools.EPrints, error) {
 	// Trim "The" from titles
 	for i, eprint := range eprintsList.EPrint {
+		changed := false
+		// Conform titles to Caltech's practices
 		if title := trimTitle(eprint.Title); title != eprint.Title {
-			eprintsList.EPrint[i].Title = title
+			eprint.Title = title
+			changed = true
 		}
+
+		// Caltech Library doesn't import series information
 		if eprint.Series != "" {
 			eprint.Series = ""
+			changed = true
 		}
+
+		// Handle Caltech Library's pecular DOI assignment behavior
+		if eprint.DOI != "" {
+			if relatedURLs, hasChanged := migrateDOI(eprint.DOI, eprint.Type, eprint.RelatedURL); hasChanged {
+				eprint.RelatedURL = relatedURLs
+				eprint.DOI = ""
+				changed = true
+			}
+		}
+
+		// Normalize related URL descriptions
 		if eprint.RelatedURL != nil {
 			if relatedURLs, hasChanged := normalizeRelatedURLDescriptions(eprint.RelatedURL); hasChanged {
 				eprint.RelatedURL = relatedURLs
+				changed = true
 			}
+		}
+
+		// If we've changed the eprint record update it.
+		if changed {
+			eprintsList.EPrint[i] = eprint
 		}
 	}
 	return eprintsList, nil
