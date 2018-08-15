@@ -72,6 +72,20 @@ func trimTitle(s string) string {
 	return strings.TrimSpace(s)
 }
 
+// normalizeCreators clears the creator list when there are more than
+// 30 authors otherwise normalizes the content. If the list changes
+// through normalization a new list and bool value of true is returned,
+// otherwise the original list and false is returned.
+// Limiting Creators to 30 is per George's email from the
+// 1Science Load project.
+func normalizeCreators(creators *eprinttools.CreatorItemList) (*eprinttools.CreatorItemList, bool) {
+	// If more than 30 creators just dump the list and return an empty one
+	if len(creators.Items) > 30 {
+		return new(eprinttools.CreatorItemList), true
+	}
+	return creators, false
+}
+
 func Apply(eprintsList *eprinttools.EPrints) (*eprinttools.EPrints, error) {
 	// Trim "The" from titles
 	for i, eprint := range eprintsList.EPrint {
@@ -80,6 +94,14 @@ func Apply(eprintsList *eprinttools.EPrints) (*eprinttools.EPrints, error) {
 		if title := trimTitle(eprint.Title); title != eprint.Title {
 			eprint.Title = title
 			changed = true
+		}
+
+		// Normalize Creators and apply George's rules
+		if len(eprint.Creators.Items) > 0 {
+			if creators, hasChanged := normalizeCreators(eprint.Creators); hasChanged {
+				eprint.Creators = creators
+				changed = true
+			}
 		}
 
 		// Caltech Library doesn't import series information
@@ -105,10 +127,23 @@ func Apply(eprintsList *eprinttools.EPrints) (*eprinttools.EPrints, error) {
 			}
 		}
 
+		// Normalize Publisher name and Publication from ISSN
+		if eprint.ISSN != "" {
+			if publisher, ok := issnPublisher[eprint.ISSN]; ok == true {
+				eprint.Publisher = publisher
+				changed = true
+			}
+			if publication, ok := issnPublication[eprint.ISSN]; ok == true {
+				eprint.Publication = publication
+				changed = true
+			}
+		}
+
 		// If we've changed the eprint record update it.
 		if changed {
 			eprintsList.EPrint[i] = eprint
 		}
+
 	}
 	return eprintsList, nil
 }

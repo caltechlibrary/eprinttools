@@ -194,6 +194,9 @@ func CrossRefWorksToEPrint(obj crossrefapi.Object) (*EPrint, error) {
 				entry.Type = "doi"
 				entry.URL = fmt.Sprintf("https://doi.org/%s", newDoi)
 				entry.Description = fmt.Sprintf("%s, %s", label, when)
+				if eprint.RelatedURL == nil {
+					eprint.RelatedURL = new(RelatedURLItemList)
+				}
 				eprint.RelatedURL.AddItem(entry)
 			}
 		}
