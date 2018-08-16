@@ -156,8 +156,9 @@ func New(eprintURL, datasetName string, suppressNote bool, authMethod, userName,
 			userSecret = secret
 		}
 		if authMethod == "" {
-			authMethod = "baisc"
+			authMethod = "basic"
 		}
+		u.User = nil
 	}
 	api.URL, _ = url.Parse(u.String())
 	if datasetName == "" {
@@ -200,6 +201,14 @@ func (api *EPrintsAPI) ListEPrintsURI() ([]string, error) {
 	// Switch to use Rest Client Wrapper
 	rest, err := rc.New(workingURL.String(), api.AuthType, api.Username, api.Secret)
 	rest.Timeout = 30 * time.Second
+	if err != nil {
+		return nil, err
+	}
+	err = rest.Login()
+	if err != nil {
+		return nil, err
+	}
+
 	if err != nil {
 		return nil, fmt.Errorf("requesting %s, %s", workingURL.String(), err)
 	}
