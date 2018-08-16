@@ -244,7 +244,8 @@ func main() {
 
 	// This will read in the settings from the app
 	// and configure access to the EPrints API
-	if u, err := url.Parse(apiURL); err == nil {
+	u, err := url.Parse(apiURL)
+	if err == nil {
 		if strings.HasSuffix(u.Path, "/rest/eprint") == true {
 			u.Path = strings.TrimSuffix(u.Path, "/rest/eprint")
 			apiURL = u.String()
@@ -259,8 +260,10 @@ func main() {
 		os.Exit(1)
 	}
 
+	// NOTE: Sanitize u (the URL struct) so we can log it rather than the raw apiURL.
+	u.User = nil
 	log.Printf("(pid: %d) %s %s", thisProcessID, appName, eprinttools.Version)
-	log.Printf("(pid: %d) Harvesting from %s", thisProcessID, apiURL)
+	log.Printf("(pid: %d) Harvesting from %s", thisProcessID, u.String())
 	t0 := time.Now()
 	switch {
 	case exportEPrintsKeyList != "":
