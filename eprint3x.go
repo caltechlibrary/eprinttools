@@ -916,7 +916,7 @@ type Document struct {
 	MimeType   string   `xml:"mime_type" json:"mime_type"`
 	Format     string   `xml:"format" json:"format"`
 	FormatDesc string   `xml:"formatdesc,omitempty" json:"format_desc,omitempty"`
-	Language   string   `xml:"language" json:"language"`
+	Language   string   `xml:"language,omitempty" json:"language,omitempty"`
 	Security   string   `xml:"security" json:"security"`
 	License    string   `xml:"license" json:"license"`
 	Main       string   `xml:"main" json:"main"`
