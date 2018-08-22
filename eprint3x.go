@@ -109,7 +109,8 @@ type EPrint struct {
 	MonographType        string                        `xml:"monograph_type,omitempty" json:"monograph_type,omitempty"`
 
 	// Caltech Library uses suggestions as an internal note field (RSD, 2018-02-15)
-	Suggestions string `xml:"suggestions,omitempty" json:"suggestions,omitempty"`
+	Suggestions string            `xml:"suggestions,omitempty" json:"suggestions,omitempty"`
+	OtherURL    *OtherURLItemList `xml:"other_url,omitempty" json:"other_url,omitempty"`
 
 	// NOTE: Misc fields discoverd exploring REST API records, not currently used at Caltech Library (RSD, 2018-01-02)
 	Subjects           *SubjectItemList         `xml:"subjects,omitempty" json:"subjects,omitempty"`
@@ -307,6 +308,20 @@ type RelatedURLItemList struct {
 func (relatedURLItemList *RelatedURLItemList) AddItem(item *Item) int {
 	relatedURLItemList.Items = append(relatedURLItemList.Items, item)
 	return len(relatedURLItemList.Items)
+}
+
+// OtherURLItemList is a legacy Caltech Library field, old records have
+// it new records use RelatedURLItemList
+// RelatedURLItemList holds the related URLs (e.g. doi, aux material doi)
+type OtherURLItemList struct {
+	XMLName xml.Name `xml:"other_url" json:"-"`
+	Items   []*Item  `xml:"item,omitempty" json:"items,omitempty"`
+}
+
+// AddItem adds an item to the "other" url item list and returns the new count of items, this is a legacy Caltech Library-ism in EPrints
+func (otherURLItemList *OtherURLItemList) AddItem(item *Item) int {
+	otherURLItemList.Items = append(otherURLItemList.Items, item)
+	return len(otherURLItemList.Items)
 }
 
 // ReferenceTextItemList
@@ -881,8 +896,8 @@ type File struct {
 	ObjectID  int      `xml:"objectid" json:"objectid"`
 	Filename  string   `xml:"filename" json:"filename"`
 	MimeType  string   `xml:"mime_type" json:"mime_type"`
-	Hash      string   `xml:"hash" json:"hash"`
-	HashType  string   `xml:"hash_type" json:"hash_type"`
+	Hash      string   `xml:"hash,omitempty" json:"hash,omitempty"`
+	HashType  string   `xml:"hash_type,omitempty" json:"hash_type,omitempty"`
 	FileSize  int      `xml:"filesize" json:"filesize"`
 	MTime     string   `xml:"mtime" json:"mtime"`
 	URL       string   `xml:"url" json:"url"`
