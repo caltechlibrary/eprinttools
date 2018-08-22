@@ -53,8 +53,7 @@ type EPrints struct {
 // EPrint is the record contated in a EPrints XML document such as they used
 // to store revisions.
 type EPrint struct {
-	XMLName              xml.Name                      `xml:"eprint" json:"-"`
-	XMLNS                string                        `xml:"xmlns,attr,omitempty" json:"xmlns,omitempty"`
+	XMLName              xml.Name                      `json:"-"`
 	ID                   string                        `xml:"id,attr,omitempty" json:"id,omitempty"`
 	EPrintID             int                           `xml:"eprintid,omitempty" json:"eprint_id,omitempty"`
 	RevNumber            int                           `xml:"rev_number,omitempty" json:"rev_number,omitempty"`
@@ -891,24 +890,23 @@ type File struct {
 
 // Document structures inside a Record (i.e. <eprint>...<documents><document>...</document>...</documents>...</eprint>)
 type Document struct {
-	XMLName xml.Name `json:"-"`
-	//XMLNS      string  `xml:"xmlns,attr,omitempty" json:"name_space,omitempty"`
-	ID         string  `xml:"id,attr" json:"id"`
-	DocID      int     `xml:"docid" json:"doc_id"`
-	RevNumber  int     `xml:"rev_number" json:"rev_number,omitempty"`
-	Files      []*File `xml:"files>file" json:"files,omitempty"`
-	EPrintID   int     `xml:"eprintid" json:"eprint_id"`
-	Pos        int     `xml:"pos" json:"pos,omitempty"`
-	Placement  int     `xml:"placement" json:"placement,omitempty"`
-	MimeType   string  `xml:"mime_type" json:"mime_type"`
-	Format     string  `xml:"format" json:"format"`
-	FormatDesc string  `xml:"formatdesc,omitempty" json:"format_desc,omitempty"`
-	Language   string  `xml:"language" json:"language"`
-	Security   string  `xml:"security" json:"security"`
-	License    string  `xml:"license" json:"license"`
-	Main       string  `xml:"main" json:"main"`
-	Content    string  `xml:"content" json:"content"`
-	Relation   []*Item `xml:"relation>item,omitempty" json:"relation,omitempty"`
+	XMLName    xml.Name `json:"-"`
+	ID         string   `xml:"id,attr" json:"id"`
+	DocID      int      `xml:"docid" json:"doc_id"`
+	RevNumber  int      `xml:"rev_number" json:"rev_number,omitempty"`
+	Files      []*File  `xml:"files>file" json:"files,omitempty"`
+	EPrintID   int      `xml:"eprintid" json:"eprint_id"`
+	Pos        int      `xml:"pos" json:"pos,omitempty"`
+	Placement  int      `xml:"placement" json:"placement,omitempty"`
+	MimeType   string   `xml:"mime_type" json:"mime_type"`
+	Format     string   `xml:"format" json:"format"`
+	FormatDesc string   `xml:"formatdesc,omitempty" json:"format_desc,omitempty"`
+	Language   string   `xml:"language" json:"language"`
+	Security   string   `xml:"security" json:"security"`
+	License    string   `xml:"license" json:"license"`
+	Main       string   `xml:"main" json:"main"`
+	Content    string   `xml:"content" json:"content"`
+	Relation   []*Item  `xml:"relation>item,omitempty" json:"relation,omitempty"`
 }
 
 // DocumentList is an array of pointers to Document structs
