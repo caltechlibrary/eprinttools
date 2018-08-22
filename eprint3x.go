@@ -912,7 +912,7 @@ type Document struct {
 	Files      []*File  `xml:"files>file" json:"files,omitempty"`
 	EPrintID   int      `xml:"eprintid" json:"eprint_id"`
 	Pos        int      `xml:"pos" json:"pos,omitempty"`
-	Placement  int      `xml:"placement" json:"placement,omitempty"`
+	Placement  int      `xml:"placement,omitempty" json:"placement,omitempty"`
 	MimeType   string   `xml:"mime_type" json:"mime_type"`
 	Format     string   `xml:"format" json:"format"`
 	FormatDesc string   `xml:"formatdesc,omitempty" json:"format_desc,omitempty"`
@@ -920,7 +920,7 @@ type Document struct {
 	Security   string   `xml:"security" json:"security"`
 	License    string   `xml:"license" json:"license"`
 	Main       string   `xml:"main" json:"main"`
-	Content    string   `xml:"content" json:"content"`
+	Content    string   `xml:"content,omitempty" json:"content,omitempty"`
 	Relation   []*Item  `xml:"relation>item,omitempty" json:"relation,omitempty"`
 }
 
