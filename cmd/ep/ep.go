@@ -125,7 +125,7 @@ func main() {
 	thisProcessID = os.Getpid()
 
 	// Document non-option parameters
-	app.AddParams("[EPRINT_URL]", "[ONE_OR_MORE_EPRINT_ID]")
+	app.SetParams("[EPRINT_URL]", "[ONE_OR_MORE_EPRINT_ID]")
 
 	// Add Help Docs
 	app.AddHelp("license", []byte(fmt.Sprintf(eprinttools.LicenseText, appName, eprinttools.Version)))

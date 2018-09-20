@@ -1,8 +1,7 @@
 
 # eprinttools
 
-This project contains the _eprinttools_, a go package for working with EPrints 
-REST API. 
+eprinttools is a Go package and command line utilities for working with EPrints 3.x EPrint XML and REST API.
 
 ## The command line programs
 
@@ -17,11 +16,4 @@ The first two utilities can be configured from the environment or
 command line options. The environment settings are overridden by command 
 line options. For details running either command envoke the
 tool name with the '-help' option. 
-
-## Python 3.6 module
-
-This repository also contains a Python 3.6 module that wraps the 
-basic Go package giving you the functionality of the command line tools 
-in a Python 3.6 package.
-
 

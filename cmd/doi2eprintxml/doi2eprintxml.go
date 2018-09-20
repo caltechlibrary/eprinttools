@@ -103,7 +103,7 @@ func main() {
 	appName := path.Base(os.Args[0])
 
 	app := cli.NewCli(eprinttools.Version)
-	app.AddParams("DOI")
+	app.SetParams("DOI")
 
 	app.AddHelp("license",
 		[]byte(fmt.Sprintf(eprinttools.LicenseText,
