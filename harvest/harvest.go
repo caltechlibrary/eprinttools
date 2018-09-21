@@ -155,7 +155,7 @@ func ExportEPrints(api *eprinttools.EPrintsAPI, count int, saveKeys string, verb
 		src          []byte
 	)
 
-	c, err := dataset.InitCollection(api.Dataset, dataset.BUCKETS_LAYOUT)
+	c, err := dataset.Open(api.Dataset)
 	if err != nil {
 		return fmt.Errorf("ExportEPrints() %s, %s", api.Dataset, err)
 	}
@@ -236,7 +236,7 @@ func ExportModifiedEPrints(api *eprinttools.EPrintsAPI, start, end time.Time, sa
 		src          []byte
 	)
 
-	c, err := dataset.InitCollection(api.Dataset, dataset.BUCKETS_LAYOUT)
+	c, err := dataset.Open(api.Dataset)
 	if err != nil {
 		return fmt.Errorf("ExportModifiedEPrints() %s, %s", api.Dataset, err)
 	}
