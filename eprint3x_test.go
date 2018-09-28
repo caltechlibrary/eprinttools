@@ -1187,7 +1187,6 @@ func TestLibSupport(t *testing.T) {
 	username := os.Getenv("EPRINT_USERNAME")
 	secret := os.Getenv("EPRINT_PASSWORD")
 	keys, err := GetKeys(eprintURL, 0, username, secret)
-	//log.Printf("DEBUG testing GetKeys()")
 	if err != nil {
 		t.Errorf("GetKeys(%q, %d, %q, %q) returned an error, %s", eprintURL, authType, username, secret, err)
 		t.FailNow()
@@ -1209,7 +1208,6 @@ func TestLibSupport(t *testing.T) {
 	}
 
 	for i, key := range keys[first:last] {
-		//log.Printf("DEBUG %d testing GetEPrint() for key %q", i, key)
 		//FIXME: need to make sure what we are getting back sSrc, and xmlSrc are realisitic
 		_, _, err := GetEPrints(eprintURL, authType, username, secret, key)
 		if strings.HasSuffix(key, ".xml") {

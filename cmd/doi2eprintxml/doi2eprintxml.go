@@ -22,6 +22,7 @@
 package main
 
 import (
+	"encoding/json"
 	"encoding/xml"
 	"fmt"
 	"io/ioutil"
@@ -97,6 +98,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 	crossrefOnly                   bool
 	dataciteOnly                   bool
 	useCaltechLibrarySpecificRules bool
+	asJSON                         bool
 )
 
 func main() {
@@ -126,6 +128,7 @@ func main() {
 	app.BoolVar(&crossrefOnly, "c,crossref", false, "only search CrossRef API for DOI records")
 	app.BoolVar(&dataciteOnly, "d,datacite", false, "only search DataCite API for DOI records")
 	app.BoolVar(&useCaltechLibrarySpecificRules, "clsrules", true, "Apply Caltech Library Specific Rules to EPrintXML output")
+	app.BoolVar(&asJSON, "json", false, "output EPrint structure as JSON")
 
 	//FIXME: Need to come up with a better way of setting this,
 	// perhaps a config mode and save the setting in
@@ -286,7 +289,7 @@ func main() {
 				}
 			}
 			if isCrossRefDOI == false && isDataCiteDOI == false {
-				fmt.Fprintf(os.Stderr, "WARNING: %s not found in CrossRef or DataCite API lookup")
+				fmt.Fprintf(os.Stderr, "WARNING: %s not found in CrossRef or DataCite API lookup", doi)
 			}
 		}
 	}
@@ -298,6 +301,15 @@ func main() {
 			fmt.Fprintf(os.Stderr, "%s\n", err)
 			os.Exit(1)
 		}
+	}
+	if asJSON {
+		src, err := json.MarshalIndent(eprintsList, "", "   ")
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "%s\n", err)
+			os.Exit(1)
+		}
+		fmt.Fprintf(os.Stdout, "%s\n", src)
+		os.Exit(0)
 	}
 	src, err := xml.MarshalIndent(eprintsList, "", "   ")
 	if err != nil {

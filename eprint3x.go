@@ -272,7 +272,7 @@ func (item *Item) MarshalJSON() ([]byte, error) {
 }
 
 // ItemList holds an array of items (e.g. creators, related urls, etc)
-type ItemList []*Item
+//type ItemList []*Item
 
 // CreatorItemList holds a list of authors
 type CreatorItemList struct {
@@ -434,7 +434,7 @@ func (issueItemList *ItemIssueItemList) AddItem(item *Item) int {
 
 // CorpCreatorItemList
 type CorpCreatorItemList struct {
-	XMLName xml.Name `xml:"corp_creators" json:"-"`
+	XMLName xml.Name `json:"-"` //`xml:"corp_creators" json:"-"`
 	Items   []*Item  `xml:"item,omitempty" json:"items,omitempty"`
 }
 
