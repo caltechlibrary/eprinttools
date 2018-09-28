@@ -35,7 +35,7 @@ import (
 
 const (
 	// Version is the revision number for this implementation of epgo
-	Version = `v0.0.23`
+	Version = `v0.0.24`
 
 	// LicenseText holds the string for rendering License info on the command line
 	LicenseText = `
@@ -275,10 +275,14 @@ func (api *EPrintsAPI) ListModifiedEPrintsURI(start, end time.Time, verbose bool
 	total := len(uris)
 	lastI := total - 1
 	for i, uri := range uris {
+		key := strings.TrimSuffix(path.Base(uri), ".xml")
 		p := strings.TrimSuffix(uri, ".xml") + "/lastmod.txt"
 		buf, err := rest.Request("GET", p, map[string]string{})
 		if err != nil {
-			return nil, err
+			if verbose {
+				log.Printf("(pid: %d) skipping eprint id %s, %s", pid, key, err)
+			}
+			continue
 		}
 		datestring := fmt.Sprintf("%s", buf)
 		if len(datestring) > 9 {
