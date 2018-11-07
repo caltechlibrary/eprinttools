@@ -28,7 +28,7 @@ func normalizeDataCiteAuthorName(obj map[string]interface{}) *Name {
 				return name
 			case len(parts) == 2:
 				name.Family = strings.TrimSpace(parts[1])
-				name.Given = strings.TrimSpace(parts[1])
+				name.Given = strings.TrimSpace(parts[0])
 				return name
 			case len(parts) > 2:
 				last, next_to_last := (len(parts) - 1), (len(parts) - 2)
@@ -179,8 +179,8 @@ func DataCiteWorksToEPrint(obj dataciteapi.Object) (*EPrint, error) {
 
 	// Creators/CorpCreators list
 	if a, ok := indexInto(obj, "data", "attributes", "author"); ok == true {
-		eprint.Creators = new(CreatorItemList)
-		eprint.CorpCreators = new(CorpCreatorItemList)
+		creators := new(CreatorItemList)
+		corpCreators := new(CorpCreatorItemList)
 		for _, o := range a.([]interface{}) {
 			m := o.(map[string]interface{})
 			name := normalizeDataCiteAuthorName(m)
@@ -188,11 +188,17 @@ func DataCiteWorksToEPrint(obj dataciteapi.Object) (*EPrint, error) {
 			entry.Name = name
 			if name.Value == "" {
 				//NOTE: Assume a person name
-				eprint.Creators.AddItem(entry)
+				creators.AddItem(entry)
 			} else {
 				//NOTE: Assume a corporate name if we have only a single name
-				eprint.CorpCreators.AddItem(entry)
+				corpCreators.AddItem(entry)
 			}
+		}
+		if len(creators.Items) > 0 {
+			eprint.Creators = creators
+		}
+		if len(corpCreators.Items) > 0 {
+			eprint.CorpCreators = corpCreators
 		}
 	}
 

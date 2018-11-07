@@ -63,7 +63,7 @@ func main() {
 	)
 	app := cli.NewCli(eprinttools.Version)
 
-	app.AddParams("[input filename]")
+	app.SetParams("[input filename]")
 
 	// Add Help
 	app.AddHelp("synopsis", []byte(synopsis))

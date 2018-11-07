@@ -81,7 +81,7 @@ func trimTitle(s string) string {
 func normalizeCreators(creators *eprinttools.CreatorItemList) (*eprinttools.CreatorItemList, bool) {
 	// If more than 30 creators just dump the list and return an empty one
 	if len(creators.Items) > 30 {
-		return new(eprinttools.CreatorItemList), true
+		return nil, true
 	}
 	return creators, false
 }

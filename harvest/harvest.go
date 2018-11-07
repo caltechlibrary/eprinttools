@@ -155,7 +155,7 @@ func ExportEPrints(api *eprinttools.EPrintsAPI, count int, saveKeys string, verb
 		src          []byte
 	)
 
-	c, err := dataset.InitCollection(api.Dataset, dataset.BUCKETS_LAYOUT)
+	c, err := dataset.Open(api.Dataset)
 	if err != nil {
 		return fmt.Errorf("ExportEPrints() %s, %s", api.Dataset, err)
 	}
@@ -180,7 +180,8 @@ func ExportEPrints(api *eprinttools.EPrintsAPI, count int, saveKeys string, verb
 	if verbose == true {
 		log.Printf("(pid: %d) Exporting %d of %d uris", pid, count, uriCount)
 	}
-	for i := 0; i < uriCount && i < count; i++ {
+	i := 0
+	for i = 0; i < uriCount && i < count; i++ {
 		uri := uris[i]
 		rec, xmlSrc, err := api.GetEPrint(uri)
 		if err != nil {
@@ -218,7 +219,7 @@ func ExportEPrints(api *eprinttools.EPrintsAPI, count int, saveKeys string, verb
 		}
 	}
 	if verbose == true {
-		log.Printf("(pid: %d) %d/%d uri processed, %d exported, %d unexported", pid, len(uris), count, j, k)
+		log.Printf("(pid: %d) %d/%d uri processed, %d exported, %d unexported", pid, i, count, j, k)
 	}
 	if len(saveKeys) > 0 {
 		if err := ioutil.WriteFile(saveKeys, []byte(strings.Join(exportedKeys, "\n")), 0664); err != nil {
@@ -236,7 +237,9 @@ func ExportModifiedEPrints(api *eprinttools.EPrintsAPI, start, end time.Time, sa
 		src          []byte
 	)
 
-	c, err := dataset.InitCollection(api.Dataset, dataset.BUCKETS_LAYOUT)
+	pid := os.Getpid()
+
+	c, err := dataset.Open(api.Dataset)
 	if err != nil {
 		return fmt.Errorf("ExportModifiedEPrints() %s, %s", api.Dataset, err)
 	}
@@ -244,21 +247,21 @@ func ExportModifiedEPrints(api *eprinttools.EPrintsAPI, start, end time.Time, sa
 
 	uris, err := api.ListModifiedEPrintsURI(start, end, verbose)
 	if err != nil {
-		return fmt.Errorf("Export modified %s to %s failed, %s", start, end, err)
+		return fmt.Errorf("Export modified from %s to %s failed, %s", start, end, err)
 	}
 
 	// NOTE: I am sorting the URI by decscending ID number so that the
 	// newest articles are exported first
 	sort.Sort(byURI(uris))
 
-	pid := os.Getpid()
 	count := len(uris)
 	j := 0 // success count
 	k := 0 // error count
 	if verbose == true {
 		log.Printf("(pid: %d) Exporting %d uris", pid, count)
 	}
-	for i := 0; i < count; i++ {
+	i := 0
+	for i = 0; i < count; i++ {
 		uri := uris[i]
 		rec, xmlSrc, err := api.GetEPrint(uri)
 		if err != nil {
@@ -298,7 +301,7 @@ func ExportModifiedEPrints(api *eprinttools.EPrintsAPI, start, end time.Time, sa
 		}
 	}
 	if verbose == true {
-		log.Printf("(pid: %d) %d/%d uri processed, %d exported, %d unexported", pid, len(uris), count, j, k)
+		log.Printf("(pid: %d) %d/%d uri processed, %d exported, %d unexported", pid, i, count, j, k)
 	}
 	if len(saveKeys) > 0 {
 		if err := ioutil.WriteFile(saveKeys, []byte(strings.Join(exportedKeys, "\n")), 0664); err != nil {

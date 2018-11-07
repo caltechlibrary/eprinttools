@@ -275,7 +275,7 @@ func CrossRefWorksToEPrint(obj crossrefapi.Object) (*EPrint, error) {
 			//NOTE: if as have a 'name' then we'll add it to
 			// as a corp_creators
 			if name, ok := author["name"]; ok == true {
-				item.Name.Value = name.(string)
+				item.Name.Value = strings.TrimSpace(name.(string))
 				if strings.HasPrefix(item.Name.Value, "(") && strings.HasSuffix(item.Name.Value, ")") {
 					item.Name.Value = strings.TrimSuffix(strings.TrimPrefix(item.Name.Value, "("), ")")
 				}

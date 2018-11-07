@@ -267,11 +267,11 @@ func main() {
 		err = xml.Unmarshal(src, &data)
 		if asJSON {
 			src, err = json.MarshalIndent(data, "", "   ")
-			cli.ExitOnError(app.Eout, err, quiet)
 		} else {
-			src, err = xml.MarshalIndent(data, "", "   ")
-			cli.ExitOnError(app.Eout, err, quiet)
+			fmt.Fprintf(app.Out, "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n")
+			src, err = xml.MarshalIndent(data, "", "  ")
 		}
+		cli.ExitOnError(app.Eout, err, quiet)
 	default:
 		data := eprinttools.EPrints{}
 		err = xml.Unmarshal(src, &data)
@@ -279,7 +279,8 @@ func main() {
 		if asJSON {
 			src, err = json.MarshalIndent(data, "", "   ")
 		} else {
-			src, err = xml.MarshalIndent(data, "", "   ")
+			fmt.Fprintf(app.Out, "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n")
+			src, err = xml.MarshalIndent(data, "", "  ")
 		}
 		cli.ExitOnError(app.Eout, err, quiet)
 	}

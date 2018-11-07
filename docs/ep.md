@@ -6,14 +6,17 @@
 ## DESCRIPTION
 
 
-ep uses the REST API for EPrints 3.x to harvest EPrints content into
-a dataset collection. If you don't need dataset integration use eputil 
+**ep** uses the REST API for EPrints 3.x to harvest EPrints content into
+a dataset collection. If you don't need dataset integration use **eputil**
 instead. If you want to view  the harvested content then use the
-dataset command.
+**dataset** command.
 
 CONFIGURATION
 
-ep can be configured with following environment variables
+**ep** talkes to a **dataset** collection and the collection
+needs to already exist. The **dataset** tool is used to create the collection.
+
+**ep** can be configured with following environment variables
 
 EPRINT_URL the URL to your EPrints installation
 
