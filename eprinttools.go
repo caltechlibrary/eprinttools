@@ -35,7 +35,7 @@ import (
 
 const (
 	// Version is the revision number for this implementation of epgo
-	Version = `v0.0.24`
+	Version = `v0.0.25`
 
 	// LicenseText holds the string for rendering License info on the command line
 	LicenseText = `
@@ -343,8 +343,10 @@ func (api *EPrintsAPI) GetEPrint(uri string) (*EPrint, []byte, error) {
 		if api.SuppressNote {
 			eprints.EPrint[0].Note = ""
 		}
+		if eprints.EPrint[0].EPrintStatus == "deletion" {
+			return eprints.EPrint[0], content, fmt.Errorf("EPrint %s, %s", eprints.EPrint[0].ID, eprints.EPrint[0].EPrintStatus)
+		}
 		return eprints.EPrint[0], content, nil
-
 	}
 	if len(eprints.EPrint) > 1 {
 		return nil, content, fmt.Errorf("Expected only one eprint for %s", uri)
