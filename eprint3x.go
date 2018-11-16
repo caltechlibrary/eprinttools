@@ -780,7 +780,7 @@ func GetEPrints(baseURL string, authType int, username string, secret string, ke
 	if err != nil {
 		return nil, content, err
 	}
-	if len(rec.EPrint) > 0 && rec.EPrint[0].EPrintStatus == "deletion" {
+	if len(rec.EPrint) > 0 && (rec.EPrint[0].EPrintStatus == "deletion" || rec.EPrint[0].EPrintStatus == "inbox") {
 		return rec, content, fmt.Errorf("EPrint status for %s, %s", rec.EPrint[0].ID, rec.EPrint[0].EPrintStatus)
 	}
 	return rec, content, nil
