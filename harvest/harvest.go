@@ -24,6 +24,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"net/url"
 	"os"
 	"path"
 	"sort"
@@ -34,9 +35,14 @@ import (
 	// CaltechLibrary packages
 	"github.com/caltechlibrary/dataset"
 	"github.com/caltechlibrary/eprinttools"
+	"github.com/caltechlibrary/rc"
 )
 
 var (
+	// ExportEPrintDocs if true  include document files as an
+	// attachment when calling the export funcs
+	ExportEPrintDocs = false
+
 	// EPrintsExportBatchSize sets the summary output frequency when exporting content from E-Prints
 	EPrintsExportBatchSize = 1000
 )
@@ -71,6 +77,62 @@ func (s byURI) Less(i, j int) bool {
 	return a1 > a2
 }
 
+// handleAttachments will attach the EPrintsXML
+func handleAttachments(api *eprinttools.EPrintsAPI, c *dataset.Collection, key string, rec *eprinttools.EPrint, xmlSrc []byte) error {
+	if ExportEPrintDocs == false {
+		c.AttachFile(key, key+".xml", bytes.NewReader(xmlSrc))
+		return nil
+	}
+	rest, err := rc.New(api.URL.String(), api.AuthType, api.Username, api.Secret)
+	if err != nil {
+		return err
+	}
+	// Create a temp directory for our harvested files.
+	// Harvest documents to tdir, then attach individual files
+	// as attachments.
+	if rec.Documents != nil && rec.Documents.Length() > 0 {
+		tdir, err := ioutil.TempDir(c.Name, "")
+		if err != nil {
+			return err
+		}
+		defer os.RemoveAll(tdir)
+		fNames := []string{}
+		fName := path.Join(tdir, key+".xml")
+		err = ioutil.WriteFile(fName, xmlSrc, 0666)
+		if err != nil {
+			return err
+		}
+		fNames = append(fNames, fName)
+		for i := 0; i < rec.Documents.Length(); i++ {
+			doc := rec.Documents.IndexOf(i)
+			if doc.Files != nil && len(doc.Files) > 0 {
+				for _, f := range doc.Files {
+					u, err := url.Parse(f.URL)
+					if err != nil {
+						continue
+					}
+					src, err := rest.Request("GET", u.Path, map[string]string{})
+					if err != nil {
+						log.Println(err)
+						continue
+					}
+					fName = path.Join(tdir, f.Filename)
+					err = ioutil.WriteFile(fName, src, 0666)
+					if err != nil {
+						log.Println(err)
+						continue
+					}
+					fNames = append(fNames, fName)
+				}
+				if len(fNames) > 0 {
+					c.AttachFiles(key, fNames...)
+				}
+			}
+		}
+	}
+	return nil
+}
+
 // ExportEPrintsKeyList export a list of eprints from a list of keys
 func ExportEPrintsKeyList(api *eprinttools.EPrintsAPI, keys []string, saveKeys string, verbose bool) error {
 	var (
@@ -103,7 +165,11 @@ func ExportEPrintsKeyList(api *eprinttools.EPrintsAPI, keys []string, saveKeys s
 		uri := uris[i]
 		rec, xmlSrc, err := api.GetEPrint(uri)
 		if err != nil {
-			log.Printf("(pid: %d) Failed, %s\n", pid, err)
+			if strings.HasPrefix(err.Error(), "WARNING") {
+				log.Printf("(pid: %d) Skipping, %s\n", pid, err)
+			} else {
+				log.Printf("(pid: %d) Failed, %s\n", pid, err)
+			}
 			k++
 		} else {
 			key := fmt.Sprintf("%d", rec.EPrintID)
@@ -130,7 +196,8 @@ func ExportEPrintsKeyList(api *eprinttools.EPrintsAPI, keys []string, saveKeys s
 				}
 				k++
 			}
-			c.AttachFile(key, key+".xml", bytes.NewReader(xmlSrc))
+			//NOTE: If ExportEPrintsDocs == true then attach docs and files
+			handleAttachments(api, c, key, rec, xmlSrc)
 		}
 		if verbose == true && (i%EPrintsExportBatchSize) == 0 {
 			log.Printf("(pid: %d) %d/%d uri processed, %d exported, %d unexported", pid, i+1, count, j, k)
@@ -185,7 +252,11 @@ func ExportEPrints(api *eprinttools.EPrintsAPI, count int, saveKeys string, verb
 		uri := uris[i]
 		rec, xmlSrc, err := api.GetEPrint(uri)
 		if err != nil {
-			log.Printf("(pid: %d) Failed, %s\n", pid, err)
+			if strings.HasPrefix(err.Error(), "WARNING") {
+				log.Printf("(pid: %d) Skipping, %s\n", pid, err)
+			} else {
+				log.Printf("(pid: %d) Failed, %s\n", pid, err)
+			}
 			k++
 		} else {
 			key := fmt.Sprintf("%d", rec.EPrintID)
@@ -212,7 +283,8 @@ func ExportEPrints(api *eprinttools.EPrintsAPI, count int, saveKeys string, verb
 				}
 				k++
 			}
-			c.AttachFile(key, key+".xml", bytes.NewReader(xmlSrc))
+			//NOTE: If ExportEPrintsDocs == true then attach docs and files
+			handleAttachments(api, c, key, rec, xmlSrc)
 		}
 		if verbose == true && (i%EPrintsExportBatchSize) == 0 {
 			log.Printf("(pid: %d) %d/%d uri processed, %d exported, %d unexported", pid, i+1, count, j, k)
@@ -294,7 +366,8 @@ func ExportModifiedEPrints(api *eprinttools.EPrintsAPI, start, end time.Time, sa
 				}
 				k++
 			}
-			c.AttachFile(key, key+".xml", bytes.NewReader(xmlSrc))
+			//NOTE: If ExportEPrintsDocs == true then attach docs and files
+			handleAttachments(api, c, key, rec, xmlSrc)
 		}
 		if verbose == true && (i%EPrintsExportBatchSize) == 0 {
 			log.Printf("(pid: %d) %d/%d uri processed, %d exported, %d unexported", pid, i+1, count, j, k)
