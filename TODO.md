@@ -3,7 +3,8 @@
 
 ## Bugs
 
-+ [ ] issues #13, #14 at Github are bugs and enhancements.
++ [ ] Issues #13, #14 at Github are bugs and enhancements.
++ [ ] Jira issues DR-45 and DR-40 
 
 
 ## Next
