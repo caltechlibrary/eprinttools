@@ -12,20 +12,19 @@ mkdir testout
 #
 # Jira Issue DR-40
 #
-echo 'Testing DR-40 (this takes a file)'
+echo 'Testing DR-40'
 ./bin/doi2eprintxml -i testdata/DR-40-test.txt > testout/dr40-eprint.xml
-T=$(grep '<date>2005-03-19</date>' testout/dr40-eprint.xml)
+T=$(grep '<date>1942-07</date>' testout/dr40-eprint.xml)
 if [[ "${T}" != "" ]]; then
-    echo "expected '', got '${T}'"
+    echo "expected '<data>1942-07</date>', got '${T}'"
     exit 1
 fi
-exit 0 # DEBUG
 
 
 #
 # Jira Issue DR-45
 #
-echo 'Testing DR-45 (this takes a file)'
+echo 'Testing DR-45 (this takes a while)'
 ./bin/doi2eprintxml -i testdata/DR-45-test.txt > testout/dr45-eprint.xml
 if [[ "$?" != "0" ]]; then
     echo ''
