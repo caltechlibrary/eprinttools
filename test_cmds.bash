@@ -20,6 +20,19 @@ if [[ "${T}" != "" ]]; then
     exit 1
 fi
 
+#
+# Jira Iusse DR-43
+#
+echo 'Testing DR-43'
+./bin/doi2eprintxml -i testdata/DR-43-test.txt > testout/dr43-eprint.xml
+T=$(grep '<date>2001-01</date>' testout/dr43-eprint.xml)
+if [[ "${T}" != "" ]]; then
+    echo "expected '<data>2001-01</date>', got '${T}'"
+    exit 1
+fi
+
+
+
 
 #
 # Jira Issue DR-45

@@ -109,17 +109,17 @@ save the keys for the records exported with one key per line.
 	userName   string
 	userSecret string
 
-	// NOTE: supressNote (Internal Note) added to handle the case where Note field is internal use only and not to be harvested
-	suppressNote bool
+	// NOTE: suppressSuggestions (Internal Note) added to handle the case
+	// where Suggestions field is internal use only and not to be harvested
+	suppressSuggestions bool
 
 	thisProcessID int
 )
 
 func main() {
 	var (
-		apiURLEnv       string
-		datasetNameEnv  string
-		suppressNoteEnv bool
+		apiURLEnv      string
+		datasetNameEnv string
 	)
 	app := cli.NewCli(eprinttools.Version)
 	appName := app.AppName()
@@ -165,6 +165,7 @@ func main() {
 	app.StringVar(&exportEPrintsKeyList, "export-keys", "", "export a comma delimited list of EPrint keys")
 	app.BoolVar(&exportEPrintDocs, "export-with-docs", false, "include EPrint documents with export")
 	app.StringVar(&updatedSince, "updated-since", "", "list EPrint IDs updated since a given date (e.g 2017-07-01)")
+	app.BoolVar(&suppressSuggestions, "suppress-suggestions", true, "suppress the suggestions field from output")
 
 	// Parse environment and options
 	if err := app.Parse(); err != nil {
@@ -244,9 +245,6 @@ func main() {
 		}
 		datasetName = datasetNameEnv
 	}
-	if suppressNote == false && suppressNoteEnv == true {
-		suppressNote = true
-	}
 
 	// This will read in the settings from the app
 	// and configure access to the EPrints API
@@ -260,7 +258,7 @@ func main() {
 		fmt.Fprintf(app.Eout, "%s\n", err)
 		os.Exit(1)
 	}
-	api, err := eprinttools.New(apiURL, datasetName, suppressNote, authMethod, userName, userSecret)
+	api, err := eprinttools.New(apiURL, datasetName, suppressSuggestions, authMethod, userName, userSecret)
 	if err != nil {
 		fmt.Fprintf(app.Eout, "%s\n", err)
 		os.Exit(1)
