@@ -3,11 +3,12 @@
 
 ## Bugs
 
-+ [ ] ep tool is exporting whole URL as key rather than the eprint id number.
++ [ ] Issues #13, #14 at Github are bugs and enhancements.
++ [ ] Jira issues DR-45 and DR-40 
+
 
 ## Next
 
-+ [ ] Implement a DOI to EPrintXML cli (e.g. api.crossref.org, api.datacite.org)
 + [ ] Add write support to ep cli so we can full circle data from other sources into EPrints
     + e.g. find an author with an ORCID and propogate the ORCID to all other occurrences of the author
     + e.g. take a relative link of type "DOI" and populate the DOI field (without the URL prefix)
@@ -15,14 +16,14 @@
 
 ## Someday, Maybe
 
-+ [ ] Migrate from _ep_ to _epharvest_ for CaltechAUTHORS and CaltechTHESIS
 + [ ] Normalize logging between eputil and ep
-+ [ ] Add Authentication support for harvesting all EPrints records if the REST API is enabled
-    + [ ] Use privileged account for Harvest so we can get all content
-    + [ ] Export should have options to include/exclude embargoed/restricted records
+
 
 ## Completed
 
++ [x] ep tool is exporting whole URL as key rather than the eprint id number
++ [x] Implement a DOI to EPrintXML cli (e.g. api.crossref.org, api.datacite.org)
++ [x] failed to export for status 'inbox' and 'deletion' should be a warning
 + [x] Upgrade to dataset v0.0.14-dev or better
 + [x] Add support to create/update an full EPrint record from JSON  (
 + [x] Rethink how I have named the elements of the EPrint Document and Record structures. Should they more closely represent their XML structures?

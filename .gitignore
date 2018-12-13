@@ -64,3 +64,4 @@ py/MANIFEST
 dist
 eprinttools.egg-info
 man
+testout

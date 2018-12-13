@@ -65,6 +65,7 @@ test:
 	go test -timeout 45m
 	cd harvest && go test
 	cd py && $(MAKE) test $(QUICK)
+	./test_cmds.bash
 
 clean:
 	if [ -d bin ]; then rm -fR bin; fi

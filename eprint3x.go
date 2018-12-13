@@ -780,8 +780,8 @@ func GetEPrints(baseURL string, authType int, username string, secret string, ke
 	if err != nil {
 		return nil, content, err
 	}
-	if len(rec.EPrint) > 0 && rec.EPrint[0].EPrintStatus == "deletion" {
-		return rec, content, fmt.Errorf("EPrint status for %s, %s", rec.EPrint[0].ID, rec.EPrint[0].EPrintStatus)
+	if len(rec.EPrint) > 0 && (rec.EPrint[0].EPrintStatus == "deletion" || rec.EPrint[0].EPrintStatus == "inbox") {
+		return rec, content, fmt.Errorf("WARNING status %s %s", rec.EPrint[0].ID, rec.EPrint[0].EPrintStatus)
 	}
 	return rec, content, nil
 }
@@ -934,6 +934,20 @@ type DocumentList []*Document
 func (documentList DocumentList) AddDocument(document *Document) int {
 	documentList = append(documentList, document)
 	return len(documentList)
+}
+
+// Length returns the length of DocumentList
+func (documentList DocumentList) Length() int {
+	return len(documentList)
+}
+
+// GetDocument takes a position (zero based) and returns the *Document
+// in the DocumentList.
+func (documentList DocumentList) IndexOf(i int) *Document {
+	if i < 0 || i >= len(documentList) {
+		return nil
+	}
+	return documentList[i]
 }
 
 // ePrintIDs is a struct for parsing the ids page of EPrints REST API

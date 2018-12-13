@@ -35,7 +35,7 @@ import (
 
 const (
 	// Version is the revision number for this implementation of epgo
-	Version = `v0.0.25`
+	Version = `v0.0.30`
 
 	// LicenseText holds the string for rendering License info on the command line
 	LicenseText = `
@@ -81,8 +81,9 @@ type EPrintsAPI struct {
 	Username string
 	// EPRINT_PASSWORD
 	Secret string
-	// SuppressNote suppresses the Note field
-	SuppressNote bool
+	// SuppressSuggestions suppresses the Suggestions field
+	// NOTE: Bibs at Caltech Library use Suggestions as notes in CaltechTHESIS
+	SuppressSuggestions bool
 }
 
 func normalizeDate(in string) string {
@@ -137,12 +138,13 @@ func last(s []string) string {
 }
 
 // New creates a new API instance
-func New(eprintURL, datasetName string, suppressNote bool, authMethod, userName, userSecret string) (*EPrintsAPI, error) {
+func New(eprintURL, datasetName string, suppressSuggestions bool, authMethod, userName, userSecret string) (*EPrintsAPI, error) {
 	var err error
 
 	// Setup required
 	api := new(EPrintsAPI)
-	api.SuppressNote = suppressNote
+	api.SuppressSuggestions = suppressSuggestions
+
 	if eprintURL == "" {
 		eprintURL = "http://localhost:8080"
 	}
@@ -340,11 +342,11 @@ func (api *EPrintsAPI) GetEPrint(uri string) (*EPrint, []byte, error) {
 		return nil, content, err
 	}
 	if len(eprints.EPrint) == 1 {
-		if api.SuppressNote {
-			eprints.EPrint[0].Note = ""
+		if api.SuppressSuggestions {
+			eprints.EPrint[0].Suggestions = ""
 		}
-		if eprints.EPrint[0].EPrintStatus == "deletion" {
-			return eprints.EPrint[0], content, fmt.Errorf("EPrint %s, %s", eprints.EPrint[0].ID, eprints.EPrint[0].EPrintStatus)
+		if eprints.EPrint[0].EPrintStatus == "deletion" || eprints.EPrint[0].EPrintStatus == "inbox" {
+			return eprints.EPrint[0], content, fmt.Errorf("WARNING status %s, %s", eprints.EPrint[0].ID, eprints.EPrint[0].EPrintStatus)
 		}
 		return eprints.EPrint[0], content, nil
 	}

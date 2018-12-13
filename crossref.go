@@ -1,43 +1,13 @@
 package eprinttools
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 
 	// Caltech Library Packages
 	"github.com/caltechlibrary/crossrefapi"
 )
-
-// normalizeCrossRefToLocalGroup takes an affiliation from CrossRef author
-// and attempts to determine if it is a Caltech Group and returns
-// the normalized name or an empty string.
-func normalizeCrossRefToLocalGroup(s string) string {
-	s = strings.ToLower(s)
-	switch {
-	case strings.Contains(s, "california institute of technology"):
-		i := strings.Index(s, "california institute of technology")
-		if i > -1 {
-			s = strings.TrimSuffix(strings.TrimSpace(s[0:i-1]), ";")
-		}
-		return strings.TrimSpace(s)
-	case strings.Contains(s, "california institution of technology"):
-		i := strings.Index(s, "california institution of technology")
-		if i > -1 {
-			s = strings.TrimSuffix(strings.TrimSpace(s[0:i-1]), ";")
-		}
-		return strings.TrimSpace(s)
-	case strings.Contains(s, "caltech"):
-	case strings.Contains(s, "caltech"):
-		i := strings.Index(s, "caltech")
-		if i > -1 {
-			s = strings.TrimSuffix(strings.TrimSpace(s[0:i-1]), ";")
-		}
-		return strings.TrimSpace(s)
-	case strings.Contains(s, "ligo"):
-		return "LIGO"
-	}
-	return ""
-}
 
 // normalizeCrossRefType converts content type from CrossRef
 // to Authors (e.g. "journal-article" to "article")
@@ -223,10 +193,25 @@ func CrossRefWorksToEPrint(obj crossrefapi.Object) (*EPrint, error) {
 		}
 	}
 
-	// NOTE: Assuming date is published given we're talking to CrossRef
-	// Date. We prefer issued date but fallback to created date.
+	// NOTE: We prefer the publication date of published-print and
+	// fallback to issued date then finally created date.
 	eprint.DateType = "published"
-	if issued, ok := indexInto(obj, "message", "issued", "date-time"); ok == true {
+	if published, ok := indexInto(obj, "message", "published-print", "date-parts"); ok == true {
+		var l1, l2 []interface{}
+		if len(published.([]interface{})) == 1 {
+			l1 = published.([]interface{})
+			l2 = l1[0].([]interface{})
+			ymd := []string{}
+			for _, v := range l2 {
+				n := v.(json.Number).String()
+				if len(n) < 2 {
+					n = "0" + n
+				}
+				ymd = append(ymd, n)
+			}
+			eprint.Date = strings.Join(ymd, "-")
+		}
+	} else if issued, ok := indexInto(obj, "message", "issued", "date-time"); ok == true {
 		// DateType
 		eprint.Date = fmt.Sprintf("%s", issued)
 	} else if created, ok := indexInto(obj, "message", "created", "date-time"); ok == true {
@@ -241,22 +226,10 @@ func CrossRefWorksToEPrint(obj crossrefapi.Object) (*EPrint, error) {
 	if l, ok := indexInto(obj, "message", "author"); ok == true {
 		creators := new(CreatorItemList)
 		corpCreators := new(CorpCreatorItemList)
-		localGroups := new(LocalGroupItemList)
 		for _, entry := range l.([]interface{}) {
 			author := entry.(map[string]interface{})
 			item := new(Item)
 			item.Name = new(Name)
-			if affiliations, ok := author["affiliation"]; ok == true {
-				for _, affiliation := range affiliations.([]interface{}) {
-					if s, ok := indexInto(affiliation.(map[string]interface{}), "name"); ok == true {
-						group := new(Item)
-						group.Value = normalizeCrossRefToLocalGroup(s.(string))
-						if group.Value != "" {
-							localGroups.AddItem(group)
-						}
-					}
-				}
-			}
 			if orcid, ok := author["ORCID"]; ok == true {
 				item.ORCID = orcid.(string)
 				if strings.HasPrefix(orcid.(string), "http://orcid.org/") {

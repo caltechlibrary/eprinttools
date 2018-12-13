@@ -1,5 +1,5 @@
 //
-// epharvest is an eprinttools based cli for harvesting EPrints content into a dataset collection.
+// ep is an eprinttools based cli for harvesting EPrints content into a dataset collection.
 //
 // @author R. S. Doiel, <rsdoiel@caltech.edu>
 //
@@ -103,22 +103,23 @@ save the keys for the records exported with one key per line.
 	exportEPrintsModified string
 	exportSaveKeys        string
 	exportEPrintsKeyList  string
+	exportEPrintDocs      bool
 
 	authMethod string
 	userName   string
 	userSecret string
 
-	// NOTE: supressNote (Internal Note) added to handle the case where Note field is internal use only and not to be harvested
-	suppressNote bool
+	// NOTE: suppressSuggestions (Internal Note) added to handle the case
+	// where Suggestions field is internal use only and not to be harvested
+	suppressSuggestions bool
 
 	thisProcessID int
 )
 
 func main() {
 	var (
-		apiURLEnv       string
-		datasetNameEnv  string
-		suppressNoteEnv bool
+		apiURLEnv      string
+		datasetNameEnv string
 	)
 	app := cli.NewCli(eprinttools.Version)
 	appName := app.AppName()
@@ -162,7 +163,9 @@ func main() {
 	app.StringVar(&exportEPrintsModified, "export-modified", "", "export records by date or date range (e.g. 2017-07-01)")
 	app.StringVar(&exportSaveKeys, "export-save-keys", "", "save the keys exported in a file with provided filename")
 	app.StringVar(&exportEPrintsKeyList, "export-keys", "", "export a comma delimited list of EPrint keys")
+	app.BoolVar(&exportEPrintDocs, "export-with-docs", false, "include EPrint documents with export")
 	app.StringVar(&updatedSince, "updated-since", "", "list EPrint IDs updated since a given date (e.g 2017-07-01)")
+	app.BoolVar(&suppressSuggestions, "suppress-suggestions", true, "suppress the suggestions field from output")
 
 	// Parse environment and options
 	if err := app.Parse(); err != nil {
@@ -223,6 +226,10 @@ func main() {
 		os.Exit(0)
 	}
 
+	if exportEPrintDocs {
+		harvest.ExportEPrintDocs = true
+	}
+
 	// Required configuration, let Env overide options if not options are defaults
 	if apiURL == "" {
 		if apiURLEnv == "" {
@@ -238,9 +245,6 @@ func main() {
 		}
 		datasetName = datasetNameEnv
 	}
-	if suppressNote == false && suppressNoteEnv == true {
-		suppressNote = true
-	}
 
 	// This will read in the settings from the app
 	// and configure access to the EPrints API
@@ -254,7 +258,7 @@ func main() {
 		fmt.Fprintf(app.Eout, "%s\n", err)
 		os.Exit(1)
 	}
-	api, err := eprinttools.New(apiURL, datasetName, suppressNote, authMethod, userName, userSecret)
+	api, err := eprinttools.New(apiURL, datasetName, suppressSuggestions, authMethod, userName, userSecret)
 	if err != nil {
 		fmt.Fprintf(app.Eout, "%s\n", err)
 		os.Exit(1)
