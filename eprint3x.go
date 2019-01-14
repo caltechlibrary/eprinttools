@@ -18,6 +18,7 @@
 package eprinttools
 
 import (
+	//"bytes"
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
@@ -334,6 +335,32 @@ type ReferenceTextItemList struct {
 func (referenceTextItemList *ReferenceTextItemList) AddItem(item *Item) int {
 	referenceTextItemList.Items = append(referenceTextItemList.Items, item)
 	return len(referenceTextItemList.Items)
+}
+
+// UnmarshJSON takes a reference text list of item and returns
+// an appropriately values to assigned struct.
+func (referenceTextItemList *ReferenceTextItemList) UnmarshalJSON(src []byte) error {
+	var values []string
+
+	m := make(map[string][]interface{})
+	err := json.Unmarshal(src, &m)
+	if err != nil {
+		return err
+	}
+	if itemList, ok := m["items"]; ok == true {
+		for _, item := range itemList {
+			switch item.(type) {
+			case string:
+				values = append(values, item.(string))
+			}
+		}
+	}
+	for _, value := range values {
+		item := new(Item)
+		item.Value = value
+		referenceTextItemList.AddItem(item)
+	}
+	return err
 }
 
 // ProjectItemList

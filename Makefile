@@ -19,7 +19,7 @@ ifeq ($(quick), true)
 	QUICK = quick=true
 endif
 
-PROJECT_LIST = ep eputil doi2eprintxml eprintxml2json
+PROJECT_LIST = ep eputil epfmt doi2eprintxml eprintxml2json
 
 build: package $(PROJECT_LIST)
 
@@ -29,6 +29,8 @@ package: eprinttools.go harvest/harvest.go eprint3x.go
 ep: bin/ep$(EXT)
 
 eputil: bin/eputil$(EXT)
+
+epfmt: bin/epfmt$(EXT)
 
 doi2eprintxml: bin/doi2eprintxml$(EXT) 
 
@@ -40,6 +42,9 @@ bin/ep$(EXT): eprinttools.go harvest/harvest.go cmd/ep/ep.go
 bin/eputil$(EXT): eprinttools.go harvest/harvest.go eprint3x.go cmd/eputil/eputil.go
 	go build -o bin/eputil$(EXT) cmd/eputil/eputil.go
 
+bin/epfmt$(EXT): eprinttools.go harvest/harvest.go eprint3x.go cmd/epfmt/epfmt.go
+	go build -o bin/epfmt$(EXT) cmd/epfmt/epfmt.go
+
 bin/doi2eprintxml$(EXT): eprinttools.go crossref.go datacite.go clsrules/clsrules.go cmd/doi2eprintxml/doi2eprintxml.go 
 	go build -o bin/doi2eprintxml$(EXT) cmd/doi2eprintxml/doi2eprintxml.go
 
@@ -49,11 +54,13 @@ bin/eprintxml2json$(EXT): eprinttools.go eprint3x.go cmd/eprintxml2json/eprintxm
 install: 
 	env GOBIN=$(GOPATH)/bin go install cmd/ep/ep.go
 	env GOBIN=$(GOPATH)/bin go install cmd/eputil/eputil.go
+	env GOBIN=$(GOPATH)/bin go install cmd/epfmt/epfmt.go
 	env GOBIN=$(GOPATH)/bin go install cmd/doi2eprintxml/doi2eprintxml.go
 	env GOBIN=$(GOPATH)/bin go install cmd/eprintxml2json/eprintxml2json.go
 	if [ "$(OS)" != "Windows" ]; then mkdir -p "$(GOPATH)/man/man1"; fi
 	if [ "$(OS)" != "Windows" ]; then $(GOPATH)/bin/ep -generate-manpage | nroff -Tutf8 -man > $(GOPATH)/man/man1/ep.1; fi
 	if [ "$(OS)" != "Windows" ]; then $(GOPATH)/bin/eputil -generate-manpage | nroff -Tutf8 -man > $(GOPATH)/man/man1/eputil.1; fi
+	if [ "$(OS)" != "Windows" ]; then $(GOPATH)/bin/epfmt -generate-manpage | nroff -Tutf8 -man > $(GOPATH)/man/man1/epfmt.1; fi
 	if [ "$(OS)" != "Windows" ]; then $(GOPATH)/bin/doi2eprintxml -generate-manpage | nroff -Tutf8 -man > $(GOPATH)/man/man1/doi2eprintxml.1; fi
 	if [ "$(OS)" != "Windows" ]; then $(GOPATH)/bin/eprintxml2json -generate-manpage | nroff -Tutf8 -man > $(GOPATH)/man/man1/eprintxml2json.1; fi
 
@@ -77,6 +84,7 @@ man: build
 	mkdir -p man/man1
 	bin/ep -generate-manpage | nroff -Tutf8 -man > man/man1/ep.1
 	bin/eputil -generate-manpage | nroff -Tutf8 -man > man/man1/eputil.1
+	bin/epfmt -generate-manpage | nroff -Tutf8 -man > man/man1/epfmt.1
 	bin/doi2eprintxml -generate-manpage | nroff -Tutf8 -man > man/man1/doi2eprintxml.1
 	bin/eprintxml2json -generate-manpage | nroff -Tutf8 -man > man/man1/eprintxml2json.1
 
@@ -84,6 +92,7 @@ dist/linux-amd64:
 	mkdir -p dist/bin
 	env  GOOS=linux GOARCH=amd64 go build -o dist/bin/ep cmd/ep/ep.go
 	env  GOOS=linux GOARCH=amd64 go build -o dist/bin/eputil cmd/eputil/eputil.go
+	env  GOOS=linux GOARCH=amd64 go build -o dist/bin/epfmt cmd/epfmt/epfmt.go
 	env  GOOS=linux GOARCH=amd64 go build -o dist/bin/doi2eprintxml cmd/doi2eprintxml/doi2eprintxml.go
 	env  GOOS=linux GOARCH=amd64 go build -o dist/bin/eprintxml2json cmd/eprintxml2json/eprintxml2json.go
 	cd dist && zip -r $(PROJECT)-$(VERSION)-linux-amd64.zip README.md LICENSE INSTALL.md docs/* scripts/* etc/* bin/*
@@ -93,6 +102,7 @@ dist/windows-amd64:
 	mkdir -p dist/bin
 	env  GOOS=windows GOARCH=amd64 go build -o dist/bin/ep.exe cmd/ep/ep.go
 	env  GOOS=windows GOARCH=amd64 go build -o dist/bin/eputil.exe cmd/eputil/eputil.go
+	env  GOOS=windows GOARCH=amd64 go build -o dist/bin/epfmt.exe cmd/epfmt/epfmt.go
 	env  GOOS=windows GOARCH=amd64 go build -o dist/bin/doi2eprintxml.exe cmd/doi2eprintxml/doi2eprintxml.go
 	env  GOOS=windows GOARCH=amd64 go build -o dist/bin/eprintxml2json.exe cmd/eprintxml2json/eprintxml2json.go
 	cd dist && zip -r $(PROJECT)-$(VERSION)-windows-amd64.zip README.md LICENSE INSTALL.md docs/* scripts/* etc/* bin/*
@@ -102,6 +112,7 @@ dist/macosx-amd64:
 	mkdir -p dist/bin
 	env  GOOS=darwin GOARCH=amd64 go build -o dist/bin/ep cmd/ep/ep.go
 	env  GOOS=darwin GOARCH=amd64 go build -o dist/bin/eputil cmd/eputil/eputil.go
+	env  GOOS=darwin GOARCH=amd64 go build -o dist/bin/epfmt cmd/epfmt/epfmt.go
 	env  GOOS=darwin GOARCH=amd64 go build -o dist/bin/doi2eprintxml cmd/doi2eprintxml/doi2eprintxml.go
 	env  GOOS=darwin GOARCH=amd64 go build -o dist/bin/eprintxml2json cmd/eprintxml2json/eprintxml2json.go
 	cd dist && zip -r $(PROJECT)-$(VERSION)-macosx-amd64.zip README.md LICENSE INSTALL.md docs/* scripts/* etc/* bin/*
@@ -111,6 +122,7 @@ dist/raspbian-arm7:
 	mkdir -p dist/bin
 	env  GOOS=linux GOARCH=arm GOARM=7 go build -o dist/bin/ep cmd/ep/ep.go
 	env  GOOS=linux GOARCH=arm GOARM=7 go build -o dist/bin/eputil cmd/eputil/eputil.go
+	env  GOOS=linux GOARCH=arm GOARM=7 go build -o dist/bin/epfmt cmd/epfmt/epfmt.go
 	env  GOOS=linux GOARCH=arm GOARM=7 go build -o dist/bin/doi2eprintxml cmd/doi2eprintxml/doi2eprintxml.go
 	env  GOOS=linux GOARCH=arm GOARM=7 go build -o dist/bin/eprintxml2json cmd/eprintxml2json/eprintxml2json.go
 	cd dist && zip -r $(PROJECT)-$(VERSION)-raspbian-arm7.zip README.md LICENSE INSTALL.md docs/* scripts/* etc/* bin/*
