@@ -72,9 +72,9 @@ Render EPrint JSON as EPrint XML.
     epfmt -xml < 123.json
 ` + "```" + `
 
-_epfmt_ will first parts the XML or JSON 
+_epfmt_ will first parse the XML or JSON 
 presented to it and pretty print the output 
-in the desired format requested. If not 
+in the desired format requested. If no 
 format option chosen it will pretty print 
 in the same format as input.
 `)
