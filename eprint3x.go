@@ -18,7 +18,7 @@
 package eprinttools
 
 import (
-	//"bytes"
+	"bytes"
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
@@ -273,6 +273,11 @@ func (item *Item) MarshalJSON() ([]byte, error) {
 }
 
 func (item *Item) UnmarshalJSON(src []byte) error {
+	fmt.Printf("DEBUG *Item src %s\n", src)
+	if bytes.HasPrefix(src, []byte(`"`)) && bytes.HasSuffix(src, []byte(`"`)) {
+		item.Value = fmt.Sprintf("%s", bytes.Trim(src, `"`))
+		return nil
+	}
 	m := make(map[string]interface{})
 	err := json.Unmarshal(src, &m)
 	if err != nil {

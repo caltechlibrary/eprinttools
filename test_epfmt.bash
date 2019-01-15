@@ -16,11 +16,13 @@ if [[ ! -d "testout" ]]; then
 	mkdir testout
 fi
 EP_API="${1}"
-echo "Generating getting keys for test data"
-bin/eputil -json "${EP_API}/rest/eprint/" | jsonrange -values >testout/t.keys
+if [[ ! -f "testout/samples.keys" ]]; then
+    echo "Generating getting keys for test data"
+    bin/eputil -json "${EP_API}/rest/eprint/" | jsonrange -values >testout/t.keys
 
-echo "Generating 5% sample"
-awk 'BEGIN {srand()} !/^$/ { if (rand() <= .05) print $0}' testout/t.keys >testout/sample.keys
+    echo "Generating 5% sample"
+    awk 'BEGIN {srand()} !/^$/ { if (rand() <= .05) print $0}' testout/t.keys >testout/sample.keys
+fi
 
 if [[ ! -s "testout/sample.keys" ]]; then
 	echo "Failed to generate a sample of keys from testout/t.keys"
@@ -58,12 +60,14 @@ findfile -s .xml testout | grep -E '^[0-9]+\.xml$' | while read -r FNAME; do
 	if bin/epfmt <"testout/${KEY}.xml" >"testout/${KEY}_t1.xml"; then
 		echo -n "."
 	else
+		echo ""
 		echo " Failed on testout/${KEY}.xml to generate testout/${KEY}_t1.xml"
 		exit 1
 	fi
 	if bin/epfmt -json <"testout/${KEY}.xml" >"testout/${KEY}_t2.json"; then
 		echo -n "."
 	else
+		echo ""
 		echo " Failed on testout/${KEY}.xml to generate testout/${KEY}_t2.json"
 		exit 1
 	fi
@@ -76,12 +80,14 @@ findfile -s .json testout | grep -E '^[0-9]+\.json$' | while read -r FNAME; do
 	if bin/epfmt <"testout/${KEY}.json" >"testout/${KEY}_t3.json"; then
 		echo -n "."
 	else
+		echo ""
 		echo " Failed on testout/${KEY}.json to generate testout/${KEY}_t3.json"
 		exit 1
 	fi
 	if bin/epfmt -xml <"testout/${KEY}.json" >"testout/${KEY}_t4.json"; then
 		echo -n "."
 	else
+		echo ""
 		echo " Failed on testout/${KEY}.json to generate testout/${KEY}_t4.json"
 		exit 1
 	fi
