@@ -16,12 +16,14 @@ if [[ ! -d "testout" ]]; then
 	mkdir testout
 fi
 EP_API="${1}"
-if [[ ! -f "testout/samples.keys" ]]; then
-    echo "Generating getting keys for test data"
+if [[ ! -f "testout/sample.keys" ]]; then
+    echo "Generating getting keys for sample"
     bin/eputil -json "${EP_API}/rest/eprint/" | jsonrange -values >testout/t.keys
 
     echo "Generating 5% sample"
     awk 'BEGIN {srand()} !/^$/ { if (rand() <= .05) print $0}' testout/t.keys >testout/sample.keys
+else
+    echo "Using existing sample.keys"
 fi
 
 if [[ ! -s "testout/sample.keys" ]]; then
