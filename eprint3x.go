@@ -272,6 +272,64 @@ func (item *Item) MarshalJSON() ([]byte, error) {
 	return json.Marshal(m)
 }
 
+func (item *Item) UnmarshalJSON(src []byte) error {
+	m := make(map[string]interface{})
+	err := json.Unmarshal(src, &m)
+	if err != nil {
+		return err
+	}
+	for key, value := range m {
+		switch key {
+		case "name":
+			name := new(Name)
+			switch value.(type) {
+			case string:
+				name.Value = value.(string)
+			case map[string]interface{}:
+				m := value.(map[string]interface{})
+				if family, ok := m["family"]; ok == true {
+					name.Family = family.(string)
+				}
+				if given, ok := m["given"]; ok == true {
+					name.Given = given.(string)
+				}
+				if id, ok := m["id"]; ok == true {
+					name.ID = id.(string)
+				}
+				if orcid, ok := m["orcid"]; ok == true {
+					name.ID = orcid.(string)
+				}
+			}
+			item.Name = name
+		case "id":
+			item.ID = value.(string)
+		case "email":
+			item.EMail = value.(string)
+		case "show_email":
+			item.ShowEMail = value.(string)
+		case "role":
+			item.Role = value.(string)
+		case "url":
+			item.URL = value.(string)
+		case "type":
+			item.Type = value.(string)
+		case "description":
+			item.Description = value.(string)
+		case "agency":
+			item.Agency = value.(string)
+		case "grant_number":
+			item.GrantNumber = value.(string)
+		case "uri":
+			item.URI = value.(string)
+		case "orcid":
+			item.ORCID = value.(string)
+		case "value":
+			item.Value = value.(string)
+		}
+	}
+	return err
+}
+
 // ItemList holds an array of items (e.g. creators, related urls, etc)
 //type ItemList []*Item
 
