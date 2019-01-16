@@ -12,6 +12,12 @@ if [[ "${HAS_JSONRANGE}" == "" ]]; then
 	exit 1
 fi
 
+if [[ "$2" = "all" ]]; then
+    if [[ -d "testout" ]]; then
+        rm -fR "testout"
+    fi
+fi
+
 if [[ ! -d "testout" ]]; then
 	mkdir testout
 fi
@@ -23,7 +29,10 @@ else
     echo "Using existing testout/t.keys"
 fi
 
-if [[ ! -f "testout/sample.keys" ]]; then
+if [[ "$2" = "all" ]]; then
+    echo "Using all keys for sample"
+    cp testout/t.keys testout/sample.keys
+elif [[ ! -f "testout/sample.keys" ]]; then
 	echo "Generating 5% sample"
 	awk 'BEGIN {srand()} !/^$/ { if (rand() <= .05) print $0}' testout/t.keys >testout/sample.keys
 else
@@ -42,7 +51,7 @@ spinner=".\\-|/-+xX#*#Xx+\\|/-."
 i=1
 while read -r KEY; do
 	if [[ "${KEY}" != "" ]]; then
-		if [[ ! -f "testout/${KEY}.xml" ]]; then
+		if [[ ! -s "testout/${KEY}.xml" ]]; then
 			if bin/eputil "${EP_API}/rest/eprint/${KEY}.xml" >"testout/${KEY}.xml"; then
 				if [[ -s "testout/${KEY}.xml" ]]; then
 					bin/eputil -json "${EP_API}/rest/eprint/${KEY}.xml" >"testout/${KEY}.json"
