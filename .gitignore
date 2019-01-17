@@ -65,3 +65,4 @@ dist
 eprinttools.egg-info
 man
 testout
+testout_*
