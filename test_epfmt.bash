@@ -103,14 +103,17 @@ findfile -s .json testout | grep -E '^[0-9]+\.json$' | while read -r FNAME; do
 		echo " Failed on testout/${KEY}.json to generate testout/${KEY}_t3.json"
 		exit 1
 	fi
-	if ! bin/epfmt -xml <"testout/${KEY}.json" >"testout/${KEY}_t4.json" ; then
-		echo " Failed on testout/${KEY}.json to generate testout/${KEY}_t4.json"
+	if ! bin/epfmt -xml <"testout/${KEY}.json" >"testout/${KEY}_t4.xml" ; then
+		echo " Failed on testout/${KEY}.json to generate testout/${KEY}_t4.xml"
 		exit 1
 	fi
 fi
     i=$(( (i+1) %20 ))
     printf "\r${spinner:$i:1}"
 done
+
+echo "Checking for XML commonality"
+
 
 echo ""
 echo "All Done!"
