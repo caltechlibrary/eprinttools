@@ -31,6 +31,68 @@ import (
 	"github.com/caltechlibrary/rc"
 )
 
+func TestLibSupport(t *testing.T) {
+	eprintURL := os.Getenv("EPRINT_URL")
+	if eprintURL == "" {
+		log.Println("Skipping TestLibSupport(), requires EPRINT_URL to be set in the environment")
+		return
+	}
+	authType := 0
+	username := os.Getenv("EPRINT_USERNAME")
+	secret := os.Getenv("EPRINT_PASSWORD")
+	keys, err := GetKeys(eprintURL, 0, username, secret)
+	if err != nil {
+		t.Errorf("GetKeys(%q, %d, %q, %q) returned an error, %s", eprintURL, authType, username, secret, err)
+		t.FailNow()
+	}
+	if len(keys) < 1 {
+		t.Errorf("Expected some keys form Get(%q, %d, %q, %q)", eprintURL, authType, username, secret)
+		t.FailNow()
+	}
+	first := 0
+	last := len(keys) - 1
+	if len(keys) > 1500 {
+		//NOTE: we want to pick a middle range of IDs to test against
+		m := len(keys) % 2
+		first = m - 500
+		if first < 0 {
+			first = 0
+		}
+		last = m + 500
+		if last >= len(keys) {
+			last = len(keys) - 1
+		}
+
+	}
+
+	spinner := "._-+xX#*#Xx+-_."
+	fmt.Fprintf(os.Stderr, "Testing GetEPrints() ...\n")
+	for i, key := range keys[first:last] {
+		fmt.Fprintf(os.Stderr, "\r%s", string(spinner[i%len(spinner)]))
+		if strings.HasSuffix(key, ".xml") {
+			t.Errorf("key %q should be the number only", key)
+			t.FailNow()
+		}
+
+		//NOTE: we need to check ep and raw if we don't and an error
+		_, _, err := GetEPrints(eprintURL, authType, username, secret, key)
+		if err != nil {
+			sErr := fmt.Sprintf("%s", err)
+			// NOTE: We should get an error for 401's, or when
+			// we try to retrieve something with eprint_status of
+			// buffer, deletion, and inbox.
+			if strings.HasPrefix(sErr, "401") == false &&
+				strings.HasSuffix(sErr, "buffer") == false &&
+				strings.HasSuffix(sErr, "deletion") == false &&
+				strings.HasSuffix(sErr, "inbox") == false {
+				t.Errorf("%d GetEPrints(%q, %d, %q, %q, %q) -> %q", i, eprintURL, authType, username, secret, key, err)
+				t.FailNow()
+			}
+		}
+	}
+	fmt.Fprint(os.Stderr, "\r \n")
+}
+
 func TestEPrint3x(t *testing.T) {
 	// Simulate URL response for https://authors.library.caltech.edu/rest/eprint/84590.xml
 	src := []byte(`<?xml version='1.0' encoding='utf-8'?>
@@ -1174,52 +1236,5 @@ Wei Zhu (祝伟) et al. 2015 ApJ 805 8</official_cit>
 	}
 	if record.Number != "1" {
 		t.Errorf("expected %q, got %q", "1", record.Number)
-	}
-}
-
-func TestLibSupport(t *testing.T) {
-	eprintURL := os.Getenv("EPRINT_URL")
-	if eprintURL == "" {
-		log.Println("Skipping TestLibSupport(), requires EPRINT_URL to be set in the environment")
-		return
-	}
-	authType := 0
-	username := os.Getenv("EPRINT_USERNAME")
-	secret := os.Getenv("EPRINT_PASSWORD")
-	keys, err := GetKeys(eprintURL, 0, username, secret)
-	if err != nil {
-		t.Errorf("GetKeys(%q, %d, %q, %q) returned an error, %s", eprintURL, authType, username, secret, err)
-		t.FailNow()
-	}
-	if len(keys) < 1 {
-		t.Errorf("Expected some keys form Get(%q, %d, %q, %q)", eprintURL, authType, username, secret)
-		t.FailNow()
-	}
-	//FIXME: pick a middle range of IDs to test against
-	first := 0
-	last := first + 50
-	if len(keys) > 100 {
-		first = 0
-		first = (len(keys) / 2) - 50
-		last = first + 50
-	}
-	if len(keys) < last {
-		last = len(keys) - 1
-	}
-
-	for i, key := range keys[first:last] {
-		//FIXME: need to make sure what we are getting back sSrc, and xmlSrc are realisitic
-		_, _, err := GetEPrints(eprintURL, authType, username, secret, key)
-		if strings.HasSuffix(key, ".xml") {
-			t.Errorf("key %q should be the number only", key)
-			t.FailNow()
-		}
-		if err != nil {
-			sErr := fmt.Sprintf("%s", err)
-			if strings.HasPrefix(sErr, "401") == false {
-				t.Errorf("%d GetEPrints(%q, %d, %q, %q, %q) -> %q", i, eprintURL, authType, username, secret, key, err)
-				t.FailNow()
-			}
-		}
 	}
 }

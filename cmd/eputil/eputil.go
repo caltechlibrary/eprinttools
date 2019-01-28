@@ -216,13 +216,11 @@ func main() {
 		fmt.Fprintf(app.Eout, "%s\n", err)
 		os.Exit(1)
 	}
-	if u.User != nil {
-		username = u.User.String()
-	}
-	if username != "" {
-		if strings.Contains(username, ":") {
-			p := strings.SplitN(username, ":", 2)
-			username, password = p[0], p[1]
+	if userinfo := u.User; userinfo != nil {
+		username = userinfo.Username()
+		if secret, isSet := userinfo.Password(); isSet {
+			fmt.Printf("DEBUG is secret URL encoded? %q\n", secret)
+			password = secret
 		}
 		if auth == "" {
 			auth = "basic"
