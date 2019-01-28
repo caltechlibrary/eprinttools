@@ -219,7 +219,6 @@ func main() {
 	if userinfo := u.User; userinfo != nil {
 		username = userinfo.Username()
 		if secret, isSet := userinfo.Password(); isSet {
-			fmt.Printf("DEBUG is secret URL encoded? %q\n", secret)
 			password = secret
 		}
 		if auth == "" {
