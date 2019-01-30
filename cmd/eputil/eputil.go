@@ -29,6 +29,9 @@ import (
 	"os"
 	"strings"
 
+	// Golang optional libraries
+	"golang.org/x/crypto/ssh/terminal"
+
 	// Caltech Library Packages
 	"github.com/caltechlibrary/cli"
 	"github.com/caltechlibrary/eprinttools"
@@ -89,10 +92,23 @@ Get the last modified date for id 123 from REST API
     eputil -raw https://example.org/rest/eprint/123/lastmod.txt 
 ` + "```" + `
 
-If the EPrint REST API is protected by basic auth then
-you can pass the username and password via the URL.
-In this example the username is "user" and password is
-"secret".
+If the EPrint REST API is protected by basic authentication
+you can pass the username and password via command line
+options. You will be prompted for the password value.
+or via the URL.  In this example the username is 
+"user" and password is "secret". In this example you will
+be prompted to enter your secret.
+
+` + "```" + `
+    eputil -username=user -password \
+      https://user:secret@example.org/rest/eprint/123.xml
+` + "```" + `
+
+You can also pass the username and secret via the URL
+but this leaves you vunerable to the password being recorded
+in your command history or if another person has access to
+the process table. You SHOULD NOT use this approach on a
+shared machine!
 
 ` + "```" + `
     eputil https://user:secret@example.org/rest/eprint/123.xml
@@ -118,12 +134,13 @@ setup implemented in the EPrint instance.
 	outputFName string
 
 	// App Options
-	username string
-	password string
-	auth     string
-	asJSON   bool
-	raw      bool
-	getURL   string
+	username       string
+	passwordPrompt bool
+	password       string
+	auth           string
+	asJSON         bool
+	raw            bool
+	getURL         string
 )
 
 func main() {
@@ -155,7 +172,7 @@ func main() {
 	app.BoolVar(&raw, "raw", false, "get the raw EPrint REST API response")
 	app.BoolVar(&asJSON, "json", false, "attempt to parse XML into generaic JSON structure")
 	app.StringVar(&username, "u,un,user,username", "", "set the username for authenticated access")
-	app.StringVar(&password, "pw,password", "", "set the password for authenticated access")
+	app.BoolVar(&passwordPrompt, "password", false, "Prompt for the password for authenticated access")
 	app.StringVar(&auth, "auth", "", "set the authentication type for access")
 
 	// We're ready to process args
@@ -216,10 +233,15 @@ func main() {
 		fmt.Fprintf(app.Eout, "%s\n", err)
 		os.Exit(1)
 	}
+	if passwordPrompt {
+		fmt.Fprintf(app.Out, "Please type the password for accessing\n%s\n", getURL)
+		if src, err := terminal.ReadPassword(0); err == nil {
+			password = fmt.Sprintf("%s", src)
+		}
+	}
 	if userinfo := u.User; userinfo != nil {
 		username = userinfo.Username()
 		if secret, isSet := userinfo.Password(); isSet {
-			fmt.Printf("DEBUG is secret URL encoded? %q\n", secret)
 			password = secret
 		}
 		if auth == "" {
