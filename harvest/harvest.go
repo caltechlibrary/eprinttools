@@ -166,7 +166,16 @@ func ExportEPrintsKeyList(api *eprinttools.EPrintsAPI, keys []string, saveKeys s
 		rec, xmlSrc, err := api.GetEPrint(uri)
 		if err != nil {
 			if strings.HasPrefix(err.Error(), "WARNING") {
-				log.Printf("(pid: %d) Skipping, %s\n", pid, err)
+				id := fmt.Sprintf("%d", rec.EPrintID)
+				if c.HasKey(id) {
+					if err2 := c.Delete(id); err2 == nil {
+						log.Printf("(pid: %d) Pruning, %s\n", pid, err)
+					} else {
+						log.Printf("(pid: %d) Failed to prune %d, %s", pid, id, err2)
+					}
+				} else {
+					log.Printf("(pid: %d) Skipping, %s\n", pid, err)
+				}
 			} else {
 				log.Printf("(pid: %d) Failed, %s\n", pid, err)
 			}
@@ -345,7 +354,7 @@ func ExportModifiedEPrints(api *eprinttools.EPrintsAPI, start, end time.Time, sa
 			key := fmt.Sprintf("%d", rec.EPrintID)
 			src, err = json.Marshal(rec)
 			if err != nil {
-				log.Printf("(pid: %d) Can't marshel key %s, %s", pid, key, err)
+				log.Printf("(pid: %d) Can't marshal key %s, %s", pid, key, err)
 			} else {
 				// NOTE: Check to see if we're doing an update or create
 				if c.HasKey(key) == true {

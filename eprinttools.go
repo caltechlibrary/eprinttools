@@ -282,7 +282,7 @@ func (api *EPrintsAPI) ListModifiedEPrintsURI(start, end time.Time, verbose bool
 		buf, err := rest.Request("GET", p, map[string]string{})
 		if err != nil {
 			if verbose {
-				log.Printf("(pid: %d) skipping eprint id %s, %s", pid, key, err)
+				log.Printf("(pid: %d) Skipping eprint id %s, %s", pid, key, err)
 			}
 			continue
 		}
