@@ -97,7 +97,7 @@ func Apply(eprintsList *eprinttools.EPrints) (*eprinttools.EPrints, error) {
 		}
 
 		// Normalize Creators and apply George's rules
-		if len(eprint.Creators.Items) > 0 {
+		if eprint.Creators != nil && len(eprint.Creators.Items) > 0 {
 			if creators, hasChanged := normalizeCreators(eprint.Creators); hasChanged {
 				eprint.Creators = creators
 				changed = true
