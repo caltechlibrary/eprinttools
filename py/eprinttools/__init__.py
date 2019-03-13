@@ -20,6 +20,7 @@ import ctypes
 import os
 import json
 import datetime
+from urllib.parse import urlparse
 
 now = datetime.datetime.now()
 
@@ -105,34 +106,31 @@ def version():
     return value.decode() 
 
 def cfg(base_url, auth_type = "", username = "", secret = "", collection_name = ""):
-    cfg = {
+    if '@' in base_url:
+        u = urlparse(base_url)
+        if (username == "" or username == None) and u.username != None:
+            username = u.username
+        if (secret == "" or secret == None) and u.password != None:
+            secret = u.password
+        if (auth_type == "" or auth_type == None):
+            auth_type = "basic"
+    conf = {
         "url": base_url,
         "auth_type": auth_type,
         "username": username,
         "password": secret,
         "dataset": collection_name
     }
-    return cfg
+    return conf
 
 def envcfg():
-    cfg = {}
     base_url = os.getenv("EPRINT_URL")
     auth_type = os.getenv("EPRINT_AUTH_TYPE")
     username = os.getenv("EPRINT_USERNAME")
     secret = os.getenv("EPRINT_PASSWORD")
     dataset_collection = os.getenv("DATASET")
+    return cfg(base_url, auth_type, username, secret, dataset_collection)
 
-    if base_url != None:
-        cfg["url"] = base_url
-    if auth_type!= None:
-        cfg["auth_type"] = auth_type
-    if username != None:
-        cfg["username"] = username
-    if secret != None:
-        cfg["password"] = secret
-    if dataset_collection != None:
-        cfg["dataset"] = dataset_collection
-    return cfg
 
 def readcfg(fname = "config.json"):
     with open(fname, mode = "r", encoding = "utf-8") as f:

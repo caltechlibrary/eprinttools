@@ -171,7 +171,7 @@ func ExportEPrintsKeyList(api *eprinttools.EPrintsAPI, keys []string, saveKeys s
 					if err2 := c.Delete(id); err2 == nil {
 						log.Printf("(pid: %d) Pruning, %s\n", pid, err)
 					} else {
-						log.Printf("(pid: %d) Failed to prune %d, %s", pid, id, err2)
+						log.Printf("(pid: %d) Failed to prune %s, %s", pid, id, err2)
 					}
 				} else {
 					log.Printf("(pid: %d) Skipping, %s\n", pid, err)
@@ -267,7 +267,7 @@ func ExportEPrints(api *eprinttools.EPrintsAPI, count int, saveKeys string, verb
 					if err2 := c.Delete(id); err2 == nil {
 						log.Printf("(pid: %d) Pruning, %s\n", pid, err)
 					} else {
-						log.Printf("(pid: %d) Failed to prune %d, %s", pid, id, err2)
+						log.Printf("(pid: %d) Failed to prune %s, %s", pid, id, err2)
 					}
 				} else {
 					log.Printf("(pid: %d) Skipping, %s\n", pid, err)

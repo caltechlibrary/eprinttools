@@ -72,6 +72,15 @@ func trimTitle(s string) string {
 	return strings.TrimSpace(s)
 }
 
+// trimNumberString, DR-46, George would like leading zeros in issue
+// numbers trimmed.
+func trimNumberString(s string) string {
+	if strings.HasPrefix(s, "0") {
+		s = strings.TrimLeft(s, "0")
+	}
+	return s
+}
+
 // normalizeCreators clears the creator list when there are more than
 // 30 authors otherwise normalizes the content. If the list changes
 // through normalization a new list and bool value of true is returned,
@@ -93,6 +102,16 @@ func Apply(eprintsList *eprinttools.EPrints) (*eprinttools.EPrints, error) {
 		// Conform titles to Caltech's practices
 		if title := trimTitle(eprint.Title); title != eprint.Title {
 			eprint.Title = title
+			changed = true
+		}
+		// Conform Volume value per George and DR-46
+		if volNo := trimNumberString(eprint.Volume); volNo != eprint.Volume {
+			eprint.Volume = volNo
+			changed = true
+		}
+		// Conform Number value per George and DR-46
+		if no := trimNumberString(eprint.Number); no != eprint.Number {
+			eprint.Number = no
 			changed = true
 		}
 
@@ -143,7 +162,6 @@ func Apply(eprintsList *eprinttools.EPrints) (*eprinttools.EPrints, error) {
 		if changed {
 			eprintsList.EPrint[i] = eprint
 		}
-
 	}
 	return eprintsList, nil
 }
