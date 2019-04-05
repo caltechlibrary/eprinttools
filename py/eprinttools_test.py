@@ -13,7 +13,7 @@ def test_get_keys(t, eprint_url, auth_type = "", username = "", secret = ""):
     cfg = eprinttools.cfg(eprint_url, auth_type, username, secret)
     keys = eprinttools.get_keys(cfg)
     if len(keys) == 0:
-        t.error(f"Expected more than zero keys for {cfg}")
+        t.error(f"Expected more than zero keys for {cfg['eprint_url']}")
         t.fail_now()
     else:
         t.print("found", len(keys), f"for {cfg}")
@@ -27,19 +27,19 @@ def test_get_modified_keys(t, eprint_url, auth_type = "", username = "", secret 
     start = end - datetime.timedelta(days = 30)
     t.verbose_on()
     eprinttools.verbose_on()
-    t.print(f"Checking for {eprint_url} (auth: {auth_type}) datetime range {start} to {end} (this can take a while)")
+    t.print(f"Checking for {eprint_url} (username: {username}, auth: {auth_type}) datetime range {start} to {end} (this can take a while)")
     keys = eprinttools.get_modified_keys(cfg, start, end)
     if keys == None or len(keys) == 0:
-        t.error(f"expected more than zero keys for get_modified_keys({cfg}, {start}, {end}")
+        t.error(f"expected more than zero keys for get_modified_keys({cfg['eprint_url']}, {start}, {end}")
         t.fail_now()
     else:
-        t.print("found", len(keys), f"for {cfg}")
+        t.print("found", len(keys), f"for {cfg['url']}")
     eprinttools.verbose_off()
 
 
 def test_get_metadata(t, eprint_url, auth_type = 0, username = "", secret = ""):
     test_name = t.test_name()
-    #t.verbose_on() # turn verboseness on for debugging
+    t.verbose_on() # turn verboseness on for debugging
     collection_name = test_name + ".ds"
     cfg = eprinttools.cfg(eprint_url, auth_type, username, secret, collection_name)
     keys = eprinttools.get_keys(cfg)
@@ -47,7 +47,8 @@ def test_get_metadata(t, eprint_url, auth_type = 0, username = "", secret = ""):
         t.error(f"Can't test {test_name} without keys, got zero keys")
         t.fail_now()
         return
-    #FIXME: Pick some random keys to test getting metadata records!
+    #NOTE: Pick some random keys to test getting metadata records.
+    # So we don't go through really large collections.
     collection_keys = []
     check_keys = []
     for i in range(100):
@@ -61,11 +62,13 @@ def test_get_metadata(t, eprint_url, auth_type = 0, username = "", secret = ""):
         data = eprinttools.get_metadata(cfg, key, False)
         e_msg = eprinttools.error_message()
         if len(data) == 0 or e_msg != "":
-            if e_msg.startswith("401") == False:
-                t.error(f"Expected data for {key}, got {data} {e_msg}")
-                t.fail_now()
-            else:
+            if e_msg.startswith("401"):
                 t.print(f"found {key}, requires authentication")
+            elif "buffer" in e_msg or "deletion" in e_msg or "indox" in e_msg:
+                t.print(f"skipping {key}, non-public status")
+            else:
+                t.error(f"Expected data for {key}, got {data} '{e_msg}'")
+                t.fail_now()
         else:
             t.print(f"found {key} with data")
             collection_keys.append(key)
@@ -93,6 +96,7 @@ def test_get_metadata(t, eprint_url, auth_type = 0, username = "", secret = ""):
 #
 class ATest:
     def __init__(self, test_name, verbose = False):
+        self.pid = os.getpid()
         self._test_name = test_name
         self._error_count = 0
         self._verbose = verbose
@@ -111,12 +115,12 @@ class ATest:
 
     def print(self, *msg):
         if self._verbose == True:
-            print(*msg)
+            print(f"(pid: {self.pid})", *msg)
 
     def error(self, *msg):
         fn_name = self._test_name
         self._error_count += 1
-        print(f"{fn_name} failed, ", *msg)
+        print(f"(pid: {self.pid}) {fn_name} failed, ", *msg)
 
     def error_count(self):
         return self._error_count
@@ -124,7 +128,7 @@ class ATest:
     def fail_now(self):
         fn_name = self._test_name
         error_count = self._error_count
-        print(f"{fn_name} failed, {error_count}")
+        print(f"(pid: {self.pid}) {fn_name} failed, {error_count}")
         sys.exit(1)
 
 
@@ -159,18 +163,16 @@ class TestRunner:
 
 
 def setup():
-    eprint_url = os.getenv("EPRINT_URL")
-    auth_type = os.getenv("EPRINT_AUTH_TYPE")
-    username = os.getenv("EPRINT_USERNAME")
-    secret = os.getenv("EPRINT_PASSWORD")
-    if auth_type == None:
-        auth_type = ""
-    if username == None:
-        username = ""
-    if secret == None:
-        secret = ""
-    if eprint_url == None:
-        eprint_url = ""
+    eprint_url, auth_type, username, secret = "", "", "", ""
+    conf = eprinttools.envcfg()
+    if 'url' in conf:
+        eprint_url = conf['url']
+    if 'auth_type' in conf:
+        auth_type = conf['auth_type']
+    if 'username' in conf:
+        username = conf['username']
+    if 'secret' in conf:
+        secret = conf['secret']
     return eprint_url, auth_type, username, secret
 
 #
@@ -187,7 +189,7 @@ if __name__ == "__main__":
         sys.exit(1)
     test_runner = TestRunner(os.path.basename(__file__))
     test_runner.add(test_get_keys, [eprint_url, auth_type, username, secret])
-    if "-quick" in sys.argv:
+    if "-quick" in sys.argv or "quick" in sys.argv:
         print("Skipping test_get_modified_keys, -quick option used")
     else:
         test_runner.add(test_get_modified_keys, [eprint_url, auth_type, username, secret])
