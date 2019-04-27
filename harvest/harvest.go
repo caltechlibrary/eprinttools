@@ -163,7 +163,7 @@ func ExportEPrintsKeyList(api *eprinttools.EPrintsAPI, keys []string, saveKeys s
 	j := 0 // success count
 	k := 0 // error count
 	if verbose == true {
-		log.Printf("(pid: %d) * Exporting %d of %d uris", pid, count, uriCount)
+		log.Printf("(pid: %d) Exporting %d of %d uris", pid, count, uriCount)
 	}
 	for i := 0; i < uriCount && i < count; i++ {
 		uri := uris[i]
