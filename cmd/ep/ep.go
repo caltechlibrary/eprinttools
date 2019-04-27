@@ -284,13 +284,21 @@ func main() {
 			scanner := bufio.NewScanner(app.In)
 			for scanner.Scan() {
 				key := scanner.Text()
-				keys_to_export = append(keys_to_export, key)
+				key = strings.TrimSpace(key)
+				if key != "" {
+					keys_to_export = append(keys_to_export, key)
+				}
 			}
 			if err := scanner.Err(); err != nil {
 				log.Fatalf("(pid: %d) %s")
 			}
 		} else {
-			keys_to_export = strings.Split(exportEPrintsKeyList, ",")
+			for _, key := range strings.Split(exportEPrintsKeyList, ",") {
+				key = strings.TrimSpace(key)
+				if key != "" {
+					keys_to_export = append(keys_to_export, key)
+				}
+			}
 		}
 		if err := harvest.ExportEPrintsKeyList(api, keys_to_export, exportSaveKeys, verbose); err != nil {
 			log.Fatalf("(pid: %d) %s", thisProcessID, err)

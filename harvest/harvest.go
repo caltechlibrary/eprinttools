@@ -149,8 +149,11 @@ func ExportEPrintsKeyList(api *eprinttools.EPrintsAPI, keys []string, saveKeys s
 
 	uris := []string{}
 	for _, key := range keys {
-		uri := fmt.Sprintf("/rest/eprint/%s.xml", strings.TrimSpace(key))
-		uris = append(uris, uri)
+		key = strings.TrimSpace(key)
+		if key != "" {
+			uri := fmt.Sprintf("/rest/eprint/%s.xml", key)
+			uris = append(uris, uri)
+		}
 	}
 
 	pid := os.Getpid()
