@@ -149,7 +149,8 @@ func ExportEPrintsKeyList(api *eprinttools.EPrintsAPI, keys []string, saveKeys s
 
 	uris := []string{}
 	for _, key := range keys {
-		key = strings.TrimSpace(key)
+		//NOTE: be defensive, trim quotes and spaces as need.
+		key = strings.TrimSpace(strings.TrimSuffix(strings.TrimPrefix(key, "\""), "\""))
 		if key != "" {
 			uri := fmt.Sprintf("/rest/eprint/%s.xml", key)
 			uris = append(uris, uri)
@@ -162,7 +163,7 @@ func ExportEPrintsKeyList(api *eprinttools.EPrintsAPI, keys []string, saveKeys s
 	j := 0 // success count
 	k := 0 // error count
 	if verbose == true {
-		log.Printf("(pid: %d) Exporting %d of %d uris", pid, count, uriCount)
+		log.Printf("(pid: %d) * Exporting %d of %d uris", pid, count, uriCount)
 	}
 	for i := 0; i < uriCount && i < count; i++ {
 		uri := uris[i]
@@ -180,7 +181,7 @@ func ExportEPrintsKeyList(api *eprinttools.EPrintsAPI, keys []string, saveKeys s
 					log.Printf("(pid: %d) Skipping, %s\n", pid, err)
 				}
 			} else {
-				log.Printf("(pid: %d) Failed, %s\n", pid, err)
+				log.Printf("(pid: %d) * Failed, %s\n", pid, err)
 			}
 			k++
 		} else {
