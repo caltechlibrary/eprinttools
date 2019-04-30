@@ -22,5 +22,5 @@ tool name with the '-help' option.
 ## Python integration via AMES
 
 The eprintools command line programs have been made available to Python
-via the [AMES](https://github.com/caltechlibrar/ames) project. This include support for both read and write to EPrints repository systems.
+via the [AMES](https://github.com/caltechlibrary/ames) project. This include support for both read and write to EPrints repository systems.
 
