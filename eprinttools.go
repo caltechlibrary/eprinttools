@@ -35,7 +35,7 @@ import (
 
 const (
 	// Version is the revision number for this implementation of epgo
-	Version = `v0.0.37`
+	Version = `v0.0.44`
 
 	// LicenseText holds the string for rendering License info on the command line
 	LicenseText = `
@@ -282,7 +282,7 @@ func (api *EPrintsAPI) ListModifiedEPrintsURI(start, end time.Time, verbose bool
 		buf, err := rest.Request("GET", p, map[string]string{})
 		if err != nil {
 			if verbose {
-				log.Printf("(pid: %d) skipping eprint id %s, %s", pid, key, err)
+				log.Printf("(pid: %d) Skipping eprint id %s, %s", pid, key, err)
 			}
 			continue
 		}

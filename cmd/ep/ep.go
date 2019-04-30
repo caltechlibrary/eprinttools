@@ -19,6 +19,7 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"log"
 	"net/url"
@@ -68,9 +69,12 @@ Export the EPrint records modified since July 1, 2017.
 
     %s -export-modified 2017-07-01
 
-Explore a specific listof keys (e.g. "101,102,1304")
+Explore a specific list of keys (e.g. "101,102,1304" or
+if list is '-' then read from standard input, one key per line)
 
 	%s -export-keys "101,102,1304"
+
+	%s -export-keys "-"
 
 Export the EPrint records with modified times in July 2017 and
 save the keys for the records exported with one key per line. 
@@ -131,7 +135,7 @@ func main() {
 	// Add Help Docs
 	app.AddHelp("license", []byte(fmt.Sprintf(eprinttools.LicenseText, appName, eprinttools.Version)))
 	app.AddHelp("description", []byte(fmt.Sprintf(description, appName)))
-	app.AddHelp("examples", []byte(fmt.Sprintf(examples, appName, appName, appName, appName, appName, appName)))
+	app.AddHelp("examples", []byte(fmt.Sprintf(examples, appName, appName, appName, appName, appName, appName, appName)))
 
 	// App Environment
 	app.EnvStringVar(&apiURLEnv, "EPRINT_URL", "", "Sets the EPRints API URL")
@@ -162,7 +166,7 @@ func main() {
 	app.StringVar(&exportEPrints, "export", "", "export N EPrints from highest ID to lowest")
 	app.StringVar(&exportEPrintsModified, "export-modified", "", "export records by date or date range (e.g. 2017-07-01)")
 	app.StringVar(&exportSaveKeys, "export-save-keys", "", "save the keys exported in a file with provided filename")
-	app.StringVar(&exportEPrintsKeyList, "export-keys", "", "export a comma delimited list of EPrint keys")
+	app.StringVar(&exportEPrintsKeyList, "export-keys", "", "export using a delimited list of EPrint keys")
 	app.BoolVar(&exportEPrintDocs, "export-with-docs", false, "include EPrint documents with export")
 	app.StringVar(&updatedSince, "updated-since", "", "list EPrint IDs updated since a given date (e.g 2017-07-01)")
 	app.BoolVar(&suppressSuggestions, "suppress-suggestions", true, "suppress the suggestions field from output")
@@ -271,8 +275,32 @@ func main() {
 	t0 := time.Now()
 	switch {
 	case exportEPrintsKeyList != "":
+		//FIXME: need to see if this is a short comma limited list
+		// provided on the command line or if we're reading from a file
+		// or standard in.
 		log.Printf("(pid: %d) Export started, %s", thisProcessID, t0)
-		if err := harvest.ExportEPrintsKeyList(api, strings.Split(exportEPrintsKeyList, ","), exportSaveKeys, verbose); err != nil {
+		keys_to_export := []string{}
+		if exportEPrintsKeyList == "-" {
+			scanner := bufio.NewScanner(app.In)
+			for scanner.Scan() {
+				key := scanner.Text()
+				key = strings.TrimSpace(key)
+				if key != "" {
+					keys_to_export = append(keys_to_export, key)
+				}
+			}
+			if err := scanner.Err(); err != nil {
+				log.Fatalf("(pid: %d) %s")
+			}
+		} else {
+			for _, key := range strings.Split(exportEPrintsKeyList, ",") {
+				key = strings.TrimSpace(key)
+				if key != "" {
+					keys_to_export = append(keys_to_export, key)
+				}
+			}
+		}
+		if err := harvest.ExportEPrintsKeyList(api, keys_to_export, exportSaveKeys, verbose); err != nil {
 			log.Fatalf("(pid: %d) %s", thisProcessID, err)
 		}
 	case exportEPrintsModified != "":
@@ -310,7 +338,7 @@ func main() {
 		if uris, err := api.ListEPrintsURI(); err != nil {
 			log.Fatalf("(pid: %d) %s", thisProcessID, err)
 		} else {
-			fmt.Fprintf(app.Out, strings.Join(uris, "\n"))
+			fmt.Fprintf(app.Out, "%s\n", strings.Join(uris, "\n"))
 		}
 	}
 	log.Printf("(pid: %d) Export completed, running time %s", thisProcessID, time.Now().Sub(t0).Round(time.Second))

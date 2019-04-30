@@ -149,8 +149,12 @@ func ExportEPrintsKeyList(api *eprinttools.EPrintsAPI, keys []string, saveKeys s
 
 	uris := []string{}
 	for _, key := range keys {
-		uri := fmt.Sprintf("/rest/eprint/%s.xml", strings.TrimSpace(key))
-		uris = append(uris, uri)
+		//NOTE: be defensive, trim quotes and spaces as need.
+		key = strings.TrimSpace(strings.TrimSuffix(strings.TrimPrefix(key, "\""), "\""))
+		if key != "" {
+			uri := fmt.Sprintf("/rest/eprint/%s.xml", key)
+			uris = append(uris, uri)
+		}
 	}
 
 	pid := os.Getpid()
@@ -166,9 +170,18 @@ func ExportEPrintsKeyList(api *eprinttools.EPrintsAPI, keys []string, saveKeys s
 		rec, xmlSrc, err := api.GetEPrint(uri)
 		if err != nil {
 			if strings.HasPrefix(err.Error(), "WARNING") {
-				log.Printf("(pid: %d) Skipping, %s\n", pid, err)
+				id := fmt.Sprintf("%d", rec.EPrintID)
+				if c.HasKey(id) {
+					if err2 := c.Delete(id); err2 == nil {
+						log.Printf("(pid: %d) Pruning, %s\n", pid, err)
+					} else {
+						log.Printf("(pid: %d) Failed to prune %s, %s", pid, id, err2)
+					}
+				} else {
+					log.Printf("(pid: %d) Skipping, %s\n", pid, err)
+				}
 			} else {
-				log.Printf("(pid: %d) Failed, %s\n", pid, err)
+				log.Printf("(pid: %d) * Failed, %s\n", pid, err)
 			}
 			k++
 		} else {
@@ -253,7 +266,16 @@ func ExportEPrints(api *eprinttools.EPrintsAPI, count int, saveKeys string, verb
 		rec, xmlSrc, err := api.GetEPrint(uri)
 		if err != nil {
 			if strings.HasPrefix(err.Error(), "WARNING") {
-				log.Printf("(pid: %d) Skipping, %s\n", pid, err)
+				id := fmt.Sprintf("%d", rec.EPrintID)
+				if c.HasKey(id) {
+					if err2 := c.Delete(id); err2 == nil {
+						log.Printf("(pid: %d) Pruning, %s\n", pid, err)
+					} else {
+						log.Printf("(pid: %d) Failed to prune %s, %s", pid, id, err2)
+					}
+				} else {
+					log.Printf("(pid: %d) Skipping, %s\n", pid, err)
+				}
 			} else {
 				log.Printf("(pid: %d) Failed, %s\n", pid, err)
 			}
@@ -345,7 +367,7 @@ func ExportModifiedEPrints(api *eprinttools.EPrintsAPI, start, end time.Time, sa
 			key := fmt.Sprintf("%d", rec.EPrintID)
 			src, err = json.Marshal(rec)
 			if err != nil {
-				log.Printf("(pid: %d) Can't marshel key %s, %s", pid, key, err)
+				log.Printf("(pid: %d) Can't marshal key %s, %s", pid, key, err)
 			} else {
 				// NOTE: Check to see if we're doing an update or create
 				if c.HasKey(key) == true {

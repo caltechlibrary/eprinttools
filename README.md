@@ -19,3 +19,8 @@ command line options. The environment settings are overridden by command
 line options. For details running either command envoke the
 tool name with the '-help' option. 
 
+## Python integration via AMES
+
+The eprintools command line programs have been made available to Python
+via the [AMES](https://github.com/caltechlibrar/ames) project. This include support for both read and write to EPrints repository systems.
+
