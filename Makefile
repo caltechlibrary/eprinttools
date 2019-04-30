@@ -65,7 +65,6 @@ website: page.tmpl README.md nav.md INSTALL.md LICENSE css/site.css docs/index.m
 test:
 	go test -timeout 45m
 	cd harvest && go test
-	cd py && $(MAKE) test $(QUICK)
 	./test_cmds.bash
 
 clean:
