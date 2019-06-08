@@ -71,7 +71,7 @@ clean:
 	if [ -d bin ]; then rm -fR bin; fi
 	if [ -d dist ]; then rm -fR dist; fi
 	if [ -d man ]; then rm -fR man; fi
-	cd py && $(MAKE) clean
+	#cd py && $(MAKE) clean
 
 man: build
 	mkdir -p man/man1

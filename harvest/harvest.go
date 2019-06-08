@@ -38,6 +38,11 @@ import (
 	"github.com/caltechlibrary/rc"
 )
 
+const (
+	// Attachments need a semver, use this semver for harvesting.
+	attachmentSemver = "v0.0.0"
+)
+
 var (
 	// ExportEPrintDocs if true  include document files as an
 	// attachment when calling the export funcs
@@ -80,7 +85,7 @@ func (s byURI) Less(i, j int) bool {
 // handleAttachments will attach the EPrintsXML
 func handleAttachments(api *eprinttools.EPrintsAPI, c *dataset.Collection, key string, rec *eprinttools.EPrint, xmlSrc []byte) error {
 	if ExportEPrintDocs == false {
-		c.AttachFile(key, key+".xml", bytes.NewReader(xmlSrc))
+		c.AttachStream(key, key+".xml", attachmentSemver, bytes.NewReader(xmlSrc))
 		return nil
 	}
 	rest, err := rc.New(api.URL.String(), api.AuthType, api.Username, api.Secret)
@@ -125,7 +130,7 @@ func handleAttachments(api *eprinttools.EPrintsAPI, c *dataset.Collection, key s
 					fNames = append(fNames, fName)
 				}
 				if len(fNames) > 0 {
-					c.AttachFiles(key, fNames...)
+					c.AttachFiles(key, attachmentSemver, fNames...)
 				}
 			}
 		}
