@@ -142,7 +142,7 @@ type EPrint struct {
 	CopyrightHolders   *CopyrightHolderItemList `xml:"copyright_holders,omitempty" json:"copyright_holders,omitempty"`
 	LearningLevel      *LearningLevelItemList   `xml:"learning_level,omitempty" json:"learning_level,omitempty"`
 	DOI                string                   `xml:"doi,omitempty" json:"doi,omitempty"`
-	PMCID              string                   `xml:"pmc_id,omitempty" json:"pmc_id,omitempty"`
+	PMCID              string                   `xml:"pmc_id,omitempty" json:"pmcid,omitempty"`
 	PMID               string                   `xml:"pmid,omitempty" json:"pmid,omitempty"`
 	ParentURL          string                   `xml:"parent_url,omitempty" json:"parent_url,omitempty"`
 	AltURL             string                   `xml:"alt_url,omitempty" json:"alt_url,omitempty"`
