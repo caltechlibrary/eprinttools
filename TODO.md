@@ -4,23 +4,20 @@
 ## Bugs
 
 + [ ] Issues #13, #14 at Github are bugs and enhancements.
-+ [ ] Jira issues DR-45 and DR-40 
-
 
 ## Next
+
+## Someday, Maybe
 
 + [ ] Add write support to ep cli so we can full circle data from other sources into EPrints
     + e.g. find an author with an ORCID and propogate the ORCID to all other occurrences of the author
     + e.g. take a relative link of type "DOI" and populate the DOI field (without the URL prefix)
-
-
-## Someday, Maybe
-
 + [ ] Normalize logging between eputil and ep
 
 
 ## Completed
 
++ [x] Jira issues DR-45 and DR-40 
 + [x] ep tool is exporting whole URL as key rather than the eprint id number
 + [x] Implement a DOI to EPrintXML cli (e.g. api.crossref.org, api.datacite.org)
 + [x] failed to export for status 'inbox' and 'deletion' should be a warning
