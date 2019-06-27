@@ -85,7 +85,7 @@ func (s byURI) Less(i, j int) bool {
 // handleAttachments will attach the EPrintsXML
 func handleAttachments(api *eprinttools.EPrintsAPI, c *dataset.Collection, key string, rec *eprinttools.EPrint, xmlSrc []byte) error {
 	if ExportEPrintDocs == false {
-		c.AttachStream(key, key+".xml", attachmentSemver, bytes.NewReader(xmlSrc))
+		c.AttachStream(key, attachmentSemver, key+.xml, bytes.NewReader(xmlSrc))
 		return nil
 	}
 	rest, err := rc.New(api.URL.String(), api.AuthType, api.Username, api.Secret)
