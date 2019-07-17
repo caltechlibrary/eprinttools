@@ -4,6 +4,7 @@
 ## Bugs
 
 + [ ] Issues #13, #14 at Github are bugs and enhancements.
++ [ ] Need to use the EPrints document version directory to set the patch level of an attachment, currently all attachments are stored as v0.0.1
 
 ## Next
 
