@@ -1063,6 +1063,7 @@ func (e *EPrint) SyntheticFields() {
 			doc := e.Documents.IndexOf(i)
 			if doc.Security == "public" && doc.Main != "indexcodes.txt" {
 				obj := make(map[string]interface{})
+				obj["basename"] = doc.Main
 				obj["url"] = fmt.Sprintf("%s/%d/%s", strings.Replace(e.ID, "/id/eprint", "", 1), doc.Pos, doc.Main)
 				obj["mime_type"] = doc.MimeType
 				obj["content"] = doc.Content
