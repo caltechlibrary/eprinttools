@@ -190,6 +190,11 @@ type EPrint struct {
 	ReviewStatus           string                   `xml:"review_status,omitempty" json:"review_status,omitempty"`
 	OptionMajor            *OptionMajorItemList     `xml:"option_major,omitempty" json:"option_major,omitempty"`
 	CopyrightStatement     string                   `xml:"copyright_statement,omitempty" json:"copyright_statement,omitempty"`
+
+	// Synthetic fields are created to help in eventual migration of
+	// EPrints field data to other JSON formats.
+	PrimaryObject  map[string]interface{}   `xml:"-" json:"primary_object,omitempty"`
+	RelatedObjects []map[string]interface{} `xml:"-" json:"related_objects,omitempty"`
 }
 
 // Item is a generic type used by various fields (e.g. Creator, Division, OptionMajor)
@@ -1043,4 +1048,31 @@ func (documentList DocumentList) IndexOf(i int) *Document {
 type ePrintIDs struct {
 	XMLName xml.Name `xml:"html" json:"-"`
 	IDs     []string `xml:"body>ul>li>a" json:"ids"`
+}
+
+// SyntheticFields renders analyzes an EPrint object
+// and populates or updates any synthetic fields like
+// primary_object and related_object.
+func (e *EPrint) SyntheticFields() {
+	// Render PrimaryObject and RelatedObjects fields
+	e.PrimaryObject = make(map[string]interface{})
+	e.RelatedObjects = []map[string]interface{}{}
+	if e.Documents != nil {
+		docCnt := e.Documents.Length()
+		for i := 0; i < docCnt; i++ {
+			doc := e.Documents.IndexOf(i)
+			if doc.Security == "public" && doc.Main != "indexcodes.txt" {
+				obj := make(map[string]interface{})
+				obj["url"] = fmt.Sprintf("%s/%d/%s", strings.Replace(e.ID, "/id/eprint", "", 1), doc.Pos, doc.Main)
+				obj["mime_type"] = doc.MimeType
+				obj["content"] = doc.Content
+				obj["license"] = doc.License
+				if doc.Placement == 1 && doc.Content != "supplemental" {
+					e.PrimaryObject = obj
+				} else {
+					e.RelatedObjects = append(e.RelatedObjects, obj)
+				}
+			}
+		}
+	}
 }

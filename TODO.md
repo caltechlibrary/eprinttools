@@ -3,10 +3,13 @@
 
 ## Bugs
 
-+ [ ] Issues #13, #14 at Github are bugs and enhancements.
++ [ ] Issues #13, #14 at GitHub are bugs and enhancements.
 + [ ] Issue # 28, Need to use the EPrints document version directory to set the patch level of an attachment, currently all attachments are stored as v0.0.1
 
 ## Next
+
++ [ ] DR-118, create two synthetic fields in our JSON representation, primary_object should point at the primary resource, e.g. the PDF of an article, and the second synethetic field would be related_objects which would be an array pointing at things like supplimental materials. This will make it easier to create both a landing page as well as point directly at items when rendering formats like BibTeX.
+
 
 ## Someday, Maybe
 

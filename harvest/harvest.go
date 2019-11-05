@@ -178,6 +178,7 @@ func ExportEPrintsKeyList(api *eprinttools.EPrintsAPI, keys []string, saveKeys s
 			}
 			k++
 		} else {
+			rec.SyntheticFields()
 			key := fmt.Sprintf("%d", rec.EPrintID)
 			src, err = json.Marshal(rec)
 			if err != nil {
@@ -274,6 +275,7 @@ func ExportEPrints(api *eprinttools.EPrintsAPI, count int, saveKeys string, verb
 			}
 			k++
 		} else {
+			rec.SyntheticFields()
 			key := fmt.Sprintf("%d", rec.EPrintID)
 			src, err = json.Marshal(rec)
 			if err != nil {
@@ -357,6 +359,7 @@ func ExportModifiedEPrints(api *eprinttools.EPrintsAPI, start, end time.Time, sa
 			}
 			k++
 		} else {
+			rec.SyntheticFields()
 			key := fmt.Sprintf("%d", rec.EPrintID)
 			src, err = json.Marshal(rec)
 			if err != nil {
