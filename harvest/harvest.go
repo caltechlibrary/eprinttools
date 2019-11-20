@@ -134,7 +134,7 @@ func ExportEPrintsKeyList(api *eprinttools.EPrintsAPI, keys []string, saveKeys s
 		src          []byte
 	)
 
-	c, err := dataset.Open(api.Dataset)
+	c, err := dataset.GetCollection(api.Dataset)
 	if err != nil {
 		return fmt.Errorf("ExportEPrintsKeyList() %s, %s", api.Dataset, err)
 	}
@@ -164,7 +164,7 @@ func ExportEPrintsKeyList(api *eprinttools.EPrintsAPI, keys []string, saveKeys s
 		if err != nil {
 			if strings.HasPrefix(err.Error(), "WARNING") {
 				id := fmt.Sprintf("%d", rec.EPrintID)
-				if c.HasKey(id) {
+				if c.KeyExists(id) {
 					if err2 := c.Delete(id); err2 == nil {
 						log.Printf("(pid: %d) Pruning, %s\n", pid, err)
 					} else {
@@ -185,7 +185,7 @@ func ExportEPrintsKeyList(api *eprinttools.EPrintsAPI, keys []string, saveKeys s
 				log.Printf("(pid: %d) can't marshal key %s, %s", pid, key, err)
 			} else {
 				// NOTE: Check to see if we're doing an update or create
-				if c.HasKey(key) == true {
+				if c.KeyExists(key) == true {
 					err = c.UpdateJSON(key, src)
 				} else {
 					err = c.CreateJSON(key, src)
@@ -229,7 +229,7 @@ func ExportEPrints(api *eprinttools.EPrintsAPI, count int, saveKeys string, verb
 		src          []byte
 	)
 
-	c, err := dataset.Open(api.Dataset)
+	c, err := dataset.GetCollection(api.Dataset)
 	if err != nil {
 		return fmt.Errorf("ExportEPrints() %s, %s", api.Dataset, err)
 	}
@@ -261,7 +261,7 @@ func ExportEPrints(api *eprinttools.EPrintsAPI, count int, saveKeys string, verb
 		if err != nil {
 			if strings.HasPrefix(err.Error(), "WARNING") {
 				id := fmt.Sprintf("%d", rec.EPrintID)
-				if c.HasKey(id) {
+				if c.KeyExists(id) {
 					if err2 := c.Delete(id); err2 == nil {
 						log.Printf("(pid: %d) Pruning, %s\n", pid, err)
 					} else {
@@ -282,7 +282,7 @@ func ExportEPrints(api *eprinttools.EPrintsAPI, count int, saveKeys string, verb
 				log.Printf("(pid: %d) Can't marshal key %s, %s", pid, key, err)
 			} else {
 				// NOTE: Check to see if we're doing an update or create
-				if c.HasKey(key) == true {
+				if c.KeyExists(key) == true {
 					err = c.UpdateJSON(key, src)
 				} else {
 					err = c.CreateJSON(key, src)
@@ -328,7 +328,7 @@ func ExportModifiedEPrints(api *eprinttools.EPrintsAPI, start, end time.Time, sa
 
 	pid := os.Getpid()
 
-	c, err := dataset.Open(api.Dataset)
+	c, err := dataset.GetCollection(api.Dataset)
 	if err != nil {
 		return fmt.Errorf("ExportModifiedEPrints() %s, %s", api.Dataset, err)
 	}
@@ -366,7 +366,7 @@ func ExportModifiedEPrints(api *eprinttools.EPrintsAPI, start, end time.Time, sa
 				log.Printf("(pid: %d) Can't marshal key %s, %s", pid, key, err)
 			} else {
 				// NOTE: Check to see if we're doing an update or create
-				if c.HasKey(key) == true {
+				if c.KeyExists(key) == true {
 					err = c.UpdateJSON(key, src)
 				} else {
 					err = c.CreateJSON(key, src)
