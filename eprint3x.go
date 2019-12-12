@@ -145,7 +145,6 @@ type EPrint struct {
 	PMCID              string                   `xml:"pmc_id,omitempty" json:"pmcid,omitempty"`
 	PMID               string                   `xml:"pmid,omitempty" json:"pmid,omitempty"`
 	ParentURL          string                   `xml:"parent_url,omitempty" json:"parent_url,omitempty"`
-	AltURL             string                   `xml:"alt_url,omitempty" json:"alt_url,omitempty"`
 	Reference          *ReferenceItemList       `xml:"reference,omitempty" json:"reference,omitempty"`
 	ConfCreators       *ConfCreatorItemList     `xml:"conf_creators,omitempty" json:"conf_creators,omitempty"`
 	AltTitle           *AltTitleItemList        `xml:"alt_title,omitempty" json:"alt_title,omitempty"`
