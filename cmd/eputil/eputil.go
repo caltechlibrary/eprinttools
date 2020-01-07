@@ -101,7 +101,7 @@ be prompted to enter your secret.
 
 ` + "```" + `
     eputil -username=user -password \
-      https://user:secret@example.org/rest/eprint/123.xml
+      https://example.org/rest/eprint/123.xml
 ` + "```" + `
 
 You can also pass the username and secret via the URL

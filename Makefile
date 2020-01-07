@@ -62,7 +62,9 @@ install:
 website: page.tmpl README.md nav.md INSTALL.md LICENSE css/site.css docs/index.md docs/ep.md docs/eputil.md
 	./mk-website.bash
 
-test:
+
+
+test: ep eputil epfmt doi2eprintxml eprintxml2json
 	go test -timeout 45m
 	cd harvest && go test
 	./test_cmds.bash
