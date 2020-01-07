@@ -45,5 +45,27 @@ if [[ "$?" != "0" ]]; then
     exit 1
 fi
 
+#
+# Jira Issue DR-59
+#
+echo 'Testing DR-59'
+./bin/doi2eprintxml -i testdata/DR-59-test.txt > testout/dr-59-eprint.xml
+if [[ "$?" != "0" ]]; then
+    echo ''
+    echo 'Testing doi2eprintxml DR-45 issue failed.'
+    exit 1
+fi
+
+#
+# Jira Issue DR-141
+#
+echo 'Testing DR-141'
+./bin/doi2eprintxml -i testdata/DR-141-test.txt > testout/dr-141-eprint.xml
+if [[ "$?" != "0" ]]; then
+    echo ''
+    echo 'Testing doi2eprintxml DR-141 issue failed.'
+    exit 1
+fi
+
 
 echo 'OK, passed cli tests'
