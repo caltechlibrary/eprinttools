@@ -138,6 +138,10 @@ func main() {
 		fmt.Fprintf(app.Eout, "%s\n", err)
 		os.Exit(1)
 	}
+	//NOTE: populate the synthetic fields
+	for _, e := range data.EPrint {
+		e.SyntheticFields()
+	}
 	if prettyPrint {
 		src, err = json.MarshalIndent(data, "", "    ")
 		if err != nil {

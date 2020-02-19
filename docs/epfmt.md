@@ -72,4 +72,4 @@ format option chosen it will pretty print
 in the same format as input.
 
 
-epfmt v0.0.32
+epfmt v0.0.58

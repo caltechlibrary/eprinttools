@@ -115,13 +115,18 @@ func Apply(eprintsList *eprinttools.EPrints) (*eprinttools.EPrints, error) {
 			changed = true
 		}
 
-		// Normalize Creators and apply George's rules
-		if eprint.Creators != nil && len(eprint.Creators.Items) > 0 {
-			if creators, hasChanged := normalizeCreators(eprint.Creators); hasChanged {
-				eprint.Creators = creators
-				changed = true
+		//NOTE: Per Tools Incubator meeting discussion 2020-02-18
+		//between George and Joy we're dropping the limitting of
+		//the number of authors into EPrints/CaltechAUTHORS.
+		/*
+			// Normalize Creators and apply George's rules
+			if eprint.Creators != nil && len(eprint.Creators.Items) > 0 {
+				if creators, hasChanged := normalizeCreators(eprint.Creators); hasChanged {
+					eprint.Creators = creators
+					changed = true
+				}
 			}
-		}
+		*/
 
 		// Caltech Library doesn't import series information
 		if eprint.Series != "" {

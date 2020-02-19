@@ -62,7 +62,9 @@ install:
 website: page.tmpl README.md nav.md INSTALL.md LICENSE css/site.css docs/index.md docs/ep.md docs/eputil.md
 	./mk-website.bash
 
-test:
+
+
+test: ep eputil epfmt doi2eprintxml eprintxml2json
 	go test -timeout 45m
 	cd harvest && go test
 	./test_cmds.bash
@@ -71,7 +73,7 @@ clean:
 	if [ -d bin ]; then rm -fR bin; fi
 	if [ -d dist ]; then rm -fR dist; fi
 	if [ -d man ]; then rm -fR man; fi
-	cd py && $(MAKE) clean
+	#cd py && $(MAKE) clean
 
 man: build
 	mkdir -p man/man1

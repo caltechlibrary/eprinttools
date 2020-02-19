@@ -204,6 +204,10 @@ func main() {
 		os.Exit(1)
 	}
 
+	for _, e := range obj.EPrint {
+		e.SyntheticFields()
+	}
+
 	// marshal pretty printed output based on options selected.
 	if asJSON == false && asXML == false {
 		asXML = (inputFmt == IsXML)

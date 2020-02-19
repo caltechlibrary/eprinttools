@@ -42,7 +42,7 @@ Below are a set of options available.
     -l, -license                display license
     -nl, -newline               if true add a trailing newline
     -o, -output                 output file name
-    -pw, -password              set the password for authenticated access
+    -password                   Prompt for the password for authenticated access
     -quiet                      suppress error messages
     -raw                        get the raw EPrint REST API response
     -u, -un, -user, -username   set the username for authenticated access
@@ -86,10 +86,23 @@ Get the last modified date for id 123 from REST API
     eputil -raw https://example.org/rest/eprint/123/lastmod.txt 
 ```
 
-If the EPrint REST API is protected by basic auth then
-you can pass the username and password via the URL.
-In this example the username is "user" and password is
-"secret".
+If the EPrint REST API is protected by basic authentication
+you can pass the username and password via command line
+options. You will be prompted for the password value.
+or via the URL.  In this example the username is 
+"user" and password is "secret". In this example you will
+be prompted to enter your secret.
+
+```
+    eputil -username=user -password \
+      https://example.org/rest/eprint/123.xml
+```
+
+You can also pass the username and secret via the URL
+but this leaves you vunerable to the password being recorded
+in your command history or if another person has access to
+the process table. You SHOULD NOT use this approach on a
+shared machine!
 
 ```
     eputil https://user:secret@example.org/rest/eprint/123.xml
@@ -101,4 +114,4 @@ setup implemented in the EPrint instance.
 
 
 
-eputil v0.0.21
+eputil v0.0.58

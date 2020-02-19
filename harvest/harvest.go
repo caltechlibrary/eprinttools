@@ -38,6 +38,11 @@ import (
 	"github.com/caltechlibrary/rc"
 )
 
+const (
+	// Attachments need a semver, use this semver for harvesting.
+	attachmentSemver = "v0.0.1"
+)
+
 var (
 	// ExportEPrintDocs if true  include document files as an
 	// attachment when calling the export funcs
@@ -77,10 +82,11 @@ func (s byURI) Less(i, j int) bool {
 	return a1 > a2
 }
 
-// handleAttachments will attach the EPrintsXML
+// handleAttachments will attach the EPrintsXML and optionally
+// the digital objects EPrintsXML points to.
 func handleAttachments(api *eprinttools.EPrintsAPI, c *dataset.Collection, key string, rec *eprinttools.EPrint, xmlSrc []byte) error {
 	if ExportEPrintDocs == false {
-		c.AttachFile(key, key+".xml", bytes.NewReader(xmlSrc))
+		c.AttachStream(key, attachmentSemver, key+".xml", bytes.NewReader(xmlSrc))
 		return nil
 	}
 	rest, err := rc.New(api.URL.String(), api.AuthType, api.Username, api.Secret)
@@ -88,25 +94,14 @@ func handleAttachments(api *eprinttools.EPrintsAPI, c *dataset.Collection, key s
 		return err
 	}
 	// Create a temp directory for our harvested files.
-	// Harvest documents to tdir, then attach individual files
+	// Harvest documents to tdir, then add individual files
 	// as attachments.
 	if rec.Documents != nil && rec.Documents.Length() > 0 {
-		tdir, err := ioutil.TempDir(c.Name, "")
-		if err != nil {
-			return err
-		}
-		defer os.RemoveAll(tdir)
-		fNames := []string{}
-		fName := path.Join(tdir, key+".xml")
-		err = ioutil.WriteFile(fName, xmlSrc, 0666)
-		if err != nil {
-			return err
-		}
-		fNames = append(fNames, fName)
 		for i := 0; i < rec.Documents.Length(); i++ {
 			doc := rec.Documents.IndexOf(i)
 			if doc.Files != nil && len(doc.Files) > 0 {
 				for _, f := range doc.Files {
+					log.Printf("Fetching %q\n", f.URL)
 					u, err := url.Parse(f.URL)
 					if err != nil {
 						continue
@@ -116,16 +111,14 @@ func handleAttachments(api *eprinttools.EPrintsAPI, c *dataset.Collection, key s
 						log.Println(err)
 						continue
 					}
-					fName = path.Join(tdir, f.Filename)
-					err = ioutil.WriteFile(fName, src, 0666)
-					if err != nil {
-						log.Println(err)
+					if len(src) == 0 {
+						log.Printf("Retrieved zero bytes for %q", f.URL)
 						continue
 					}
-					fNames = append(fNames, fName)
-				}
-				if len(fNames) > 0 {
-					c.AttachFiles(key, fNames...)
+					log.Printf("Retrieved %d bytes for %q", len(src), f.URL)
+					if err := c.AttachStream(key, attachmentSemver, path.Base(f.Filename), bytes.NewReader(src)); err != nil {
+						log.Printf("ERROR writing %s/%s/%s %d bytes, %s", key, attachmentSemver, path.Base(f.Filename), len(src), err)
+					}
 				}
 			}
 		}
@@ -141,7 +134,7 @@ func ExportEPrintsKeyList(api *eprinttools.EPrintsAPI, keys []string, saveKeys s
 		src          []byte
 	)
 
-	c, err := dataset.Open(api.Dataset)
+	c, err := dataset.GetCollection(api.Dataset)
 	if err != nil {
 		return fmt.Errorf("ExportEPrintsKeyList() %s, %s", api.Dataset, err)
 	}
@@ -171,7 +164,7 @@ func ExportEPrintsKeyList(api *eprinttools.EPrintsAPI, keys []string, saveKeys s
 		if err != nil {
 			if strings.HasPrefix(err.Error(), "WARNING") {
 				id := fmt.Sprintf("%d", rec.EPrintID)
-				if c.HasKey(id) {
+				if c.KeyExists(id) {
 					if err2 := c.Delete(id); err2 == nil {
 						log.Printf("(pid: %d) Pruning, %s\n", pid, err)
 					} else {
@@ -185,13 +178,14 @@ func ExportEPrintsKeyList(api *eprinttools.EPrintsAPI, keys []string, saveKeys s
 			}
 			k++
 		} else {
+			rec.SyntheticFields()
 			key := fmt.Sprintf("%d", rec.EPrintID)
 			src, err = json.Marshal(rec)
 			if err != nil {
 				log.Printf("(pid: %d) can't marshal key %s, %s", pid, key, err)
 			} else {
 				// NOTE: Check to see if we're doing an update or create
-				if c.HasKey(key) == true {
+				if c.KeyExists(key) == true {
 					err = c.UpdateJSON(key, src)
 				} else {
 					err = c.CreateJSON(key, src)
@@ -235,7 +229,7 @@ func ExportEPrints(api *eprinttools.EPrintsAPI, count int, saveKeys string, verb
 		src          []byte
 	)
 
-	c, err := dataset.Open(api.Dataset)
+	c, err := dataset.GetCollection(api.Dataset)
 	if err != nil {
 		return fmt.Errorf("ExportEPrints() %s, %s", api.Dataset, err)
 	}
@@ -267,7 +261,7 @@ func ExportEPrints(api *eprinttools.EPrintsAPI, count int, saveKeys string, verb
 		if err != nil {
 			if strings.HasPrefix(err.Error(), "WARNING") {
 				id := fmt.Sprintf("%d", rec.EPrintID)
-				if c.HasKey(id) {
+				if c.KeyExists(id) {
 					if err2 := c.Delete(id); err2 == nil {
 						log.Printf("(pid: %d) Pruning, %s\n", pid, err)
 					} else {
@@ -281,13 +275,14 @@ func ExportEPrints(api *eprinttools.EPrintsAPI, count int, saveKeys string, verb
 			}
 			k++
 		} else {
+			rec.SyntheticFields()
 			key := fmt.Sprintf("%d", rec.EPrintID)
 			src, err = json.Marshal(rec)
 			if err != nil {
 				log.Printf("(pid: %d) Can't marshal key %s, %s", pid, key, err)
 			} else {
 				// NOTE: Check to see if we're doing an update or create
-				if c.HasKey(key) == true {
+				if c.KeyExists(key) == true {
 					err = c.UpdateJSON(key, src)
 				} else {
 					err = c.CreateJSON(key, src)
@@ -333,7 +328,7 @@ func ExportModifiedEPrints(api *eprinttools.EPrintsAPI, start, end time.Time, sa
 
 	pid := os.Getpid()
 
-	c, err := dataset.Open(api.Dataset)
+	c, err := dataset.GetCollection(api.Dataset)
 	if err != nil {
 		return fmt.Errorf("ExportModifiedEPrints() %s, %s", api.Dataset, err)
 	}
@@ -364,13 +359,14 @@ func ExportModifiedEPrints(api *eprinttools.EPrintsAPI, start, end time.Time, sa
 			}
 			k++
 		} else {
+			rec.SyntheticFields()
 			key := fmt.Sprintf("%d", rec.EPrintID)
 			src, err = json.Marshal(rec)
 			if err != nil {
 				log.Printf("(pid: %d) Can't marshal key %s, %s", pid, key, err)
 			} else {
 				// NOTE: Check to see if we're doing an update or create
-				if c.HasKey(key) == true {
+				if c.KeyExists(key) == true {
 					err = c.UpdateJSON(key, src)
 				} else {
 					err = c.CreateJSON(key, src)

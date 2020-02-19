@@ -123,8 +123,8 @@ downloading the zip file.
 
 ## Compiling from source
 
-_ep_ is "go gettable".  Use the "go get" command to download the dependant packages
-as well as _ep_'s source code.
+_eprinttools_ is "go gettable".  Use the "go get" command to download the dependant packages
+as well as _eprinttools_'s source code.
 
 ```shell
     go get -u github.com/caltechlibrary/eprinttools/...
@@ -141,4 +141,5 @@ Or clone the repstory and then compile
     make install
 ```
 
+If eprinttools depends on dataset version v0.0.64 or better.
 

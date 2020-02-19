@@ -101,7 +101,7 @@ be prompted to enter your secret.
 
 ` + "```" + `
     eputil -username=user -password \
-      https://user:secret@example.org/rest/eprint/123.xml
+      https://example.org/rest/eprint/123.xml
 ` + "```" + `
 
 You can also pass the username and secret via the URL
@@ -285,6 +285,7 @@ func main() {
 	case u.Path == "/rest/eprint/":
 		data := eprinttools.EPrintsDataSet{}
 		err = xml.Unmarshal(src, &data)
+		cli.ExitOnError(app.Eout, err, quiet)
 		if asJSON {
 			src, err = json.MarshalIndent(data, "", "   ")
 		} else {
@@ -296,6 +297,9 @@ func main() {
 		data := eprinttools.EPrints{}
 		err = xml.Unmarshal(src, &data)
 		cli.ExitOnError(app.Eout, err, quiet)
+		for _, e := range data.EPrint {
+			e.SyntheticFields()
+		}
 		if asJSON {
 			src, err = json.MarshalIndent(data, "", "   ")
 		} else {

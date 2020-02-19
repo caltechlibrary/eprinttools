@@ -1,0 +1,25 @@
+Hello everyone,
+
+We have a new release of EPrinttools with bug fixes and other changes.I've updated the author list import rules per yesterday's 
+Tools Incubator meeting (2020-02-18).  If you are importing
+from CrossRef/DataCite and generating EPrints XML the full author
+list will be generated in the EPrints XML (e.g. An astronomy paper
+with 700 authors will have all of them listed in the EPrints XML).
+This change is available as of v0.0.58 release of EPrints tools.
+
+    https://github.com/caltechlibrary/eprinttools/releases/latest.  
+
+Let me know if you need help updating your installation or have
+questions about the tool.  
+
+To check your version of doi2eprintxml you can use the `-version`
+option
+
+    doi2eprintxml -version
+
+It should show the new version if you've successfully installed it.
+
+All the best,
+
+Robert
+
