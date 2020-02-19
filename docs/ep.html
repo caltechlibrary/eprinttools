@@ -30,17 +30,14 @@
 
 <h2>DESCRIPTION</h2>
 
-<p><strong>ep</strong> uses the REST API for EPrints 3.x to harvest EPrints content into
-a dataset collection. If you don&rsquo;t need dataset integration use <strong>eputil</strong>
+<p>ep uses the REST API for EPrints 3.x to harvest EPrints content into
+a dataset collection. If you don&rsquo;t need dataset integration use eputil
 instead. If you want to view  the harvested content then use the
-<strong>dataset</strong> command.</p>
+dataset command.</p>
 
 <p>CONFIGURATION</p>
 
-<p><strong>ep</strong> talkes to a <strong>dataset</strong> collection and the collection
-needs to already exist. The <strong>dataset</strong> tool is used to create the collection.</p>
-
-<p><strong>ep</strong> can be configured with following environment variables</p>
+<p>ep can be configured with following environment variables</p>
 
 <p>EPRINT_URL the URL to your EPrints installation</p>
 
@@ -58,28 +55,30 @@ needs to already exist. The <strong>dataset</strong> tool is used to create the 
 
 <p>Below are a set of options available. Options will override any corresponding environment settings.</p>
 
-<pre><code>    -api                url for EPrints API
-    -auth               set the authentication method (e.g. none, basic, oauth, shib)
-    -dataset            dataset collection name
-    -examples           display example(s)
-    -export             export N EPrints from highest ID to lowest
-    -export-keys        export a comma delimited list of EPrint keys
-    -export-modified    export records by date or date range (e.g. 2017-07-01)
-    -export-save-keys   save the keys exported in a file with provided filename
-    -generate-manpage   generation man page
-    -generate-markdown  generation markdown documentation
-    -h, -help           display help
-    -l, -license        display license
-    -nl, -newline       set to false to exclude trailing newline
-    -o, -output         output filename
-    -p, -pretty         pretty print JSON output
-    -pw, -password      set the password
-    -quiet              suppress error output
-    -read-api           read the contents from the API without saving in the database
-    -un, -username      set the username
-    -updated-since      list EPrint IDs updated since a given date (e.g 2017-07-01)
-    -v, -version        display version
-    -verbose            verbose logging
+<pre><code>    -api                    url for EPrints API
+    -auth                   set the authentication method (e.g. none, basic, oauth, shib)
+    -dataset                dataset collection name
+    -examples               display example(s)
+    -export                 export N EPrints from highest ID to lowest
+    -export-keys            export using a delimited list of EPrint keys
+    -export-modified        export records by date or date range (e.g. 2017-07-01)
+    -export-save-keys       save the keys exported in a file with provided filename
+    -export-with-docs       include EPrint documents with export
+    -generate-manpage       generation man page
+    -generate-markdown      generation markdown documentation
+    -h, -help               display help
+    -l, -license            display license
+    -nl, -newline           set to false to exclude trailing newline
+    -o, -output             output filename
+    -p, -pretty             pretty print JSON output
+    -pw, -password          set the password
+    -quiet                  suppress error output
+    -read-api               read the contents from the API without saving in the database
+    -suppress-suggestions   suppress the suggestions field from output
+    -un, -username          set the username
+    -updated-since          list EPrint IDs updated since a given date (e.g 2017-07-01)
+    -v, -version            display version
+    -verbose                verbose logging
 </code></pre>
 
 <h2>EXAMPLES</h2>
@@ -105,9 +104,12 @@ environment variables EPRINT_URL, DATASET.</p>
 <pre><code>ep -export-modified 2017-07-01
 </code></pre>
 
-<p>Explore a specific listof keys (e.g. &ldquo;101,102,1304&rdquo;)</p>
+<p>Explore a specific list of keys (e.g. &ldquo;101,102,1304&rdquo; or
+if list is &lsquo;-&rsquo; then read from standard input, one key per line)</p>
 
 <pre><code>ep -export-keys &quot;101,102,1304&quot;
+
+ep -export-keys &quot;-&quot;
 </code></pre>
 
 <p>Export the EPrint records with modified times in July 2017 and
@@ -117,7 +119,7 @@ save the keys for the records exported with one key per line.</p>
    -export-save-keys=july-keys.txt 
 </code></pre>
 
-<p>ep v0.0.21</p>
+<p>ep v0.0.58</p>
 
 </section>
 

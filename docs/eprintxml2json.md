@@ -52,4 +52,4 @@ Or
 
 
 
-eprintxml2json v0.0.21
+eprintxml2json v0.0.58

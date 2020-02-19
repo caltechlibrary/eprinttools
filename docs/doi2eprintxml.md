@@ -29,6 +29,7 @@ Below are a set of options available.
     -generate-markdown   generate Markdown documentation
     -h, -help            display help
     -i, -input           set input filename
+    -json                output EPrint structure as JSON
     -l, -license         display license
     -m, -mailto          set the mailto value for CrossRef API access
     -o, -output          set output filename
@@ -54,4 +55,4 @@ an XML document called "import-articles.xml".
 	doi2eprintxml -i doi-list.txt -o import-articles.xml
 
 
-doi2eprintxml v0.0.21
+doi2eprintxml v0.0.58
