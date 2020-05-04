@@ -146,7 +146,6 @@ func main() {
 	app.BoolVar(&showLicense, "l,license", false, "display license")
 	app.BoolVar(&showVersion, "v,version", false, "display version")
 	app.BoolVar(&showExamples, "examples", false, "display example(s)")
-	app.StringVar(&outputFName, "o,output", "", "output filename")
 	app.BoolVar(&generateMarkdown, "generate-markdown", false, "generation markdown documentation")
 	app.BoolVar(&generateManPage, "generate-manpage", false, "generation man page")
 	app.BoolVar(&quiet, "quiet", false, "suppress error output")

@@ -120,7 +120,6 @@ func main() {
 	app.BoolVar(&generateMarkdown, "generate-markdown", false, "generate Markdown documentation")
 	app.BoolVar(&generateManPage, "generate-manpage", false, "generate man page")
 	app.StringVar(&inputFName, "i,input", "", "set input filename")
-	app.StringVar(&outputFName, "o,output", "", "set output filename")
 	app.BoolVar(&quiet, "quiet", false, "set quiet output")
 
 	// Application Options
