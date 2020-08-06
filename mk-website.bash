@@ -7,7 +7,7 @@ function makePage() {
 	nav=$3
 	html_page=$4
 	echo "Generating $html_page"
-	mkpage -f gfm \
+	mkpage \
 		"title=text:$title" \
 		"content=$page" \
 		"nav=$nav" \
