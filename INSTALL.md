@@ -1,8 +1,10 @@
 
 # Installation
 
-*ep*, *eputil*, and *doi2eprintxml* are command line programs run from 
-a shell like Bash. They allow you to harvest, work with EPrint repository content, and import content from CrossRef and DataCite.
+*eputil*, *epfmt*, *eprintxml2json* and *doi2eprintxml* are command 
+line programs run from a shell like Bash. They allow you to harvest, 
+work with EPrint repository content, and import content from CrossRef 
+and DataCite.
 
 Below are generalized instructions for installation of a release.
 
@@ -21,10 +23,10 @@ For all the released version go to the project page on Github and click latest r
 
 | Platform    | Zip Filename                             |
 |-------------|------------------------------------------|
-| Windows     | ep-VERSION_NUMBER-windows-amd64.zip |
-| Mac OS X    | ep-VERSION_NUMBER-macosx-amd64.zip  |
-| Linux/Intel | ep-VERSION_NUMBER-linux-amd64.zip   |
-| Raspbery Pi | ep-VERSION_NUMBER-raspbian-arm7.zip |
+| Windows     | eprinttools-VERSION_NUMBER-windows-amd64.zip |
+| Mac OS X    | eprinttools-VERSION_NUMBER-macosx-amd64.zip  |
+| Linux/Intel | eprinttools-VERSION_NUMBER-linux-amd64.zip   |
+| Raspbery Pi | eprinttools-VERSION_NUMBER-raspbian-arm7.zip |
 
 
 ## The basic recipe
@@ -52,7 +54,7 @@ zip file.
 
 ```shell
     cd Downloads/
-    unzip ep-*-macosx-amd64.zip
+    unzip eprinttools-*-macosx-amd64.zip
     mkdir -p $HOME/bin
     cp -v bin/* $HOME/bin/
     export PATH=$HOME/bin:$PATH
@@ -71,7 +73,7 @@ downloading the zip file.
 
 ```shell
     cd Downloads/
-    unzip ep-*-windows-amd64.zip
+    unzip eprinttools-*-windows-amd64.zip
     mkdir -p $HOME/bin
     cp -v bin/* $HOME/bin/
     export PATH=$HOME/bin:$PATH
@@ -91,7 +93,7 @@ downloading the zip file.
 
 ```shell
     cd Downloads/
-    unzip ep-*-linux-amd64.zip
+    unzip eprinttools-*-linux-amd64.zip
     mkdir -p $HOME/bin
     cp -v bin/* $HOME/bin/
     export PATH=$HOME/bin:$PATH
@@ -113,7 +115,7 @@ downloading the zip file.
 
 ```shell
     cd Downloads/
-    unzip ep-*-raspbian-arm7.zip
+    unzip eprinttools-*-raspbian-arm7.zip
     mkdir -p $HOME/bin
     cp -v bin/* $HOME/bin/
     export PATH=$HOME/bin:$PATH

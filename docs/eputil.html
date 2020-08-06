@@ -19,40 +19,17 @@
 <li><a href="https://github.com/caltechlibrary/eprinttools">Github</a></li>
 <li><a href="https://github.com/caltechlibrary/eprinttools/releases/latest">Releases</a></li>
 </ul>
-
 </nav>
 
 <section>
 <h1>USAGE</h1>
-
-<pre><code>eputil [OPTIONS]
-</code></pre>
-
+<pre><code>eputil [OPTIONS]</code></pre>
 <h2>SYNOPSIS</h2>
-
-<p><em>eputil</em> is a command line program for exploring
-EPrint REST API and EPrint XML document structure
-in XML as well as JSON.</p>
-
+<p><em>eputil</em> is a command line program for exploring EPrint REST API and EPrint XML document structure in XML as well as JSON.</p>
 <h2>DESCRIPTION</h2>
-
-<p><em>eputil</em> parses XML content retrieved from
-EPrints 3.x. REST API. It will render
-results in JSON or XML.  With the <code>-raw</code>
-option you can get the unmodified EPrintXML from the
-REST API otherwise the XML is parsed before final
-rendering as JSON or XML. It requires a basic knowledge
-of the layout of EPrint 3.x&rsquo;s REST API. It supports
-both unauthenticated and basic authentication access
-to the API. The REST API authentication mechanism
-appears indepent of the primary website authentication
-setup of the installed EPrints (at least at Caltech
-Library). See the examples to start exploring the API.</p>
-
+<p><em>eputil</em> parses XML content retrieved from EPrints 3.x. REST API. It will render results in JSON or XML. With the <code>-raw</code> option you can get the unmodified EPrintXML from the REST API otherwise the XML is parsed before final rendering as JSON or XML. It requires a basic knowledge of the layout of EPrint 3.x's REST API. It supports both unauthenticated and basic authentication access to the API. The REST API authentication mechanism appears indepent of the primary website authentication setup of the installed EPrints (at least at Caltech Library). See the examples to start exploring the API.</p>
 <h2>OPTIONS</h2>
-
 <p>Below are a set of options available.</p>
-
 <pre><code>    -auth                       set the authentication type for access
     -e, -examples               display examples
     -generate-manpage           generate man page
@@ -66,69 +43,29 @@ Library). See the examples to start exploring the API.</p>
     -quiet                      suppress error messages
     -raw                        get the raw EPrint REST API response
     -u, -un, -user, -username   set the username for authenticated access
-    -v, -version                display version
-</code></pre>
-
+    -v, -version                display version</code></pre>
 <h2>EXAMPLES</h2>
-
-<p>Fetch the raw unmarshaled EPrint XML via the
-EPrint REST API for id 123.</p>
-
-<pre><code>    eputil -raw https://example.org/rest/eprint/123.xml
-</code></pre>
-
-<p>Fetch the EPrint XML marshaled as XML using the
-EPrints REST API for id 123.</p>
-
-<pre><code>    eputil https://example.org/rest/eprint/123.xml 
-</code></pre>
-
-<p>Fetch the EPrint XML marshaled as JSON using the
-EPrints REST API for id 123.</p>
-
-<pre><code>    eputil -json https://example.org/rest/eprint/123.xml
-</code></pre>
-
+<p>Fetch the raw unmarshaled EPrint XML via the EPrint REST API for id 123.</p>
+<pre><code>    eputil -raw https://example.org/rest/eprint/123.xml</code></pre>
+<p>Fetch the EPrint XML marshaled as XML using the EPrints REST API for id 123.</p>
+<pre><code>    eputil https://example.org/rest/eprint/123.xml </code></pre>
+<p>Fetch the EPrint XML marshaled as JSON using the EPrints REST API for id 123.</p>
+<pre><code>    eputil -json https://example.org/rest/eprint/123.xml</code></pre>
 <p>Get a JSON array of eprint ids from the REST API</p>
-
-<pre><code>    eputil -json https://example.org/rest/eprint/ 
-</code></pre>
-
+<pre><code>    eputil -json https://example.org/rest/eprint/ </code></pre>
 <p>Get the last modified date for id 123 from REST API</p>
-
-<pre><code>    eputil -raw https://example.org/rest/eprint/123/lastmod.txt 
-</code></pre>
-
-<p>If the EPrint REST API is protected by basic authentication
-you can pass the username and password via command line
-options. You will be prompted for the password value.
-or via the URL.  In this example the username is
-&ldquo;user&rdquo; and password is &ldquo;secret&rdquo;. In this example you will
-be prompted to enter your secret.</p>
-
+<pre><code>    eputil -raw https://example.org/rest/eprint/123/lastmod.txt </code></pre>
+<p>If the EPrint REST API is protected by basic authentication you can pass the username and password via command line options. You will be prompted for the password value. or via the URL. In this example the username is "user" and password is "secret". In this example you will be prompted to enter your secret.</p>
 <pre><code>    eputil -username=user -password \
-      https://example.org/rest/eprint/123.xml
-</code></pre>
-
-<p>You can also pass the username and secret via the URL
-but this leaves you vunerable to the password being recorded
-in your command history or if another person has access to
-the process table. You SHOULD NOT use this approach on a
-shared machine!</p>
-
-<pre><code>    eputil https://user:secret@example.org/rest/eprint/123.xml
-</code></pre>
-
-<p>Getting IDs doesn&rsquo;t typically require authentication but seeing
-specific records may depending on the roles and security
-setup implemented in the EPrint instance.</p>
-
+      https://example.org/rest/eprint/123.xml</code></pre>
+<p>You can also pass the username and secret via the URL but this leaves you vunerable to the password being recorded in your command history or if another person has access to the process table. You SHOULD NOT use this approach on a shared machine!</p>
+<pre><code>    eputil https://user:secret@example.org/rest/eprint/123.xml</code></pre>
+<p>Getting IDs doesn't typically require authentication but seeing specific records may depending on the roles and security setup implemented in the EPrint instance.</p>
 <p>eputil v0.0.58</p>
-
 </section>
 
 <footer>
-<span>&copy; 2018 <a href="https://www.library.caltech.edu/copyright">Caltech Library</a></span>
+<span>&copy; 2020 <a href="https://www.library.caltech.edu/copyright">Caltech Library</a></span>
 <address>1200 E California Blvd, Mail Code 1-32, Pasadena, CA 91125-3200</address>
 <span><a href="mailto:library@caltech.edu">Email Us</a></span> 
 <span>Phone: <a href="tel:+1-626-395-3405">(626)395-3405</a></span>

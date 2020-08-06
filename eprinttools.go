@@ -114,7 +114,7 @@ func last(s []string) string {
 }
 
 // New creates a new API instance
-func New(eprintURL, suppressSuggestions bool, authMethod, userName, userSecret string) (*EPrintsAPI, error) {
+func New(eprintURL string, suppressSuggestions bool, authMethod, userName, userSecret string) (*EPrintsAPI, error) {
 	var err error
 
 	// Setup required

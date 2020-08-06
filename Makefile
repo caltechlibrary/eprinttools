@@ -116,16 +116,14 @@ dist/raspbian-arm7:
   
 distribute_docs:
 	mkdir -p dist/etc
-	mkdir -p dist/scripts
 	mkdir -p dist/docs
+	mkdir -p dist/eprints3x
 	cp -v README.md dist/
 	cp -v LICENSE dist/
 	cp -v INSTALL.md dist/
 	cp -vR docs/* dist/docs/
-	cp -vR scripts/* dist/scripts/
 	cp -vR etc/*-example dist/etc/
-	./package-versions.bash > dist/package-versions.txt
-	#cd py && $(MAKE) release
+	cp -vR eprints3x/* dist/eprints3x/
 
 release: distribute_docs dist/linux-amd64 dist/windows-amd64 dist/macosx-amd64 dist/raspbian-arm7
 

@@ -1,1 +1,1 @@
-from .eprints import init, harvest, harvest_keys, harvest_record
+from .eprints import harvest_init, harvest, harvest_keys, harvest_record

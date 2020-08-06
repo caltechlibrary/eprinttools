@@ -65,3 +65,5 @@ eprinttools.egg-info
 man
 testout
 testout_*
+*.keys
+*.json
