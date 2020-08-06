@@ -36,10 +36,10 @@ if __name__ == "__main__":
     if len(sys.argv) < 3:
         usage()
         sys.exit(1)
-    if len(sys.argv) == 3:
+    if len(sys.argv) >= 3:
         c_name, url = sys.argv[1], sys.argv[2]
     if len(sys.argv) > 3:
-        for key in sys.argv[3:]
+        for key in sys.argv[3:]:
             keys.append(key)
 
     # Initialize the connection information (e.g. authentication)

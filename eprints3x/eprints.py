@@ -44,9 +44,9 @@ def harvest_init(collection_name, connection_string):
     if scheme == '':
         errors.append('missing url scheme')
     if netloc == '':
-        errors.eppend('missing hostname and port')
+        errors.append('missing hostname and port')
     if len(errors) > 0:
-        return errors.join(', ')
+        return ', '.join(errors)
     base_url = connection_string
     return ''
     
@@ -120,7 +120,24 @@ def harvest_record(key):
 #
 def harvest_eprintxml(key):
     global base_url, c_name
-    return 'harvest_eprintxml({key}) not implemented'
+    # Fetch the EPrintXML document source
+    src, err = eputil(f'{base_url}/rest/eprint/{key}.xml', as_json = False)
+    if err != '':
+        return err
+    # Write to temp file
+    f_name = f'{key}.xml'
+    with open(f_name, 'w') as f:
+        f.write(src)
+    # Attach file to record in dataset collection
+    if dataset.has_key(c_name, key) == False:
+        ok = dataset.create(c_nane, key, {})
+        if not ok:
+            return dataset.error_message()
+    ok = dataset.attach(c_name, key, [ f_name ])
+    if not ok:
+        return dataset.error_message()
+    os.remove(f_name)
+    return ''
 
 #
 # harvest_documents retrieves and attaches the documents
