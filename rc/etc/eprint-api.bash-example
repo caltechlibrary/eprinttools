@@ -1,0 +1,9 @@
+#!/bin/bash
+#
+
+#
+# This is an example of the environment configuration for accessing an EPrints REST API.
+#
+# Example: http://eprints.example.org/rest/eprint/ would return the keys for eprints docs
+#
+RC_API_URL=http://eprints.example.org

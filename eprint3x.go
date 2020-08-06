@@ -31,7 +31,7 @@ import (
 	"time"
 
 	// Caltech Library packages
-	"github.com/caltechlibrary/rc"
+	"github.com/caltechlibrary/eprinttools/rc"
 )
 
 const (

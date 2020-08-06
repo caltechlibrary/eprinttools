@@ -26,14 +26,13 @@ import (
 
 func TestListEPrintsURI(t *testing.T) {
 	eprintURL := os.Getenv("EPRINT_URL")
-	datasetName := os.Getenv("DATASET")
-	if len(eprintURL) == 0 || len(datasetName) == 0 {
+	if len(eprintURL) == 0 {
 		t.Log("Skipping TestListEPrintsURI(), environment not set")
 		t.SkipNow()
 	}
 	suppressNote := true
 
-	api, err := New(eprintURL, datasetName, suppressNote, "", "", "")
+	api, err := New(eprintURL, suppressNote, "", "", "")
 	if err != nil {
 		t.Errorf("Failed to create new api, %s", err)
 		t.FailNow()

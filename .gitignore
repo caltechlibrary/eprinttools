@@ -42,8 +42,6 @@ htdocs/affiliation/*
 htdocs/repository/*
 htdocs/Caltech*/*
 htdocs/funder/*
-eprints*
-epgo
 *.zip
 *.boltdb
 *.bleve

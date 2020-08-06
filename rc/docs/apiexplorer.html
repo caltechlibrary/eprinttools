@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Caltech Library's Digital Library Development Sandbox</title>
+    <link rel="stylesheet" href="/css/site.css">
+</head>
+<body>
+<header>
+<a href="https://library.caltech.edu"><img src="/assets/liblogo.gif" alt="Caltech Library logo"></a>
+</header>
+<nav>
+<ul>
+<li><a href="/">Home</a></li>
+<li><a href="../">README</a></li>
+<li><a href="../license.html">LICENSE</a></li>
+<li><a href="../install.html">INSTALL</a></li>
+<li><a href="./">Documentation</a></li>
+<li><a href="https://github.com/caltechlibrary/rc">Github</a></li>
+</ul>
+
+</nav>
+
+<section>
+<h1>USAGE</h1>
+
+<pre><code>apiexplorer [OPTIONS]
+</code></pre>
+
+<h2>SYNOPSIS</h2>
+
+<p><em>apiexplorer</em> is a demo of rc package for accessing REST API</p>
+
+<h2>DESCRIPTION</h2>
+
+<p><em>apiexploere</em> is a demo program exercising the rc Golang package.</p>
+
+<h2>OPTIONS</h2>
+
+<p>Below are a set of options available.</p>
+
+<pre><code>    -as-json            Convert XML to JSON before output
+    -auth               set authorization type (e.g. oauth, shib)
+    -generate-manpage   generate man page
+    -generate-markdown  generate markdown documentation
+    -h, -help           display help
+    -l, -license        display license
+    -method             set the http method to use for request
+    -o, -output         output filename
+    -payload            A JSON structure holding the payload data
+    -pw, -password      set user secret to use for authentication
+    -un, -username      set username for authentication
+    -v, -version        display version
+</code></pre>
+
+<h2>EXAMPLES</h2>
+
+<p><em>apiexplorer</em> accessing a public DataCite API for DOI
+&ldquo;10.22002/D1.924&rdquo;.</p>
+
+<pre><code>    apiexplorer -method GET \
+    &quot;https://api.datacite.org/works/10.22002/D1.924?email=jdoe@example.edu&quot;
+</code></pre>
+
+<p>apiexplorer v0.0.1</p>
+
+</section>
+
+<footer>
+<span><h1><A href="https://caltech.edu">Caltech</a></h1></span>
+<span>&copy; 2018 <a href="https://www.library.caltech.edu/copyright">Caltech library</a></span>
+<address>1200 E California Blvd, Mail Code 1-32, Pasadena, CA 91125-3200</address> 
+<span>Phone: <a href="tel:+1-626-395-3405">(626)395-3405</a></span>
+<span><a href="mailto:library@caltech.edu">Email Us</a></span>
+<a class="cl-hide" href="sitemap.xml">Site Map</a>
+</footer>
+</body>
+</html>
