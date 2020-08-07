@@ -1,6 +1,12 @@
 
 # Release Notes
 
+## Release Notes v0.1.1
+
++ Improve detection of primary object
++ Added ability to retrieve document if given full URL
+
+
 ## Release Notes v0.1.0
 
 + Dropped Go lang support for dataset integration

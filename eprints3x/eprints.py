@@ -16,6 +16,7 @@ from .mysql_access import get_recently_modified_keys
 # This python module provides basic functionality for working
 # with an EPrints server via the REST API.
 #
+skip_and_prune = [ "deletion", "buffer" ]
 
 # Internal data for making calls to EPrints.
 c_name = ''
@@ -50,19 +51,19 @@ def harvest_init(collection_name, connection_string):
     base_url = connection_string
     return ''
     
-def eputil(eprint_url, as_json = True):
+def eputil(eprint_url, as_json = True, get_document = False):
     cmd = ['eputil']
     if as_json == True:
         cmd.append('-json')
+    if get_document == True:
+        cmd.append('-document')
     cmd.append(eprint_url)
     src, err = '', ''
     with Popen(cmd, stdout = PIPE, stderr = PIPE, encoding = 'utf-8') as proc:
         src = str(proc.stdout.read())
         exit_code = proc.returncode
         if exit_code:
-            print(f'DEBUG return code => {exit_code}')
             err = str(proc.stderr.read())
-            print(f'DEBUG ({proc.returncode}) err -> {err}')
     return src, err
 
 #
@@ -83,35 +84,51 @@ def harvest_keys():
 # it's EPrintsXML as well as related objects. Store them
 # in a dataset collection as attachments.
 #
-def harvest_record(key):
+def harvest_record(key, verbose = False):
     global base_url, c_name
+    obj = {}
     src, err = eputil(f'{base_url}/rest/eprint/{key}.xml')
     if err != '':
-        return err
+        return None, err
     eprint_xml_object = {}
-    obj = {}
     if src != '':
         eprint_xml_object = json.loads(src)
     else:
-        return 'No data'
+        return None,'No data'
     if 'eprint' in eprint_xml_object:
         if len(eprint_xml_object) > 0:
             obj = eprint_xml_object['eprint'][0]
         else:
-            return "Can't find contents of eprint element in EPrintXML"
+            return None, "Can't find contents of eprint element in EPrintXML"
     else:
-        return "Can't find eprint element in EPrintXML"
+        return None, "Can't find eprint element in EPrintXML"
     key = str(obj['eprint_id'])
     err = ''
+    status = ''
+    if 'eprint_status' in obj:
+        status = obj['eprint_status']
     if dataset.has_key(c_name, key):
+        if status in skip_and_prune:
+            if verbose:
+                print(f'''
+WARNING: Removing {key} from {c_name}, reason {status}''')
+            ok = dataset.delete(c_name, key)
+            if not ok:
+                return None, dataset.error_message()
+            return None, ''
         ok = dataset.update(c_name, key, obj)
         if not ok:
-            return dataset.error_message()
-    else:
-        ok = dataset.create(c_name, key, obj)
-        if not ok:
-            return dataset.error_message()
-    return ''
+            return None, dataset.error_message()
+        return obj, ''
+    if status in skip_and_prune:
+        if verbose:
+            print(f'''
+WARNING: Skipping {key} from {c_name}, reason {status}''')
+        return None, ''
+    ok = dataset.create(c_name, key, obj)
+    if not ok:
+        return None, dataset.error_message()
+    return obj, ''
 
 
 #
@@ -144,18 +161,32 @@ def harvest_eprintxml(key):
 # harvest_documents retrieves and attaches the documents
 # continue in the EPrint record and attaches them.
 #
-def harvest_documents(key):
+def harvest_documents(key, obj):
     global base_url, c_name
     key = str(key)
-    if dataset.has_key(c_name, key) == False:
-        return f'No metadata available in {c_name}'
-    obj, err = dataset.read(c_name, key)
-    if err != '':
-        return err
     if 'primary_object' in obj:
-        print('DEBUG primary_objects: ', obj['primary_objects'])
+        doc_url = obj['primary_object']['url']
+        f_name = obj['primary_object']['basename']
+        semver = obj['primary_object']['version']
+        src, err = eputil(doc_url, get_document = True)
+        if err != '':
+            return err
+        ok = dataset.attach(c_name, key, [ f_name ], semver)
+        if not ok:
+            return dataset.error_message()
+        os.remove(f_name)
     if 'related_objects' in obj:
-        print('DEBUG related_objects: ', obj['related_objects'])
+        for o in obj['related_objects']:
+            doc_url = o['url']
+            f_name = o['basename']
+            semver = o['version']
+            src, err = eputil(doc_url, get_document = True)
+            if err != '':
+                return err
+            ok = dataset.attach(c_name, key, [ f_name ], semver)
+            if not ok:
+                return dataset.error_message()
+            os.remove(f_name)
     return ''
 
 #
@@ -176,7 +207,7 @@ def harvest_documents(key):
 #  include_documents - will include harvesting the included EPrint 
 #  records' documents
 #
-def harvest(keys = [], start_id = 0, save_exported_keys = '', number_of_days = None, db_connection = None, include_documents = False):
+def harvest(keys = [], start_id = 0, save_exported_keys = '', number_of_days = None, db_connection = None, include_documents = False, verbose = True):
     global base_url, c_name
     repo_name, _ = os.path.splitext(c_name)
     exported_keys = []
@@ -196,6 +227,7 @@ def harvest(keys = [], start_id = 0, save_exported_keys = '', number_of_days = N
 
     tot = len(keys)
     e_cnt = 0
+    pruned = 0
     n = 0
     bar = progressbar.ProgressBar(
             max_value = tot,
@@ -208,27 +240,35 @@ def harvest(keys = [], start_id = 0, save_exported_keys = '', number_of_days = N
     print(f'harvesting {tot} records from {repo_name}')
     bar.start()
     for i, key in enumerate(keys):
-        err = harvest_record(key)
+        obj, err = harvest_record(key, verbose)
         if err != '':
-            print(f'WARNING: harvest record {key}, {err}', file = sys.stderr)
+            print(f'''
+WARNING: harvest record {key}, {err}''', file = sys.stderr)
             e_cnt += 1
+            continue
+        # NOTE: If object is None then the record was be skipped or 
+        # pruned. This is not an error but reflects EPrints behavior.
+        if obj == None:
+            pruned += 1
             continue
         err = harvest_eprintxml(key)
         if err != '':
-            print(f'WARNING harvest eprint xml {key}, {err}', file = sys.stderr)
+            print(f'''
+WARNING harvest eprint xml {key}, {err}''', file = sys.stderr)
             e_cnt += 1
             continue
         if include_documents:
-            err = harvest_documents(key)
-            if err != '':
-                print(f'WARNING harvest documents {key}, {err}', file = sys.stderr)
-                e_cnt += 1
-                continue
+             err = harvest_documents(key, obj)
+             if err != '':
+                 print(f'''
+WARNING harvest documents {key}, {err}''', file = sys.stderr)
+                 e_cnt += 1
+                 continue
         exported_keys.append(str(key))
         n += 1
         bar.update(i)
     bar.finish()
-    print(f'harvested {n}/{tot} harvested from {repo_name}, {e_cnt} warnings')
+    print(f'harvested {n}/{tot}, skipped/pruned {pruned} from {repo_name}, {e_cnt} warnings')
     if save_exported_keys != '':
         print(f'saving exported keys to {save_exported_keys}')
         with open(save_exported_keys, 'w') as f:
