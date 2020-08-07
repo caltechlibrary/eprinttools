@@ -11,41 +11,54 @@
 </header>
 <nav>
 <ul>
-<li><a href="/">Home</a></li>
-<li><a href="../">README</a></li>
-<li><a href="../license.html">LICENSE</a></li>
-<li><a href="../install.html">INSTALL</a></li>
-<li><a href="./">Documentation</a></li>
-<li><a href="https://github.com/caltechlibrary/eprinttools">Github</a></li>
-<li><a href="https://github.com/caltechlibrary/eprinttools/releases/latest">Releases</a></li>
+<li>
+<a href="/">Home</a>
+</li>
+<li>
+<a href="../">README</a>
+</li>
+<li>
+<a href="../license.html">LICENSE</a>
+</li>
+<li>
+<a href="../install.html">INSTALL</a>
+</li>
+<li>
+<a href="./">Documentation</a>
+</li>
+<li>
+<a href="https://github.com/caltechlibrary/eprinttools">Github</a>
+</li>
+<li>
+<a href="https://github.com/caltechlibrary/eprinttools/releases/latest">Releases</a>
+</li>
 </ul>
-
 </nav>
 
 <section>
-<h1>USAGE</h1>
-
+<h1>
+USAGE
+</h1>
 <pre><code>eprintxml2json [OPTIONS] [input filename]
 </code></pre>
-
-<h2>SYNOPSIS</h2>
-
-<p><em>eprintxml2json</em> convers EPrintXML documents to JSON</p>
-
-<h2>DESCRIPTION</h2>
-
-<p><em>eprintxml2json</em> converts EPrintXML like that
-retrieved from the EPrint 3.x REST API to JSON. If no filename
-is provided on the command line then standard input is used
-to read the EPrint XML. If the EPrint XML isn&rsquo;t understood
-then an error message will be written and an exit code of 1
-used to close the process otherwise the process will render
-JSON to standard out.</p>
-
-<h2>OPTIONS</h2>
-
-<p>Below are a set of options available.</p>
-
+<h2>
+SYNOPSIS
+</h2>
+<p>
+<em>eprintxml2json</em> convers EPrintXML documents to JSON
+</p>
+<h2>
+DESCRIPTION
+</h2>
+<p>
+<em>eprintxml2json</em> converts EPrintXML like that retrieved from the EPrint 3.x REST API to JSON. If no filename is provided on the command line then standard input is used to read the EPrint XML. If the EPrint XML isn’t understood then an error message will be written and an exit code of 1 used to close the process otherwise the process will render JSON to standard out.
+</p>
+<h2>
+OPTIONS
+</h2>
+<p>
+Below are a set of options available.
+</p>
 <pre><code>    -e, -examples        display examples
     -generate-manpage    generate man page
     -generate-markdown   generate Markdown documentation
@@ -57,25 +70,26 @@ JSON to standard out.</p>
     -quiet               suppress error messages
     -v, -version         display version
 </code></pre>
-
-<h2>EXAMPLES</h2>
-
-<p>Converting a document, eprints-dump.xml, to JSON.</p>
-
+<h2>
+EXAMPLES
+</h2>
+<p>
+Converting a document, eprints-dump.xml, to JSON.
+</p>
 <pre><code>    eprintxml2json eprints-dump.xml
 </code></pre>
-
-<p>Or</p>
-
+<p>
+Or
+</p>
 <pre><code>    cat eprints-dump.xml | eprintxml2json 
 </code></pre>
-
-<p>eprintxml2json v0.0.58</p>
-
+<p>
+eprintxml2json v0.0.58
+</p>
 </section>
 
 <footer>
-<span>&copy; 2018 <a href="https://www.library.caltech.edu/copyright">Caltech Library</a></span>
+<span>&copy; 2020 <a href="https://www.library.caltech.edu/copyright">Caltech Library</a></span>
 <address>1200 E California Blvd, Mail Code 1-32, Pasadena, CA 91125-3200</address>
 <span><a href="mailto:library@caltech.edu">Email Us</a></span> 
 <span>Phone: <a href="tel:+1-626-395-3405">(626)395-3405</a></span>

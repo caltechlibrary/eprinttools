@@ -28,7 +28,7 @@ import (
 	"testing"
 
 	// Caltech Library Packages
-	"github.com/caltechlibrary/rc"
+	"github.com/caltechlibrary/eprinttools/rc"
 )
 
 func TestLibSupport(t *testing.T) {

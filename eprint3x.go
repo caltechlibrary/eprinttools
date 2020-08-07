@@ -31,7 +31,7 @@ import (
 	"time"
 
 	// Caltech Library packages
-	"github.com/caltechlibrary/rc"
+	"github.com/caltechlibrary/eprinttools/rc"
 )
 
 const (
@@ -1067,7 +1067,8 @@ func (e *EPrint) SyntheticFields() {
 				obj["mime_type"] = doc.MimeType
 				obj["content"] = doc.Content
 				obj["license"] = doc.License
-				if doc.Placement == 1 && doc.Content != "supplemental" {
+				obj["version"] = fmt.Sprintf("v%d.0.0", doc.RevNumber)
+				if (doc.Placement == 1 || doc.Pos == 1) && doc.Content != "supplemental" {
 					e.PrimaryObject = obj
 				} else {
 					e.RelatedObjects = append(e.RelatedObjects, obj)

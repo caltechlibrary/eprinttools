@@ -4,23 +4,21 @@
 ## Bugs
 
 + [ ] Issues #13, #14 at GitHub are bugs and enhancements.
-+ [ ] Issue # 28, Need to use the EPrints document version directory to set the patch level of an attachment, currently all attachments are stored as v0.0.1
 
 ## Next
 
-+ [ ] DR-118, create two synthetic fields in our JSON representation, primary_object should point at the primary resource, e.g. the PDF of an article, and the second synethetic field would be related_objects which would be an array pointing at things like supplimental materials. This will make it easier to create both a landing page as well as point directly at items when rendering formats like BibTeX.
++ [ ] DR-198, Issue # 28, Need to use the EPrints document version directory to set the patch level of an attachment, currently all attachments are stored as v0.1.1
 
 
 ## Someday, Maybe
 
-+ [ ] Add write support to ep cli so we can full circle data from other sources into EPrints
-    + e.g. find an author with an ORCID and propogate the ORCID to all other occurrences of the author
-    + e.g. take a relative link of type "DOI" and populate the DOI field (without the URL prefix)
-+ [ ] Normalize logging between eputil and ep
 
 
 ## Completed
 
++ [x] DR-198, replace ep with python module.
++ [x] Normalize logging between eputil and ep (removed ep)
++ [x] DR-118, create two synthetic fields in our JSON representation, primary_object should point at the primary resource, e.g. the PDF of an article, and the second synethetic field would be related_objects which would be an array pointing at things like supplimental materials. This will make it easier to create both a landing page as well as point directly at items when rendering formats like BibTeX.
 + [x] Jira issues DR-45 and DR-40 
 + [x] ep tool is exporting whole URL as key rather than the eprint id number
 + [x] Implement a DOI to EPrintXML cli (e.g. api.crossref.org, api.datacite.org)

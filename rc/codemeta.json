@@ -1,0 +1,31 @@
+{
+    "@type": "SoftwareSourceCode",
+    "description": "A small Go package for working with REST API with/without auth requirements",
+    "name": "rc",
+    "codeRepository": "https://github.com/caltechlibrary/rc",
+    "issueTracker": "https://github.com/caltechlibrary/rc/issues",
+    "license": "https://data.caltech.edu/license",
+    "version": "0.0.7",
+    "author": [
+        {
+            "@type": "Person",
+            "givenName": "Robert",
+            "familyName": "Doiel",
+            "affiliation": "Caltech Library",
+            "email": "rsdoiel@caltech.edu",
+            "@id": "https://orcid.org/0000-0003-0900-6903"
+        }
+    ],
+    "developmentStatus": "active",
+    "downloadUrl": "https://github.com/caltechlibrary/rc/releases",
+    "keywords": [
+        "http",
+        "https",
+        "client",
+        "REST"
+    ],
+    "maintainer": "https://orcid.org/0000-0003-0900-6903",
+    "programmingLanguage": [
+        "Go"
+    ]
+}

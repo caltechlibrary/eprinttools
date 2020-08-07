@@ -32,7 +32,6 @@ Below are a set of options available.
     -json                output EPrint structure as JSON
     -l, -license         display license
     -m, -mailto          set the mailto value for CrossRef API access
-    -o, -output          set output filename
     -quiet               set quiet output
     -v, -version         display app version
 ```

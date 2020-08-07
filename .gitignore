@@ -26,6 +26,7 @@ _testmain.go
 *.prof
 
 # project specific excludes
+*~
 .DS_Store
 *swp
 etc/*
@@ -41,8 +42,6 @@ htdocs/affiliation/*
 htdocs/repository/*
 htdocs/Caltech*/*
 htdocs/funder/*
-eprints*
-epgo
 *.zip
 *.boltdb
 *.bleve
@@ -66,3 +65,5 @@ eprinttools.egg-info
 man
 testout
 testout_*
+*.keys
+*.json

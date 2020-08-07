@@ -11,37 +11,48 @@
 </header>
 <nav>
 <ul>
-<li><a href="/">Home</a></li>
-<li><a href="../">README</a></li>
-<li><a href="../license.html">LICENSE</a></li>
-<li><a href="../install.html">INSTALL</a></li>
-<li><a href="./">Documentation</a></li>
-<li><a href="https://github.com/caltechlibrary/eprinttools">Github</a></li>
-<li><a href="https://github.com/caltechlibrary/eprinttools/releases/latest">Releases</a></li>
+<li>
+<a href="/">Home</a>
+</li>
+<li>
+<a href="../">README</a>
+</li>
+<li>
+<a href="../license.html">LICENSE</a>
+</li>
+<li>
+<a href="../install.html">INSTALL</a>
+</li>
+<li>
+<a href="./">Documentation</a>
+</li>
+<li>
+<a href="https://github.com/caltechlibrary/eprinttools">Github</a>
+</li>
+<li>
+<a href="https://github.com/caltechlibrary/eprinttools/releases/latest">Releases</a>
+</li>
 </ul>
-
 </nav>
 
 <section>
-<h1>USAGE</h1>
-
+<h1>
+USAGE
+</h1>
 <pre><code>doi2eprintxml [OPTIONS] DOI
 </code></pre>
-
-<h2>DESCRIPTION</h2>
-
-<p>doi2eprintxml is a Caltech Library centric application that
-takes one or more DOI, queries the CrossRef API
-and if that fails the DataCite API and returns an
-EPrints XML document suitable for import into
-EPrints. The DOI can be in either their canonical
-form or URL form (e.g. &ldquo;10.1021/acsami.7b15651&rdquo; or
-&ldquo;<a href="https://doi.org/10.1021/acsami.7b15651&quot;)">https://doi.org/10.1021/acsami.7b15651&rdquo;)</a>.</p>
-
-<h2>OPTIONS</h2>
-
-<p>Below are a set of options available.</p>
-
+<h2>
+DESCRIPTION
+</h2>
+<p>
+doi2eprintxml is a Caltech Library centric application that takes one or more DOI, queries the CrossRef API and if that fails the DataCite API and returns an EPrints XML document suitable for import into EPrints. The DOI can be in either their canonical form or URL form (e.g. “10.1021/acsami.7b15651” or “https://doi.org/10.1021/acsami.7b15651”).
+</p>
+<h2>
+OPTIONS
+</h2>
+<p>
+Below are a set of options available.
+</p>
 <pre><code>    -c, -crossref        only search CrossRef API for DOI records
     -clsrules            Apply Caltech Library Specific Rules to EPrintXML output
     -d, -datacite        only search DataCite API for DOI records
@@ -53,35 +64,34 @@ form or URL form (e.g. &ldquo;10.1021/acsami.7b15651&rdquo; or
     -json                output EPrint structure as JSON
     -l, -license         display license
     -m, -mailto          set the mailto value for CrossRef API access
-    -o, -output          set output filename
     -quiet               set quiet output
     -v, -version         display app version
 </code></pre>
-
-<h2>EXAMPLES</h2>
-
-<p>Example generating an EPrintsXML for one DOI</p>
-
+<h2>
+EXAMPLES
+</h2>
+<p>
+Example generating an EPrintsXML for one DOI
+</p>
 <pre><code>doi2eprintxml &quot;10.1021/acsami.7b15651&quot; &gt; article.xml
 </code></pre>
-
-<p>Example generating an EPrintsXML for two DOI</p>
-
+<p>
+Example generating an EPrintsXML for two DOI
+</p>
 <pre><code>doi2eprintxml &quot;10.1021/acsami.7b15651&quot; &quot;10.1093/mnras/stu2495&quot; &gt; articles.xml
 </code></pre>
-
-<p>Example processing a list of DOIs in a text file into
-an XML document called &ldquo;import-articles.xml&rdquo;.</p>
-
+<p>
+Example processing a list of DOIs in a text file into an XML document called “import-articles.xml”.
+</p>
 <pre><code>doi2eprintxml -i doi-list.txt -o import-articles.xml
 </code></pre>
-
-<p>doi2eprintxml v0.0.58</p>
-
+<p>
+doi2eprintxml v0.0.58
+</p>
 </section>
 
 <footer>
-<span>&copy; 2018 <a href="https://www.library.caltech.edu/copyright">Caltech Library</a></span>
+<span>&copy; 2020 <a href="https://www.library.caltech.edu/copyright">Caltech Library</a></span>
 <address>1200 E California Blvd, Mail Code 1-32, Pasadena, CA 91125-3200</address>
 <span><a href="mailto:library@caltech.edu">Email Us</a></span> 
 <span>Phone: <a href="tel:+1-626-395-3405">(626)395-3405</a></span>
