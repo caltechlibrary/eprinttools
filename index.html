@@ -11,36 +11,76 @@
 </header>
 <nav>
 <ul>
-<li><a href="/">Home</a></li>
-<li><a href="./">README</a></li>
-<li><a href="license.html">LICENSE</a></li>
-<li><a href="install.html">INSTALL</a></li>
-<li><a href="docs/">Documentation</a></li>
-<li><a href="https://github.com/caltechlibrary/eprinttools">Github</a></li>
-<li><a href="https://github.com/caltechlibrary/eprinttools/releases/latest">Releases</a></li>
+<li>
+<a href="/">Home</a>
+</li>
+<li>
+<a href="./">README</a>
+</li>
+<li>
+<a href="license.html">LICENSE</a>
+</li>
+<li>
+<a href="install.html">INSTALL</a>
+</li>
+<li>
+<a href="docs/">Documentation</a>
+</li>
+<li>
+<a href="https://github.com/caltechlibrary/eprinttools">Github</a>
+</li>
+<li>
+<a href="https://github.com/caltechlibrary/eprinttools/releases/latest">Releases</a>
+</li>
 </ul>
 </nav>
 
 <section>
-<h1>eprinttools</h1>
-<p>eprinttools is a Go package and set of command line utilities for working with EPrints 3.x EPrint XML and REST API. It is in the process of transitioning to a Python 3 based project.</p>
-<h2>The command line programs</h2>
+<h1>
+eprinttools
+</h1>
+<p>
+eprinttools is a Go package and set of command line utilities for working with EPrints 3.x EPrint XML and REST API. It is in the process of transitioning to a Python 3 based project.
+</p>
+<h2>
+The command line programs
+</h2>
 <ul>
-<li><a href="docs/eputil.html">eputil</a> is a command line utility for interacting (e.g. harvesting) JSON and XML from EPrints' REST API
+<li>
+<a href="docs/eputil.html">eputil</a> is a command line utility for interacting (e.g. harvesting) JSON and XML from EPrints’ REST API
 <ul>
-<li>uses minimal configuration because it does less!</li>
-<li>will supercede <em>ep</em></li>
-</ul></li>
-<li><a href="docs/epfmt.html">epfmt</a> is a command line utility to pretty print EPrints XML and convert to/from JSON
-<ul>
-<li>in the process of pretty printing it also validates the EPrints XML against the eprinttools Go package definitions</li>
-</ul></li>
-<li><a href="docs/doi2eprintxml.html">doi2eprintxml</a> is a command line program for turning metadata harvested from CrossRef and DataCite into an EPrint XML document based on one or more supplied DOI</li>
-<li><a href="docs/eprintxml2json.html">eprintxml2json</a> is a command line program for taking EPrint XML and turning it into JSON</li>
+<li>
+uses minimal configuration because it does less!
+</li>
+<li>
+will supercede <em>ep</em>
+</li>
 </ul>
-<p>The first two utilities can be configured from the environment or command line options. The environment settings are overridden by command line options. For details running either command envoke the tool name with the '-help' option.</p>
-<h2>Python integration via AMES</h2>
-<p>The eprintools command line programs have been made available to Python via the <a href="https://github.com/caltechlibrary/ames">AMES</a> project. This include support for both read and write to EPrints repository systems.</p>
+</li>
+<li>
+<a href="docs/epfmt.html">epfmt</a> is a command line utility to pretty print EPrints XML and convert to/from JSON
+<ul>
+<li>
+in the process of pretty printing it also validates the EPrints XML against the eprinttools Go package definitions
+</li>
+</ul>
+</li>
+<li>
+<a href="docs/doi2eprintxml.html">doi2eprintxml</a> is a command line program for turning metadata harvested from CrossRef and DataCite into an EPrint XML document based on one or more supplied DOI
+</li>
+<li>
+<a href="docs/eprintxml2json.html">eprintxml2json</a> is a command line program for taking EPrint XML and turning it into JSON
+</li>
+</ul>
+<p>
+The first two utilities can be configured from the environment or command line options. The environment settings are overridden by command line options. For details running either command envoke the tool name with the ‘-help’ option.
+</p>
+<h2>
+Python integration via AMES
+</h2>
+<p>
+The eprintools command line programs have been made available to Python via the <a href="https://github.com/caltechlibrary/ames">AMES</a> project. This include support for both read and write to EPrints repository systems.
+</p>
 </section>
 
 <footer>

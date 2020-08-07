@@ -1067,7 +1067,7 @@ func (e *EPrint) SyntheticFields() {
 				obj["mime_type"] = doc.MimeType
 				obj["content"] = doc.Content
 				obj["license"] = doc.License
-				if doc.Placement == 1 && doc.Content != "supplemental" {
+				if (doc.Placement == 1 || doc.Pos == 1) && doc.Content != "supplemental" {
 					e.PrimaryObject = obj
 				} else {
 					e.RelatedObjects = append(e.RelatedObjects, obj)

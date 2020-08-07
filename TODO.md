@@ -7,8 +7,7 @@
 
 ## Next
 
-+ [x] DR-198, replace ep with something that doesn't depend and can eventually be replaced by Python code.
-+ [ ] DR-198, Issue # 28, Need to use the EPrints document version directory to set the patch level of an attachment, currently all attachments are stored as v0.0.1
++ [ ] DR-198, Issue # 28, Need to use the EPrints document version directory to set the patch level of an attachment, currently all attachments are stored as v0.1.1
 
 
 ## Someday, Maybe
@@ -17,6 +16,7 @@
 
 ## Completed
 
++ [x] DR-198, replace ep with python module.
 + [x] Normalize logging between eputil and ep (removed ep)
 + [x] DR-118, create two synthetic fields in our JSON representation, primary_object should point at the primary resource, e.g. the PDF of an article, and the second synethetic field would be related_objects which would be an array pointing at things like supplimental materials. This will make it easier to create both a landing page as well as point directly at items when rendering formats like BibTeX.
 + [x] Jira issues DR-45 and DR-40 

@@ -120,6 +120,7 @@ def harvest_record(key):
 #
 def harvest_eprintxml(key):
     global base_url, c_name
+    key = str(key)
     # Fetch the EPrintXML document source
     src, err = eputil(f'{base_url}/rest/eprint/{key}.xml', as_json = False)
     if err != '':
@@ -145,7 +146,17 @@ def harvest_eprintxml(key):
 #
 def harvest_documents(key):
     global base_url, c_name
-    return 'harvest_documents({key}) not implemented.'
+    key = str(key)
+    if dataset.has_key(c_name, key) == False:
+        return f'No metadata available in {c_name}'
+    obj, err = dataset.read(c_name, key)
+    if err != '':
+        return err
+    if 'primary_object' in obj:
+        print('DEBUG primary_objects: ', obj['primary_objects'])
+    if 'related_objects' in obj:
+        print('DEBUG related_objects: ', obj['related_objects'])
+    return ''
 
 #
 # harvest takes a number of options and replicates functionality
