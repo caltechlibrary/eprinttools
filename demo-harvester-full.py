@@ -21,7 +21,7 @@ stored in a dataset collection and stores the related
 records and EPrintXML as attachments to the JSON reccord.
 
   {app} repository.ds \\
-     'https://automation:SECRET@repository.example.edu' \\
+     'https://USERNAME:SECRET@repository.example.edu' \\
      123
 
 This would harvest EPrint record 123 from repository.example.edu

@@ -10,13 +10,13 @@ import progressbar
 
 from py_dataset import dataset
 
-from .mysql_access import get_recently_modified_keys
+#from .mysql_access import get_recently_modified_keys
 
 #
 # This python module provides basic functionality for working
 # with an EPrints server via the REST API.
 #
-skip_and_prune = [ "deletion", "buffer" ]
+skip_and_prune = [ "deletion", "buffer", "inbox" ]
 
 # Internal data for making calls to EPrints.
 c_name = ''
@@ -51,8 +51,10 @@ def harvest_init(collection_name, connection_string):
     base_url = connection_string
     return ''
     
-def eputil(eprint_url, as_json = True, get_document = False):
+def eputil(eprint_url, as_json = True, get_document = False, as_text = False):
     cmd = ['eputil']
+    if as_text == True:
+        cmd.append('-raw')
     if as_json == True:
         cmd.append('-json')
     if get_document == True:
@@ -190,6 +192,42 @@ def harvest_documents(key, obj):
     return ''
 
 #
+# filter_recently_modified_keys takes a list of keys then
+# checks the value of lastmod.txt (e.g. rest/eprint/EPRINT_ID/lastmod.txt)
+# and filters the key list it returns.
+#
+def filter_recently_modified_keys(keys, date_since):
+    global base_url, c_name
+    repo_name, _ = os.path.splitext(c_name)
+    filter_keys = []
+    tot = len(keys)
+    bar = progressbar.ProgressBar(
+            max_value = tot,
+            widgets = [
+                progressbar.Percentage(), ' ',
+                progressbar.Counter(), f'/{tot} ',
+                progressbar.AdaptiveETA(),
+                f' from {repo_name}'
+            ], redirect_stdout=False)
+    print(f'filtering {tot} modified since {date_since} from {repo_name}')
+    bar.start()
+    for i, key in enumerate(keys):
+        lastmod_url = f'{base_url}/rest/eprint/{key}/lastmod.txt'
+        src, err = eputil(lastmod_url, as_text = True)
+        if err != '':
+            print(f'WARNING: could not get lastmod date for {key}, {err}')
+            continue
+        if src != '':
+            src = src.strip()
+            day, hour = src.split(" ")
+            if day >= date_since:
+                filter_keys.append(key)
+        bar.update(i)
+    bar.finish()
+    print(f'filtered {len(filter_keys)} of {tot} modified since {date_since} from {repo_name}')
+    return filter_keys
+    
+#
 # harvest takes a number of options and replicates functionality
 # from the old `ep` golang program used in the feeds project.
 # No parameters are provided then a full harvest of metadata will
@@ -221,9 +259,12 @@ def harvest(keys = [], start_id = 0, save_exported_keys = '', number_of_days = N
                 new_keys.append(key)
         keys = new_keys
     if number_of_days:
-        days_since = (datetime.now()+timedelta(days=number_of_days)).strftime('%Y-%m-%d')
-        if db_connection:
-            keys = get_recently_modified_keys(db_connection, no_of_days)
+        # NOTE: we want an integer value for the last number of days.
+        number_of_days = int(number_of_days)
+        if number_of_days > 0:
+            number_of_days = number_of_days * -1
+        date_since = (datetime.now()+timedelta(days=number_of_days)).strftime('%Y-%m-%d')
+        keys = filter_recently_modified_keys(keys, date_since)
 
     tot = len(keys)
     e_cnt = 0
