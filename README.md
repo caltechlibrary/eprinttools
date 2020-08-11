@@ -27,7 +27,7 @@ via the [AMES](https://github.com/caltechlibrary/ames) project. This include sup
 ## Demo of wrapping _eputil_ in Python
 
 There is a proof of concept wrapper for for _eputil_ in Python 3
-in the "eprints3x" folder.  There is an example "demo-harvester.py" that
-shows how you can easily implement a harvester for your EPrints 3.3x
-content.
+in the "eprints3x" folder.  There is an example "demo-harvester-full.py" 
+and "demo-harvester-recent.py" that shows how you can easily implement 
+a harvester for your EPrints 3.3x content.
 
