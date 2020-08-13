@@ -34,7 +34,8 @@ import (
 func TestLibSupport(t *testing.T) {
 	eprintURL := os.Getenv("EPRINT_URL")
 	if eprintURL == "" {
-		log.Println("Skipping TestLibSupport(), requires EPRINT_URL to be set in the environment")
+		log.Println("Skipping TestLibSupport(), requires EPRINT_URL to be set in the environment, note this is a read only test sequence.")
+
 		return
 	}
 	authType := 0

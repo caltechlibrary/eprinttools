@@ -6,7 +6,7 @@
     "codeRepository": "https://github.com/caltechlibrary/eprinttools",
     "issueTracker": "https://github.com/caltechlibrary/eprinttools/issues",
     "license": "https://caltechlibrary.github.io/eprinttools/license.html",
-    "version": "0.1.2",
+    "version": "0.1.3",
     "author": [
         {
             "@type": "Person",
