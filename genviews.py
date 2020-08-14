@@ -18,7 +18,7 @@ import progressbar
 
 from py_dataset import dataset
 
-from eprints3x import load_subjects, normalize_subject, load_users, get_user, has_user, load_views, has_view
+from eprints3x import load_subjects, normalize_subject, load_users, get_user, has_user, load_views
 
 #
 # Common EPrint Site Layouts look like:
@@ -35,7 +35,6 @@ from eprints3x import load_subjects, normalize_subject, load_users, get_user, ha
 # Simple Search and Advanced Search -> Elasticsearch services
 # Contact Us -> redirects to https://www.library.caltech.edu/contact
 #
-doc_tree = {}
 
 def get_title(obj):
     if 'title' in obj:
@@ -310,36 +309,36 @@ def aggregate_types(c_name, objs):
 #
 # Build our aggregated views
 #
-def aggregate(c_name):
+# ids, people, years, subjects, types = aggregate(c_name, users, views, subjects)
+def aggregate(c_name, views):
     frame_name = 'date-title'
     if not dataset.has_frame(c_name, frame_name):
         generate_frames(c_name)
+    objs, ids, types, people, years, subjects = [], [], [], [], [], []
     objs = dataset.frame_objects(c_name, frame_name)
     objs = normalize_objects(objs)
-    ids = aggregate_ids(c_name, objs)
-    types = aggregate_types(c_name, objs)
-    people = aggregate_people(c_name, objs)
-    years = aggregate_year(c_name, objs)
-    subjects = aggregate_subjects(c_name, objs)
+    if 'ids' in views:
+        ids = aggregate_ids(c_name, objs)
+    if 'types' in views:
+        types = aggregate_types(c_name, objs)
+    if 'people' in views:
+        people = aggregate_people(c_name, objs)
+    if 'year' in views:
+        years = aggregate_year(c_name, objs)
+    if 'subjects' in views:
+        subjects = aggregate_subjects(c_name, objs)
     return ids, people, years, subjects, types
-
-
-#
-# Using view_list populate our doc_type
-#
-def generate_doctree(view_list):
-    global doc_tree
-    doc_tree = {}
-    for key in view_list:
-        doc_tree[key] = os.path.join('htdocs', 'view', key)
 
 
 #
 # Build the directory tree
 #
-def generate_directories(tree):
-    for view in tree:
-        d_name = tree[view]
+def generate_directories(views):
+    doc_tree = {}
+    for key in views:
+        doc_tree[key] = os.path.join('htdocs', 'view', key)
+    for key in doc_tree:
+        d_name = doc_tree[key]
         if not os.path.exists(d_name):
             os.makedirs(d_name, mode = 0o777, exist_ok = True)
     
@@ -433,29 +432,41 @@ def make_view(view_name, p_name, key_field, object_list):
             f.write(src)
 
 
-def generate_views(doc_type, ids, people, years, subjects, types):
-    global doc_tree
-    # Linked views
-    if 'people' in doc_tree:
-        make_view('people', doc_tree['people'], 'people_id', people)
-    if 'year' in doc_type:
-        make_view('year', doc_tree['years'], 'year', years)
-    if 'subject' in doc_tree:
-        make_view('subject', doc_tree['subjects'], 'subject_id', subjects)
-    # possibily unlinked views
-    if 'ids' in doc_tree:
-        make_view('ids', doc_tree['ids'], 'eprint_id', ids)
-    if 'type' in doc_tree:
-        make_view('type', doc_tree['types'], 'type', types)
-    
+def generate_views(views, ids, people, years, subjects, types):
+    # Commonly Linked views
+    if 'people' in views:
+        label = views['people']
+        p_name = os.path.join('htdocs', 'view', 'people')
+        make_view(label, p_name, 'people_id', people)
+    if 'year' in views:
+        label = views['year']
+        p_name = os.path.join('htdocs', 'view', 'year')
+        make_view(label, p_name, 'year', years)
+    if 'subject' in views:
+        label = views['subject']
+        p_name = os.path.join('htdocs', 'view', 'subject')
+        make_view(label, p_name, 'subject_id', subjects)
+    # Probably unlinked views
+    if 'ids' in views:
+        label = views['ids']
+        p_name = os.path.join('htdocs', 'view', 'ids')
+        make_view('ids', p_name, 'eprint_id', ids)
+    if 'type' in views:
+        label = views['type']
+        p_name = os.path.join('htdocs', 'view', 'type')
+        make_view(label, p_name, 'type', types)
 
-def generate_metadata_structure(c_name, userlist_json, doc_tree):
-    load_users(userlist_json)
+
+def generate_metadata_structure(c_name, userlist_json, viewlist_json, subjectlist_json):
+    users = load_users(userlist_json)
+    views = load_views(viewlist_json)
+    subjects = load_subjects(subjectlist_json)
+    print(f'DEBUG view list ({viewlist_json}) -> {views}')
     generate_frames(c_name)
-    generate_directories(doc_tree)
-    ids, people, years, subjects, types = aggregate(c_name)
+    generate_directories(views)
+    ids, people, years, subjects, types = aggregate(c_name, views)
     print(f'Found {len(ids)} ids, {len(people)} people, {len(years)} years, {len(subjects)} subjects, {len(types)} types')
-    generate_views(doc_tree, ids, people, years, subjects, types)
+    generate_views(views, ids, people, years, subjects, types)
     generate_landings(c_name)
 
 
@@ -463,8 +474,8 @@ if __name__ == "__main__":
     f_name = 'config.json'
     c_name = ''
     userlist_json = ''
-    viewlist_json = 'views.json'
-    subjectlist_json = 'subjects.json'
+    viewlist_json = 'eprint_views.json'
+    subjectlist_json = 'eprint_subjects.json'
     if len(sys.argv) > 1:
         f_name = sys.argv[1]
     if not os.path.exists(f_name):
@@ -478,10 +489,9 @@ if __name__ == "__main__":
         if 'user_list' in cfg:
             userlist_json = cfg['user_list']
         if 'view_list' in cfg:
-            viewlist_json = 'views.json'
+            viewlist_json = cfg['view_list']
         if 'subject_list' in cfg:
-            subjectview_json = 'subjects.json'
-    generate_doctree(viewlist_json)
+            subjectview_json = cfg['subject_list']
     generate_metadata_structure(
         c_name, 
         userlist_json, 

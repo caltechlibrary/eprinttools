@@ -65,6 +65,7 @@ test: eputil epfmt doi2eprintxml eprintxml2json
 	./test_cmds.bash
 
 clean:
+	if [ -d htdocs ]; then rm -fR htdocs; fi
 	if [ -d bin ]; then rm -fR bin; fi
 	if [ -d dist ]; then rm -fR dist; fi
 	if [ -d man ]; then rm -fR man; fi
