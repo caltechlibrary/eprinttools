@@ -461,9 +461,12 @@ def generate_metadata_structure(c_name, userlist_json, viewlist_json, subjectlis
     users = load_users(userlist_json)
     views = load_views(viewlist_json)
     subjects = load_subjects(subjectlist_json)
-    print(f'DEBUG view list ({viewlist_json}) -> {views}')
     generate_frames(c_name)
     generate_directories(views)
+    # NOTE: To keep the code simple we're only supporting
+    # A default list of views found in common with Caltech Library's
+    # repositories. If this gets used by other libraries we can
+    # look at generalizing this approach.
     ids, people, years, subjects, types = aggregate(c_name, views)
     print(f'Found {len(ids)} ids, {len(people)} people, {len(years)} years, {len(subjects)} subjects, {len(types)} types')
     generate_views(views, ids, people, years, subjects, types)
