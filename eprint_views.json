@@ -1,0 +1,12 @@
+{
+    "ids": "Eprint ID",
+    "types": "Document Type",
+    "subject": "Subject",
+    "year": "Year",
+    "people": "People",
+    "group": "Group",
+    "issn": "ISSN",
+    "publication": "Publication Title",
+    "collection": "Collection",
+    "event": "Event"
+}
