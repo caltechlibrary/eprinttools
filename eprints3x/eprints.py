@@ -62,10 +62,10 @@ def eputil(eprint_url, as_json = True, get_document = False, as_text = False):
     cmd.append(eprint_url)
     src, err = '', ''
     with Popen(cmd, stdout = PIPE, stderr = PIPE, encoding = 'utf-8') as proc:
+        err = proc.stderr.read().strip()
+        if err != '':
+            print(f"\n{' '.join(cmd)}\nerror: {err}")
         src = str(proc.stdout.read())
-        exit_code = proc.returncode
-        if exit_code:
-            err = str(proc.stderr.read())
     return src, err
 
 #
@@ -73,10 +73,12 @@ def eputil(eprint_url, as_json = True, get_document = False, as_text = False):
 #
 def harvest_keys():
     global base_url
-    src, err = eputil(f'{base_url}/rest/eprint/')
+    src, err = eputil(f'{base_url}/rest/eprint/', as_json = True)
     if err != '':
         print(f'WARNING: {err}', type(err), file = sys.stderr)
         return []
+    if not isinstance(src, bytes):
+        src = src.encode('utf-8')
     keys = json.loads(src)
     return keys
 
