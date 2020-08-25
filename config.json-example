@@ -1,11 +1,11 @@
 {
     "eprint_url": "http://USERNAME:SECRET@eprints.example.edu",
-    "dataset": "EPrints.ds",
+    "dataset": "Eprints.ds",
     "number_of_days": -30,
     "control_item": "http://eprints.example.edu/cgi/users/home?screen=EPrint::View&eprintid=",
-    "userlist": "eprint_users.json",
-    "subjects": "eprint_subjects.json",
+    "users": "eprint_users.json",
+    "subjects": "eprint_subjects.txt",
     "views": "eprint_views.json",
-    "site_title": "Demo EPrints static website",
-    "site_welcome": "Welcome to a demo of using EPrints to generate a static website"
+    "site_title": "Demo Eprints static website",
+    "site_welcome": "Welcome to a demo of using Eprints to generate a static website"
 }

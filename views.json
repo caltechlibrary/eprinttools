@@ -1,12 +1,12 @@
 {
-    "ids": "Eprint ID",
-    "types": "Document Type",
-    "subject": "Subject",
-    "year": "Year",
-    "people": "People",
-    "group": "Group",
-    "issn": "ISSN",
-    "publication": "Publication Title",
-    "collection": "Collection",
-    "event": "Event"
+    "ids": { "label": "Eprint ID", "aggregation": "ids" },
+    "year": { "label": "Year", "aggregation": "year" },
+    "person-az": { "label": "Person", "aggregation": "person-az" },
+    "event": { "label": "Conference", "aggregation": "event" },
+    "collection": { "label": "Collection", "aggregation": "collection" },
+    "latest": { "label": "Latest Additions", "aggregation": "latest" },
+    "publication": { "label": "Journal or Publication Title", "aggregation": "publication" },
+    "issn": { "label": "ISSN", "aggregation": "issn" },
+    "person": { "label": "Person", "aggregation": "person" },
+    "type": { "label": "Type", "aggregation": "types" }
 }
