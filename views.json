@@ -5,8 +5,9 @@
     "event": { "label": "Conference", "aggregation": "event" },
     "collection": { "label": "Collection", "aggregation": "collection" },
     "latest": { "label": "Latest Additions", "aggregation": "latest" },
-    "publication": { "label": "Journal or Publication Title", "aggregation": "publication" },
+    "publication": { "label": "Publication", "aggregation": "publication" },
     "issn": { "label": "ISSN", "aggregation": "issn" },
     "person": { "label": "Person", "aggregation": "person" },
-    "type": { "label": "Type", "aggregation": "types" }
+    "types": { "label": "Type", "aggregation": "types" },
+    "subjects": { "label": "Subjects", "aggregation": "subjects" }
 }
