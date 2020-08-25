@@ -8,6 +8,10 @@ from datetime import date, timedelta
 #
 # utility methods 
 #
+
+def slugify(s):
+    return s.replace(' ', '_').replace('/','_')
+
 def get_value(obj, val):
     if val in obj:
         return obj[val]
@@ -158,9 +162,10 @@ class Aggregator:
             year = get_date_year(obj)
             if ('publication' in obj):
                 publication = obj['publication']
+                key = slugify(publication)
                 if not publication in publications:
                     publications[publication] = { 
-                        'key': str(publication),
+                        'key': key,
                         'label': str(publication),
                         'count': 0,
                         'year': year, 
@@ -206,9 +211,10 @@ class Aggregator:
             year = get_date_year(obj)
             if ('collection' in obj):
                 collection = obj['collection']
+                key = slugify(collection)
                 if not collection in collections:
                     collections[collection] = { 
-                        'key': collection,
+                        'key': key,
                         'label': collection,
                         'count': 0,
                         'year': year, 
@@ -238,8 +244,9 @@ class Aggregator:
             if ('event_dates' in obj):
                 event_dates = obj['event_dates']
             if not event_title in events:
+                key = slugify(event_title)
                 events[event_title] = { 
-                    'key': event_title,
+                    'key': key,
                     'label': event_title,
                     'count': 0,
                     'year': year, 
@@ -271,7 +278,8 @@ class Aggregator:
                                 'count': 0,
                                 'subject_id': subj, 
                                 'subject_name': subject_name,
-                                'objects': [] }
+                                'objects': [] 
+                            }
                         subjects[subj]['count'] += 1
                         subjects[subj]['objects'].append(obj)
         subject_list= []
@@ -331,7 +339,7 @@ class Aggregator:
             if (lastmod != '') and (lastmod >= seven_days_ago):
                 key = get_sort_lastmod(obj)
                 year = get_date_year(obj)
-                if not lastmod in latest:
+                if not key in latest:
                     lastest[lastmod] = {
                         'key': key,
                         'label': lastmod,
