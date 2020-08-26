@@ -3,19 +3,38 @@
 
 ## Bugs
 
-+ [ ] Issues #13, #14 at GitHub are bugs and enhancements.
++ [ ] Make sure rendered pages point at the S3 copy of the files rather than the original Eprint location
++ [ ] Site must meet ADA sec. 503 accessibility requirements
 
 ## Next
 
-+ [ ] DR-198, Issue # 28, Need to use the EPrints document version directory to set the patch level of an attachment, currently all attachments are stored as v0.1.1
-
++ [x] Build out eprints3x Python 3 module for interactiing with Eprints REST API
++ [ ] Build out eprints3x Python 3 viewer module
++ [ ] Build out eprints3x Python 3 subjects module to support subject views using Eprints archives/REPO_ID/cfg/subjects file
++ [ ] Build out eprints3x Python 3 users module to safely expose depositor informaiton using JSON export of all users in the Eprints repository
++ [x] Build out general purpose harvester
++ [ ] Build out general purpose genviews
++ [ ] Build out general purpose indexer
++ [ ] Build out general purpose mk-website
++ [x] Build out general purpose publisher
++ [ ] Document everything
++ [ ] Integrate Search based on views and landing page's scheme.json (e.g. Lunr.js then Elasticsearch)
++ [ ] Integrate Universal Viewer into site replication
++ [ ] List all attached files not just the primary PDF
++ [ ] Fleshout scheme.json for indexing with Elasticsearch as well as Lunr.js
++ [ ] review index.json to be a more generalize metadata structure for rendering index.md landing pages, right now it represents Eprint XML in JSON
++ [ ] Add support for *.include, *.json, *.rss and *.bib (BibTeX) for all lists and search results
++ [ ] Add support for OAI-PMH
++ [ ] Come up with appropriate set of public URLs, where necessary rename Eprints repositories or redirect from homepages and header redirects to public view.
++ [ ] Build out on demand refresh process for updating static sites
 
 ## Someday, Maybe
 
-
++ [ ] Issues #13, #14 at GitHub are bugs and enhancements.
 
 ## Completed
 
++ [x] DR-198, Issue # 28, Need to use the EPrints document version directory to set the patch level of an attachment, currently all attachments are stored as v0.1.1
 + [x] DR-198, replace ep with python module.
 + [x] Normalize logging between eputil and ep (removed ep)
 + [x] DR-118, create two synthetic fields in our JSON representation, primary_object should point at the primary resource, e.g. the PDF of an article, and the second synethetic field would be related_objects which would be an array pointing at things like supplimental materials. This will make it easier to create both a landing page as well as point directly at items when rendering formats like BibTeX.
