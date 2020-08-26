@@ -31,6 +31,7 @@ previous five days as described in the config.json file.
 ''')
 
 if __name__ == "__main__":
+    f_name = ''
     c_name = ''
     url = ''
     number_of_days = 0
@@ -39,11 +40,17 @@ if __name__ == "__main__":
         usage()
         sys.exit(1)
     if len(sys.argv) >= 2:
-        config_json = sys.argv[1]
+        f_name = sys.argv[1]
     if len(sys.argv) == 3 :
         number_of_days = int(sys.argv[2])
 
-    with open(config_json) as f:
+    if f_name == '':
+        print(f'ERROR: Missing configuration filename.')
+        sys.exit(1)
+    if not os.path.exists(f_name):
+        print(f'ERROR: Missing {f_name} file.')
+        sys.exit(1)
+    with open(f_name) as f:
         src = f.read()
         cfg = json.loads(src)
         if 'dataset' in cfg:
@@ -53,10 +60,10 @@ if __name__ == "__main__":
         if (number_of_days == 0) and ('number_of_days' in cfg):
             number_of_days = int(cfg['number_of_days'])
     if url == '':
-        print(f'ERROR: missing eprint_url in {config_json}')
+        print(f'ERROR: missing eprint_url in {f_name}')
         sys.exit(1)
     if c_name == '':
-        print(f'ERROR: missing collection name in {config_json}')
+        print(f'ERROR: missing collection name in {f_name}')
         sys.exit(1)
 
     # Initialize the connection information (e.g. authentication)

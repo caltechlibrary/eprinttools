@@ -402,12 +402,15 @@ def build_website(htdocs, site_title, site_welcome):
     
 
 if __name__ == "__main__":
-    f_name = 'config.json'
+    f_name = ''
     htdocs = 'htdocs'
     site_title = 'EPrints Repository'
     site_welcome = 'EPrints Repository public website'
     if len(sys.argv) > 1:
         f_name = sys.argv[1]
+    if f_name == '':
+        print(f'Missing configuration filename.')
+        sys.exit(1)
     if not os.path.exists(f_name):
         print(f'Missing {f_name} configuration file.')
         sys.exit(1)

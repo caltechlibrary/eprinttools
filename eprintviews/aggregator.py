@@ -12,9 +12,9 @@ from datetime import date, timedelta
 def slugify(s):
     return s.replace(' ', '_').replace('/','_')
 
-def get_value(obj, val):
-    if val in obj:
-        return obj[val]
+def get_value(obj, key):
+    if key in obj:
+        return obj[key]
     return None
 
 def get_date_year(obj):
@@ -256,7 +256,7 @@ class Aggregator:
             events[event_title]['objects'].append(obj)
         event_list = []
         for key in events:
-            event_list.append(event_list[key])
+            event_list.append(events[key])
         event_list.sort(key = get_sort_event)
         return event_list
 
@@ -269,7 +269,7 @@ class Aggregator:
     
             if ('subjects' in obj):
                 for subj in obj['subjects']['items']:
-                    subject_name = get_value(subject_map, subj)
+                    subject_name = subject_map.get_subject(subj)
                     if subject_name != None:
                         if not subj in subjects:
                             subjects[subj] = { 

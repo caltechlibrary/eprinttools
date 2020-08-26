@@ -18,34 +18,37 @@ import progressbar
 
 from py_dataset import dataset
 
-from eprintviews import Views, Aggregator
-from eprintsubjects import Subjects
-from eprintusers import Users
+from eprintviews import Aggregator, Views, Subjects, Users
 
 #
-# Common EPrint Site Layouts look like:
+# CaltechES EPrint Site Layouts look like:
 #
-# Home -> index.md
-# About -> information.md
-# Browse -> browserviews.md
-#   Person -> people_list.json -> view/person-az/index.md
-#   Person -> people_list.json -> view/person/index.md
-#   Author -> people_list.json -> view/author/index.md
-#   Year -> year_list.json -> view/year/index.md
-#   Subject -> subject_list.json -> view/subject/index.md
+# Home -> index.html
+# About -> information.html
+# Browse -> browserviews.html
+#   Year -> year_list.json -> view/year/
+#   Item Category -> subjects_list.json > view/subject/
+#   Author -> people_list.json -> view/person-az/
+#   Latest Additions -> latest_list.json -> cgi/latest/
 #
 # Unlinked types include view/ids/ and view/types/
 #
-# Simple Search and Advanced Search -> Elasticsearch services
-# Contact Us -> redirects to https://www.library.caltech.edu/contact
+#   Eprint ID -> ids_list.json -> view/ids/index.md
+#   Year -> year_list.json -> view/year/
+#   Item Category -> subjects_list.json -> view/subject/
+#   Person -> person_list.json -> /view/person/
+#   Author -> people_list.json -> view/person-az/
+#   Type -> types_list.json -> view/types/index.md
 #
-
+# Simple Search and Advanced Search -> Elasticsearch services
+# Deposit an Item -> http://calteches.library.caltech.edu/cgi/users/home
+# Contact Us (broken in produciton) -> should redirect to https://www.library.caltech.edu/contact
 def get_title(obj):
     if 'title' in obj:
         return obj['title']
     return ''
 
-def get_date(obj):
+def get_date_year(obj):
     if 'date' in obj:
         return obj['date'][0:4].strip()
     return ''
@@ -54,6 +57,16 @@ def get_eprint_id(obj):
     if 'eprint_id' in obj:
         return f"{obj['eprint_id']}"
     return ''
+
+def get_object_type(obj):
+    if 'type' in obj:
+        return f'{obj["type"]}'
+    return ''
+
+def has_groups(obj):
+    if ('local_group' in obj) and (len(obj['local_group']) > 0):
+        return True
+    return False
 
 def get_creator_id(creator):
     if 'id' in creator:
@@ -81,7 +94,7 @@ def make_creator_list(creators):
         creator['display_name'] = display_name
         creator['creator_id'] = creator_id
         l.append(creator)
-    return l        
+    return l
 
 def make_label(s, sep = '_'):
     l = s.split(sep)
@@ -110,7 +123,7 @@ def make_frame_date_title(c_name):
     print(f'sorting {len(objs)} in frame {frame_name} in {c_name}')
     # Sort the objects by date then title
     objs.sort(key = get_title) # secondary sort value
-    objs.sort(reverse = True, key = get_date) # primary sort value
+    objs.sort(reverse = True, key = get_date_year) # primary sort value
     keys = []
     for obj in objs:
         keys.append(get_eprint_id(obj))
@@ -122,7 +135,15 @@ def make_frame_date_title(c_name):
             err = dataset.error_message()
             return f'{frame_name} in {c_name}, not deleted, {err}'
     print(f'creating frame {frame_name} in {c_name}')
-    ok = dataset.frame_create(c_name, frame_name, keys, [ '.eprint_id', '.title', '.date', '.creators', '.subjects', '.type', '.official_url', '.userid' , '.local_group', '.issn', '.collection' ], [ 'eprint_id', 'title', 'date', 'creators', 'subjects', 'type', 'official_url', 'userid', 'groups', 'issn', 'collection' ])
+    # NOTE: this frame needs to have the fields you'll use to
+    # generate the repository's views.
+    ok = dataset.frame_create(c_name, frame_name, keys, 
+            [ '.eprint_id', '.title', '.date', '.creators', '.subjects', 
+                '.type', '.official_url', '.userid' , 
+                '.collection', '.event_title', '.event_location', '.event_dates' ], 
+            [ 'eprint_id', 'title', 'date', 'creators', 'subjects', 
+                'type', 'official_url', 'userid', 
+                'collection', 'event_title', 'event_location', 'event_dates' ])
     if not ok:
         err = dataset.error_message()
         return f'{frame_name} in {c_name}, not created, {err}'
@@ -130,9 +151,12 @@ def make_frame_date_title(c_name):
 
 def normalize_object(obj, users):
     title = obj['title'].strip()
-    year = get_date(obj)
+    year = get_date_year(obj)
     eprint_id = get_eprint_id(obj)
     creator_list = make_creator_list(obj['creators']['items'])
+    if ('event_title' in obj):
+        event_id = sluggify(obj['event_title'])
+        obj['event_id'] = event_id
     if 'userid' in obj:
         key = f'{obj["userid"]}'
         if users.has_user(key):
@@ -156,68 +180,44 @@ def normalize_objects(objs, users):
     return objs
 
 #
-# Build our aggregated views
-#
-# After looking across our repositories we have the following aggregations
-# some shared between views (e.g. author, person, person-az are all
-# people views).  
-#
-# Example usage:
-#
-#   aggregation = aggregate(c_nane, users, views, subjects)
-#
-# The supported aggregations are:
-#
-#    ids, people, years, subjects, types, groups,
-#    options, committee, publication,
-#    issn, collection
-#
-#
-# FIXME: this should really be handing back a dict of aggregations!
+# Build our this repository's aggregated views
 #
 def aggregate(c_name, views, users, subjects):
     err = make_frame_date_title(c_name)
     if err != '':
         print(f'{err}')
     frame_name = 'date-title'
+    aggregations = {}
     objs = dataset.frame_objects(c_name, frame_name)
     objs = normalize_objects(objs, users)
     aggregator = Aggregator(c_name, objs)
-    aggregation = {}
-    print(f'DEBUG view keys -> {views.get_keys()}')
     if views.has_view('ids'):
-        aggregation['ids'] = aggregator.aggregate_ids()
-    if views.has_view('person'):
-        aggregation['person'] = aggregator.aggregate_person()
-    if views.has_view('person-az'):
-        aggregation['person-az'] = aggregator.aggregate_person_az()
-    if views.has_view('author'):
-        aggregation['author'] = aggregator.aggregate_person_az()
+        aggregations['ids'] = aggregator.aggregate_ids()
     if views.has_view('year'):
-        aggregation['year'] = aggregator.aggregate_year()
+        aggregations['year'] = aggregator.aggregate_year()
     if views.has_view('subjects'):
-        aggregation['subjects'] = aggregator.aggregate_subjects(subjects)
+        aggregations['subjects'] = aggregator.aggregate_subjects(subjects)
+    if views.has_view('person'):
+        aggregations['person'] = aggregator.aggregate_person()
+    if views.has_view('person-az'):
+        aggregations['person-az'] = aggregator.aggregate_person_az()
     if views.has_view('types'):
-        aggregation['types'] = aggregator.aggregate_types()
-    if views.has_view('group'):
-        aggregation['group'] = aggregator.aggregate_group()
-    if views.has_view('collection'):
-        aggregation['collection'] = aggregator.aggregate_collection()
-    if views.has_view('latest'):
-        aggregation['latest'] = aggregator.aggregate_latest()
-    if views.has_view('issn'):
-        aggregation['issn'] = aggregator.aggregate_issn()
+        aggregations['types'] = aggregator.aggregate_types()
+    if views.has_view('event'):
+        aggregations['event'] = aggregator.aggregate_event()
     if views.has_view('publication'):
-        aggregation['publication'] = aggregator.aggregate_publication()
-    return aggregation
+        aggregations['publication'] = aggregator.aggregate_publication()
+    if views.has_view('collection'):
+        aggregations['collection'] = aggregator.aggregate_collection()
+    return aggregations
 
 
 #
 # Build the directory tree
 #
-def generate_directories(views):
+def generate_directories(view_paths):
     doc_tree = {}
-    for key in views.get_keys():
+    for key in view_paths:
         doc_tree[key] = os.path.join('htdocs', 'view', key)
     for key in doc_tree:
         d_name = doc_tree[key]
@@ -237,7 +237,7 @@ def landing_filter(obj, users):
 # generate_landings creates index.json to render index.md,
 # also deposits attachments in their relative paths.
 #
-def generate_landings(c_name, users):
+def generate_landings(c_name, views, users, subjects):
     repo_name, _ = os.path.splitext(c_name)
     keys = dataset.keys(c_name)
     keys.sort(key=int)
@@ -251,6 +251,10 @@ def generate_landings(c_name, users):
                 progressbar.AdaptiveETA(),
                 f' from {repo_name}'
             ], redirect_stdout=False)
+    f_name = os.path.join('htdocs', 'index.keys')
+    with open(f_name, 'w') as f:
+        for key in keys:
+            f.write(f'{key}\n')
     print(f'generating {tot} landing pages for {repo_name}')
     for i, key in enumerate(keys):
         obj, err = dataset.read(c_name, key)
@@ -283,117 +287,75 @@ WARNING: can't read {key} from {c_name}, {err}''')
                 print(f'''
 WARNING could not detach {b_name} in {key} from {c_name}, {err}')''')
             else:
-                shutil.move(b_name, f_name, copy_function = shutil.copy2)
+                # Do final sanity check before copy.
+                if os.path.exists(b_name):
+                    shutil.move(b_name, f_name, copy_function = shutil.copy2)
+                else:
+                    print(f'''
+WARNING detached file missing {b_name} in {key} from {c_name}
+cannot move to {f_name}, skipping''')
         bar.update(i)
     bar.finish()
     print(f'generated {tot} landing pages, {e_cnt} errors from {repo_name}')
 
 
-def make_view(view_name, p_name, key_field, object_list):
-    print(f'generating {view_name} view')
+def make_view(view, p_name, aggregation):
     if not os.path.exists(p_name):
         os.makedirs(p_name, mode = 0o777, exist_ok = True)
     if not os.path.exists(p_name):
-        print(f'WARNING {p_name} does not exist, skipping {view_name}')
+        print(f'WARNING {p_name} does not exist, skipping {view}')
         return ''
-    f_name = os.path.join(p_name, f'{view_name}_list.json')
+    f_name = os.path.join(p_name, f'{view}_list.json')
+    print(f'writing "{view}" -> {f_name}')
     with open(f_name, 'w') as f:
-        src = json.dumps(object_list)
+        src = json.dumps(aggregation)
         f.write(src)
-    for obj in object_list:
-        if not key_field in obj:
-            print(f'DEBUG missing key field {key_field} in {obj}')
-        else:
-            key = obj[key_field]
-            f_name = os.path.join(p_name, f'{key}.json')
-            with open(f_name, 'w') as f:
-                src = json.dumps(obj)
-                f.write(src)
+    for obj in aggregation:
+        objects = obj['objects']
+        key = obj['key']
+        f_name = os.path.join(p_name, f'{key}.json')
+        #print(f'writing "{view}" ({key}) -> {f_name}')
+        with open(f_name, 'w') as f:
+            src = json.dumps(objects)
+            f.write(src)
 
+def generate_view(view, aggregations):
+    if view in aggregations:
+        if len(aggregations[view]) > 0:
+            p_name = os.path.join('htdocs', 'view', view)
+            make_view(view, p_name, aggregations[view])
+    
 # generate_views creates the common views across our EPrints
 # repositories.
 def generate_views(views, aggregations):
-    # map v_name to field id in EPrint XML
-    field_ids = {
-        'ids': 'eprint_id',
-        'people': 'people_id',
-        'person-az': 'people_id',
-        'person': 'people_id',
-        'year': 'year',
-        'subjects': 'subject_id',
-        'types': 'type',
-        'group': 'local_group',
-        'option': 'option',
-        'advisor': 'thesis_advisor_id',
-        'committee': 'thesis_committee_id',
-        'collection': 'collection',
-        'issn': 'issn',
-        'publication': 'publication',
-        'event': 'event_id'
-    }
-    # Commonly Linked views
-    for v_name in views.get_keys():
-        print(f'DEBUG v_name -> has_view("{v_name}") -> ', end = '')
-        print(views.has_view(v_name)) # DEBUG
-        if (v_name in [ 'year' ]) and ('year' in aggregations):
-            for year in aggregations[v_name]:
-                object_list = year['objects']
-                label = year['label']
-                field_id = 'year'
-                p_name = os.path.join('htdocs', 'view', 'year')
-                make_view(label, p_name, field_id, object_list)
-        elif (v_name in [ 'collection' ]) and ('collection' in aggregations):
-            for collection in aggregations[v_name]:
-                object_list = collection['objects']
-                label = collection['label']
-                field_id = 'collection'
-                p_name = os.path.join('htdocs', 'view', 'collection')
-                make_view(label, p_name, field_id, object_list)
-        elif (v_name in [ 'event' ]) and ('event' in aggregations):
-            for event in aggregations[v_name]:
-                object_list = event['objects']
-                label = event['label']
-                field_id = 'event_title'
-                p_name = os.path.join('htdocs', 'view', 'event')
-                make_view(label, p_name, field_id, object_list)
-        elif (v_name in aggregations):
-            for view in aggregations[v_name]:
-                object_list = view['objects']
-                label = view['label']
-                field_id = field_ids[v_name]
-                p_name = os.path.join('htdocs', 'view', v_name)
-                make_view(label, p_name, field_id, object_list)
-        else:
-            print(f'''WARNING: missing aggregation for "{v_name}"''')
+    keys = views.get_keys()
+    # /view/ views and subviews, may also be included in browseviews.html
+    for key in keys:
+        generate_view(key, aggregations)
 
 
-def generate_metadata_structure(c_name, views_json, users_json, subjects_json):
+def generate_metadata_structure(c_name, f_views, f_users, f_subjects):
     views = Views()
-    views.load_views(views_json)
+    views.load_views(f_views)
     users = Users()
-    users.load_users(users_json)
+    users.load_users(f_users)
     subjects = Subjects()
-    subjects.load_subjects(subjects_json)
-    generate_directories(views)
-    # NOTE: To keep the code simple we're only supporting
-    # A default list of views found in common with Caltech Library's
-    # repositories. If this gets used by other libraries we can
-    # look at generalizing this approach.
+    subjects.load_subjects(f_subjects)
+    generate_directories(views.get_keys())
     aggregations = aggregate(c_name, views, users, subjects)
-    print(f'Found {len(aggregations)} aggregations:')
-    for key in aggregations:
-        print(f'  {len(aggregations[key])} {key}')
+    print(f'Found {len(aggregations)} aggregations: ', end = '\n\t')
+    for i, key in enumerate(aggregations):
+        if i > 0:
+            print(', ', end = '')
+        print(f'{len(aggregations[key])} {key}', end = '')
     print('')
     generate_views(views, aggregations)
-    generate_landings(c_name, users)
+    generate_landings(c_name, views, users, subjects)
 
 
 if __name__ == "__main__":
     f_name = 'config.json'
     c_name = ''
-    views_json = ''
-    users_json = ''
-    subjects_json = ''
     if len(sys.argv) > 1:
         f_name = sys.argv[1]
     if not os.path.exists(f_name):
@@ -404,11 +366,11 @@ if __name__ == "__main__":
         cfg = json.loads(src)
         if 'dataset' in cfg:
             c_name = cfg['dataset']
-        if 'views' in cfg:
-            views_json = cfg['views']
         if 'users' in cfg:
-            users_json = cfg['users']
+            f_users = cfg['users']
+        if 'views' in cfg:
+            f_views = cfg['views']
         if 'subjects' in cfg:
-            subjects_json = cfg['subjects']
-    generate_metadata_structure(c_name, views_json, users_json, subjects_json)
+            f_subjects = cfg['subjects']
+    generate_metadata_structure(c_name, f_views, f_users, f_subjects) 
     print('OK')

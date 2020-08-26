@@ -1,13 +1,13 @@
 {
-    "ids": { "label": "Eprint ID", "aggregation": "ids" },
-    "year": { "label": "Year", "aggregation": "year" },
-    "person-az": { "label": "Person", "aggregation": "person-az" },
-    "event": { "label": "Conference", "aggregation": "event" },
-    "collection": { "label": "Collection", "aggregation": "collection" },
-    "latest": { "label": "Latest Additions", "aggregation": "latest" },
-    "publication": { "label": "Publication", "aggregation": "publication" },
-    "issn": { "label": "ISSN", "aggregation": "issn" },
-    "person": { "label": "Person", "aggregation": "person" },
-    "types": { "label": "Type", "aggregation": "types" },
-    "subjects": { "label": "Subjects", "aggregation": "subjects" }
+    "ids": "Eprint ID", 
+    "year": "Year",
+    "person-az": "Person", 
+    "event": "Conference", 
+    "collection": "Collection", 
+    "latest": "Latest Additions", 
+    "publication": "Publication", 
+    "issn": "ISSN", 
+    "person": "Person", 
+    "types": "Type", 
+    "subjects": "Subjects"
 }
