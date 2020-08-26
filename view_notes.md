@@ -4,7 +4,7 @@
 ## Notes from Google Scholar
 
 It looks likes /view/ids/ and /view/year/ maybe used by the GoogleBot
-as Google Scholar understands Eprints' directory layout even though those aren't usually linked from the homepage.  We also want to generate a "latest additions" link so that larger repositories can have their additions and updates picked up quicker. Google Scholar docs are at https://scholar.google.com/intl/en/scholar/inclusion.html#indexing.
+as Google Scholar understands EPrints' directory layout even though those aren't usually linked from the homepage.  We also want to generate a "latest additions" link so that larger repositories can have their additions and updates picked up quicker. Google Scholar docs are at https://scholar.google.com/intl/en/scholar/inclusion.html#indexing.
 
 ## Questions
 

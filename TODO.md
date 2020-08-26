@@ -3,15 +3,15 @@
 
 ## Bugs
 
-+ [ ] Make sure rendered pages point at the S3 copy of the files rather than the original Eprint location
++ [ ] Make sure rendered pages point at the S3 copy of the files rather than the original EPrint location
 + [ ] Site must meet ADA sec. 503 accessibility requirements
 
 ## Next
 
-+ [x] Build out eprints3x Python 3 module for interactiing with Eprints REST API
++ [x] Build out eprints3x Python 3 module for interactiing with EPrints REST API
 + [ ] Build out eprints3x Python 3 viewer module
-+ [ ] Build out eprints3x Python 3 subjects module to support subject views using Eprints archives/REPO_ID/cfg/subjects file
-+ [ ] Build out eprints3x Python 3 users module to safely expose depositor informaiton using JSON export of all users in the Eprints repository
++ [ ] Build out eprints3x Python 3 subjects module to support subject views using EPrints archives/REPO_ID/cfg/subjects file
++ [ ] Build out eprints3x Python 3 users module to safely expose depositor informaiton using JSON export of all users in the EPrints repository
 + [x] Build out general purpose harvester
 + [ ] Build out general purpose genviews
 + [ ] Build out general purpose indexer
@@ -22,10 +22,10 @@
 + [ ] Integrate Universal Viewer into site replication
 + [ ] List all attached files not just the primary PDF
 + [ ] Fleshout scheme.json for indexing with Elasticsearch as well as Lunr.js
-+ [ ] review index.json to be a more generalize metadata structure for rendering index.md landing pages, right now it represents Eprint XML in JSON
++ [ ] review index.json to be a more generalize metadata structure for rendering index.md landing pages, right now it represents EPrint XML in JSON
 + [ ] Add support for *.include, *.json, *.rss and *.bib (BibTeX) for all lists and search results
 + [ ] Add support for OAI-PMH
-+ [ ] Come up with appropriate set of public URLs, where necessary rename Eprints repositories or redirect from homepages and header redirects to public view.
++ [ ] Come up with appropriate set of public URLs, where necessary rename EPrints repositories or redirect from homepages and header redirects to public view.
 + [ ] Build out on demand refresh process for updating static sites
 
 ## Someday, Maybe
