@@ -123,6 +123,35 @@ class Aggregator:
         people_list.sort(key = get_sort_name)
         return people_list
 
+    def aggregate_by_view_name(self, name, subject_map):
+        if name == 'person-az':
+            return self.aggregate_person_az()
+        elif name == 'person':
+            return self.aggregate_person()
+        elif name == 'author':
+            return self.aggregate_author()
+        elif name == 'year':
+            return self.aggregate_year()
+        elif name == 'publication':
+            return self.aggregate_publication()
+        elif name == 'issn':
+            return self.aggregate_issn()
+        elif name == 'collection':
+            return self.aggregate_collection()
+        elif name == 'event':
+            return self.aggregate_event()
+        elif name == 'subjects':
+            return self.aggregate_subjects(subject_map)
+        elif name == 'ids':
+            return self.aggregate_ids()
+        elif name == 'types':
+            return self.aggregate_types()
+        elif name == 'latest':
+            return self.aggregate_latest()
+        else:
+            print(f'WARNING: {name} is unknown aggregation type')
+            return None
+
     def aggregate_person_az(self):
         return self.aggregate_people()
     
@@ -243,17 +272,18 @@ class Aggregator:
                 event_location = obj['event_location']
             if ('event_dates' in obj):
                 event_dates = obj['event_dates']
-            if not event_title in events:
-                key = slugify(event_title)
-                events[event_title] = { 
-                    'key': key,
-                    'label': event_title,
-                    'count': 0,
-                    'year': year, 
-                    'objects': [] 
-                }
-            events[event_title]['count'] += 1
-            events[event_title]['objects'].append(obj)
+            if event_title != '':
+                if not event_title in events:
+                    key = slugify(event_title)
+                    events[event_title] = { 
+                        'key': key,
+                        'label': event_title,
+                        'count': 0,
+                        'year': year, 
+                        'objects': [] 
+                    }
+                events[event_title]['count'] += 1
+                events[event_title]['objects'].append(obj)
         event_list = []
         for key in events:
             event_list.append(events[key])

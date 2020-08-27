@@ -10,11 +10,14 @@ from lunr import lunr
 
 from py_dataset import dataset
 
+from eprintviews import Subjects
+
 #
 # Apply scheme setups the data for search results and indexing.
 #
 def apply_scheme(obj, subjects, htdocs):
     o = {}
+    subject_keys = subjects.get_keys()
     # NOTE: simple fields
     for field in [ '_Key', 'title', 'date', 'year', 'type', 'collection', 'interviewer', 'interviewdate', 'depositor', 'deposit_date', 'issn', 'doi' ]:
         if (field in obj) and (obj[field] != None) and (obj[field] != ''):
@@ -39,16 +42,16 @@ def apply_scheme(obj, subjects, htdocs):
     if ('subjects' in obj) and (len(obj['subjects']) > 0):
         terms = []
         for term in obj['subjects']['items']:
-            if term in subjects:
-                terms.append(subjects[term])
+            if term in subject_keys:
+                terms.append(subjects.get_subject(term))
         o['subjects'] = '; '.join(terms)
     else:
         o['subjects'] = ''
     if ('keywords' in obj) and (len(obj['keywords']) > 0):
         terms = []
         if isinstance(obj['keywords'], str):
-            if term in subjects:
-                terms.append(subjects[term])
+            if term in subject_keys:
+                terms.append(subjects.get_subject(term))
             else:
                 terms.append(term)
         o['keywords'] = ' '.join(terms)                
@@ -75,12 +78,9 @@ def get_fields(obj):
         fields.append(f)
     return fields
 
-def build_index(c_name, htdocs, subjects_json):
-    subjects = {}
-    if os.path.exists(subjects_json):
-        with open(subjects_json) as f:
-            src = f.read()
-            subjects = json.loads(src)
+def build_index(c_name, htdocs, f_subjects):
+    subjects = Subjects()
+    subjects.load_subjects(f_subjects)
     keys = dataset.keys(c_name)
     tot = len(keys)
     documents = []
@@ -124,7 +124,7 @@ if __name__ == "__main__":
     f_name = ''
     htdocs = 'htdocs'
     c_name = ''
-    subjects_json = ''
+    f_subjects = ''
     if len(sys.argv) > 1:
         f_name = sys.argv[1]
     if f_name == '':
@@ -142,7 +142,7 @@ if __name__ == "__main__":
         if 'dataset' in cfg:
             c_name = cfg['dataset']
         if 'subjects' in cfg:
-            subjects_json = cfg['subjects']
+            f_subjects = cfg['subjects']
 
     if c_name == '':
         print(f'''Missing collection name in {f_name}.''')
@@ -153,5 +153,5 @@ if __name__ == "__main__":
     if not os.path.exists(htdocs):
         print(f'''Cannot find the htdocs directory''')
         sys.exit(1)
-    build_index(c_name, htdocs, subjects_json)
+    build_index(c_name, htdocs, f_subjects)
 

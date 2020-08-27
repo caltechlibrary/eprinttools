@@ -191,24 +191,9 @@ def aggregate(c_name, views, users, subjects):
     objs = dataset.frame_objects(c_name, frame_name)
     objs = normalize_objects(objs, users)
     aggregator = Aggregator(c_name, objs)
-    if views.has_view('ids'):
-        aggregations['ids'] = aggregator.aggregate_ids()
-    if views.has_view('year'):
-        aggregations['year'] = aggregator.aggregate_year()
-    if views.has_view('subjects'):
-        aggregations['subjects'] = aggregator.aggregate_subjects(subjects)
-    if views.has_view('person'):
-        aggregations['person'] = aggregator.aggregate_person()
-    if views.has_view('person-az'):
-        aggregations['person-az'] = aggregator.aggregate_person_az()
-    if views.has_view('types'):
-        aggregations['types'] = aggregator.aggregate_types()
-    if views.has_view('event'):
-        aggregations['event'] = aggregator.aggregate_event()
-    if views.has_view('publication'):
-        aggregations['publication'] = aggregator.aggregate_publication()
-    if views.has_view('collection'):
-        aggregations['collection'] = aggregator.aggregate_collection()
+    view_keys = views.get_keys()
+    for key in view_keys:
+        aggregations[key] = aggregator.aggregate_by_view_name(key, subjects)
     return aggregations
 
 
@@ -319,11 +304,13 @@ def make_view(view, p_name, aggregation):
             src = json.dumps(objects)
             f.write(src)
 
-def generate_view(view, aggregations):
-    if view in aggregations:
-        if len(aggregations[view]) > 0:
-            p_name = os.path.join('htdocs', 'view', view)
-            make_view(view, p_name, aggregations[view])
+def generate_view(key, aggregations):
+    if key in aggregations:
+        p_name = os.path.join('htdocs', 'view', key)
+        if (aggregations[key] != None) and (len(aggregations[key]) > 0):
+            make_view(key, p_name, aggregations[key])
+        else:
+            make_view(key, p_name, [])
     
 # generate_views creates the common views across our EPrints
 # repositories.
@@ -347,7 +334,10 @@ def generate_metadata_structure(c_name, f_views, f_users, f_subjects):
     for i, key in enumerate(aggregations):
         if i > 0:
             print(', ', end = '')
-        print(f'{len(aggregations[key])} {key}', end = '')
+        if (key in aggregations) and aggregations[key] != None:
+            print(f'{len(aggregations[key])} {key}', end = '')
+        else:
+            print(f'Nothing to aggregate for {key}')
     print('')
     generate_views(views, aggregations)
     generate_landings(c_name, views, users, subjects)

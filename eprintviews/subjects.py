@@ -20,10 +20,10 @@ class Subjects:
                 # split on colon
                 if ":" in line:
                     parts = line.split(":")
-                    if len(parts) > 0:
+                    if len(parts) > 1:
                         # get key and label
                         key = parts[0].strip()
-                        label = parts[-1].strip()
+                        label = parts[1].strip()
                         # add to self.subjects
                         self.subjects[key] = label
 
@@ -37,3 +37,9 @@ class Subjects:
         if key in self.subjects:
             return self.subjects[key]
         return ''
+
+    def get_keys(self):
+        keys = []
+        for key in self.subjects:
+            keys.append(key)
+        return keys

@@ -13,6 +13,8 @@ from subprocess import run, Popen, PIPE
 
 import progressbar
 
+from eprintviews import Views
+
 #
 # mkpage wraps the mkpage command from mkpage using the
 # pandoc setup.
@@ -26,7 +28,7 @@ def mkpage(o_file, template = '', data = []):
     with Popen(cmd, stdout = PIPE, stderr = PIPE) as proc:
         err = proc.stderr.read().strip().decode('utf-8')
         if err != '':
-            print(f"{' '.join(cmd[0:3])} error: {err}")
+            print(f"\n{' '.join(cmd)}\nerror: {err}")
         out = proc.stdout.read().strip().decode('utf-8')
         if out != "":
             print(f"{out}");
@@ -45,6 +47,7 @@ mkpage_version = (mkpage_version_no()).strip()
 # Make a key/value pair to pass to mkpage in the data array
 def kv(key, protocol = '', value = ''):
     if protocol == '':
+    # Note we're just grabbing the ids from ids_list, we'll index.json
         return f'{key}={value}'
     else:
         return f'{key}={protocol}:{value}'
@@ -77,21 +80,30 @@ def copy_assets(htdocs, source, trim_prefix):
     else:
         print(f'WARNING: {source} does not exist')
 
-# Load Object a "*.json" file from the htdocs tree for processing.
-def load_object(json_name):
+# Load Objects a "*.json" file from the htdocs tree for processing.
+def load_objects(json_name):
     f_name = os.path.join('htdocs', json_name)
     with open(f_name) as f:
         src = f.read()
         return json.loads(src)
     return None
 
+def load_keys(key_name):
+    f_name = os.path.join('htdocs', key_name)
+    with open(f_name) as f:
+        src = f.read()
+        return src.strip().split('\n')
+    return None
+
 def build_top_level_pages(htdocs, site_title, site_welcome):
     print(f'build top level pages')
     css_folder = os.path.join('static', 'css')
     assets_folder = os.path.join('static', 'assets')
+    js_folder = os.path.join('static', 'js')
     favicon = os.path.join('static', 'favicon.ico')
     copy_assets(htdocs, css_folder, 'static/')
     copy_assets(htdocs, assets_folder, 'static/')
+    copy_assets(htdocs, js_folder, 'static/')
     copy_assets(htdocs, favicon, 'static/')
 
     # Render Homepage (index.html)
@@ -130,9 +142,79 @@ def build_top_level_pages(htdocs, site_title, site_welcome):
         kv('content', '', md_filename)
     ])
 
+    # Render policies page
+    page_title = f'{site_title}: Policies'
+    title = 'Repository Policies'
+    md_filename = os.path.join('static', 'policies.md')
+    if os.path.exists(md_filename):
+        html_filename = 'policies.html'
+        template_name = 'index-html.tmpl'
+        assemble(html_filename, template_name, [
+            kv('page_title', 'text', page_title),
+            kv('title', 'text', title),
+            kv('content', '', md_filename)
+        ])
+
+    # Render contact page
+    page_title = f'{site_title}: Contact'
+    title = 'Contact Informaiton'
+    md_filename = os.path.join('static', 'contact.md')
+    if os.path.exists(md_filename):
+        html_filename = 'contact.html'
+        template_name = 'index-html.tmpl'
+        assemble(html_filename, template_name, [
+            kv('page_title', 'text', page_title),
+            kv('title', 'text', title),
+            kv('content', '', md_filename)
+        ])
 
 
-def build_view_pages(htdocs, site_title):
+def make_view(view, label, site_title):
+    # Render view, e.g. /view/ids/
+    page_title = f'{site_title}: Browse by {label}'
+    title = f'Browse by {label}'
+    list_data = f'view/{view}/{view}_list.json'
+    html_filename = f'view/{view}/index.html'
+    template_name = 'listing-html.tmpl'
+    content = 'Please select a value to browse from the list below.'
+    objs = load_objects(list_data)
+    tot = len(objs)
+    if tot == 0:
+        content = 'Nothing available.'
+    assemble(html_filename, template_name, [
+        kv('site_title', 'text', site_title),
+        kv('page_title', 'text', page_title),
+        kv('title', 'text', title),
+        kv('content', 'text', content),
+        kv('listing', '', os.path.join('htdocs', list_data))
+    ])
+    bar = progressbar.ProgressBar(
+          max_value = tot,
+            widgets = [
+                progressbar.Percentage(), ' ',
+                progressbar.Counter(), f'/{tot} ',
+                progressbar.AdaptiveETA(),
+                f' rendering views/{view}/*'
+            ], redirect_stdout=False)
+    for i, obj in enumerate(objs):
+        key = obj['key']
+        count = obj['count']
+        object_list = os.path.join('htdocs', 'view', view, f'{key}.json')
+        html_filename = f'view/{view}/{key}.html'
+        template_name = 'object-list-html.tmpl'
+        assemble(html_filename, template_name, [
+            kv('site_title', 'text', site_title),
+            kv('key', 'text', key),
+            kv('page_title', 'text', page_title),
+            kv('title', 'text', title),
+            kv('count', 'text', count),
+            kv('object_list', '', object_list)
+        ])
+        bar.update(i)
+    bar.finish()
+
+
+def build_view_pages(views, htdocs, site_title):
     print(f'building view pages')
     # Render view/
     page_title = f'{site_title}: Browse'
@@ -141,213 +223,25 @@ def build_view_pages(htdocs, site_title):
     html_filename = 'view/index.html'
     template_name = 'index-html.tmpl'
     assemble(html_filename, template_name, [
+        kv('site_title', 'text', site_title),
         kv('page_title', 'text', page_title),
         kv('title', 'text', title),
         kv('content', '', md_filename)
     ])
 
-    # Render view/ids/
-    page_title = f'{site_title}: Browse by Eprint ID'
-    title = 'Browse by Eprint ID'
-    list_data = 'view/ids/ids_list.json'
-    html_filename = 'view/ids/index.html'
-    template_name = 'listing-html.tmpl'
-    assemble(html_filename, template_name, [
-        kv('page_title', 'text', page_title),
-        kv('title', 'text', title),
-        kv('content', 'text', 
-            'Please select a value to browse from the list below.'),
-        kv('listing', '', os.path.join('htdocs', list_data))
-    ])
-    # Render view/ids/ sub listings
-    objs = load_object('view/ids/ids_list.json')
-    tot = len(objs)
-    bar = progressbar.ProgressBar(
-          max_value = tot,
-            widgets = [
-                progressbar.Percentage(), ' ',
-                progressbar.Counter(), f'/{tot} ',
-                progressbar.AdaptiveETA(),
-                f' rendering views/ids/*'
-            ], redirect_stdout=False)
-    for i, obj in enumerate(objs):
-        key = obj['key']
-        count = obj['count']
-        object_list = os.path.join('htdocs', 'view', 'ids', f'{key}.json')
-        html_filename = f'view/ids/{key}.html'
-        template_name = 'object-list-html.tmpl'
-        assemble(html_filename, template_name, [
-            kv('page_title', 'text', page_title),
-            kv('title', 'text', title),
-            kv('count', 'text', count),
-            kv('object_list', '', object_list)
-        ])
-        bar.update(i)
-    bar.finish()
-
-    # Render view/year/
-    page_title = f'{site_title}: Browse by Year'
-    title = 'Browse by Year'
-    list_data = 'view/year/year_list.json'
-    html_filename = 'view/year/index.html'
-    template_name = 'listing-html.tmpl'
-    assemble(html_filename, template_name, [
-        kv('page_title', 'text', page_title),
-        kv('title', 'text', title),
-        kv('content', 'text', 
-            'Please select a value to browse from the list below.'),
-        kv('listing', '', os.path.join('htdocs', list_data))
-    ])
-    # Render view/year/ sub listings
-    objs = load_object('view/year/year_list.json')
-    tot = len(objs)
-    bar = progressbar.ProgressBar(
-          max_value = tot,
-            widgets = [
-                progressbar.Percentage(), ' ',
-                progressbar.Counter(), f'/{tot} ',
-                progressbar.AdaptiveETA(),
-                f' rendering views/year/*'
-            ], redirect_stdout=False)
-    for i, obj in enumerate(objs):
-        key = obj['key']
-        count = obj['count']
-        object_list = os.path.join('htdocs', 'view', 'year', f'{key}.json')
-        html_filename = f'view/year/{key}.html'
-        template_name = 'object-list-html.tmpl'
-        assemble(html_filename, template_name, [
-            kv('page_title', 'text', page_title),
-            kv('title', 'text', title),
-            kv('count', 'text', count),
-            kv('object_list', '', object_list)
-        ])
-        bar.update(i)
-    bar.finish()
-        
-
-    # Render view/subjects/
-    page_title = f'{site_title}: Browse by Subject'
-    title = 'Browse by Subject'
-    list_data = 'view/subjects/subject_list.json'
-    html_filename = 'view/subjects/index.html'
-    template_name = 'listing-html.tmpl'
-    assemble(html_filename, template_name, [
-        kv('page_title', 'text', page_title),
-        kv('title', 'text', title),
-        kv('content', 'text', 
-            'Please select a value to browse from the list below.'),
-        kv('listing', '', os.path.join('htdocs', list_data))
-    ])
-    # Render view/subjects/* sub lists
-    objs = load_object('view/subjects/subject_list.json')
-    tot = len(objs)
-    bar = progressbar.ProgressBar(
-          max_value = tot,
-            widgets = [
-                progressbar.Percentage(), ' ',
-                progressbar.Counter(), f'/{tot} ',
-                progressbar.AdaptiveETA(),
-                f' rendering views/subjects/*'
-            ], redirect_stdout=False)
-    for i, obj in enumerate(objs):
-        key = obj['key']
-        count = obj['count']
-        object_list = os.path.join('htdocs', 'view', 'subjects', f'{key}.json')
-        html_filename = f'view/subjects/{key}.html'
-        template_name = 'object-list-html.tmpl'
-        assemble(html_filename, template_name, [
-            kv('page_title', 'text', page_title),
-            kv('title', 'text', title),
-            kv('count', 'text', count),
-            kv('object_list', '', object_list)
-        ])
-        bar.update(i)
-    bar.finish()
-
-    # Render view/types/
-    page_title = f'{site_title}: Browse by Type'
-    title = 'Browse by Type'
-    list_data = 'view/types/type_list.json'
-    html_filename = 'view/types/index.html'
-    template_name = 'listing-html.tmpl'
-    assemble(html_filename, template_name, [
-        kv('page_title', 'text', page_title),
-        kv('title', 'text', title),
-        kv('content', 'text', 
-            'Please select a value to browse from the list below.'),
-        kv('listing', '', os.path.join('htdocs', list_data))
-    ])
-    # Render view/types/* sub lists
-    objs = load_object('view/types/type_list.json')
-    tot = len(objs)
-    bar = progressbar.ProgressBar(
-          max_value = tot,
-            widgets = [
-                progressbar.Percentage(), ' ',
-                progressbar.Counter(), f'/{tot} ',
-                progressbar.AdaptiveETA(),
-                f' rendering views/types/*'
-            ], redirect_stdout=False)
-    for i, obj in enumerate(objs):
-        key = obj['key']
-        count = obj['count']
-        object_list = os.path.join('htdocs', 'view', 'types', f'{key}.json')
-        html_filename = f'view/types/{key}.html'
-        template_name = 'object-list-html.tmpl'
-        assemble(html_filename, template_name, [
-            kv('page_title', 'text', page_title),
-            kv('title', 'text', title),
-            kv('count', 'text', count),
-            kv('object_list', '', object_list)
-        ])
-        bar.update(i)
-    bar.finish()
-
-    # Render view/person-az/
-    page_title = f'{site_title}: Browse by Person'
-    title = 'Browse by Person'
-    list_data = 'view/person-az/people_list.json'
-    html_filename = 'view/person-az/index.html'
-    template_name = 'listing-html.tmpl'
-    assemble(html_filename, template_name, [
-        kv('page_title', 'text', page_title),
-        kv('title', 'text', title),
-        kv('content', 'text', 
-            'Please select a value to browse from the list below.'),
-        kv('listing', '', os.path.join('htdocs', list_data))
-    ])
-    # Render view/person-az/* sub lists
-    objs = load_object('view/person-az/people_list.json')
-    tot = len(objs)
-    bar = progressbar.ProgressBar(
-          max_value = tot,
-            widgets = [
-                progressbar.Percentage(), ' ',
-                progressbar.Counter(), f'/{tot} ',
-                progressbar.AdaptiveETA(),
-                f' rendering views/person-az/*'
-            ], redirect_stdout=False)
-    for i, obj in enumerate(objs):
-        key = obj['key']
-        count = obj['count']
-        object_list = os.path.join('htdocs', 'view', 'person-az', f'{key}.json')
-        html_filename = f'view/person-az/{key}.html'
-        template_name = 'object-list-html.tmpl'
-        assemble(html_filename, template_name, [
-            kv('page_title', 'text', page_title),
-            kv('title', 'text', title),
-            kv('count', 'text', count),
-            kv('object_list', '', object_list)
-        ])
-        bar.update(i)
-    bar.finish()
+    keys = views.get_keys()
+    for key in keys:
+        label = views.get_view(key)
+        make_view(key, label, site_title)
     print(f'build view pages completed')
 
 
 def build_landing_pages(htdocs, site_title):
     print(f'build landing pages')
-    objs = load_object('view/ids/ids_list.json')
-    tot = len(objs)
+    objs = load_objects('view/ids/ids_list.json')
+    keys = load_keys('index.keys')
+
+    tot = len(keys)
     bar = progressbar.ProgressBar(
           max_value = tot,
             widgets = [
@@ -356,14 +250,15 @@ def build_landing_pages(htdocs, site_title):
                 progressbar.AdaptiveETA(),
                 f' rendering landing pages'
             ], redirect_stdout=False)
-    for i, obj in enumerate(objs):
-        key = obj['key']
-        title =  obj['label']
+    for i, key in enumerate(keys):
+        obj = load_objects(f'{key}/index.json')
+        title =  obj['title']
         page_title = f'{title} - {site_title}'
         object_path = os.path.join('htdocs', f'{key}', f'index.json')
         html_filename = f'{key}/index.html'
         template_name = 'landing-page-html.tmpl'
         assemble(html_filename, template_name, [
+            kv('site_title', 'text', site_title),
             kv('page_title', 'text', page_title),
             kv('title', 'text', title),
             kv('object', '', object_path)
@@ -394,22 +289,25 @@ def build_search_page(htdocs, site_title):
     mkpage(os.path.join('htdocs', 'search.html'), os.path.join('templates', 'index-html.tmpl'), data)
 
 
-def build_website(htdocs, site_title, site_welcome):
+def build_website(f_views, htdocs, site_title, site_welcome):
+    views = Views()
+    views.load_views(f_views)
     build_top_level_pages(htdocs, site_title, site_welcome)
-    build_view_pages(htdocs, site_title)
+    build_view_pages(views, htdocs, site_title)
     build_landing_pages(htdocs, site_title)
     build_search_page(htdocs, site_title)
     
 
 if __name__ == "__main__":
     f_name = ''
+    f_views = ''
     htdocs = 'htdocs'
     site_title = 'EPrints Repository'
     site_welcome = 'EPrints Repository public website'
     if len(sys.argv) > 1:
         f_name = sys.argv[1]
     if f_name == '':
-        print(f'Missing configuration filename.')
+        print(f'Missing configuraiton filename.')
         sys.exit(1)
     if not os.path.exists(f_name):
         print(f'Missing {f_name} configuration file.')
@@ -422,9 +320,16 @@ if __name__ == "__main__":
             site_welcome = cfg['site_welcome']
         if 'site_title' in cfg:
             site_title = cfg['site_title']
-                
+        if 'views' in cfg:
+            f_views = cfg['views']
 
     if not os.path.exists(htdocs):
         print(f'''Cannot find the htdocs directory''')
         sys.exit(1)
-    build_website(htdocs, site_title, site_welcome)
+    if f_views == '':
+        print(f'Missing views in {f_name} file.')
+        sys.exixt(1)
+    if not os.path.exists(f_views):
+        print(f'Missing views configuration file.')
+        sys.exit(1)
+    build_website(f_views, htdocs, site_title, site_welcome)
