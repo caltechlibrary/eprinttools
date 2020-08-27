@@ -95,7 +95,7 @@ def load_keys(key_name):
         return src.strip().split('\n')
     return None
 
-def build_top_level_pages(htdocs, site_title, site_welcome):
+def build_top_level_pages(htdocs, site_title, organization, site_welcome):
     print(f'build top level pages')
     css_folder = os.path.join('static', 'css')
     assets_folder = os.path.join('static', 'assets')
@@ -113,6 +113,8 @@ def build_top_level_pages(htdocs, site_title, site_welcome):
     html_filename = 'index.html'
     template_name = 'index-html.tmpl'
     assemble(html_filename, template_name, [
+        kv('organization', 'text', organization),
+        kv('site_title', 'text', organization),
         kv('page_title', 'text', page_title),
         kv('title', 'text', title),
         kv('content', '', md_filename)
@@ -120,11 +122,13 @@ def build_top_level_pages(htdocs, site_title, site_welcome):
 
     # Render about page (information.html)
     page_title = f'{site_title}: About'
-    title = 'About the Repository'
+    title = 'About this Repository'
     md_filename = os.path.join('static', 'information.md')
     html_filename = 'information.html'
     template_name = 'index-html.tmpl'
     assemble(html_filename, template_name, [
+        kv('organization', 'text', organization),
+        kv('site_title', 'text', organization),
         kv('page_title', 'text', page_title),
         kv('title', 'text', title),
         kv('content', '', md_filename)
@@ -132,11 +136,13 @@ def build_top_level_pages(htdocs, site_title, site_welcome):
 
     # Render browseviews page
     page_title = f'{site_title}: Browse'
-    title = 'Browse the Repository'
+    title = 'Browse this Repository'
     md_filename = os.path.join('static', 'browseviews.md')
     html_filename = 'browseviews.html'
     template_name = 'index-html.tmpl'
     assemble(html_filename, template_name, [
+        kv('organization', 'text', organization),
+        kv('site_title', 'text', organization),
         kv('page_title', 'text', page_title),
         kv('title', 'text', title),
         kv('content', '', md_filename)
@@ -150,6 +156,8 @@ def build_top_level_pages(htdocs, site_title, site_welcome):
         html_filename = 'policies.html'
         template_name = 'index-html.tmpl'
         assemble(html_filename, template_name, [
+            kv('organization', 'text', organization),
+            kv('site_title', 'text', organization),
             kv('page_title', 'text', page_title),
             kv('title', 'text', title),
             kv('content', '', md_filename)
@@ -163,13 +171,15 @@ def build_top_level_pages(htdocs, site_title, site_welcome):
         html_filename = 'contact.html'
         template_name = 'index-html.tmpl'
         assemble(html_filename, template_name, [
+            kv('organization', 'text', organization),
+            kv('site_title', 'text', organization),
             kv('page_title', 'text', page_title),
             kv('title', 'text', title),
             kv('content', '', md_filename)
         ])
 
 
-def make_view(view, label, site_title):
+def make_view(view, label, site_title, organization):
     # Render view, e.g. /view/ids/
     page_title = f'{site_title}: Browse by {label}'
     title = f'Browse by {label}'
@@ -182,6 +192,7 @@ def make_view(view, label, site_title):
     if tot == 0:
         content = 'Nothing available.'
     assemble(html_filename, template_name, [
+        kv('organization', 'text', organization),
         kv('site_title', 'text', site_title),
         kv('page_title', 'text', page_title),
         kv('title', 'text', title),
@@ -203,6 +214,7 @@ def make_view(view, label, site_title):
         html_filename = f'view/{view}/{key}.html'
         template_name = 'object-list-html.tmpl'
         assemble(html_filename, template_name, [
+            kv('organization', 'text', organization),
             kv('site_title', 'text', site_title),
             kv('key', 'text', key),
             kv('page_title', 'text', page_title),
@@ -214,7 +226,7 @@ def make_view(view, label, site_title):
     bar.finish()
 
 
-def build_view_pages(views, htdocs, site_title):
+def build_view_pages(views, htdocs, site_title, organization):
     print(f'building view pages')
     # Render view/
     page_title = f'{site_title}: Browse'
@@ -223,6 +235,7 @@ def build_view_pages(views, htdocs, site_title):
     html_filename = 'view/index.html'
     template_name = 'index-html.tmpl'
     assemble(html_filename, template_name, [
+        kv('organization', 'text', organization),
         kv('site_title', 'text', site_title),
         kv('page_title', 'text', page_title),
         kv('title', 'text', title),
@@ -232,11 +245,11 @@ def build_view_pages(views, htdocs, site_title):
     keys = views.get_keys()
     for key in keys:
         label = views.get_view(key)
-        make_view(key, label, site_title)
+        make_view(key, label, site_title, organization)
     print(f'build view pages completed')
 
 
-def build_landing_pages(htdocs, site_title):
+def build_landing_pages(htdocs, site_title, organization):
     print(f'build landing pages')
     objs = load_objects('view/ids/ids_list.json')
     keys = load_keys('index.keys')
@@ -258,6 +271,7 @@ def build_landing_pages(htdocs, site_title):
         html_filename = f'{key}/index.html'
         template_name = 'landing-page-html.tmpl'
         assemble(html_filename, template_name, [
+            kv('organization', 'text', organization),
             kv('site_title', 'text', site_title),
             kv('page_title', 'text', page_title),
             kv('title', 'text', title),
@@ -268,7 +282,7 @@ def build_landing_pages(htdocs, site_title):
     print(f'build landing pages completed')
 
 
-def build_search_page(htdocs, site_title):
+def build_search_page(htdocs, site_title, organization):
     print(f'build search page')
     data = []
     page_title = f'{site_title}: Search'
@@ -277,6 +291,8 @@ def build_search_page(htdocs, site_title):
     content = os.path.join('static', 'search_form.md')
     if page_title != '':
         data.append(kv('page_title', 'text', page_title))
+    if organization != '':
+        data.append(kv('organization', 'text', organization))
     if title != '':
         data.append(kv('title', 'text', title))
     if os.path.exists(nav):
@@ -286,26 +302,30 @@ def build_search_page(htdocs, site_title):
     else:
         print(f'''Can't find {content}''')
         sys.exit(1)
-    mkpage(os.path.join('htdocs', 'search.html'), os.path.join('templates', 'index-html.tmpl'), data)
+    mkpage(os.path.join('htdocs', 'search.html'), os.path.join('templates', 'search-html.tmpl'), data)
 
 
-def build_website(f_views, htdocs, site_title, site_welcome):
+def build_website(f_views, htdocs, site_title, site_welcome, organization):
     views = Views()
     views.load_views(f_views)
-    build_top_level_pages(htdocs, site_title, site_welcome)
-    build_view_pages(views, htdocs, site_title)
-    build_landing_pages(htdocs, site_title)
-    build_search_page(htdocs, site_title)
+    build_top_level_pages(htdocs, site_title, organization, site_welcome)
+    build_view_pages(views, htdocs, site_title, organization)
+    build_landing_pages(htdocs, site_title, organization)
+    build_search_page(htdocs, site_title, organization)
     
 
 if __name__ == "__main__":
     f_name = ''
     f_views = ''
     htdocs = 'htdocs'
+    organization = 'Example Library EDU'
     site_title = 'EPrints Repository'
     site_welcome = 'EPrints Repository public website'
+    args = [] 
     if len(sys.argv) > 1:
         f_name = sys.argv[1]
+    if len(sys.argv) > 2:
+        args = sys.argv[2:]
     if f_name == '':
         print(f'Missing configuraiton filename.')
         sys.exit(1)
@@ -316,6 +336,8 @@ if __name__ == "__main__":
     with open(f_name) as f:
         src = f.read()
         cfg = json.loads(src)
+        if 'organization' in cfg:
+            organization = cfg['organization']
         if 'site_welcome' in cfg:
             site_welcome = cfg['site_welcome']
         if 'site_title' in cfg:
@@ -332,4 +354,16 @@ if __name__ == "__main__":
     if not os.path.exists(f_views):
         print(f'Missing views configuration file.')
         sys.exit(1)
-    build_website(f_views, htdocs, site_title, site_welcome)
+    if len(args) > 0:
+        views = Views()
+        views.load_views(f_views)
+        for arg in args:
+            if arg == 'top':
+                build_top_level_pages(htdocs, site_title, organization, site_welcome)
+                build_search_page(htdocs, site_title, organization)
+            if arg == 'view':
+                build_view_pages(views, htdocs, site_title, organization)
+            if arg == 'landing':
+                build_landing_pages(htdocs, site_title, organization)
+    else:
+        build_website(f_views, htdocs, site_title, organization, site_welcome)
