@@ -77,7 +77,7 @@ if __name__ == "__main__":
             print("No keys found")
             sys.exit(1)
     repo_name, _ = os.path.splitext(c_name)
-    err = harvest(keys, include_documents = True, number_of_days = number_of_days) # , save_exported_keys = f'exported-recent-{repo_name}.keys')
+    err = harvest(keys, include_documents = False, number_of_days = number_of_days) # , save_exported_keys = f'exported-recent-{repo_name}.keys')
     if err != '':
         print(err)
         sys.exit(1)

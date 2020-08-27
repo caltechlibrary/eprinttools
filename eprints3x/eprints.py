@@ -293,12 +293,14 @@ WARNING: harvest record {key}, {err}''', file = sys.stderr)
         # pruned. This is not an error but reflects EPrints behavior.
         if obj == None:
             pruned += 1
+            bar.update(i)
             continue
         err = harvest_eprintxml(key)
         if err != '':
             print(f'''
 WARNING harvest eprint xml {key}, {err}''', file = sys.stderr)
             e_cnt += 1
+            bar.update(i)
             continue
         if include_documents:
              err = harvest_documents(key, obj)
@@ -306,8 +308,10 @@ WARNING harvest eprint xml {key}, {err}''', file = sys.stderr)
                  print(f'''
 WARNING harvest documents {key}, {err}''', file = sys.stderr)
                  e_cnt += 1
+                 bar.update(i)
                  continue
-        exported_keys.append(str(key))
+        if save_exported_keys:
+            exported_keys.append(str(key))
         n += 1
         bar.update(i)
     bar.finish()
