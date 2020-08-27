@@ -27,9 +27,16 @@
 + [ ] Add support for OAI-PMH
 + [ ] Come up with appropriate set of public URLs, where necessary rename EPrints repositories or redirect from homepages and header redirects to public view.
 + [ ] Build out on demand refresh process for updating static sites
++ [ ] Identifiy, implement and integrate a stats page via the analytics avaialble for S3 based projects (needs to provide at least the numbers that IRStats does)
++ [ ] Rather than harvest digital object files into dataset collection, put them directly in S3 in their appropriate path
 
 ## Someday, Maybe
 
++ [ ] Add support for a repository of repositories service as a dark view on datawork behind single signon for library staff (we probably can authenticate against Google Apps via OAuth2 since that is limited to library staff)
++ [ ] Prototype a search page that does the "Advanced" search by assembling the query terms into the Elasticsearch query language
++ [ ] Build out cross repository searching in the search page(s)
++ [ ] Build out a mechanism to integrate Tom's reporting 
++ [ ] Build out additional aggregation and views that will assist Librarians in assembling materials for Faculty/Researchers like what have they edited, reviewed, etc.
 + [ ] Issues #13, #14 at GitHub are bugs and enhancements.
 
 ## Completed
