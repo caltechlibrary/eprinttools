@@ -20,7 +20,7 @@ from eprintviews import Views
 # pandoc setup.
 #
 def mkpage(o_file, template = '', data = []):
-    cmd = ['mkpage', '-t', 'markdown_strict', '-o', o_file]
+    cmd = ['mkpage', '-f', 'markdown_strict', '-t', 'html', '-o', o_file]
     for item in data:
         cmd.append(item)
     if template != '':
