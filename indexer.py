@@ -50,10 +50,12 @@ def apply_scheme(obj, subjects, htdocs):
     if ('keywords' in obj) and (len(obj['keywords']) > 0):
         terms = []
         if isinstance(obj['keywords'], str):
-            if term in subject_keys:
-                terms.append(subjects.get_subject(term))
-            else:
-                terms.append(term)
+            terms = []
+            for term in obj['keywords']:
+                if term in subject_keys:
+                    terms.append(subjects.get_subject(term))
+                else:
+                    terms.append(term)
         o['keywords'] = ' '.join(terms)                
     else:
         o['keywords'] = ''
@@ -122,7 +124,7 @@ def build_index(c_name, htdocs, f_subjects):
 
 if __name__ == "__main__":
     f_name = ''
-    htdocs = ''
+    htdocs = 'htdocs'
     c_name = ''
     f_subjects = ''
     if len(sys.argv) > 1:
@@ -146,7 +148,10 @@ if __name__ == "__main__":
             f_subjects = cfg['subjects']
 
     
-    for key in [ 'dataset', 'htdocs', 'subjects']:
+    if htdocs == '':
+        print(f'''Missing value for htdocs in {f_name}''')
+        sys.exit(1)
+    for key in [ 'dataset', 'subjects']:
         if not key in cfg:
             print(f'''Missing {key} in {f_name}''')
             sys.exit(1)

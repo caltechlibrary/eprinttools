@@ -1,39 +1,7 @@
 import json
 
-#
-# Utility methods
-#
-def normalize_user(obj):
-    user = {}
-    if 'name' in obj:
-        name = obj['name']
-        sort_name = []
-        display_name = []
-        if ('honourific' in name) and name['honourific']:
-            display_name.append(f'{name["honourific"]}')
-        if ('given' in name) and name['given']:
-            display_name.append(name["given"])
-        if ('family' in name) and name['family']:
-            display_name.append(name["family"])
-        if ('lineage' in name) and name['lineage']:
-            display_name.append(f'{name["lineage"]}')
-        user['display_name'] = ' '.join(display_name).strip()
-        if ('family' in name) and name['family']:
-            sort_name.append(name["family"])
-        if ('given' in name) and name['given']:
-            sort_name.append(name["given"])
-        if ('lineage' in name) and name['lineage']:
-            sort_name.append(f'{name["lineage"]}')
-        if ('honourific' in name) and name['honourific']:
-            sort_name.append(f'{name["honourific"]}')
-        user['sort_name'] = ', '.join(sort_name).strip()
-    # filter the remaining object fields for 
-    # we want to expose in the templates.
-    for field in [ 'dept', 'usertype', 'org', 'name', 'joined' ]:
-        if field in obj:
-            user[field] = obj[field]
-    return user
-    
+from .normalize import normalize_user
+
 class Users:
     """Model the Eprint user classes so we can resolve the user id mapping to a human readable name"""
     def __init__(self):

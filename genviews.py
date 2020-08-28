@@ -18,7 +18,7 @@ import progressbar
 
 from py_dataset import dataset
 
-from eprintviews import Aggregator, Views, Subjects, Users
+from eprintviews import Aggregator, Views, Subjects, Users, normalize_object, get_date_year, get_eprint_id, get_title
 
 #
 # CaltechES EPrint Site Layouts look like:
@@ -43,64 +43,7 @@ from eprintviews import Aggregator, Views, Subjects, Users
 # Simple Search and Advanced Search -> Elasticsearch services
 # Deposit an Item -> http://calteches.library.caltech.edu/cgi/users/home
 # Contact Us (broken in produciton) -> should redirect to https://www.library.caltech.edu/contact
-def get_title(obj):
-    if 'title' in obj:
-        return obj['title']
-    return ''
 
-def get_date_year(obj):
-    if 'date' in obj:
-        return obj['date'][0:4].strip()
-    return ''
-
-def get_eprint_id(obj):
-    if 'eprint_id' in obj:
-        return f"{obj['eprint_id']}"
-    return ''
-
-def get_object_type(obj):
-    if 'type' in obj:
-        return f'{obj["type"]}'
-    return ''
-
-def has_groups(obj):
-    if ('local_group' in obj) and (len(obj['local_group']) > 0):
-        return True
-    return False
-
-def get_creator_id(creator):
-    if 'id' in creator:
-        return creator['id']
-    return ''
-
-def get_creator_name(creator):
-    family, given = '', ''
-    if 'name' in creator:
-        if 'family' in creator['name']:
-            family = creator['name']['family'].strip()
-        if 'given' in creator['name']:
-            given = creator['name']['given'].strip()
-    if len(family) > 0:
-        if len(given) > 0:
-            return f'{family}, {given}'
-        return family
-    return ''
-
-def make_creator_list(creators):
-    l = []
-    for creator in creators:
-        display_name = get_creator_name(creator)
-        creator_id = get_creator_id(creator)
-        creator['display_name'] = display_name
-        creator['creator_id'] = creator_id
-        l.append(creator)
-    return l
-
-def make_label(s, sep = '_'):
-    l = s.split(sep)
-    for i, val in enumerate(l):
-        l[i] = val.capitalize()
-    return ' '.join(l)
 
 def make_frame_date_title(c_name):
     frame_name = 'date-title-unsorted'
@@ -148,31 +91,6 @@ def make_frame_date_title(c_name):
         err = dataset.error_message()
         return f'{frame_name} in {c_name}, not created, {err}'
     return ''
-
-def normalize_object(obj, users):
-    title = obj['title'].strip()
-    year = get_date_year(obj)
-    eprint_id = get_eprint_id(obj)
-    creator_list = make_creator_list(obj['creators']['items'])
-    if ('event_title' in obj):
-        event_id = sluggify(obj['event_title'])
-        obj['event_id'] = event_id
-    if 'userid' in obj:
-        key = f'{obj["userid"]}'
-        if users.has_user(key):
-            user = users.get_user(key)
-            if 'display_name' in user:
-                display_name = user['display_name']
-                obj['depositor'] = display_name
-    if 'date' in obj:
-        obj['year'] = year
-    if 'type' in obj:
-        obj['type_label'] = make_label(obj['type'])
-    obj['title'] = title
-    obj['creators'] = creator_list
-    obj['eprint_id'] = eprint_id
-    obj['year'] = year
-    return obj
 
 def normalize_objects(objs, users):
     for obj in objs:
