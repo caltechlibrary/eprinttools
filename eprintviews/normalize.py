@@ -172,7 +172,9 @@ def normalize_object(obj, users):
     title = obj['title'].strip()
     year = get_date_year(obj)
     eprint_id = get_eprint_id(obj)
-    creator_list = make_creator_list(obj['creators']['items'])
+    creator_list = []
+    if ('creators' in obj) and ('items' in obj['creators']):
+        creator_list = make_creator_list(obj['creators']['items'])
     if ('abstract' in obj):
         abstract = obj['abstract'].strip()
         obj['abstract'] = abstract

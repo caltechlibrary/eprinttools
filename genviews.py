@@ -140,7 +140,7 @@ def landing_filter(obj, users):
 # generate_landings creates index.json to render index.md,
 # also deposits attachments in their relative paths.
 #
-def generate_landings(c_name, views, users, subjects):
+def generate_landings(c_name, views, users, subjects, include_documents = False):
     repo_name, _ = os.path.splitext(c_name)
     keys = dataset.keys(c_name)
     keys.sort(key=int)
@@ -172,29 +172,33 @@ WARNING: can't read {key} from {c_name}, {err}''')
         f_name = os.path.join(p_name, 'index.json')
         with open(f_name, 'w') as f:
             f.write(src)
-        # NOTE: we need to copy the attachments into the correct place
-        # in our htdocs tree.
-        if 'primary_object' in obj:
-            b_name = obj['primary_object']['basename']
-            semver = obj['primary_object']['version']
-            url = obj['primary_object']['url']
-            o = urlparse(url)
-            p_name = os.path.join('htdocs', 
-                     os.path.dirname(o.path).lstrip('/'))
-            if not os.path.exists(p_name):
-                os.makedirs(p_name, mode = 0o777, exist_ok = True)
-            f_name = os.path.join(p_name, b_name)
-            ok = dataset.detach(c_name, key, [ b_name ], semver)
-            if not ok:
-                err = dataset.error_message()
-                print(f'''
-WARNING could not detach {b_name} in {key} from {c_name}, {err}')''')
-            else:
-                # Do final sanity check before copy.
-                if os.path.exists(b_name):
-                    shutil.move(b_name, f_name, copy_function = shutil.copy2)
-                else:
+        #FIXME: We want to have the option of including attachments
+        # for the digital files in our collection OR copying from
+        # source location to S3 bucket!
+        if include_documents:
+            # NOTE: we need to copy the attachments into the correct place
+            # in our htdocs tree.
+            if 'primary_object' in obj:
+                b_name = obj['primary_object']['basename']
+                semver = obj['primary_object']['version']
+                url = obj['primary_object']['url']
+                o = urlparse(url)
+                p_name = os.path.join('htdocs', 
+                         os.path.dirname(o.path).lstrip('/'))
+                if not os.path.exists(p_name):
+                    os.makedirs(p_name, mode = 0o777, exist_ok = True)
+                f_name = os.path.join(p_name, b_name)
+                ok = dataset.detach(c_name, key, [ b_name ], semver)
+                if not ok:
+                    err = dataset.error_message()
                     print(f'''
+WARNING could not detach {b_name} in {key} from {c_name}, {err}')''')
+                else:
+                    # Do final sanity check before copy.
+                    if os.path.exists(b_name):
+                        shutil.move(b_name, f_name, copy_function = shutil.copy2)
+                    else:
+                        print(f'''
 WARNING detached file missing {b_name} in {key} from {c_name}
 cannot move to {f_name}, skipping''')
         bar.update(i)
@@ -239,7 +243,7 @@ def generate_views(views, aggregations):
         generate_view(key, aggregations)
 
 
-def generate_metadata_structure(c_name, f_views, f_users, f_subjects):
+def generate_metadata_structure(c_name, f_views, f_users, f_subjects, include_documents = False):
     views = Views()
     views.load_views(f_views)
     users = Users()
@@ -258,7 +262,7 @@ def generate_metadata_structure(c_name, f_views, f_users, f_subjects):
             print(f'Nothing to aggregate for {key}')
     print('')
     generate_views(views, aggregations)
-    generate_landings(c_name, views, users, subjects)
+    generate_landings(c_name, views, users, subjects, include_documents)
 
 
 if __name__ == "__main__":
@@ -280,5 +284,5 @@ if __name__ == "__main__":
             f_views = cfg['views']
         if 'subjects' in cfg:
             f_subjects = cfg['subjects']
-    generate_metadata_structure(c_name, f_views, f_users, f_subjects) 
+    generate_metadata_structure(c_name, f_views, f_users, f_subjects, include_documents = False) 
     print('OK')

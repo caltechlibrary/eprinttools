@@ -20,19 +20,22 @@ class Aggregator:
             if has_creator_ids(obj):
                 # For each author add a reference to object
                 for creator in obj['creators']:
-                    creator_id = creator['id']
+                    creator_id = ''
+                    if 'id' in creator:
+                        creator_id = creator['id']
                     creator_name = creator['display_name']
-                    if not creator_id in people:
-                        people[creator_id] = { 
-                            'key': creator_id,
-                            'label': creator_name,
-                            'count' : 0,
-                            'people_id': creator_id,
-                            'sort_name': creator_name,
-                            'objects' : []
-                        }
-                    people[creator_id]['count'] += 1
-                    people[creator_id]['objects'].append(obj)
+                    if creator_id != '':
+                        if not creator_id in people:
+                            people[creator_id] = { 
+                                'key': creator_id,
+                                'label': creator_name,
+                                'count' : 0,
+                                'people_id': creator_id,
+                                'sort_name': creator_name,
+                                'objects' : []
+                            }
+                        people[creator_id]['count'] += 1
+                        people[creator_id]['objects'].append(obj)
         # Now that we have a people list we need to sort it by name
         people_list = []
         for key in people:

@@ -1,4 +1,5 @@
 import json
+import sys
 
 from .normalize import normalize_user
 
@@ -14,7 +15,11 @@ class Users:
         objects = []
         with open(f_name) as f:
             src = f.read()
-            objects = json.loads(src)
+            try:
+                objects = json.loads(src)
+            except Exception as err:
+                print(f'''Failed to parse JSON file {f_name}, {err}''')
+                sys.exit(1)
         for i, obj in enumerate(objects):
             user = {}
             # only include the user if we can derive a name from user id
