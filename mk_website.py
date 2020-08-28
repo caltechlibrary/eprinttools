@@ -19,8 +19,16 @@ from eprintviews import Views
 # mkpage wraps the mkpage command from mkpage using the
 # pandoc setup.
 #
-def mkpage(o_file, template = '', data = []):
-    cmd = ['mkpage', '-f', 'markdown_strict', '-t', 'html', '-o', o_file]
+def mkpage(o_file, template = '', data = [], From = '', To = ''):
+    cmd = ['mkpage']
+    if From != '':
+        cmd.append('-f')
+        cmd.append(From)
+    if To != '':
+        cmd.append('-t')
+        cmd.append('html')
+    cmd.append('-o')
+    cmd.append(o_file)
     for item in data:
         cmd.append(item)
     if template != '':
