@@ -344,12 +344,12 @@ def generate_metadata_structure(c_name, f_views, f_users, f_subjects):
 
 
 if __name__ == "__main__":
-    f_name = 'config.json'
+    f_name = ''
     c_name = ''
     if len(sys.argv) > 1:
         f_name = sys.argv[1]
     if not os.path.exists(f_name):
-        print(f'Missing {f_name} configuration file')
+        print(f'Missing JSON configuration file')
         sys.exit(1)
     with open(f_name) as f:
         src = f.read()

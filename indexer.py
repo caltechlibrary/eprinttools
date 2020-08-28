@@ -122,18 +122,19 @@ def build_index(c_name, htdocs, f_subjects):
 
 if __name__ == "__main__":
     f_name = ''
-    htdocs = 'htdocs'
+    htdocs = ''
     c_name = ''
     f_subjects = ''
     if len(sys.argv) > 1:
         f_name = sys.argv[1]
     if f_name == '':
-        print(f'Missing configuration filename.')
+        print(f'Missing JSON configuration filename.')
         sys.exit(1)
     if not os.path.exists(f_name):
         print(f'Missing {f_name} configuration file.')
         sys.exit(1)
 
+    cfg = {}
     with open(f_name) as f:
         src = f.read()
         cfg = json.loads(src)
@@ -143,6 +144,15 @@ if __name__ == "__main__":
             c_name = cfg['dataset']
         if 'subjects' in cfg:
             f_subjects = cfg['subjects']
+
+    
+    for key in [ 'dataset', 'htdocs', 'subjects']:
+        if not key in cfg:
+            print(f'''Missing {key} in {f_name}''')
+            sys.exit(1)
+        if cfg[key] == '':
+            print(f'''Missing {key} value in {f_name}''')
+            sys.exit(1)
 
     if c_name == '':
         print(f'''Missing collection name in {f_name}.''')
