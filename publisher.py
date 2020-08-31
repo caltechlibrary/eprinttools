@@ -4,6 +4,7 @@ import sys
 import os
 
 from eprints3x import s3_publish, Logger
+from eprintviews import Configuration
 
 log = Logger(os.getpid())
 
@@ -24,5 +25,9 @@ if __name__ == '__main__':
     if not os.path.exists(f_name):
         print(f'Missing {f_name} file.')
         sys.exit(1)
-    s3_publish(f_name, args)
-
+    cfg = Configuration()
+    if cfg.load_config(f_name) and cfg.required(['htdocs', 'bucket']):
+        htdocs, bucket = cfg.htdocs, cfg.bucket
+        s3_publish(htdocs, bucket, args)
+    else:
+        sys.exit(1)

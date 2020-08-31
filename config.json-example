@@ -8,5 +8,8 @@
     "views": "eprint_views.json",
     "site_title": "Demo EPrints static website",
     "organization": "Example Library Organization",
-    "site_welcome": "Welcome to a demo of using EPrints to generate a static website"
+    "site_welcome": "Welcome to a demo of using EPrints to generate a static website",
+    "htdocs": "htdocs",
+    "templates": "templates",
+    "static": "static"
 }

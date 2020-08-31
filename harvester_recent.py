@@ -10,6 +10,7 @@ import sys
 import json
 
 from eprints3x import harvest_init, harvest, harvest_keys
+from eprintviews import Configuration
 
 def usage():
     app = os.path.basename(sys.argv[0])
@@ -50,35 +51,24 @@ if __name__ == "__main__":
     if not os.path.exists(f_name):
         print(f'ERROR: Missing {f_name} file.')
         sys.exit(1)
-    with open(f_name) as f:
-        src = f.read()
-        cfg = json.loads(src)
-        if 'dataset' in cfg:
-            c_name = cfg['dataset']
-        if 'eprint_url' in cfg:
-            url = cfg['eprint_url']
-        if (number_of_days == 0) and ('number_of_days' in cfg):
-            number_of_days = int(cfg['number_of_days'])
-    if url == '':
-        print(f'ERROR: missing eprint_url in {f_name}')
-        sys.exit(1)
-    if c_name == '':
-        print(f'ERROR: missing collection name in {f_name}')
-        sys.exit(1)
-
-    # Initialize the connection information (e.g. authentication)
-    err = harvest_init(c_name, url)
-    if err != '':
-        print(err)
-        sys.exit(1)
-    if len(keys) == 0:
-        keys = harvest_keys()
-        if len(keys) == 0:
-            print("No keys found")
+    cfg = Configuration()
+    if cfg.load_config(f_name) and cfg.required(['dataset', 'eprint_url', 'number_of_days']):
+        # Initialize the connection information (e.g. authentication)
+        c_name, url, number_of_days = cfg.dataset, cfg.eprint_url, cfg.number_of_days
+        err = harvest_init(c_name, url)
+        if err != '':
+            print(err)
             sys.exit(1)
-    repo_name, _ = os.path.splitext(c_name)
-    err = harvest(keys, include_documents = False, number_of_days = number_of_days) # , save_exported_keys = f'exported-recent-{repo_name}.keys')
-    if err != '':
-        print(err)
+        if len(keys) == 0:
+            keys = harvest_keys()
+            if len(keys) == 0:
+                print("No keys found")
+                sys.exit(1)
+        repo_name, _ = os.path.splitext(c_name)
+        err = harvest(keys, include_documents = False, number_of_days = number_of_days) # , save_exported_keys = f'exported-recent-{repo_name}.keys')
+        if err != '':
+            print(err)
+            sys.exit(1)
+        print('OK')
+    else:
         sys.exit(1)
-    print('OK')

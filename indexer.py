@@ -10,7 +10,7 @@ from lunr import lunr
 
 from py_dataset import dataset
 
-from eprintviews import Subjects
+from eprintviews import Configuration, Subjects
 
 #
 # Apply scheme setups the data for search results and indexing.
@@ -124,9 +124,6 @@ def build_index(c_name, htdocs, f_subjects):
 
 if __name__ == "__main__":
     f_name = ''
-    htdocs = 'htdocs'
-    c_name = ''
-    f_subjects = ''
     if len(sys.argv) > 1:
         f_name = sys.argv[1]
     if f_name == '':
@@ -135,38 +132,10 @@ if __name__ == "__main__":
     if not os.path.exists(f_name):
         print(f'Missing {f_name} configuration file.')
         sys.exit(1)
-
-    cfg = {}
-    with open(f_name) as f:
-        src = f.read()
-        cfg = json.loads(src)
-        if 'htdocs' in cfg:
-            htdocs = cfg['htdocs']
-        if 'dataset' in cfg:
-            c_name = cfg['dataset']
-        if 'subjects' in cfg:
-            f_subjects = cfg['subjects']
-
-    
-    if htdocs == '':
-        print(f'''Missing value for htdocs in {f_name}''')
+    cfg = Configuration()
+    if cfg.load_config(f_name) and cfg.required(['dataset', 'htdocs', 'subjects']):
+        c_name, htdocs, f_subjects = cfg.dataset, cfg.htdocs, cfg.subjects
+        build_index(c_name, htdocs, f_subjects)
+    else:
         sys.exit(1)
-    for key in [ 'dataset', 'subjects']:
-        if not key in cfg:
-            print(f'''Missing {key} in {f_name}''')
-            sys.exit(1)
-        if cfg[key] == '':
-            print(f'''Missing {key} value in {f_name}''')
-            sys.exit(1)
-
-    if c_name == '':
-        print(f'''Missing collection name in {f_name}.''')
-        sys.exit(1)
-    if not os.path.exists(c_name):
-        print(f'''Cannot find "{c_name}" collection from {f_name}.''')
-        sys.exit(1)
-    if not os.path.exists(htdocs):
-        print(f'''Cannot find the htdocs directory''')
-        sys.exit(1)
-    build_index(c_name, htdocs, f_subjects)
 

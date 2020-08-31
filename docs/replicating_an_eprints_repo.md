@@ -54,44 +54,60 @@ which I've named `config.json` in the examples below.
       "organization": "Example Library IR",
       "site_title": "A EPrints Repository",
       "site_welcome": "Welcome to an EPrints Repository",
-      "distribution_id": "XXXXXXXXXXXX"
+      "distribution_id": "",
+      "bucket": "",
+      "htdocs": "htdocs",
+      "templates": "templates",
+      "static": "static"
     }
 ```
 
 Field explanations
 
 eprint_url
-: is a URL with login credentials authorized to access the EPrints REST API
+: (required) is a URL with login credentials authorized to access the EPrints REST API
 
 dataset
-: name of your dataset collection you've initialized with the dataset command
+: (required) name of your dataset collection you've initialized with the dataset command
 
 number_of_days
 : Is an integer used to calculate the "recent" number of days to harvest
 
 control_item
-: This is a link (minus the EPrints ID) to use to access the EPrint page needed to edit/manage the item
+: (used in templates) This is a link (minus the EPrints ID) to use to access the EPrint page needed to edit/manage the item
 
 users
-: Points at the JSON export of the users in the EPrint repository, it is needed to get the names of depositors
+: (required) Points at the JSON export of the users in the EPrint repository, it is needed to get the names of depositors
 
 subjects
-: Points at a copy of a plain text file found in your EPrint under `/archives/REPO_ID/cfg/subject`, it is used to map subject views to paths and names
+: (required) Points at a copy of a plain text file found in your EPrint under `/archives/REPO_ID/cfg/subject`, it is used to map subject views to paths and names
 
 views
-: Points at a JSON file that shows a path part (e.g. ids) and label to use for that view (e.g. "Eprint ID").
+: (required) Points at a JSON file that shows a path part (e.g. ids) and label to use for that view (e.g. "Eprint ID").
 
 organization
-: The name of your organization (used by the Pandoc templates)
+: (used in templates) The name of your organization (used by the Pandoc templates)
 
 site_title
-: The website title (used by the Pandoc templates)
+: (used in templates) The website title (used by the Pandoc templates)
 
 site_welcome
-: The website welcome statement (used by the Pandoc templates)
+: (used in templates) The website welcome statement (used by the Pandoc templates)
+
+htdocs
+: (has default value) This is the directory to host the website (or replicate from), it functions as your document root
+
+templates
+: (has default value) This is the directory that holds your website templates
+
+static
+: (has default value) This is the directory that holds your static files and assets (e.g. css, favicon, non-content images like logos)
+
+bucket
+: (optional) This is a URI To the S3 (or S3 like) bucket to host the public static website if you are using **publisher.py** and **invalidate_cloudfront.py** programs
 
 distribution_id
-: This is the Cloudfront identifier to invalidate the cache in Cloudfront
+: (optional) This is the ID number used by Cloudfront for invalidating CDN cache. It is only used by **includate_cloudfront.py**. It is only used by **includate_cloudfront.py**
 
 ### views JSON file content
 
@@ -116,7 +132,7 @@ aggregation supported in `eprintviews/aggregator.py`.
     }
 ```
 
-### subjects file
+### subjects text file
 
 This is a copy of the subjects file used in your EPrints 3.3.x 
 installation. It is used to gather the table values that map
@@ -132,6 +148,7 @@ The users JSON file is created by exporting your current
 users via the Admin user search found in your EPrints repository.
 The search for select all users then export as JSON.
 
+**IMPORTANT: This file should not be in a publicly readable location**
 
 ## Build Process
 

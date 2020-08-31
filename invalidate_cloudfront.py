@@ -3,10 +3,12 @@
 import csv
 import json
 import os
+import sys
 from subprocess import Popen, PIPE, run
 import sys
 
 from eprints3x import Logger
+form eprintviews import Configuration
 
 #
 # This script invalidates cloud front CDN
@@ -40,20 +42,11 @@ if __name__ == "__main__":
     f_name = ''
     if len(sys.argv) > 1:
         f_name = sys.argv[1]
-    distribution_id = ''
-    if os.path.exists(f_name)
-        with open(f_name) as f:
-            src = f.read()
-            cfg = json.loads(src)
-            if 'distribution_id' in cfg:
-                distribution_id = cfg['distribution_id']
-    else:
-        log.fatal(f'''You need to provide a JSON configuration filename.''')
-    
-    if distribution_id == '':
-        log.fatal(f'{app_name} not configured, check {f_name}')
-    
-    log.print(f"Invalidating {distribution_id} in Cloud Front")
-    invalidate_cloudfront(distribution_id)
-    log.print("All Done!")
-    
+    cfg = Configuration()
+    if cfg.load_config(f_name) and cfg.required(['distribution_id']):
+        distribution_id = cfg.distribution_id
+        log.print(f"Invalidating {distribution_id} in Cloud Front")
+        invalidate_cloudfront(distribution_id)
+        log.print("All Done!")
+    else: 
+        sys.exit(1)

@@ -89,25 +89,12 @@ def s3_sync_by_ext(root, bucket_name, ext = "",  content_type = "", content_enco
         log.print(f'Completed: {" ".join(cmd)}');
 
 
-def s3_publish(f_name, args):
-    htdocs = 'htdocs'
-    bucket = ''
-    if not os.path.exists(f_name):
-        log.fatal(f'Missing {f_name} configuration file.')
-        sys.exit(1)
-        
-    with open(f_name) as f:
-        src = f.read()
-        cfg = json.loads(src)
-        if 'bucket' in cfg:
-            bucket = cfg['bucket']
-
+def s3_publish(htdocs, bucket, args):
     if not os.path.exists(htdocs):
         log.fatal(f'''Cannot find the htdocs directory''')
         sys.exit(1)
     if bucket == '':
         log.fatal(f'''Can't find bucket in {f_name} configuration file''')
-
     if bucket == '' or htdocs == '':
         log.fatal('publisher.py is not configured, check {f_name}')
 
@@ -121,8 +108,6 @@ def s3_publish(f_name, args):
         for arg in args:
             if not arg in available_options:
                 log.fatal(f"Don't know how to {arg}")
-    
-    
     log.print(f"Publishing {', '.join(args)} to {bucket}")
     if len(args) > 0:
         # Make sure we have an htdocs directory

@@ -18,7 +18,7 @@ import progressbar
 
 from py_dataset import dataset
 
-from eprintviews import Aggregator, Views, Subjects, Users, normalize_object, get_date_year, get_eprint_id, get_title
+from eprintviews import Configuration, Aggregator, Views, Subjects, Users, normalize_object, get_date_year, get_eprint_id, get_title
 
 #
 # CaltechES EPrint Site Layouts look like:
@@ -44,8 +44,8 @@ from eprintviews import Aggregator, Views, Subjects, Users, normalize_object, ge
 # Deposit an Item -> http://calteches.library.caltech.edu/cgi/users/home
 # Contact Us (broken in produciton) -> should redirect to https://www.library.caltech.edu/contact
 
-
-def make_frame_date_title(c_name):
+def make_frame_date_title(cfg):
+    c_name = cfg.dataset
     frame_name = 'date-title-unsorted'
     if dataset.has_frame(c_name, frame_name):
         ok = dataset.delete_frame(c_name, frame_name)
@@ -100,8 +100,9 @@ def normalize_objects(objs, users):
 #
 # Build our this repository's aggregated views
 #
-def aggregate(c_name, views, users, subjects):
-    err = make_frame_date_title(c_name)
+def aggregate(cfg, views, users, subjects):
+    c_name = cfg.dataset
+    err = make_frame_date_title(cfg)
     if err != '':
         print(f'{err}')
     frame_name = 'date-title'
@@ -118,10 +119,10 @@ def aggregate(c_name, views, users, subjects):
 #
 # Build the directory tree
 #
-def generate_directories(view_paths):
+def generate_directories(cfg, view_paths):
     doc_tree = {}
     for key in view_paths:
-        doc_tree[key] = os.path.join('htdocs', 'view', key)
+        doc_tree[key] = os.path.join(cfg.htdocs, 'view', key)
     for key in doc_tree:
         d_name = doc_tree[key]
         if not os.path.exists(d_name):
@@ -140,7 +141,8 @@ def landing_filter(obj, users):
 # generate_landings creates index.json to render index.md,
 # also deposits attachments in their relative paths.
 #
-def generate_landings(c_name, views, users, subjects, include_documents = False):
+def generate_landings(cfg, views, users, subjects, include_documents = False):
+    c_name = cfg.dataset
     repo_name, _ = os.path.splitext(c_name)
     keys = dataset.keys(c_name)
     keys.sort(key=int)
@@ -154,7 +156,7 @@ def generate_landings(c_name, views, users, subjects, include_documents = False)
                 progressbar.AdaptiveETA(),
                 f' from {repo_name}'
             ], redirect_stdout=False)
-    f_name = os.path.join('htdocs', 'index.keys')
+    f_name = os.path.join(cfg.htdocs, 'index.keys')
     with open(f_name, 'w') as f:
         for key in keys:
             f.write(f'{key}\n')
@@ -167,7 +169,7 @@ def generate_landings(c_name, views, users, subjects, include_documents = False)
 WARNING: can't read {key} from {c_name}, {err}''')
             continue
         src = json.dumps(landing_filter(obj, users))
-        p_name = os.path.join('htdocs', f'{key}')
+        p_name = os.path.join(cfg.htdocs, f'{key}')
         os.makedirs(p_name, mode = 0o777, exist_ok = True)
         f_name = os.path.join(p_name, 'index.json')
         with open(f_name, 'w') as f:
@@ -183,7 +185,7 @@ WARNING: can't read {key} from {c_name}, {err}''')
                 semver = obj['primary_object']['version']
                 url = obj['primary_object']['url']
                 o = urlparse(url)
-                p_name = os.path.join('htdocs', 
+                p_name = os.path.join(cfg.htdocs,
                          os.path.dirname(o.path).lstrip('/'))
                 if not os.path.exists(p_name):
                     os.makedirs(p_name, mode = 0o777, exist_ok = True)
@@ -226,9 +228,9 @@ def make_view(view, p_name, aggregation):
             src = json.dumps(objects)
             f.write(src)
 
-def generate_view(key, aggregations):
+def generate_view(cfg, key, aggregations):
     if key in aggregations:
-        p_name = os.path.join('htdocs', 'view', key)
+        p_name = os.path.join(cfg.htdocs, 'view', key)
         if (aggregations[key] != None) and (len(aggregations[key]) > 0):
             make_view(key, p_name, aggregations[key])
         else:
@@ -236,22 +238,22 @@ def generate_view(key, aggregations):
     
 # generate_views creates the common views across our EPrints
 # repositories.
-def generate_views(views, aggregations):
+def generate_views(cfg, views, aggregations):
     keys = views.get_keys()
     # /view/ views and subviews, may also be included in browseviews.html
     for key in keys:
-        generate_view(key, aggregations)
+        generate_view(cfg, key, aggregations)
 
 
-def generate_metadata_structure(c_name, f_views, f_users, f_subjects, include_documents = False):
+def generate_metadata_structure(cfg, include_documents = False):
     views = Views()
-    views.load_views(f_views)
+    views.load_views(cfg.views)
     users = Users()
-    users.load_users(f_users)
+    users.load_users(cfg.users)
     subjects = Subjects()
-    subjects.load_subjects(f_subjects)
-    generate_directories(views.get_keys())
-    aggregations = aggregate(c_name, views, users, subjects)
+    subjects.load_subjects(cfg.subjects)
+    generate_directories(cfg, views.get_keys())
+    aggregations = aggregate(cfg, views, users, subjects)
     print(f'Found {len(aggregations)} aggregations: ', end = '\n\t')
     for i, key in enumerate(aggregations):
         if i > 0:
@@ -261,8 +263,8 @@ def generate_metadata_structure(c_name, f_views, f_users, f_subjects, include_do
         else:
             print(f'Nothing to aggregate for {key}')
     print('')
-    generate_views(views, aggregations)
-    generate_landings(c_name, views, users, subjects, include_documents)
+    generate_views(cfg, views, aggregations)
+    generate_landings(cfg, views, users, subjects, include_documents)
 
 
 if __name__ == "__main__":
@@ -273,16 +275,9 @@ if __name__ == "__main__":
     if not os.path.exists(f_name):
         print(f'Missing JSON configuration file')
         sys.exit(1)
-    with open(f_name) as f:
-        src = f.read()
-        cfg = json.loads(src)
-        if 'dataset' in cfg:
-            c_name = cfg['dataset']
-        if 'users' in cfg:
-            f_users = cfg['users']
-        if 'views' in cfg:
-            f_views = cfg['views']
-        if 'subjects' in cfg:
-            f_subjects = cfg['subjects']
-    generate_metadata_structure(c_name, f_views, f_users, f_subjects, include_documents = False) 
-    print('OK')
+    cfg = Configuration()
+    if cfg.load_config(f_name) and cfg.required(['dataset', 'eprint_url', 'views', 'subjects', 'users']):
+        generate_metadata_structure(cfg, include_documents = False) 
+        print('OK')
+    else:
+        sys.exit(1)
