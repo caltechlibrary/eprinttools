@@ -18,7 +18,7 @@ import progressbar
 
 from py_dataset import dataset
 
-from eprinttools.eprintviews import Configuration, Aggregator, Views, Subjects, Users, normalize_object, get_date_year, get_eprint_id, get_title
+from eprinttools import Configuration, Aggregator, Views, Subjects, Users, normalize_object, get_date_year, get_eprint_id, get_title
 
 #
 # CaltechES EPrint Site Layouts look like:

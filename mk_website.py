@@ -13,7 +13,7 @@ from subprocess import run, Popen, PIPE
 
 import progressbar
 
-from eprinttools.eprintviews import Configuration, Views
+from eprinttools import Configuration, Views
 
 #
 # mkpage wraps the mkpage command from mkpage using the
