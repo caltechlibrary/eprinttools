@@ -1,10 +1,18 @@
 
 # Release Notes
 
-## Release Notes v0.1.3
+## Release Notes v0.1.4
 
-+ Started transition to Python
-+ Added support in Python to replicating EPrints public views as static website
++ Started eprinttools transition to Python
++ Added eprints3x Python module
++ Added eprintviews Python module
++ Added example programs for replicating EPrints public views as static website
+    + harvester_full.py, harvester_recent.py
+    + genviews.py
+    + indexer.py
+    + mk_website.py
+    + publisher.py
+    + invalidate_cloudfront.py
 
 ## Release Notes v0.1.1
 
