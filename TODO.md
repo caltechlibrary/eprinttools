@@ -4,31 +4,39 @@
 ## Bugs
 
 + [ ] Make sure rendered pages point at the S3 copy of the files rather than the original EPrint location
-+ [ ] Site must meet ADA sec. 503 accessibility requirements
++ [ ] Site must meet ADA sec. 503 accessibility requirements, fix templates and CSS accordingly
 
 ## Next
 
 + [x] Build out eprints3x Python 3 module for interactiing with EPrints REST API
-+ [ ] Build out eprints3x Python 3 viewer module
-+ [ ] Build out eprints3x Python 3 subjects module to support subject views using EPrints archives/REPO_ID/cfg/subjects file
-+ [ ] Build out eprints3x Python 3 users module to safely expose depositor informaiton using JSON export of all users in the EPrints repository
+    + [x] eprints
+    + [x] s3_publisher (we need this when harvesting document objects directly to S3)
+    + [x] logger
+    + [x] mysql_access (optional MySQL fast access to recently modified keys)
++ [x] Build out eprintviews module
+    + [x] Configure
+    + [x] Views
+    + [x] Users
+    + [x] Subjects
+    + [x] Aggregator
 + [x] Build out general purpose harvester
-+ [ ] Build out general purpose genviews
-+ [ ] Build out general purpose indexer
-+ [ ] Build out general purpose mk-website
++ [x] Build out general purpose genviews
++ [x] Build out general purpose indexer
++ [x] Build out general purpose mk-website
 + [x] Build out general purpose publisher
-+ [ ] Document everything
++ [x] Build out cloud front invalidator example
++ [ ] Rather than harvest digital object files into dataset collection, put them directly in S3 in their appropriate path
++ [ ] Identifiy, implement and integrate a stats page via the analytics avaialble for S3 based projects (needs to provide at least the numbers that IRStats does)
 + [ ] Integrate Search based on views and landing page's scheme.json (e.g. Lunr.js then Elasticsearch)
 + [ ] Integrate Universal Viewer into site replication
 + [ ] List all attached files not just the primary PDF
 + [ ] Fleshout scheme.json for indexing with Elasticsearch as well as Lunr.js
 + [ ] review index.json to be a more generalize metadata structure for rendering index.md landing pages, right now it represents EPrint XML in JSON
 + [ ] Add support for *.include, *.json, *.rss and *.bib (BibTeX) for all lists and search results
-+ [ ] Add support for OAI-PMH
-+ [ ] Come up with appropriate set of public URLs, where necessary rename EPrints repositories or redirect from homepages and header redirects to public view.
-+ [ ] Build out on demand refresh process for updating static sites
-+ [ ] Identifiy, implement and integrate a stats page via the analytics avaialble for S3 based projects (needs to provide at least the numbers that IRStats does)
-+ [ ] Rather than harvest digital object files into dataset collection, put them directly in S3 in their appropriate path
++ [ ] Add pass through support for OAI-PMH (e.g. view redirects)
++ [x] Come up with appropriate set of public URLs, where necessary rename EPrints repositories or redirect from homepages and header redirects to public view.
++ [x] Build out on demand refresh process for updating static sites
++ [ ] Document everything
 
 ## Someday, Maybe
 

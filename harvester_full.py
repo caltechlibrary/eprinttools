@@ -9,8 +9,8 @@ import os
 import sys
 import json
 
-from eprints3x import harvest_init, harvest, harvest_keys
-from eprintviews import Configuration
+from eprinttools.eprints3x import harvest_init, harvest, harvest_keys
+from eprinttools.eprintviews import Configuration
 
 def usage():
     app = os.path.basename(sys.argv[0])

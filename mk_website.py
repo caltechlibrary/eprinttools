@@ -13,7 +13,7 @@ from subprocess import run, Popen, PIPE
 
 import progressbar
 
-from eprintviews import Configuration, Views
+from eprinttools.eprintviews import Configuration, Views
 
 #
 # mkpage wraps the mkpage command from mkpage using the
@@ -323,9 +323,9 @@ def build_website(cfg):
     views = Views()
     views.load_views(cfg.views)
     build_top_level_pages(cfg)
+    build_search_page(cfg)
     build_view_pages(cfg, views)
     build_landing_pages(cfg)
-    build_search_page(cfg)
     
 
 if __name__ == "__main__":

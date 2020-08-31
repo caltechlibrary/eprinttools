@@ -10,7 +10,7 @@ from lunr import lunr
 
 from py_dataset import dataset
 
-from eprintviews import Configuration, Subjects
+from eprinttools.eprintviews import Configuration, Subjects
 
 #
 # Apply scheme setups the data for search results and indexing.

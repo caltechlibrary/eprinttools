@@ -7,8 +7,8 @@ import sys
 from subprocess import Popen, PIPE, run
 import sys
 
-from eprints3x import Logger
-form eprintviews import Configuration
+from eprinttools.eprints3x import Logger
+from eprinttools.eprintviews import Configuration
 
 #
 # This script invalidates cloud front CDN
