@@ -120,6 +120,9 @@ distribute_python:
 	mkdir -p dist/eprinttools/eprintviews
 	cp -v eprinttools/eprints3x/*.py dist/eprinttools/eprints3x/
 	cp -vR eprinttools/eprintviews/*.py dist/eprinttools/eprintviews/
+	cp -vR static dist/
+	cp -vR templates dist/
+	cp config.json-example dist/
 	cp setup.py dist/
 	cp harvester_full.py dist/
 	cp harvester_recent.py dist/
