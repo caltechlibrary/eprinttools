@@ -9,5 +9,7 @@
     "issn": "ISSN", 
     "person": "Person", 
     "types": "Type", 
-    "subjects": "Subjects"
+    "subjects": "Subjects",
+    "corp_creators": "Corporate Creators",
+    "issuing_body": "Issuing Body"
 }

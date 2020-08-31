@@ -8,6 +8,8 @@ Browse the repository by
 + [Subject](/view/subjects/)
 + [Publication](/view/publication/)
 + [ISSN](/view/issn/)
++ [Issuing Body](/view/issuing_body/)
++ [Corporate Creators](/view/corp_creators/)
 + [Collection](/view/collection/)
 + [Latest Additions](/view/latest/)
 
