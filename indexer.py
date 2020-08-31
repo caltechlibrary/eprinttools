@@ -80,7 +80,8 @@ def get_fields(obj):
         fields.append(f)
     return fields
 
-def build_index(c_name, htdocs, f_subjects):
+def build_index(cfg):
+    c_name, htdocs, f_subjects = cfg.dataset, cfg.htdocs, cfg.subjects
     subjects = Subjects()
     subjects.load_subjects(f_subjects)
     keys = dataset.keys(c_name)
@@ -134,8 +135,7 @@ if __name__ == "__main__":
         sys.exit(1)
     cfg = Configuration()
     if cfg.load_config(f_name) and cfg.required(['dataset', 'htdocs', 'subjects']):
-        c_name, htdocs, f_subjects = cfg.dataset, cfg.htdocs, cfg.subjects
-        build_index(c_name, htdocs, f_subjects)
+        build_index(cfg)
     else:
         sys.exit(1)
 

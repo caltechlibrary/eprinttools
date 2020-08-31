@@ -118,4 +118,33 @@ class Configuration:
             ok = False
         return ok                
 
-
+    def toJSON(self):
+        o = {}
+        if self.htdocs != '':
+            o['htdocs'] = self.htdocs
+        if self.static != '':
+            o['static'] = self.static
+        if self.templates != '':
+            o['templates'] = self.templates
+        if self.eprint_url != '':
+            o['eprint_url'] = self.eprint_url
+        if self.dataset != '':
+            o['dataset'] = self.dataset
+        if self.number_of_days != 0:
+            o['number_of_days'] = self.number_of_days
+        if self.control_item != '':
+            o['control_item'] = self.control_item
+        if self.users != '':
+            o['users'] = self.users
+        if self.subjects != '':
+            o['subjects'] = self.subjects
+        if self.views != '':
+            o['views'] = self.views
+        if self.organization != '':
+            o['organization'] = self.organization
+        if self.site_welcome != '':
+            o['site_welcome'] = self.site_welcome
+        if self.site_title != '':
+            o['site_title'] = self.site_title
+        s = json.dumps(o)
+        return s

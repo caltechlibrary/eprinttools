@@ -123,7 +123,7 @@ def build_top_level_pages(cfg):
     template_name = 'index-html.tmpl'
     assemble(cfg, html_filename, template_name, [
         kv('organization', 'text', organization),
-        kv('site_title', 'text', organization),
+        kv('site_title', 'text', site_title),
         kv('page_title', 'text', page_title),
         kv('title', 'text', title),
         kv('content', '', md_filename)
@@ -137,7 +137,7 @@ def build_top_level_pages(cfg):
     template_name = 'index-html.tmpl'
     assemble(cfg, html_filename, template_name, [
         kv('organization', 'text', organization),
-        kv('site_title', 'text', organization),
+        kv('site_title', 'text', site_title),
         kv('page_title', 'text', page_title),
         kv('title', 'text', title),
         kv('content', '', md_filename)
@@ -151,7 +151,7 @@ def build_top_level_pages(cfg):
     template_name = 'index-html.tmpl'
     assemble(cfg, html_filename, template_name, [
         kv('organization', 'text', organization),
-        kv('site_title', 'text', organization),
+        kv('site_title', 'text', site_title),
         kv('page_title', 'text', page_title),
         kv('title', 'text', title),
         kv('content', '', md_filename)
@@ -166,7 +166,7 @@ def build_top_level_pages(cfg):
         template_name = 'index-html.tmpl'
         assemble(cfg, html_filename, template_name, [
             kv('organization', 'text', organization),
-            kv('site_title', 'text', organization),
+            kv('site_title', 'text', site_title),
             kv('page_title', 'text', page_title),
             kv('title', 'text', title),
             kv('content', '', md_filename)
@@ -181,7 +181,7 @@ def build_top_level_pages(cfg):
         template_name = 'index-html.tmpl'
         assemble(cfg, html_filename, template_name, [
             kv('organization', 'text', organization),
-            kv('site_title', 'text', organization),
+            kv('site_title', 'text', site_title),
             kv('page_title', 'text', page_title),
             kv('title', 'text', title),
             kv('content', '', md_filename)
@@ -301,6 +301,8 @@ def build_search_page(cfg):
     title = f'Search'
     nav = os.path.join(cfg.static, 'nav.md')
     content = os.path.join(cfg.static, 'search_form.md')
+    if site_title != '':
+        data.append(kv('site_title', 'text', site_title))
     if page_title != '':
         data.append(kv('page_title', 'text', page_title))
     if organization != '':

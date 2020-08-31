@@ -1,6 +1,11 @@
 
 # Release Notes
 
+## Release Notes v0.1.3
+
++ Started transition to Python
++ Added support in Python to replicating EPrints public views as static website
+
 ## Release Notes v0.1.1
 
 + Improve detection of primary object
