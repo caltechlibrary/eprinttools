@@ -92,6 +92,10 @@ def get_sort_issn(o):
         return o['issn']
     return ''
 
+def get_sort_corp_creator(o):
+    if ('name' in o):
+        return o['name']
+    return ''
 
 #
 # normalize_user() is used in Users when loading a JSON exported

@@ -123,7 +123,7 @@ setup(name = name,
     download_url = download,
     license = license,
     packages = find_packages(exclude=["*.tests", "*.tests.*", "tests.*", "tests", "*_test.py"]),
-    package_data={}
+    package_data={},
     keywords = keywords,
     classifiers = [
         "Development Status :: 4 - Beta",

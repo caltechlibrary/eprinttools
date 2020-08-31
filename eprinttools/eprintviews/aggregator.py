@@ -4,7 +4,7 @@ import json
 
 from datetime import date, timedelta
 
-from .normalize import slugify, get_date_year, get_eprint_id, get_object_type, has_creator_ids, make_label, get_sort_name, get_sort_year, get_sort_subject, get_sort_publication, get_sort_collection, get_sort_event, get_lastmod_date, get_sort_lastmod, get_sort_issn
+from .normalize import slugify, get_date_year, get_eprint_id, get_object_type, has_creator_ids, make_label, get_sort_name, get_sort_year, get_sort_subject, get_sort_publication, get_sort_collection, get_sort_event, get_lastmod_date, get_sort_lastmod, get_sort_issn, get_sort_corp_creator
 
 
 class Aggregator:
@@ -54,6 +54,10 @@ class Aggregator:
             return self.aggregate_year()
         elif name == 'publication':
             return self.aggregate_publication()
+        elif name == 'corp_creators':
+            return self.aggregate_corp_creators()
+        elif name == 'issuing_body':
+            return self.aggregate_issuing_body()
         elif name == 'issn':
             return self.aggregate_issn()
         elif name == 'collection':
@@ -127,6 +131,36 @@ class Aggregator:
             publication_list.append(publications[key])
         publication_list.sort(key = get_sort_publication)
         return publication_list
+
+    def aggregate_corp_creators(self):
+        corp_creators = {}
+        for obj in self.objs:
+            year = get_date_year(obj)
+            if ('corp_creators' in obj) and ('items' in obj['corp_creators']):
+                for item in obj['corp_creators']['items']:
+                    corp_creator = item['name'].strip()
+                    if 'id' in item:
+                        key = str(item['id'])
+                    else:
+                        key = slugify(corp_creator)
+                    if not key in corp_creators:
+                        corp_creators[key] = { 
+                            'key': key,
+                            'label': corp_creator,
+                            'count': 0,
+                            'year': year, 
+                            'objects': [] 
+                        }
+                    corp_creators[key]['count'] += 1
+                    corp_creators[key]['objects'].append(obj)
+        corp_creator_list = []
+        for key in corp_creators:
+            corp_creator_list.append(corp_creators[key])
+        corp_creator_list.sort(key = get_sort_corp_creator)
+        return corp_creator_list
+
+    def aggregate_issuing_body(self):
+        return self.aggregate_corp_creators()
 
     def aggregate_issn(self):
         issns = {}

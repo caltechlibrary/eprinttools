@@ -82,10 +82,10 @@ def make_frame_date_title(cfg):
     # generate the repository's views.
     ok = dataset.frame_create(c_name, frame_name, keys, 
             [ '.eprint_id', '.title', '.date', '.creators', '.subjects', 
-                '.type', '.official_url', '.userid' , 
+                '.type', '.official_url', '.userid' , '.corp_creators', 
                 '.collection', '.event_title', '.event_location', '.event_dates' ], 
             [ 'eprint_id', 'title', 'date', 'creators', 'subjects', 
-                'type', 'official_url', 'userid', 
+                'type', 'official_url', 'userid', 'corp_creators',
                 'collection', 'event_title', 'event_location', 'event_dates' ])
     if not ok:
         err = dataset.error_message()
