@@ -39,10 +39,19 @@ class Configuration:
                     return False
                 if 'htdocs' in data:
                     self.htdocs = data['htdocs']
+                    if not os.path.exists(self.htdocs):
+                        print(f'ERROR: htdocs setting, "{self.htdocs}" from {f_name} does not exist.')
+                        ok = False
                 if 'static' in data:
                     self.static = data['static']
+                    if not os.path.exists(self.static):
+                        print(f'ERROR: htdocs setting, "{self.static}" from {f_name} does not exist.')
+                        ok = False
                 if 'templates' in data:
                     self.templates = data['templates']
+                    if not os.path.exists(self.templates):
+                        print(f'ERROR: htdocs setting, "{self.templates}" from {f_name} does not exist.')
+                        ok = False
                 if 'eprint_url' in data:
                     self.eprint_url = data['eprint_url']
                 if 'dataset' in data:
@@ -77,36 +86,64 @@ class Configuration:
         '''This checks if the list of configuration fields provided have been set'''
         f_name = self.config_name
         ok = True
-        if ('htdocs' in settings) and (self.htdocs == ''):
-            print(f'htdocs not set in {f_name}')
-            ok = False
-        if ('static' in settings) and (self.static == ''):
-            print(f'static not set in {f_name}')
-            ok = False
-        if ('templates' in settings) and (self.templates == ''):
-            print(f'templates not set in {f_name}')
-            ok = False
+        if ('htdocs' in settings):
+            if (self.htdocs == ''):
+                print(f'htdocs not set in {f_name}')
+                ok = False
+            elif not os.path.exists(self.htdocs):
+                print(f'htdocs {self.htdocs} does not exist.')
+                ok = False
+        if ('static' in settings):
+            if (self.static == ''):
+                print(f'static not set in {f_name}')
+                ok = False
+            elif not os.path.exists(self.static):
+                print(f'static {self.static} does not exist.')
+                ok = False
+        if ('templates' in settings):
+            if (self.templates == ''):
+                print(f'templates not set in {f_name}')
+                ok = False
+            elif not os.path.exists(self.templates):
+                print(f'templates {self.templates} does not exist.')
+                ok = False
         if ('eprint_url' in settings) and (self.eprint_url == ''):
             print(f'eprint_url not set in {f_name}')
             ok = False
-        if ('dataset' in settings) and (self.dataset == ''):
-            print(f'dataset not set in {f_name}')
-            ok = False
+        if ('dataset' in settings):
+            if (self.dataset == ''):
+                print(f'dataset not set in {f_name}')
+                ok = False
+            elif not os.path.exists(self.dataset):
+                print(f'dataset {self.dataset} does not exist.')
+                ok = False
         if ('number_of_days' in settings) and (self.number_of_days == 0):
             print(f'number_of_days not set in {f_name}')
             ok = False
         if ('control_item' in settings) and (self.control_item == ''):
             print(f'control_item not set in {f_name}')
             ok = False
-        if ('users' in settings) and (self.users == ''):
-            print(f'users not set in {f_name}')
-            ok = False
-        if ('subjects' in settings) and (self.subjects == ''):
-            print(f'subjects not set in {f_name}')
-            ok = False
-        if ('views' in settings) and (self.views == ''):
-            print(f'views not set in {f_name}')
-            ok = False
+        if ('users' in settings):
+            if (self.users == ''):
+                print(f'users not set in {f_name}')
+                ok = False
+            elif not os.path.exists(self.users):
+                print(f'users {self.users} does not exist.')
+                ok = False
+        if ('subjects' in settings):
+            if (self.subjects == ''):
+                print(f'subjects not set in {f_name}')
+                ok = False
+            elif not os.path.exists(self.subjects):
+                print(f'subjects {self.subjects} does not exist.')
+                ok = False
+        if ('views' in settings):
+            if (self.views == ''):
+                print(f'views not set in {f_name}')
+                ok = False
+            elif not os.path.exists(self.views):
+                print(f'views {self.views} does not exist.')
+                ok = False
         if ('organization' in settings) and (self.organization == ''):
             print(f'organization not set in {f_name}')
             ok = False
