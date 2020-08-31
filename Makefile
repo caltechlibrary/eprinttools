@@ -85,7 +85,7 @@ dist/linux-amd64:
 	env  GOOS=linux GOARCH=amd64 go build -o dist/bin/epfmt cmd/epfmt/epfmt.go
 	env  GOOS=linux GOARCH=amd64 go build -o dist/bin/doi2eprintxml cmd/doi2eprintxml/doi2eprintxml.go
 	env  GOOS=linux GOARCH=amd64 go build -o dist/bin/eprintxml2json cmd/eprintxml2json/eprintxml2json.go
-	cd dist && zip -r $(PROJECT)-$(VERSION)-linux-amd64.zip README.md LICENSE INSTALL.md docs/* eprints3x/* bin/*
+	cd dist && zip -r $(PROJECT)-$(VERSION)-linux-amd64.zip README.md LICENSE INSTALL.md docs/* eprinttools/* bin/*
 	rm -fR dist/bin
 
 dist/windows-amd64:
@@ -94,7 +94,7 @@ dist/windows-amd64:
 	env  GOOS=windows GOARCH=amd64 go build -o dist/bin/epfmt.exe cmd/epfmt/epfmt.go
 	env  GOOS=windows GOARCH=amd64 go build -o dist/bin/doi2eprintxml.exe cmd/doi2eprintxml/doi2eprintxml.go
 	env  GOOS=windows GOARCH=amd64 go build -o dist/bin/eprintxml2json.exe cmd/eprintxml2json/eprintxml2json.go
-	cd dist && zip -r $(PROJECT)-$(VERSION)-windows-amd64.zip README.md LICENSE INSTALL.md docs/* eprints3x/* bin/*
+	cd dist && zip -r $(PROJECT)-$(VERSION)-windows-amd64.zip README.md LICENSE INSTALL.md docs/* eprinttools/* bin/*
 	rm -fR dist/bin
 
 dist/macosx-amd64:
@@ -103,7 +103,7 @@ dist/macosx-amd64:
 	env  GOOS=darwin GOARCH=amd64 go build -o dist/bin/epfmt cmd/epfmt/epfmt.go
 	env  GOOS=darwin GOARCH=amd64 go build -o dist/bin/doi2eprintxml cmd/doi2eprintxml/doi2eprintxml.go
 	env  GOOS=darwin GOARCH=amd64 go build -o dist/bin/eprintxml2json cmd/eprintxml2json/eprintxml2json.go
-	cd dist && zip -r $(PROJECT)-$(VERSION)-macosx-amd64.zip README.md LICENSE INSTALL.md docs/* eprints3x/* bin/*
+	cd dist && zip -r $(PROJECT)-$(VERSION)-macosx-amd64.zip README.md LICENSE INSTALL.md docs/* eprinttools/* bin/*
 	rm -fR dist/bin
 
 dist/raspbian-arm7:
@@ -112,20 +112,22 @@ dist/raspbian-arm7:
 	env  GOOS=linux GOARCH=arm GOARM=7 go build -o dist/bin/epfmt cmd/epfmt/epfmt.go
 	env  GOOS=linux GOARCH=arm GOARM=7 go build -o dist/bin/doi2eprintxml cmd/doi2eprintxml/doi2eprintxml.go
 	env  GOOS=linux GOARCH=arm GOARM=7 go build -o dist/bin/eprintxml2json cmd/eprintxml2json/eprintxml2json.go
-	cd dist && zip -r $(PROJECT)-$(VERSION)-raspbian-arm7.zip README.md LICENSE INSTALL.md docs/* eprints3x/* bin/*
+	cd dist && zip -r $(PROJECT)-$(VERSION)-raspbian-arm7.zip README.md LICENSE INSTALL.md docs/* eprinttools/* bin/*
 	rm -fR dist/bin
   
 distribute_python:
-	mkdir -p dist/eprints3x
-	mkdir -p dist/eprintviews
+	mkdir -p dist/eprinttools/eprints3x
+	mkdir -p dist/eprinttools/eprintviews
+	cp -v eprinttools/eprints3x/*.py dist/eprinttools/eprints3x/
+	cp -vR eprinttools/eprintviews/*.py dist/eprinttools/eprintviews/
+	cp setup.py dist/
 	cp harvester_full.py dist/
 	cp harvester_recent.py dist/
 	cp genviews.py dist/
 	cp indexer.py dist/
 	cp mk_website.py dist/
 	cp publisher.py dist/
-	cp -vR eprints3x/*.py dist/eprints3x/
-	cp -vR eprintviews/*.py dist/eprintviews/
+	cp invalidate_cloudfront.py dist/
 
 distribute_docs:
 	mkdir -p dist/docs
