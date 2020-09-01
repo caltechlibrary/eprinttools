@@ -78,6 +78,10 @@ class Configuration:
                     self.site_welcome = data['site_welcome']
                 if 'site_title' in data:
                     self.site_title = data['site_title']
+                if 'bucket' in data:
+                    self.bucket = data['bucket']
+                if 'distribution_id' in data:
+                    self.distribution_id = data['distribution_id']
         else:
             ok = False
         return ok                
@@ -153,6 +157,12 @@ class Configuration:
         if ('site_title' in settings) and (self.site_title == ''):
             print(f'site_title not set in {f_name}')
             ok = False
+        if ('bucket' in settings) and (self.bucket == ''):
+            print(f'bucket not set in {f_name}')
+            ok = False
+        if ('distribution_id' in settings) and (self.distribution_id == ''):
+            print(f'distribution_id not set in {f_name}')
+            ok = False
         return ok                
 
     def toJSON(self):
@@ -183,5 +193,9 @@ class Configuration:
             o['site_welcome'] = self.site_welcome
         if self.site_title != '':
             o['site_title'] = self.site_title
+        if self.bucket != '':
+            o['bucket'] = self.bucket
+        if self.distribution_id != '':
+            o['distribution_id'] = self.distribution_id
         s = json.dumps(o)
         return s
