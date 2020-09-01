@@ -3,8 +3,7 @@
 import sys
 import os
 
-from eprinttools.eprints3x import s3_publish, Logger
-from eprinttools.eprintviews import Configuration
+from eprinttools import Logger, Configuration, s3_publish
 
 log = Logger(os.getpid())
 

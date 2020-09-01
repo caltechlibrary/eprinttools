@@ -3,6 +3,7 @@ Items may be browsed by the following:
 
 + [Eprint ID](/view/ids/)
 + [Year](/view/year/)
++ [Document Type](/view/types/)
 + [Person](/view/person-az/)
 + [Event](/view/event/)
 + [Subject](/view/subjects/)
