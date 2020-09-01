@@ -23,7 +23,7 @@ ${if(title)}<h1>${title}</h1>${endif}
 <p><a href="./">Back</a></p>
 ${if(content)}${content}${endif}
 ${if(object_list)}
-${if(count)}<p>Number of items: ${count}. Sorted by Date, then title</p><hr/>${endif}
+${if(count)}<p>Number of items: ${count}. Sorted by descending date then by ascending title</p><hr/>${endif}
 <ul>
     ${for(object_list)}
     <li>${if(object_list.creators)}${for(object_list.creators)}${it.display_name}${sep}; ${endfor}${endif} (${object_list.year}) <a href="/${object_list.eprint_id}/">${object_list.title}</a> [${object_list.type_label}] ${if(object_list.official_url)}<a href="${object_list.official_url}">${object_list.official_url}</a>${endif}${endfor}
