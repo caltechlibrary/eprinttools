@@ -62,10 +62,16 @@ def kv(key, protocol = '', value = ''):
 
 # Assemble page
 def assemble(cfg, html_filename, template_name, data):
+    header = os.path.join(cfg.static, 'header.md')
+    footer = os.path.join(cfg.static, 'footer.md')
     nav = os.path.join(cfg.static, 'nav.md')
+    announcement = os.path.join(cfg.static, 'announcement.md')
     if os.path.exists(nav):
         data.append(kv('nav', '', nav))
-    announcement = os.path.join(cfg.static, 'announcement.md')
+    if os.path.exists(header):
+        data.append(kv('header', '', header))
+    if os.path.exists(footer):
+        data.append(kv('footer', '', footer))
     if os.path.exists(announcement):
         data.append(kv('announcement', '', announcement))
     mkpage(os.path.join(cfg.htdocs, html_filename), os.path.join(cfg.templates, template_name), data)

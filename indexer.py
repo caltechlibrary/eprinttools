@@ -19,7 +19,7 @@ def apply_scheme(obj, subjects, htdocs):
     o = {}
     subject_keys = subjects.get_keys()
     # NOTE: simple fields
-    for field in [ '_Key', 'title', 'date', 'year', 'type', 'collection', 'interviewer', 'interviewdate', 'depositor', 'deposit_date', 'issn', 'doi' ]:
+    for field in [ '_Key', 'title', 'date', 'year', 'type', 'collection', 'interviewer', 'interviewdate', 'depositor', 'deposit_date', 'issn', 'doi', 'publication', 'place_of_pub', 'volume', 'series', 'number' ]:
         if (field in obj) and (obj[field] != None) and (obj[field] != ''):
             o[field] = obj[field]
         else:
@@ -50,6 +50,17 @@ def apply_scheme(obj, subjects, htdocs):
                     editors.append(display_name)
         if len(editors) > 0:
             o['editors'] = '; '.join(editors)
+    if 'contributors' in obj:
+        contributors = []
+        for contributor in obj['contributors']:
+            display_name = ''
+            if 'display_name' in contributor:
+                display_name = contributor['display_name']
+            if display_name != '':
+                if not display_name in 'contributors':
+                    contributors.append(display_name)
+        if len(contributors) > 0:
+            o['contributors'] = '; '.join(contributors)
     if ('subjects' in obj) and (len(obj['subjects']) > 0):
         terms = []
         for term in obj['subjects']['items']:
