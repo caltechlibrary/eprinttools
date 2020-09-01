@@ -39,6 +39,17 @@ def apply_scheme(obj, subjects, htdocs):
                     creators.append(display_name)
         if len(creators) > 0:
             o['creators'] = '; '.join(creators)
+    if 'editors' in obj:
+        editors = []
+        for editor in obj['editors']:
+            display_name = ''
+            if 'display_name' in editor:
+                display_name = editor['display_name']
+            if display_name != '':
+                if not display_name in 'editors':
+                    editors.append(display_name)
+        if len(editors) > 0:
+            o['editors'] = '; '.join(editors)
     if ('subjects' in obj) and (len(obj['subjects']) > 0):
         terms = []
         for term in obj['subjects']['items']:

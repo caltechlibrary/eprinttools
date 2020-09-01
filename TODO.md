@@ -3,11 +3,13 @@
 
 ## Bugs
 
++ [ ] Generalize indexer.py and static/js/searchbox.js to support all repositories scheme.py
 + [ ] Make sure rendered pages point at the S3 copy of the files rather than the original EPrint location
 + [ ] Site must meet ADA sec. 503 accessibility requirements, fix templates and CSS accordingly
 
 ## Next
 
++ [ ] Come up with appropriate scheme.json structure that works across repositories, then move code into eprinttools/views/scheme.py
 + [x] Build out eprints3x Python 3 module for interactiing with EPrints REST API
     + [x] eprints
     + [x] s3_publisher (we need this when harvesting document objects directly to S3)
