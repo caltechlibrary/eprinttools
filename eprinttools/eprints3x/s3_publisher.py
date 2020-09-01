@@ -94,9 +94,9 @@ def s3_publish(htdocs, bucket, args):
         log.fatal(f'''Cannot find the htdocs directory''')
         sys.exit(1)
     if bucket == '':
-        log.fatal(f'''Can't find bucket in {f_name} configuration file''')
+        log.fatal(f'''Can't find bucket in {bucket} configuration file''')
     if bucket == '' or htdocs == '':
-        log.fatal('publisher.py is not configured, check {f_name}')
+        log.fatal('publisher.py is not configured, check your configuration')
 
     # Now setup default actions if none provided
     available_options = [ ".txt", ".css", ".csv", ".gif", ".png", ".ico", ".svg", ".js", ".keys", ".csv", ".bib", ".rss", ".keys", ".md", ".json", ".include", ".html", ".include", ".zip" ]
