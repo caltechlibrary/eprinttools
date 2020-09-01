@@ -9,6 +9,9 @@
 
 ## Next
 
++ [ ] Add alternative sort options for aggregations via frames
+    + Currently provide sort by publication date and title
+    + E.g. Descending publication date sort by sort_name
 + [ ] Come up with appropriate scheme.json structure that works across repositories, then move code into eprinttools/views/scheme.py
 + [x] Build out eprints3x Python 3 module for interactiing with EPrints REST API
     + [x] eprints
