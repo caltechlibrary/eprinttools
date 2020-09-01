@@ -4,7 +4,7 @@ import json
 
 from datetime import date, timedelta
 
-from .normalize import slugify, get_date_year, get_eprint_id, get_object_type, has_creator_ids, make_label, get_sort_name, get_sort_year, get_sort_subject, get_sort_publication, get_sort_collection, get_sort_event, get_lastmod_date, get_sort_lastmod, get_sort_issn, get_sort_corp_creator
+from .normalize import slugify, get_date_year, get_eprint_id, get_object_type, has_creator_ids, has_editor_ids, has_contributor_ids, make_label, get_sort_name, get_sort_year, get_sort_subject, get_sort_publication, get_sort_collection, get_sort_event, get_lastmod_date, get_sort_lastmod, get_sort_issn, get_sort_corp_creator, get_sort_place_of_pub
 
 
 class Aggregator:
@@ -13,7 +13,7 @@ class Aggregator:
         self.c_name = c_name
         self.objs = objs
 
-    def aggregate_people(self):
+    def aggregate_creator(self):
         # now build our people list and create a people, eprint_id, title list
         people = {}
         for obj in self.objs:
@@ -23,6 +23,8 @@ class Aggregator:
                     creator_id = ''
                     if 'id' in creator:
                         creator_id = creator['id']
+                    if 'creator_id' in creator:
+                        creator_id = creator['creator_id']
                     creator_name = creator['display_name']
                     if creator_id != '':
                         if not creator_id in people:
@@ -43,6 +45,70 @@ class Aggregator:
         people_list.sort(key = get_sort_name)
         return people_list
 
+    def aggregate_editor(self):
+        # now build our people list based on editors.items
+        people = {}
+        for obj in self.objs:
+            if has_editor_ids(obj):
+                # For each author add a reference to object
+                for editor in obj['editors']:
+                    editor_id = ''
+                    if 'id' in editor:
+                        editor_id = editor['id']
+                    if 'editor_id' in editor:
+                        editor_id = editor['editor_id']
+                    editor_name = editor['display_name']
+                    if editor_id != '':
+                        if not editor_id in people:
+                            people[editor_id] = { 
+                                'key': editor_id,
+                                'label': editor_name,
+                                'count' : 0,
+                                'people_id': editor_id,
+                                'sort_name': editor_name,
+                                'objects' : []
+                            }
+                        people[editor_id]['count'] += 1
+                        people[editor_id]['objects'].append(obj)
+        # Now that we have a people list we need to sort it by name
+        people_list = []
+        for key in people:
+            people_list.append(people[key])
+        people_list.sort(key = get_sort_name)
+        return people_list
+
+    def aggregate_contributor(self):
+        # now build our people list based on contributors.items
+        people = {}
+        for obj in self.objs:
+            if has_contributor_ids(obj):
+                # For each author add a reference to object
+                for contributor in obj['contributors']:
+                    contributor_id = ''
+                    if 'id' in contributor:
+                        contributor_id = contributor['id']
+                    if 'contributor_id' in contributor:
+                        contributor_id = contributor['contributor_id']
+                    contributor_name = contributor['display_name']
+                    if contributor_id != '':
+                        if not contributor_id in people:
+                            people[contributor_id] = { 
+                                'key': contributor_id,
+                                'label': contributor_name,
+                                'count' : 0,
+                                'people_id': contributor_id,
+                                'sort_name': contributor_name,
+                                'objects' : []
+                            }
+                        people[contributor_id]['count'] += 1
+                        people[contributor_id]['objects'].append(obj)
+        # Now that we have a people list we need to sort it by name
+        people_list = []
+        for key in people:
+            people_list.append(people[key])
+        people_list.sort(key = get_sort_name)
+        return people_list
+
     def aggregate_by_view_name(self, name, subject_map):
         if name == 'person-az':
             return self.aggregate_person_az()
@@ -50,10 +116,16 @@ class Aggregator:
             return self.aggregate_person()
         elif name == 'author':
             return self.aggregate_author()
+        elif name == 'editor':
+            return self.aggregate_editor()
+        elif name == 'contributor':
+            return self.aggregate_contributor()
         elif name == 'year':
             return self.aggregate_year()
         elif name == 'publication':
             return self.aggregate_publication()
+        elif name == 'place_of_pub':
+            return self.aggregate_place_of_pub()
         elif name == 'corp_creators':
             return self.aggregate_corp_creators()
         elif name == 'issuing_body':
@@ -77,13 +149,13 @@ class Aggregator:
             return None
 
     def aggregate_person_az(self):
-        return self.aggregate_people()
+        return self.aggregate_creator()
     
     def aggregate_person(self):
-        return self.aggregate_people()
+        return self.aggregate_creator()
     
     def aggregate_author(self):
-        return self.aggregate_people()
+        return self.aggregate_creator()
     
     def aggregate_year(self):
         years = {}
@@ -185,6 +257,32 @@ class Aggregator:
             issn_list.append(issns[key])
         issn_list.sort(key = get_sort_issn)
         return issn_list
+
+    def aggregate_place_of_pub(self):
+        place_of_pubs = {}
+        place_of_pub = ''
+        for obj in self.objs:
+            eprint_id = get_eprint_id(obj)
+            year = get_date_year(obj)
+            if ('place_of_pub' in obj):
+                place_of_pub = obj['place_of_pub'].strip()
+                key = slugify(place_of_pub)
+                if not place_of_pub in place_of_pubs:
+                    place_of_pubs[place_of_pub] = { 
+                        'key': key,
+                        'label': place_of_pub,
+                        'count': 0,
+                        'year': year, 
+                        'objects': [] 
+                    }
+                place_of_pubs[place_of_pub]['count'] += 1
+                place_of_pubs[place_of_pub]['objects'].append(obj)
+        place_of_pub_list = []
+        for key in place_of_pubs:
+            place_of_pub_list.append(place_of_pubs[key])
+        place_of_pub_list.sort(key = get_sort_place_of_pub)
+        return place_of_pub_list
+
 
     def aggregate_collection(self):
         collections = {}

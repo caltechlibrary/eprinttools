@@ -2,6 +2,7 @@
 # utility methods
 #
 
+
 def slugify(s):
     return s.replace(' ', '_').replace('/','_')
 
@@ -36,9 +37,24 @@ def get_object_type(obj):
     return ''
 
 def has_creator_ids(obj):
-    for creator in obj['creators']:
-        if 'id' in creator:
-            return True
+    if ('creators' in obj):
+        for creator in obj['creators']:
+            if ('id' in creator) or ('creator_id' in creator):
+                return True
+    return False
+
+def has_editor_ids(obj):
+    if ('editors' in obj):
+        for editor in obj['editors']:
+            if ('id' in editor) or ('editor_id' in editor):
+                return True
+    return False
+
+def has_contributor_ids(obj):
+    if ('contributors' in obj):
+        for contributor in obj['contributors']:
+            if ('id' in contributor) or ('contributor_id' in contributor):
+                return True
     return False
 
 def make_label(s, sep = '_'):
@@ -65,6 +81,11 @@ def get_sort_subject(o):
 def get_sort_publication(o):
     if ('publication' in o) and ('item' in publication['publication']):
         return o['publication']['item']
+    return ''
+
+def get_sort_place_of_pub(o):
+    if ('place_of_pub' in o):
+        return o['place_of_pub'].strip()
     return ''
 
 def get_sort_collection(o):
@@ -169,6 +190,70 @@ def make_creator_list(creators):
     return l
 
 #
+# NOTE: get_editor_id, get_editor_name, make_editor_list
+# are used in normalize_object. They do not need to be exported.
+#
+def get_editor_id(editor):
+    if 'id' in editor:
+        return editor['id']
+    return ''
+
+def get_editor_name(editor):
+    family, given = '', ''
+    if 'name' in editor:
+        if 'family' in editor['name']:
+            family = editor['name']['family'].strip()
+        if 'given' in editor['name']:
+            given = editor['name']['given'].strip()
+    if len(family) > 0:
+        if len(given) > 0:
+            return f'{family}, {given}'
+        return family
+    return ''
+
+def make_editor_list(editors):
+    l = []
+    for editor in editors:
+        display_name = get_editor_name(editor)
+        editor_id = get_editor_id(editor)
+        editor['display_name'] = display_name
+        editor['editor_id'] = editor_id
+        l.append(editor)
+    return l
+
+#
+# NOTE: get_contributor_id, get_contributor_name, make_contributor_list
+# are used in normalize_object. They do not need to be exported.
+#
+def get_contributor_id(contributor):
+    if 'id' in contributor:
+        return contributor['id']
+    return ''
+
+def get_contributor_name(contributor):
+    family, given = '', ''
+    if 'name' in contributor:
+        if 'family' in contributor['name']:
+            family = contributor['name']['family'].strip()
+        if 'given' in contributor['name']:
+            given = contributor['name']['given'].strip()
+    if len(family) > 0:
+        if len(given) > 0:
+            return f'{family}, {given}'
+        return family
+    return ''
+
+def make_contributor_list(contributors):
+    l = []
+    for contributor in contributors:
+        display_name = get_contributor_name(contributor)
+        contributor_id = get_contributor_id(contributor)
+        contributor['display_name'] = display_name
+        contributor['contributor_id'] = contributor_id
+        l.append(contributor)
+    return l
+
+#
 # Normalize object normalizes an JSON representation of an
 # eprints xml object.
 #
@@ -177,8 +262,14 @@ def normalize_object(obj, users):
     year = get_date_year(obj)
     eprint_id = get_eprint_id(obj)
     creator_list = []
+    editor_list = []
+    contributor_list = []
     if ('creators' in obj) and ('items' in obj['creators']):
         creator_list = make_creator_list(obj['creators']['items'])
+    if ('editors' in obj) and ('items' in obj['editors']):
+        editor_list = make_editor_list(obj['editors']['items'])
+    if ('contributors' in obj) and ('items' in obj['contributors']):
+        contributor_list = make_contributor_list(obj['contributors']['items'])
     if ('abstract' in obj):
         abstract = obj['abstract'].strip()
         obj['abstract'] = abstract
@@ -196,8 +287,16 @@ def normalize_object(obj, users):
         obj['year'] = year
     if 'type' in obj:
         obj['type_label'] = make_label(obj['type'])
+    for field in [ 'place_of_pub', 'volume', 'series', 'number' ]:
+        if field in obj:
+            if isinstance(obj[field], int):
+                obj[field] = str(obj[field])
+            value = obj[field].strip()
+            obj[field] = value
     obj['title'] = title
     obj['creators'] = creator_list
+    obj['editors'] = editor_list
+    obj['contributors'] = contributor_list
     obj['eprint_id'] = eprint_id
     obj['year'] = year
     return obj
