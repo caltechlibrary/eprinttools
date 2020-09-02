@@ -24,6 +24,7 @@ class Configuration:
         self.bucket = ''
         self.distribution_id = ''
         self.config_name = ''
+        self.base_url = ''
 
     def load_config(self, f_name):
         '''this reads a JSON configuration from disc and configures self'''
@@ -37,6 +38,8 @@ class Configuration:
                 except Exception as err:
                     print(f'ERROR reading {f_name}, {err}')
                     return False
+                if 'base_url' in data:
+                    self.base_url = data['base_url']
                 if 'htdocs' in data:
                     self.htdocs = data['htdocs']
                     if not os.path.exists(self.htdocs):
@@ -90,6 +93,10 @@ class Configuration:
         '''This checks if the list of configuration fields provided have been set'''
         f_name = self.config_name
         ok = True
+        if ('base_url' in settings):
+            if (self.base_url == ''):
+                print(f'base_url not set in {f_name}')
+                ok = False
         if ('htdocs' in settings):
             if (self.htdocs == ''):
                 print(f'htdocs not set in {f_name}')
@@ -167,6 +174,8 @@ class Configuration:
 
     def toJSON(self):
         o = {}
+        if self.base_url != '':
+            o['base_url'] = self.base_url
         if self.htdocs != '':
             o['htdocs'] = self.htdocs
         if self.static != '':

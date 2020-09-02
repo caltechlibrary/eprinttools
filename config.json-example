@@ -11,5 +11,6 @@
     "site_welcome": "Welcome to a demo of using EPrints to generate a static website",
     "htdocs": "htdocs",
     "templates": "templates",
-    "static": "static"
+    "static": "static",
+    "base_url": ""
 }

@@ -3,6 +3,7 @@
 
 ## Bugs
 
++ [ ] We need to have an optional base_url in the templates and mk_website.py's assemble so that we can handle the Archives usecase was well as 4th level domain website use case
 + [ ] Generalize indexer.py and static/js/searchbox.js to support all repositories scheme.py
 + [ ] Make sure rendered pages point at the S3 copy of the files rather than the original EPrint location
 + [ ] Site must meet ADA sec. 503 accessibility requirements, fix templates and CSS accordingly
