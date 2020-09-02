@@ -1,6 +1,12 @@
 
 # Release Notes
 
+## Release Notes v0.1.7
+
++ Improved Aggregators, released via PyPI
++ Currently not harvesting digital documents in dataset collection
+
+
 ## Release Notes v0.1.4
 
 + Started eprinttools transition to Python
