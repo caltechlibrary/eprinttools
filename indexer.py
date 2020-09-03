@@ -110,6 +110,7 @@ def build_index(cfg):
     tot = len(keys)
     documents = []
     e_cnt = 0
+    fields = []
     bar = progressbar.ProgressBar(
             max_value = tot,
             widgets = [
@@ -129,13 +130,16 @@ def build_index(cfg):
             print(f'WARNING: skipping {kay} in {c_name}, apply scheme: {err}')
             e_cnt += 1
             continue
+        # NOTE: we want to save the scheme fields for building our index.
+        if (len(fields) == 0) and (len(obj) > 0):
+            fields = get_fields(obj)
         documents.append(obj)
         bar.update(i)
     bar.finish()
     print(f'Found {len(documents)} in {c_name}')
     idx = lunr(
         ref = '_Key',
-        fields=get_fields(obj),
+        fields = fields,
         documents = documents
     )
     print(f'indexed {len(documents)} documents')
