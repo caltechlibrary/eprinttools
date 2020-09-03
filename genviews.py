@@ -44,9 +44,9 @@ from eprinttools import Configuration, Aggregator, Views, Subjects, Users, norma
 # Deposit an Item -> http://calteches.library.caltech.edu/cgi/users/home
 # Contact Us (broken in produciton) -> should redirect to https://www.library.caltech.edu/contact
 
-def normalize_objects(objs, users):
+def normalize_objects(objs, users, subjects):
     for i, obj in enumerate(objs):
-        obj = normalize_object(obj, users)
+        obj = normalize_object(obj, users, subjects)
         objs[i] = obj
     return objs
 
@@ -61,7 +61,7 @@ def aggregate(cfg, views, users, subjects):
     frame_name = 'date-title'
     aggregations = {}
     objs = dataset.frame_objects(c_name, frame_name)
-    objs = normalize_objects(objs, users)
+    objs = normalize_objects(objs, users, subjects)
     aggregator = Aggregator(c_name, objs)
     view_keys = views.get_keys()
     for key in view_keys:
@@ -86,8 +86,8 @@ def generate_directories(cfg, view_paths):
 # landing_filter is used to transform EPrint Objects into something
 # friendly to use with Pandoc.
 #
-def landing_filter(obj, users):
-    return normalize_object(obj, users)
+def landing_filter(obj, users, subjects):
+    return normalize_object(obj, users, subjects)
 
 
 #
@@ -121,7 +121,7 @@ def generate_landings(cfg, views, users, subjects, include_documents = False):
             print(f'''
 WARNING: can't read {key} from {c_name}, {err}''')
             continue
-        src = json.dumps(landing_filter(obj, users))
+        src = json.dumps(landing_filter(obj, users, subjects))
         p_name = os.path.join(cfg.htdocs, f'{key}')
         os.makedirs(p_name, mode = 0o777, exist_ok = True)
         f_name = os.path.join(p_name, 'index.json')

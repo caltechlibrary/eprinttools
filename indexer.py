@@ -61,24 +61,15 @@ def apply_scheme(obj, subjects, htdocs):
                     contributors.append(display_name)
         if len(contributors) > 0:
             o['contributors'] = '; '.join(contributors)
-    if ('subjects' in obj) and (len(obj['subjects']) > 0):
-        terms = []
-        for term in obj['subjects']['items']:
-            if term in subject_keys:
-                terms.append(subjects.get_subject(term))
-        o['subjects'] = '; '.join(terms)
+    if ('subject_list' in obj) and (len(obj['subject_list']) > 0):
+        subjs = []
+        for item in obj['subject_list']:
+            subjs.append(item['label'])
+        o['subjects'] = '; '.join(subjs)
     else:
         o['subjects'] = ''
-    if ('keywords' in obj) and (len(obj['keywords']) > 0):
-        terms = []
-        if isinstance(obj['keywords'], str):
-            terms = []
-            for term in obj['keywords']:
-                if term in subject_keys:
-                    terms.append(subjects.get_subject(term))
-                else:
-                    terms.append(term)
-        o['keywords'] = ' '.join(terms)                
+    if ('keyword_list' in obj) and (len(obj['keyword_list']) > 0):
+        o['keywords'] = '; '.join(obj['keyword_list'])                
     else:
         o['keywords'] = ''
     if ('abstract' in obj) and (len(obj['abstract']) > 0):

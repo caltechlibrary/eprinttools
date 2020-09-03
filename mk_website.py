@@ -66,6 +66,12 @@ def assemble(cfg, html_filename, template_name, data):
     footer = os.path.join(cfg.static, 'footer.md')
     nav = os.path.join(cfg.static, 'nav.md')
     announcement = os.path.join(cfg.static, 'announcement.md')
+    if cfg.base_url != '':
+        data.append(kv('base_url', 'text', cfg.base_url))
+    if cfg.base_path != '':
+        data.append(kv('base_path', 'text', cfg.base_path))
+    if cfg.control_item != '':
+        data.append(kv('control_item', 'text', cfg.control_item))
     if os.path.exists(nav):
         data.append(kv('nav', '', nav))
     if os.path.exists(header):

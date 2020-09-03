@@ -257,13 +257,15 @@ def make_contributor_list(contributors):
 # Normalize object normalizes an JSON representation of an
 # eprints xml object.
 #
-def normalize_object(obj, users):
+def normalize_object(obj, users, subjects):
     title = obj['title'].strip()
     year = get_date_year(obj)
     eprint_id = get_eprint_id(obj)
     creator_list = []
     editor_list = []
     contributor_list = []
+    subject_list = []
+    keyword_list = []
     if ('creators' in obj) and ('items' in obj['creators']):
         creator_list = make_creator_list(obj['creators']['items'])
     if ('editors' in obj) and ('items' in obj['editors']):
@@ -293,6 +295,25 @@ def normalize_object(obj, users):
                 obj[field] = str(obj[field])
             value = obj[field].strip()
             obj[field] = value
+    if ('subjects' in obj) and ('items' in obj['subjects']):
+        for key in obj['subjects']['items']:
+            subj = { 'subject_id': key, 'label': ''}
+            if subjects.has_subject(key):
+                subj['label'] = subjects.get_subject(key)
+            else:
+                subj['subject_id'] = key 
+            subject_list.append(subj)
+    obj['subject_list'] = subject_list
+    if 'keywords' in obj:
+        if isinstance(obj['keywords'], str):
+            if ';' in obj['keywords']:
+                words = obj['keywords'].split(';')
+                for word in words:
+                    word = word.strip()
+                    keyword_list.append(word)
+            else:
+                keyword_list = [obj['keywords']]
+    obj['keyword_list'] = keyword_list
     obj['title'] = title
     obj['creators'] = creator_list
     obj['editors'] = editor_list
