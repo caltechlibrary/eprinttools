@@ -12,6 +12,7 @@
 
 ## Next
 
++ [ ] Release v0.1.9 to pypi and GitHub
 + [ ] Add alternative sort options for aggregations via frames
     + Currently provide sort by publication date and title
     + E.g. Descending publication date sort by sort_name
