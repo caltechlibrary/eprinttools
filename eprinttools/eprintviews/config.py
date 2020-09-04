@@ -42,7 +42,7 @@ class Configuration:
                     print(f'ERROR reading {f_name}, {err}')
                     return False
                 if 'include_documents' in data:
-                    self.include_documents = bool(data['include_documents'])
+                    self.include_documents = data['include_documents']
                     self.include_documents_set = True
                 if 'base_path' in data:
                     self.base_path = data['base_path']
@@ -194,7 +194,7 @@ class Configuration:
 
     def toJSON(self):
         o = {}
-        if self.include_documents_set:
+        if self.include_documents_set == True:
             o['include_documents'] = self.include_documents
         if self.control_item != '':
             o['control_item'] = self.control_item
