@@ -68,7 +68,11 @@ if __name__ == "__main__":
             if len(keys) == 0:
                 print("No keys found")
                 sys.exit(1)
-        err = harvest(keys, include_documents = cfg.include_documents, number_of_days = cfg.number_of_days)
+        # NOTE: we do an additional filter on the keys to restrict
+        # harvesting to recently added or modified records.
+        err = harvest(keys, 
+                number_of_days = cfg.number_of_days, 
+                include_documents = cfg.include_documents)
         if err != '':
             print(err)
             sys.exit(1)

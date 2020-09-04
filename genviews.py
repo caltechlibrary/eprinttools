@@ -80,7 +80,7 @@ def generate_directories(cfg, view_paths):
         d_name = doc_tree[key]
         if not os.path.exists(d_name):
             os.makedirs(d_name, mode = 0o777, exist_ok = True)
-    
+
 
 #
 # landing_filter is used to transform EPrint Objects into something
@@ -94,7 +94,7 @@ def landing_filter(obj, users, subjects):
 # generate_landings creates index.json to render index.md,
 # also deposits attachments in their relative paths.
 #
-def generate_landings(cfg, views, users, subjects, include_documents = False):
+def generate_landings(cfg, views, users, subjects):
     c_name = cfg.dataset
     repo_name, _ = os.path.splitext(c_name)
     keys = dataset.keys(c_name)
@@ -121,16 +121,11 @@ def generate_landings(cfg, views, users, subjects, include_documents = False):
             print(f'''
 WARNING: can't read {key} from {c_name}, {err}''')
             continue
-        src = json.dumps(landing_filter(obj, users, subjects))
-        p_name = os.path.join(cfg.htdocs, f'{key}')
-        os.makedirs(p_name, mode = 0o777, exist_ok = True)
-        f_name = os.path.join(p_name, 'index.json')
-        with open(f_name, 'w') as f:
-            f.write(src)
-        #FIXME: We want to have the option of including attachments
-        # for the digital files in our collection OR copying from
-        # source location to S3 bucket!
-        if include_documents:
+        obj = landing_filter(obj, users, subjects)
+                # source location to S3 bucket!
+        if cfg.include_documents:
+            #FIXME: Need to copy all objects to their respective location
+            # and update the path in the index.json file.
             # NOTE: we need to copy the attachments into the correct place
             # in our htdocs tree.
             if 'primary_object' in obj:
@@ -138,8 +133,8 @@ WARNING: can't read {key} from {c_name}, {err}''')
                 semver = obj['primary_object']['version']
                 url = obj['primary_object']['url']
                 o = urlparse(url)
-                p_name = os.path.join(cfg.htdocs,
-                         os.path.dirname(o.path).lstrip('/'))
+                rel_path = os.path.dirname(o.path).lstrip('/')
+                p_name = os.path.join(cfg.htdocs, rel_path)
                 if not os.path.exists(p_name):
                     os.makedirs(p_name, mode = 0o777, exist_ok = True)
                 f_name = os.path.join(p_name, b_name)
@@ -156,6 +151,17 @@ WARNING could not detach {b_name} in {key} from {c_name}, {err}')''')
                         print(f'''
 WARNING detached file missing {b_name} in {key} from {c_name}
 cannot move to {f_name}, skipping''')
+                #NOTE: We have modified were we expect to find the object
+                # so we need to change URL to htdocs relative path.
+                obj['primary_object']['url'] = os.path.join(".", rel_path[len(key)+1:], b_name)
+        # NOTE: after handling the attachments we can write our updated
+        # index.json file.
+        src = json.dumps(obj)
+        p_name = os.path.join(cfg.htdocs, f'{key}')
+        os.makedirs(p_name, mode = 0o777, exist_ok = True)
+        f_name = os.path.join(p_name, 'index.json')
+        with open(f_name, 'w') as f:
+            f.write(src)
         bar.update(i)
     bar.finish()
     print(f'generated {tot} landing pages, {e_cnt} errors from {repo_name}')
@@ -188,7 +194,7 @@ def generate_view(cfg, key, aggregations):
             make_view(key, p_name, aggregations[key])
         else:
             make_view(key, p_name, [])
-    
+
 # generate_views creates the common views across our EPrints
 # repositories.
 def generate_views(cfg, views, aggregations):
@@ -198,7 +204,7 @@ def generate_views(cfg, views, aggregations):
         generate_view(cfg, key, aggregations)
 
 
-def generate_metadata_structure(cfg, include_documents = False):
+def generate_metadata_structure(cfg):
     views = Views()
     views.load_views(cfg.views)
     users = Users()
@@ -217,7 +223,7 @@ def generate_metadata_structure(cfg, include_documents = False):
             print(f'Nothing to aggregate for {key}')
     print('')
     generate_views(cfg, views, aggregations)
-    generate_landings(cfg, views, users, subjects, include_documents)
+    generate_landings(cfg, views, users, subjects)
 
 
 if __name__ == "__main__":
@@ -229,8 +235,9 @@ if __name__ == "__main__":
         print(f'Missing JSON configuration file')
         sys.exit(1)
     cfg = Configuration()
-    if cfg.load_config(f_name) and cfg.required(['dataset', 'eprint_url', 'views', 'subjects', 'users']):
-        generate_metadata_structure(cfg, include_documents = False) 
+    if cfg.load_config(f_name) and cfg.required(['dataset', 'eprint_url', 'views', 'subjects', 'users', 'include_documents']):
+        generate_metadata_structure(cfg)
         print('OK')
     else:
         sys.exit(1)
+
