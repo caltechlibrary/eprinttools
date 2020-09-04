@@ -14,6 +14,8 @@ class Configuration:
         self.eprint_url = ''
         self.dataset = ''
         self.number_of_days = 0
+        self.include_documents = False
+        self.include_documents_set = False
         self.control_item = ''
         self.views = ''
         self.subjects = ''
@@ -39,6 +41,9 @@ class Configuration:
                 except Exception as err:
                     print(f'ERROR reading {f_name}, {err}')
                     return False
+                if 'include_documents' in data:
+                    self.include_documents = bool(data['include_documents'])
+                    self.include_documents_set = True
                 if 'base_path' in data:
                     self.base_path = data['base_path']
                 if 'base_url' in data:
@@ -96,9 +101,13 @@ class Configuration:
         '''This checks if the list of configuration fields provided have been set'''
         f_name = self.config_name
         ok = True
+        if ('include_documents' in settings):
+            if self.include_documents_set == False:
+                print(f'include_documents not set in {f_name}')
+                ok = False
         if ('control_item' in settings):
             if (self.control_item == ''):
-                print(f'control_item not set {f_name}')
+                print(f'control_item not set in {f_name}')
                 ok = False
         if ('base_path' in settings):
             if (self.base_path == ''):
@@ -185,6 +194,8 @@ class Configuration:
 
     def toJSON(self):
         o = {}
+        if self.include_documents_set:
+            o['include_documents'] = self.include_documents
         if self.control_item != '':
             o['control_item'] = self.control_item
         if self.base_path != '':

@@ -15,26 +15,30 @@ from eprinttools import Configuration
 def usage():
     app = os.path.basename(sys.argv[0])
     print(f'''
-USAGE: {app} CONGIF_JSON [NUMBER_OF_DAYS]
+USAGE: {app} CONGIF_JSON
 
 {app} harvests EPrints recent record(s) and related
-documents. It filters the list of all keys looking for
-once with a last modified date via the REST URL.
-It converts the EPrintXML into JSON which is
+documents. The number of days to harvest is set in the
+configuraiton file. Initally all keys are retrieved
+than the last modified date is exammed via the EPrints
+REST URL and records which were created or modified
+in the last N days are harvested.
+
+{app} also converts the EPrintXML into JSON which is
 stored in a dataset collection and stores the related
 records and EPrintXML as attachments to the JSON reccord.
+If the configuration has 'include_documents' set to true
+then the documents are harvested too.
 
-  {app} config.json 5
+  {app} config.json
 
-This would harvest EPrint records last modified in the
-previous five days as described in the config.json file.
+This command harvests EPrint records for the last N days
+described in the config.json file.
 
 ''')
 
 if __name__ == "__main__":
     f_name = ''
-    c_name = ''
-    url = ''
     number_of_days = 0
     keys = []
     if len(sys.argv) < 2:
@@ -42,8 +46,9 @@ if __name__ == "__main__":
         sys.exit(1)
     if len(sys.argv) >= 2:
         f_name = sys.argv[1]
-    if len(sys.argv) == 3 :
-        number_of_days = int(sys.argv[2])
+    if len(sys.argv) > 2:
+        for key in sys.argv[2:]:
+            keys.append(key)
 
     if f_name == '':
         print(f'ERROR: Missing configuration filename.')
@@ -52,10 +57,9 @@ if __name__ == "__main__":
         print(f'ERROR: Missing {f_name} file.')
         sys.exit(1)
     cfg = Configuration()
-    if cfg.load_config(f_name) and cfg.required(['dataset', 'eprint_url', 'number_of_days']):
+    if cfg.load_config(f_name) and cfg.required(['dataset', 'eprint_url', 'number_of_days', 'include_documents']):
         # Initialize the connection information (e.g. authentication)
-        c_name, url, number_of_days = cfg.dataset, cfg.eprint_url, cfg.number_of_days
-        err = harvest_init(c_name, url)
+        err = harvest_init(cfg.dataset, cfg.eprint_url)
         if err != '':
             print(err)
             sys.exit(1)
@@ -64,8 +68,7 @@ if __name__ == "__main__":
             if len(keys) == 0:
                 print("No keys found")
                 sys.exit(1)
-        repo_name, _ = os.path.splitext(c_name)
-        err = harvest(keys, include_documents = False, number_of_days = number_of_days) # , save_exported_keys = f'exported-recent-{repo_name}.keys')
+        err = harvest(keys, include_documents = cfg.include_documents, number_of_days = cfg.number_of_days)
         if err != '':
             print(err)
             sys.exit(1)

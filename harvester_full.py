@@ -32,8 +32,6 @@ described in the config.json file.
 
 if __name__ == "__main__":
     f_name = ''
-    c_name = ''
-    url = ''
     keys = []
     if len(sys.argv) < 2:
         usage()
@@ -50,10 +48,9 @@ if __name__ == "__main__":
         print(f'ERROR: Missing {f_name} file.')
         sys.exit(1)
     cfg = Configuration()
-    if cfg.load_config(f_name) and cfg.required(['dataset', 'eprint_url']):
+    if cfg.load_config(f_name) and cfg.required(['dataset', 'eprint_url', 'include_documents']):
         # Initialize the connection information (e.g. authentication)
-        c_name, url = cfg.dataset, cfg.eprint_url
-        err = harvest_init(c_name, url)
+        err = harvest_init(cfg.dataset, cfg.eprint_url)
         if err != '':
             print(err)
             sys.exit(1)
@@ -62,8 +59,7 @@ if __name__ == "__main__":
             if len(keys) == 0:
                 print("No keys found")
                 sys.exit(1)
-        repo_name, _ = os.path.splitext(c_name)
-        err = harvest(keys, include_documents = False) #, save_exported_keys = f'exported-{repo_name}.keys')
+        err = harvest(keys, include_documents = cfg.include_documents)
         if err != '':
             print(err)
             sys.exit(1)

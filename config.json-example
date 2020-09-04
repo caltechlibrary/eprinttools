@@ -12,5 +12,8 @@
     "htdocs": "htdocs",
     "templates": "templates",
     "static": "static",
-    "base_url": ""
+    "base_url": "",
+    "bucket": "",
+    "distribution_id": "",
+    "include_documents": false
 }
