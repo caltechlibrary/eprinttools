@@ -61,18 +61,15 @@ def apply_scheme(obj, subjects, htdocs):
                     contributors.append(display_name)
         if len(contributors) > 0:
             o['contributors'] = '; '.join(contributors)
-    if ('subject_list' in obj) and (len(obj['subject_list']) > 0):
-        subjs = []
-        for item in obj['subject_list']:
-            subjs.append(item['label'])
-        o['subjects'] = '; '.join(subjs)
+    if ('subjects' in obj) and (isinstance(obj['subjects'], str)):
+        o['subjects'] = obj['subjects'].strip()
     else:
         o['subjects'] = ''
-    if ('keyword_list' in obj) and (len(obj['keyword_list']) > 0):
-        o['keywords'] = '; '.join(obj['keyword_list'])                
+    if ('keywords' in obj) and (isinstance(obj['keywords'], str)):
+        o['keywords'] = obj['keywords'].strip()
     else:
         o['keywords'] = ''
-    if ('abstract' in obj) and (len(obj['abstract']) > 0):
+    if ('abstract' in obj) and (isinstance(obj['abstract'], str)):
         o['abstract'] = obj['abstract'].strip()
     else:
         o['abstract'] = ''
@@ -93,6 +90,15 @@ def get_fields(obj):
         fields.append(f)
     return fields
 
+def elastic_filter(cfg, obj):
+    o = {}
+    for key in obj:
+        if key == '_Key':
+            o['key'] = os.path.join(cfg.base_url, obj[key], '')
+        else:
+            o[key] = obj[key]
+    return o
+
 def build_index(cfg):
     c_name, htdocs, f_subjects = cfg.dataset, cfg.htdocs, cfg.subjects
     subjects = Subjects()
@@ -102,6 +108,7 @@ def build_index(cfg):
     documents = []
     e_cnt = 0
     fields = []
+    elastic_documents = []
     bar = progressbar.ProgressBar(
             max_value = tot,
             widgets = [
@@ -121,10 +128,12 @@ def build_index(cfg):
             print(f'WARNING: skipping {kay} in {c_name}, apply scheme: {err}')
             e_cnt += 1
             continue
-        # NOTE: we want to save the scheme fields for building our index.
-        if (len(fields) == 0) and (len(obj) > 0):
+        # NOTE: we want to save the fields we normalized to for making
+        # out index. 
+        if (len(obj) > 0) and (len(fields) == 0):
             fields = get_fields(obj)
         documents.append(obj)
+        elastic_documents.append(elastic_filter(cfg, obj))
         bar.update(i)
     bar.finish()
     print(f'Found {len(documents)} in {c_name}')
@@ -137,6 +146,11 @@ def build_index(cfg):
     i_name = os.path.join(htdocs, 'documents.json')
     with open(i_name, 'w') as f:
         src = json.dumps(idx.serialize())
+        f.write(src)
+    print(f'wrote {i_name} based on {c_name}')
+    i_name = os.path.join('.', 'elastic-documents.json')
+    with open(i_name, 'w') as f:
+        src = json.dumps(elastic_documents)
         f.write(src)
     print(f'wrote {i_name} based on {c_name}')
 
@@ -155,4 +169,5 @@ if __name__ == "__main__":
         build_index(cfg)
     else:
         sys.exit(1)
+
 

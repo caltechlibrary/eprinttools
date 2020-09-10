@@ -59,7 +59,7 @@ which I've named `config.json` in the examples below.
       "htdocs": "htdocs",
       "templates": "templates",
       "static": "static",
-      "base_url": ""
+      "base_url": "http://localhost:8000"
     }
 ```
 
@@ -111,7 +111,7 @@ distribution_id
 : (optional) This is the ID number used by Cloudfront for invalidating CDN cache. It is only used by **includate_cloudfront.py**. It is only used by **includate_cloudfront.py**
 
 base_url
-: If this is set to a non-empty string then this will be passed to the templates used by mk_website.py to build HTML pages.
+: If this is set to a non-empty string then this will be passed to the templates used by mk_website.py to build HTML pages. It is also used in generating an Elasticsearch JSON document for ingest and linking back to the targetted resource.
 
 ### views JSON file content
 
