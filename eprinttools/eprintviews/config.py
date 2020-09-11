@@ -32,8 +32,6 @@ class Configuration:
         self.elastic_documents = ''
         self.elastic_base_endpoint = ''
         self.elastic_api_key = ''
-        self.elastic_use_https = False
-        self.elastic_use_https_set = False
         self.elastic_engine_name = ''
 
     def load_config(self, f_name):
@@ -56,9 +54,6 @@ class Configuration:
                     self.elastic_base_endpoint = data['elastic_base_endpoint']
                 if 'elastic_api_key' in data:
                     self.elastic_api_key = data['elastic_api_key']
-                if 'elastic_use_https' in data:
-                    self.elastic_use_https = data['elastic_use_https']
-                    self.elastic_use_https_set = True
                 if 'elastic_engine_name' in data:
                     self.elastic_engine_name = data['elastic_engine_name']
                 if 'include_documents' in data:
@@ -136,10 +131,6 @@ class Configuration:
         if ('elastic_api_key' in settings):
             if (self.elastic_api_key == ''):
                 print(f'elastic_api_key not set in {f_name}')
-                ok = False
-        if ('elastic_use_https' in settings):
-            if (self.elastic_use_https_set == False):
-                print(f'elastic_use_https not set in {f_name}')
                 ok = False
         if ('elastic_engine_name' in settings):
             if (self.elastic_engine_name == ''):
@@ -245,7 +236,6 @@ class Configuration:
         if self.elastic_base_endpoint != '':
             o['elastic_base_endpoint'] = self.elastic_base_endpoint
             o['elastic_api_key'] = self.elastic_api_key
-            o['elastic_use_https'] = self.elastic_use_https
         if self.include_documents_set == True:
             o['include_documents'] = self.include_documents
         if self.control_item != '':
