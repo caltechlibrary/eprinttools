@@ -28,6 +28,13 @@ class Configuration:
         self.config_name = ''
         self.base_url = ''
         self.base_path = ''
+        self.elastic_documents_max_no = 2500
+        self.elastic_documents = ''
+        self.elastic_base_endpoint = ''
+        self.elastic_api_key = ''
+        self.elastic_use_https = False
+        self.elastic_use_https_set = False
+        self.elastic_engine_name = ''
 
     def load_config(self, f_name):
         '''this reads a JSON configuration from disc and configures self'''
@@ -41,6 +48,19 @@ class Configuration:
                 except Exception as err:
                     print(f'ERROR reading {f_name}, {err}')
                     return False
+                if 'elastic_documents_max_no' in data:
+                    self.elastic_documents_max_no = data['elastic_documents_max_no']
+                if 'elastic_documents' in data:
+                    self.elastic_documents = data['elastic_documents']
+                if 'elastic_base_endpoint' in data:
+                    self.elastic_base_endpoint = data['elastic_base_endpoint']
+                if 'elastic_api_key' in data:
+                    self.elastic_api_key = data['elastic_api_key']
+                if 'elastic_use_https' in data:
+                    self.elastic_use_https = data['elastic_use_https']
+                    self.elastic_use_https_set = True
+                if 'elastic_engine_name' in data:
+                    self.elastic_engine_name = data['elastic_engine_name']
                 if 'include_documents' in data:
                     self.include_documents = data['include_documents']
                     self.include_documents_set = True
@@ -101,6 +121,30 @@ class Configuration:
         '''This checks if the list of configuration fields provided have been set'''
         f_name = self.config_name
         ok = True
+        if ('elastic_documents_max_no' in settings):
+            if (self.elastic_documents_max_no == 0):
+                print(f'elastic_documents_max_no not set in {f_name}')
+                ok = False
+        if ('elastic_documents' in settings):
+            if (self.elastic_documents == ''):
+                print(f'elastic_documents not set in {f_name}')
+                ok = False
+        if ('elastic_base_endpoint' in settings):
+            if (self.elastic_base_endpoint == ''):
+                print(f'elastic_base_endpoint not set in {f_name}')
+                ok = False
+        if ('elastic_api_key' in settings):
+            if (self.elastic_api_key == ''):
+                print(f'elastic_api_key not set in {f_name}')
+                ok = False
+        if ('elastic_use_https' in settings):
+            if (self.elastic_use_https_set == False):
+                print(f'elastic_use_https not set in {f_name}')
+                ok = False
+        if ('elastic_engine_name' in settings):
+            if (self.elastic_engine_name == ''):
+                print(f'elastic_engine_name not set in {f_name}')
+                ok = False
         if ('include_documents' in settings):
             if self.include_documents_set == False:
                 print(f'include_documents not set in {f_name}')
@@ -194,6 +238,14 @@ class Configuration:
 
     def toJSON(self):
         o = {}
+        if self.elastic_documents_max_no > 0:
+            o['elastic_documents_max_no'] = self.elastic_documents_max_no
+        if self.elastic_documents != '':
+            o['elastic_documents'] = self.elastic_documents
+        if self.elastic_base_endpoint != '':
+            o['elastic_base_endpoint'] = self.elastic_base_endpoint
+            o['elastic_api_key'] = self.elastic_api_key
+            o['elastic_use_https'] = self.elastic_use_https
         if self.include_documents_set == True:
             o['include_documents'] = self.include_documents
         if self.control_item != '':

@@ -11,6 +11,6 @@
 
 + Converting DOIs to EPrints XML
     + [Windows 10 Workflow](windows-10-workflow.html)
-    + [Mac OS X Workflow](macosx-workflow.html)
+    + [Mac OS X Workflow](macos-workflow.html)
 
 

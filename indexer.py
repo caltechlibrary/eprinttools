@@ -148,6 +148,8 @@ def build_index(cfg):
         src = json.dumps(idx.serialize())
         f.write(src)
     print(f'wrote {i_name} based on {c_name}')
+    #FIXME: Need to allow for particutioning this array up into
+    # separate files for our larger EPrints repositories
     i_name = os.path.join('.', 'elastic-documents.json')
     with open(i_name, 'w') as f:
         src = json.dumps(elastic_documents)

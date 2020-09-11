@@ -10,7 +10,7 @@ Below are generalized instructions for installation of a release.
 ## Compiled version
 
 Compiled versions are available for Mac OS X (amd64 processor,
-macosx-amd64), Linux (amd64 process, linux-amd64), Windows (amd64
+macos-amd64), Linux (amd64 process, linux-amd64), Windows (amd64
 processor, windows-amd64) and Rapsberry Pi (arm7 processor,
 raspbian-arm7)
 
@@ -25,7 +25,7 @@ latest release
     | Platform    | Zip Filename                                 |
     |-------------|----------------------------------------------|
     | Windows     | eprinttools-VERSION_NUMBER-windows-amd64.zip |
-    | Mac OS X    | eprinttools-VERSION_NUMBER-macosx-amd64.zip  |
+    | Mac OS X    | eprinttools-VERSION_NUMBER-macos-amd64.zip  |
     | Linux/Intel | eprinttools-VERSION_NUMBER-linux-amd64.zip   |
     | Raspbery Pi | eprinttools-VERSION_NUMBER-raspbian-arm7.zip |
 
@@ -57,7 +57,7 @@ downloading the zip file.
 
 ``` shell
     cd Downloads/
-    unzip eprinttools-*-macosx-amd64.zip
+    unzip eprinttools-*-macos-amd64.zip
     mkdir -p $HOME/bin
     cp -v bin/* $HOME/bin/
     export PATH=$HOME/bin:$PATH

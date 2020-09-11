@@ -113,6 +113,22 @@ distribution_id
 base_url
 : If this is set to a non-empty string then this will be passed to the templates used by mk_website.py to build HTML pages. It is also used in generating an Elasticsearch JSON document for ingest and linking back to the targetted resource.
 
+elastic_documents
+: This is the filename to use when creating JSON documents for ingest into Elasticsearch, if not set then no JSON document is created. E.g. elastic-documents.json
+
+elastic_documents_max_no
+: This is the maximum number of records to include in the Elasticsearch ingest document file(s). If there are more records to ingest than this number the filename indicated by elastic_documents will contain a numeric index, e.g. elastic-documents-1.json, elastic-documents-2.json. This defaults to 2500 dobjects in the elastic search document array.
+
+elastic_base_endpoint
+: Used to configure the Elasticsearch elastic-app-search Client 
+
+elastic_api_key
+: Used to configure the Elasticsearch elastic-app-search Client
+
+elastic_use_https
+: used to configure the Elasticsearch elastic-app-search Client
+
+
 ### views JSON file content
 
 This file controls what views get built built by the `genviews.py` command.
