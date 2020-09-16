@@ -13,13 +13,9 @@ class Logger:
         return (f'{dt} (pid: {pid}) {msg}')
 
     def print(self, msg):
-        dt = datetime.now().strftime(self.time_format)
-        pid = self.pid
-        print(f'{dt} (pid: {pid}) {msg}', flush = True)
+        print(self.sprint(msg), flush = True)
 
     def fatal(self, msg):
-        dt = datetime.now().strftime(self.time_format)
-        pid = self.pid
-        print(f'{dt} (pid: {pid}) {msg}', flush = True)
+        print(self.sprint(msg), flush = True)
         sys.exit(1)
 

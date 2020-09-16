@@ -6,7 +6,7 @@ import os
 from subprocess import Popen, PIPE, run
 import sys
 
-from .logger import Logger
+from sidetrack import Logger
 
 #
 # publisher.py is a script to publish an htdocs directory 
