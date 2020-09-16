@@ -28,7 +28,7 @@ class Configuration:
         self.config_name = ''
         self.base_url = ''
         self.base_path = ''
-        self.elastic_documents_max_no = 2500
+        self.elastic_documents_max_no = 25
         self.elastic_documents = ''
         self.elastic_base_endpoint = ''
         self.elastic_api_key = ''
