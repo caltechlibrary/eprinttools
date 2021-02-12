@@ -42,8 +42,6 @@ htdocs/affiliation/*
 htdocs/repository/*
 htdocs/Caltech*/*
 htdocs/funder/*
-eprints*
-epgo
 *.zip
 *.boltdb
 *.bleve
@@ -67,3 +65,6 @@ eprinttools.egg-info
 man
 testout
 testout_*
+*.keys
+*.json
+htdocs/*

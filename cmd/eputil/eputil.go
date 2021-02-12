@@ -27,6 +27,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"path"
 	"strings"
 
 	// Golang optional libraries
@@ -141,6 +142,7 @@ setup implemented in the EPrint instance.
 	asJSON         bool
 	raw            bool
 	getURL         string
+	getDocument    bool
 )
 
 func main() {
@@ -174,6 +176,7 @@ func main() {
 	app.StringVar(&username, "u,un,user,username", "", "set the username for authenticated access")
 	app.BoolVar(&passwordPrompt, "password", false, "Prompt for the password for authenticated access")
 	app.StringVar(&auth, "auth", "", "set the authentication type for access")
+	app.BoolVar(&getDocument, "document", false, "Retrieve a document from the provided url")
 
 	// We're ready to process args
 	app.Parse()
@@ -282,6 +285,12 @@ func main() {
 	}
 
 	switch {
+	case getDocument:
+		docName := path.Base(u.Path)
+		err = ioutil.WriteFile(docName, src, 0644)
+		cli.ExitOnError(app.Eout, err, quiet)
+		fmt.Fprintf(app.Out, "retrieved %s\n", docName)
+		os.Exit(0)
 	case u.Path == "/rest/eprint/":
 		data := eprinttools.EPrintsDataSet{}
 		err = xml.Unmarshal(src, &data)

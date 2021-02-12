@@ -1,0 +1,19 @@
+{
+    "eprint_url": "http://USERNAME:SECRET@eprints.example.edu",
+    "dataset": "EPrints.ds",
+    "number_of_days": -30,
+    "control_item": "http://eprints.example.edu/cgi/users/home?screen=EPrint::View&eprintid=",
+    "users": "eprint_users.json",
+    "subjects": "eprint_subjects.txt",
+    "views": "eprint_views.json",
+    "site_title": "Demo EPrints static website",
+    "organization": "Example Library Organization",
+    "site_welcome": "Welcome to a demo of using EPrints to generate a static website",
+    "htdocs": "htdocs",
+    "templates": "templates",
+    "static": "static",
+    "base_url": "",
+    "bucket": "",
+    "distribution_id": "",
+    "include_documents": false
+}

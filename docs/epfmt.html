@@ -11,44 +11,54 @@
 </header>
 <nav>
 <ul>
-<li><a href="/">Home</a></li>
-<li><a href="../">README</a></li>
-<li><a href="../license.html">LICENSE</a></li>
-<li><a href="../install.html">INSTALL</a></li>
-<li><a href="./">Documentation</a></li>
-<li><a href="https://github.com/caltechlibrary/eprinttools">Github</a></li>
-<li><a href="https://github.com/caltechlibrary/eprinttools/releases/latest">Releases</a></li>
+<li>
+<a href="/">Home</a>
+</li>
+<li>
+<a href="../">README</a>
+</li>
+<li>
+<a href="../license.html">LICENSE</a>
+</li>
+<li>
+<a href="../install.html">INSTALL</a>
+</li>
+<li>
+<a href="./">Documentation</a>
+</li>
+<li>
+<a href="https://github.com/caltechlibrary/eprinttools">Github</a>
+</li>
+<li>
+<a href="https://github.com/caltechlibrary/eprinttools/releases/latest">Releases</a>
+</li>
 </ul>
-
 </nav>
 
 <section>
-<h1>USAGE</h1>
-
+<h1>
+USAGE
+</h1>
 <pre><code>epfmt [OPTIONS]
 </code></pre>
-
-<h2>SYNOPSIS</h2>
-
-<p><em>epfmt</em> is a command line program for
-pretty printing EPrint XML. It can also convert
-EPrint XML to and from JSON.</p>
-
-<h2>DESCRIPTION</h2>
-
-<p><em>epfmt</em> parses EPrint XML (or JSON version) from
-standard input and pretty prints the result to
-standard out. You can change output format XML
-and JSON by using either the &lsquo;-xml&rsquo; or &lsquo;-json&rsquo;
-option. The XML representation is based on EPrints
-3.x.  <em>epfmt</em> does NOT interact with the EPrints API
-only the the document presented via standard
-input.</p>
-
-<h2>OPTIONS</h2>
-
-<p>Below are a set of options available.</p>
-
+<h2>
+SYNOPSIS
+</h2>
+<p>
+<em>epfmt</em> is a command line program for pretty printing EPrint XML. It can also convert EPrint XML to and from JSON.
+</p>
+<h2>
+DESCRIPTION
+</h2>
+<p>
+<em>epfmt</em> parses EPrint XML (or JSON version) from standard input and pretty prints the result to standard out. You can change output format XML and JSON by using either the ‘-xml’ or ‘-json’ option. The XML representation is based on EPrints 3.x. <em>epfmt</em> does NOT interact with the EPrints API only the the document presented via standard input.
+</p>
+<h2>
+OPTIONS
+</h2>
+<p>
+Below are a set of options available.
+</p>
 <pre><code>    -e, -examples        display examples
     -generate-manpage    generate man page
     -generate-markdown   generate Markdown documentation
@@ -62,36 +72,34 @@ input.</p>
     -v, -version         display version
     -xml                 output EPrint XML
 </code></pre>
-
-<h2>EXAMPLES</h2>
-
-<p>Pretty print EPrint XML as XML.</p>
-
+<h2>
+EXAMPLES
+</h2>
+<p>
+Pretty print EPrint XML as XML.
+</p>
 <pre><code>    epfmt &lt; 123.xml
 </code></pre>
-
-<p>Pretty print from EPrint XML as JSON</p>
-
+<p>
+Pretty print from EPrint XML as JSON
+</p>
 <pre><code>    epfmt -json &lt; 123.xml
 </code></pre>
-
-<p>Render EPrint JSON as EPrint XML.</p>
-
+<p>
+Render EPrint JSON as EPrint XML.
+</p>
 <pre><code>    epfmt -xml &lt; 123.json
 </code></pre>
-
-<p><em>epfmt</em> will first parse the XML or JSON
-presented to it and pretty print the output
-in the desired format requested. If no
-format option chosen it will pretty print
-in the same format as input.</p>
-
-<p>epfmt v0.0.58</p>
-
+<p>
+<em>epfmt</em> will first parse the XML or JSON presented to it and pretty print the output in the desired format requested. If no format option chosen it will pretty print in the same format as input.
+</p>
+<p>
+epfmt v0.0.58
+</p>
 </section>
 
 <footer>
-<span>&copy; 2018 <a href="https://www.library.caltech.edu/copyright">Caltech Library</a></span>
+<span>&copy; 2020 <a href="https://www.library.caltech.edu/copyright">Caltech Library</a></span>
 <address>1200 E California Blvd, Mail Code 1-32, Pasadena, CA 91125-3200</address>
 <span><a href="mailto:library@caltech.edu">Email Us</a></span> 
 <span>Phone: <a href="tel:+1-626-395-3405">(626)395-3405</a></span>

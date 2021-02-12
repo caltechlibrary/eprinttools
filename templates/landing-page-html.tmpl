@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    ${if(page_title)}<title>${page_title}</title>${endif}
+    <link rel="stylesheet" href="/css/site.css">
+    ${if(object.title)}<meta name="citation_title" content="${object.title}">${endif}
+    ${for(object.creators)}<meta name="citation_author" content="${it.sort_name}">${sep}
+    ${endfor}
+    ${if(object.date)}<meta name="citation_publication_date" content="${object.date}">${endif}
+    ${if(object.publication)}<meta name="citation_journal_title" content="${object.publication}">${endif}
+    ${if(object.volume)}<meta name="citation_volume" content="${object.volume}">${endif}
+    ${if(object.issue)}<meta name="citation_issue" content="${object.issue}">${endif}
+    ${if(object.primary_object.url)}<meta name="citation_pdf_url" content="${object.primary_object.url}">${endif}
+</head>
+<body>
+<header>
+${if(header)}${header}${else}
+<h1>${site_title}</h1>
+<h2>${organization}</h2>${endif}
+</header>
+
+${if(nav)}<nav>
+${nav}
+</nav>${endif}
+
+<section>
+${if(object.title)}<h1>${object.title}</h1>${endif}
+<p>
+${for(object.creators)}${it.display_name}${sep}; ${endfor} 
+${if(object.year)}(${object.year})${endif}
+${if(object.title)}${object.title}${endif}
+${if(object.type_label)}[${object.type_label}]${endif}
+${if(object.official_url)}<a href="${object.official_url}">${object.official_url}</a>${endif}
+<p>
+${if(object.primary_object)}
+<div>
+<a href="${object.primary_object.url}"><img src="/assets/application_pdf.png"></a>
+<a href="${object.primary_object.url}">PDF</a> See Usage Policy.
+${if(object.primary_object.filesize)}<span class='filesize'>${object.primary_object.filesize} bytes</span>${endif}
+</div>
+${endif}
+
+
+${if(object.official_url)}<p>Use this Persistant URL to link to this item:
+<a href="${object.official_url}">${object.official_url}</a>
+</p>${endif}
+
+${if(object.abstract)}<h2>Abstract</h2>
+<div>${object.abstract}</div>
+${endif}
+<p>
+<table class="side-headings">
+${if(object.type_label)}<tr><th>Item Type:</th><td>${object.type_label}</td></tr>${endif}
+${if(object.keywords)}<tr><th>Keywords:</th><td>${for(object.keywords)}${it.keywords}${sep}, ${endfor}</td></tr>${endif}
+${if(object.official_url)}<tr><th>Persistent URL:</th><td><a href="${object.official_url}">${object.official_url}</a></td></tr>${endif}
+${if(object.official_cit)}<tr><th>Official Citation:</th><td>${object.official_cit}</td></tr>${endif}
+${if(object.rights)}<tr><th>Usage Policy:</th><td>${object.rights}</td></tr>${endif}
+${if(object.subjects)}<tr><th>Subjects:</th><td>${for(object.subjects)}${object.subjects}${sep}<br>${endfor}</td></tr>${endif}
+${if(object.eprint_id)}<tr><th>ID Code:</th><td>${object.eprint_id}</td></tr>${endif}
+${if(object.collection)}<tr><th>Collection:</th><td>${object.collection}</td></tr>${endif}
+${if(object.event_title)}<tr><th>Event:</th><td>${object.event_title}</td></tr>${endif}
+${if(object.event_location)}<tr><th>Location:</th><td>${object.event_location}</td></tr>${endif}
+${if(object.event_dates)}<tr><th>Dates:</th><td>${object.event_dates}</td></tr>${endif}
+${if(object.interviewer)}<tr><th>Interviewer:</th><td>${object.interviewer}</td></tr>${endif}
+${if(object.interviewdate)}<tr><th>Interview Date(s):</th><td>${object.interviewdate}</td></tr>${endif}
+${if(object.depositor)}<tr><th>Deposited By:</th><td>${object.depositor}</td></tr>${endif}
+${if(object.datestamp)}<tr><th>Deposited On:</th><td>${object.datestamp}</td></tr>${endif}
+${if(object.lastmod)}<tr><th>Last Modified:</th><td>${object.lastmod}</td></tr>${endif}
+
+</table>
+</section>
+
+
+${if(object.eprint_id)}
+<div class="control-item">
+Repository Staff Only:
+<a href="http://oralhistories.library.caltech.edu/cgi/users/home?screen=EPrint::View&eprintid=${object.eprint_id}">Item control page</a>
+</div>
+${endif}
+
+<footer>
+${if(footer)}${footer}${else}<span><h1><A href="https://caltech.edu">Caltech</a></h1></span>
+<span>&copy; 2020 <a href="https://www.library.caltech.edu/copyright">Caltech library</a></span>
+<address>1200 E California Blvd, Mail Code 1-32, Pasadena, CA 91125-3200</address> 
+<span>Phone: <a href="tel:+1-626-395-3405">(626)395-3405</a></span>
+<span><a href="mailto:library@caltech.edu">Email Us</a></span>
+<a class="cl-hide" href="sitemap.xml">Site Map</a>${endif}
+</footer>
+</body>
+</html>

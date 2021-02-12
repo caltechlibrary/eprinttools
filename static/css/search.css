@@ -1,0 +1,84 @@
+/**
+ * site.css - stylesheet for the Caltech Library's Digital Library Development Group's sandbox.
+ *
+ * orange: #FF6E1E;
+ *
+ * Secondary pallet:
+ *
+ * lightgrey: #C8C8C8
+ * grey: #76777B
+ * darkgrey: #616265
+ * slategrey: #AAA99F
+ *
+ * Impact Pallete see: http://identity.caltech.edu/web/colors
+ */
+
+.search-box {
+    margin-top: 1.24em;
+    display: block;
+}
+
+.search-box div {
+    display: block;
+}
+
+.search-input-query label {
+    display: inline-block;
+    vertical-align: top;
+}
+
+.search-go-button {
+    display: block;
+}
+
+.search-go-button input {
+    text-align: center;
+    margin: 0.24em;
+}
+
+.search-result-pager {
+    padding-top: 1.24em;
+    padding-bottom: 1.24em;
+}
+
+.search-results {
+    margin-top:0;
+    margin-bottom:0;
+    margin-left: 0;
+    margin-right: 1.24em;
+    padding: 0;
+}
+.search-result {
+    margin-top:0.64em;
+    margin-bottom:0.64em;
+    padding-top: 1.24em;
+    padding-bottom: 1.24em;
+}
+
+.search-result:nth-child(odd) {
+    background-color: gainsboro;
+}
+
+.field-name, .matched-name, .index-name {
+    display: inline-block;
+    width: 8%;
+    text-transform: uppercase;
+    vertical-align: top;
+    text-align: right;
+    margin-right: 1.24em;
+}
+
+.field-value, .matched-value, .index-value {
+    display: inline-block;
+    width: 70%;
+    vertical-align: top;
+    text-align: left;
+}
+
+.index-value {
+    font-style: italic;
+}
+
+.authors li {
+    list-style: none;
+}

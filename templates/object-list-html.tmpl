@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    ${if(page_title)}<title>${page_title}</title>${endif}
+    <link rel="stylesheet" href="/css/site.css">
+</head>
+<body>
+<header>
+${if(header)}${header}${else}
+<h1>${site_title}</h1>
+<h2>${organization}</h2>${endif}
+</header>
+
+${if(nav)}<nav>
+${nav}
+</nav>${endif}
+
+${if(title)}<h1>${title}</h1>${endif}
+
+
+<section>
+<p><a href="./">Back</a></p>
+${if(content)}${content}${endif}
+${if(object_list)}
+${if(count)}<p>Number of items: ${count}.<br>(descending date, ascending title)</p><hr/>${endif}
+<ul>
+    ${for(object_list)}
+    <li>${if(object_list.creators)}${for(object_list.creators)}${it.display_name}${sep}; ${endfor}${endif} (${object_list.year}) <a href="/${object_list.eprint_id}/">${object_list.title}</a> [${object_list.type_label}] ${if(object_list.official_url)}<a href="${object_list.official_url}">${object_list.official_url}</a>${endif}${endfor}
+</ul>
+${endif}
+</section>
+
+<footer>
+${if(footer)}${footer}${else}<span><h1><A href="https://caltech.edu">Caltech</a></h1></span>
+<span>&copy; 2020 <a href="https://www.library.caltech.edu/copyright">Caltech library</a></span>
+<address>1200 E California Blvd, Mail Code 1-32, Pasadena, CA 91125-3200</address> 
+<span>Phone: <a href="tel:+1-626-395-3405">(626)395-3405</a></span>
+<span><a href="mailto:library@caltech.edu">Email Us</a></span>
+<a class="cl-hide" href="sitemap.xml">Site Map</a>${endif}
+</footer>
+</body>
+</html>

@@ -1,0 +1,20 @@
+#!/bin/bash
+#
+
+#
+# This is an example of the environment configuration for accessing the ORCID Public API sandbox.
+# You need to modify these values to support your access to the public API or sandbox.
+# These values were taken from the public documentation on the API
+#
+# See: https://members.orcid.org/api/accessing-public-api
+# See: http://members.orcid.org/api/tutorial-retrieve-data-public-api-curl-12-and-earlier
+#
+export RC_AUTH_METHOD="oauth"
+export RC_API_URL="https://pub.sandbox.orcid.org"
+export RC_CLIENT_ID="APP-01XX65MXBF79VJGF"
+export RC_CLIENT_SECRET="3a87028d-c84c-4d5f-8ad5-38a93181c9e1"
+# You will need to manually set RC_ACCESS_TOKEN based on the response from
+# the request to /oauth/token providing providing the client_id and client_secret.
+# Once you have the JSON blob back you can then set the ORCID_ACCESS_TOKEN variable
+# and export it into your environment.
+# E.g. `export RC_ACCESS_TOKEN="3b5bd7e6-8499-40ac-ac21-7301b09d4aab"`
