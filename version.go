@@ -2,7 +2,7 @@ package eprinttools
 
 const (
 	// Version is the revision number for this implementation of epgo
-	Version = `v0.1.9`
+	Version = `v0.1.10`
 
 	// LicenseText holds the string for rendering License info on the command line
 	LicenseText = `
