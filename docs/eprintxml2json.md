@@ -1,13 +1,16 @@
 
-# USAGE
+USAGE
+=====
 
 	eprintxml2json [OPTIONS] [input filename]
 
-## SYNOPSIS
+SYNOPSIS
+--------
 
 _eprintxml2json_ convers EPrintXML documents to JSON
 
-## DESCRIPTION
+DESCRIPTION
+-----------
 
 _eprintxml2json_ converts EPrintXML like that
 retrieved from the EPrint 3.x REST API to JSON. If no filename
@@ -18,7 +21,8 @@ used to close the process otherwise the process will render
 JSON to standard out.
 
 
-## OPTIONS
+OPTIONS
+-------
 
 Below are a set of options available.
 
@@ -36,7 +40,8 @@ Below are a set of options available.
 ```
 
 
-## EXAMPLES
+EXAMPLES
+--------
 
 Converting a document, eprints-dump.xml, to JSON.
 
@@ -52,4 +57,4 @@ Or
 
 
 
-eprintxml2json v0.0.58
+eprintxml2json v0.1.10

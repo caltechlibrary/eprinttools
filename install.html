@@ -36,7 +36,7 @@
 </nav>
 
 <section>
-<h1>
+<h1 id="installation">
 Installation
 </h1>
 <p>
@@ -45,11 +45,11 @@ Installation
 <p>
 Below are generalized instructions for installation of a release.
 </p>
-<h2>
+<h2 id="compiled-version">
 Compiled version
 </h2>
 <p>
-Compiled versions are available for Mac OS X (amd64 processor, macosx-amd64), Linux (amd64 process, linux-amd64), Windows (amd64 processor, windows-amd64) and Rapsberry Pi (arm7 processor, raspbian-arm7)
+Compiled versions are available for Mac OS X (amd64 and M1 processor, macos-amd64, macos-arm64), Linux (amd64 process, linux-amd64), Windows (amd64 processor, windows-amd64) and Rapsberry Pi (arm7 processor, raspbian-arm7)
 </p>
 <p>
 VERSION_NUMBER is a <a href="http://semver.org/">symantic version number</a> (e.g. v0.1.2)
@@ -59,55 +59,87 @@ For all the released version go to the project page on Github and click latest r
 </p>
 <blockquote>
 <p>
-<a href="https://github.com/caltechlibrary/eprinttools/releases/latest">https://github.com/caltechlibrary/eprinttools/releases/latest</a>
+<a href="https://github.com/caltechlibrary/eprinttools/releases/latest" class="uri">https://github.com/caltechlibrary/eprinttools/releases/latest</a>
 </p>
 </blockquote>
-<pre><code>| Platform    | Zip Filename                                 |
-|-------------|----------------------------------------------|
-| Windows     | eprinttools-VERSION_NUMBER-windows-amd64.zip |
-| Mac OS X    | eprinttools-VERSION_NUMBER-macosx-amd64.zip  |
-| Linux/Intel | eprinttools-VERSION_NUMBER-linux-amd64.zip   |
-| Raspbery Pi | eprinttools-VERSION_NUMBER-raspbian-arm7.zip |
-</code></pre>
-<h2>
+<table>
+<thead>
+<tr class="header">
+<th>
+Platform
+</th>
+<th>
+Zip Filename
+</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>
+Windows
+</td>
+<td>
+eprinttools-VERSION_NUMBER-windows-amd64.zip
+</td>
+</tr>
+<tr class="even">
+<td>
+macOS
+</td>
+<td>
+eprinttools-VERSION_NUMBER-macos-amd64.zip
+</td>
+</tr>
+<tr class="odd">
+<td>
+macOS
+</td>
+<td>
+eprinttools-VERSION_NUMBER-macos-arm64.zip
+</td>
+</tr>
+<tr class="even">
+<td>
+Linux/Intel
+</td>
+<td>
+eprinttools-VERSION_NUMBER-linux-amd64.zip
+</td>
+</tr>
+<tr class="odd">
+<td>
+Raspbery Pi
+</td>
+<td>
+eprinttools-VERSION_NUMBER-raspbian-arm7.zip
+</td>
+</tr>
+</tbody>
+</table>
+<h2 id="the-basic-recipe">
 The basic recipe
 </h2>
 <ul>
 <li>
-Find the Zip file listed matching the architecture you’re running and download it
-<ul>
-<li>
-(e.g. if you’re on a Windows 10 laptop/Surface with a amd64 style CPU you’d choose the Zip file with “windows-amd64” in the name).
-</li>
-</ul>
+Find the Zip file listed matching the architecture you’re running and download it - (e.g. if you’re on a Windows 10 laptop/Surface with a amd64 style CPU you’d choose the Zip file with “windows-amd64” in the name).
 </li>
 <li>
 Download the zip file and unzip the file.
 </li>
 <li>
-Copy the contents of the folder named “bin” to a folder that is in your path
-<ul>
-<li>
-(e.g. “$HOME/bin” is common).
-</li>
-</ul>
+Copy the contents of the folder named “bin” to a folder that is in your path - (e.g. “$HOME/bin” is common).
 </li>
 <li>
-Adjust your PATH if needed
-<ul>
-<li>
-(e.g. <code>export PATH=“$HOME/bin:$PATH”</code>)
-</li>
-</ul>
+Adjust your PATH if needed - (e.g. <code>export PATH=“$HOME/bin:$PATH”</code>)
 </li>
 <li>
 Test
 </li>
 </ul>
-<h3>
+<h3 id="mac-os-x">
 Mac OS X
 </h3>
-<ol>
+<ol type="1">
 <li>
 Download the zip file
 </li>
@@ -128,16 +160,15 @@ Test
 Here’s an example of the commands run in the Terminal App after downloading the zip file.
 </p>
 <pre class="shell"><code>    cd Downloads/
-    unzip eprinttools-*-macosx-amd64.zip
+    unzip eprinttools-*-macos-amd64.zip
     mkdir -p $HOME/bin
     cp -v bin/* $HOME/bin/
     export PATH=$HOME/bin:$PATH
-    eputil -version
-</code></pre>
-<h3>
+    eputil -version</code></pre>
+<h3 id="windows">
 Windows
 </h3>
-<ol>
+<ol type="1">
 <li>
 Download the zip file
 </li>
@@ -159,12 +190,11 @@ Here’s an example of the commands run in from the Bash shell on Windows 10 aft
     mkdir -p $HOME/bin
     cp -v bin/* $HOME/bin/
     export PATH=$HOME/bin:$PATH
-    eputil -version
-</code></pre>
-<h3>
+    eputil -version</code></pre>
+<h3 id="linux">
 Linux
 </h3>
-<ol>
+<ol type="1">
 <li>
 Download the zip file
 </li>
@@ -186,15 +216,14 @@ Here’s an example of the commands run in from the Bash shell after downloading
     mkdir -p $HOME/bin
     cp -v bin/* $HOME/bin/
     export PATH=$HOME/bin:$PATH
-    eputil -version
-</code></pre>
-<h3>
+    eputil -version</code></pre>
+<h3 id="raspberry-pi">
 Raspberry Pi
 </h3>
 <p>
 Released version is for a Raspberry Pi 2 or later use (i.e. requires ARM 7 support).
 </p>
-<ol>
+<ol type="1">
 <li>
 Download the zip file
 </li>
@@ -216,16 +245,14 @@ Here’s an example of the commands run in from the Bash shell after downloading
     mkdir -p $HOME/bin
     cp -v bin/* $HOME/bin/
     export PATH=$HOME/bin:$PATH
-    eputil -version
-</code></pre>
-<h2>
+    eputil -version</code></pre>
+<h2 id="compiling-from-source">
 Compiling from source
 </h2>
 <p>
 <em>eprinttools</em> is “go gettable”. Use the “go get” command to download the dependant packages as well as <em>eprinttools</em>’s source code.
 </p>
-<pre class="shell"><code>    go get -u github.com/caltechlibrary/eprinttools/...
-</code></pre>
+<pre class="shell"><code>    go get -u github.com/caltechlibrary/eprinttools/...</code></pre>
 <p>
 Or clone the repstory and then compile
 </p>
@@ -235,12 +262,11 @@ Or clone the repstory and then compile
     cd src/github.com/caltechlibrary/eprinttools
     make
     make test
-    make install
-</code></pre>
+    make install</code></pre>
 </section>
 
 <footer>
-<span>&copy; 2020 <a href="https://www.library.caltech.edu/copyright">Caltech Library</a></span>
+<span>&copy; 2021 <a href="https://www.library.caltech.edu/copyright">Caltech Library</a></span>
 <address>1200 E California Blvd, Mail Code 1-32, Pasadena, CA 91125-3200</address>
 <span><a href="mailto:library@caltech.edu">Email Us</a></span> 
 <span>Phone: <a href="tel:+1-626-395-3405">(626)395-3405</a></span>

@@ -3,7 +3,7 @@
 
 eprinttools is a collection of command line tools written in Go,
 a Go package and set of command line utilities for working 
-with EPrints 3.x EPrint XML and REST API written in Python 3. 
+with EPrints 3.x EPrint XML and REST API written in Python 3.8. 
 Eventually it is planned to have this project become a pure Python
 project.
 

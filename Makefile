@@ -69,7 +69,6 @@ clean:
 	if [ -d bin ]; then rm -fR bin; fi
 	if [ -d dist ]; then rm -fR dist; fi
 	if [ -d man ]; then rm -fR man; fi
-	#cd py && $(MAKE) clean
 
 man: build
 	mkdir -p man/man1
@@ -106,6 +105,15 @@ dist/macos-amd64:
 	cd dist && zip -r $(PROJECT)-$(VERSION)-macos-amd64.zip README.md LICENSE INSTALL.md docs/* eprinttools/* bin/*
 	rm -fR dist/bin
 
+dist/macos-arm64:
+	mkdir -p dist/bin
+	env  GOOS=darwin GOARCH=arm64 go build -o dist/bin/eputil cmd/eputil/eputil.go
+	env  GOOS=darwin GOARCH=arm64 go build -o dist/bin/epfmt cmd/epfmt/epfmt.go
+	env  GOOS=darwin GOARCH=arm64 go build -o dist/bin/doi2eprintxml cmd/doi2eprintxml/doi2eprintxml.go
+	env  GOOS=darwin GOARCH=arm64 go build -o dist/bin/eprintxml2json cmd/eprintxml2json/eprintxml2json.go
+	cd dist && zip -r $(PROJECT)-$(VERSION)-macos-arm64.zip README.md LICENSE INSTALL.md docs/* eprinttools/* bin/*
+	rm -fR dist/bin
+
 dist/raspbian-arm7:
 	mkdir -p dist/bin
 	env  GOOS=linux GOARCH=arm GOARM=7 go build -o dist/bin/eputil cmd/eputil/eputil.go
@@ -139,7 +147,7 @@ distribute_docs:
 	cp -v INSTALL.md dist/
 	cp -vR docs/* dist/docs/
 
-release: distribute_docs distribute_python dist/linux-amd64 dist/windows-amd64 dist/macos-amd64 dist/raspbian-arm7
+release: distribute_docs distribute_python dist/linux-amd64 dist/windows-amd64 dist/macos-amd64 dist/macos-arm64 dist/raspbian-arm7
 
 status:
 	git status
@@ -148,7 +156,6 @@ save:
 	if [ "$(msg)" != "" ]; then git commit -am "$(msg)"; else git commit -am "Quick Save"; fi
 	git push origin $(BRANCH)
 
-publish:
-	./mk-website.bash
+publish: website
 	./publish.bash
 
