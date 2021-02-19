@@ -1,9 +1,11 @@
 
-# USAGE
+USAGE
+=====
 
 	eputil [OPTIONS]
 
-## SYNOPSIS
+SYNOPSIS
+--------
 
 
 _eputil_ is a command line program for exploring 
@@ -11,7 +13,8 @@ EPrint REST API and EPrint XML document structure
 in XML as well as JSON.
 
 
-## DESCRIPTION
+DESCRIPTION
+-----------
 
 
 _eputil_ parses XML content retrieved from 
@@ -28,12 +31,14 @@ setup of the installed EPrints (at least at Caltech
 Library). See the examples to start exploring the API.
 
 
-## OPTIONS
+OPTIONS
+-------
 
 Below are a set of options available.
 
 ```
     -auth                       set the authentication type for access
+    -document                   Retrieve a document from the provided url
     -e, -examples               display examples
     -generate-manpage           generate man page
     -generate-markdown          generate Markdown documentation
@@ -50,7 +55,8 @@ Below are a set of options available.
 ```
 
 
-## EXAMPLES
+EXAMPLES
+--------
 
 
 Fetch the raw unmarshaled EPrint XML via the 
@@ -114,4 +120,4 @@ setup implemented in the EPrint instance.
 
 
 
-eputil v0.0.58
+eputil v0.1.10

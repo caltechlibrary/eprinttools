@@ -2,7 +2,7 @@
 //
 // @author R. S. Doiel, <rsdoiel@library.caltech.edu>
 //
-// Copyright (c) 2018, Caltech
+// Copyright (c) 2021, Caltech
 // All rights not granted herein are expressly reserved by Caltech.
 //
 // Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -1067,6 +1067,14 @@ func (e *EPrint) SyntheticFields() {
 				obj["mime_type"] = doc.MimeType
 				obj["content"] = doc.Content
 				obj["license"] = doc.License
+				if doc.Files != nil {
+					for _, fObj := range doc.Files {
+						if fObj.Filename == doc.Main {
+							obj["filesize"] = fObj.FileSize
+							break
+						}
+					}
+				}
 				obj["version"] = fmt.Sprintf("v%d.0.0", doc.RevNumber)
 				if (doc.Placement == 1 || doc.Pos == 1) && doc.Content != "supplemental" {
 					e.PrimaryObject = obj

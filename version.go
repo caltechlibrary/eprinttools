@@ -2,13 +2,13 @@ package eprinttools
 
 const (
 	// Version is the revision number for this implementation of epgo
-	Version = `v0.1.2`
+	Version = `v0.1.10`
 
 	// LicenseText holds the string for rendering License info on the command line
 	LicenseText = `
 %s %s
 
-Copyright (c) 2018, Caltech
+Copyright (c) 2021, Caltech
 All rights not granted herein are expressly reserved by Caltech.
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:

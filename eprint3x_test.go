@@ -3,7 +3,7 @@
 //
 // @author R. S. Doiel, <rsdoiel@caltech.edu>
 //
-// Copyright (c) 2018, Caltech
+// Copyright (c) 2021, Caltech
 // All rights not granted herein are expressly reserved by Caltech.
 //
 // Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -34,7 +34,8 @@ import (
 func TestLibSupport(t *testing.T) {
 	eprintURL := os.Getenv("EPRINT_URL")
 	if eprintURL == "" {
-		log.Println("Skipping TestLibSupport(), requires EPRINT_URL to be set in the environment")
+		log.Println("Skipping TestLibSupport(), requires EPRINT_URL to be set in the environment, note this is a read only test sequence.")
+
 		return
 	}
 	authType := 0

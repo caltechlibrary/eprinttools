@@ -1,9 +1,11 @@
 
-# USAGE
+USAGE
+=====
 
 	epfmt [OPTIONS]
 
-## SYNOPSIS
+SYNOPSIS
+--------
 
 
 _epfmt_ is a command line program for 
@@ -11,7 +13,8 @@ pretty printing EPrint XML. It can also convert
 EPrint XML to and from JSON.
 
 
-## DESCRIPTION
+DESCRIPTION
+-----------
 
 
 _epfmt_ parses EPrint XML (or JSON version) from
@@ -24,7 +27,8 @@ only the the document presented via standard
 input.
 
 
-## OPTIONS
+OPTIONS
+-------
 
 Below are a set of options available.
 
@@ -44,7 +48,8 @@ Below are a set of options available.
 ```
 
 
-## EXAMPLES
+EXAMPLES
+--------
 
 
 Pretty print EPrint XML as XML.
@@ -72,4 +77,4 @@ format option chosen it will pretty print
 in the same format as input.
 
 
-epfmt v0.0.58
+epfmt v0.1.10

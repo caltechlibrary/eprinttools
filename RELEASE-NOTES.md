@@ -1,6 +1,25 @@
 
 # Release Notes
 
+## Release Notes v0.1.7
+
++ Improved Aggregators, released via PyPI
++ Currently not harvesting digital documents in dataset collection
+
+
+## Release Notes v0.1.4
+
++ Started eprinttools transition to Python
++ Added eprints3x Python module
++ Added eprintviews Python module
++ Added example programs for replicating EPrints public views as static website
+    + harvester_full.py, harvester_recent.py
+    + genviews.py
+    + indexer.py
+    + mk_website.py
+    + publisher.py
+    + invalidate_cloudfront.py
+
 ## Release Notes v0.1.1
 
 + Improve detection of primary object

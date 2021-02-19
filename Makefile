@@ -65,10 +65,10 @@ test: eputil epfmt doi2eprintxml eprintxml2json
 	./test_cmds.bash
 
 clean:
+	if [ -d htdocs ]; then rm -fR htdocs; fi
 	if [ -d bin ]; then rm -fR bin; fi
 	if [ -d dist ]; then rm -fR dist; fi
 	if [ -d man ]; then rm -fR man; fi
-	#cd py && $(MAKE) clean
 
 man: build
 	mkdir -p man/man1
@@ -84,7 +84,7 @@ dist/linux-amd64:
 	env  GOOS=linux GOARCH=amd64 go build -o dist/bin/epfmt cmd/epfmt/epfmt.go
 	env  GOOS=linux GOARCH=amd64 go build -o dist/bin/doi2eprintxml cmd/doi2eprintxml/doi2eprintxml.go
 	env  GOOS=linux GOARCH=amd64 go build -o dist/bin/eprintxml2json cmd/eprintxml2json/eprintxml2json.go
-	cd dist && zip -r $(PROJECT)-$(VERSION)-linux-amd64.zip README.md LICENSE INSTALL.md docs/* eprints3x/* etc/* bin/*
+	cd dist && zip -r $(PROJECT)-$(VERSION)-linux-amd64.zip README.md LICENSE INSTALL.md docs/* eprinttools/* bin/*
 	rm -fR dist/bin
 
 dist/windows-amd64:
@@ -93,16 +93,25 @@ dist/windows-amd64:
 	env  GOOS=windows GOARCH=amd64 go build -o dist/bin/epfmt.exe cmd/epfmt/epfmt.go
 	env  GOOS=windows GOARCH=amd64 go build -o dist/bin/doi2eprintxml.exe cmd/doi2eprintxml/doi2eprintxml.go
 	env  GOOS=windows GOARCH=amd64 go build -o dist/bin/eprintxml2json.exe cmd/eprintxml2json/eprintxml2json.go
-	cd dist && zip -r $(PROJECT)-$(VERSION)-windows-amd64.zip README.md LICENSE INSTALL.md docs/* eprints3x/* etc/* bin/*
+	cd dist && zip -r $(PROJECT)-$(VERSION)-windows-amd64.zip README.md LICENSE INSTALL.md docs/* eprinttools/* bin/*
 	rm -fR dist/bin
 
-dist/macosx-amd64:
+dist/macos-amd64:
 	mkdir -p dist/bin
 	env  GOOS=darwin GOARCH=amd64 go build -o dist/bin/eputil cmd/eputil/eputil.go
 	env  GOOS=darwin GOARCH=amd64 go build -o dist/bin/epfmt cmd/epfmt/epfmt.go
 	env  GOOS=darwin GOARCH=amd64 go build -o dist/bin/doi2eprintxml cmd/doi2eprintxml/doi2eprintxml.go
 	env  GOOS=darwin GOARCH=amd64 go build -o dist/bin/eprintxml2json cmd/eprintxml2json/eprintxml2json.go
-	cd dist && zip -r $(PROJECT)-$(VERSION)-macosx-amd64.zip README.md LICENSE INSTALL.md docs/* eprints3x/* etc/* bin/*
+	cd dist && zip -r $(PROJECT)-$(VERSION)-macos-amd64.zip README.md LICENSE INSTALL.md docs/* eprinttools/* bin/*
+	rm -fR dist/bin
+
+dist/macos-arm64:
+	mkdir -p dist/bin
+	env  GOOS=darwin GOARCH=arm64 go build -o dist/bin/eputil cmd/eputil/eputil.go
+	env  GOOS=darwin GOARCH=arm64 go build -o dist/bin/epfmt cmd/epfmt/epfmt.go
+	env  GOOS=darwin GOARCH=arm64 go build -o dist/bin/doi2eprintxml cmd/doi2eprintxml/doi2eprintxml.go
+	env  GOOS=darwin GOARCH=arm64 go build -o dist/bin/eprintxml2json cmd/eprintxml2json/eprintxml2json.go
+	cd dist && zip -r $(PROJECT)-$(VERSION)-macos-arm64.zip README.md LICENSE INSTALL.md docs/* eprinttools/* bin/*
 	rm -fR dist/bin
 
 dist/raspbian-arm7:
@@ -111,21 +120,34 @@ dist/raspbian-arm7:
 	env  GOOS=linux GOARCH=arm GOARM=7 go build -o dist/bin/epfmt cmd/epfmt/epfmt.go
 	env  GOOS=linux GOARCH=arm GOARM=7 go build -o dist/bin/doi2eprintxml cmd/doi2eprintxml/doi2eprintxml.go
 	env  GOOS=linux GOARCH=arm GOARM=7 go build -o dist/bin/eprintxml2json cmd/eprintxml2json/eprintxml2json.go
-	cd dist && zip -r $(PROJECT)-$(VERSION)-raspbian-arm7.zip README.md LICENSE INSTALL.md docs/* eprints3x/* etc/* bin/*
+	cd dist && zip -r $(PROJECT)-$(VERSION)-raspbian-arm7.zip README.md LICENSE INSTALL.md docs/* eprinttools/* bin/*
 	rm -fR dist/bin
   
+distribute_python:
+	mkdir -p dist/eprinttools/eprints3x
+	mkdir -p dist/eprinttools/eprintviews
+	cp -v eprinttools/eprints3x/*.py dist/eprinttools/eprints3x/
+	cp -vR eprinttools/eprintviews/*.py dist/eprinttools/eprintviews/
+	cp -vR static dist/
+	cp -vR templates dist/
+	cp config.json-example dist/
+	cp setup.py dist/
+	cp harvester_full.py dist/
+	cp harvester_recent.py dist/
+	cp genviews.py dist/
+	cp indexer.py dist/
+	cp mk_website.py dist/
+	cp publisher.py dist/
+	cp invalidate_cloudfront.py dist/
+
 distribute_docs:
-	mkdir -p dist/etc
 	mkdir -p dist/docs
-	mkdir -p dist/eprints3x
 	cp -v README.md dist/
 	cp -v LICENSE dist/
 	cp -v INSTALL.md dist/
 	cp -vR docs/* dist/docs/
-	cp -vR etc/*-example dist/etc/
-	cp -vR eprints3x/*.py dist/eprints3x/
 
-release: distribute_docs dist/linux-amd64 dist/windows-amd64 dist/macosx-amd64 dist/raspbian-arm7
+release: distribute_docs distribute_python dist/linux-amd64 dist/windows-amd64 dist/macos-amd64 dist/macos-arm64 dist/raspbian-arm7
 
 status:
 	git status
@@ -134,7 +156,6 @@ save:
 	if [ "$(msg)" != "" ]; then git commit -am "$(msg)"; else git commit -am "Quick Save"; fi
 	git push origin $(BRANCH)
 
-publish:
-	./mk-website.bash
+publish: website
 	./publish.bash
 

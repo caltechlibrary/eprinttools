@@ -67,3 +67,4 @@ testout
 testout_*
 *.keys
 *.json
+htdocs/*

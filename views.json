@@ -1,0 +1,19 @@
+{
+    "ids": "Eprint ID", 
+    "year": "Year",
+    "person-az": "Person", 
+    "event": "Conference", 
+    "collection": "Collection", 
+    "latest": "Latest Additions", 
+    "publication": "Publication", 
+    "place_of_pub": "Place of Publication",
+    "issn": "ISSN", 
+    "person": "Person", 
+    "author": "Author",
+    "editor": "Editor",
+    "contributor": "Contributor",
+    "types": "Type", 
+    "subjects": "Subjects",
+    "corp_creators": "Corporate Creators",
+    "issuing_body": "Issuing Body"
+}
