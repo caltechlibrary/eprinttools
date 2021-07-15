@@ -92,13 +92,9 @@ func CrossRefWorksToEPrint(obj crossrefapi.Object) (*EPrint, error) {
 	}
 
 	// PageRange
-	// Pages
 	if s, ok := indexInto(obj, "message", "page"); ok == true {
-		if strings.Contains(s.(string), "-") {
-			eprint.PageRange = fmt.Sprintf("%s", s)
-		} else {
-			eprint.Pages = fmt.Sprintf("%s", s)
-		}
+		eprint.PageRange = fmt.Sprintf("%s", s)
+
 	}
 
 	// ISBN
