@@ -30,7 +30,7 @@ latest release
 | macOS       | eprinttools-VERSION_NUMBER-macos-amd64.zip  |
 | macOS       | eprinttools-VERSION_NUMBER-macos-arm64.zip  |
 | Linux/Intel | eprinttools-VERSION_NUMBER-linux-amd64.zip   |
-| Raspbery Pi | eprinttools-VERSION_NUMBER-raspbian-arm7.zip |
+| Raspbery Pi | eprinttools-VERSION_NUMBER-raspbian-os-arm7.zip |
 
 The basic recipe
 ----------------
