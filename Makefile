@@ -124,6 +124,8 @@ distribute_python:
 	cp mk_website.py dist/
 	cp publisher.py dist/
 	cp invalidate_cloudfront.py dist/
+	cp requirements.txt dist/
+	@cd dist && zip -r $(PROJECT)-v$(VERSION)-python3.zip LICENSE codemeta.json CITATION.cff *.md *.py requirements.txt eprinttools/* docs/* man/*
 
 distribute_docs: man
 	mkdir -p dist/docs
