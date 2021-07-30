@@ -1,5 +1,9 @@
 package clsrules
 
+import (
+	"github.com/caltechlibrary/eprinttools"
+)
+
 var (
 	issnPublisher = map[string]string{
 		"0141-8130":      "Elsevier",
@@ -7429,3 +7433,27 @@ var (
 		"1661-8270":               "Mathematics in Computer Science",
 	}
 )
+
+func IssnToPublisherRule(eprintsList *eprinttools.EPrints) (*eprinttools.EPrints, error) {
+
+	for i, eprint := range eprintsList.EPrint {
+		changed := false
+		// Normalize Publisher name and Publication from ISSN
+		if eprint.ISSN != "" {
+			if publisher, ok := issnPublisher[eprint.ISSN]; ok == true {
+				eprint.Publisher = publisher
+				changed = true
+			}
+			if publication, ok := issnPublication[eprint.ISSN]; ok == true {
+				eprint.Publication = publication
+				changed = true
+			}
+		}
+
+		// If we've changed the eprint record update it.
+		if changed {
+			eprintsList.EPrint[i] = eprint
+		}
+	}
+	return eprintsList, nil
+}

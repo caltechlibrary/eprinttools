@@ -8,7 +8,7 @@ func indexInto(m map[string]interface{}, parts ...string) (interface{}, bool) {
 	case 0:
 		return "", false
 	case 1:
-		if val, ok := m[parts[0]]; ok == true {
+		if val, ok := m[parts[0]]; ok == true && val != nil {
 			return val, true
 		}
 		return "", false

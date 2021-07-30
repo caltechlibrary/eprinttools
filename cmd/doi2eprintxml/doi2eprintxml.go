@@ -93,12 +93,13 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 	quiet            bool
 
 	// App specific options
-	apiEPrintsURL                  string
-	mailto                         string
-	crossrefOnly                   bool
-	dataciteOnly                   bool
-	useCaltechLibrarySpecificRules bool
-	asJSON                         bool
+	apiEPrintsURL                         string
+	mailto                                string
+	crossrefOnly                          bool
+	dataciteOnly                          bool
+	useCaltechLibrarySpecificRules        bool
+	use_1_0_0_CaltechLibrarySpecificRules bool
+	asJSON                                bool
 )
 
 func main() {
@@ -126,7 +127,8 @@ func main() {
 	app.StringVar(&apiEPrintsURL, "eprints-url", "", "Sets the EPRints API URL")
 	app.BoolVar(&crossrefOnly, "c,crossref", false, "only search CrossRef API for DOI records")
 	app.BoolVar(&dataciteOnly, "d,datacite", false, "only search DataCite API for DOI records")
-	app.BoolVar(&useCaltechLibrarySpecificRules, "clsrules", true, "Apply Caltech Library Specific Rules to EPrintXML output")
+	app.BoolVar(&useCaltechLibrarySpecificRules, "clsrules", true, "Apply current Caltech Library Specific Rules to EPrintXML output")
+	app.BoolVar(&use_1_0_0_CaltechLibrarySpecificRules, "v1.0.0-clsrules", false, "Apply v1.0.0 Caltech Library Specific Rules to EPrintXML output")
 	app.BoolVar(&asJSON, "json", false, "output EPrint structure as JSON")
 
 	//FIXME: Need to come up with a better way of setting this,
@@ -296,6 +298,13 @@ func main() {
 	// before marshaling our results...
 	if useCaltechLibrarySpecificRules {
 		eprintsList, err = clsrules.Apply(eprintsList)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "%s\n", err)
+			os.Exit(1)
+		}
+	}
+	if use_1_0_0_CaltechLibrarySpecificRules {
+		eprintsList, err = clsrules.Apply1_0_0(eprintsList)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "%s\n", err)
 			os.Exit(1)
