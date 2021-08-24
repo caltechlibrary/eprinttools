@@ -91,6 +91,7 @@ in the same format as input.
 	generateManPage  bool
 	inputFName       string
 	outputFName      string
+	simplified       bool
 
 	// App Options
 	asJSON bool
@@ -101,6 +102,7 @@ func main() {
 	var (
 		inputFmt int
 		obj      *eprinttools.EPrints
+		sObj     []*eprinttools.SimplePrint
 		src      []byte
 		err      error
 	)
@@ -127,6 +129,7 @@ func main() {
 	// App Options
 	app.BoolVar(&asXML, "xml", false, "output EPrint XML")
 	app.BoolVar(&asJSON, "json", false, "output JSON version of EPrint XML")
+	app.BoolVar(&simplified, "s,simplified", false, "output simplified JSON version of EPrints XML")
 
 	// We're ready to process args
 	app.Parse()
@@ -207,15 +210,25 @@ func main() {
 	for _, e := range obj.EPrint {
 		e.SyntheticFields()
 	}
-
-	// marshal pretty printed output based on options selected.
 	if asJSON == false && asXML == false {
 		asXML = (inputFmt == IsXML)
 	}
-	if asXML {
-		src, err = xml.MarshalIndent(obj, "", "  ")
+	if simplified {
+		asXML = false
+		asJSON = true
+		sObj, err = eprinttools.SimplifyEPrints(obj)
+		if err != nil {
+			fmt.Fprintf(app.Eout, "%s\n", err)
+			os.Exit(1)
+		}
+		src, err = json.MarshalIndent(sObj, "", "   ")
 	} else {
-		src, err = json.MarshalIndent(obj, "", "   ")
+		// marshal pretty printed output based on options selected.
+		if asXML {
+			src, err = xml.MarshalIndent(obj, "", "  ")
+		} else {
+			src, err = json.MarshalIndent(obj, "", "   ")
+		}
 	}
 	if err != nil {
 		fmt.Fprintf(app.Eout, "%s\n", err)

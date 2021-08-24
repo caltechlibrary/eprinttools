@@ -143,6 +143,7 @@ setup implemented in the EPrint instance.
 	raw            bool
 	getURL         string
 	getDocument    bool
+	simplified     bool
 )
 
 func main() {
@@ -177,6 +178,7 @@ func main() {
 	app.BoolVar(&passwordPrompt, "password", false, "Prompt for the password for authenticated access")
 	app.StringVar(&auth, "auth", "", "set the authentication type for access")
 	app.BoolVar(&getDocument, "document", false, "Retrieve a document from the provided url")
+	app.BoolVar(&simplified, "s,simplified", false, "Return the object in a simplified JSON data structure.")
 
 	// We're ready to process args
 	app.Parse()
@@ -309,11 +311,19 @@ func main() {
 		for _, e := range data.EPrint {
 			e.SyntheticFields()
 		}
-		if asJSON {
-			src, err = json.MarshalIndent(data, "", "   ")
+		if simplified {
+			if sObj, err := eprinttools.Simplify(data.EPrint[0]); err != nil {
+				fmt.Fprintf(app.Eout, "%s\n", err)
+			} else {
+				src, err = json.MarshalIndent(sObj, "", "   ")
+			}
 		} else {
-			fmt.Fprintf(app.Out, "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n")
-			src, err = xml.MarshalIndent(data, "", "  ")
+			if asJSON {
+				src, err = json.MarshalIndent(data, "", "   ")
+			} else {
+				fmt.Fprintf(app.Out, "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n")
+				src, err = xml.MarshalIndent(data, "", "  ")
+			}
 		}
 		cli.ExitOnError(app.Eout, err, quiet)
 	}
