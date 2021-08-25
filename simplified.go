@@ -3,6 +3,7 @@ package eprinttools
 import (
 	"encoding/xml"
 	"fmt"
+	"strings"
 )
 
 // DigitalObject describes the digital material associated with
@@ -45,6 +46,7 @@ type Agent struct {
 type Funder struct {
 	XMLName     xml.Name `json:"-"`
 	Name        string   `json:"name,omitempty" xml:"name,omitempty"`
+	Description string   `json:"description,omitempty" xml:"description,omitempty"`
 	GrantNumber string   `json:"grant_number,omitempty" xml:"grant_number,omitempty"`
 	ROR         string   `json:"ror,omitempty" xml:"ror,omitempty"`
 }
@@ -85,7 +87,7 @@ type SimplePrint struct {
 	Series                   string           `json:"series,omitempty" xml:"series,omitempty"`
 	Volume                   string           `json:"volume,omitempty" xml:"volume,omitempty"`
 	Number                   string           `json:"number,omitempty" xml:"number,omitempty"`
-	Referred                 bool             `json:"referred,omitempty" xml:"referred,omitmpety"`
+	Refereed                 bool             `json:"refereed,omitempty" xml:"refereed,omitmpety"`
 	Department               string           `json:"department,omitempty" xml:"department,omitempty"`
 	Group                    string           `json:"group,omitempty" xml:"group,omitempty"`
 	OtherNumberingSystemName string           `json:"other_numbering_system_name,omitempty" xml:"other_numbering_system_name,omitempty"`
@@ -98,7 +100,7 @@ type SimplePrint struct {
 	Updated                  string           `json:"updated,omitempty" xml:"updated,omitempty"`
 	PubDate                  string           `json:"pub_date,omitempty" xml:"pub_date,omitempty"`
 	Status                   string           `json:"status" xml:"status"`
-	//FIXME: Eprints stores the numeric id, we need a name or username
+	//FIXME: Eprints stores the numeric id, we need a name or username to populate Username
 	Username       string   `json:"username,omitempty" xml:"username,omitempty"`
 	FullTextStatus string   `json:"full_text_status,omitempty" xml:"full_text_status,omitempty"`
 	Notes          string   `json:"note,omitempty" xml:"note,omitempty"`
@@ -251,6 +253,89 @@ func Simplify(eprint *EPrint) (*SimplePrint, error) {
 				simple.RelatedObjects = append(simple.RelatedObjects, sObj)
 			}
 		}
+	}
+	if eprint.Funders != nil {
+		for _, item := range eprint.Funders.Items {
+			funder := new(Funder)
+			funder.Name = item.Agency
+			funder.Description = item.Description
+			funder.GrantNumber = item.GrantNumber
+			//FIXME: need to determine FinderID and ROR if possible.
+			simple.Funders = append(simple.Funders, funder)
+		}
+	}
+	if eprint.DOI != "" {
+		simple.DOI = eprint.DOI
+	}
+	if eprint.ISBN != "" {
+		simple.ISBN = eprint.ISBN
+	}
+	if eprint.ISSN != "" {
+		simple.ISSN = eprint.ISSN
+	}
+	if eprint.RelatedURL != nil {
+		for _, item := range eprint.RelatedURL.Items {
+			resource := new(ResourceURL)
+			resource.Type = item.Type
+			resource.Description = item.Description
+			resource.Url = item.URL
+			simple.RelatedURLs = append(simple.RelatedURLs, resource)
+		}
+	}
+	if eprint.FullTextStatus != "" {
+		simple.FullTextStatus = eprint.FullTextStatus
+	}
+	if eprint.Publisher != "" {
+		simple.Publisher = eprint.Publisher
+	}
+	if eprint.Publication != "" {
+		simple.Publication = eprint.Publication
+	}
+	if eprint.PlaceOfPub != "" {
+		simple.PlaceOfPublication = eprint.PlaceOfPub
+	}
+	if eprint.BookTitle != "" {
+		simple.BookTitle = eprint.BookTitle
+	}
+	if eprint.Edition != "" {
+		simple.Edition = eprint.Edition
+	}
+	if eprint.Series != "" {
+		simple.Series = eprint.Series
+	}
+	if eprint.Volume != "" {
+		simple.Volume = eprint.Volume
+	}
+	if eprint.Number != "" {
+		simple.Number = eprint.Number
+	}
+	if eprint.Refereed != "" {
+		if strings.ToLower(eprint.Refereed) == "true" {
+			simple.Refereed = true
+		} else {
+			simple.Refereed = false
+		}
+	}
+	if eprint.Department != "" {
+		simple.Department = eprint.Department
+	}
+	if eprint.Divisions != nil {
+		for _, division := range eprint.Divisions.Items {
+			simple.Divisions = append(simple.Divisions, division.Value)
+		}
+	}
+	if eprint.OptionMajor != nil {
+		for _, option := range eprint.OptionMajor.Items {
+			simple.OptionMajor = append(simple.OptionMajor, option.Value)
+		}
+	}
+	if eprint.OptionMinor != nil {
+		for _, option := range eprint.OptionMinor.Items {
+			simple.OptionMinor = append(simple.OptionMinor, option.Value)
+		}
+	}
+	if eprint.CopyrightStatement != "" {
+		simple.CopyrightStatement = eprint.CopyrightStatement
 	}
 	return simple, nil
 }

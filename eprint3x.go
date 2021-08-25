@@ -188,6 +188,7 @@ type EPrint struct {
 	ThesisAwards           string                   `xml:"thesis_awards,omitempty" json:"thesis_awards,omitempty"`
 	ReviewStatus           string                   `xml:"review_status,omitempty" json:"review_status,omitempty"`
 	OptionMajor            *OptionMajorItemList     `xml:"option_major,omitempty" json:"option_major,omitempty"`
+	OptionMinor            *OptionMinorItemList     `xml:"option_minor,omitempty" json:"option_major,omitempty"`
 	CopyrightStatement     string                   `xml:"copyright_statement,omitempty" json:"copyright_statement,omitempty"`
 
 	// Synthetic fields are created to help in eventual migration of
@@ -595,6 +596,18 @@ type OptionMajorItemList struct {
 func (optionMajorItemList *OptionMajorItemList) AddItem(item *Item) int {
 	optionMajorItemList.Items = append(optionMajorItemList.Items, item)
 	return len(optionMajorItemList.Items)
+}
+
+// OptionMinorItemList
+type OptionMinorItemList struct {
+	XMLName xml.Name `xml:"option_minor" json:"-"`
+	Items   []*Item  `xml:"item,omitempty" json:"items,omitempty"`
+}
+
+// AddItem adds an item to the option minor item list and returns the new count of items
+func (optionMinorItemList *OptionMinorItemList) AddItem(item *Item) int {
+	optionMinorItemList.Items = append(optionMinorItemList.Items, item)
+	return len(optionMinorItemList.Items)
 }
 
 // ThesisCommitteeItemList
