@@ -23,8 +23,6 @@ type DigitalObject struct {
 // Agent holds either a person or corporate entity information.
 type Agent struct {
 	XMLName xml.Name `json:"-"`
-	// Type can be "person" or "corporate"
-	Type string `json:"type,omitempty" xml:"type,omitempty"`
 	// ID can be for a Person (e.g. Doiel-R-S) or Corporate entity
 	ID string `json:"id,omitempty" xml:"id,omitempty"`
 
@@ -37,7 +35,6 @@ type Agent struct {
 	ORCID       string `json:"orcid,omitempty" xml:"orcid,omitempty"`
 	ROR         string `json:"ror,omitempty" xml:"ror,omitempty"`
 	Affiliation string `json:"affiliation,omitempty" xml:"affiliation,omitempty"`
-	Role        string `json:"role,omitempty" xml:"role,omitempty"`
 	EMail       string `json:"email,omitempty" xml:"email,omitempty"`
 	Website     string `json:"website,omitempty" xml:"website,omitempty"`
 }
@@ -69,6 +66,8 @@ type SimplePrint struct {
 	Type         string   `json:"type,omitempty" xml:"type,omitempty"`
 	Title        string   `json:"title" xml:"title"`
 	Creators     []*Agent `json:"creators,omitempty" xml:"creators>creator,omitempty"`
+	CorpCreators []*Agent `json:"corp_creators,omitempty" xml:"corp_creators>creator,omitempty"`
+	ConfCreators []*Agent `json:"conf_creators,omitempty" xml:"conf_creators>creator,omitempty"`
 	Contributors []*Agent `json:"contributors,omitempty" xml:"contributors>cotributor,omitempty"`
 	Editors      []*Agent `json:"editors,omitempty" xml:"editors>editor,omitempty"`
 	Committee    []*Agent `json:"committee,omitempty" xml:"committee>member,omitempty"`
@@ -179,6 +178,8 @@ func Simplify(eprint *EPrint) (*SimplePrint, error) {
 	simple.Title = eprint.Title
 	simple.Abstract = eprint.Abstract
 	simple.Creators = []*Agent{}
+	simple.CorpCreators = []*Agent{}
+	simple.ConfCreators = []*Agent{}
 	simple.Contributors = []*Agent{}
 	simple.Editors = []*Agent{}
 	simple.Committee = []*Agent{}
@@ -186,9 +187,7 @@ func Simplify(eprint *EPrint) (*SimplePrint, error) {
 	if eprint.Creators != nil {
 		for _, creator := range eprint.Creators.Items {
 			agent := new(Agent)
-			agent.Type = "person"
 			agent.ID = creator.ID
-			agent.Role = "creator"
 			agent.FamilyName = creator.Name.Family
 			agent.GivenName = creator.Name.Given
 			agent.ORCID = creator.ORCID
@@ -198,30 +197,24 @@ func Simplify(eprint *EPrint) (*SimplePrint, error) {
 	if eprint.CorpCreators != nil {
 		for _, creator := range eprint.CorpCreators.Items {
 			agent := new(Agent)
-			agent.Type = "corporate"
 			agent.ID = creator.ID
-			agent.Role = "creator"
 			//FIXME: Need to figure out where I record actual CorpCreator name
 			agent.Name = creator.Value
-			simple.Creators = append(simple.Creators, agent)
+			simple.CorpCreators = append(simple.CorpCreators, agent)
 		}
 	}
 	if eprint.ConfCreators != nil {
 		for _, creator := range eprint.ConfCreators.Items {
 			agent := new(Agent)
-			agent.Type = "conference"
-			agent.Role = "creator"
 			agent.ID = creator.ID
 			//FIXME: Need to figure out where I record actual CorpCreator name
 			agent.Name = creator.Value
-			simple.Creators = append(simple.Creators, agent)
+			simple.ConfCreators = append(simple.ConfCreators, agent)
 		}
 	}
 	if eprint.Contributors != nil {
 		for _, contributor := range eprint.Contributors.Items {
 			agent := new(Agent)
-			agent.Type = "person"
-			agent.Role = "contributor"
 			agent.ID = contributor.ID
 			agent.FamilyName = contributor.Name.Family
 			agent.GivenName = contributor.Name.Given
@@ -232,8 +225,6 @@ func Simplify(eprint *EPrint) (*SimplePrint, error) {
 	if eprint.Editors != nil {
 		for _, editor := range eprint.Editors.Items {
 			agent := new(Agent)
-			agent.Type = "person"
-			agent.Role = "editor"
 			agent.ID = editor.ID
 			agent.FamilyName = editor.Name.Family
 			agent.GivenName = editor.Name.Given
