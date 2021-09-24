@@ -188,7 +188,7 @@ func main() {
 	flagSet.BoolVar(&simplified, "simplified", false, "Return the object in a simplified JSON data structure.")
 
 	// We're ready to process args
-	flagSet.Parse(os.Args)
+	flagSet.Parse(os.Args[1:])
 	args := flagSet.Args()
 
 	if len(args) > 0 {

@@ -101,7 +101,7 @@ func main() {
 	flagSet.BoolVar(&prettyPrint, "pretty", true, "pretty print output")
 
 	// We're ready to process args
-	flagSet.Parse(os.Args)
+	flagSet.Parse(os.Args[1:])
 	args := flagSet.Args()
 
 	if len(args) > 0 {

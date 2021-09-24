@@ -138,7 +138,7 @@ func main() {
 	// $HOME/etc/${AppName}.json
 	flagSet.StringVar(&mailto, "m,mailto", "helpdesk@library.caltech.edu", "set the mailto value for CrossRef API access")
 
-	flagSet.Parse(os.Args)
+	flagSet.Parse(os.Args[1:])
 	args := flagSet.Args()
 
 	if showHelp {

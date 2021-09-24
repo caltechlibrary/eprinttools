@@ -147,7 +147,7 @@ func main() {
 	flagSet.BoolVar(&simplified, "s,simplified", false, "output simplified JSON version of EPrints XML")
 
 	// We're ready to process args
-	flagSet.Parse(os.Args)
+	flagSet.Parse(os.Args[1:])
 	args := flagSet.Args()
 
 	if len(args) > 1 {
