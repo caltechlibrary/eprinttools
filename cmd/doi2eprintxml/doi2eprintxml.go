@@ -127,7 +127,7 @@ func main() {
 	app.StringVar(&apiEPrintsURL, "eprints-url", "", "Sets the EPRints API URL")
 	app.BoolVar(&crossrefOnly, "c,crossref", false, "only search CrossRef API for DOI records")
 	app.BoolVar(&dataciteOnly, "d,datacite", false, "only search DataCite API for DOI records")
-	app.BoolVar(&useCaltechLibrarySpecificRules, "clsrules", true, "Apply current Caltech Library Specific Rules to EPrintXML output")
+	app.BoolVar(&useCaltechLibrarySpecificRules, "clsrules", false, "Apply current Caltech Library Specific Rules to EPrintXML output")
 	app.BoolVar(&use_1_0_0_CaltechLibrarySpecificRules, "v1.0.0-clsrules", false, "Apply v1.0.0 Caltech Library Specific Rules to EPrintXML output")
 	app.BoolVar(&asJSON, "json", false, "output EPrint structure as JSON")
 
@@ -294,7 +294,7 @@ func main() {
 			}
 		}
 	}
-	//FIXME: We need to apply Caltech Library Special Rules
+	// NOTE: We have an option to apply Caltech Library Special Rules
 	// before marshaling our results...
 	if useCaltechLibrarySpecificRules {
 		eprintsList, err = clsrules.Apply(eprintsList)
