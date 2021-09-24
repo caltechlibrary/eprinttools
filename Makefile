@@ -11,6 +11,8 @@ PROGRAMS = $(shell ls -1 cmd)
 
 PACKAGE = $(shell ls -1 *.go */*.go)
 
+CODEMETA2CFF = $(shell which codemeta2cff)
+
 OS = $(shell uname)
 
 #PREFIX = /usr/local/bin
@@ -39,6 +41,7 @@ version.go: .FORCE
 	@echo 'const Version = "$(VERSION)"' >>version.go
 	@echo '' >>version.go
 	@if [ -f bin/codemeta ]; then ./bin/codemeta; fi
+	$(CODEMETA2CFF)
 
 
 $(PROGRAMS): $(PACKAGE)

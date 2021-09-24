@@ -29,9 +29,9 @@ import (
 	"os"
 	"path"
 	"strings"
+	"flag"
 
 	// Caltech Library packages
-	"github.com/caltechlibrary/cli"
 	"github.com/caltechlibrary/crossrefapi"
 	"github.com/caltechlibrary/dataciteapi"
 	"github.com/caltechlibrary/eprinttools"
@@ -40,7 +40,12 @@ import (
 
 var (
 	description = `
-%s is a Caltech Library centric application that
+USAGE
+	{appName} [OPTIONS] DOI
+
+SYNOPSIS
+
+{appName} is a Caltech Library centric application that
 takes one or more DOI, queries the CrossRef API
 and if that fails the DataCite API and returns an
 EPrints XML document suitable for import into
@@ -53,22 +58,22 @@ form or URL form (e.g. "10.1021/acsami.7b15651" or
 	examples = `
 Example generating an EPrintsXML for one DOI
 
-	%s "10.1021/acsami.7b15651" > article.xml
+	{appName} "10.1021/acsami.7b15651" > article.xml
 
 Example generating an EPrintsXML for two DOI
 
-	%s "10.1021/acsami.7b15651" "10.1093/mnras/stu2495" > articles.xml
+	{appName} "10.1021/acsami.7b15651" "10.1093/mnras/stu2495" > articles.xml
 
 Example processing a list of DOIs in a text file into
 an XML document called "import-articles.xml".
 
-	%s -i doi-list.txt -o import-articles.xml
+	{appName} -i doi-list.txt -o import-articles.xml
 `
 
 	license = `
-%s %s
+{appName} {version}
 
-Copyright (c) 2017, Caltech
+Copyright (c) 2018, Caltech
 All rights not granted herein are expressly reserved by Caltech.
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -102,75 +107,57 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 	asJSON                                bool
 )
 
+
 func main() {
 	appName := path.Base(os.Args[0])
 
-	app := cli.NewCli(eprinttools.Version)
-	app.SetParams("DOI")
-
-	app.AddHelp("license",
-		[]byte(fmt.Sprintf(eprinttools.LicenseText,
-			appName, eprinttools.Version)))
-	app.AddHelp("description", []byte(fmt.Sprintf(description, appName)))
-	app.AddHelp("examples", []byte(fmt.Sprintf(examples, appName, appName, appName)))
 
 	// Standard Options
-	app.BoolVar(&showHelp, "h,help", false, "display help")
-	app.BoolVar(&showLicense, "l,license", false, "display license")
-	app.BoolVar(&showVersion, "v,version", false, "display app version")
-	app.BoolVar(&generateMarkdown, "generate-markdown", false, "generate Markdown documentation")
-	app.BoolVar(&generateManPage, "generate-manpage", false, "generate man page")
-	app.StringVar(&inputFName, "i,input", "", "set input filename")
-	app.BoolVar(&quiet, "quiet", false, "set quiet output")
+	flagSet := flag.NewFlagSet(appName, flag.ContinueOnError)
+
+	flagSet.BoolVar(&showHelp, "h", false, "display help")
+	flagSet.BoolVar(&showHelp, "help", false, "display help")
+	flagSet.BoolVar(&showLicense, "license", false, "display license")
+	flagSet.BoolVar(&showVersion, "version", false, "display app version")
+	flagSet.StringVar(&inputFName, "i", "", "set input filename")
+	flagSet.StringVar(&inputFName, "input", "", "set input filename")
+	flagSet.BoolVar(&quiet, "quiet", false, "set quiet output")
 
 	// Application Options
-	app.StringVar(&apiEPrintsURL, "eprints-url", "", "Sets the EPRints API URL")
-	app.BoolVar(&crossrefOnly, "c,crossref", false, "only search CrossRef API for DOI records")
-	app.BoolVar(&dataciteOnly, "d,datacite", false, "only search DataCite API for DOI records")
-	app.BoolVar(&useCaltechLibrarySpecificRules, "clsrules", false, "Apply current Caltech Library Specific Rules to EPrintXML output")
-	app.BoolVar(&use_1_0_0_CaltechLibrarySpecificRules, "v1.0.0-clsrules", false, "Apply v1.0.0 Caltech Library Specific Rules to EPrintXML output")
-	app.BoolVar(&asJSON, "json", false, "output EPrint structure as JSON")
+	flagSet.StringVar(&apiEPrintsURL, "eprints-url", "", "Sets the EPRints API URL")
+	flagSet.BoolVar(&crossrefOnly, "c", false, "only search CrossRef API for DOI records")
+	flagSet.BoolVar(&crossrefOnly, "crossref", false, "only search CrossRef API for DOI records")
+	flagSet.BoolVar(&dataciteOnly, "d", false, "only search DataCite API for DOI records")
+	flagSet.BoolVar(&dataciteOnly, "datacite", false, "only search DataCite API for DOI records")
+	flagSet.BoolVar(&useCaltechLibrarySpecificRules, "clsrules", false, "Apply current Caltech Library Specific Rules to EPrintXML output")
+	flagSet.BoolVar(&use_1_0_0_CaltechLibrarySpecificRules, "v1.0.0-clsrules", false, "Apply v1.0.0 Caltech Library Specific Rules to EPrintXML output")
+	flagSet.BoolVar(&asJSON, "json", false, "output EPrint structure as JSON")
 
 	//FIXME: Need to come up with a better way of setting this,
 	// perhaps a config mode and save the setting in
 	// $HOME/etc/${AppName}.json
-	app.StringVar(&mailto, "m,mailto", "helpdesk@library.caltech.edu", "set the mailto value for CrossRef API access")
+	flagSet.StringVar(&mailto, "m,mailto", "helpdesk@library.caltech.edu", "set the mailto value for CrossRef API access")
 
-	app.Parse()
-	args := app.Args()
-
-	if generateMarkdown {
-		app.GenerateMarkdown(os.Stdout)
-		os.Exit(0)
-	}
-	if generateManPage {
-		app.GenerateManPage(os.Stdout)
-		os.Exit(0)
-	}
+	flagSet.Parse(os.Args)
+	args := flagSet.Args()
 
 	if showHelp {
-		if showHelp {
-			if len(args) > 0 {
-				fmt.Fprintf(os.Stdout, app.Help(args...))
-			} else {
-				app.Usage(os.Stdout)
-			}
-			os.Exit(0)
-		}
+		eprinttools.DisplayUsage(os.Stdout, appName, flagSet, description, examples, license)
+		os.Exit(1)
 	}
 
 	if showLicense {
-		fmt.Fprintln(os.Stdout, app.License())
+		eprinttools.DisplayLicense(os.Stdout, appName, license)
 		os.Exit(0)
 	}
 
 	if showVersion {
-		fmt.Fprintln(os.Stdout, app.Version())
+		eprinttools.DisplayVersion(os.Stdout, appName)
 		os.Exit(0)
 	}
 
 	if len(args) < 1 && inputFName == "" {
-		app.Usage(app.Eout)
+		eprinttools.DisplayUsage(os.Stderr, appName, flagSet, description, examples, license)
 		os.Exit(1)
 	}
 
@@ -178,20 +165,29 @@ func main() {
 	var (
 		err error
 	)
-	app.Eout = os.Stderr
+	out := os.Stdout
+	in := os.Stdin
+	if (outputFName != "") {
+		if out, err = os.Create(outputFName); err != nil {
+			fmt.Fprintf(os.Stderr, "%s\n", err)
+			os.Exit(1)
+		}
+		defer out.Close()
+	}
 
-	app.Out, err = cli.Create(outputFName, os.Stdout)
-	cli.ExitOnError(app.Eout, err, quiet)
-	defer cli.CloseFile(outputFName, app.Out)
-
-	app.In, err = cli.Open(inputFName, os.Stdin)
-	cli.ExitOnError(app.Eout, err, quiet)
-	defer cli.CloseFile(inputFName, app.In)
+	if (inputFName != "" ) {
+		if in, err = os.Open(inputFName); err != nil {
+			fmt.Fprintf(os.Stderr, "%s\n", err)
+		} 
+		defer in.Close()
+	}
 
 	if inputFName != "" {
-		src, err := ioutil.ReadAll(app.In)
-		cli.ExitOnError(app.Eout, err, quiet)
-		//FIXME: this bytes to string split is ugly...
+		src, err := ioutil.ReadAll(in)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "%s\n", err)
+			os.Exit(1)
+		}
 		for _, line := range strings.Split(fmt.Sprintf("%s", src), "\n") {
 			arg := strings.TrimSpace(line)
 			if len(arg) > 0 {
