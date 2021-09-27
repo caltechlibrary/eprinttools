@@ -70,3 +70,4 @@ testout_*
 htdocs/*
 *.xml
 *.bak
+sql-dumps/*
