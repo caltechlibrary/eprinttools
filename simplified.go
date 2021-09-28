@@ -1,13 +1,13 @@
 /**
  * simplified presents an Invenio 3 like JSON representation of an EPrint
- * record.
+ * record. This is intended to make the development of V2 of feeds easier
+ * for both our audience on internal programming needs.
  */
 package eprinttools
 
 import (
 	"encoding/xml"
 	"fmt"
-	"strings"
 )
 
 // InvenioType is an Invenio 3 e.g. ResourceType, title type or language
@@ -114,9 +114,29 @@ type DateType struct {
 	Description string       `json:"description,omitempty"`
 }
 
+// Size
+type Size struct {
+}
+
+// Format
+type Format struct {
+}
+
+// Location
+type Location struct {
+}
+
+// FileType
+type FileType struct {
+}
+
+// Tumbstone
+type Tumbstone struct {
+}
+
 // Metadata is an indivudal eprint record optimize for ingest by
-// using in Invenio or Solr 8.9.0.
-type Matadata struct {
+// using in Invenio 3
+type Metadata struct {
 	// General fields
 	XMLName      xml.Name     `json:"-"`
 	EPrintID     string       `json:"eprint_id,omitempty"`
@@ -171,7 +191,7 @@ type Matadata struct {
 	// Patent oriented fields
 	PatentApplicant      string                    `json:"patent_applicant,omitempty"`
 	PatentNumber         string                    `json:"patent_number,omitempty"`
-	PatentAssignee       []*Agent                  `json:"patent_assignee,omitempty"`
+	PatentAssignee       []*PersonOrOrg            `json:"patent_assignee,omitempty"`
 	PatentClassification []*map[string]interface{} `json:"patent_classification,omitempty"`
 	RelatedPatents       []*map[string]interface{} `json:"related_patents,omitempty"`
 
@@ -196,199 +216,100 @@ type Matadata struct {
 	CopyrightStatement     string   `json:"copyright_statement,omitempty"`
 }
 
-func MapObjectToMetadata(mapObject map[string]interface{}) (*Metadata, error) {
-	dObject := new(Metadata)
-	foundContent := false
-	for k, v := range mapObject {
-		switch k {
-		case "basename":
-			dObject.Basename = v.(string)
-			foundContent = true
-		case "content":
-			dObject.Content = v.(string)
-			foundContent = true
-		case "filesize":
-			dObject.FileSize = v.(int)
-			foundContent = true
-		case "license":
-			dObject.License = v.(string)
-		case "mime_type":
-			dObject.MimeType = v.(string)
-			foundContent = true
-		case "url":
-			dObject.Url = v.(string)
-			foundContent = true
-		case "version":
-			dObject.Version = v.(string)
-			foundContent = true
-		}
-	}
-	if !foundContent {
-		return nil, fmt.Errorf("No digital object attributes found")
-	}
-	return dObject, nil
+func MapEPrintToMetadata(mapObject map[string]interface{}) (*Metadata, error) {
+	return nil, fmt.Errorf("MapEPrintToMetadata() not implemented")
 }
 
 // Simplify take a single EPrint struct and converts it to
 // an SimplePrint structure.
 func Simplify(eprint *EPrint) (*Metadata, error) {
-	simple := new(SimplePrint)
+	simple := new(Metadata)
 	simple.EPrintID = fmt.Sprintf("%d", eprint.EPrintID)
 	simple.Status = eprint.EPrintStatus
 	simple.Collection = eprint.Collection
-	simple.Type = eprint.Type
 	simple.Title = eprint.Title
-	simple.Abstract = eprint.Abstract
-	simple.Creators = []*Agent{}
-	simple.CorpCreators = []*Agent{}
-	simple.ConfCreators = []*Agent{}
-	simple.Contributors = []*Agent{}
-	simple.Editors = []*Agent{}
-	simple.Committee = []*Agent{}
-	simple.Advisors = []*Agent{}
+	simple.Description = eprint.Abstract
+	simple.Creators = []*Creator{}
 	if eprint.Creators != nil {
-		for _, creator := range eprint.Creators.Items {
-			agent := new(Agent)
-			agent.ID = creator.ID
-			agent.FamilyName = creator.Name.Family
-			agent.GivenName = creator.Name.Given
-			agent.ORCID = creator.ORCID
-			simple.Creators = append(simple.Creators, agent)
-		}
+		//FIXME: map Creates to simple.Creators
 	}
 	if eprint.CorpCreators != nil {
-		for _, creator := range eprint.CorpCreators.Items {
-			agent := new(Agent)
-			agent.ID = creator.ID
-			//FIXME: Need to figure out where I record actual CorpCreator name
-			agent.Name = creator.Value
-			simple.CorpCreators = append(simple.CorpCreators, agent)
-		}
+		//FIXME: map Creates to simple.Creators
 	}
 	if eprint.ConfCreators != nil {
-		for _, creator := range eprint.ConfCreators.Items {
-			agent := new(Agent)
-			agent.ID = creator.ID
-			//FIXME: Need to figure out where I record actual CorpCreator name
-			agent.Name = creator.Value
-			simple.ConfCreators = append(simple.ConfCreators, agent)
-		}
+		//FIXME: map Creates to simple.Creators
 	}
 	if eprint.Contributors != nil {
-		for _, contributor := range eprint.Contributors.Items {
-			agent := new(Agent)
-			agent.ID = contributor.ID
-			agent.FamilyName = contributor.Name.Family
-			agent.GivenName = contributor.Name.Given
-			agent.ORCID = contributor.ORCID
-			simple.Contributors = append(simple.Contributors, agent)
-		}
+		//FIXME: map Creates to simple.Creators
 	}
 	if eprint.Editors != nil {
-		for _, editor := range eprint.Editors.Items {
-			agent := new(Agent)
-			agent.ID = editor.ID
-			agent.FamilyName = editor.Name.Family
-			agent.GivenName = editor.Name.Given
-			agent.ORCID = editor.ORCID
-			simple.Editors = append(simple.Editors, agent)
-		}
+		//FIXME: map Creates to simple.Creators
 	}
 	if eprint.PrimaryObject != nil {
-		if dObj, err := MapObjectToDigitalObject(eprint.PrimaryObject); err == nil {
-			simple.PrimaryObject = dObj
-		}
+		// FIXME: map into simple's Invenio Metadata model
 	}
 	if eprint.RelatedObjects != nil {
-		simple.RelatedObjects = []*DigitalObject{}
-		for _, obj := range eprint.RelatedObjects {
-			if sObj, err := MapObjectToDigitalObject(obj); err == nil {
-				simple.RelatedObjects = append(simple.RelatedObjects, sObj)
-			}
-		}
+		// FIXME: map into simple's Invenio Metadata model
 	}
 	if eprint.Funders != nil {
-		for _, item := range eprint.Funders.Items {
-			funder := new(Funder)
-			funder.Name = item.Agency
-			funder.Description = item.Description
-			funder.GrantNumber = item.GrantNumber
-			//FIXME: need to determine FinderID and ROR if possible.
-			simple.Funders = append(simple.Funders, funder)
-		}
+		// FIXME: map to simple's funder model
 	}
 	if eprint.DOI != "" {
-		simple.DOI = eprint.DOI
+		// FIXME: map to simple's identifiers list
 	}
 	if eprint.ISBN != "" {
-		simple.ISBN = eprint.ISBN
+		// FIXME: map to simple's identifiers list
 	}
 	if eprint.ISSN != "" {
-		simple.ISSN = eprint.ISSN
+		// FIXME: map to simple's identifiers list
 	}
 	if eprint.RelatedURL != nil {
-		for _, item := range eprint.RelatedURL.Items {
-			resource := new(ResourceURL)
-			resource.Type = item.Type
-			resource.Description = item.Description
-			resource.Url = item.URL
-			simple.RelatedURLs = append(simple.RelatedURLs, resource)
-		}
+		// FIXME: map into simple's Invenio Metadata model
 	}
 	if eprint.FullTextStatus != "" {
-		simple.FullTextStatus = eprint.FullTextStatus
+		// FIXME: map into simple's Invenio Metadata model
 	}
 	if eprint.Publisher != "" {
-		simple.Publisher = eprint.Publisher
+		// FIXME: map into simple's Invenio Metadata model
 	}
 	if eprint.Publication != "" {
-		simple.Publication = eprint.Publication
+		// FIXME: map into simple's Invenio Metadata model
 	}
 	if eprint.PlaceOfPub != "" {
-		simple.PlaceOfPublication = eprint.PlaceOfPub
+		// FIXME: map into simple's Invenio Metadata model
 	}
 	if eprint.BookTitle != "" {
-		simple.BookTitle = eprint.BookTitle
+		// FIXME: map into simple's Invenio Metadata model
 	}
 	if eprint.Edition != "" {
-		simple.Edition = eprint.Edition
+		// FIXME: map into simple's Invenio Metadata model
 	}
 	if eprint.Series != "" {
-		simple.Series = eprint.Series
+		// FIXME: map into simple's Invenio Metadata model
 	}
 	if eprint.Volume != "" {
-		simple.Volume = eprint.Volume
+		// FIXME: map into simple's Invenio Metadata model
 	}
 	if eprint.Number != "" {
-		simple.Number = eprint.Number
+		// FIXME: map into simple's Invenio Metadata model
 	}
 	if eprint.Refereed != "" {
-		if strings.ToLower(eprint.Refereed) == "true" {
-			simple.Refereed = true
-		} else {
-			simple.Refereed = false
-		}
+		// FIXME: map into simple's Invenio Metadata model
 	}
 	if eprint.Department != "" {
-		simple.Department = eprint.Department
+		// FIXME: map into simple's Invenio Metadata model
 	}
 	if eprint.Divisions != nil {
-		for _, division := range eprint.Divisions.Items {
-			simple.Divisions = append(simple.Divisions, division.Value)
-		}
+		// FIXME: map into simple's Invenio Metadata model
 	}
 	if eprint.OptionMajor != nil {
-		for _, option := range eprint.OptionMajor.Items {
-			simple.OptionMajor = append(simple.OptionMajor, option.Value)
-		}
+		// FIXME: map into simple's Invenio Metadata model
 	}
 	if eprint.OptionMinor != nil {
-		for _, option := range eprint.OptionMinor.Items {
-			simple.OptionMinor = append(simple.OptionMinor, option.Value)
-		}
+		// FIXME: map into simple's Invenio Metadata model
 	}
 	if eprint.CopyrightStatement != "" {
-		simple.CopyrightStatement = eprint.CopyrightStatement
+		// FIXME: map into simple's Invenio Metadata model
 	}
 	return simple, nil
 }
@@ -396,7 +317,7 @@ func Simplify(eprint *EPrint) (*Metadata, error) {
 // SimplifyEPrints takes an EPrints struct and converts it to an array SimplePrint
 // structure.
 func SimplifyEPrints(eprints *EPrints) ([]*Metadata, error) {
-	var simpleList []*SimplePrint
+	var simpleList []*Metadata
 	for i, eprint := range eprints.EPrint {
 		if simple, err := Simplify(eprint); err != nil {
 			return nil, fmt.Errorf("EPrint simplification (%d) error, %s", i, err)

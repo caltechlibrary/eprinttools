@@ -7,7 +7,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"log"
 	"os"
 	"path"
 
@@ -100,22 +99,6 @@ func checkConfig(cfg *eprinttools.Config) {
 		fmt.Fprintf(os.Stderr, `"hostname" not set`)
 		ok = false
 	}
-	if cfg.EPrintURL == "" {
-		fmt.Fprintf(os.Stderr, `"eprints_url" not set`)
-		ok = false
-	}
-	if cfg.DbHost == "" {
-		fmt.Fprintf(os.Stderr, `"db_host" not set`)
-		ok = false
-	}
-	if cfg.DbUser == "" {
-		fmt.Fprintf(os.Stderr, `"db_user" not set`)
-		ok = false
-	}
-	if cfg.DbPassword == "" {
-		fmt.Fprintf(os.Stderr, `"db_password" not set`)
-		ok = false
-	}
 	if len(cfg.Repositories) == 0 {
 		fmt.Fprintf(os.Stderr, `"repositories" not set`)
 	}
@@ -133,7 +116,7 @@ func main() {
 	flag.BoolVar(&showVersion, "version", false, "Display software version")
 	flag.BoolVar(&showLicense, "license", false, "Display software license")
 
-	flagSet.Parse(os.Args)
+	flagSet.Parse(os.Args[1:])
 	args := flagSet.Args()
 
 	if showHelp {
@@ -149,17 +132,20 @@ func main() {
 		os.Exit(0)
 	}
 
-	/* Load Configuration */
-	cfg := eprinttools.NewConfig()
+	/* Looking settings.json */
+	settings := "settings.json"
 	if len(args) > 0 {
-		cfg.Load(args[0])
-	} else if _, err := os.Stat("settings.json"); os.IsNotExist(err) == false {
-		cfg.Load("settings.json")
+		settings = args[0]
 	}
-	checkConfig(cfg)
 
 	/* Initialize Extended API web service */
-	log.Fatal(eprinttools.InitExtendedAPI(appName, cfg))
+	if err := eprinttools.InitExtendedAPI(settings); err != nil {
+		fmt.Fprintf(os.Stderr, "InitExtendedAPI(%q) Failed, %s", settings, err)
+		os.Exit(1)
+	}
 	/* Run Extended API web service */
-	log.Fatal(eprinttools.RunExtendedAPI())
+	if err := eprinttools.RunExtendedAPI(appName); err != nil {
+		fmt.Fprintf(os.Stderr, "RunExtendedAPI(%q) failed, %s", appName, err)
+		os.Exit(1)
+	}
 }

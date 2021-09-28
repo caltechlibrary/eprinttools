@@ -34,7 +34,7 @@ The following URL end points are intended to take one unique identifier and map 
 - `/<REPO_ID>/advisor-id/<ADVISOR_ID>` scans the name advisor id field associated with advisors and returns a list of EPrint ID 
 - `/<REPO_ID>/committee-id/<COMMITTEE_ID>` scans the committee id field associated with committee members and returns a list of EPrint ID
 - `/<REPO_ID>/group-id/<GROUP_ID>` this scans group ID and returns a list of EPrint IDs associated with the group
-- `/<REPO_ID>/funder-id/<FUNDER_ID>` returns a list of EPrint IDs associated with the funder's ROR
+- `/<REPO_ID>/funder-id/<FUNDER_ID>` returns a list of EPrint IDs associated with the funder's ID
 - `/<REPO_ID>/grant-number/<GRANT_NUMBER>` returns a list of EPrint IDs associated with the grant number
 
 Change Events

@@ -20,13 +20,13 @@ package main
 
 import (
 	"bytes"
-	"path"
 	"encoding/json"
 	"encoding/xml"
+	"flag"
 	"fmt"
 	"io/ioutil"
 	"os"
-	"flag"
+	"path"
 
 	// Caltech Library Packages
 	"github.com/caltechlibrary/eprinttools"
@@ -96,7 +96,6 @@ Redistribution and use in source and binary forms, with or without modification,
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 `
 
-
 	// Standard Options
 	showHelp         bool
 	showLicense      bool
@@ -120,7 +119,6 @@ func main() {
 	var (
 		inputFmt int
 		obj      *eprinttools.EPrints
-		sObj     []*eprinttools.SimplePrint
 		src      []byte
 		err      error
 	)
@@ -163,16 +161,16 @@ func main() {
 
 	if inputFName != "" {
 		if in, err = os.Open(inputFName); err != nil {
-		fmt.Fprintf(os.Stderr, "%s\n", err)
-		os.Exit(1)
+			fmt.Fprintf(os.Stderr, "%s\n", err)
+			os.Exit(1)
 		}
 		defer in.Close()
 	}
 
 	if outputFName != "" {
-		if out, err = os.Create(outputFName); err != nil{
-		fmt.Fprintf(os.Stderr, "%s\n", err)
-		os.Exit(1)
+		if out, err = os.Create(outputFName); err != nil {
+			fmt.Fprintf(os.Stderr, "%s\n", err)
+			os.Exit(1)
 		}
 		defer out.Close()
 	}
@@ -228,12 +226,12 @@ func main() {
 	if simplified {
 		asXML = false
 		asJSON = true
-		sObj, err = eprinttools.SimplifyEPrints(obj)
+		sObjects, err := eprinttools.SimplifyEPrints(obj)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "%s\n", err)
 			os.Exit(1)
 		}
-		src, err = json.MarshalIndent(sObj, "", "   ")
+		src, err = json.MarshalIndent(sObjects, "", "   ")
 	} else {
 		// marshal pretty printed output based on options selected.
 		if asXML {
