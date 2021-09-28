@@ -1,3 +1,7 @@
+/**
+ * simplified presents an Invenio 3 like JSON representation of an EPrint
+ * record.
+ */
 package eprinttools
 
 import (
@@ -6,37 +10,58 @@ import (
 	"strings"
 )
 
-// DigitalObject describes the digital material associated with
-// the EPrint record.
-type DigitalObject struct {
-	XMLName  xml.Name `json:"-"`
-	EPrintID string   `json:"eprint_id,omitempty" xml:"eprint_id,omitempty"`
-	Content  string   `json:"content,omitempty" xml:"content,omitempty"`
-	Basename string   `json:"basename,omitempty" xml:"basename,omitempty"`
-	FileSize int      `json:"file_size,omitempty" xml:"file_size,omitempty"`
-	License  string   `json:"license,omitempty" xml:"license,omitempty"`
-	MimeType string   `json:"mime_type,omitempty" xml:"mime_type,omitempty"`
-	Url      string   `json:"url,omitempty" xml:"url,omitempty"`
-	Version  string   `json:"version,omitempty" xml:"version,omitempty"`
+// InvenioType is an Invenio 3 e.g. ResourceType, title type or language
+type InvenioType struct {
+	ID    string `json:"id,omitempty"`
+	Name  string `json:"name,omitempty"`
+	Title string `json:"title,omitempty"`
 }
 
-// Agent holds either a person or corporate entity information.
-type Agent struct {
-	XMLName xml.Name `json:"-"`
+type InvenioAltType struct {
+	ID    string            `json:"id,omitempty"`
+	Name  string            `json:"name,omitempty"`
+	Title map[string]string `json:"title,omitempty"`
+}
+
+// Identifier holds an Identifier, e.g. ORCID, ROR, ISNI, GND
+type Identifier struct {
+	Scheme       string          `json:"scheme,omitempty"`
+	Identifier   string          `json:"identifier,omitempty"`
+	RelationType *InvenioAltType `json:"relation_type,omitempty"`
+	ResourceType *InvenioAltType `json:"resource_type,omitempty"`
+}
+
+// PersonOrOrg holds either a person or corporate entity information.
+type PersonOrOrg struct {
 	// ID can be for a Person (e.g. Doiel-R-S) or Corporate entity
 	ID string `json:"id,omitempty" xml:"id,omitempty"`
 
-	// Name holds a corporate name, e.g. The Unseen University
-	Name string `json:"name,omitempty" xml:"name,omitempty"`
+	// Type holds the type of Agent
+	Type string `json:"type,omitempty"`
+
 	// GivenName holds a peron's given name, e.g. Jane
 	GivenName string `json:"given_name,omitempty" xml:"given_name,omitempty"`
 	// FamilyName holds a person's family name, e.g. Doe
-	FamilyName  string `json:"family_name,omitempty" xml:"family_name,omitempty"`
-	ORCID       string `json:"orcid,omitempty" xml:"orcid,omitempty"`
-	ROR         string `json:"ror,omitempty" xml:"ror,omitempty"`
-	Affiliation string `json:"affiliation,omitempty" xml:"affiliation,omitempty"`
-	EMail       string `json:"email,omitempty" xml:"email,omitempty"`
-	Website     string `json:"website,omitempty" xml:"website,omitempty"`
+	FamilyName string `json:"family_name,omitempty" xml:"family_name,omitempty"`
+	// Name holds a corporate name, e.g. The Unseen University
+	Name string `json:"name,omitempty" xml:"name,omitempty"`
+
+	// Identifiers holds a list of unique ID like ORCID, GND, ROR, ISNI
+	Identifiers []*Identifier `json:"identifiers,omitempty"`
+}
+
+type Role struct {
+}
+
+type Affiliation struct {
+	ID   string `json:"id,omitempty"`
+	Name string `json:"name,omitempty"`
+}
+
+type Creator struct {
+	PersonOrOrg *PersonOrOrg   `json:"person_or_org,omitempty"`
+	Role        *Role          `json:"role,omitempty"`
+	Affiliation []*Affiliation `json:"affiliation,omitempty"`
 }
 
 // Funder holds information for funding organizations
@@ -56,86 +81,123 @@ type ResourceURL struct {
 	Description string   `json:"description,omitempty" xml:"description,omitempty"`
 }
 
-// SimplePrint is an indivudal eprint record optimize for ingest by
-// using in search, e.g. Solr 8.9.0.
-type SimplePrint struct {
-	// General fields
-	XMLName      xml.Name `json:"-"`
-	EPrintID     string   `json:"eprint_id" xml:"eprint_id"`
-	Collection   string   `json:"collection,omitempty" xml:"collection,omitempty"`
-	Type         string   `json:"type,omitempty" xml:"type,omitempty"`
-	Title        string   `json:"title" xml:"title"`
-	Creators     []*Agent `json:"creators,omitempty" xml:"creators>creator,omitempty"`
-	CorpCreators []*Agent `json:"corp_creators,omitempty" xml:"corp_creators>creator,omitempty"`
-	ConfCreators []*Agent `json:"conf_creators,omitempty" xml:"conf_creators>creator,omitempty"`
-	Contributors []*Agent `json:"contributors,omitempty" xml:"contributors>cotributor,omitempty"`
-	Editors      []*Agent `json:"editors,omitempty" xml:"editors>editor,omitempty"`
-	Committee    []*Agent `json:"committee,omitempty" xml:"committee>member,omitempty"`
-	Advisors     []*Agent `json:"advisors,omitempty" xml:"advisors>advisor,omitempty"`
-
-	Funders                  []*Funder        `json:"funders,omitempty" xml:"funders>funder,omitempty"`
-	Abstract                 string           `json:"abstract,omitempty" xml:"abstract,omitempty"`
-	PrimaryObject            *DigitalObject   `json:"primary_object,omitempty" xml:"primary_object,omitempty"`
-	RelatedObjects           []*DigitalObject `json:"related_objects,omitempty" xml:"related_objects>related_object,omitempty"`
-	RelatedURLs              []*ResourceURL   `json:"related_urls,omitempty" xml:"related_urls>related_url,omitempty"`
-	Publisher                string           `json:"publisher,omitempty" xml:"publisher,omitempty"`
-	Publication              string           `json:"publication,omitempty" xml:"journal_or_pub_title,omitempty"`
-	PlaceOfPublication       string           `json:"place_of_publication,omitempty" xml:"place_of_publication,omitempty"`
-	Edition                  string           `json:"edition,omitempty" xml:"edition,omitempty"`
-	BookTitle                string           `json:"book_title,omitempty" xml:"book_title,omitempty"`
-	Series                   string           `json:"series,omitempty" xml:"series,omitempty"`
-	Volume                   string           `json:"volume,omitempty" xml:"volume,omitempty"`
-	Number                   string           `json:"number,omitempty" xml:"number,omitempty"`
-	Refereed                 bool             `json:"refereed,omitempty" xml:"refereed,omitmpety"`
-	Department               string           `json:"department,omitempty" xml:"department,omitempty"`
-	Group                    string           `json:"group,omitempty" xml:"group,omitempty"`
-	OtherNumberingSystemName string           `json:"other_numbering_system_name,omitempty" xml:"other_numbering_system_name,omitempty"`
-	OtherNumberingSystemID   string           `json:"other_numbering_system_id,omitempty"`
-	DOI                      string           `json:"doi,omitempty" xml:"doi,omitempty"`
-	ISSN                     string           `json:"issn,omitempty" xml:"issn,omitempty"`
-	ISBN                     string           `json:"isbn,omitempty" xml:"isbn,omitempty"`
-	PubCentralID             string           `json:"pub_central_id,omitempty" xml:"pub_central_id,omitempty"`
-	Created                  string           `json:"created,omitempty" xml:"created,omitempty"`
-	Updated                  string           `json:"updated,omitempty" xml:"updated,omitempty"`
-	PubDate                  string           `json:"pub_date,omitempty" xml:"pub_date,omitempty"`
-	Status                   string           `json:"status" xml:"status"`
-	//FIXME: Eprints stores the numeric id, we need a name or username to populate Username
-	Username       string   `json:"username,omitempty" xml:"username,omitempty"`
-	FullTextStatus string   `json:"full_text_status,omitempty" xml:"full_text_status,omitempty"`
-	Notes          string   `json:"note,omitempty" xml:"note,omitempty"`
-	Keywords       []string `json:"keywords,omitempty" xml:"keywords>keyword,omitempty"`
-	Subject        []string `json:"subject,omitempty" xml:"subjects>subject,omitempty"`
-
-	// Patent oriented fields
-	PatentApplicant      string                    `json:"patent_applicant,omitempty" xml:"patent_applicant,omitempty"`
-	PatentNumber         string                    `json:"patent_number,omitempty" xml:"patent_number,omitempty"`
-	PatentAssignee       []*Agent                  `json:"patent_assignee,omitempty" xml:"patent_assignees>patent_assignee,omitempty"`
-	PatentClassification []*map[string]interface{} `json:"patent_classification,omitempty" xml:"patent_classifications>patent_classification,omitempty"`
-	RelatedPatents       []*map[string]interface{} `json:"related_patents,omitempty" xml:"related_patents>related_patent,omitempty"`
-
-	// Thesis oriented fields
-	Divisions              []string `json:"divisions,omitempty" xml:"divisions,omitemmpty"`
-	Institution            string   `json:"institution,omitempty" xml:"institution,omitempty"`
-	ThesisType             string   `json:"thesis_type,omitempty" xml:"thesis_type,omitempty"`
-	ThesisDegree           string   `json:"thesis_degree,omitempty" xml:"thesis_degree,omitempty"`
-	ThesisDegreeGrantor    string   `json:"thesis_degree_grantor,omitempty" xml:"thesis_degree_grantor,omitempty"`
-	ThesisDegreeDate       string   `json:"thesis_degree_date,omitempty" xml:"thesis_degree_date,omitempty"`
-	ThesisSubmittedDate    string   `json:"thesis_submit_date,omitempty" xml:"thesis_submit_date,omitempty"`
-	ThesisDefenseDate      string   `json:"thesis_defense_date,omitempty" xml:"thesis_defense_date,omitempty"`
-	ThesisApprovedDate     string   `json:"thesis_approved_date,omitempty" xml:"thesis_approved_date,omitempty"`
-	ThesisPublicDate       string   `json:"thesis_public_date,omitempty" xml:"thesis_public_date,omitempty"`
-	ThesisAuthorEMail      string   `json:"thesis_author_email,omitempty" xml:"thesis_author_email,omitempty"`
-	HideThesisAuthorEMail  string   `json:"hide_thesis_author_email,omitempty" xml:"hide_thesis_author_email,omitempty"`
-	GradOfficeApprovalDate string   `json:"gradofc_approval_date,omitempty" xml:"gradofc_approval_date,omitempty"`
-	ThesisAwards           string   `json:"thesis_awards,omitempty" xml:"thesis_awards,omitempty"`
-	ReviewStatus           string   `json:"review_status,omitempty" xml:"review_status,omitempty"`
-	OptionMajor            []string `json:"option_major,omitempty" xml:"option_major,omitempty"`
-	OptionMinor            []string `json:"option_minor,omitempty" xml:"option_minor,omitempty"`
-	CopyrightStatement     string   `json:"copyright_statement,omitempty" xml:"copyright_statement,omitempty"`
+// AltTitle is an Invenio 3 additional title type
+type AltTitle struct {
+	Title string       `json:"title,omitempty"`
+	Type  *InvenioType `json:"type,omitempty"`
+	Lang  *InvenioType `json:"lang,omitempty"`
 }
 
-func MapObjectToDigitalObject(mapObject map[string]interface{}) (*DigitalObject, error) {
-	dObject := new(DigitalObject)
+// Subject isan Invenio 3 subject type
+type Subject struct {
+	Subject string `json:"subject,omitempty"`
+	ID      string `json:"id,omitempty"`
+}
+
+// AltDescription  is an Invenio 3 alternate description
+type AltDescription struct {
+	Description string       `json:"description,omitempty"`
+	Type        *InvenioType `json:"type,omitempty"`
+	Lang        *InvenioType `json:"lang,omitempty"`
+}
+
+type Right struct {
+	ID          string `json:"id,omitempty"`
+	Title       string `json:"title,omitempty"`
+	Description string `json:"description,omitempty"`
+	Link        string `json:"link,omitempty"`
+}
+
+type DateType struct {
+	Date        string       `json:"date,omitempty"`
+	Type        *InvenioType `json:"type,omitempty"`
+	Description string       `json:"description,omitempty"`
+}
+
+// Metadata is an indivudal eprint record optimize for ingest by
+// using in Invenio or Solr 8.9.0.
+type Matadata struct {
+	// General fields
+	XMLName      xml.Name     `json:"-"`
+	EPrintID     string       `json:"eprint_id,omitempty"`
+	Collection   string       `json:"collection,omitempty"`
+	EPrintType   string       `json:"eprint_type,omitempty" xml:"type,omitempty"`
+	ResourceType *InvenioType `json:"resource_type,omitempty"`
+
+	Title          string            `json:"title" xml:"title"`
+	AltTitles      []*AltTitle       `json:"additional_titles"`
+	Creators       []*Creator        `json:"creators,omitempty"`
+	Contributors   []*Creator        `json:"contributors,omitempty"`
+	Subjects       []*Subject        `json:"subjects,omitempty"`
+	Languages      []*InvenioType    `json:"languages,omitempty"`
+	Dates          []*DateType       `json:"dates,omitempty"`
+	Version        []string          `json:"version,omitempty"`
+	Publisher      string            `json:"publisher,omitempty" xml:"publisher,omitempty"`
+	AltIdentifiers []*Identifier     `json:"additional_identifiers,omitempty"`
+	Publication    string            `json:"publication,omitempty"`
+	PubDate        string            `json:"publication_date,omitempty"`
+	Description    string            `json:"description,omitempty" xml:"abstract,omitempty"`
+	AltDescription []*AltDescription `json:"additional_descriptions,omitempty"`
+	Rights         []*Right          `json:"rights,omitempty"`
+	Sizes          []*Size           `json:"sizes,omitempty"`
+	Formats        []*Format         `json:"formats,omitempty"`
+	Locations      []*Location       `json:"locations,omitempty"`
+
+	Funders []*Funder `json:"funder,omitempty"`
+
+	Files     []*FileType `json:"files,omitempty"`
+	Tumbstone *Tumbstone  `json:"tumbstone,omitempty"`
+
+	PlaceOfPublication       string `json:"place_of_publication,omitempty"`
+	Edition                  string `json:"edition,omitempty"`
+	BookTitle                string `json:"book_title,omitempty"`
+	Series                   string `json:"series,omitempty"`
+	Volume                   string `json:"volume,omitempty"`
+	Number                   string `json:"number,omitempty"`
+	Refereed                 bool   `json:"refereed,omitempty"`
+	Department               string `json:"department,omitempty"`
+	Group                    string `json:"group,omitempty"`
+	OtherNumberingSystemName string `json:"other_numbering_system_name,omitempty"`
+	OtherNumberingSystemID   string `json:"other_numbering_system_id,omitempty"`
+	Created                  string `json:"created,omitempty"`
+	Updated                  string `json:"updated,omitempty"`
+	Status                   string `json:"status"`
+	//FIXME: Eprints stores the numeric id, we need a name or username to populate Username
+	Username       string   `json:"username,omitempty"`
+	FullTextStatus string   `json:"full_text_status,omitempty"`
+	Notes          string   `json:"note,omitempty"`
+	Keywords       []string `json:"keywords,omitempty"`
+
+	// Patent oriented fields
+	PatentApplicant      string                    `json:"patent_applicant,omitempty"`
+	PatentNumber         string                    `json:"patent_number,omitempty"`
+	PatentAssignee       []*Agent                  `json:"patent_assignee,omitempty"`
+	PatentClassification []*map[string]interface{} `json:"patent_classification,omitempty"`
+	RelatedPatents       []*map[string]interface{} `json:"related_patents,omitempty"`
+
+	// Thesis oriented fields
+	Divisions              []string `json:"divisions,omitempty"`
+	Institution            string   `json:"institution,omitempty"`
+	ThesisType             string   `json:"thesis_type,omitempty"`
+	ThesisDegree           string   `json:"thesis_degree,omitempty"`
+	ThesisDegreeGrantor    string   `json:"thesis_degree_grantor,omitempty"`
+	ThesisDegreeDate       string   `json:"thesis_degree_date,omitempty"`
+	ThesisSubmittedDate    string   `json:"thesis_submit_date,omitempty"`
+	ThesisDefenseDate      string   `json:"thesis_defense_date,omitempty"`
+	ThesisApprovedDate     string   `json:"thesis_approved_date,omitempty"`
+	ThesisPublicDate       string   `json:"thesis_public_date,omitempty"`
+	ThesisAuthorEMail      string   `json:"thesis_author_email,omitempty"`
+	HideThesisAuthorEMail  string   `json:"hide_thesis_author_email,omitempty"`
+	GradOfficeApprovalDate string   `json:"gradofc_approval_date,omitempty"`
+	ThesisAwards           string   `json:"thesis_awards,omitempty"`
+	ReviewStatus           string   `json:"review_status,omitempty"`
+	OptionMajor            []string `json:"option_major,omitempty"`
+	OptionMinor            []string `json:"option_minor,omitempty"`
+	CopyrightStatement     string   `json:"copyright_statement,omitempty"`
+}
+
+func MapObjectToMetadata(mapObject map[string]interface{}) (*Metadata, error) {
+	dObject := new(Metadata)
 	foundContent := false
 	for k, v := range mapObject {
 		switch k {
@@ -169,7 +231,7 @@ func MapObjectToDigitalObject(mapObject map[string]interface{}) (*DigitalObject,
 
 // Simplify take a single EPrint struct and converts it to
 // an SimplePrint structure.
-func Simplify(eprint *EPrint) (*SimplePrint, error) {
+func Simplify(eprint *EPrint) (*Metadata, error) {
 	simple := new(SimplePrint)
 	simple.EPrintID = fmt.Sprintf("%d", eprint.EPrintID)
 	simple.Status = eprint.EPrintStatus
@@ -333,7 +395,7 @@ func Simplify(eprint *EPrint) (*SimplePrint, error) {
 
 // SimplifyEPrints takes an EPrints struct and converts it to an array SimplePrint
 // structure.
-func SimplifyEPrints(eprints *EPrints) ([]*SimplePrint, error) {
+func SimplifyEPrints(eprints *EPrints) ([]*Metadata, error) {
 	var simpleList []*SimplePrint
 	for i, eprint := range eprints.EPrint {
 		if simple, err := Simplify(eprint); err != nil {
