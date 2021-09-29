@@ -52,28 +52,110 @@ var (
 //
 
 func updatedEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
-	if _, ok := config.Connections[repoID]; ok == true {
-		if len(args) != 2 {
+	if db, ok := config.Connections[repoID]; ok == true {
+		if (len(args) < 1) || (len(args) > 2) {
 			return 400, fmt.Errorf("Bad Request")
 		}
-		start, err := time.Parse(timestamp, args[0])
-		if err != nil {
-			return 400, fmt.Errorf("Bad Request, %s", err)
+		var err error
+		end := time.Now()
+		start := time.Now()
+		if (len(args) > 0) && (args[0] != "now") {
+			start, err = time.Parse(timestamp, args[0])
+			if err != nil {
+				return 400, fmt.Errorf("Bad Request, %s", err)
+			}
 		}
-		end, err := time.Parse(timestamp, args[1])
-		if err != nil {
-			return 400, fmt.Errorf("Bad Request, %s", err)
+		if (len(args) > 1) && (args[1] != "now") {
+			end, err = time.Parse(timestamp, args[1])
+			if err != nil {
+				return 400, fmt.Errorf("Bad Request, %s", err)
+			}
 		}
-		fmt.Printf("\nDEBUG args -> %+v\nstart: %s  end: %s\n", args, start.Format(timestamp), end.Format(timestamp))
-		return 501, fmt.Errorf("/%s/updated/... not implemented", repoID)
+		stmt := `SELECT eprintid FROM eprint WHERE (lastmod_year >= ? AND lastmod_year <= ?) AND (lastmod_month >= ? AND lastmod_month <= ?) AND (lastmod_day >= ? AND lastmod_day <= ?) AND (lastmod_hour >= ? AND lastmod_hour <= ?) AND (lastmod_minute >= ? AND lastmod_minute <=?)`
+		rows, err := db.Query(stmt, start.Year(), end.Year(), start.Month(), end.Month(), start.Day(), end.Day(), start.Hour(), end.Hour(), start.Minute(), end.Minute())
+		if err != nil {
+			log.Printf("ERROR: query error (%q), %s", repoID, err)
+			return 500, fmt.Errorf("Internal Server Error")
+		}
+		defer rows.Close()
+		eprintid := 0
+		eprintIDs := []int{}
+		for rows.Next() {
+			err := rows.Scan(&eprintid)
+			if (err == nil) && (eprintid > 0) {
+				eprintIDs = append(eprintIDs, eprintid)
+			} else {
+				log.Printf("ERROR: scan error (%q), %s", repoID, err)
+				return 500, fmt.Errorf("Internal Server Error")
+			}
+		}
+		if err := rows.Err(); err != nil {
+			log.Printf("ERROR: rows error (%q), %s", repoID, err)
+			return 500, fmt.Errorf("Internal Server Error")
+		}
+		src, err := json.MarshalIndent(eprintIDs, "", "  ")
+		if err != nil {
+			log.Printf("ERROR: marshal error (%q), %s", repoID, err)
+			return 500, fmt.Errorf("Internal Server Error")
+		}
+		w.Header().Set("Content-Type", "application/json")
+		fmt.Fprintf(w, "%s", src)
+		return 200, nil
 	} else {
 		return 500, fmt.Errorf("Internal Server Error")
 	}
 }
 
 func deletedEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
-	if _, ok := config.Connections[repoID]; ok == true {
-		return 501, fmt.Errorf("/%s/deleted/... not implemented", repoID)
+	if db, ok := config.Connections[repoID]; ok == true {
+		if (len(args) < 1) || (len(args) > 2) {
+			return 400, fmt.Errorf("Bad Request")
+		}
+		var err error
+		end := time.Now()
+		start := time.Now()
+		if (len(args) > 0) && (args[0] != "now") {
+			start, err = time.Parse(timestamp, args[0])
+			if err != nil {
+				return 400, fmt.Errorf("Bad Request, %s", err)
+			}
+		}
+		if (len(args) > 1) && (args[1] != "now") {
+			end, err = time.Parse(timestamp, args[1])
+			if err != nil {
+				return 400, fmt.Errorf("Bad Request, %s", err)
+			}
+		}
+		stmt := `SELECT eprintid FROM eprint WHERE (lastmod_year >= ? AND lastmod_year <= ?) AND (lastmod_month >= ? AND lastmod_month <= ?) AND (lastmod_day >= ? AND lastmod_day <= ?) AND (lastmod_hour >= ? AND lastmod_hour <= ?) AND (lastmod_minute >= ? AND lastmod_minute <=?) AND (eprint_status = 'deletion')`
+		rows, err := db.Query(stmt, start.Year(), end.Year(), start.Month(), end.Month(), start.Day(), end.Day(), start.Hour(), end.Hour(), start.Minute(), end.Minute())
+		if err != nil {
+			log.Printf("ERROR: query error (%q), %s", repoID, err)
+			return 500, fmt.Errorf("Internal Server Error")
+		}
+		defer rows.Close()
+		eprintid := 0
+		eprintIDs := []int{}
+		for rows.Next() {
+			err := rows.Scan(&eprintid)
+			if (err == nil) && (eprintid > 0) {
+				eprintIDs = append(eprintIDs, eprintid)
+			} else {
+				log.Printf("ERROR: scan error (%q), %s", repoID, err)
+				return 500, fmt.Errorf("Internal Server Error")
+			}
+		}
+		if err := rows.Err(); err != nil {
+			log.Printf("ERROR: rows error (%q), %s", repoID, err)
+			return 500, fmt.Errorf("Internal Server Error")
+		}
+		src, err := json.MarshalIndent(eprintIDs, "", "  ")
+		if err != nil {
+			log.Printf("ERROR: JSON marshal error (%q), %s", repoID, err)
+			return 500, fmt.Errorf("Internal Server Error")
+		}
+		w.Header().Set("Content-Type", "application/json")
+		fmt.Fprintf(w, "%s", src)
+		return 200, nil
 	} else {
 		return 500, fmt.Errorf("Internal Server Error")
 	}
@@ -81,7 +163,7 @@ func deletedEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args
 
 func pubdateEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
 	if _, ok := config.Connections[repoID]; ok == true {
-		return 501, fmt.Errorf("/%s/pubdate/... not implemented", repoID)
+		return 501, fmt.Errorf("Not Implemented (%s) %s", repoID, r.URL.Path)
 	} else {
 		return 500, fmt.Errorf("Internal Server Error")
 	}
@@ -89,7 +171,7 @@ func pubdateEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args
 
 func doiEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
 	if _, ok := config.Connections[repoID]; ok == true {
-		return 501, fmt.Errorf("/%s/doi/... not implemented", repoID)
+		return 501, fmt.Errorf("Not Implemented (%s) %s", repoID, r.URL.Path)
 	} else {
 		return 500, fmt.Errorf("Internal Server Error")
 	}
@@ -97,7 +179,7 @@ func doiEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []s
 
 func creatorIDEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
 	if _, ok := config.Connections[repoID]; ok == true {
-		return 501, fmt.Errorf("/%s/creator-id/... not implemented", repoID)
+		return 501, fmt.Errorf("Not Implemented (%s) %s", repoID, r.URL.Path)
 	} else {
 		return 500, fmt.Errorf("Internal Server Error")
 	}
@@ -105,7 +187,7 @@ func creatorIDEndPoint(w http.ResponseWriter, r *http.Request, repoID string, ar
 
 func creatorORCIDEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
 	if _, ok := config.Connections[repoID]; ok == true {
-		return 501, fmt.Errorf("/%s/creator-orcid/... not implemented", repoID)
+		return 501, fmt.Errorf("Not Implemented (%s) %s", repoID, r.URL.Path)
 	} else {
 		return 500, fmt.Errorf("Internal Server Error")
 	}
@@ -113,7 +195,7 @@ func creatorORCIDEndPoint(w http.ResponseWriter, r *http.Request, repoID string,
 
 func editorIDEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
 	if _, ok := config.Connections[repoID]; ok == true {
-		return 501, fmt.Errorf("/%s/editor-id/... not implemented", repoID)
+		return 501, fmt.Errorf("Not Implemented (%s) %s", repoID, r.URL.Path)
 	} else {
 		return 500, fmt.Errorf("Internal Server Error")
 	}
@@ -121,7 +203,7 @@ func editorIDEndPoint(w http.ResponseWriter, r *http.Request, repoID string, arg
 
 func contributorIDEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
 	if _, ok := config.Connections[repoID]; ok == true {
-		return 501, fmt.Errorf("/%s/contributor-id/... not implemented", repoID)
+		return 501, fmt.Errorf("Not Implemented (%s) %s", repoID, r.URL.Path)
 	} else {
 		return 500, fmt.Errorf("Internal Server Error")
 	}
@@ -129,7 +211,7 @@ func contributorIDEndPoint(w http.ResponseWriter, r *http.Request, repoID string
 
 func advisorIDEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
 	if _, ok := config.Connections[repoID]; ok == true {
-		return 501, fmt.Errorf("/%s/advisor-id/... not implemented", repoID)
+		return 501, fmt.Errorf("Not Implemented (%s) %s", repoID, r.URL.Path)
 	} else {
 		return 500, fmt.Errorf("Internal Server Error")
 	}
@@ -137,7 +219,7 @@ func advisorIDEndPoint(w http.ResponseWriter, r *http.Request, repoID string, ar
 
 func committeeIDEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
 	if _, ok := config.Connections[repoID]; ok == true {
-		return 501, fmt.Errorf("/%s/committee-id/... not implemented", repoID)
+		return 501, fmt.Errorf("Not Implemented (%s) %s", repoID, r.URL.Path)
 	} else {
 		return 500, fmt.Errorf("Internal Server Error")
 	}
@@ -145,7 +227,7 @@ func committeeIDEndPoint(w http.ResponseWriter, r *http.Request, repoID string, 
 
 func groupIDEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
 	if _, ok := config.Connections[repoID]; ok == true {
-		return 501, fmt.Errorf("/%s/group-id/... not implemented", repoID)
+		return 501, fmt.Errorf("Not Implemented (%s) %s", repoID, r.URL.Path)
 	} else {
 		return 500, fmt.Errorf("Internal Server Error")
 	}
@@ -153,7 +235,7 @@ func groupIDEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args
 
 func funderIDEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
 	if _, ok := config.Connections[repoID]; ok == true {
-		return 501, fmt.Errorf("/%s/funder-id/... not implemented", repoID)
+		return 501, fmt.Errorf("Not Implemented (%s) %s", repoID, r.URL.Path)
 	} else {
 		return 500, fmt.Errorf("Internal Server Error")
 	}
@@ -161,7 +243,7 @@ func funderIDEndPoint(w http.ResponseWriter, r *http.Request, repoID string, arg
 
 func grantNumberIDEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
 	if _, ok := config.Connections[repoID]; ok == true {
-		return 501, fmt.Errorf("/%s/grant-number/... not implemented", repoID)
+		return 501, fmt.Errorf("Not Implemented (%s) %s", repoID, r.URL.Path)
 	} else {
 		return 500, fmt.Errorf("Internal Server Error")
 	}
@@ -173,10 +255,14 @@ func grantNumberIDEndPoint(w http.ResponseWriter, r *http.Request, repoID string
 //
 func logRequest(r *http.Request, status int, err error) {
 	q := r.URL.Query()
+	errStr := "OK"
+	if err != nil {
+		errStr = fmt.Sprintf("%s", err)
+	}
 	if len(q) > 0 {
-		log.Printf("Response: %s Path: %s RemoteAddr: %s UserAgent: %s Query: %+v Status: %d, %s %q\n", r.Method, r.URL.Path, r.RemoteAddr, r.UserAgent(), q, status, http.StatusText(status), err)
+		log.Printf("%s %s RemoteAddr: %s UserAgent: %s Query: %+v Response: %d %s", r.Method, r.URL.Path, r.RemoteAddr, r.UserAgent(), q, status, errStr)
 	} else {
-		log.Printf("Response: %s Path: %s RemoteAddr: %s UserAgent: %s Status: %d, %s %q\n", r.Method, r.URL.Path, r.RemoteAddr, r.UserAgent(), status, http.StatusText(status), err)
+		log.Printf("%s %s RemoteAddr: %s UserAgent: %s Response: %d %s", r.Method, r.URL.Path, r.RemoteAddr, r.UserAgent(), status, errStr)
 	}
 }
 
@@ -201,16 +287,36 @@ func routeEndPoints(w http.ResponseWriter, r *http.Request) (int, error) {
 }
 
 func api(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path == "/" || r.URL.Path == "/index.html" {
-		w.Header().Set("Content-Type", "text/plain")
-		fmt.Fprintf(w, `EPrints 3.3.x extended API, eprinttools version %s`, Version)
+	var (
+		err        error
+		statusCode int
+	)
+	if r.Method != "GET" {
+		statusCode, err = 405, fmt.Errorf("Method Not Allowed")
+		handleError(w, statusCode, err)
 	} else {
-		statusCode, err := routeEndPoints(w, r)
-		if err != nil {
-			handleError(w, statusCode, err)
+		switch r.URL.Path {
+		case "/":
+			statusCode, err = 200, nil
+			w.Header().Set("Content-Type", "text/plain")
+			fmt.Fprintf(w, `EPrints 3.3.x extended API, eprinttools version %s`, Version)
+		case "/index.html":
+			statusCode, err = 200, nil
+			w.Header().Set("Content-Type", "text/plain")
+			fmt.Fprintf(w, `EPrints 3.3.x extended API, eprinttools version %s`, Version)
+		case "/favicon.ico":
+			statusCode, err = 200, nil
+			fmt.Fprintf(w, "")
+			//statusCode, err = 404, fmt.Errorf("Not Found")
+			//handleError(w, statusCode, err)
+		default:
+			statusCode, err = routeEndPoints(w, r)
+			if err != nil {
+				handleError(w, statusCode, err)
+			}
 		}
-		logRequest(r, statusCode, err)
 	}
+	logRequest(r, statusCode, err)
 }
 
 func loadConfig(fname string) error {
@@ -276,6 +382,8 @@ func InitExtendedAPI(settings string) error {
 		if db, err := sql.Open("mysql", dataSourceName); err != nil {
 			return fmt.Errorf("Could not open MySQL conncetion for %s, %s", repoID, err)
 		} else {
+			//log.Printf("Setting  DB connection to %q", repoID)
+			//db.Ping()
 			config.Connections[repoID] = db
 		}
 		// Add routes (end points) for the target repository
