@@ -9,6 +9,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 
@@ -61,7 +62,7 @@ func expandAproxDate(dt string, roundDown bool) string {
 		}
 	case 7:
 		if roundDown {
-			dt += "-01"
+			dt += "-01 00:00:00"
 		} else {
 			//FIXME: need to handle 28/29/30/31 day mounths
 			dt += "-31"
@@ -303,17 +304,30 @@ func updatedEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args
 	if (len(args) > 0) && (args[0] != "now") {
 		start, err = time.Parse(timestamp, args[0])
 		if err != nil {
-			return 400, fmt.Errorf("Bad Request, %s", err)
+			return 400, fmt.Errorf("Bad Request, (start) %s", err)
 		}
 	}
 	if (len(args) > 1) && (args[1] != "now") {
 		end, err = time.Parse(timestamp, args[1])
 		if err != nil {
-			return 400, fmt.Errorf("Bad Request, %s", err)
+			return 400, fmt.Errorf("Bad Request, (end) %s", err)
 		}
 	}
-	eprintIDs, err := sqlQueryIDs(repoID, `SELECT eprintid FROM eprint WHERE (CONCAT(lastmod_year, "-", LPAD("0", 2, lastmod_month), "-", LPAD("0", 2, lastmod_day), " ", LPAD("0", 2, lastmod_hour), ":", LPAD("0", 2, lastmod_minute), ":", LPAD("0", 2, lastmod_second)) >= ?) AND (CONCAT(lastmod_year, "-", LPAD("0", 2, lastmod_month), "-", LPAD("0", 2, lastmod_day), " ", LPAD("0", 2, lastmod_hour), ":", LPAD("0", 2, lastmod_minute), ":", LPAD("0", 2, lastmod_second)
-) <= ?)`, start.Format(timestamp), end.Format(timestamp))
+	eprintIDs, err := sqlQueryIDs(repoID,
+		`SELECT eprintid FROM eprint WHERE 
+(CONCAT(lastmod_year, "-", 
+LPAD(IFNULL(lastmod_month, 1), 2, "0"), "-", 
+LPAD(IFNULL(lastmod_day, 1), 2, "0"), " ", 
+LPAD(IFNULL(lastmod_hour,0), 2, "0"), ":", 
+LPAD(IFNULL(lastmod_minute, 0), 2, "0"), ":", 
+LPAD(IFNULL(lastmod_second, 0), "0")) >= ?) AND 
+(CONCAT(lastmod_year, "-", 
+LPAD(IFNULL(lastmod_month, 12), 2, "0"), "-", 
+LPAD(IFNULL(lastmod_day, 28), 2, "0"), " ", 
+LPAD(IFNULL(lastmod_hour, 23), 2, "0"), ":", 
+LPAD(IFNULL(lastmod_minute, 59), 2, "0"), ":", 
+LPAD(IFNULL(lastmod_second, 59), 2, "0")) <= ?)`,
+		start.Format(timestamp), end.Format(timestamp))
 	return packageIDs(w, repoID, eprintIDs, err)
 }
 
@@ -330,17 +344,30 @@ func deletedEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args
 	if (len(args) > 0) && (args[0] != "now") {
 		start, err = time.Parse(timestamp, args[0])
 		if err != nil {
-			return 400, fmt.Errorf("Bad Request, %s", err)
+			return 400, fmt.Errorf("Bad Request, (start) %s", err)
 		}
 	}
 	if (len(args) > 1) && (args[1] != "now") {
 		end, err = time.Parse(timestamp, args[1])
 		if err != nil {
-			return 400, fmt.Errorf("Bad Request, %s", err)
+			return 400, fmt.Errorf("Bad Request, (end) %s", err)
 		}
 	}
-	eprintIDs, err := sqlQueryIDs(repoID, `SELECT eprintid FROM eprint WHERE (eprint_status = "deletion") AND (CONCAT(lastmod_year, "-", LPAD("0", 2, lastmod_month), "-", LPAD("0", 2, lastmod_day), " ", LPAD("0", 2, lastmod_hour), ":", LPAD("0", 2, lastmod_minute), ":", LPAD("0", 2, lastmod_second)) >= ?) AND (CONCAT(lastmod_year, "-", LPAD("0", 2, lastmod_month), "-", LPAD("0", 2, lastmod_day), " ", LPAD("0", 2, lastmod_hour), ":", LPAD("0", 2, lastmod_minute), ":", LPAD("0", 2, lastmod_second)
-) <= ?)`, start.Format(timestamp), end.Format(timestamp))
+	eprintIDs, err := sqlQueryIDs(repoID,
+		`SELECT eprintid FROM eprint WHERE (eprint_status = "deletion") AND 
+(CONCAT(lastmod_year, "-", 
+LPAD(IFNULL(lastmod_month, 1), 2, "0"), "-", 
+LPAD(IFNULL(lastmod_day, 1), 2, "0"), " ", 
+LPAD(IFNULL(lastmod_hour, 0), 2, "0"), ":", 
+LPAD(IFNULL(lastmod_minute, 0), 2, "0"), ":", 
+LPAD(IFNULL(lastmod_second, 0), 2, "0")) >= ?) AND 
+(CONCAT(lastmod_year, "-", 
+LPAD(IFNULL(lastmod_month, 12), 2, "0"), "-", 
+LPAD(IFNULL(lastmod_day, 28), 2, "0"), " ", 
+LPAD(IFNULL(lastmod_hour, 23), 2, "0"), ":", 
+LPAD(IFNULL(lastmod_minute, 59), 2, "0"), ":",
+LPAD(IFNULL(lastmod_second, 59), 2, "0")) <= ?)`,
+		start.Format(timestamp), end.Format(timestamp))
 	return packageIDs(w, repoID, eprintIDs, err)
 }
 
@@ -361,18 +388,26 @@ func pubdateEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args
 		dt = expandAproxDate(args[0], true)
 		start, err = time.Parse(datestamp, dt)
 		if err != nil {
-			return 400, fmt.Errorf("Bad Request, %s", err)
+			return 400, fmt.Errorf("Bad Request, (start date) %s", err)
 		}
 	}
 	if (len(args) > 1) && (args[1] != "now") {
 		dt = expandAproxDate(args[1], false)
 		end, err = time.Parse(datestamp, dt)
 		if err != nil {
-			return 400, fmt.Errorf("Bad Request, %s", err)
+			return 400, fmt.Errorf("Bad Request, (end date) %s", err)
 		}
 	}
-	eprintIDs, err := sqlQueryIDs(repoID, `SELECT eprintid FROM eprint WHERE ((date_type) = "published") AND (CONCAT(date_year, "-", LPAD("0", 2, date_month), "-", LPAD("0", 2, date_day)) >= ?) AND (CONCAT(date_year, "-", LPAD("0", 2, date_month), "-", LPAD("0", 2, date_day)
-) <= ?)`, start.Format(datestamp), end.Format(datestamp))
+	eprintIDs, err := sqlQueryIDs(repoID,
+		`SELECT eprintid FROM eprint
+WHERE ((date_type) = "published") AND 
+(CONCAT(date_year, "-", 
+LPAD(IFNULL(date_month, 1), 2, "0"), "-", 
+LPAD(IFNULL(date_day, 1), 2, "0")) >= ?) AND 
+(CONCAT(date_year, "-", 
+LPAD(IFNULL(date_month, 12), 2, "0"), "-", 
+LPAD(IFNULL(date_day, 28), 2, "0")) <= ?)`,
+		start.Format(datestamp), end.Format(datestamp))
 	return packageIDs(w, repoID, eprintIDs, err)
 }
 

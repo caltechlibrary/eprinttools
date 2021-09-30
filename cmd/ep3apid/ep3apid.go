@@ -91,6 +91,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 	showHelp    bool
 	showVersion bool
 	showLicense bool
+
+	debugLogs bool
 )
 
 func checkConfig(cfg *eprinttools.Config) {
