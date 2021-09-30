@@ -271,20 +271,24 @@ func patentNumberDocument(repoID string) string {
 }
 
 //
-// End Point handles (route as defined `/<REPO_ID>/<END-POINT>/<ARGS>`)
+// Expose the repositories available
 //
 
-func repositoriesEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
+func repositoriesEndPoint(w http.ResponseWriter, r *http.Request) (int, error) {
 	repositories := []string{}
 	for repository, _ := range config.Repositories {
 		repositories = append(repositories, repository)
 	}
-	return packageDocument(w, fmt.Sprintf(`
-Available repositories:
-
-- %s
-`, strings.Join(repositories, "\n- ")))
+	src, err := json.MarshalIndent(repositories, "", "  ")
+	if err != nil {
+		return 500, fmt.Errorf("Internal Server Error, %s", err)
+	}
+	return packageDocument(w, fmt.Sprintf("%s", src))
 }
+
+//
+// End Point handles (route as defined `/<REPO_ID>/<END-POINT>/<ARGS>`)
+//
 
 func updatedEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
 	if len(args) == 0 {
@@ -660,6 +664,11 @@ func api(w http.ResponseWriter, r *http.Request) {
 			fmt.Fprintf(w, "")
 			//statusCode, err = 404, fmt.Errorf("Not Found")
 			//handleError(w, statusCode, err)
+		case "/repositories":
+			statusCode, err = repositoriesEndPoint(w, r)
+			if err != nil {
+				handleError(w, statusCode, err)
+			}
 		default:
 			statusCode, err = routeEndPoints(w, r)
 			if err != nil {
