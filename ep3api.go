@@ -132,8 +132,25 @@ EPrints 3.3.x extended API, eprinttools version %s
 EPrints extended API
 ====================
 
-The EPrints software package from University of Southampton provides a rich internal Perl API along with a RESTful web API. But getting specific lists of EPrint IDs is challenging. This API addresses this. The API returns lists of EPrint IDs as a JSON array or plain text documentaiton (like this page).
-The EPrint IDs lists are not sorted. An empty JSON array means no EPrints IDs are available for that type of request. 
+The EPrints software package from University of Southampton provides a rich internal Perl API along with a RESTful web API. But getting specific lists of EPrint IDs is challenging. This API addresses this. The API returns lists of EPrint IDs as a JSON array or plain text documentaiton (like this page).  The EPrint IDs lists are not sorted. An empty JSON array means no EPrints IDs are available for that type of request. 
+
+List repositories available
+---------------------------
+
+The general structure of URLs in the extended API is in the form
+
+    http://<HOSTNAME>:<PORT>/<REPO_ID>/<END_POINT>/<PARAMETERS>
+
+- <HOSTNAME> is normally (recommended) "localhost"
+- <PORT> defaults to 8484
+- <REPO_ID> is the label used to reference the repository name
+- <END_POINT> is the list of end points provided the service
+- <PARAMATERS> are any needed values for the end point one per path part
+
+To see a list of available repositories use the "/repositories" end point. E.g.
+
+   curl http://localhost:8484/repositories
+
 
 Unique IDs to EPrint IDs
 ------------------------
@@ -256,6 +273,18 @@ func patentNumberDocument(repoID string) string {
 //
 // End Point handles (route as defined `/<REPO_ID>/<END-POINT>/<ARGS>`)
 //
+
+func repositoriesEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
+	repositories := []string{}
+	for repository, _ := range config.Repositories {
+		repositories = append(repositories, repository)
+	}
+	return packageDocument(w, fmt.Sprintf(`
+Available repositories:
+
+- %s
+`, strings.Join(repositories, "\n- ")))
+}
 
 func updatedEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
 	if len(args) == 0 {
