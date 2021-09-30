@@ -312,7 +312,8 @@ func updatedEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args
 			return 400, fmt.Errorf("Bad Request, %s", err)
 		}
 	}
-	eprintIDs, err := sqlQueryIDs(repoID, `SELECT eprintid FROM eprint WHERE (lastmod_year >= ? AND lastmod_year <= ?) AND (lastmod_month >= ? AND lastmod_month <= ?) AND (lastmod_day >= ? AND lastmod_day <= ?) AND (lastmod_hour >= ? AND lastmod_hour <= ?) AND (lastmod_minute >= ? AND lastmod_minute <=?)`, start.Year(), end.Year(), start.Month(), end.Month(), start.Day(), end.Day(), start.Hour(), end.Hour(), start.Minute(), end.Minute())
+	eprintIDs, err := sqlQueryIDs(repoID, `SELECT eprintid FROM eprint WHERE (CONCAT(lastmod_year, "-", LPAD("0", 2, lastmod_month), "-", LPAD("0", 2, lastmod_day), " ", LPAD("0", 2, lastmod_hour), ":", LPAD("0", 2, lastmod_minute), ":", LPAD("0", 2, lastmod_second)) >= ?) AND (CONCAT(lastmod_year, "-", LPAD("0", 2, lastmod_month), "-", LPAD("0", 2, lastmod_day), " ", LPAD("0", 2, lastmod_hour), ":", LPAD("0", 2, lastmod_minute), ":", LPAD("0", 2, lastmod_second)
+) <= ?)`, start.Format(timestamp), end.Format(timestamp))
 	return packageIDs(w, repoID, eprintIDs, err)
 }
 
@@ -338,7 +339,8 @@ func deletedEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args
 			return 400, fmt.Errorf("Bad Request, %s", err)
 		}
 	}
-	eprintIDs, err := sqlQueryIDs(repoID, `SELECT eprintid FROM eprint WHERE (lastmod_year >= ? AND lastmod_year <= ?) AND (lastmod_month >= ? AND lastmod_month <= ?) AND (lastmod_day >= ? AND lastmod_day <= ?) AND (lastmod_hour >= ? AND lastmod_hour <= ?) AND (lastmod_minute >= ? AND lastmod_minute <=?) AND (eprint_status = 'deletion')`, start.Year(), end.Year(), start.Month(), end.Month(), start.Day(), end.Day(), start.Hour(), end.Hour(), start.Minute(), end.Minute())
+	eprintIDs, err := sqlQueryIDs(repoID, `SELECT eprintid FROM eprint WHERE (eprint_status = "deletion") AND (CONCAT(lastmod_year, "-", LPAD("0", 2, lastmod_month), "-", LPAD("0", 2, lastmod_day), " ", LPAD("0", 2, lastmod_hour), ":", LPAD("0", 2, lastmod_minute), ":", LPAD("0", 2, lastmod_second)) >= ?) AND (CONCAT(lastmod_year, "-", LPAD("0", 2, lastmod_month), "-", LPAD("0", 2, lastmod_day), " ", LPAD("0", 2, lastmod_hour), ":", LPAD("0", 2, lastmod_minute), ":", LPAD("0", 2, lastmod_second)
+) <= ?)`, start.Format(timestamp), end.Format(timestamp))
 	return packageIDs(w, repoID, eprintIDs, err)
 }
 
@@ -369,7 +371,8 @@ func pubdateEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args
 			return 400, fmt.Errorf("Bad Request, %s", err)
 		}
 	}
-	eprintIDs, err := sqlQueryIDs(repoID, `SELECT eprintid FROM eprint WHERE (date_type = "published") and (date_year >= ? AND date_year <= ?) AND (date_month >= ? AND date_month <= ?) AND (date_day >= ? AND date_day <= ?)`, start.Year(), end.Year(), start.Month(), end.Month(), start.Day(), end.Day())
+	eprintIDs, err := sqlQueryIDs(repoID, `SELECT eprintid FROM eprint WHERE ((date_type) = "published") AND (CONCAT(date_year, "-", LPAD("0", 2, date_month), "-", LPAD("0", 2, date_day)) >= ?) AND (CONCAT(date_year, "-", LPAD("0", 2, date_month), "-", LPAD("0", 2, date_day)
+) <= ?)`, start.Format(datestamp), end.Format(datestamp))
 	return packageIDs(w, repoID, eprintIDs, err)
 }
 
