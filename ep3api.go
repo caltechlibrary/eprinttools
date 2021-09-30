@@ -475,7 +475,7 @@ func grantNumberEndPoint(w http.ResponseWriter, r *http.Request, repoID string, 
 		return 400, fmt.Errorf("Bad Request")
 	}
 	var err error
-	eprintIDs, err := sqlQueryIDs(repoID, `SELECT eprintid FROM eprint_funder_agency_grant_number WHERE funders_grant_number = ?`, args[0])
+	eprintIDs, err := sqlQueryIDs(repoID, `SELECT eprintid FROM eprint_funders_grant_number WHERE funders_grant_number = ?`, args[0])
 	return packageIDs(w, repoID, eprintIDs, err)
 }
 
