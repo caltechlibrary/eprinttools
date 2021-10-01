@@ -2,33 +2,96 @@
  * simplified presents an Invenio 3 like JSON representation of an EPrint
  * record. This is intended to make the development of V2 of feeds easier
  * for both our audience on internal programming needs.
+ *
+ * See documentation and example on Invenio's structured data:
+ *
+ * - https://inveniordm.docs.cern.ch/reference/metadata/
+ * - https://github.com/caltechlibrary/caltechdata_api/blob/ce16c6856eb7f6424db65c1b06de741bbcaee2c8/tests/conftest.py#L147
+ *
  */
 package eprinttools
 
 import (
 	"encoding/xml"
-	"fmt"
+	"time"
 )
 
-// InvenioType is an Invenio 3 e.g. ResourceType, title type or language
-type InvenioType struct {
-	ID    string `json:"id,omitempty"`
-	Name  string `json:"name,omitempty"`
-	Title string `json:"title,omitempty"`
+// Invenio Record structure
+type InvenioRecord struct {
+	ID           string                           `json:"id"`
+	PID          map[string]interface{}           `json:"pid,omitempty"`
+	Parent       *RecordIdentifier                `json:"parent"`
+	ExternalPIDs map[string]*PersistentIdentifier `json:"pids,omitempty"`
+	Access       *RecordAccess                    `json:"access,omitempty"`
+	Metadata     *Metadata                        `json:"metadata"`
+	Files        *Files                           `json:"files"`
+	Tombstone    *Tombstone                       `json:"tombstone,omitempty"`
+	Created      time.Time                        `json:"created"`
+	Updated      time.Time                        `json:"updated"`
 }
 
-type InvenioAltType struct {
-	ID    string            `json:"id,omitempty"`
-	Name  string            `json:"name,omitempty"`
-	Title map[string]string `json:"title,omitempty"`
+// RecordIdentifier
+type RecordIdentifier struct {
+	ID     string  `json:"id"`
+	Access *Access `json:"access,omitempty"`
 }
 
-// Identifier holds an Identifier, e.g. ORCID, ROR, ISNI, GND
-type Identifier struct {
-	Scheme       string          `json:"scheme,omitempty"`
-	Identifier   string          `json:"identifier,omitempty"`
-	RelationType *InvenioAltType `json:"relation_type,omitempty"`
-	ResourceType *InvenioAltType `json:"resource_type,omitempty"`
+// Access
+type Access struct {
+	OwnedBy []*Owner `json:"owned_by,omitempty"`
+}
+
+// Owner
+type Owner struct {
+	User int `json:"user,omitempty"`
+}
+
+// PersistentIdentifier holds an Identifier, e.g. ORCID, ROR, ISNI, GND
+type PersistentIdentifier struct {
+	Identifier string `json:"identifier,omitempty"`
+	Provider   string `json:"provider,omitempty"`
+	Client     string `json:"client,omitempty"`
+}
+
+// RecordAccess
+type RecordAccess struct {
+	Record  string   `json:"record,omitempty"`
+	Files   string   `json:"files,omitempty"`
+	Embargo *Embargo `json:"embargo,omitempty"`
+}
+
+// Embargo
+type Embargo struct {
+	Active bool   `json:"active,omitempty"`
+	Until  string `json:"until,omitempty"`
+	Reason string `json:"reason,omitempty"`
+}
+
+type Metadata struct {
+	// ID is based on 10. Resource Type from DataCite
+	ResourceType     map[string]string    `json:"resource_type,omitempty"`
+	Creators         []*Creator           `jons:"creators,omitempty"`
+	Title            string               `json:"title"`
+	PublicationDate  string               `json:"publication_date,omitempty"`
+	AdditionalTitles []*AltTitle          `json:"additional_titles,omitempty"`
+	Description      string               `json:"description,omitempty"`
+	AdditoinalDesc   []*AltDescription    `json:"additional_description,omitempty"`
+	Rights           []*Right             `json:"rights,omitempty"`
+	Contributors     []*Creator           `json:"contributors,omitempty"`
+	Subjects         []*Subject           `json:"subjects,omitempty"`
+	Languages        []*map[string]string `json:"languages,omitempty"`
+	Dates            []*InvenioDate       `json:"dates,omitempty"`
+	Version          string               `json:"version,omitempty"`
+	Publisher        string               `json:"publisher,omitempty"`
+	AlterIdentifiers []*Identifier        `json:"identifier,omitempty"`
+	Funding          []*Funder            `json:"funding,omitempty"`
+}
+
+// Creator of a record's object
+type Creator struct {
+	PersonOrOrg  *PersonOrOrg   `json:"person_or_org,omitempty"`
+	Role         string         `json:"role,omitempty"`
+	Affiliations []*Affiliation `json:"affiliations,omitempty"`
 }
 
 // PersonOrOrg holds either a person or corporate entity information.
@@ -50,27 +113,59 @@ type PersonOrOrg struct {
 	Identifiers []*Identifier `json:"identifiers,omitempty"`
 }
 
-type Role struct {
-}
-
 type Affiliation struct {
 	ID   string `json:"id,omitempty"`
 	Name string `json:"name,omitempty"`
 }
 
-type Creator struct {
-	PersonOrOrg *PersonOrOrg   `json:"person_or_org,omitempty"`
-	Role        *Role          `json:"role,omitempty"`
-	Affiliation []*Affiliation `json:"affiliation,omitempty"`
+// Files
+type Files struct {
+	Enabled        bool                    `json:"enabled,omitempty"`
+	Entries        map[string]*interface{} `json:"entries,omitempty"`
+	DefaultPreview string                  `json:"default_preview,omitempty"`
+}
+
+// Tombstone
+type Tombstone struct {
+	Reason    string    `json:"reason,omitempty"`
+	Category  string    `json:"category,omitempty"`
+	RemovedBy *Owner    `json:"removed_by,omitempty"`
+	Timestamp time.Time `json:"timestamp,omitempty"`
+}
+
+// InvenioDate
+type InvenioDate struct {
+	Date        string          `json:"date,omitempty"`
+	Type        *InvenioAltType `json:"type,omitempty"`
+	Description string          `json:"description,omitempty"`
+}
+
+// InvenioType is an Invenio 3 e.g. ResourceType, title type or language
+type InvenioType struct {
+	ID    string `json:"id,omitempty"`
+	Name  string `json:"name,omitempty"`
+	Title string `json:"title,omitempty"`
+}
+
+// InvenioAltType is an alternate expression of a type where title is map
+type InvenioAltType struct {
+	ID    string            `json:"id,omitempty"`
+	Name  string            `json:"name,omitempty"`
+	Title map[string]string `json:"title,omitempty"`
+}
+
+// Identifier holds an Identifier, e.g. ORCID, ROR, ISNI, GND
+type Identifier struct {
+	Scheme       string          `json:"scheme,omitempty"`
+	Identifier   string          `json:"identifier,omitempty"`
+	RelationType *InvenioAltType `json:"relation_type,omitempty"`
+	ResourceType *InvenioAltType `json:"resource_type,omitempty"`
 }
 
 // Funder holds information for funding organizations
 type Funder struct {
-	XMLName     xml.Name `json:"-"`
-	Name        string   `json:"name,omitempty" xml:"name,omitempty"`
-	Description string   `json:"description,omitempty" xml:"description,omitempty"`
-	GrantNumber string   `json:"grant_number,omitempty" xml:"grant_number,omitempty"`
-	ROR         string   `json:"ror,omitempty" xml:"ror,omitempty"`
+	Funder map[string]string `json:"funder,omitempty"`
+	Award  map[string]string `json:"award,omitempty"`
 }
 
 // ResourceURL
@@ -132,198 +227,4 @@ type FileType struct {
 
 // Tumbstone
 type Tumbstone struct {
-}
-
-// Metadata is an indivudal eprint record optimize for ingest by
-// using in Invenio 3
-type Metadata struct {
-	// General fields
-	XMLName      xml.Name     `json:"-"`
-	EPrintID     string       `json:"eprint_id,omitempty"`
-	Collection   string       `json:"collection,omitempty"`
-	EPrintType   string       `json:"eprint_type,omitempty" xml:"type,omitempty"`
-	ResourceType *InvenioType `json:"resource_type,omitempty"`
-
-	Title          string            `json:"title" xml:"title"`
-	AltTitles      []*AltTitle       `json:"additional_titles"`
-	Creators       []*Creator        `json:"creators,omitempty"`
-	Contributors   []*Creator        `json:"contributors,omitempty"`
-	Subjects       []*Subject        `json:"subjects,omitempty"`
-	Languages      []*InvenioType    `json:"languages,omitempty"`
-	Dates          []*DateType       `json:"dates,omitempty"`
-	Version        []string          `json:"version,omitempty"`
-	Publisher      string            `json:"publisher,omitempty" xml:"publisher,omitempty"`
-	AltIdentifiers []*Identifier     `json:"additional_identifiers,omitempty"`
-	Publication    string            `json:"publication,omitempty"`
-	PubDate        string            `json:"publication_date,omitempty"`
-	Description    string            `json:"description,omitempty" xml:"abstract,omitempty"`
-	AltDescription []*AltDescription `json:"additional_descriptions,omitempty"`
-	Rights         []*Right          `json:"rights,omitempty"`
-	Sizes          []*Size           `json:"sizes,omitempty"`
-	Formats        []*Format         `json:"formats,omitempty"`
-	Locations      []*Location       `json:"locations,omitempty"`
-
-	Funders []*Funder `json:"funder,omitempty"`
-
-	Files     []*FileType `json:"files,omitempty"`
-	Tumbstone *Tumbstone  `json:"tumbstone,omitempty"`
-
-	PlaceOfPublication       string `json:"place_of_publication,omitempty"`
-	Edition                  string `json:"edition,omitempty"`
-	BookTitle                string `json:"book_title,omitempty"`
-	Series                   string `json:"series,omitempty"`
-	Volume                   string `json:"volume,omitempty"`
-	Number                   string `json:"number,omitempty"`
-	Refereed                 bool   `json:"refereed,omitempty"`
-	Department               string `json:"department,omitempty"`
-	Group                    string `json:"group,omitempty"`
-	OtherNumberingSystemName string `json:"other_numbering_system_name,omitempty"`
-	OtherNumberingSystemID   string `json:"other_numbering_system_id,omitempty"`
-	Created                  string `json:"created,omitempty"`
-	Updated                  string `json:"updated,omitempty"`
-	Status                   string `json:"status"`
-	//FIXME: Eprints stores the numeric id, we need a name or username to populate Username
-	Username       string   `json:"username,omitempty"`
-	FullTextStatus string   `json:"full_text_status,omitempty"`
-	Notes          string   `json:"note,omitempty"`
-	Keywords       []string `json:"keywords,omitempty"`
-
-	// Patent oriented fields
-	PatentApplicant      string                    `json:"patent_applicant,omitempty"`
-	PatentNumber         string                    `json:"patent_number,omitempty"`
-	PatentAssignee       []*PersonOrOrg            `json:"patent_assignee,omitempty"`
-	PatentClassification []*map[string]interface{} `json:"patent_classification,omitempty"`
-	RelatedPatents       []*map[string]interface{} `json:"related_patents,omitempty"`
-
-	// Thesis oriented fields
-	Divisions              []string `json:"divisions,omitempty"`
-	Institution            string   `json:"institution,omitempty"`
-	ThesisType             string   `json:"thesis_type,omitempty"`
-	ThesisDegree           string   `json:"thesis_degree,omitempty"`
-	ThesisDegreeGrantor    string   `json:"thesis_degree_grantor,omitempty"`
-	ThesisDegreeDate       string   `json:"thesis_degree_date,omitempty"`
-	ThesisSubmittedDate    string   `json:"thesis_submit_date,omitempty"`
-	ThesisDefenseDate      string   `json:"thesis_defense_date,omitempty"`
-	ThesisApprovedDate     string   `json:"thesis_approved_date,omitempty"`
-	ThesisPublicDate       string   `json:"thesis_public_date,omitempty"`
-	ThesisAuthorEMail      string   `json:"thesis_author_email,omitempty"`
-	HideThesisAuthorEMail  string   `json:"hide_thesis_author_email,omitempty"`
-	GradOfficeApprovalDate string   `json:"gradofc_approval_date,omitempty"`
-	ThesisAwards           string   `json:"thesis_awards,omitempty"`
-	ReviewStatus           string   `json:"review_status,omitempty"`
-	OptionMajor            []string `json:"option_major,omitempty"`
-	OptionMinor            []string `json:"option_minor,omitempty"`
-	CopyrightStatement     string   `json:"copyright_statement,omitempty"`
-}
-
-func MapEPrintToMetadata(mapObject map[string]interface{}) (*Metadata, error) {
-	return nil, fmt.Errorf("MapEPrintToMetadata() not implemented")
-}
-
-// Simplify take a single EPrint struct and converts it to
-// an SimplePrint structure.
-func Simplify(eprint *EPrint) (*Metadata, error) {
-	simple := new(Metadata)
-	simple.EPrintID = fmt.Sprintf("%d", eprint.EPrintID)
-	simple.Status = eprint.EPrintStatus
-	simple.Collection = eprint.Collection
-	simple.Title = eprint.Title
-	simple.Description = eprint.Abstract
-	simple.Creators = []*Creator{}
-	if eprint.Creators != nil {
-		//FIXME: map Creates to simple.Creators
-	}
-	if eprint.CorpCreators != nil {
-		//FIXME: map Creates to simple.Creators
-	}
-	if eprint.ConfCreators != nil {
-		//FIXME: map Creates to simple.Creators
-	}
-	if eprint.Contributors != nil {
-		//FIXME: map Creates to simple.Creators
-	}
-	if eprint.Editors != nil {
-		//FIXME: map Creates to simple.Creators
-	}
-	if eprint.PrimaryObject != nil {
-		// FIXME: map into simple's Invenio Metadata model
-	}
-	if eprint.RelatedObjects != nil {
-		// FIXME: map into simple's Invenio Metadata model
-	}
-	if eprint.Funders != nil {
-		// FIXME: map to simple's funder model
-	}
-	if eprint.DOI != "" {
-		// FIXME: map to simple's identifiers list
-	}
-	if eprint.ISBN != "" {
-		// FIXME: map to simple's identifiers list
-	}
-	if eprint.ISSN != "" {
-		// FIXME: map to simple's identifiers list
-	}
-	if eprint.RelatedURL != nil {
-		// FIXME: map into simple's Invenio Metadata model
-	}
-	if eprint.FullTextStatus != "" {
-		// FIXME: map into simple's Invenio Metadata model
-	}
-	if eprint.Publisher != "" {
-		// FIXME: map into simple's Invenio Metadata model
-	}
-	if eprint.Publication != "" {
-		// FIXME: map into simple's Invenio Metadata model
-	}
-	if eprint.PlaceOfPub != "" {
-		// FIXME: map into simple's Invenio Metadata model
-	}
-	if eprint.BookTitle != "" {
-		// FIXME: map into simple's Invenio Metadata model
-	}
-	if eprint.Edition != "" {
-		// FIXME: map into simple's Invenio Metadata model
-	}
-	if eprint.Series != "" {
-		// FIXME: map into simple's Invenio Metadata model
-	}
-	if eprint.Volume != "" {
-		// FIXME: map into simple's Invenio Metadata model
-	}
-	if eprint.Number != "" {
-		// FIXME: map into simple's Invenio Metadata model
-	}
-	if eprint.Refereed != "" {
-		// FIXME: map into simple's Invenio Metadata model
-	}
-	if eprint.Department != "" {
-		// FIXME: map into simple's Invenio Metadata model
-	}
-	if eprint.Divisions != nil {
-		// FIXME: map into simple's Invenio Metadata model
-	}
-	if eprint.OptionMajor != nil {
-		// FIXME: map into simple's Invenio Metadata model
-	}
-	if eprint.OptionMinor != nil {
-		// FIXME: map into simple's Invenio Metadata model
-	}
-	if eprint.CopyrightStatement != "" {
-		// FIXME: map into simple's Invenio Metadata model
-	}
-	return simple, nil
-}
-
-// SimplifyEPrints takes an EPrints struct and converts it to an array SimplePrint
-// structure.
-func SimplifyEPrints(eprints *EPrints) ([]*Metadata, error) {
-	var simpleList []*Metadata
-	for i, eprint := range eprints.EPrint {
-		if simple, err := Simplify(eprint); err != nil {
-			return nil, fmt.Errorf("EPrint simplification (%d) error, %s", i, err)
-		} else {
-			simpleList = append(simpleList, simple)
-		}
-	}
-	return simpleList, nil
 }
