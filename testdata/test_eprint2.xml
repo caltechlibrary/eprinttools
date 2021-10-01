@@ -1,0 +1,339 @@
+<?xml version='1.0' encoding='utf-8'?>
+<eprints xmlns='http://eprints.org/ep2/data/2.0'>
+  <eprint id='https://authors.library.caltech.edu/id/eprint/109661'>
+    <eprintid>109661</eprintid>
+    <rev_number>13</rev_number>
+    <documents>
+      <document id='https://authors.library.caltech.edu/id/document/326631'>
+        <docid>326631</docid>
+        <rev_number>3</rev_number>
+        <files>
+          <file id='https://authors.library.caltech.edu/id/file/1894696'>
+            <fileid>1894696</fileid>
+            <datasetid>document</datasetid>
+            <objectid>326631</objectid>
+            <filename>1-s2.0-S1385894721025079-main_pub.pdf</filename>
+            <mime_type>application/pdf</mime_type>
+            <hash>c95cca091d75a28ceb2cd131666655c4</hash>
+            <hash_type>MD5</hash_type>
+            <filesize>7035229</filesize>
+            <mtime>2021-06-29 22:08:59</mtime>
+            <url>https://authors.library.caltech.edu/109661/1/1-s2.0-S1385894721025079-main_pub.pdf</url>
+          </file>
+        </files>
+        <eprintid>109661</eprintid>
+        <pos>1</pos>
+        <placement>1</placement>
+        <mime_type>application/pdf</mime_type>
+        <format>application/pdf</format>
+        <language>en</language>
+        <security>internal</security>
+        <license>other</license>
+        <main>1-s2.0-S1385894721025079-main_pub.pdf</main>
+        <content>published</content>
+      </document>
+      <document id='https://authors.library.caltech.edu/id/document/326632'>
+        <docid>326632</docid>
+        <rev_number>2</rev_number>
+        <files>
+          <file id='https://authors.library.caltech.edu/id/file/1894698'>
+            <fileid>1894698</fileid>
+            <datasetid>document</datasetid>
+            <objectid>326632</objectid>
+            <filename>1-s2.0-S1385894721025079-main.pdf</filename>
+            <mime_type>application/pdf</mime_type>
+            <hash>160a1ab5bb01b2719419151f5c9f6ac6</hash>
+            <hash_type>MD5</hash_type>
+            <filesize>1178358</filesize>
+            <mtime>2021-06-29 22:09:05</mtime>
+            <url>https://authors.library.caltech.edu/109661/2/1-s2.0-S1385894721025079-main.pdf</url>
+          </file>
+        </files>
+        <eprintid>109661</eprintid>
+        <pos>2</pos>
+        <placement>2</placement>
+        <mime_type>application/pdf</mime_type>
+        <format>application/pdf</format>
+        <language>en</language>
+        <security>public</security>
+        <license>other</license>
+        <main>1-s2.0-S1385894721025079-main.pdf</main>
+        <content>accepted</content>
+      </document>
+      <document id='https://authors.library.caltech.edu/id/document/326633'>
+        <docid>326633</docid>
+        <rev_number>2</rev_number>
+        <files>
+          <file id='https://authors.library.caltech.edu/id/file/1894701'>
+            <fileid>1894701</fileid>
+            <datasetid>document</datasetid>
+            <objectid>326633</objectid>
+            <filename>1-s2.0-S1385894721025079-mmc1.docx</filename>
+            <mime_type>application/vnd.openxmlformats-officedocument.wordprocessingml.document</mime_type>
+            <hash>0116dad34e8f4a67af129a74425ddcd4</hash>
+            <hash_type>MD5</hash_type>
+            <filesize>3191625</filesize>
+            <mtime>2021-06-29 22:14:57</mtime>
+            <url>https://authors.library.caltech.edu/109661/3/1-s2.0-S1385894721025079-mmc1.docx</url>
+          </file>
+        </files>
+        <eprintid>109661</eprintid>
+        <pos>3</pos>
+        <placement>3</placement>
+        <mime_type>application/vnd.openxmlformats-officedocument.wordprocessingml.document</mime_type>
+        <format>application/msword</format>
+        <formatdesc>Supplementary data</formatdesc>
+        <language>en</language>
+        <security>public</security>
+        <license>other</license>
+        <main>1-s2.0-S1385894721025079-mmc1.docx</main>
+        <content>supplemental</content>
+      </document>
+      <document id='https://authors.library.caltech.edu/id/document/326634'>
+        <docid>326634</docid>
+        <rev_number>1</rev_number>
+        <files>
+          <file id='https://authors.library.caltech.edu/id/file/1894707'>
+            <fileid>1894707</fileid>
+            <datasetid>document</datasetid>
+            <objectid>326634</objectid>
+            <filename>indexcodes.txt</filename>
+            <mime_type>text/plain</mime_type>
+            <hash>02291e9ac5c724b128b45049ad1396b2</hash>
+            <hash_type>MD5</hash_type>
+            <filesize>16320</filesize>
+            <mtime>2021-06-29 22:18:54</mtime>
+            <url>https://authors.library.caltech.edu/109661/4/indexcodes.txt</url>
+          </file>
+        </files>
+        <eprintid>109661</eprintid>
+        <pos>4</pos>
+        <placement>4</placement>
+        <mime_type>text/plain</mime_type>
+        <format>other</format>
+        <formatdesc>Generate index codes conversion from application/pdf to indexcodes</formatdesc>
+        <language>en</language>
+        <security>public</security>
+        <license>other</license>
+        <main>indexcodes.txt</main>
+        <relation>
+          <item>
+            <type>http://eprints.org/relation/isVersionOf</type>
+            <uri>https://authors.library.caltech.edu/id/document/326631</uri>
+          </item>
+          <item>
+            <type>http://eprints.org/relation/isVolatileVersionOf</type>
+            <uri>https://authors.library.caltech.edu/id/document/326631</uri>
+          </item>
+          <item>
+            <type>http://eprints.org/relation/isIndexCodesVersionOf</type>
+            <uri>https://authors.library.caltech.edu/id/document/326631</uri>
+          </item>
+        </relation>
+      </document>
+      <document id='https://authors.library.caltech.edu/id/document/326635'>
+        <docid>326635</docid>
+        <rev_number>1</rev_number>
+        <files>
+          <file id='https://authors.library.caltech.edu/id/file/1894708'>
+            <fileid>1894708</fileid>
+            <datasetid>document</datasetid>
+            <objectid>326635</objectid>
+            <filename>indexcodes.txt</filename>
+            <mime_type>text/plain</mime_type>
+            <hash>750e908ada903891a8efec66af0416de</hash>
+            <hash_type>MD5</hash_type>
+            <filesize>16471</filesize>
+            <mtime>2021-06-29 22:18:54</mtime>
+            <url>https://authors.library.caltech.edu/109661/5/indexcodes.txt</url>
+          </file>
+        </files>
+        <eprintid>109661</eprintid>
+        <pos>5</pos>
+        <placement>5</placement>
+        <mime_type>text/plain</mime_type>
+        <format>other</format>
+        <formatdesc>Generate index codes conversion from application/pdf to indexcodes</formatdesc>
+        <language>en</language>
+        <security>public</security>
+        <license>other</license>
+        <main>indexcodes.txt</main>
+        <relation>
+          <item>
+            <type>http://eprints.org/relation/isVersionOf</type>
+            <uri>https://authors.library.caltech.edu/id/document/326632</uri>
+          </item>
+          <item>
+            <type>http://eprints.org/relation/isVolatileVersionOf</type>
+            <uri>https://authors.library.caltech.edu/id/document/326632</uri>
+          </item>
+          <item>
+            <type>http://eprints.org/relation/isIndexCodesVersionOf</type>
+            <uri>https://authors.library.caltech.edu/id/document/326632</uri>
+          </item>
+        </relation>
+      </document>
+      <document id='https://authors.library.caltech.edu/id/document/326636'>
+        <docid>326636</docid>
+        <rev_number>1</rev_number>
+        <files>
+          <file id='https://authors.library.caltech.edu/id/file/1894709'>
+            <fileid>1894709</fileid>
+            <datasetid>document</datasetid>
+            <objectid>326636</objectid>
+            <filename>indexcodes.txt</filename>
+            <mime_type>text/plain</mime_type>
+            <hash>92b3b727c5e098f5f3dff2eaf7d90bac</hash>
+            <hash_type>MD5</hash_type>
+            <filesize>5157</filesize>
+            <mtime>2021-06-29 22:18:54</mtime>
+            <url>https://authors.library.caltech.edu/109661/6/indexcodes.txt</url>
+          </file>
+        </files>
+        <eprintid>109661</eprintid>
+        <pos>6</pos>
+        <placement>6</placement>
+        <mime_type>text/plain</mime_type>
+        <format>other</format>
+        <formatdesc>Generate index codes conversion from application/msword to indexcodes</formatdesc>
+        <language>en</language>
+        <security>public</security>
+        <license>other</license>
+        <main>indexcodes.txt</main>
+        <relation>
+          <item>
+            <type>http://eprints.org/relation/isVersionOf</type>
+            <uri>https://authors.library.caltech.edu/id/document/326633</uri>
+          </item>
+          <item>
+            <type>http://eprints.org/relation/isVolatileVersionOf</type>
+            <uri>https://authors.library.caltech.edu/id/document/326633</uri>
+          </item>
+          <item>
+            <type>http://eprints.org/relation/isIndexCodesVersionOf</type>
+            <uri>https://authors.library.caltech.edu/id/document/326633</uri>
+          </item>
+        </relation>
+      </document>
+    </documents>
+    <eprint_status>archive</eprint_status>
+    <userid>18</userid>
+    <dir>disk0/00/10/96/61</dir>
+    <datestamp>2021-06-30 23:08:19</datestamp>
+    <lastmod>2021-07-06 22:00:50</lastmod>
+    <status_changed>2021-06-30 23:08:19</status_changed>
+    <type>article</type>
+    <metadata_visibility>show</metadata_visibility>
+    <creators>
+      <item>
+        <name>
+          <family>Sun</family>
+          <given>Zhuyu</given>
+        </name>
+        <id>Sun-Zhuyu</id>
+      </item>
+      <item>
+        <name>
+          <family>Zhang</family>
+          <given>Chaojie</given>
+        </name>
+        <id>Zhang-Chaojie</id>
+        <orcid>0000-0003-3108-8271</orcid>
+      </item>
+      <item>
+        <name>
+          <family>Jiang</family>
+          <given>Jinchi</given>
+        </name>
+        <id>Jiang-Jiang</id>
+      </item>
+      <item>
+        <name>
+          <family>Wen</family>
+          <given>Jin</given>
+        </name>
+        <id>Wen-Jin</id>
+      </item>
+      <item>
+        <name>
+          <family>Zhou</family>
+          <given>Qi</given>
+        </name>
+        <id>Zhou-Qi</id>
+      </item>
+      <item>
+        <name>
+          <family>Hoffmann</family>
+          <given>Michael R.</given>
+        </name>
+        <id>Hoffmann-M-R</id>
+        <orcid>0000-0001-6495-1946</orcid>
+      </item>
+    </creators>
+    <title>UV/Fe^(II)NTA as a novel photoreductive system for the degradation of perfluorooctane sulfonate (PFOS) via a photoinduced intramolecular electron transfer mechanism</title>
+    <ispublished>pub</ispublished>
+    <full_text_status>public</full_text_status>
+    <keywords>Perfluorooctane sulfonate (PFOS); Photocatalysis; Reductive defluorination; Intramolecular electron transfer</keywords>
+    <note>© 2021 Elsevier B.V. 
+
+Received 10 April 2021, Revised 14 June 2021, Accepted 16 June 2021, Available online 23 June 2021. 
+
+The authors are thankful for the contributions of Prof. Le Wang of the College of Materials Science and Engineering at Donghua University and Prof. Guangfeng Wei of the School of Chemical Science and Engineering at Tongji University for their assistance with DFT calculations and for improving our discussion of results. This study was supported by the National Natural Science Foundation of China (Grant No. 21906016, 21976135, 21677109), the Fundamental Research Funds for the Central Universities (Grant No. 2232020D-25) and the State Key Laboratory of Pollution Control and Resource Reuse Foundation (Grant No. PCRRF19007). 
+
+The authors declare that they have no known competing financial interests or personal relationships that could have appeared to influence the work reported in this paper.</note>
+    <abstract>Perfluorooctane sulfonate (PFOS) is a persistent organic pollutant that is toxic and bio-accumulative. Previously, we used hydrated electrons (e_(aq)⁻) generated by the UV photolysis of nitrilotriacetic acid (NTA) to initiate the photoreductive decomposition of PFOS. However, due to the protonation of NTA and the scavenging effect of H⁺ on e_(aq)⁻, this process relies highly on alkaline conditions. Herein, we report on an enhanced UV photoreductive system based on Fe^(Ⅱ)NTA, which results in the decomposition of PFOS at pH 8.0 under anoxic conditions. After 10 h of photolysis, the degradation and defluorination efficiencies of PFOS in the UV/Fe^(Ⅱ)NTA system were ~ 60% and 29.5%, respectively, with a pseudo first-order degradation rate constant of k_(obs) = 0.081 h⁻¹. Laser flash photolysis results combined with time-dependent density functional theory (TDDFT) calculations indicate that PFOS, Fe(H₂O)₆²⁺, and NTA form a penta-coordinated metal–ligand complex that undergoes a UV-induced directional electron transfer from Fe^(Ⅱ)NTA to PFOS. PFOS decomposes via a mechanism that proceeds through a concerted photoinduced intramolecular charge transfer instead of direct attack by e_(aq)⁻. Model chelate studies show that the inherent properties of the transition metal ion and the electron-donating capabilities of the complexing ligands determine the efficiency for photoreductive electron transfer. A low apparent activation energy of 4.74 kJ/mol over a broad pH range results in higher electron transfer efficiencies for UV/Fe^(Ⅱ)NTA photolysis compared to photolysis initiated by un-complexed NTA.</abstract>
+    <date>2022-01-01</date>
+    <date_type>published</date_type>
+    <publication>Chemical Engineering Journal</publication>
+    <volume>427</volume>
+    <publisher>Elsevier</publisher>
+    <pagerange>Art. No. 130923</pagerange>
+    <pages>130923</pages>
+    <id_number>CaltechAUTHORS:20210629-220849613</id_number>
+    <refereed>TRUE</refereed>
+    <issn>1385-8947</issn>
+    <official_url>https://resolver.caltech.edu/CaltechAUTHORS:20210629-220849613</official_url>
+    <related_url>
+      <item>
+        <url>https://doi.org/10.1016/j.cej.2021.130923</url>
+        <type>doi</type>
+        <description>Article</description>
+      </item>
+    </related_url>
+    <rights>No commercial reproduction, distribution, display or performance rights in this work are provided.</rights>
+    <official_cit>Zhuyu Sun, Chaojie Zhang, Jinchi Jiang, Jin Wen, Qi Zhou, Michael R. Hoffmann,
+UV/FeⅡNTA as a novel photoreductive system for the degradation of perfluorooctane sulfonate (PFOS) via a photoinduced intramolecular electron transfer mechanism,
+Chemical Engineering Journal,
+Volume 427,
+2022,
+130923,
+ISSN 1385-8947,
+https://doi.org/10.1016/j.cej.2021.130923.
+(https://www.sciencedirect.com/science/article/pii/S1385894721025079)</official_cit>
+    <doi>10.1016/j.cej.2021.130923</doi>
+    <funders>
+      <item>
+        <agency>National Natural Science Foundation of China</agency>
+        <grant_number>21906016</grant_number>
+      </item>
+      <item>
+        <agency>National Natural Science Foundation of China</agency>
+        <grant_number>21976135</grant_number>
+      </item>
+      <item>
+        <agency>National Natural Science Foundation of China</agency>
+        <grant_number>21677109</grant_number>
+      </item>
+      <item>
+        <agency>Fundamental Research Funds for the Central Universities</agency>
+        <grant_number>2232020D-25</grant_number>
+      </item>
+      <item>
+        <agency>State Key Laboratory of Pollution Control and Resource Reuse Foundation</agency>
+        <grant_number>PCRRF19007</grant_number>
+      </item>
+    </funders>
+    <collection>CaltechAUTHORS</collection>
+    <reviewer>J. Q. Public</reviewer>
+  </eprint>
+</eprints>

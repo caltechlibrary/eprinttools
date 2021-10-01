@@ -1,7 +1,8 @@
 /**
- * simplified presents an Invenio 3 like JSON representation of an EPrint
- * record. This is intended to make the development of V2 of feeds easier
- * for both our audience on internal programming needs.
+ * simplified.go implements an Invenio 3 like JSON representation
+ * of an EPrint record. This is intended to make the development of
+ * V2 of feeds easier for both our audience and in for our internal
+ * programming needs.
  *
  * See documentation and example on Invenio's structured data:
  *
@@ -12,110 +13,79 @@
 package eprinttools
 
 import (
-	"encoding/xml"
+	"encoding/json"
+	"fmt"
 	"time"
 )
 
-// Invenio Record structure
-type InvenioRecord struct {
-	ID           string                           `json:"id"`
-	PID          map[string]interface{}           `json:"pid,omitempty"`
-	Parent       *RecordIdentifier                `json:"parent"`
-	ExternalPIDs map[string]*PersistentIdentifier `json:"pids,omitempty"`
-	Access       *RecordAccess                    `json:"access,omitempty"`
-	Metadata     *Metadata                        `json:"metadata"`
-	Files        *Files                           `json:"files"`
-	Tombstone    *Tombstone                       `json:"tombstone,omitempty"`
-	Created      time.Time                        `json:"created"`
-	Updated      time.Time                        `json:"updated"`
+//
+// Top Level Elements
+//
+
+// Record implements the top level Invenio 3 record structure
+type Record struct {
+	Schema       string                           `json:"$schema,omitempty"`
+	ID           string                           `json:"id"`                  // Interneral persistent identifier for a specific version.
+	PID          map[string]interface{}           `json:"pid,omitempty"`       // Interneral persistent identifier for a specific version.
+	Parent       *RecordIdentifier                `json:"parent"`              // The internal persistent identifier for ALL versions.
+	ExternalPIDs map[string]*PersistentIdentifier `json:"pids,omitempty"`      // System-managed external persistent identifiers (DOI, Handles, OAI-PMH identifiers)
+	RecordAccess *RecordAccess                    `json:"access,omitempty"`    // Access control for record
+	Metadata     *Metadata                        `json:"metadata"`            // Descriptive metadata for the resource
+	Files        *Files                           `json:"files"`               // Associated files information.
+	Tombstone    *Tombstone                       `json:"tombstone,omitempty"` // Tombstone (deasscession) information.
+	Created      time.Time                        `json:"created"`             // create time for record
+	Updated      time.Time                        `json:"updated"`             // modified time for record
 }
 
-// RecordIdentifier
+//
+// Second level Elements
+//
+
+// RecordIdentifier implements the scheme of "parent", a persistant
+// identifier to the record.
 type RecordIdentifier struct {
-	ID     string  `json:"id"`
-	Access *Access `json:"access,omitempty"`
-}
-
-// Access
-type Access struct {
-	OwnedBy []*Owner `json:"owned_by,omitempty"`
-}
-
-// Owner
-type Owner struct {
-	User int `json:"user,omitempty"`
+	ID     string  `json:"id"`               // The identifier of the parent record
+	Access *Access `json:"access,omitempty"` // Access details for the record as a whole
 }
 
 // PersistentIdentifier holds an Identifier, e.g. ORCID, ROR, ISNI, GND
 type PersistentIdentifier struct {
-	Identifier string `json:"identifier,omitempty"`
-	Provider   string `json:"provider,omitempty"`
-	Client     string `json:"client,omitempty"`
+	Identifier string `json:"identifier,omitempty"` // The identifier value
+	Provider   string `json:"provider,omitempty"`   // The provider idenitifier used internally by the system
+	Client     string `json:"client,omitempty"`     // The client identifier used for connecting with an external registration service.
 }
 
-// RecordAccess
+// RecordAccess implements a datastructure used by Invenio 3 to
+// control record level accesss, e.g. in the REST API.
 type RecordAccess struct {
-	Record  string   `json:"record,omitempty"`
-	Files   string   `json:"files,omitempty"`
-	Embargo *Embargo `json:"embargo,omitempty"`
+	Record  string   `json:"record,omitempty"`  // "public" or "restricted. Read access to the record.
+	Files   string   `json:"files,omitempty"`   // "public" or "restricted". Read access to the record's files.
+	Embargo *Embargo `json:"embargo,omitempty"` // Embargo options for the record.
 }
 
-// Embargo
-type Embargo struct {
-	Active bool   `json:"active,omitempty"`
-	Until  string `json:"until,omitempty"`
-	Reason string `json:"reason,omitempty"`
-}
-
+// Metadata holds the primary metadata about the record. This
+// is where most of the EPrints 3.3.x data is mapped into.
 type Metadata struct {
-	// ID is based on 10. Resource Type from DataCite
-	ResourceType     map[string]string    `json:"resource_type,omitempty"`
-	Creators         []*Creator           `jons:"creators,omitempty"`
-	Title            string               `json:"title"`
-	PublicationDate  string               `json:"publication_date,omitempty"`
-	AdditionalTitles []*AltTitle          `json:"additional_titles,omitempty"`
-	Description      string               `json:"description,omitempty"`
-	AdditoinalDesc   []*AltDescription    `json:"additional_description,omitempty"`
-	Rights           []*Right             `json:"rights,omitempty"`
-	Contributors     []*Creator           `json:"contributors,omitempty"`
-	Subjects         []*Subject           `json:"subjects,omitempty"`
-	Languages        []*map[string]string `json:"languages,omitempty"`
-	Dates            []*InvenioDate       `json:"dates,omitempty"`
-	Version          string               `json:"version,omitempty"`
-	Publisher        string               `json:"publisher,omitempty"`
-	AlterIdentifiers []*Identifier        `json:"identifier,omitempty"`
-	Funding          []*Funder            `json:"funding,omitempty"`
-}
+	ResourceType           map[string]string    `json:"resource_type,omitempty"` // Resource type id from the controlled vocabulary.
+	Creators               []*Creator           `jons:"creators,omitempty"`      //list of creator information (person or organization)
+	Title                  string               `json:"title"`
+	PublicationDate        string               `json:"publication_date,omitempty"`
+	AdditionalTitles       []*TitleDetail       `json:"additional_titles,omitempty"`
+	Description            string               `json:"description,omitempty"`
+	AdditionalDescriptions []*Description       `json:"additional_descriptions,omitempty"`
+	Rights                 []*Right             `json:"rights,omitempty"`
+	Contributors           []*Creator           `json:"contributors,omitempty"`
+	Subjects               []*Subject           `json:"subjects,omitempty"`
+	Languages              []*map[string]string `json:"languages,omitempty"`
+	Dates                  []*DateType          `json:"dates,omitempty"`
+	Version                string               `json:"version,omitempty"`
+	Publisher              string               `json:"publisher,omitempty"`
+	Identifiers            []*Identifier        `json:"identifier,omitempty"`
+	Funding                []*Funder            `json:"funding,omitempty"`
 
-// Creator of a record's object
-type Creator struct {
-	PersonOrOrg  *PersonOrOrg   `json:"person_or_org,omitempty"`
-	Role         string         `json:"role,omitempty"`
-	Affiliations []*Affiliation `json:"affiliations,omitempty"`
-}
-
-// PersonOrOrg holds either a person or corporate entity information.
-type PersonOrOrg struct {
-	// ID can be for a Person (e.g. Doiel-R-S) or Corporate entity
-	ID string `json:"id,omitempty" xml:"id,omitempty"`
-
-	// Type holds the type of Agent
-	Type string `json:"type,omitempty"`
-
-	// GivenName holds a peron's given name, e.g. Jane
-	GivenName string `json:"given_name,omitempty" xml:"given_name,omitempty"`
-	// FamilyName holds a person's family name, e.g. Doe
-	FamilyName string `json:"family_name,omitempty" xml:"family_name,omitempty"`
-	// Name holds a corporate name, e.g. The Unseen University
-	Name string `json:"name,omitempty" xml:"name,omitempty"`
-
-	// Identifiers holds a list of unique ID like ORCID, GND, ROR, ISNI
-	Identifiers []*Identifier `json:"identifiers,omitempty"`
-}
-
-type Affiliation struct {
-	ID   string `json:"id,omitempty"`
-	Name string `json:"name,omitempty"`
+	// Extended  is where I am putting important
+	// EPrint XML fields that don't clearly map.
+	Extended map[string]*interface{} `json:"extended,omitempty"`
 }
 
 // Files
@@ -123,108 +93,361 @@ type Files struct {
 	Enabled        bool                    `json:"enabled,omitempty"`
 	Entries        map[string]*interface{} `json:"entries,omitempty"`
 	DefaultPreview string                  `json:"default_preview,omitempty"`
+	Sizes          []string                `json:"sizes,omitempty"`
+	Formats        []string                `json:"formats,omitempty"`
+	Locations      map[string]*interface{} `json:"locations,omitempty"`
 }
 
 // Tombstone
 type Tombstone struct {
 	Reason    string    `json:"reason,omitempty"`
 	Category  string    `json:"category,omitempty"`
-	RemovedBy *Owner    `json:"removed_by,omitempty"`
+	RemovedBy *User     `json:"removed_by,omitempty"`
 	Timestamp time.Time `json:"timestamp,omitempty"`
 }
 
-// InvenioDate
-type InvenioDate struct {
-	Date        string          `json:"date,omitempty"`
-	Type        *InvenioAltType `json:"type,omitempty"`
-	Description string          `json:"description,omitempty"`
+//
+// Third/Fourth Level Elements
+//
+
+// Access is a third level element used by PersistentIdenitifier to
+// describe access ownership of the record.
+type Access struct {
+	OwnedBy []*User `json:"owned_by,omitempty"`
 }
 
-// InvenioType is an Invenio 3 e.g. ResourceType, title type or language
-type InvenioType struct {
+// User is a data structured used in Access to describe record
+// ownership or user actions.
+type User struct {
+	User        int    `json:"user,omitempty"`         // User (integer) identifier
+	DisplayName string `json:"display_name,omitempty"` // This is my field to quickly associate the internal integer user id with a name for reporting and display.
+	Email       string `json:"email,omitempty"`        // This is my field to quickly display a concact email associated with the integer user id.
+}
+
+// Embargo is a third level element used by RecordAccess to describe
+// the embargo status of a record.
+type Embargo struct {
+	Active bool   `json:"active,omitempty"` // boolean, is the record under an embargo or not.
+	Until  string `json:"until,omitempty"`  // Required if active true. ISO date string. When to lift the embargo. e.g. "2100-10-01"
+	Reason string `json:"reason,omitempty"` // Explanation for the embargo
+}
+
+//
+// Third level elements used in Metadata data structures
+//
+
+// Creator of a record's object
+type Creator struct {
+	PersonOrOrg  *PersonOrOrg   `json:"person_or_org,omitempty"` // The person or organization.
+	Role         string         `json:"role,omitempty"`          // The role of the person or organization selected from a customizable controlled vocabularly.
+	Affiliations []*Affiliation `json:"affiliations,omitempty"`  // Affiliations if `PersonOrOrg.Type` is personal.
+}
+
+// PersonOrOrg holds either a person or corporate entity information
+// for the creators associated with the record.
+type PersonOrOrg struct {
+	ID   string `json:"cl_identifier,omitempty"` // The Caltech Library internal person or organizational identifier used to cross walk data across library systems. (this is not part of Invenion 3)
+	Type string `json:"type,omitempty"`          // The type of name. Either "personal" or "organizational".
+
+	GivenName  string `json:"given_name,omitempty" xml:"given_name,omitempty"`   // GivenName holds a peron's given name, e.g. Jane
+	FamilyName string `json:"family_name,omitempty" xml:"family_name,omitempty"` // FamilyName holds a person's family name, e.g. Doe
+	Name       string `json:"name,omitempty" xml:"name,omitempty"`               // Name holds a corporate name, e.g. The Unseen University
+
+	// Identifiers holds a list of unique ID like ORCID, GND, ROR, ISNI
+	Identifiers []*Identifier `json:"identifiers,omitempty"`
+}
+
+// Affiliation describes how a person or organization is affialated
+// for the purpose of the record.
+type Affiliation struct {
+	ID   string `json:"id,omitempty"`   // The organizational or institutional id from the controlled vocabularly
+	Name string `json:"name,omitempty"` // The name of the organization or institution
+}
+
+// Identifier holds an Identifier, e.g. ORCID, ROR, ISNI, GND
+// for a person for organization it holds GRID, ROR. etc.
+type Identifier struct {
+	Scheme       string      `json:"scheme,omitempty"`
+	Name         string      `json:"name,omitempty"`
+	Title        string      `json:"title,omitempty"`
+	Number       string      `json:"number,omitempty"`
+	Identifier   string      `json:"identifier,omitempty"`
+	RelationType *TypeDetail `json:"relation_type,omitempty"`
+	ResourceType *TypeDetail `json:"resource_type,omitempty"`
+}
+
+// Type is an Invenio 3 e.g. ResourceType, title type or language
+type Type struct {
 	ID    string `json:"id,omitempty"`
 	Name  string `json:"name,omitempty"`
 	Title string `json:"title,omitempty"`
 }
 
-// InvenioAltType is an alternate expression of a type where title is map
-type InvenioAltType struct {
-	ID    string            `json:"id,omitempty"`
-	Name  string            `json:"name,omitempty"`
-	Title map[string]string `json:"title,omitempty"`
+// TitleDetail is used by AdditionalTitles in Metadata.
+type TitleDetail struct {
+	Title string `json:"title,omitempty"`
+	Type  *Type  `json:"type,omitempty"`
+	Lang  *Type  `json:"lang,omitempty"`
 }
 
-// Identifier holds an Identifier, e.g. ORCID, ROR, ISNI, GND
-type Identifier struct {
-	Scheme       string          `json:"scheme,omitempty"`
-	Identifier   string          `json:"identifier,omitempty"`
-	RelationType *InvenioAltType `json:"relation_type,omitempty"`
-	ResourceType *InvenioAltType `json:"resource_type,omitempty"`
+// Description holds additional descriptions in Metadata
+// element. e.g. language versions of Abstract, etc.
+type Description struct {
+	Description string `json:"description,omitempty"`
+	Type        *Type  `json:"type,omitempty"`
+	Lang        *Type  `json:"lang,omitempty"`
 }
 
-// Funder holds information for funding organizations
-type Funder struct {
-	Funder map[string]string `json:"funder,omitempty"`
-	Award  map[string]string `json:"award,omitempty"`
+// Right holds a specific Rights element for the Metadata's
+// list of Rights.
+//
+// NOTE: for REST API lookup by ID or Title (but not both) should
+// be supported at the same end point. I.e. they both must be unique
+// with in their set of field values.
+type Right struct {
+	ID          string `json:"id,omitempty"`          // Identifier value
+	Title       string `json:"title,omitempty"`       // Localized human readable title e.g., `{"en": "The ACME Corporation License."}`.
+	Description string `json:"description,omitempty"` // Localized license description text e.g., `{"en":"This license ..."}`.
+	Link        string `json:"link,omitempty"`        // Link to full license.
 }
 
-// ResourceURL
-type ResourceURL struct {
-	XMLName     xml.Name `json:"-"`
-	Type        string   `json:"type,omitempty" xml:"type,omitempty"`
-	Url         string   `json:"url" xml:"url"`
-	Description string   `json:"description,omitempty" xml:"description,omitempty"`
-}
-
-// AltTitle is an Invenio 3 additional title type
-type AltTitle struct {
-	Title string       `json:"title,omitempty"`
-	Type  *InvenioType `json:"type,omitempty"`
-	Lang  *InvenioType `json:"lang,omitempty"`
-}
-
-// Subject isan Invenio 3 subject type
+// Subject element holds one of a list of subjects
+// in the Metadata element.
 type Subject struct {
 	Subject string `json:"subject,omitempty"`
 	ID      string `json:"id,omitempty"`
 }
 
-// AltDescription  is an Invenio 3 alternate description
-type AltDescription struct {
-	Description string       `json:"description,omitempty"`
-	Type        *InvenioType `json:"type,omitempty"`
-	Lang        *InvenioType `json:"lang,omitempty"`
-}
-
-type Right struct {
-	ID          string `json:"id,omitempty"`
-	Title       string `json:"title,omitempty"`
-	Description string `json:"description,omitempty"`
-	Link        string `json:"link,omitempty"`
-}
-
+// DateType holds Invenio dates used in Metadata element.
 type DateType struct {
-	Date        string       `json:"date,omitempty"`
-	Type        *InvenioType `json:"type,omitempty"`
-	Description string       `json:"description,omitempty"`
+	Date        string `json:"date,omitempty"`
+	Type        *Type  `json:"type,omitempty"`
+	Description string `json:"description,omitempty"`
 }
 
-// Size
-type Size struct {
+// Funder holds funding information for funding organizations in Metadata
+type Funder struct {
+	Funder    []*Identifier `json:"funder,omitempty"`
+	Award     *Identifier   `json:"award,omitempty"`
+	Reference []*Identifier `json:"references,omitempty"`
 }
 
-// Format
-type Format struct {
+//
+// Additional fourth level elements
+//
+
+// Type is an alternate expression of a type where title is map
+// with additional info like language. It is used to describe relationships
+// and resources in Identifiers. It is a variation of Type.
+type TypeDetail struct {
+	ID    string            `json:"id,omitempty"`
+	Name  string            `json:"name,omitempty"`
+	Title map[string]string `json:"title,omitempty"`
 }
 
-// Location
-type Location struct {
+//
+// The following have not been implemented in current release (2021-10-01)
+// of Invenio 3.
+//
+
+// Files.Sizes (e.g. bytes, pages, inches, etc.) or duration (extent), e.g.
+// hours, minutes, days, etc., of a resource.
+// This structure is compatible with 13. Size in DataCite
+//
+// e.g. `{ "sizes": [ "11 pages" ], }`
+//
+
+// Files.Format is technical format of the resource. This structure is
+// compatible with 14. Format in DataCite.
+//
+// e.g. `{ "formats": [ "application/pdf" ], }`
+//
+
+// Location is compatible with 18. GeoLocation in DataCite Metadata Schema.
+
+//
+// EPrints/Simplified model handling
+//
+
+// RecordFromEPrint takes an EPrint structure and crosswalks it into
+// the Record structure.
+func CrosswalkEPrintToRecord(eprint *EPrint) (*Record, error) {
+	rec := new(Record)
+	rec.Schema = `local://records/record-v1.0.0.json`
+	rec.ID = fmt.Sprintf("%s:%d", eprint.Collection, eprint.EPrintID)
+	if err := rec.createdUpdatedFromEPrint(eprint); err != nil {
+		return rec, err
+	}
+	if err := rec.pidFromEPrint(eprint); err != nil {
+		return rec, err
+	}
+	if err := rec.parentFromEPrint(eprint); err != nil {
+		return rec, err
+	}
+	if err := rec.externalPIDFromEPrint(eprint); err != nil {
+		return rec, err
+	}
+	if err := rec.recordAccessFromEPrint(eprint); err != nil {
+		return rec, err
+	}
+	if err := rec.metadataFromEPrint(eprint); err != nil {
+		return rec, err
+	}
+	if err := rec.filesFromEPrint(eprint); err != nil {
+		return rec, err
+	}
+	if eprint.EPrintStatus == "deletion" {
+		if err := rec.tombstoneFromEPrint(eprint); err != nil {
+			return rec, err
+		}
+	}
+	return rec, nil
 }
 
-// FileType
-type FileType struct {
+// PIDFromEPrint crosswalks the PID from an EPrint record.
+func (rec *Record) pidFromEPrint(eprint *EPrint) error {
+	data := map[string]interface{}{}
+	src := fmt.Sprintf(`{
+"id": %d,
+"pid": { "eprint": "eprintid"}
+}`, eprint.EPrintID)
+	err := json.Unmarshal([]byte(src), &data)
+	if err != nil {
+		return fmt.Errorf("Cannot generate PID from EPrint %d", eprint.EPrintID)
+	}
+	rec.PID = data
+	return nil
 }
 
-// Tumbstone
-type Tumbstone struct {
+// parentFromEPrint crosswalks the Perent unique ID from EPrint record.
+func (rec *Record) parentFromEPrint(eprint *EPrint) error {
+	parent := new(RecordIdentifier)
+	parent.ID = fmt.Sprintf("%s:%d", eprint.Collection, eprint.EPrintID)
+	parent.Access = new(Access)
+	ownedBy := new(User)
+	ownedBy.User = eprint.UserID
+	ownedBy.DisplayName = eprint.Reviewer
+	parent.Access.OwnedBy = append(parent.Access.OwnedBy, ownedBy)
+	rec.Parent = parent
+	return nil
+}
+
+// externalPIDFromEPrint aggregates all the external identifiers
+// from the EPrint record into Record
+func (rec *Record) externalPIDFromEPrint(eprint *EPrint) error {
+	rec.ExternalPIDs = map[string]*PersistentIdentifier{}
+	// Pickup DOI
+	if eprint.DOI != "" {
+		pid := new(PersistentIdentifier)
+		pid.Identifier = eprint.DOI
+		pid.Provider = "datacite" // FIXME: should be DataCite or CrossRef
+		pid.Client = ""           // FIXME: need to find out client string
+		rec.ExternalPIDs["doi"] = pid
+	}
+	// Pickup ISSN
+	if eprint.ISBN != "" {
+		pid := new(PersistentIdentifier)
+		pid.Identifier = eprint.ISSN
+		pid.Provider = "" // FIXME: Need to find out identifier string
+		pid.Client = ""   // FIXME: need to find out client string
+		rec.ExternalPIDs["ISSN"] = pid
+	}
+	// Pickup ISBN
+	if eprint.ISBN != "" {
+		pid := new(PersistentIdentifier)
+		pid.Identifier = eprint.ISBN
+		pid.Provider = "" // FIXME: Need to find out identifier string
+		pid.Client = ""   // FIXME: need to find out client string
+		rec.ExternalPIDs["ISBN"] = pid
+	}
+	//FIXME: figure out if we have other persistent identifiers
+	//scattered in the EPrints XML and map them.
+	return nil
+}
+
+// recordAccessFromEPrint extracts access permissions from the EPrint
+func (rec *Record) recordAccessFromEPrint(eprint *EPrint) error {
+	isPublic := true
+	if (eprint.ReviewStatus == "review") ||
+		(eprint.ReviewStatus == "withheld") ||
+		(eprint.ReviewStatus == "gradoffice") ||
+		(eprint.ReviewStatus == "notapproved") {
+		isPublic = false
+	}
+	if eprint.EPrintStatus != "archive" || eprint.MetadataVisibility != "show" {
+		isPublic = false
+	}
+	rec.RecordAccess = new(RecordAccess)
+	if isPublic {
+		rec.RecordAccess.Record = "public"
+	} else {
+		rec.RecordAccess.Record = "restricted"
+	}
+	// Need to make sure record is not embargoed
+	for _, doc := range *eprint.Documents {
+		if doc.DateEmbargo != "" {
+			embargo := new(Embargo)
+			embargo.Until = doc.DateEmbargo
+			embargo.Reason = eprint.Suggestions
+			if doc.Security == "internal" {
+				embargo.Active = true
+			} else {
+				embargo.Active = false
+			}
+			rec.RecordAccess.Embargo = embargo
+			break
+		}
+	}
+	return nil
+}
+
+// metadataFromEPrint extracts metadata from the EPrint record
+func (rec *Record) metadataFromEPrint(eprint *EPrint) error {
+	// FIXME: crosswalk Metadata
+	return fmt.Errorf(`metadataFromEPrint() not implemented`)
+}
+
+// filesFromEPrint extracts all the file specific metadata from the
+// EPrint record
+func (rec *Record) filesFromEPrint(eprint *EPrint) error {
+	// FIXME: crosswalk Files
+	return fmt.Errorf(`filesFromEPrint() not implemented`)
+}
+
+// tombstoneFromEPrint builds a tombstone is the EPrint record
+// eprint_status is deletion.
+func (rec *Record) tombstoneFromEPrint(eprint *EPrint) error {
+	// FIXME: crosswalk Tombstone
+	if eprint.EPrintStatus == "deletion" {
+		tombstone := new(Tombstone)
+		tombstone.RemovedBy = new(User)
+		tombstone.RemovedBy.DisplayName = eprint.Reviewer
+		tombstone.RemovedBy.User = eprint.UserID
+		if eprint.Suggestions != "" {
+			tombstone.Reason = eprint.Suggestions
+		}
+		rec.Tombstone = tombstone
+	}
+	return nil
+}
+
+// createdUpdatedFromEPrint extracts
+func (rec *Record) createdUpdatedFromEPrint(eprint *EPrint) error {
+	// FIXME: crosswalk Created
+	created, err := time.Parse(timestamp, eprint.DateStamp)
+	if err != nil {
+		return fmt.Errorf("Error parsing datestamp, %s", err)
+	}
+	rec.Created = created
+	updated, err := time.Parse(timestamp, eprint.LastModified)
+	if err != nil {
+		return fmt.Errorf("Error parsing last modified date, %s", err)
+	}
+	rec.Updated = updated
+	return nil
+}
+
+func (rec *Record) ToString() []byte {
+	src, _ := json.MarshalIndent(rec, "", "    ")
+	return src
 }

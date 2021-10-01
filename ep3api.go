@@ -240,11 +240,11 @@ func creatorNameDocument(repoID string) string {
 	return fmt.Sprintf(`"/%s/creator-name/<FAMILY_NAME>/<GIVEN_NAME>" scans the name fields associated with creators and returns a list of EPrint ID `, repoID)
 }
 func editorNameDocument(repoID string) string {
-	return fmt.Sprintf(`"/<REPO_ID>/editor-name/<FAMILY_NAME>/<GIVEN_NAME>" scans the family and given name field associated with a editors and returns a list of EPrint ID`, repoID)
+	return fmt.Sprintf(`"/%s/editor-name/<FAMILY_NAME>/<GIVEN_NAME>" scans the family and given name field associated with a editors and returns a list of EPrint ID`, repoID)
 }
 
 func contributorNameDocument(repoID string) string {
-	return fmt.Sprintf(`"/<REPO_ID>/contributor-name/<FAMILY_NAME>/<GIVEN_NAME>" scans the family and given name field associated with a contributors and returns a list of EPrint ID`, repoID)
+	return fmt.Sprintf(`"/%s/contributor-name/<FAMILY_NAME>/<GIVEN_NAME>" scans the family and given name field associated with a contributors and returns a list of EPrint ID`, repoID)
 }
 
 func advisorNameDocument(repoID string) string {

@@ -1014,23 +1014,24 @@ type File struct {
 
 // Document structures inside a Record (i.e. <eprint>...<documents><document>...</document>...</documents>...</eprint>)
 type Document struct {
-	XMLName    xml.Name `json:"-"`
-	ID         string   `xml:"id,attr" json:"id"`
-	DocID      int      `xml:"docid" json:"doc_id"`
-	RevNumber  int      `xml:"rev_number" json:"rev_number,omitempty"`
-	Files      []*File  `xml:"files>file" json:"files,omitempty"`
-	EPrintID   int      `xml:"eprintid" json:"eprint_id"`
-	Pos        int      `xml:"pos" json:"pos,omitempty"`
-	Placement  int      `xml:"placement,omitempty" json:"placement,omitempty"`
-	MimeType   string   `xml:"mime_type" json:"mime_type"`
-	Format     string   `xml:"format" json:"format"`
-	FormatDesc string   `xml:"formatdesc,omitempty" json:"format_desc,omitempty"`
-	Language   string   `xml:"language,omitempty" json:"language,omitempty"`
-	Security   string   `xml:"security" json:"security"`
-	License    string   `xml:"license" json:"license"`
-	Main       string   `xml:"main" json:"main"`
-	Content    string   `xml:"content,omitempty" json:"content,omitempty"`
-	Relation   []*Item  `xml:"relation>item,omitempty" json:"relation,omitempty"`
+	XMLName     xml.Name `json:"-"`
+	ID          string   `xml:"id,attr" json:"id"`
+	DocID       int      `xml:"docid" json:"doc_id"`
+	RevNumber   int      `xml:"rev_number" json:"rev_number,omitempty"`
+	Files       []*File  `xml:"files>file" json:"files,omitempty"`
+	EPrintID    int      `xml:"eprintid" json:"eprint_id"`
+	Pos         int      `xml:"pos" json:"pos,omitempty"`
+	Placement   int      `xml:"placement,omitempty" json:"placement,omitempty"`
+	MimeType    string   `xml:"mime_type" json:"mime_type"`
+	Format      string   `xml:"format" json:"format"`
+	FormatDesc  string   `xml:"formatdesc,omitempty" json:"format_desc,omitempty"`
+	Language    string   `xml:"language,omitempty" json:"language,omitempty"`
+	Security    string   `xml:"security" json:"security"`
+	License     string   `xml:"license" json:"license"`
+	Main        string   `xml:"main" json:"main"`
+	DateEmbargo string   `xml:"date_embargo,omitempty" json:"date_embargo,omitempty"`
+	Content     string   `xml:"content,omitempty" json:"content,omitempty"`
+	Relation    []*Item  `xml:"relation>item,omitempty" json:"relation,omitempty"`
 }
 
 // DocumentList is an array of pointers to Document structs

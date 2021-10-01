@@ -142,7 +142,8 @@ func main() {
 	// App Options
 	flagSet.BoolVar(&asXML, "xml", false, "output EPrint XML")
 	flagSet.BoolVar(&asJSON, "json", false, "output JSON version of EPrint XML")
-	flagSet.BoolVar(&simplified, "s,simplified", false, "output simplified JSON version of EPrints XML")
+	flagSet.BoolVar(&simplified, "s", false, "output simplified JSON version of EPrints XML")
+	flagSet.BoolVar(&simplified, "simplified", false, "output simplified JSON version of EPrints XML")
 
 	// We're ready to process args
 	flagSet.Parse(os.Args[1:])
@@ -224,14 +225,28 @@ func main() {
 		asXML = (inputFmt == IsXML)
 	}
 	if simplified {
+		fmt.Printf("DEBUG generate simplified invenio style record\n")
 		asXML = false
 		asJSON = true
-		sObjects, err := eprinttools.SimplifyEPrints(obj)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "%s\n", err)
-			os.Exit(1)
+		if len(obj.EPrint) == 1 {
+			sObject, err := eprinttools.CrosswalkEPrintToRecord(obj.EPrint[0])
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "%s\n", err)
+				os.Exit(1)
+			}
+			src, err = json.MarshalIndent(sObject, "", "   ")
+		} else {
+			sObjects := []*eprinttools.Record{}
+			for _, eprint := range obj.EPrint {
+				obj, err := eprinttools.CrosswalkEPrintToRecord(eprint)
+				if err != nil {
+					fmt.Fprintf(os.Stderr, "%s\n", err)
+					os.Exit(1)
+				}
+				sObjects = append(sObjects, obj)
+			}
+			src, err = json.MarshalIndent(sObjects, "", "   ")
 		}
-		src, err = json.MarshalIndent(sObjects, "", "   ")
 	} else {
 		// marshal pretty printed output based on options selected.
 		if asXML {

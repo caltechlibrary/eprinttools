@@ -19,10 +19,10 @@
 package main
 
 import (
-"flag"
 	"bytes"
 	"encoding/json"
 	"encoding/xml"
+	"flag"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -131,13 +131,13 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 `
 
 	// Standard Options
-	showHelp         bool
-	showLicense      bool
-	showVersion      bool
-	newLine          bool
-	quiet            bool
-	verbose          bool
-	inputFName       string
+	showHelp    bool
+	showLicense bool
+	showVersion bool
+	newLine     bool
+	quiet       bool
+	verbose     bool
+	inputFName  string
 	outputFName string
 
 	// App Options
@@ -198,7 +198,7 @@ func main() {
 	// Setup IO
 	in := os.Stdin
 	out := os.Stdout
-	
+
 	if inputFName != "" {
 		if in, err = os.Open(inputFName); err != nil {
 			fmt.Fprintf(os.Stderr, "%s\n", err)
@@ -342,7 +342,7 @@ func main() {
 			e.SyntheticFields()
 		}
 		if simplified {
-			if sObj, err := eprinttools.Simplify(data.EPrint[0]); err != nil {
+			if sObj, err := eprinttools.CrosswalkEPrintToRecord(data.EPrint[0]); err != nil {
 				fmt.Fprintf(os.Stderr, "%s\n", err)
 			} else {
 				src, err = json.MarshalIndent(sObj, "", "   ")
