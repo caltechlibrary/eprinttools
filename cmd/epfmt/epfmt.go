@@ -149,6 +149,12 @@ func main() {
 	flagSet.Parse(os.Args[1:])
 	args := flagSet.Args()
 
+	// Simplified output is aways JSON formatted.
+	if simplified {
+		asJSON = true
+		asXML = false
+	}
+
 	if len(args) > 1 {
 		inputFName = args[1]
 	}
@@ -225,9 +231,6 @@ func main() {
 		asXML = (inputFmt == IsXML)
 	}
 	if simplified {
-		fmt.Printf("DEBUG generate simplified invenio style record\n")
-		asXML = false
-		asJSON = true
 		if len(obj.EPrint) == 1 {
 			sObject, err := eprinttools.CrosswalkEPrintToRecord(obj.EPrint[0])
 			if err != nil {

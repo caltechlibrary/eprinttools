@@ -125,6 +125,7 @@ type EPrint struct {
 	ItemIssues         *ItemIssueItemList       `xml:"item_issues,omitempty" json:"item_issues,omitempty"`
 	ItemIssuesCount    int                      `xml:"item_issues_count,omitempty" json:"item_issues_count,omitempty"`
 	CorpCreators       *CorpCreatorItemList     `xml:"corp_creators,omitempty" json:"corp_creators,omitempty"`
+	CorpContributors   *CorpContributorItemList `xml:"corp_contributors,omitempty" json:"corp_contributors,omitempty"`
 	Department         string                   `xml:"department,omitempty" json:"department,omitempty"`
 	OutputMedia        string                   `xml:"output_media,omitempty" json:"output_media,omitempty"`
 	Exhibitors         *ExhibitorItemList       `xml:"exhibitors,omitempty" json:"exhibitors,omitempty"`
@@ -529,6 +530,12 @@ func (issueItemList *ItemIssueItemList) AddItem(item *Item) int {
 // CorpCreatorItemList
 type CorpCreatorItemList struct {
 	XMLName xml.Name `json:"-"` //`xml:"corp_creators" json:"-"`
+	Items   []*Item  `xml:"item,omitempty" json:"items,omitempty"`
+}
+
+// CorpContributorItemList
+type CorpContributorItemList struct {
+	XMLName xml.Name `json:"-"` //`xml:"corp_contributors" json:"-"`
 	Items   []*Item  `xml:"item,omitempty" json:"items,omitempty"`
 }
 

@@ -15,6 +15,7 @@ package eprinttools
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
 )
 
@@ -83,19 +84,33 @@ type Metadata struct {
 	Identifiers            []*Identifier        `json:"identifier,omitempty"`
 	Funding                []*Funder            `json:"funding,omitempty"`
 
-	// Extended  is where I am putting important
-	// EPrint XML fields that don't clearly map.
-	Extended map[string]*interface{} `json:"extended,omitempty"`
+	/*
+		// Extended  is where I am putting important
+		// EPrint XML fields that don't clearly map.
+		Extended map[string]*interface{} `json:"extended,omitempty"`
+	*/
 }
 
 // Files
 type Files struct {
 	Enabled        bool                    `json:"enabled,omitempty"`
-	Entries        map[string]*interface{} `json:"entries,omitempty"`
+	Entries        map[string]*Entry       `json:"entries,omitempty"`
 	DefaultPreview string                  `json:"default_preview,omitempty"`
 	Sizes          []string                `json:"sizes,omitempty"`
 	Formats        []string                `json:"formats,omitempty"`
 	Locations      map[string]*interface{} `json:"locations,omitempty"`
+}
+
+type Entry struct {
+	BucketID     string `json:"bucket_id,omitempty"`
+	VersionID    string `json:"version_id,omitempty"`
+	FileID       string `json:"file_id,omitempty"`
+	Backend      string `json:"backend,omitempty"`
+	StorageClass string `json:"storage_class,omitempty"`
+	Key          string `json:"key,omitempty"`
+	MimeType     string `json:"mimetype,omitempty"`
+	Size         int    `json:"size,omitempty"`
+	CheckSum     string `json:"checksum,omitempty"`
 }
 
 // Tombstone
@@ -273,14 +288,9 @@ type TypeDetail struct {
 // the Record structure.
 func CrosswalkEPrintToRecord(eprint *EPrint) (*Record, error) {
 	rec := new(Record)
-	rec.Schema = `local://records/record-v1.0.0.json`
+	rec.Schema = `local://records/record-v2.0.0.json`
 	rec.ID = fmt.Sprintf("%s:%d", eprint.Collection, eprint.EPrintID)
-	if err := rec.createdUpdatedFromEPrint(eprint); err != nil {
-		return rec, err
-	}
-	if err := rec.pidFromEPrint(eprint); err != nil {
-		return rec, err
-	}
+
 	if err := rec.parentFromEPrint(eprint); err != nil {
 		return rec, err
 	}
@@ -290,16 +300,25 @@ func CrosswalkEPrintToRecord(eprint *EPrint) (*Record, error) {
 	if err := rec.recordAccessFromEPrint(eprint); err != nil {
 		return rec, err
 	}
+
 	if err := rec.metadataFromEPrint(eprint); err != nil {
 		return rec, err
 	}
 	if err := rec.filesFromEPrint(eprint); err != nil {
 		return rec, err
 	}
+
 	if eprint.EPrintStatus == "deletion" {
 		if err := rec.tombstoneFromEPrint(eprint); err != nil {
 			return rec, err
 		}
+	}
+
+	if err := rec.createdUpdatedFromEPrint(eprint); err != nil {
+		return rec, err
+	}
+	if err := rec.pidFromEPrint(eprint); err != nil {
+		return rec, err
 	}
 	return rec, nil
 }
@@ -401,17 +420,234 @@ func (rec *Record) recordAccessFromEPrint(eprint *EPrint) error {
 	return nil
 }
 
+func creatorFromItem(item *Item, objType string, objRole string, objIdType string) *Creator {
+	person := new(PersonOrOrg)
+	person.Type = objType
+	if item.Name != nil {
+		person.FamilyName = item.Name.Family
+		person.GivenName = item.Name.Given
+	}
+	if item.ORCID != "" {
+		identifier := new(Identifier)
+		identifier.Scheme = "ORCID"
+		identifier.Identifier = item.ORCID
+		person.Identifiers = append(person.Identifiers, identifier)
+	}
+	if item.ID != "" {
+		identifier := new(Identifier)
+		identifier.Scheme = objIdType
+		identifier.Identifier = item.ID
+		person.Identifiers = append(person.Identifiers, identifier)
+	}
+	creator := new(Creator)
+	creator.PersonOrOrg = person
+	creator.Role = objRole
+
+	return creator
+}
+
+func dateTypeFromTimestamp(dtType string, timestamp string, description string) *DateType {
+	dt := new(DateType)
+	dt.Type = new(Type)
+	dt.Type.ID = dtType
+	dt.Type.Title = dtType
+	dt.Description = description
+	if len(timestamp) > 9 {
+		dt.Date = timestamp[0:10]
+	} else {
+		dt.Date = timestamp
+	}
+	return dt
+}
+
+func mkSimpleIdentifier(scheme, value string) *Identifier {
+	identifier := new(Identifier)
+	identifier.Scheme = scheme
+	identifier.Identifier = value
+	return identifier
+}
+
+func funderFromItem(item *Item) *Funder {
+	funder := new(Funder)
+	if item.GrantNumber != "" {
+		funder.Award = new(Identifier)
+		funder.Award.Number = item.GrantNumber
+		funder.Award.Scheme = "eprints_grant_number"
+	}
+	if item.Agency != "" {
+		org := new(Identifier)
+		org.Name = item.Agency
+		org.Scheme = "eprints_agency"
+		funder.Funder = append(funder.Funder, org)
+	}
+	return funder
+}
+
 // metadataFromEPrint extracts metadata from the EPrint record
 func (rec *Record) metadataFromEPrint(eprint *EPrint) error {
-	// FIXME: crosswalk Metadata
-	return fmt.Errorf(`metadataFromEPrint() not implemented`)
+	metadata := new(Metadata)
+	metadata.ResourceType = map[string]string{}
+	metadata.ResourceType["id"] = eprint.Type
+	// NOTE: Creators get listed in the citation, Contributors do not.
+	if (eprint.Creators != nil) && (eprint.Creators.Items != nil) {
+		for _, item := range eprint.Creators.Items {
+			creator := creatorFromItem(item, "person", "creator", "creator_id")
+			metadata.Creators = append(metadata.Creators, creator)
+		}
+	}
+	if (eprint.CorpCreators != nil) && (eprint.CorpCreators.Items != nil) {
+		for _, item := range eprint.CorpCreators.Items {
+			creator := creatorFromItem(item, "organization", "corporate_creator", "organization_id")
+			metadata.Creators = append(metadata.Creators, creator)
+		}
+	}
+	if (eprint.Contributors != nil) && (eprint.Contributors.Items != nil) {
+		for _, item := range eprint.Contributors.Items {
+			contributor := creatorFromItem(item, "person", "contributor", "contributor_id")
+			metadata.Contributors = append(metadata.Contributors, contributor)
+		}
+	}
+	if (eprint.CorpContributors != nil) && (eprint.CorpContributors.Items != nil) {
+		for _, item := range eprint.CorpContributors.Items {
+			contributor := creatorFromItem(item, "organization", "corporate_contributor", "organization_id")
+			metadata.Contributors = append(metadata.Contributors, contributor)
+		}
+	}
+	if (eprint.Editors != nil) && (eprint.Editors.Items != nil) {
+		for _, item := range eprint.Editors.Items {
+			editor := creatorFromItem(item, "person", "editor", "editor_id")
+			metadata.Contributors = append(metadata.Contributors, editor)
+		}
+	}
+	if (eprint.ThesisAdvisor != nil) && (eprint.ThesisAdvisor.Items != nil) {
+		for _, item := range eprint.ThesisAdvisor.Items {
+			advisor := creatorFromItem(item, "person", "thesis_advisor", "thesis_advisor_id")
+			metadata.Contributors = append(metadata.Contributors, advisor)
+		}
+	}
+	if (eprint.ThesisCommittee != nil) && (eprint.ThesisCommittee.Items != nil) {
+		for _, item := range eprint.ThesisCommittee.Items {
+			committee := creatorFromItem(item, "person", "thesis_committee", "thesis_committee_id")
+			metadata.Contributors = append(metadata.Contributors, committee)
+		}
+	}
+	metadata.Title = eprint.Title
+	if (eprint.AltTitle != nil) && (eprint.AltTitle.Items != nil) {
+		for _, item := range eprint.AltTitle.Items {
+			title := new(TitleDetail)
+			title.Title = item.Value
+			metadata.AdditionalTitles = append(metadata.AdditionalTitles, title)
+		}
+	}
+	metadata.Description = eprint.Abstract
+	metadata.PublicationDate = eprint.PubDate()
+
+	// Rights are scattered in several EPrints fields, they need to
+	// be evaluated to create a "Rights" object used in DataCite/Invenio
+	addRights := false
+	rights := new(Right)
+	if eprint.Rights != "" {
+		addRights = true
+		rights.Description = eprint.Rights
+	}
+	// Figure out if our copyright information is in the Note field.
+	if (eprint.Note != "") && (strings.Contains(eprint.Note, "©") || strings.Contains(eprint.Note, "copyright") || strings.Contains(eprint.Note, "(c)")) {
+		addRights = true
+		rights.Description = eprint.Note
+	}
+	if addRights {
+		metadata.Rights = append(metadata.Rights, rights)
+	}
+	if eprint.CopyrightStatement != "" {
+		rights := new(Right)
+		rights.Description = eprint.CopyrightStatement
+		metadata.Rights = append(metadata.Rights, rights)
+	}
+	// FIXME: work with Tom to sort out how "Rights" and document level
+	// copyright info should work.
+
+	if (eprint.Subjects != nil) && (eprint.Subjects.Items != nil) {
+		for _, item := range eprint.Subjects.Items {
+			subject := new(Subject)
+			subject.Subject = item.Value
+			metadata.Subjects = append(metadata.Subjects, subject)
+		}
+	}
+
+	// FIXME: Work with Tom to figure out correct mapping of rights from EPrints XML
+	// FIXME: Language appears to be at the "document" level, not record level
+
+	// Dates are scattered through the primary eprint table.
+	if (eprint.DateType != "published") && (eprint.Date != "") {
+		metadata.Dates = append(metadata.Dates, dateTypeFromTimestamp("pub_date", eprint.Date, "Publication Date"))
+	}
+	if eprint.DateStamp != "" {
+		metadata.Dates = append(metadata.Dates, dateTypeFromTimestamp("created", eprint.DateStamp, "Created from EPrint's datestamp field"))
+	}
+	if eprint.LastModified != "" {
+		metadata.Dates = append(metadata.Dates, dateTypeFromTimestamp("updated", eprint.LastModified, "Created from EPrint's last_modified field"))
+	}
+	// FIXME: is this date reflect when it changes status or when it was made available?
+	if eprint.StatusChanged != "" {
+		metadata.Dates = append(metadata.Dates, dateTypeFromTimestamp("status_changed", eprint.StatusChanged, "Created from EPrint's status_changed field"))
+	}
+	if eprint.RevNumber != 0 {
+		metadata.Version = fmt.Sprintf("v0.0.%d", eprint.RevNumber)
+	}
+	if eprint.Publisher != "" {
+		metadata.Publisher = eprint.Publisher
+	}
+	if eprint.DOI != "" {
+		metadata.Identifiers = append(metadata.Identifiers, mkSimpleIdentifier("DOI", eprint.DOI))
+	}
+	if eprint.ISBN != "" {
+		metadata.Identifiers = append(metadata.Identifiers, mkSimpleIdentifier("ISBN", eprint.ISBN))
+	}
+	if eprint.ISSN != "" {
+		metadata.Identifiers = append(metadata.Identifiers, mkSimpleIdentifier("ISSN", eprint.ISSN))
+	}
+	if eprint.PMCID != "" {
+		metadata.Identifiers = append(metadata.Identifiers, mkSimpleIdentifier("PMCID", eprint.PMCID))
+	}
+	if (eprint.Funders != nil) && (eprint.Funders.Items != nil) {
+		for _, item := range eprint.Funders.Items {
+			metadata.Funding = append(metadata.Funding, funderFromItem(item))
+		}
+	}
+	rec.Metadata = metadata
+	return nil
 }
 
 // filesFromEPrint extracts all the file specific metadata from the
 // EPrint record
 func (rec *Record) filesFromEPrint(eprint *EPrint) error {
-	// FIXME: crosswalk Files
-	return fmt.Errorf(`filesFromEPrint() not implemented`)
+	// crosswalk Files from EPrints DocumentList
+	if (eprint.Documents != nil) && (eprint.Documents.Length() > 0) {
+		rec.Files = new(Files)
+		rec.Files.Enabled = true
+		rec.Files.Entries = map[string]*Entry{}
+		for i := 0; i < eprint.Documents.Length(); i++ {
+			doc := eprint.Documents.IndexOf(i)
+			if len(doc.Files) > 0 {
+				for _, docFile := range doc.Files {
+					entry := new(Entry)
+					entry.FileID = fmt.Sprintf("%d", docFile.FileID)
+					entry.Size = docFile.FileSize
+					entry.MimeType = docFile.MimeType
+					entry.Key = docFile.URL
+					entry.Backend = "https"
+					if docFile.Hash != "" {
+						entry.CheckSum = fmt.Sprintf("%s:%s", strings.ToLower(docFile.HashType), docFile.Hash)
+					}
+					rec.Files.Entries[docFile.Filename] = entry
+					if strings.HasPrefix(docFile.Filename, "preview") {
+						rec.Files.DefaultPreview = docFile.Filename
+					}
+				}
+			}
+		}
+	}
+	return nil
 }
 
 // tombstoneFromEPrint builds a tombstone is the EPrint record
@@ -433,17 +669,34 @@ func (rec *Record) tombstoneFromEPrint(eprint *EPrint) error {
 
 // createdUpdatedFromEPrint extracts
 func (rec *Record) createdUpdatedFromEPrint(eprint *EPrint) error {
-	// FIXME: crosswalk Created
-	created, err := time.Parse(timestamp, eprint.DateStamp)
-	if err != nil {
-		return fmt.Errorf("Error parsing datestamp, %s", err)
+	var (
+		created, updated time.Time
+		err              error
+		tmFmt            string
+	)
+	// crosswalk Created date
+	if len(eprint.DateStamp) > 0 {
+		tmFmt = timestamp
+		if len(eprint.DateStamp) < 11 {
+			tmFmt = datestamp
+		}
+		created, err = time.Parse(tmFmt, eprint.DateStamp)
+		if err != nil {
+			return fmt.Errorf("Error parsing datestamp, %s", err)
+		}
+		rec.Created = created
 	}
-	rec.Created = created
-	updated, err := time.Parse(timestamp, eprint.LastModified)
-	if err != nil {
-		return fmt.Errorf("Error parsing last modified date, %s", err)
+	if len(eprint.LastModified) > 0 {
+		tmFmt = timestamp
+		if len(eprint.LastModified) == 10 {
+			tmFmt = datestamp
+		}
+		updated, err = time.Parse(tmFmt, eprint.LastModified)
+		if err != nil {
+			return fmt.Errorf("Error parsing last modified date, %s", err)
+		}
+		rec.Updated = updated
 	}
-	rec.Updated = updated
 	return nil
 }
 

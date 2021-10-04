@@ -185,7 +185,7 @@ func main() {
 	flagSet.StringVar(&auth, "auth", "", "set the authentication type for access")
 	flagSet.BoolVar(&getDocument, "document", false, "Retrieve a document from the provided url")
 	flagSet.BoolVar(&simplified, "s", false, "Return the object in a simplified JSON data structure.")
-	flagSet.BoolVar(&simplified, "simplified", false, "Return the object in a simplified JSON data structure.")
+	flagSet.BoolVar(&simplified, "simple", false, "Return the object in a simplified JSON data structure.")
 
 	// We're ready to process args
 	flagSet.Parse(os.Args[1:])
