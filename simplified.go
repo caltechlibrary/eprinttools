@@ -611,7 +611,7 @@ func (rec *Record) metadataFromEPrint(eprint *EPrint) error {
 		metadata.Dates = append(metadata.Dates, dateTypeFromTimestamp("status_changed", eprint.StatusChanged, "Created from EPrint's status_changed field"))
 	}
 	if eprint.RevNumber != 0 {
-		metadata.Version = fmt.Sprintf("v0.0.%d", eprint.RevNumber)
+		metadata.Version = fmt.Sprintf("v%d", eprint.RevNumber)
 	}
 	if eprint.Publisher != "" {
 		metadata.Publisher = eprint.Publisher
