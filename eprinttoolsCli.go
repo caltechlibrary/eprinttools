@@ -30,7 +30,7 @@ func DisplayLicense(out io.Writer, appName string, license string) {
 }
 
 func DisplayVersion(out io.Writer, appName string) {
-	fmt.Fprintf(out, "\n%s %s\n", appName, Version)
+	fmt.Fprintf(out, "%s %s\n", appName, Version)
 }
 
 func DisplayUsage(out io.Writer, appName string, flagSet *flag.FlagSet, description string, examples string, license string) {
@@ -47,5 +47,4 @@ func DisplayUsage(out io.Writer, appName string, flagSet *flag.FlagSet, descript
 	if license != "" {
 		DisplayLicense(out, appName, license)
 	}
-	DisplayVersion(out, appName)
 }
