@@ -74,41 +74,36 @@ clean:
 	@if [ -f version.go ]; then rm version.go; fi
 	@if [ -d bin ]; then rm -fR bin; fi
 	@if [ -d dist ]; then rm -fR dist; fi
-	@if [ -d man ]; then rm -fR man; fi
-
-man: build
-	mkdir -p man/man1
-	for FNAME in $(PROGRAMS); do bin/$$FNAME$(EXT) -generate-manpage | nroff -Tutf7 -man > man/man1/$$FNAME.1; done
 
 dist/linux-amd64:
 	@mkdir -p dist/bin
 	@for FNAME in $(PROGRAMS); do env  GOOS=linux GOARCH=amd64 go build -o dist/bin/$$FNAME cmd/$$FNAME/$$FNAME.go; done
-	@cd dist && zip -r $(PROJECT)-v$(VERSION)-linux-amd64.zip LICENSE codemeta.json CITATION.cff *.md bin/* docs/* man/*
+	@cd dist && zip -r $(PROJECT)-v$(VERSION)-linux-amd64.zip LICENSE codemeta.json CITATION.cff *.md bin/* docs/* 
 	@rm -fR dist/bin
 
 dist/macos-amd64:
 	@mkdir -p dist/bin
 	@for FNAME in $(PROGRAMS); do env GOOS=darwin GOARCH=amd64 go build -o dist/bin/$$FNAME cmd/$$FNAME/$$FNAME.go; done
-	@cd dist && zip -r $(PROJECT)-v$(VERSION)-macos-amd64.zip LICENSE codemeta.json CITATION.cff *.md bin/* docs/* man/*
+	@cd dist && zip -r $(PROJECT)-v$(VERSION)-macos-amd64.zip LICENSE codemeta.json CITATION.cff *.md bin/* docs/*
 	@rm -fR dist/bin
 
 dist/macos-arm64:
 	@mkdir -p dist/bin
 	@for FNAME in $(PROGRAMS); do env GOOS=darwin GOARCH=arm64 go build -o dist/bin/$$FNAME cmd/$$FNAME/$$FNAME.go; done
-	@cd dist && zip -r $(PROJECT)-v$(VERSION)-macos-arm64.zip LICENSE codemeta.json CITATION.cff *.md bin/* docs/* man/*
+	@cd dist && zip -r $(PROJECT)-v$(VERSION)-macos-arm64.zip LICENSE codemeta.json CITATION.cff *.md bin/* docs/*
 	@rm -fR dist/bin
 
 dist/windows-amd64:
 	@mkdir -p dist/bin
 	@for FNAME in $(PROGRAMS); do env GOOS=windows GOARCH=amd64 go build -o dist/bin/$$FNAME.exe cmd/$$FNAME/$$FNAME.go; done
-	@cd dist && zip -r $(PROJECT)-v$(VERSION)-windows-amd64.zip LICENSE codemeta.json CITATION.cff *.md bin/* docs/* man/*
+	@cd dist && zip -r $(PROJECT)-v$(VERSION)-windows-amd64.zip LICENSE codemeta.json CITATION.cff *.md bin/* docs/*
 	@rm -fR dist/bin
 
 
 dist/raspbian-arm7:
 	@mkdir -p dist/bin
 	@for FNAME in $(PROGRAMS); do env GOOS=linux GOARCH=arm GOARM=7 go build -o dist/bin/$$FNAME cmd/$$FNAME/$$FNAME.go; done
-	@cd dist && zip -r $(PROJECT)-v$(VERSION)-raspbian-os-arm7.zip LICENSE codemeta.json CITATION.cff *.md bin/* docs/* man/*
+	@cd dist && zip -r $(PROJECT)-v$(VERSION)-raspbian-os-arm7.zip LICENSE codemeta.json CITATION.cff *.md bin/* docs/*
 	@rm -fR dist/bin
   
 distribute_python:
@@ -128,16 +123,15 @@ distribute_python:
 	cp publisher.py dist/
 	cp invalidate_cloudfront.py dist/
 	cp requirements.txt dist/
-	@cd dist && zip -r $(PROJECT)-v$(VERSION)-python3.zip LICENSE codemeta.json CITATION.cff *.md *.py requirements.txt eprinttools/* docs/* man/*
+	@cd dist && zip -r $(PROJECT)-v$(VERSION)-python3.zip LICENSE codemeta.json CITATION.cff *.md *.py requirements.txt eprinttools/* docs/*
 
-distribute_docs: man
+distribute_docs:
 	mkdir -p dist/docs
 	cp -v codemeta.json dist/
 	cp -v CITATION.cff dist/
 	cp -v README.md dist/
 	cp -v LICENSE dist/
 	cp -v INSTALL.md dist/
-	cp -vR man dist/
 	cp -vR docs dist/
 
 release: distribute_docs distribute_python dist/linux-amd64 dist/windows-amd64 dist/macos-amd64 dist/macos-arm64 dist/raspbian-arm7
