@@ -40,7 +40,7 @@
 eprinttools
 </h1>
 <p>
-This is a collection of command line tools written in Go, a Go and Python 3.8 package for working with EPrints 3.3.x EPrint XML and REST API.
+This is a collection of command line tools written in Go, a Go for working with EPrints 3.3.x EPrint XML and with the EPrint REST API.
 </p>
 <p>
 This project also hosts demonstration code to replicate a public facing version of an EPrints repository outside of EPrints. Think of it as the public views and landing pages.
@@ -56,81 +56,33 @@ The command line programs
 <a href="docs/eputil.html">eputil</a> is a command line utility for interacting (e.g. harvesting) JSON and XML from EPrints’ REST API
 <ul>
 <li>
-uses minimal configuration because it does less!
-</li>
-<li>
-it superceded the <em>ep</em> command
+uses minimal configuration (because it does less!)
 </li>
 </ul>
 </li>
 <li>
-<a href="docs/epfmt.html">epfmt</a> is a command line utility to pretty print EPrints XML and convert to/from JSON
-<ul>
-<li>
-in the process of pretty printing it also validates the EPrints XML against the eprinttools Go package definitions
-</li>
-</ul>
+<a href="docs/epfmt.html">epfmt</a> is a command line utility to pretty print EPrints XML and convert to/from JSON including a simplified JSON inspired by DataCite and Invenion 3
 </li>
 <li>
 <a href="docs/doi2eprintxml.html">doi2eprintxml</a> is a command line program for turning metadata harvested from CrossRef and DataCite into an EPrint XML document based on one or more supplied DOI
 </li>
 <li>
-<a href="docs/eprintxml2json.html">eprintxml2json</a> is a command line program for taking EPrint XML and turning it into JSON
+<a href="docs/ep3apid.html">ep3apid</a> is a Unix style service for interacting with an EPrint repository via a localhost proxy. It includes the ability to get restricted key lists as well as retrieve a simplified JSON record representing an EPrints record
 </li>
 </ul>
 <p>
-The first two utilities can be configured from the environment or command line options. The environment settings are overridden by command line options. For details running either command envoke the tool name with the ‘-help’ option.
+Configuration is via a JSON “settings.json” file. The settings includes a repository id with “dsn” (Data Source Name) attribute for accessing EPrint’s MySQL database(s) and “rest” attribute holding the base URL used to access the REST API. You can define more than one repository in “settings.json”. Below is a simple example for “example.edu”’s authors repository.
 </p>
-<h2 id="python-base-code">
-Python base code
-</h2>
-<h3 id="python-modules">
-Python Modules
-</h3>
-<h4 id="eprints3x">
-eprints3x
-</h4>
+<div id="cb1" class="sourceCode">
+<pre class="sourceCode json"><code class="sourceCode json"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a>    <span class="fu">{</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true"></a>        <span class="dt">&quot;authors&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true"></a>            <span class="dt">&quot;dsn&quot;</span><span class="fu">:</span> <span class="st">&quot;USERNAME:SECRET@/authors&quot;</span><span class="fu">,</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true"></a>            <span class="dt">&quot;rest&quot;</span><span class="fu">:</span> <span class="st">&quot;https://USERNAME:SECRET@authors.example.edu&quot;</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true"></a>        <span class="fu">}</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true"></a>    <span class="fu">}</span></span></code></pre>
+</div>
 <p>
-This python module wraps the <em>eputil</em> Go comand in Python. It makes it trivial to implement harvesting an EPrints repository using the EPrints REST API.
-</p>
-<h4 id="eprintviews">
-eprintviews
-</h4>
-<p>
-This python module uses py_dataset and the harvested content to generate a htdocs directory similar to the URL layout of EPrints. It features classes for working with Views, Users (needed to attribute names to userid fields EPrint XML harvested from the REST API), Subjects (a way to load the subjects text file from an EPrints archive and generate the path to label mapping used when rendering views into an htdocs directory) and Aggregator (this does the heavy lifting of processing a dataset collection of harvested EPrint XML and generating the views as JSON documents in the htdocs directory).
-</p>
-<h3 id="command-line-tools">
-command line tools
-</h3>
-<h4 id="harvester_full.py-harvester_recent.py">
-harvester_full.py, harvester_recent.py
-</h4>
-<p>
-These two Python programs use <strong>eprints3x</strong> module to implement harvesters of EPrint XML and any related digitl objects (e.g. PDFs, images) into a dataset collection
-</p>
-<h4 id="genviews.py">
-genviews.py
-</h4>
-<p>
-This Python program processes a dataset collection and renders an htdocs tree populating it with JSON documents and key lists. This skeleton of metadata and directory structure can then be processed into a rendered website mirroring the content from an EPrints repository. This module relies on <strong>eprintviews</strong>.
-</p>
-<h4 id="indexer.py">
-indexer.py
-</h4>
-<p>
-This Python program indexes the contents of our replicated EPrints site by creating <code>scheme.json</code> files along side the <code>index.json</code> files that represent the landing pages for the replicated repository. These can then be easily ingested into Lunr.js or Elasticsearch. Currently the proof of concept targets Lunr.js. This module relies on <strong>eprintviews</strong>.
-</p>
-<h4 id="mk_website.py">
-mk_website.py
-</h4>
-<p>
-This Python program creates the HTML pages from Markdown documents in the static folder (e.g. home page and major landing pages) as well as the individual views and abstracts from the JSON documents created by <strong>genviews.py</strong>. The final result is a static website ready to serve out to the public. This module relies on <strong>eprintviews</strong>.
-</p>
-<h4 id="publisher.py">
-publisher.py
-</h4>
-<p>
-This Python program copys (syncs) the content with an AWS S3 bucket via the AWS command line tools.
+In the “dsn” attribute <strong>USERNAME:SECRET</strong> are the username/password for accessing the database. In the “rest” attribute the <strong>USERNAME:SECRET</strong> are the username/password for accessing the REST API.
 </p>
 <h2 id="related-github-projects">
 Related GitHub projects

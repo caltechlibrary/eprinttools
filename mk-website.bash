@@ -27,7 +27,7 @@ makePage "eprinttools" "markdown:$(cat LICENSE)" nav.md license.html
 git add index.html install.html license.html
 
 # Loop through commands docs
-for FNAME in index eputil epfmt doi2eprintxml eprintxml2json "windows-10-workflow" "macos-workflow"; do
+for FNAME in index eputil epfmt doi2eprintxml ep3apid "windows-10-workflow" "macos-workflow"; do
 	makePage "eprinttools" docs/$FNAME.md docs/nav.md docs/$FNAME.html
 	git add docs/$FNAME.md docs/$FNAME.html
 done
