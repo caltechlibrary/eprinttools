@@ -65,7 +65,7 @@ website: page.tmpl README.md nav.md INSTALL.md LICENSE css/site.css docs/index.m
 	./mk-website.bash
 
 
-test: eputil epfmt doi2eprintxml eprintxml2json
+test: eputil epfmt doi2eprintxml
 	go test -timeout 45m
 	./test_cmds.bash
 
