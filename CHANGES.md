@@ -13,6 +13,8 @@ Depreciated `eprintxml2json`, superceded by `epfmt`.
 
 By default clsrules now require the command line option to be applied.
 
+Removed Python experiments from this repository
+
 Release 1.0.1:
 
 - Depreciating the `-clsrules=true` option. when using `doi2eprintxml`. Before release 1.0.1 the DOI was included by default in the related url field. This was an artifact of Caltech Library support DOI before EPrints did. This practice ended in 2021. Additional haviors like limiting the number of authors ended in 2020.  To reflect these changes in practive the `-clsrules` option now defaults to "false" and these rules are not applied unless you explicitly add `-clsrules` on the command line.

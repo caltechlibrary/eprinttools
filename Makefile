@@ -106,25 +106,6 @@ dist/raspbian-arm7:
 	@cd dist && zip -r $(PROJECT)-v$(VERSION)-raspbian-os-arm7.zip LICENSE codemeta.json CITATION.cff *.md bin/* docs/*
 	@rm -fR dist/bin
   
-distribute_python:
-	mkdir -p dist/eprinttools/eprints3x
-	mkdir -p dist/eprinttools/eprintviews
-	cp -v eprinttools/eprints3x/*.py dist/eprinttools/eprints3x/
-	cp -vR eprinttools/eprintviews/*.py dist/eprinttools/eprintviews/
-	cp -vR static dist/
-	cp -vR templates dist/
-	cp config.json-example dist/
-	cp setup.py dist/
-	cp harvester_full.py dist/
-	cp harvester_recent.py dist/
-	cp genviews.py dist/
-	cp indexer.py dist/
-	cp mk_website.py dist/
-	cp publisher.py dist/
-	cp invalidate_cloudfront.py dist/
-	cp requirements.txt dist/
-	@cd dist && zip -r $(PROJECT)-v$(VERSION)-python3.zip LICENSE codemeta.json CITATION.cff *.md *.py requirements.txt eprinttools/* docs/*
-
 distribute_docs:
 	mkdir -p dist/docs
 	cp -v codemeta.json dist/
@@ -134,7 +115,7 @@ distribute_docs:
 	cp -v INSTALL.md dist/
 	cp -vR docs dist/
 
-release: distribute_docs distribute_python dist/linux-amd64 dist/windows-amd64 dist/macos-amd64 dist/macos-arm64 dist/raspbian-arm7
+release: distribute_docs dist/linux-amd64 dist/windows-amd64 dist/macos-amd64 dist/macos-arm64 dist/raspbian-arm7
 
 status:
 	git status
