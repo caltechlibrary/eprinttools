@@ -230,6 +230,7 @@ Change Events
 
 The follow API end points would facilitate faster updates to our feeds platform as well as allow us to create a separate public view of our EPrint repository content.
 
+- "/<REPO_ID>/created/<TIMESTAMP>/<TIMESTAMP>" returns a list of EPrint IDs creatd starting at the first timestamp (timestamps should have a resolution to the minute, e.g. "YYYY-MM-DD HH:MM:SS") through inclusive of the second timestmap (if the second is omitted the timestamp is assumed to be "now")
 - "/<REPO_ID>/updated/<TIMESTAMP>/<TIMESTAMP>" returns a list of EPrint IDs updated starting at the first timestamp (timestamps should have a resolution to the minute, e.g. "YYYY-MM-DD HH:MM:SS") through inclusive of the second timestmap (if the second is omitted the timestamp is assumed to be "now")
 - "/<REPO_ID>/deleted/<TIMESTAMP>/<TIMESTAMP>" through the returns a list of EPrint IDs deleted starting at first timestamp through inclusive of the second timestamp, if the second timestamp is omitted it is assumed to be "now"
 - "/<REPO_ID>/pubdate/<APROX_DATESTAMP>/<APPOX_DATESTAMP>" this query scans the EPrint table for records with publication starts starting with the first approximate date through inclusive of the second approximate date. If the second date is omitted it is assumed to be "today". Approximate dates my be expressed just the year (starting with Jan 1, ending with Dec 31), just the year and month (starting with first day of month ending with the last day) or year, month and day. The end returns zero or more EPrint IDs.
@@ -244,6 +245,10 @@ JSON represents the JSON model used in DataCite and InvenioRDMs.
 
 
 `, Version)
+}
+
+func createdDocument(repoID string) string {
+	return fmt.Sprintf(`"/%s/created/<TIMESTAMP>/<TIMESTAMP>" returns a list of EPrint IDs created starting at the first timestamp (timestamps should have a resolution to the minute, e.g. "YYYY-MM-DD HH:MM:SS") through inclusive of the second timestmap (if the second is omitted the timestamp is assumed to be "now")`, repoID)
 }
 
 func updatedDocument(repoID string) string {
@@ -358,6 +363,46 @@ func repositoriesEndPoint(w http.ResponseWriter, r *http.Request) (int, error) {
 //
 // End Point handles (route as defined `/<REPO_ID>/<END-POINT>/<ARGS>`)
 //
+
+func createdEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
+	if len(args) == 0 {
+		return packageDocument(w, updatedDocument(repoID))
+	}
+	if (len(args) < 1) || (len(args) > 2) {
+		return 400, fmt.Errorf("Bad Request")
+	}
+	var err error
+	end := time.Now()
+	start := time.Now()
+	if (len(args) > 0) && (args[0] != "now") {
+		start, err = time.Parse(timestamp, args[0])
+		if err != nil {
+			return 400, fmt.Errorf("Bad Request, (start) %s", err)
+		}
+	}
+	if (len(args) > 1) && (args[1] != "now") {
+		end, err = time.Parse(timestamp, args[1])
+		if err != nil {
+			return 400, fmt.Errorf("Bad Request, (end) %s", err)
+		}
+	}
+	eprintIDs, err := sqlQueryIDs(repoID,
+		`SELECT eprintid FROM eprint WHERE 
+(CONCAT(datestamp_year, "-", 
+LPAD(IFNULL(datestamp_month, 1), 2, "0"), "-", 
+LPAD(IFNULL(datestamp_day, 1), 2, "0"), " ", 
+LPAD(IFNULL(datestamp_hour, 0), 2, "0"), ":", 
+LPAD(IFNULL(datestamp_minute, 0), 2, "0"), ":", 
+LPAD(IFNULL(datestamp_second, 0), 2, "0")) >= ?) AND 
+(CONCAT(datestamp_year, "-", 
+LPAD(IFNULL(datestamp_month, 12), 2, "0"), "-", 
+LPAD(IFNULL(datestamp_day, 28), 2, "0"), " ", 
+LPAD(IFNULL(datestamp_hour, 23), 2, "0"), ":", 
+LPAD(IFNULL(datestamp_minute, 59), 2, "0"), ":", 
+LPAD(IFNULL(datestamp_second, 59), 2, "0")) <= ?)`,
+		start.Format(timestamp), end.Format(timestamp))
+	return packageIDs(w, repoID, eprintIDs, err)
+}
 
 func updatedEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
 	if len(args) == 0 {
@@ -863,6 +908,7 @@ func InitExtendedAPI(settings string) error {
 	// This is a map endpoints and point handlers.
 	// This implements the registration design pattern
 	routes := map[string]func(http.ResponseWriter, *http.Request, string, []string) (int, error){
+		"created":          createdEndPoint,
 		"updated":          updatedEndPoint,
 		"deleted":          deletedEndPoint,
 		"pubdate":          pubdateEndPoint,

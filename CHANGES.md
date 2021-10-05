@@ -1,3 +1,8 @@
+Release 1.0.2-simplified:
+
+Added `/<REPO_ID>/created/<TIMESTAMP>/<TIMESTAMP>` end point based on
+eprint table's "datestamp" fields.
+
 Release 1.0.2:
 
 Introduced a web service called `ep3apid` which can be run from the

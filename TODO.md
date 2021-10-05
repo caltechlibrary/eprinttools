@@ -7,7 +7,7 @@ This is for the simplified eprinttools codebase.
 
 ## Next
 
-- [ ] Extended EPrints API to support on-change feeds/Moa updates
+- [ ] Added created (datestamp) end point for feeds
 - [ ] doi2eprintxml list of DOI should allow for pipe separator and URL to object and handle it like Acacia does
 - [ ] doi2eprintxml needs to fetch the object URL and save results along side the generated EPrints XML
 - [ ] Implement Simplified JSON record based on 
