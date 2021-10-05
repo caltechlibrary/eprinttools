@@ -16,40 +16,35 @@
 //
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-package clsrules
+package eprinttools
 
-var (
-	doiPrefix = map[string]string{
-		"10.1103":  "American Physical Society",
-		"10.1063":  "American Institute of Physics",
-		"10.1039":  "Royal Society of Chemistry",
-		"10.1242":  "Company of Biologists",
-		"10.1073":  "PNAS",
-		"10.1109":  "IEEE",
-		"10.2514":  "AIAA",
-		"10.1029":  "AGU (pre-Wiley hosting)",
-		"10.1093":  "MNRAS",
-		"10.1046":  "Geophysical Journal International",
-		"10.1175":  "American Meteorological Society",
-		"10.1083":  "Rockefeller University Press",
-		"10.1084":  "Rockefeller University Press",
-		"10.1085":  "Rockefeller University Press",
-		"10.26508": "Rockefeller University Press",
-		"10.1371":  "PLOS",
-		"10.5194":  "European Geosciences Union",
-		"10.1051":  "EDP Sciences",
-		"10.2140":  "Mathematical Sciences Publishers",
-		"10.1074":  "ASBMB",
-		"10.1091":  "ASCB",
-		"10.1523":  "Society for Neuroscience",
-		"10.1101":  "Cold Spring Harbor",
-		"10.1128":  "American Society for Microbiology",
-		"10.1115":  "ASME",
-		"10.1061":  "ASCE",
-		"10.1038":  "Nature",
-		"10.1126":  "Science",
-		"10.1021":  "American Chemical Society",
-		"10.1002":  "Wiley",
-		"10.1016":  "Elsevier",
-	}
+import (
+	"flag"
+	"fmt"
+	"io"
+	"strings"
 )
+
+func DisplayLicense(out io.Writer, appName string, license string) {
+	fmt.Fprintf(out, strings.ReplaceAll(strings.ReplaceAll(license, "{app_name}", appName), "{version}", Version))
+}
+
+func DisplayVersion(out io.Writer, appName string) {
+	fmt.Fprintf(out, "%s %s\n", appName, Version)
+}
+
+func DisplayUsage(out io.Writer, appName string, flagSet *flag.FlagSet, description string, examples string, license string) {
+	// Convert {app_name} and {version} in description
+	if description != "" {
+		fmt.Fprintf(out, strings.ReplaceAll(description, "{app_name}", appName))
+	}
+	flagSet.SetOutput(out)
+	flagSet.PrintDefaults()
+
+	if examples != "" {
+		fmt.Fprintf(out, strings.ReplaceAll(examples, "{app_name}", appName))
+	}
+	if license != "" {
+		DisplayLicense(out, appName, license)
+	}
+}

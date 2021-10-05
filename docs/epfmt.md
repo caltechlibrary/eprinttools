@@ -70,6 +70,12 @@ Render EPrint JSON as EPrint XML.
     epfmt -xml < 123.json
 ```
 
+Render EPrint simplified JSON from EPrint XML.
+
+```
+    epfmt -simplified < 123.xml
+```
+
 _epfmt_ will first parse the XML or JSON 
 presented to it and pretty print the output 
 in the desired format requested. If no 
@@ -77,4 +83,3 @@ format option chosen it will pretty print
 in the same format as input.
 
 
-epfmt v0.1.10

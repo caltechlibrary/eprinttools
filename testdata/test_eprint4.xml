@@ -1,0 +1,231 @@
+<?xml version='1.0' encoding='utf-8'?>
+<eprints xmlns='http://eprints.org/ep2/data/2.0'>
+  <eprint id='https://authors.library.caltech.edu/id/eprint/1129'>
+    <eprintid>1129</eprintid>
+    <rev_number>8</rev_number>
+    <documents>
+      <document id='https://authors.library.caltech.edu/id/document/1694'>
+        <docid>1694</docid>
+        <rev_number>3</rev_number>
+        <files>
+          <file id='https://authors.library.caltech.edu/id/file/6063'>
+            <fileid>6063</fileid>
+            <datasetid>document</datasetid>
+            <objectid>1694</objectid>
+            <filename>MOSbmcn03.pdf</filename>
+            <mime_type>application/pdf</mime_type>
+            <filesize>1500541</filesize>
+            <mtime>2012-12-26 08:42:54</mtime>
+            <url>https://authors.library.caltech.edu/1129/1/MOSbmcn03.pdf</url>
+          </file>
+        </files>
+        <eprintid>1129</eprintid>
+        <pos>1</pos>
+        <mime_type>application/pdf</mime_type>
+        <format>application/pdf</format>
+        <language>en</language>
+        <security>public</security>
+        <license>cc_by</license>
+        <main>MOSbmcn03.pdf</main>
+        <content>published</content>
+        <relation>
+          <item>
+            <type>http://eprints.org/relation/hasVolatileVersion</type>
+            <uri>https://authors.library.caltech.edu/id/document/43454</uri>
+          </item>
+          <item>
+            <type>http://eprints.org/relation/haspreviewThumbnailVersion</type>
+            <uri>https://authors.library.caltech.edu/id/document/43454</uri>
+          </item>
+          <item>
+            <type>http://eprints.org/relation/hasVersion</type>
+            <uri>https://authors.library.caltech.edu/id/document/43454</uri>
+          </item>
+        </relation>
+      </document>
+      <document id='https://authors.library.caltech.edu/id/document/43454'>
+        <docid>43454</docid>
+        <rev_number>2</rev_number>
+        <files>
+          <file id='https://authors.library.caltech.edu/id/file/6061'>
+            <fileid>6061</fileid>
+            <datasetid>document</datasetid>
+            <objectid>43454</objectid>
+            <filename>preview.png</filename>
+            <mime_type>image/png</mime_type>
+            <hash>dda5dd23020845785a2fa28fe70c44df</hash>
+            <hash_type>MD5</hash_type>
+            <filesize>56654</filesize>
+            <mtime>2012-12-26 08:42:54</mtime>
+            <url>https://authors.library.caltech.edu/1129/2/preview.png</url>
+          </file>
+        </files>
+        <eprintid>1129</eprintid>
+        <pos>2</pos>
+        <placement>2</placement>
+        <mime_type>image/png</mime_type>
+        <format>image/png</format>
+        <language>en</language>
+        <security>public</security>
+        <license>other</license>
+        <main>preview.png</main>
+        <relation>
+          <item>
+            <type>http://eprints.org/relation/isVolatileVersionOf</type>
+            <uri>https://authors.library.caltech.edu/id/document/1694</uri>
+          </item>
+          <item>
+            <type>http://eprints.org/relation/ispreviewThumbnailVersionOf</type>
+            <uri>https://authors.library.caltech.edu/id/document/1694</uri>
+          </item>
+          <item>
+            <type>http://eprints.org/relation/isVersionOf</type>
+            <uri>https://authors.library.caltech.edu/id/document/1694</uri>
+          </item>
+        </relation>
+      </document>
+      <document id='https://authors.library.caltech.edu/id/document/76412'>
+        <docid>76412</docid>
+        <rev_number>1</rev_number>
+        <files>
+          <file id='https://authors.library.caltech.edu/id/file/508465'>
+            <fileid>508465</fileid>
+            <datasetid>document</datasetid>
+            <objectid>76412</objectid>
+            <filename>indexcodes.txt</filename>
+            <mime_type>text/plain</mime_type>
+            <hash>53ad1d0f68fe4f8cd0034a1faa7f4616</hash>
+            <hash_type>MD5</hash_type>
+            <filesize>17188</filesize>
+            <mtime>2013-01-22 18:15:44</mtime>
+            <url>https://authors.library.caltech.edu/1129/3/indexcodes.txt</url>
+          </file>
+        </files>
+        <eprintid>1129</eprintid>
+        <pos>3</pos>
+        <placement>3</placement>
+        <mime_type>text/plain</mime_type>
+        <format>other</format>
+        <formatdesc>Generate index codes conversion from application/pdf to indexcodes</formatdesc>
+        <language>en</language>
+        <security>public</security>
+        <license>other</license>
+        <main>indexcodes.txt</main>
+        <relation>
+          <item>
+            <type>http://eprints.org/relation/isVersionOf</type>
+            <uri>https://authors.library.caltech.edu/id/document/1694</uri>
+          </item>
+          <item>
+            <type>http://eprints.org/relation/isVolatileVersionOf</type>
+            <uri>https://authors.library.caltech.edu/id/document/1694</uri>
+          </item>
+          <item>
+            <type>http://eprints.org/relation/isIndexCodesVersionOf</type>
+            <uri>https://authors.library.caltech.edu/id/document/1694</uri>
+          </item>
+        </relation>
+      </document>
+    </documents>
+    <eprint_status>archive</eprint_status>
+    <userid>1</userid>
+    <dir>disk0/00/00/11/29</dir>
+    <datestamp>2005-12-21</datestamp>
+    <lastmod>2019-10-02 22:40:22</lastmod>
+    <status_changed>2008-07-05 03:00:15</status_changed>
+    <type>article</type>
+    <metadata_visibility>show</metadata_visibility>
+    <item_issues_count>0</item_issues_count>
+    <creators>
+      <item>
+        <name>
+          <family>Moss</family>
+          <given>Fraser J.</given>
+        </name>
+        <id>Moss-F-J</id>
+        <orcid>0000-0002-8519-6991</orcid>
+      </item>
+      <item>
+        <name>
+          <family>Dolphin</family>
+          <given>Annette C.</given>
+        </name>
+        <id>Dolphin-A-C</id>
+      </item>
+      <item>
+        <name>
+          <family>Clare</family>
+          <given>Jeffrey J.</given>
+        </name>
+        <id>Clare-J-J</id>
+      </item>
+    </creators>
+    <title>Human neuronal stargazin-like proteins, γ_2, γ_3 and γ_4; an investigation of their specific localization in human brain and their influence on Ca_V2.1 voltage-dependent calcium channels expressed in Xenopus oocytes</title>
+    <ispublished>pub</ispublished>
+    <subjects>
+      <item>cls</item>
+    </subjects>
+    <full_text_status>public</full_text_status>
+    <note> © 2003 Moss et al; licensee BioMed Central Ltd. This is an Open Access article: verbatim copying and redistribution of this article are permitted in all media for any purpose, provided this notice is preserved along with the article&apos;s original URL. 
+
+The electronic version of this article is the complete one and can be found online at: http://www.biomedcentral.com/1471-2202/4/23 
+
+Authors&apos; contributions: FJM carried out the cloning of the human γ2, γ3 and γ4 proteins, performed all the necessary practical and analytical procedures to acquire and process the primary data presented in this paper and drafted the manuscript. ACD and JJC participated in the conception, design and coordination of the study. All authors read and approved the final manuscript. 
+
+Acknowledgements: The Medical Research Council as part of an industrial collaborative PhD studentship with GlaxoSmithKline supported F. J. M. The Wellcome Trust provided additional support. The authors would like to thank Dr M. Rees (University College London) for the α2δ2 cDNA and acknowledge the assistance of Dr. Carles Cantì (University College London), and Dr. Chris Plumpton, Michael Hurle and Margaret Flint (GlaxoSmithKline, Stevenage, UK).</note>
+    <abstract>Background: Stargazin (γ2) and the closely related γ3, and γ4 transmembrane proteins are part of a family of proteins that may act as both neuronal voltage-dependent calcium channel (VDCC) γ subunits and transmembrane α-amino-3-hydroxy-5-methyl-4-isoxazoleproponinc (AMPA) receptor regulatory proteins (TARPs). In this investigation, we examined the distribution patterns of the stargazin-like proteins γ2, γ3, and γ4 in the human central nervous system (CNS). In addition, we investigated whether human γ2 or γ4 could modulate the electrophysiological properties of a neuronal VDCC complex transiently expressed in Xenopus oocytes. 
+
+Results: The mRNA encoding human γ2 is highly expressed in cerebellum, cerebral cortex, hippocampus and thalamus, whereas γ3 is abundant in cerebral cortex and amygdala and γ4 in the basal ganglia. Immunohistochemical analysis of the cerebellum determined that both γ2 and γ4 are present in the molecular layer, particularly in Purkinje cell bodies and dendrites, but have an inverse expression pattern to one another in the dentate cerebellar nucleus. They are also detected in the interneurons of the granule cell layer though only γ2 is clearly detected in granule cells. The hippocampus stains for γ2 and γ4 throughout the layers of the every CA region and the dentate gyrus, whilst γ3 appears to be localized particularly to the pyramidal and granule cell bodies. When co-expressed in Xenopus oocytes with a CaV2.1/β4 VDCC complex, either in the absence or presence of an α2δ2 subunit, neither γ2 nor γ4 significantly modulated the VDCC peak current amplitude, voltage-dependence of activation or voltage-dependence of steady-state inactivation. 
+
+Conclusion: The human γ2, γ3 and γ4 stargazin-like proteins are detected only in the CNS and display differential distributions among brain regions and several cell types in found in the cerebellum and hippocampus. These distribution patterns closely resemble those reported by other laboratories for the rodent orthologues of each protein. Whilst the fact that neither γ2 nor γ4 modulated the properties of a VDCC complex with which they could associate in vivo in Purkinje cells adds weight to the hypothesis that the principal role of these proteins is not as auxiliary subunits of VDCCs, it does not exclude the possibility that they play another role in VDCC function.</abstract>
+    <date>2003-09-23</date>
+    <date_type>published</date_type>
+    <publication>BMC Neuroscience</publication>
+    <volume>4</volume>
+    <publisher>BioMed Central</publisher>
+    <pagerange>Art. No. 23</pagerange>
+    <id_number>CaltechAUTHORS:MOSbmcn03</id_number>
+    <refereed>TRUE</refereed>
+    <issn>1471-2202</issn>
+    <official_url>https://resolver.caltech.edu/CaltechAUTHORS:MOSbmcn03</official_url>
+    <related_url>
+      <item>
+        <url>http://bmcneurosci.biomedcentral.com/articles/10.1186/1471-2202-4-23</url>
+        <type>pub</type>
+        <description>Article</description>
+      </item>
+      <item>
+        <url>http://www.ncbi.nlm.nih.gov/pmc/articles/PMC270087/</url>
+        <type>pmc</type>
+        <description>Article</description>
+      </item>
+      <item>
+        <url>https://doi.org/10.1186/1471-2202-4-23</url>
+        <type>doi</type>
+      </item>
+      <item>
+        <url>https://doi.org/10.1186/1471-2202-4-23</url>
+        <type>doi</type>
+      </item>
+    </related_url>
+    <rights>No commercial reproduction, distribution, display or performance rights in this work are provided.</rights>
+    <pmc_id>PMC270087</pmc_id>
+    <funders>
+      <item>
+        <agency>Medical Research Council (UK)</agency>
+      </item>
+      <item>
+        <agency>GlaxoSmithKline</agency>
+      </item>
+      <item>
+        <agency>Wellcome Trust</agency>
+      </item>
+    </funders>
+    <alt_title>
+      <item>Human neuronal stargazin-like proteins, γ2, γ3 and γ4; an investigation of their specific localization in human brain and their influence on CaV2.1 voltage-dependent calcium channels expressed in Xenopus oocytes</item>
+    </alt_title>
+    <collection>CaltechAUTHORS</collection>
+    <reviewer>J.Q. Librarian</reviewer>
+  </eprint>
+</eprints>
+

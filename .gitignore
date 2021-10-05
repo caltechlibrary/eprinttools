@@ -68,3 +68,6 @@ testout_*
 *.keys
 *.json
 htdocs/*
+*.xml
+*.bak
+sql-dumps/*

@@ -1,0 +1,308 @@
+<?xml version='1.0' encoding='utf-8'?>
+<eprints xmlns='http://eprints.org/ep2/data/2.0'>
+  <eprint id='https://authors.library.caltech.edu/id/eprint/106567'>
+    <eprintid>106567</eprintid>
+    <rev_number>28</rev_number>
+    <documents>
+      <document id='https://authors.library.caltech.edu/id/document/310853'>
+        <docid>310853</docid>
+        <rev_number>5</rev_number>
+        <files>
+          <file id='https://authors.library.caltech.edu/id/file/1824900'>
+            <fileid>1824900</fileid>
+            <datasetid>document</datasetid>
+            <objectid>310853</objectid>
+            <filename>2009.09100.pdf</filename>
+            <mime_type>application/pdf</mime_type>
+            <hash>8e4d3d63d119669fde1e503dd6f48f67</hash>
+            <hash_type>MD5</hash_type>
+            <filesize>3573459</filesize>
+            <mtime>2020-11-10 00:32:30</mtime>
+            <url>https://authors.library.caltech.edu/106567/1/2009.09100.pdf</url>
+          </file>
+        </files>
+        <eprintid>106567</eprintid>
+        <pos>1</pos>
+        <placement>3</placement>
+        <mime_type>application/pdf</mime_type>
+        <format>application/pdf</format>
+        <language>en</language>
+        <security>public</security>
+        <license>other</license>
+        <main>2009.09100.pdf</main>
+        <content>submitted</content>
+      </document>
+      <document id='https://authors.library.caltech.edu/id/document/310854'>
+        <docid>310854</docid>
+        <rev_number>1</rev_number>
+        <files>
+          <file id='https://authors.library.caltech.edu/id/file/1824902'>
+            <fileid>1824902</fileid>
+            <datasetid>document</datasetid>
+            <objectid>310854</objectid>
+            <filename>indexcodes.txt</filename>
+            <mime_type>text/x-pascal</mime_type>
+            <hash>9ab1207f5b70d715d36607eea961a85a</hash>
+            <hash_type>MD5</hash_type>
+            <filesize>6198</filesize>
+            <mtime>2020-11-10 00:32:45</mtime>
+            <url>https://authors.library.caltech.edu/106567/2/indexcodes.txt</url>
+          </file>
+        </files>
+        <eprintid>106567</eprintid>
+        <pos>2</pos>
+        <placement>2</placement>
+        <mime_type>text/x-pascal</mime_type>
+        <format>other</format>
+        <formatdesc>Generate index codes conversion from application/pdf to indexcodes</formatdesc>
+        <language>en</language>
+        <security>public</security>
+        <license>other</license>
+        <main>indexcodes.txt</main>
+        <relation>
+          <item>
+            <type>http://eprints.org/relation/isVersionOf</type>
+            <uri>https://authors.library.caltech.edu/id/document/310853</uri>
+          </item>
+          <item>
+            <type>http://eprints.org/relation/isVolatileVersionOf</type>
+            <uri>https://authors.library.caltech.edu/id/document/310853</uri>
+          </item>
+          <item>
+            <type>http://eprints.org/relation/isIndexCodesVersionOf</type>
+            <uri>https://authors.library.caltech.edu/id/document/310853</uri>
+          </item>
+        </relation>
+      </document>
+      <document id='https://authors.library.caltech.edu/id/document/315947'>
+        <docid>315947</docid>
+        <rev_number>4</rev_number>
+        <files>
+          <file id='https://authors.library.caltech.edu/id/file/1849269'>
+            <fileid>1849269</fileid>
+            <datasetid>document</datasetid>
+            <objectid>315947</objectid>
+            <filename>09319250.pdf</filename>
+            <mime_type>application/pdf</mime_type>
+            <hash>6380bce0086dd1542189a9487ecba3df</hash>
+            <hash_type>MD5</hash_type>
+            <filesize>3598583</filesize>
+            <mtime>2021-01-22 15:38:42</mtime>
+            <url>https://authors.library.caltech.edu/106567/3/09319250.pdf</url>
+          </file>
+        </files>
+        <eprintid>106567</eprintid>
+        <pos>3</pos>
+        <placement>2</placement>
+        <mime_type>application/pdf</mime_type>
+        <format>application/pdf</format>
+        <language>en</language>
+        <security>public</security>
+        <license>other</license>
+        <main>09319250.pdf</main>
+        <content>accepted</content>
+      </document>
+      <document id='https://authors.library.caltech.edu/id/document/315948'>
+        <docid>315948</docid>
+        <rev_number>1</rev_number>
+        <files>
+          <file id='https://authors.library.caltech.edu/id/file/1849273'>
+            <fileid>1849273</fileid>
+            <datasetid>document</datasetid>
+            <objectid>315948</objectid>
+            <filename>indexcodes.txt</filename>
+            <mime_type>text/x-pascal</mime_type>
+            <hash>c39a186ad41f7b38141923b03210a52c</hash>
+            <hash_type>MD5</hash_type>
+            <filesize>6923</filesize>
+            <mtime>2021-01-22 15:39:11</mtime>
+            <url>https://authors.library.caltech.edu/106567/4/indexcodes.txt</url>
+          </file>
+        </files>
+        <eprintid>106567</eprintid>
+        <pos>4</pos>
+        <placement>4</placement>
+        <mime_type>text/x-pascal</mime_type>
+        <format>other</format>
+        <formatdesc>Generate index codes conversion from application/pdf to indexcodes</formatdesc>
+        <language>en</language>
+        <security>public</security>
+        <license>other</license>
+        <main>indexcodes.txt</main>
+        <relation>
+          <item>
+            <type>http://eprints.org/relation/isVersionOf</type>
+            <uri>https://authors.library.caltech.edu/id/document/315947</uri>
+          </item>
+          <item>
+            <type>http://eprints.org/relation/isVolatileVersionOf</type>
+            <uri>https://authors.library.caltech.edu/id/document/315947</uri>
+          </item>
+          <item>
+            <type>http://eprints.org/relation/isIndexCodesVersionOf</type>
+            <uri>https://authors.library.caltech.edu/id/document/315947</uri>
+          </item>
+        </relation>
+      </document>
+      <document id='https://authors.library.caltech.edu/id/document/417389'>
+        <docid>417389</docid>
+        <rev_number>6</rev_number>
+        <files>
+          <file id='https://authors.library.caltech.edu/id/file/1986510'>
+            <fileid>1986510</fileid>
+            <datasetid>document</datasetid>
+            <objectid>417389</objectid>
+            <filename>09319250.pdf</filename>
+            <mime_type>application/pdf</mime_type>
+            <hash>b69b0000102c48ccd1ff280b828a423f</hash>
+            <hash_type>MD5</hash_type>
+            <filesize>1327772</filesize>
+            <mtime>2021-07-07 15:35:05</mtime>
+            <url>https://authors.library.caltech.edu/106567/5/09319250.pdf</url>
+          </file>
+        </files>
+        <eprintid>106567</eprintid>
+        <pos>5</pos>
+        <placement>1</placement>
+        <mime_type>application/pdf</mime_type>
+        <format>application/pdf</format>
+        <language>en</language>
+        <security>internal</security>
+        <license>other</license>
+        <main>09319250.pdf</main>
+        <content>published</content>
+      </document>
+      <document id='https://authors.library.caltech.edu/id/document/417453'>
+        <docid>417453</docid>
+        <rev_number>1</rev_number>
+        <files>
+          <file id='https://authors.library.caltech.edu/id/file/1986812'>
+            <fileid>1986812</fileid>
+            <datasetid>document</datasetid>
+            <objectid>417453</objectid>
+            <filename>indexcodes.txt</filename>
+            <mime_type>text/plain</mime_type>
+            <hash>5034e9d6e04e759a0623c73aa360b3c9</hash>
+            <hash_type>MD5</hash_type>
+            <filesize>7463</filesize>
+            <mtime>2021-07-08 17:12:03</mtime>
+            <url>https://authors.library.caltech.edu/106567/6/indexcodes.txt</url>
+          </file>
+        </files>
+        <eprintid>106567</eprintid>
+        <pos>6</pos>
+        <placement>6</placement>
+        <mime_type>text/plain</mime_type>
+        <format>other</format>
+        <formatdesc>Generate index codes conversion from application/pdf to indexcodes</formatdesc>
+        <language>en</language>
+        <security>internal</security>
+        <license>other</license>
+        <main>indexcodes.txt</main>
+        <relation>
+          <item>
+            <type>http://eprints.org/relation/isVersionOf</type>
+            <uri>https://authors.library.caltech.edu/id/document/417389</uri>
+          </item>
+          <item>
+            <type>http://eprints.org/relation/isVolatileVersionOf</type>
+            <uri>https://authors.library.caltech.edu/id/document/417389</uri>
+          </item>
+          <item>
+            <type>http://eprints.org/relation/isIndexCodesVersionOf</type>
+            <uri>https://authors.library.caltech.edu/id/document/417389</uri>
+          </item>
+        </relation>
+      </document>
+    </documents>
+    <eprint_status>archive</eprint_status>
+    <userid>6</userid>
+    <dir>disk0/00/10/65/67</dir>
+    <datestamp>2020-11-10 15:17:54</datestamp>
+    <lastmod>2021-07-08 17:49:38</lastmod>
+    <status_changed>2021-07-08 17:49:38</status_changed>
+    <type>article</type>
+    <metadata_visibility>show</metadata_visibility>
+    <creators>
+      <item>
+        <name>
+          <family>Singletary</family>
+          <given>Andrew</given>
+        </name>
+        <id>Singletary-Andrew-W</id>
+        <orcid>0000-0001-6635-4256</orcid>
+      </item>
+      <item>
+        <name>
+          <family>Kolathaya</family>
+          <given>Shishir</given>
+        </name>
+        <id>Kolathaya-Shishir</id>
+        <orcid>0000-0001-8689-2318</orcid>
+      </item>
+      <item>
+        <name>
+          <family>Ames</family>
+          <given>Aaron D.</given>
+        </name>
+        <id>Ames-A-D</id>
+        <orcid>0000-0003-0848-3177</orcid>
+      </item>
+    </creators>
+    <title>Safety-Critical Kinematic Control of Robotic Systems</title>
+    <ispublished>pub</ispublished>
+    <full_text_status>public</full_text_status>
+    <monograph_type>discussion_paper</monograph_type>
+    <keywords>Robotics, robust control, safety-critical control</keywords>
+    <note>© 2021 IEEE. 
+
+Manuscript received September 14, 2020; revised November
+20, 2020; accepted December 9, 2020. Date of publication
+January 11, 2021; date of current version June 23, 2021. 
+
+This research is supported in part by NSF CPS award 1932091, in part by NRI award 1924526, and in part by Aerovironment. Recommended by Senior Editor F. Dabbene.</note>
+    <suggestions>updated..td</suggestions>
+    <abstract>Over the decades, kinematic controllers have proven to be practically useful for applications like set-point and trajectory tracking in robotic systems. To this end, we formulate a novel safety-critical paradigm by extending the methodology of control barrier functions (CBFs) to kinematic equations governing robotic systems. We demonstrate a purely kinematic implementation of a velocity-based CBF, and subsequently introduce a formulation that guarantees safety at the level of dynamics. This is achieved through a new form of CBFs that incorporate kinetic energy with the classical forms, thereby minimizing model dependence and conservativeness. The approach is then extended to underactuated systems. This method and the purely kinematic implementation are demonstrated in simulation on two robotic platforms: a 6-DOF robotic manipulator, and a cart-pole system.</abstract>
+    <date>2022</date>
+    <date_type>published</date_type>
+    <publication>IEEE Control Systems Letters</publication>
+    <volume>6</volume>
+    <publisher>IEEE</publisher>
+    <pagerange>139-144</pagerange>
+    <pages>6</pages>
+    <id_number>CaltechAUTHORS:20201109-155517556</id_number>
+    <refereed>TRUE</refereed>
+    <issn>2475-1456</issn>
+    <official_url>https://resolver.caltech.edu/CaltechAUTHORS:20201109-155517556</official_url>
+    <related_url>
+      <item>
+        <url>https://doi.org/10.1109/LCSYS.2021.3050609</url>
+        <type>doi</type>
+        <description>Article</description>
+      </item>
+      <item>
+        <url>https://arxiv.org/abs/2009.09100</url>
+        <type>arxiv</type>
+        <description>Discussion Paper</description>
+      </item>
+    </related_url>
+    <rights>No commercial reproduction, distribution, display or performance rights in this work are provided.</rights>
+    <official_cit>A. Singletary, S. Kolathaya and A. D. Ames, &quot;Safety-Critical Kinematic Control of Robotic Systems,&quot; in IEEE Control Systems Letters, vol. 6, pp. 139-144, 2022, doi: 10.1109/LCSYS.2021.3050609</official_cit>
+    <doi>10.1109/LCSYS.2021.3050609</doi>
+    <funders>
+      <item>
+        <agency>NSF</agency>
+        <grant_number>CNS-1932091</grant_number>
+      </item>
+      <item>
+        <agency>NSF</agency>
+        <grant_number>ECCS-1924526</grant_number>
+      </item>
+      <item>
+        <agency>Aerovironment</agency>
+      </item>
+    </funders>
+    <collection>CaltechAUTHORS</collection>
+    <reviewer>J. Q. Public</reviewer>
+  </eprint>
+</eprints>

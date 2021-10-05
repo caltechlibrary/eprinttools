@@ -1,0 +1,17 @@
+
+Hello everyone,
+
+There is a note regarding changes to how our Caltech Libary 
+specific rules work when cross walking data from DataCite and CrossRef
+into EPrint XMl. CaltechAUTHORS has a DOI field which we need to
+populate. Historically the DOI for the article was placed in the
+related URL field. This is problematic because it is difficulty to
+tell if the related URL is a URL to supplemental material or 
+to the article itself. I have added an option to use the 1.0.1 release
+rules if you need the old behavior (see 
+`doi2eprintxml -h` for list of options).
+
+
+Thank you,
+
+Robert

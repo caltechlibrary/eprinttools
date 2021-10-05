@@ -1,6 +1,7 @@
-// eprinttools.go is a package for working with EPrints 3.x REST API as well as XML artifacts on disc.
 //
-// @author R. S. Doiel, <rsdoiel@library.caltech.edu>
+// Package eprinttools is a collection of structures, functions and programs// for working with the EPrints XML and EPrints REST API
+//
+// @author R. S. Doiel, <rsdoiel@caltech.edu>
 //
 // Copyright (c) 2021, Caltech
 // All rights not granted herein are expressly reserved by Caltech.
@@ -22,20 +23,8 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
-	"log"
-	"net/url"
-	"os"
-	"path"
 	"strconv"
 	"strings"
-	"time"
-
-	// Caltech Library packages
-	"github.com/caltechlibrary/eprinttools/rc"
-)
-
-const (
-	maxConsecutiveFailedRequests = 10
 )
 
 //
@@ -125,6 +114,7 @@ type EPrint struct {
 	ItemIssues         *ItemIssueItemList       `xml:"item_issues,omitempty" json:"item_issues,omitempty"`
 	ItemIssuesCount    int                      `xml:"item_issues_count,omitempty" json:"item_issues_count,omitempty"`
 	CorpCreators       *CorpCreatorItemList     `xml:"corp_creators,omitempty" json:"corp_creators,omitempty"`
+	CorpContributors   *CorpContributorItemList `xml:"corp_contributors,omitempty" json:"corp_contributors,omitempty"`
 	Department         string                   `xml:"department,omitempty" json:"department,omitempty"`
 	OutputMedia        string                   `xml:"output_media,omitempty" json:"output_media,omitempty"`
 	Exhibitors         *ExhibitorItemList       `xml:"exhibitors,omitempty" json:"exhibitors,omitempty"`
@@ -188,12 +178,21 @@ type EPrint struct {
 	ThesisAwards           string                   `xml:"thesis_awards,omitempty" json:"thesis_awards,omitempty"`
 	ReviewStatus           string                   `xml:"review_status,omitempty" json:"review_status,omitempty"`
 	OptionMajor            *OptionMajorItemList     `xml:"option_major,omitempty" json:"option_major,omitempty"`
+	OptionMinor            *OptionMinorItemList     `xml:"option_minor,omitempty" json:"option_major,omitempty"`
 	CopyrightStatement     string                   `xml:"copyright_statement,omitempty" json:"copyright_statement,omitempty"`
 
 	// Synthetic fields are created to help in eventual migration of
 	// EPrints field data to other JSON formats.
 	PrimaryObject  map[string]interface{}   `xml:"-" json:"primary_object,omitempty"`
 	RelatedObjects []map[string]interface{} `xml:"-" json:"related_objects,omitempty"`
+}
+
+// PubDate returns the publication date or empty string
+func (eprint *EPrint) PubDate() string {
+	if eprint.DateType == "published" {
+		return eprint.Date
+	}
+	return ""
 }
 
 // Item is a generic type used by various fields (e.g. Creator, Division, OptionMajor)
@@ -531,6 +530,12 @@ type CorpCreatorItemList struct {
 	Items   []*Item  `xml:"item,omitempty" json:"items,omitempty"`
 }
 
+// CorpContributorItemList
+type CorpContributorItemList struct {
+	XMLName xml.Name `json:"-"` //`xml:"corp_contributors" json:"-"`
+	Items   []*Item  `xml:"item,omitempty" json:"items,omitempty"`
+}
+
 // AddItem adds an item to the corp creator item list and returns the new count of items
 func (corpCreatorItemList *CorpCreatorItemList) AddItem(item *Item) int {
 	corpCreatorItemList.Items = append(corpCreatorItemList.Items, item)
@@ -595,6 +600,18 @@ type OptionMajorItemList struct {
 func (optionMajorItemList *OptionMajorItemList) AddItem(item *Item) int {
 	optionMajorItemList.Items = append(optionMajorItemList.Items, item)
 	return len(optionMajorItemList.Items)
+}
+
+// OptionMinorItemList
+type OptionMinorItemList struct {
+	XMLName xml.Name `xml:"option_minor" json:"-"`
+	Items   []*Item  `xml:"item,omitempty" json:"items,omitempty"`
+}
+
+// AddItem adds an item to the option minor item list and returns the new count of items
+func (optionMinorItemList *OptionMinorItemList) AddItem(item *Item) int {
+	optionMinorItemList.Items = append(optionMinorItemList.Items, item)
+	return len(optionMinorItemList.Items)
 }
 
 // ThesisCommitteeItemList
@@ -844,145 +861,6 @@ func (eprints *EPrints) AddEPrint(eprint *EPrint) int {
 	return len(eprints.EPrint)
 }
 
-// GetEPrints retrieves an EPrint record (e.g. via REST API)
-// A populated EPrints structure, the raw XML and an error.
-func GetEPrints(baseURL string, authType int, username string, secret string, key string) (*EPrints, []byte, error) {
-	workURL, err := url.Parse(baseURL)
-	if err != nil {
-		return nil, nil, err
-	}
-	if workURL.Path == "" {
-		workURL.Path = path.Join("rest", "eprint") + "/" + key + ".xml"
-	} else {
-		p := workURL.Path
-		workURL.Path = path.Join(p, "rest", "eprint") + "/" + key + ".xml"
-	}
-
-	// Switch to use Rest Client Wrapper
-	rest, err := rc.New(workURL.String(), authType, username, secret)
-	if err != nil {
-		return nil, nil, err
-	}
-	content, err := rest.Request("GET", workURL.Path, map[string]string{})
-	if err != nil {
-		return nil, nil, err
-	}
-
-	rec := new(EPrints)
-	err = xml.Unmarshal(content, &rec)
-	if err != nil {
-		return nil, content, err
-	}
-	if len(rec.EPrint) > 0 && (rec.EPrint[0].EPrintStatus == "deletion" || rec.EPrint[0].EPrintStatus == "inbox" || rec.EPrint[0].EPrintStatus == "buffer") {
-		return rec, content, fmt.Errorf("WARNING status %s %s", rec.EPrint[0].ID, rec.EPrint[0].EPrintStatus)
-	}
-	return rec, content, nil
-}
-
-// GetKeys returns a list of eprint record ids from the EPrints REST API
-func GetKeys(baseURL string, authType int, username string, secret string) ([]string, error) {
-	var (
-		results []string
-	)
-
-	workURL, err := url.Parse(baseURL)
-	if err != nil {
-		return nil, err
-	}
-	if workURL.Path == "" {
-		workURL.Path = path.Join("rest", "eprint") + "/"
-	} else {
-		p := workURL.Path
-		workURL.Path = path.Join(p, "rest", "eprint") + "/"
-	}
-	// Switch to use Rest Client Wrapper
-	rest, err := rc.New(workURL.String(), authType, username, secret)
-	if err != nil {
-		return nil, fmt.Errorf("requesting %s, %s", workURL.String(), err)
-	}
-	content, err := rest.Request("GET", workURL.Path, map[string]string{})
-	if err != nil {
-		return nil, fmt.Errorf("requested %s, %s", workURL.String(), err)
-	}
-	eIDs := new(ePrintIDs)
-	err = xml.Unmarshal(content, &eIDs)
-	if err != nil {
-		return nil, err
-	}
-	// Build a list of Unique IDs in a map, then convert unique querys to results array
-	m := make(map[string]bool)
-	for _, val := range eIDs.IDs {
-		if strings.HasSuffix(val, ".xml") == true {
-			eprintID := strings.TrimSuffix(val, ".xml")
-			if _, hasID := m[eprintID]; hasID == false {
-				// Save the new ID found
-				m[eprintID] = true
-				// Only store Unique IDs in result
-				results = append(results, eprintID)
-			}
-		}
-	}
-	return results, nil
-}
-
-// GetModifiedKeys returns a list of eprint record ids from the EPrints REST API that match the modification date range
-func GetModifiedKeys(baseURL string, authType int, username string, secret string, start time.Time, end time.Time, verbose bool) ([]string, error) {
-	var (
-		results []string
-	)
-	// need to calculate the base restDocPath
-	workURL, err := url.Parse(baseURL)
-	if err != nil {
-		return nil, err
-	}
-	if workURL.Path == "" {
-		workURL.Path = path.Join("rest", "eprint") + "/"
-	} else {
-		p := workURL.Path
-		workURL.Path = path.Join(p, "rest", "eprint") + "/"
-	}
-	restDocPath := workURL.Path
-	// Switch to use Rest Client Wrapper
-	rest, err := rc.New(baseURL, authType, username, secret)
-	if err != nil {
-		return nil, fmt.Errorf("requesting %s, %s", baseURL, err)
-	}
-
-	// Pass baseURL to GetKeys(), get key list then filter for modified times.
-	pid := os.Getpid()
-	keys, err := GetKeys(baseURL, authType, username, secret)
-	// NOTE: consecutiveFailedCount tracks repeated failures
-	// e.g. You need to authenticate with the server to get
-	// modified information.
-	consecutiveFailedCount := 0
-	for _, key := range keys {
-		// form a request to the REST API for just the modified date
-		docPath := path.Join(restDocPath, key, "lastmod.txt")
-		lastModified, err := rest.Request("GET", docPath, map[string]string{})
-		if err != nil {
-			if verbose == true {
-				log.Printf("(pid: %d) request failed, %s", pid, err)
-			}
-			consecutiveFailedCount++
-			if consecutiveFailedCount >= maxConsecutiveFailedRequests {
-				return results, err
-			}
-		} else {
-			consecutiveFailedCount = 0
-			datestring := fmt.Sprintf("%s", lastModified)
-			if len(datestring) > 9 {
-				datestring = datestring[0:10]
-			}
-			// Parse the modified date and compare to our range
-			if dt, err := time.Parse("2006-01-02", datestring); err == nil && dt.Unix() >= start.Unix() && dt.Unix() <= end.Unix() {
-				// If range is OK then add the key to results
-				results = append(results, key)
-			}
-		}
-	}
-	return results, nil
-}
-
 // File structures in Document
 type File struct {
 	XMLName   xml.Name `json:"-"`
@@ -1001,23 +879,24 @@ type File struct {
 
 // Document structures inside a Record (i.e. <eprint>...<documents><document>...</document>...</documents>...</eprint>)
 type Document struct {
-	XMLName    xml.Name `json:"-"`
-	ID         string   `xml:"id,attr" json:"id"`
-	DocID      int      `xml:"docid" json:"doc_id"`
-	RevNumber  int      `xml:"rev_number" json:"rev_number,omitempty"`
-	Files      []*File  `xml:"files>file" json:"files,omitempty"`
-	EPrintID   int      `xml:"eprintid" json:"eprint_id"`
-	Pos        int      `xml:"pos" json:"pos,omitempty"`
-	Placement  int      `xml:"placement,omitempty" json:"placement,omitempty"`
-	MimeType   string   `xml:"mime_type" json:"mime_type"`
-	Format     string   `xml:"format" json:"format"`
-	FormatDesc string   `xml:"formatdesc,omitempty" json:"format_desc,omitempty"`
-	Language   string   `xml:"language,omitempty" json:"language,omitempty"`
-	Security   string   `xml:"security" json:"security"`
-	License    string   `xml:"license" json:"license"`
-	Main       string   `xml:"main" json:"main"`
-	Content    string   `xml:"content,omitempty" json:"content,omitempty"`
-	Relation   []*Item  `xml:"relation>item,omitempty" json:"relation,omitempty"`
+	XMLName     xml.Name `json:"-"`
+	ID          string   `xml:"id,attr" json:"id"`
+	DocID       int      `xml:"docid" json:"doc_id"`
+	RevNumber   int      `xml:"rev_number" json:"rev_number,omitempty"`
+	Files       []*File  `xml:"files>file" json:"files,omitempty"`
+	EPrintID    int      `xml:"eprintid" json:"eprint_id"`
+	Pos         int      `xml:"pos" json:"pos,omitempty"`
+	Placement   int      `xml:"placement,omitempty" json:"placement,omitempty"`
+	MimeType    string   `xml:"mime_type" json:"mime_type"`
+	Format      string   `xml:"format" json:"format"`
+	FormatDesc  string   `xml:"formatdesc,omitempty" json:"format_desc,omitempty"`
+	Language    string   `xml:"language,omitempty" json:"language,omitempty"`
+	Security    string   `xml:"security" json:"security"`
+	License     string   `xml:"license" json:"license"`
+	Main        string   `xml:"main" json:"main"`
+	DateEmbargo string   `xml:"date_embargo,omitempty" json:"date_embargo,omitempty"`
+	Content     string   `xml:"content,omitempty" json:"content,omitempty"`
+	Relation    []*Item  `xml:"relation>item,omitempty" json:"relation,omitempty"`
 }
 
 // DocumentList is an array of pointers to Document structs

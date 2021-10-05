@@ -1,10 +1,9 @@
 Installation
 ============
 
-*eputil*, *epfmt*, *eprintxml2json* and *doi2eprintxml* are command line
-programs run from a shell like Bash. They allow you to harvest, work
-with EPrint repository content, and import content from CrossRef and
-DataCite.
+*eputil*, *epfmt*, *doi2eprintxml* are command line programs run from a shell like Bash. *ep2apid* is a web service that can also be run from the command line or setup as a "daemon" and run from systemd. They allow you to 
+harvest, work with EPrint repository content, and import content from 
+CrossRef and DataCite.
 
 Below are generalized instructions for installation of a release.
 
@@ -17,7 +16,7 @@ processor, windows-amd64) and Rapsberry Pi (arm7 processor,
 raspbian-arm7)
 
 VERSION\_NUMBER is a [symantic version number](http://semver.org/) (e.g.
-v0.1.2)
+`v1.0.1`)
 
 For all the released version go to the project page on Github and click
 latest release
@@ -30,7 +29,7 @@ latest release
 | macOS       | eprinttools-VERSION_NUMBER-macos-amd64.zip  |
 | macOS       | eprinttools-VERSION_NUMBER-macos-arm64.zip  |
 | Linux/Intel | eprinttools-VERSION_NUMBER-linux-amd64.zip   |
-| Raspbery Pi | eprinttools-VERSION_NUMBER-raspbian-arm7.zip |
+| Raspbery Pi | eprinttools-VERSION_NUMBER-raspbian-os-arm7.zip |
 
 The basic recipe
 ----------------
