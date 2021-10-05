@@ -22,8 +22,10 @@ import (
 	"encoding/xml"
 	"fmt"
 	"log"
+	"math/rand"
 	"net/url"
 	"os"
+	"sort"
 	"strings"
 	"testing"
 
@@ -32,16 +34,12 @@ import (
 )
 
 func TestLibSupport(t *testing.T) {
-	eprintURL := os.Getenv("EPRINT_URL")
-	if eprintURL == "" {
-		log.Println("Skipping TestLibSupport(), requires EPRINT_URL to be set in the environment, note this is a read only test sequence.")
+	if _, err := os.Stat("test-settings.json"); os.IsNotExist(err) {
+		log.Println("Skipping TestLibSupport(), requires test-settings.json to be available. It holds the test environment settings to run the REST client tests.")
 
 		return
 	}
-	authType := 0
-	username := os.Getenv("EPRINT_USERNAME")
-	secret := os.Getenv("EPRINT_PASSWORD")
-	keys, err := GetKeys(eprintURL, 0, username, secret)
+	keys, err := GetKeys(eprintURL, 0)
 	if err != nil {
 		t.Errorf("GetKeys(%q, %d, %q, %q) returned an error, %s", eprintURL, authType, username, secret, err)
 		t.FailNow()
@@ -50,25 +48,20 @@ func TestLibSupport(t *testing.T) {
 		t.Errorf("Expected some keys form Get(%q, %d, %q, %q)", eprintURL, authType, username, secret)
 		t.FailNow()
 	}
-	first := 0
-	last := len(keys) - 1
-	if len(keys) > 1500 {
-		//NOTE: we want to pick a middle range of IDs to test against
-		m := len(keys) % 2
-		first = m - 500
-		if first < 0 {
-			first = 0
-		}
-		last = m + 500
-		if last >= len(keys) {
-			last = len(keys) - 1
-		}
-
+	// Take a sample of 250 keys
+	sampleSize := 250
+	if len(keys) > sampleSize {
+		rand.Shuffle(len(keys), func(i, j int) {
+			keys[i], keys[j] = keys[j], keys[i]
+		})
+		keys = keys[0:sampleSize]
+		sort.Strings(keys)
 	}
+	fmt.Fprintf(os.Stderr, "Running test with %d randomly selected keys\n", len(keys))
 
 	spinner := "._-+xX#*#Xx+-_."
-	fmt.Fprintf(os.Stderr, "Testing GetEPrints() ...\n")
-	for i, key := range keys[first:last] {
+	fmt.Fprintf(os.Stderr, "Testing GetEPrint() ...\n")
+	for i, key := range keys {
 		fmt.Fprintf(os.Stderr, "\r%s", string(spinner[i%len(spinner)]))
 		if strings.HasSuffix(key, ".xml") {
 			t.Errorf("key %q should be the number only", key)
@@ -76,7 +69,7 @@ func TestLibSupport(t *testing.T) {
 		}
 
 		//NOTE: we need to check ep and raw if we don't and an error
-		_, _, err := GetEPrints(eprintURL, authType, username, secret, key)
+		_, err := GetEPrint(eprintURL, key)
 		if err != nil {
 			sErr := fmt.Sprintf("%s", err)
 			// NOTE: We should get an error for 401's, or when
@@ -86,7 +79,7 @@ func TestLibSupport(t *testing.T) {
 				strings.HasSuffix(sErr, "buffer") == false &&
 				strings.HasSuffix(sErr, "deletion") == false &&
 				strings.HasSuffix(sErr, "inbox") == false {
-				t.Errorf("%d GetEPrints(%q, %d, %q, %q, %q) -> %q", i, eprintURL, authType, username, secret, key, err)
+				t.Errorf("%d GetEPrint(%q, %d, %q, %q, %q) -> %q", i, eprintURL, authType, username, secret, key, err)
 				t.FailNow()
 			}
 		}

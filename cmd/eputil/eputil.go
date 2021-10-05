@@ -182,7 +182,7 @@ func main() {
 	flagSet.StringVar(&username, "user", "", "set the username for authenticated access")
 	flagSet.StringVar(&username, "username", "", "set the username for authenticated access")
 	flagSet.BoolVar(&passwordPrompt, "password", false, "Prompt for the password for authenticated access")
-	flagSet.StringVar(&auth, "auth", "", "set the authentication type for access")
+	flagSet.StringVar(&auth, "auth", "basic", "set the authentication type for access, default is basic")
 	flagSet.BoolVar(&getDocument, "document", false, "Retrieve a document from the provided url")
 	flagSet.BoolVar(&simplified, "s", false, "Return the object in a simplified JSON data structure.")
 	flagSet.BoolVar(&simplified, "simple", false, "Return the object in a simplified JSON data structure.")
