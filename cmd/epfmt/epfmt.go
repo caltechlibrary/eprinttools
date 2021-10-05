@@ -1,9 +1,9 @@
 //
-// epfmt is a command line tool convert EPrints XML to/from JSON.
+// Package eprinttools is a collection of structures, functions and programs// for working with the EPrints XML and EPrints REST API
 //
-// @author R. S. Doiel, <rsdoiel@library.caltech.edu>
+// @author R. S. Doiel, <rsdoiel@caltech.edu>
 //
-// Copyright (c) 2019, Caltech
+// Copyright (c) 2021, Caltech
 // All rights not granted herein are expressly reserved by Caltech.
 //
 // Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -17,6 +17,10 @@
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 package main
+
+//
+// epfmt is a command line tool convert EPrints XML to/from JSON.
+//
 
 import (
 	"bytes"
@@ -40,21 +44,21 @@ const (
 var (
 	description = `
 USAGE
-	{appName} 
+	{app_name} 
 
-{appName} is a command line program for pretty printing
+{app_name} is a command line program for pretty printing
 EPrint XML. It can also convert EPrint XML to and from
 JSON. By default it reads from standard input and writes to
 standard out.
 
 DESCRIPTION
 
-{appName} EPrint XML (or JSON version) from
+{app_name} EPrint XML (or JSON version) from
 standard input and pretty prints the result to 
 standard out. You can change output format XML 
 and JSON by using either the '-xml' or '-json' 
 option. The XML representation is based on EPrints 
-3.x.  {appName} does NOT interact with the EPrints API 
+3.x.  {app_name} does NOT interact with the EPrints API 
 only the the document presented via standard
 input.
 `
@@ -62,17 +66,17 @@ input.
 	examples = `
 Pretty print EPrint XML as XML.
 
-    {appName} < 123.xml
+    {app_name} < 123.xml
 
 Pretty print from EPrint XML as JSON
 
-    {appName} -json < 123.xml
+    {app_name} -json < 123.xml
 
 Render EPrint JSON as EPrint XML.
 
-    {appName} -xml < 123.json
+    {app_name} -xml < 123.json
 
-{appName} will first parse the XML or JSON 
+{app_name} will first parse the XML or JSON 
 presented to it and pretty print the output 
 in the desired format requested. If no 
 format option chosen it will pretty print 
@@ -80,9 +84,9 @@ in the same format as input.
 `
 
 	license = `
-{appName} {version}
+{app_name} {version}
 
-Copyright (c) 2019, Caltech
+Copyright (c) 2021, Caltech
 All rights not granted herein are expressly reserved by Caltech.
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:

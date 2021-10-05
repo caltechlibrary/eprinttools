@@ -1,12 +1,9 @@
 //
-// doi2eprintsxml.go is a Caltech Library centric command line utility
-// to query CrossRef API and DataCite API for metadata and
-// return the results as an EPrints XML file suitable for importing
-// into EPrints.
+// Package eprinttools is a collection of structures, functions and programs// for working with the EPrints XML and EPrints REST API
 //
-// Author R. S. Doiel, <rsdoiel@library.caltech.edu>
+// @author R. S. Doiel, <rsdoiel@caltech.edu>
 //
-// Copyright (c) 2018, Caltech
+// Copyright (c) 2021, Caltech
 // All rights not granted herein are expressly reserved by Caltech.
 //
 // Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -21,15 +18,22 @@
 //
 package main
 
+//
+// doi2eprintsxml.go is a Caltech Library centric command line utility
+// to query CrossRef API and DataCite API for metadata and
+// return the results as an EPrints XML file suitable for importing
+// into EPrints.
+//
+
 import (
 	"encoding/json"
 	"encoding/xml"
+	"flag"
 	"fmt"
 	"io/ioutil"
 	"os"
 	"path"
 	"strings"
-	"flag"
 
 	// Caltech Library packages
 	"github.com/caltechlibrary/crossrefapi"
@@ -41,11 +45,11 @@ import (
 var (
 	description = `
 USAGE
-	{appName} [OPTIONS] DOI
+	{app_name} [OPTIONS] DOI
 
 SYNOPSIS
 
-{appName} is a Caltech Library centric application that
+{app_name} is a Caltech Library centric application that
 takes one or more DOI, queries the CrossRef API
 and if that fails the DataCite API and returns an
 EPrints XML document suitable for import into
@@ -58,22 +62,22 @@ form or URL form (e.g. "10.1021/acsami.7b15651" or
 	examples = `
 Example generating an EPrintsXML for one DOI
 
-	{appName} "10.1021/acsami.7b15651" > article.xml
+	{app_name} "10.1021/acsami.7b15651" > article.xml
 
 Example generating an EPrintsXML for two DOI
 
-	{appName} "10.1021/acsami.7b15651" "10.1093/mnras/stu2495" > articles.xml
+	{app_name} "10.1021/acsami.7b15651" "10.1093/mnras/stu2495" > articles.xml
 
 Example processing a list of DOIs in a text file into
 an XML document called "import-articles.xml".
 
-	{appName} -i doi-list.txt -o import-articles.xml
+	{app_name} -i doi-list.txt -o import-articles.xml
 `
 
 	license = `
-{appName} {version}
+{app_name} {version}
 
-Copyright (c) 2018, Caltech
+Copyright (c) 2021, Caltech
 All rights not granted herein are expressly reserved by Caltech.
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -107,10 +111,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 	asJSON                                bool
 )
 
-
 func main() {
 	appName := path.Base(os.Args[0])
-
 
 	// Standard Options
 	flagSet := flag.NewFlagSet(appName, flag.ContinueOnError)
@@ -167,7 +169,7 @@ func main() {
 	)
 	out := os.Stdout
 	in := os.Stdin
-	if (outputFName != "") {
+	if outputFName != "" {
 		if out, err = os.Create(outputFName); err != nil {
 			fmt.Fprintf(os.Stderr, "%s\n", err)
 			os.Exit(1)
@@ -175,10 +177,10 @@ func main() {
 		defer out.Close()
 	}
 
-	if (inputFName != "" ) {
+	if inputFName != "" {
 		if in, err = os.Open(inputFName); err != nil {
 			fmt.Fprintf(os.Stderr, "%s\n", err)
-		} 
+		}
 		defer in.Close()
 	}
 
@@ -234,7 +236,7 @@ func main() {
 		case dataciteOnly:
 			obj, err := apiDataCite.Works(doi)
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "ERROR (DataCite API): %q, %s\n", err)
+				fmt.Fprintf(os.Stderr, "ERROR (DataCite API): %q, %s\n", doi, err)
 				os.Exit(1)
 			}
 			if apiDataCite.StatusCode == 200 {

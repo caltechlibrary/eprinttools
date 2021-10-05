@@ -1,5 +1,5 @@
 //
-// Package eprinttools is a collection of structures and functions for working with the E-Prints REST API
+// Package eprinttools is a collection of structures, functions and programs// for working with the EPrints XML and EPrints REST API
 //
 // @author R. S. Doiel, <rsdoiel@caltech.edu>
 //
@@ -20,72 +20,8 @@ package eprinttools
 
 import (
 	"encoding/xml"
-	"fmt"
-	"log"
-	"math/rand"
-	"net/url"
-	"os"
-	"sort"
-	"strings"
 	"testing"
-
-	// Caltech Library Packages
-	"github.com/caltechlibrary/eprinttools/rc"
 )
-
-func TestLibSupport(t *testing.T) {
-	if _, err := os.Stat("test-settings.json"); os.IsNotExist(err) {
-		log.Println("Skipping TestLibSupport(), requires test-settings.json to be available. It holds the test environment settings to run the REST client tests.")
-
-		return
-	}
-	keys, err := GetKeys(eprintURL, 0)
-	if err != nil {
-		t.Errorf("GetKeys(%q, %d, %q, %q) returned an error, %s", eprintURL, authType, username, secret, err)
-		t.FailNow()
-	}
-	if len(keys) < 1 {
-		t.Errorf("Expected some keys form Get(%q, %d, %q, %q)", eprintURL, authType, username, secret)
-		t.FailNow()
-	}
-	// Take a sample of 250 keys
-	sampleSize := 250
-	if len(keys) > sampleSize {
-		rand.Shuffle(len(keys), func(i, j int) {
-			keys[i], keys[j] = keys[j], keys[i]
-		})
-		keys = keys[0:sampleSize]
-		sort.Strings(keys)
-	}
-	fmt.Fprintf(os.Stderr, "Running test with %d randomly selected keys\n", len(keys))
-
-	spinner := "._-+xX#*#Xx+-_."
-	fmt.Fprintf(os.Stderr, "Testing GetEPrint() ...\n")
-	for i, key := range keys {
-		fmt.Fprintf(os.Stderr, "\r%s", string(spinner[i%len(spinner)]))
-		if strings.HasSuffix(key, ".xml") {
-			t.Errorf("key %q should be the number only", key)
-			t.FailNow()
-		}
-
-		//NOTE: we need to check ep and raw if we don't and an error
-		_, err := GetEPrint(eprintURL, key)
-		if err != nil {
-			sErr := fmt.Sprintf("%s", err)
-			// NOTE: We should get an error for 401's, or when
-			// we try to retrieve something with eprint_status of
-			// buffer, deletion, and inbox.
-			if strings.HasPrefix(sErr, "401") == false &&
-				strings.HasSuffix(sErr, "buffer") == false &&
-				strings.HasSuffix(sErr, "deletion") == false &&
-				strings.HasSuffix(sErr, "inbox") == false {
-				t.Errorf("%d GetEPrint(%q, %d, %q, %q, %q) -> %q", i, eprintURL, authType, username, secret, key, err)
-				t.FailNow()
-			}
-		}
-	}
-	fmt.Fprint(os.Stderr, "\r \n")
-}
 
 func TestEPrint3x(t *testing.T) {
 	// Simulate URL response for https://authors.library.caltech.edu/rest/eprint/84590.xml
@@ -815,34 +751,6 @@ of the target materials, and validate these computations against experimental da
 	}
 	if len(records.EPrint) != 3 {
 		t.Errorf("Expected 3 records, got %d", len(records.EPrint))
-	}
-}
-
-func TestGetEPrint(t *testing.T) {
-	getURL := os.Getenv("EPRINT_URL")
-	testKey := os.Getenv("EP_TEST_KEY")
-	if getURL == "" || testKey == "" {
-		t.Log("Skipping TestGetEPrint(), environment not setup")
-		t.SkipNow()
-	}
-	t.Log("Runnning TestGetEPrint() with", getURL)
-	restPath := "/rest/eprint/" + testKey + ".xml"
-	u, _ := url.Parse(getURL + restPath)
-	records := new(EPrints)
-	records, xmlSrc, err := GetEPrints(getURL, rc.AuthNone, "", "", testKey)
-	if err != nil {
-		t.Errorf("can't get %s, %s", u.String(), err)
-	}
-	if len(xmlSrc) == 0 {
-		t.Errorf("Expected some XML data from %s", u.String())
-	}
-	if len(records.EPrint) == 0 {
-		t.Errorf("Expected a populated record for %s, got %+v", testKey, records.EPrint)
-	}
-	for i, rec := range records.EPrint {
-		if rec.ID == "0" {
-			t.Errorf("Expected a populated record key (%d) for %s, got %+v", i, testKey, rec)
-		}
 	}
 }
 

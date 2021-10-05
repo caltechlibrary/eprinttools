@@ -1,6 +1,7 @@
-// eprinttools.go is a package for working with EPrints 3.x REST API as well as XML artifacts on disc.
 //
-// @author R. S. Doiel, <rsdoiel@library.caltech.edu>
+// Package eprinttools is a collection of structures, functions and programs// for working with the EPrints XML and EPrints REST API
+//
+// @author R. S. Doiel, <rsdoiel@caltech.edu>
 //
 // Copyright (c) 2021, Caltech
 // All rights not granted herein are expressly reserved by Caltech.
@@ -22,20 +23,8 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
-	"log"
-	"net/url"
-	"os"
-	"path"
 	"strconv"
 	"strings"
-	"time"
-
-	// Caltech Library packages
-	"github.com/caltechlibrary/eprinttools/rc"
-)
-
-const (
-	maxConsecutiveFailedRequests = 10
 )
 
 //
@@ -196,6 +185,14 @@ type EPrint struct {
 	// EPrints field data to other JSON formats.
 	PrimaryObject  map[string]interface{}   `xml:"-" json:"primary_object,omitempty"`
 	RelatedObjects []map[string]interface{} `xml:"-" json:"related_objects,omitempty"`
+}
+
+// PubDate returns the publication date or empty string
+func (eprint *EPrint) PubDate() string {
+	if eprint.DateType == "published" {
+		return eprint.Date
+	}
+	return ""
 }
 
 // Item is a generic type used by various fields (e.g. Creator, Division, OptionMajor)

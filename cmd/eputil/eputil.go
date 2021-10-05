@@ -1,9 +1,9 @@
 //
-// eputil is a command line tool for interacting with the EPrints REST API. Currently it supports harvesting REST API content as JSON or XML.
+// Package eprinttools is a collection of structures and functions for working with the EPrints XML and EPrints REST API
 //
-// @author R. S. Doiel, <rsdoiel@library.caltech.edu>
+// @author R. S. Doiel, <rsdoiel@caltech.edu>
 //
-// Copyright (c) 2018, Caltech
+// Copyright (c) 2021, Caltech
 // All rights not granted herein are expressly reserved by Caltech.
 //
 // Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -17,6 +17,10 @@
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 package main
+
+//
+// eputil is a command line tool for interacting with the EPrints REST API. Currently it supports harvesting REST API content as JSON or XML.
+//
 
 import (
 	"bytes"
@@ -41,17 +45,17 @@ import (
 var (
 	description = `
 USAGE
-	{appName} [OPTIONS] EPRINT_REST_URL
+	{app_name} [OPTIONS] EPRINT_REST_URL
 	
 SYNOPSIS
 
-{appName} is a command line program for exploring 
+{app_name} is a command line program for exploring 
 EPrint REST API and EPrint XML document structure
 in XML as well as JSON.
 
 DETAIL
 
-{appName} parses XML content retrieved from 
+{app_name} parses XML content retrieved from 
 EPrints 3.x. REST API. It will render 
 results in JSON or XML.  With the ` + "`" + `-raw` + "`" + `
 option you can get the unmodified EPrintXML from the 
@@ -69,25 +73,25 @@ Library). See the examples to start exploring the API.
 Fetch the raw unmarshaled EPrint XML via the 
 EPrint REST API for id 123.
 
-    {appName} -raw https://example.org/rest/eprint/123.xml
+    {app_name} -raw https://example.org/rest/eprint/123.xml
 
 Fetch the EPrint XML marshaled as XML using the 
 EPrints REST API for id 123.
 
-    {appName} https://example.org/rest/eprint/123.xml 
+    {app_name} https://example.org/rest/eprint/123.xml 
 
 Fetch the EPrint XML marshaled as JSON using the
 EPrints REST API for id 123.
 
-    {appName} -json https://example.org/rest/eprint/123.xml
+    {app_name} -json https://example.org/rest/eprint/123.xml
 
 Get a JSON array of eprint ids from the REST API
 
-    {appName} -json https://example.org/rest/eprint/ 
+    {app_name} -json https://example.org/rest/eprint/ 
 
 Get the last modified date for id 123 from REST API
 
-    {appName} -raw https://example.org/rest/eprint/123/lastmod.txt 
+    {app_name} -raw https://example.org/rest/eprint/123/lastmod.txt 
 
 If the EPrint REST API is protected by basic authentication
 you can pass the username and password via command line
@@ -96,7 +100,7 @@ or via the URL.  In this example the username is
 "user" and password is "secret". In this example you will
 be prompted to enter your secret.
 
-    {appName} -username=user -password \
+    {app_name} -username=user -password \
       https://example.org/rest/eprint/123.xml
 
 You can also pass the username and secret via the URL
@@ -105,7 +109,7 @@ in your command history or if another person has access to
 the process table. You SHOULD NOT use this approach on a
 shared machine!
 
-    {appName} https://user:secret@example.org/rest/eprint/123.xml
+    {app_name} https://user:secret@example.org/rest/eprint/123.xml
 
 Getting IDs doesn't typically require authentication but seeing
 specific records may depending on the roles and security
@@ -114,9 +118,9 @@ setup implemented in the EPrint instance.
 `
 
 	license = `
-{appName} {version}
+{app_name} {version}
 
-Copyright (c) 2018, Caltech
+Copyright (c) 2021, Caltech
 All rights not granted herein are expressly reserved by Caltech.
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:

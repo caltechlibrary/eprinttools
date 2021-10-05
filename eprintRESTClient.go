@@ -1,3 +1,21 @@
+//
+// Package eprinttools is a collection of structures, functions and programs// for working with the EPrints XML and EPrints REST API
+//
+// @author R. S. Doiel, <rsdoiel@caltech.edu>
+//
+// Copyright (c) 2021, Caltech
+// All rights not granted herein are expressly reserved by Caltech.
+//
+// Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+//
+// 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+//
+// 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+//
+// 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+//
 package eprinttools
 
 import (
@@ -7,21 +25,31 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"os"
+	"strconv"
 	"strings"
+	"time"
 )
 
-// GetEPrint fetches a single EPrint record via the EPrint REST API.
-func GetEPrint(baseURL string, eprintID int) (*EPrints, error) {
+const (
+	AuthNone = iota
+	BasicAuth
+
+	// Basic configurations that don't need to change much.
+	timeoutSeconds               = 10
+	maxConsecutiveFailedRequests = 10
+)
+
+func restClient(urlEndPoint string) ([]byte, error) {
 	var (
 		username string
 		password string
 		auth     string
 		src      []byte
 	)
-	endPoint := fmt.Sprintf("%s/rest/eprint/%d.xml", baseURL, eprintID)
-	u, err := url.Parse(endPoint)
+	u, err := url.Parse(urlEndPoint)
 	if err != nil {
-		return nil, fmt.Errorf("%q, %s,", endPoint, err)
+		return nil, fmt.Errorf("%q, %s,", urlEndPoint, err)
 	}
 	username, password, auth = "", "", "basic"
 	if userinfo := u.User; userinfo != nil {
@@ -33,13 +61,15 @@ func GetEPrint(baseURL string, eprintID int) (*EPrints, error) {
 
 	// NOTE: We build our client request object so we can
 	// set authentication if necessary.
-	req, err := http.NewRequest("GET", endPoint, nil)
+	req, err := http.NewRequest("GET", urlEndPoint, nil)
 	switch strings.ToLower(auth) {
 	case "basic":
 		req.SetBasicAuth(username, password)
 	}
 	req.Header.Set("User-Agent", Version)
-	client := &http.Client{}
+	client := &http.Client{
+		Timeout: timeoutSeconds * time.Second,
+	}
 	res, err := client.Do(req)
 	if err != nil {
 		return nil, err
@@ -51,12 +81,21 @@ func GetEPrint(baseURL string, eprintID int) (*EPrints, error) {
 			return nil, err
 		}
 	} else {
-		return nil, fmt.Errorf("%s for %s", res.Status, endPoint)
+		return nil, fmt.Errorf("%s for %s", res.Status, urlEndPoint)
 	}
 	if len(bytes.TrimSpace(src)) == 0 {
 		return nil, fmt.Errorf("No data")
 	}
+	return src, nil
+}
 
+// GetEPrint fetches a single EPrint record via the EPrint REST API.
+func GetEPrint(baseURL string, eprintID int) (*EPrints, error) {
+	endPoint := fmt.Sprintf("%s/rest/eprint/%d.xml", baseURL, eprintID)
+	src, err := restClient(endPoint)
+	if err != nil {
+		return nil, err
+	}
 	data := new(EPrints)
 	err = xml.Unmarshal(src, &data)
 	if err != nil {
@@ -69,104 +108,32 @@ func GetEPrint(baseURL string, eprintID int) (*EPrints, error) {
 }
 
 // GetKeys returns a list of eprint record ids from the EPrints REST API
-func GetKeys(baseURL string, authType int, username string, secret string) ([]string, error) {
-	var (
-		results []string
-	)
+func GetKeys(baseURL string) ([]int, error) {
+	type eprintKeyPage struct {
+		XMLName xml.Name `xml:"html"`
+		Anchors []string `xml:"body>ul>li>a"`
+	}
 
-	workURL, err := url.Parse(baseURL)
+	endPoint := fmt.Sprintf("%s/rest/eprint/", baseURL)
+	src, err := restClient(endPoint)
 	if err != nil {
 		return nil, err
 	}
-	if workURL.Path == "" {
-		workURL.Path = path.Join("rest", "eprint") + "/"
-	} else {
-		p := workURL.Path
-		workURL.Path = path.Join(p, "rest", "eprint") + "/"
-	}
-	// Switch to use Rest Client Wrapper
-	rest, err := rc.New(workURL.String(), authType, username, secret)
-	if err != nil {
-		return nil, fmt.Errorf("requesting %s, %s", workURL.String(), err)
-	}
-	content, err := rest.Request("GET", workURL.Path, map[string]string{})
-	if err != nil {
-		return nil, fmt.Errorf("requested %s, %s", workURL.String(), err)
-	}
-	eIDs := new(ePrintIDs)
-	err = xml.Unmarshal(content, &eIDs)
+	keysPage := new(eprintKeyPage)
+	err = xml.Unmarshal(src, &keysPage)
 	if err != nil {
 		return nil, err
 	}
 	// Build a list of Unique IDs in a map, then convert unique querys to results array
-	m := make(map[string]bool)
-	for _, val := range eIDs.IDs {
+	results := []int{}
+	for _, val := range keysPage.Anchors {
 		if strings.HasSuffix(val, ".xml") == true {
-			eprintID := strings.TrimSuffix(val, ".xml")
-			if _, hasID := m[eprintID]; hasID == false {
-				// Save the new ID found
-				m[eprintID] = true
-				// Only store Unique IDs in result
-				results = append(results, eprintID)
+			eprintID, err := strconv.Atoi(strings.TrimSuffix(val, ".xml"))
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Could not extract eprint ID from %s\n", val)
+				continue
 			}
-		}
-	}
-	return results, nil
-}
-
-// GetModifiedKeys returns a list of eprint record ids from the EPrints REST API that match the modification date range
-func GetModifiedKeys(baseURL string, authType int, username string, secret string, start time.Time, end time.Time, verbose bool) ([]string, error) {
-	var (
-		results []string
-	)
-	// need to calculate the base restDocPath
-	workURL, err := url.Parse(baseURL)
-	if err != nil {
-		return nil, err
-	}
-	if workURL.Path == "" {
-		workURL.Path = path.Join("rest", "eprint") + "/"
-	} else {
-		p := workURL.Path
-		workURL.Path = path.Join(p, "rest", "eprint") + "/"
-	}
-	restDocPath := workURL.Path
-	// Switch to use Rest Client Wrapper
-	rest, err := rc.New(baseURL, authType, username, secret)
-	if err != nil {
-		return nil, fmt.Errorf("requesting %s, %s", baseURL, err)
-	}
-
-	// Pass baseURL to GetKeys(), get key list then filter for modified times.
-	pid := os.Getpid()
-	keys, err := GetKeys(baseURL, authType, username, secret)
-	// NOTE: consecutiveFailedCount tracks repeated failures
-	// e.g. You need to authenticate with the server to get
-	// modified information.
-	consecutiveFailedCount := 0
-	for _, key := range keys {
-		// form a request to the REST API for just the modified date
-		docPath := path.Join(restDocPath, key, "lastmod.txt")
-		lastModified, err := rest.Request("GET", docPath, map[string]string{})
-		if err != nil {
-			if verbose == true {
-				log.Printf("(pid: %d) request failed, %s", pid, err)
-			}
-			consecutiveFailedCount++
-			if consecutiveFailedCount >= maxConsecutiveFailedRequests {
-				return results, err
-			}
-		} else {
-			consecutiveFailedCount = 0
-			datestring := fmt.Sprintf("%s", lastModified)
-			if len(datestring) > 9 {
-				datestring = datestring[0:10]
-			}
-			// Parse the modified date and compare to our range
-			if dt, err := time.Parse("2006-01-02", datestring); err == nil && dt.Unix() >= start.Unix() && dt.Unix() <= end.Unix() {
-				// If range is OK then add the key to results
-				results = append(results, key)
-			}
+			results = append(results, eprintID)
 		}
 	}
 	return results, nil
