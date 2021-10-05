@@ -18,9 +18,7 @@ func GetEPrint(baseURL string, eprintID int) (*EPrints, error) {
 		auth     string
 		src      []byte
 	)
-	fmt.Printf("DEBUG base URL: %s\n", baseURL)
 	endPoint := fmt.Sprintf("%s/rest/eprint/%d.xml", baseURL, eprintID)
-	fmt.Printf("DEBUG end point URL: %s\n", endPoint)
 	u, err := url.Parse(endPoint)
 	if err != nil {
 		return nil, fmt.Errorf("%q, %s,", endPoint, err)
