@@ -631,11 +631,9 @@ func (rec *Record) filesFromEPrint(eprint *EPrint) error {
 			if len(doc.Files) > 0 {
 				for _, docFile := range doc.Files {
 					entry := new(Entry)
-					entry.FileID = fmt.Sprintf("%d", docFile.FileID)
+					entry.FileID = docFile.URL
 					entry.Size = docFile.FileSize
 					entry.MimeType = docFile.MimeType
-					entry.Key = docFile.URL
-					entry.Backend = "https"
 					if docFile.Hash != "" {
 						entry.CheckSum = fmt.Sprintf("%s:%s", strings.ToLower(docFile.HashType), docFile.Hash)
 					}

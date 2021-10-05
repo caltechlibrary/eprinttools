@@ -9,10 +9,12 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
 	"database/sql"
+
 	_ "github.com/go-sql-driver/mysql"
 )
 
@@ -28,7 +30,7 @@ type Config struct {
 
 	// Repositories are defined by a REPO_ID (string)
 	// that points at a MySQL Db connection string
-	Repositories map[string]string `json:"repositories"`
+	Repositories map[string]*DataSource `json:"repositories"`
 
 	// Connections is a map to database connections
 	Connections map[string]*sql.DB `json:"-"`
@@ -36,6 +38,16 @@ type Config struct {
 	// Routes holds the mapping of end points to repository id
 	// instances.
 	Routes map[string]map[string]func(http.ResponseWriter, *http.Request, string, []string) (int, error) `json:"-"`
+}
+
+// DataSource can contain one or more types of datasources. E.g.
+// E.g. dsn for MySQL connections and also data for REST API access.
+type DataSource struct {
+	// DSN is used to connect to a MySQL style DB.
+	DSN string `json:"dsn,omitempty"`
+	// Rest is used to connect to EPrints REST API
+	// NOTE: assumes Basic Auth for authentication
+	RestAPI string `json:"rest,omitempty"`
 }
 
 const (
@@ -73,6 +85,9 @@ func expandAproxDate(dt string, roundDown bool) string {
 //
 // DB SQL functions.
 //
+
+// sqlQueryIDs takes a repostory ID, a SQL statement and applies
+// the args returning a list of EPrint ID or error.
 func sqlQueryIDs(repoID string, stmt string, args ...interface{}) ([]int, error) {
 	if db, ok := config.Connections[repoID]; ok == true {
 		rows, err := db.Query(stmt, args...)
@@ -101,6 +116,11 @@ func sqlQueryIDs(repoID string, stmt string, args ...interface{}) ([]int, error)
 	return nil, fmt.Errorf("Bad Request")
 }
 
+//
+// Package functions take the collected data and package into an HTTP
+// response.
+//
+
 func packageIDs(w http.ResponseWriter, repoID string, eprintIDs []int, err error) (int, error) {
 	if err != nil {
 		log.Printf("ERROR: (%s) query error, %s", repoID, err)
@@ -119,6 +139,16 @@ func packageIDs(w http.ResponseWriter, repoID string, eprintIDs []int, err error
 func packageDocument(w http.ResponseWriter, src string) (int, error) {
 	w.Header().Set("Content-Type", "text/plain")
 	fmt.Fprintf(w, src)
+	return 200, nil
+}
+
+func packageJSON(w http.ResponseWriter, repoID string, src []byte, err error) (int, error) {
+	if err != nil {
+		log.Printf("ERROR: (%s) package JSON error, %s", repoID, err)
+		return 500, fmt.Errorf("Internal Server Error")
+	}
+	w.Header().Set("Content-Type", "application/json")
+	fmt.Fprintf(w, "%s", src)
 	return 200, nil
 }
 
@@ -184,6 +214,15 @@ The follow API end points would facilitate faster updates to our feeds platform 
 - "/<REPO_ID>/updated/<TIMESTAMP>/<TIMESTAMP>" returns a list of EPrint IDs updated starting at the first timestamp (timestamps should have a resolution to the minute, e.g. "YYYY-MM-DD HH:MM:SS") through inclusive of the second timestmap (if the second is omitted the timestamp is assumed to be "now")
 - "/<REPO_ID>/deleted/<TIMESTAMP>/<TIMESTAMP>" through the returns a list of EPrint IDs deleted starting at first timestamp through inclusive of the second timestamp, if the second timestamp is omitted it is assumed to be "now"
 - "/<REPO_ID>/pubdate/<APROX_DATESTAMP>/<APPOX_DATESTAMP>" this query scans the EPrint table for records with publication starts starting with the first approximate date through inclusive of the second approximate date. If the second date is omitted it is assumed to be "today". Approximate dates my be expressed just the year (starting with Jan 1, ending with Dec 31), just the year and month (starting with first day of month ending with the last day) or year, month and day. The end returns zero or more EPrint IDs.
+
+Simplified Record
+-----------------
+
+This version of the API includes a simplified JSON record view. The
+JSON represents the JSON model used in DataCite and InvenioRDMs.
+
+- "/<REPO_ID>/record/<EPRINT_ID>" returns a complex JSON object representing the EPrint record identified by <EPRINT_ID>.
+
 
 `, Version)
 }
@@ -268,6 +307,17 @@ func isbnDocument(repoID string) string {
 
 func patentNumberDocument(repoID string) string {
 	return fmt.Sprintf(`"/%s/patent-number/<PATENT_NUMBER>" returns a list of EPrint IDs associated with the patent number`, repoID)
+}
+
+func recordDocument(repoID string) string {
+	return fmt.Sprintf(`Simplified Record
+-----------------
+
+This version of the API includes a simplified JSON record view. The
+JSON represents the JSON model used in DataCite and InvenioRDMs.
+
+- "/%s/record/<EPRINT_ID>" returns a complex JSON object representing the EPrint record identified by <EPRINT_ID>.
+`, repoID)
 }
 
 //
@@ -630,6 +680,44 @@ func patentNumberEndPoint(w http.ResponseWriter, r *http.Request, repoID string,
 }
 
 //
+// Record End Point is experimental and may not make it to the
+// release version of eprinttools. It accepts a EPrint ID and returns
+// a simplfied JSON object.
+//
+func recordEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
+	if len(args) == 0 {
+		return packageDocument(w, recordDocument(repoID))
+	}
+	if len(args) != 1 {
+		return 400, fmt.Errorf("Bad Request")
+	}
+	eprintID, err := strconv.Atoi(args[0])
+	if err != nil {
+		return 400, fmt.Errorf("Bad Request, eprint id invalid, %s", err)
+	}
+	baseURL := ""
+	if dataSource, ok := config.Repositories[repoID]; ok == true {
+		baseURL = dataSource.RestAPI
+	} else {
+		log.Printf("Data Source not found for %q", repoID)
+		return 404, fmt.Errorf("Not Found")
+	}
+	eprint, err := GetEPrint(baseURL, eprintID)
+	if err != nil {
+		log.Printf("REST Client Error: %s\n", err)
+		return 500, fmt.Errorf("Internal Server Error")
+	}
+	if len(eprint.EPrint) == 0 {
+		return 404, fmt.Errorf("Not Found")
+	}
+	simple, err := CrosswalkEPrintToRecord(eprint.EPrint[0])
+	if err != nil {
+		return 500, fmt.Errorf("Internal Server Error")
+	}
+	src, err := json.MarshalIndent(simple, "", "    ")
+	return packageJSON(w, repoID, src, err)
+}
+
 // The following define the API as a service handling errors,
 // routes and logging.
 //
@@ -718,7 +806,7 @@ func api(w http.ResponseWriter, r *http.Request) {
 
 func loadConfig(fname string) error {
 	config = new(Config)
-	config.Repositories = map[string]string{}
+	config.Repositories = map[string]*DataSource{}
 	if src, err := ioutil.ReadFile(fname); err != nil {
 		return err
 	} else {
@@ -777,15 +865,17 @@ func InitExtendedAPI(settings string) error {
 		"issn":             issnEndPoint,
 		"isbn":             isbnEndPoint,
 		"patent-number":    patentNumberEndPoint,
+		"record":           recordEndPoint,
 	}
 
 	/* NOTE: We need a DB connection to MySQL for each
 	   EPrints repository supported by the API
 	   for access to MySQL */
-	for repoID, dataSourceName := range config.Repositories {
+	for repoID, dataSource := range config.Repositories {
+		dataSourceName := dataSource.DSN
 		// Setup DB connection for target repository
 		if db, err := sql.Open("mysql", dataSourceName); err != nil {
-			return fmt.Errorf("Could not open MySQL conncetion for %s, %s", repoID, err)
+			return fmt.Errorf("Could not open MySQL connection for %s, %s", repoID, err)
 		} else {
 			//log.Printf("Setting  DB connection to %q", repoID)
 			//db.Ping()
