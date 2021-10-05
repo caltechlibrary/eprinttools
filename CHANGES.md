@@ -5,7 +5,7 @@ command line or setup to run from systemd (Debian Linux) or
 launchd (macOS). It provides a local host web service for quick
 key list retrieval by talking directly to the EPrints MySQL database(s).
 
-Introduced a "simplified" JSON model based on DataCite and Invenion 3.
+Introduced a "simplified" JSON model based on DataCite and Invenio 3.
 This is supported in `eputil`, `epfmt` using command line options
 and is the default JSON record output for `ep3apid`.
 
