@@ -25,7 +25,6 @@ package eprinttools
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"strconv"
@@ -36,38 +35,6 @@ import (
 
 	_ "github.com/go-sql-driver/mysql"
 )
-
-//
-// Service configuration management
-//
-
-// Config holds a configuration file structure used by EPrints Extended API
-// Configuration file is expected to be in JSON format.
-type Config struct {
-	// Hostname for running service
-	Hostname string `json:"hostname"`
-
-	// Repositories are defined by a REPO_ID (string)
-	// that points at a MySQL Db connection string
-	Repositories map[string]*DataSource `json:"repositories"`
-
-	// Connections is a map to database connections
-	Connections map[string]*sql.DB `json:"-"`
-
-	// Routes holds the mapping of end points to repository id
-	// instances.
-	Routes map[string]map[string]func(http.ResponseWriter, *http.Request, string, []string) (int, error) `json:"-"`
-}
-
-// DataSource can contain one or more types of datasources. E.g.
-// E.g. dsn for MySQL connections and also data for REST API access.
-type DataSource struct {
-	// DSN is used to connect to a MySQL style DB.
-	DSN string `json:"dsn,omitempty"`
-	// Rest is used to connect to EPrints REST API
-	// NOTE: assumes Basic Auth for authentication
-	RestAPI string `json:"rest,omitempty"`
-}
 
 const (
 	// timestamp holds the Format of a MySQL time field
@@ -868,26 +835,12 @@ func api(w http.ResponseWriter, r *http.Request) {
 	logRequest(r, statusCode, err)
 }
 
-func loadConfig(fname string) error {
-	config = new(Config)
-	config.Repositories = map[string]*DataSource{}
-	if src, err := ioutil.ReadFile(fname); err != nil {
-		return err
-	} else {
-		// Since we should be OK, unmarshal in into active config
-		if err = json.Unmarshal(src, &config); err != nil {
-			return fmt.Errorf("Unmarshaling %q failed, %s", fname, err)
-		}
-		if config.Hostname == "" {
-			config.Hostname = "localhost:8484"
-		}
-	}
-	return nil
-}
-
 func InitExtendedAPI(settings string) error {
 	var err error
-	if err = loadConfig(settings); err != nil {
+	// NOTE: This reads the settings file and creates a global
+	// config object.
+	config, err = LoadConfig(settings)
+	if err != nil {
 		return fmt.Errorf("Failed to load %q, %s", settings, err)
 	}
 	if config == nil {
