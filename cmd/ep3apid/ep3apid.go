@@ -37,7 +37,7 @@ var (
 	description = `
 USAGE
 
-    {app_name} [OPTIONS] [SETTINGS_FILENAME]
+    {app_name} [SETTINGS_FILENAME]
 
 SYNOPSIS
 
@@ -46,7 +46,7 @@ Run an extended EPrints 3.x web API
 DETAIL
 
 {app_name} can be run from the command line and the will create an
-http web service on %s. The web service provides a limitted number of
+http web service on {app_name}. The web service provides a limitted number of
 end points providing eprint ids for content matched in EPrints's MySQL
 databases.
 
@@ -132,7 +132,6 @@ func main() {
 	appName := path.Base(os.Args[0])
 	/* Process command line options */
 	flagSet := flag.NewFlagSet(appName, flag.ContinueOnError)
-	flagSet.BoolVar(&showHelp, "h", false, "Display this help message")
 	flagSet.BoolVar(&showHelp, "help", false, "Display this help message")
 	flagSet.BoolVar(&showVersion, "version", false, "Display software version")
 	flagSet.BoolVar(&showLicense, "license", false, "Display software license")
