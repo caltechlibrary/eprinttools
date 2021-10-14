@@ -38,6 +38,18 @@ type DataSource struct {
 	// Rest is used to connect to EPrints REST API
 	// NOTE: assumes Basic Auth for authentication
 	RestAPI string `json:"rest,omitempty"`
+	// Create enables the API to create new records in the repository.
+	// The value defaults to false.
+	Create bool `json:"create" default:"false"`
+	// Read enables the API to support read access in the repository.
+	// The value defaults to true.
+	Read bool `json:"read" default:"true"`
+	// Update enables the API to support updating records in the repository.
+	Update bool `json:"update" default:"false"`
+	// The value defaults to false.
+	// Delete enalbes the API to support "deleting" records in
+	// the repostiory. The value defaults to false.
+	Delete bool `json:"delete" default:"false"`
 }
 
 // LoadConfig reads a JSON file and returns a Config structure
