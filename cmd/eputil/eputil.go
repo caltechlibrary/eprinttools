@@ -325,7 +325,7 @@ func main() {
 			fmt.Fprintf(os.Stderr, "%s\n", err)
 			os.Exit(1)
 		}
-		if asJSON {
+		if asJSON || asSimplified {
 			src, err = json.MarshalIndent(data, "", "   ")
 		} else {
 			fmt.Fprintf(out, "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n")
