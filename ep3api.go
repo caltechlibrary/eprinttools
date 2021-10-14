@@ -210,6 +210,21 @@ JSON represents the JSON model used in DataCite and InvenioRDMs.
 
 - "/<REPO_ID>/record/<EPRINT_ID>" returns a complex JSON object representing the EPrint record identified by <EPRINT_ID>.
 
+Write API
+---------
+
+As of {app_name} version 1.0.3 a new end point exists for reading
+and writing EPrints XML. This can be enabled per repository. It
+only supports interaction with one record.  If the eprint ID furnished
+in the call is 0 (zero) then a new record will be created. Otherwise
+the contents of the EPrint XML you post will replace the existing 
+eprint record.  This transaction takes place only at the SQL
+level. None Perl EPrints API is invoked. 
+
+The end point is "/<REPO_ID>/eprint/<EPRINT_ID>" for EPrint XML.
+
+To enable this feature add the attribute '"readwrite": true' to
+the repositories setting in settins.json.
 
 `, Version)
 }
@@ -308,6 +323,30 @@ This version of the API includes a simplified JSON record view. The
 JSON represents the JSON model used in DataCite and InvenioRDMs.
 
 - "/%s/record/<EPRINT_ID>" returns a complex JSON object representing the EPrint record identified by <EPRINT_ID>.
+`, repoID)
+}
+
+func eprintDocument(repoID string) string {
+	return fmt.Sprintf(`
+EPrint Record
+-------------
+
+If the read/write is enabled for %q then this end point will
+access a retrieve an EPrint record as EPrint XML via http GET.
+You can create or replace an EPrint record using a POST containing
+valid EPrint XML. Not the transaction with the repository is only
+done via SQL. There is no facility to upload PDFs or other digital
+files.  It does NOT use the Perl API.
+
+GET:
+
+- "/%s/eprint/<EPRINT_ID>" will retrieve an existing EPrint record as EPrint XML by building up an eprint record via SQL queries.
+
+POST:
+
+- "/%s/eprint/<EPRINT_ID>" will replace an existing EPrint, POST must be valid EPrint XML with a content type of "application/xml".
+- "/%s/eprint/0" will create a new EPrint record. The POST must be valid EPrint XML with a content type of "application/xml".
+
 `, repoID)
 }
 
@@ -716,7 +755,7 @@ func patentNumberEndPoint(w http.ResponseWriter, r *http.Request, repoID string,
 // a simplfied JSON object.
 //
 func recordEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
-	if len(args) == 0 {
+	if len(args) == 0 || strings.HasSuffix(r.URL.Path, "/help") {
 		return packageDocument(w, recordDocument(repoID))
 	}
 	if len(args) != 1 {
@@ -747,6 +786,20 @@ func recordEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args 
 	}
 	src, err := json.MarshalIndent(simple, "", "    ")
 	return packageJSON(w, repoID, src, err)
+}
+
+//
+// EPrint End Point is an experimental read/write end point provided
+// in the extended EPrint API.  It reads/writes EPrint data structures
+// based on SQL calls to the MySQL database for a given EPrints repository.
+// Note this end point has to be enabled for the repository in the
+// configuraiton.
+//
+func eprintEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
+	if len(args) == 0 || strings.HasSuffix(r.URL.Path, "/help") {
+		return packageDocument(w, eprintDocument(repoID))
+	}
+	return 500, fmt.Errorf("Not Implemented")
 }
 
 // The following define the API as a service handling errors,
@@ -885,6 +938,11 @@ func InitExtendedAPI(settings string) error {
 		"patent-number":    patentNumberEndPoint,
 		"record":           recordEndPoint,
 	}
+	// This define read/write routes which are disabled by default
+	// for each respository.
+	rwRoutes := map[string]func(http.ResponseWriter, *http.Request, string, []string) (int, error){
+		"eprint": eprintEndPoint,
+	}
 
 	/* NOTE: We need a DB connection to MySQL for each
 	   EPrints repository supported by the API
@@ -905,6 +963,15 @@ func InitExtendedAPI(settings string) error {
 				config.Routes[repoID] = map[string]func(http.ResponseWriter, *http.Request, string, []string) (int, error){}
 			}
 			config.Routes[repoID][route] = fn
+		}
+		// If readwrite is enabled add /<REPO_ID>/eprint route
+		if dataSource.ReadWrite {
+			for route, fn := range rwRoutes {
+				if config.Routes[repoID] == nil {
+					config.Routes[repoID] = map[string]func(http.ResponseWriter, *http.Request, string, []string) (int, error){}
+				}
+				config.Routes[repoID][route] = fn
+			}
 		}
 	}
 	return nil
