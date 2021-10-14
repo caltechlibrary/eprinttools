@@ -30,7 +30,10 @@ import (
 	"encoding/xml"
 	"flag"
 	"fmt"
+	"io"
 	"io/ioutil"
+	"net/http"
+	"net/url"
 	"os"
 	"path"
 	"strings"
@@ -110,6 +113,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 	use_1_0_0_CaltechLibrarySpecificRules bool
 	asJSON                                bool
 	asSimplified                          bool
+	attemptDownload                       bool
 )
 
 func main() {
@@ -136,6 +140,8 @@ func main() {
 	flagSet.BoolVar(&use_1_0_0_CaltechLibrarySpecificRules, "v1.0.0-clsrules", false, "Apply v1.0.0 Caltech Library Specific Rules to EPrintXML output")
 	flagSet.BoolVar(&asJSON, "json", false, "output EPrint structure as JSON")
 	flagSet.BoolVar(&asSimplified, "simple", false, "output EPrint structure as Simplified JSON")
+	flagSet.BoolVar(&attemptDownload, "D", false, "attempt to download the digital object if object URL provided")
+	flagSet.BoolVar(&attemptDownload, "download", false, "attempt to download the digital object if object URL provided")
 
 	//FIXME: Need to come up with a better way of setting this,
 	// perhaps a config mode and save the setting in
@@ -216,7 +222,12 @@ func main() {
 	}
 
 	//NOTE: need to support processing one or more DOI
-	for _, doi := range args {
+	for _, arg := range args {
+		doi, objectURL := arg, ""
+		if strings.Contains(arg, "|") {
+			p := strings.SplitN(arg, "|", 2)
+			doi, objectURL = p[0], p[1]
+		}
 		switch {
 		case crossrefOnly:
 			obj, err := apiCrossRef.Works(doi)
@@ -287,6 +298,28 @@ func main() {
 					} else {
 						eprintsList.AddEPrint(eprint)
 					}
+				}
+			}
+			if attemptDownload && objectURL != "" {
+				u, err := url.Parse(objectURL)
+				if err != nil {
+					fmt.Fprintf(os.Stderr, "Can't parse url %q, %s\n", objectURL, err)
+					os.Exit(1)
+				}
+				response, err := http.Get(objectURL)
+				if err != nil {
+					fmt.Fprintf(os.Stderr, "Can't retrieve %q, %s\n", objectURL, err)
+					os.Exit(1)
+				}
+				data, err := io.ReadAll(response.Body)
+				if err != nil {
+					fmt.Fprintf(os.Stderr, "Failed to read %q, %q\n", objectURL, err)
+					os.Exit(1)
+				}
+				fName := path.Base(u.Path)
+				if err := ioutil.WriteFile(fName, data, 0666); err != nil {
+					fmt.Fprintf(os.Stderr, "Could not write %q from %q, %s\n", fName, objectURL, err)
+					os.Exit(1)
 				}
 			}
 			if isCrossRefDOI == false && isDataCiteDOI == false {
