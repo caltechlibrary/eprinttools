@@ -51,10 +51,13 @@ type Record struct {
 	ExternalPIDs map[string]*PersistentIdentifier `json:"pids,omitempty"`      // System-managed external persistent identifiers (DOI, Handles, OAI-PMH identifiers)
 	RecordAccess *RecordAccess                    `json:"access,omitempty"`    // Access control for record
 	Metadata     *Metadata                        `json:"metadata"`            // Descriptive metadata for the resource
-	Files        *Files                           `json:"files"`               // Associated files information.
+	Files        *Files                           `json:"files,omitempty"`     // Associated files information.
 	Tombstone    *Tombstone                       `json:"tombstone,omitempty"` // Tombstone (deasscession) information.
 	Created      time.Time                        `json:"created"`             // create time for record
 	Updated      time.Time                        `json:"updated"`             // modified time for record
+
+	// Annotation this is where I'm going to map custom fields.
+	Annoations map[string]interface{} `json:"annotations,omitempty"`
 }
 
 //
@@ -422,18 +425,21 @@ func (rec *Record) recordAccessFromEPrint(eprint *EPrint) error {
 		rec.RecordAccess.Record = "restricted"
 	}
 	// Need to make sure record is not embargoed
-	for _, doc := range *eprint.Documents {
-		if doc.DateEmbargo != "" {
-			embargo := new(Embargo)
-			embargo.Until = doc.DateEmbargo
-			embargo.Reason = eprint.Suggestions
-			if doc.Security == "internal" {
-				embargo.Active = true
-			} else {
-				embargo.Active = false
+	if eprint.Documents != nil {
+		for i := 0; i < eprint.Documents.Length(); i++ {
+			doc := eprint.Documents.IndexOf(i)
+			if doc.DateEmbargo != "" {
+				embargo := new(Embargo)
+				embargo.Until = doc.DateEmbargo
+				embargo.Reason = eprint.Suggestions
+				if doc.Security == "internal" {
+					embargo.Active = true
+				} else {
+					embargo.Active = false
+				}
+				rec.RecordAccess.Embargo = embargo
+				break
 			}
-			rec.RecordAccess.Embargo = embargo
-			break
 		}
 	}
 	return nil
@@ -641,7 +647,7 @@ func (rec *Record) metadataFromEPrint(eprint *EPrint) error {
 // EPrint record
 func (rec *Record) filesFromEPrint(eprint *EPrint) error {
 	// crosswalk Files from EPrints DocumentList
-	if (eprint.Documents != nil) && (eprint.Documents.Length() > 0) {
+	if (eprint != nil) && (eprint.Documents != nil) && (eprint.Documents.Length() > 0) {
 		rec.Files = new(Files)
 		rec.Files.Enabled = true
 		rec.Files.Entries = map[string]*Entry{}

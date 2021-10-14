@@ -153,7 +153,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 	raw            bool
 	getURL         string
 	getDocument    bool
-	simplified     bool
+	asSimplified   bool
 )
 
 func main() {
@@ -188,8 +188,8 @@ func main() {
 	flagSet.BoolVar(&passwordPrompt, "password", false, "Prompt for the password for authenticated access")
 	flagSet.StringVar(&auth, "auth", "basic", "set the authentication type for access, default is basic")
 	flagSet.BoolVar(&getDocument, "document", false, "Retrieve a document from the provided url")
-	flagSet.BoolVar(&simplified, "s", false, "Return the object in a simplified JSON data structure.")
-	flagSet.BoolVar(&simplified, "simple", false, "Return the object in a simplified JSON data structure.")
+	flagSet.BoolVar(&asSimplified, "s", false, "Return the object in a simplified JSON data structure.")
+	flagSet.BoolVar(&asSimplified, "simple", false, "Return the object in a simplified JSON data structure.")
 
 	// We're ready to process args
 	flagSet.Parse(os.Args[1:])
@@ -345,19 +345,17 @@ func main() {
 		for _, e := range data.EPrint {
 			e.SyntheticFields()
 		}
-		if simplified {
+		if asSimplified {
 			if sObj, err := eprinttools.CrosswalkEPrintToRecord(data.EPrint[0]); err != nil {
 				fmt.Fprintf(os.Stderr, "%s\n", err)
 			} else {
 				src, err = json.MarshalIndent(sObj, "", "   ")
 			}
+		} else if asJSON {
+			src, err = json.MarshalIndent(data, "", "   ")
 		} else {
-			if asJSON {
-				src, err = json.MarshalIndent(data, "", "   ")
-			} else {
-				fmt.Fprintf(out, "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n")
-				src, err = xml.MarshalIndent(data, "", "  ")
-			}
+			fmt.Fprintf(out, "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n")
+			src, err = xml.MarshalIndent(data, "", "  ")
 		}
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "%s\n", err)

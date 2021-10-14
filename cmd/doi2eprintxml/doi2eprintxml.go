@@ -109,6 +109,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 	useCaltechLibrarySpecificRules        bool
 	use_1_0_0_CaltechLibrarySpecificRules bool
 	asJSON                                bool
+	asSimplified                          bool
 )
 
 func main() {
@@ -134,6 +135,7 @@ func main() {
 	flagSet.BoolVar(&useCaltechLibrarySpecificRules, "clsrules", false, "Apply current Caltech Library Specific Rules to EPrintXML output")
 	flagSet.BoolVar(&use_1_0_0_CaltechLibrarySpecificRules, "v1.0.0-clsrules", false, "Apply v1.0.0 Caltech Library Specific Rules to EPrintXML output")
 	flagSet.BoolVar(&asJSON, "json", false, "output EPrint structure as JSON")
+	flagSet.BoolVar(&asSimplified, "simple", false, "output EPrint structure as Simplified JSON")
 
 	//FIXME: Need to come up with a better way of setting this,
 	// perhaps a config mode and save the setting in
@@ -307,6 +309,30 @@ func main() {
 			fmt.Fprintf(os.Stderr, "%s\n", err)
 			os.Exit(1)
 		}
+	}
+	if asSimplified {
+		fmt.Fprintln(os.Stdout, "[")
+		if eprintsList != nil && eprintsList.EPrint != nil {
+			//for i, item := range eprintsList.EPrint {
+			for i := 0; i < len(eprintsList.EPrint); i++ {
+				item := eprintsList.EPrint[i]
+				if i > 0 {
+					fmt.Fprintf(os.Stdout, ",\n")
+				}
+				fmt.Fprintf(os.Stderr, "DEBUG eprint %T\n", item)
+				if item == nil {
+					fmt.Fprintf(os.Stderr, "DEBUG eprint is nil\n")
+				}
+				rec, err := eprinttools.CrosswalkEPrintToRecord(item)
+				if err != nil {
+					fmt.Fprintf(os.Stderr, "%s\n", err)
+					os.Exit(1)
+				}
+				fmt.Fprintf(os.Stdout, "%s", rec.ToString())
+			}
+		}
+		fmt.Fprintln(os.Stdout, "\n]")
+		os.Exit(0)
 	}
 	if asJSON {
 		src, err := json.MarshalIndent(eprintsList, "", "   ")
