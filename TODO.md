@@ -11,6 +11,8 @@ Next
 ----
 
 - [ ] Add create/update/delete of eprints record support to ep3apid, needed to push records generated through Acacia into EPrints
+    - [ ] Implement a method that takes a table/column map and EPrint structure then renders a INSERT or REPLACE sequence to create or update an EPrint record
+    - [ ] Implement a method that takes a table/column map and EPrint structure and update the EPrint structure from a sequnce of SELECT statements
 - [ ] Implement a method to show which tables a repository instance has and the column names in each table
     - [x] Implement `/repository/<REPO_ID>` end point with map[string][]string{} output
     - [ ] Implement a start data structure that captures the `/repository/` end point data so that table/column map can be used to build the SQL queries need to read, create, and update an EPrint record
