@@ -35,13 +35,19 @@ type Config struct {
 type DataSource struct {
 	// DSN is used to connect to a MySQL style DB.
 	DSN string `json:"dsn,omitempty"`
+
 	// Rest is used to connect to EPrints REST API
 	// NOTE: assumes Basic Auth for authentication
 	RestAPI string `json:"rest,omitempty"`
+
 	// ReadWrite enables the API read/write API for creating
 	// or replacing EPrint records via SQL database calls.
 	// The default value is false.
 	ReadWrite bool `json:"create" default:"false"`
+
+	// TableMap holds the mapping of tables and columns for
+	// the repository presented.
+	TableMap map[string][]string `json:"tables,omitempty"`
 }
 
 // LoadConfig reads a JSON file and returns a Config structure

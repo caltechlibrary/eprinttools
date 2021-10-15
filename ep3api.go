@@ -1109,6 +1109,10 @@ func InitExtendedAPI(settings string) error {
 			//log.Printf("Setting  DB connection to %q", repoID)
 			//db.Ping()
 			config.Connections[repoID] = db
+			dataSource.TableMap, err = EPrintTablesAndColumns(db, repoID)
+		}
+		if err != nil {
+			return fmt.Errorf("failed to map table and columns for %q, %s", repoID, err)
 		}
 		// Add routes (end points) for the target repository
 		for route, fn := range routes {
