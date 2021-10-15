@@ -1,13 +1,19 @@
 
-# Action items
+Action items
+============
 
 This is for the simplified eprinttools codebase.
 
-## Bugs
+Bugs
+----
 
-## Next
+Next
+----
 
 - [ ] Add create/update/delete of eprints record support to ep3apid, needed to push records generated through Acacia into EPrints
+- [ ] Implement a method to show which tables a repository instance has and the column names in each table
+    - [x] Implement `/repository/<REPO_ID>` end point with map[string][]string{} output
+    - [ ] Implement a start data structure that captures the `/repository/` end point data so that table/column map can be used to build the SQL queries need to read, create, and update an EPrint record
 - [ ] Implement Solr index record view for Solr 8.9 ingest
 - [x] doi2eprintxml list of DOI should allow for pipe separator and URL to object and handle it like Acacia does
 - [x] doi2eprintxml needs to fetch the object URL and save results along side the generated EPrints XML
@@ -21,7 +27,9 @@ This is for the simplified eprinttools codebase.
     - [x] epfmt
     - [x] doi2eprintxml
 
-## Someday, Maybe
+Someday, Maybe
+--------------
 
-## Completed
+Completed
+---------
 

@@ -139,94 +139,227 @@ func packageJSON(w http.ResponseWriter, repoID string, src []byte, err error) (i
 }
 
 //
+// EPrints Metadata Structure
+//
+
+// EPrintTablesAndColumns takes a DB connection and repoID then builds a map[string][]string{}
+// structure representing the tables and their columns available in a EPrints Repository
+func EPrintTablesAndColumns(db *sql.DB, repoID string) (map[string][]string, error) {
+	stmt := `SHOW TABLES LIKE "eprint%"`
+	rows, err := db.Query(stmt)
+	if err != nil {
+		return nil, fmt.Errorf("SQL(%q), %s", repoID, err)
+	}
+	tables := []string{}
+	for rows.Next() {
+		tableName := ""
+		if err := rows.Scan(&tableName); err == nil {
+			tables = append(tables, tableName)
+		}
+	}
+	rows.Close()
+
+	data := map[string][]string{}
+	for _, tableName := range tables {
+		data[tableName] = []string{}
+		stmt := fmt.Sprintf(`SHOW COLUMNS IN %s`, tableName)
+		cRows, err := db.Query(stmt)
+		if err != nil {
+			return nil, fmt.Errorf("SQL(%q), %s", repoID, err)
+		}
+		columns := []string{}
+		var (
+			colName, f1, f2, f3, f5 string
+			f4                      interface{}
+		)
+		for cRows.Next() {
+			//colName, f1, f2, f3, f4, f5 = &"", &"", &"", &"", nil, &""
+			if err := cRows.Scan(&colName, &f1, &f2, &f3, &f4, &f5); err != nil {
+				log.Printf("cRows.Scan() error: %s", err)
+			} else {
+				columns = append(columns, colName)
+			}
+		}
+		data[tableName] = columns
+		cRows.Close()
+	}
+	return data, nil
+}
+
+//
 // End point documentation
 //
 func readmeDocument() string {
-	return fmt.Sprintf(`
-EPrints 3.3.x extended API, eprinttools version %s
+	return `
+USAGE
+=====
 
-EPrints extended API
-====================
+    ep3apid [OPTIONS] [SETTINGS_FILENAME]
 
-The EPrints software package from University of Southampton provides a rich internal Perl API along with a RESTful web API. But getting specific lists of EPrint IDs is challenging. This API addresses this. The API returns lists of EPrint IDs as a JSON array or plain text documentaiton (like this page).  The EPrint IDs lists are not sorted. An empty JSON array means no EPrints IDs are available for that type of request. 
+SYNOPSIS
+--------
 
-List repositories available
----------------------------
+Run an extended EPrints 3.x web API
 
-The general structure of URLs in the extended API is in the form
+DETAIL
+------
 
-    http://<HOSTNAME>:<PORT>/<REPO_ID>/<END_POINT>/<PARAMETERS>
-
-- <HOSTNAME> is normally (recommended) "localhost"
-- <PORT> defaults to 8484
-- <REPO_ID> is the label used to reference the repository name
-- <END_POINT> is the list of end points provided the service
-- <PARAMATERS> are any needed values for the end point one per path part
-
-To see a list of available repositories use the "/repositories" end point. E.g.
-
-   curl http://localhost:8484/repositories
-
-
-Unique IDs to EPrint IDs
-------------------------
+ep3apid can be run from the command line and the will create an http web service on __ep3apid__. The web service provides a limitted number of end points providing eprint ids for content matched in EPrints's MySQL databases.
 
 The following URL end points are intended to take one unique identifier and map that to one or more EPrint IDs. This can be done because each unique ID  targeted can be identified by querying a single table in EPrints.  In addition the scan can return the complete results since all EPrint IDs are integers and returning all EPrint IDs in any of our repositories is sufficiently small to be returned in a single HTTP request.
 
-- "/<REPO_ID>/doi/<DOI>" with the adoption of EPrints "doi" field in the EPrint table it makes sense to have a quick translation of DOI to EPrint id for a given EPrints repository. 
-- "/<REPO_ID>/creator-id/<CREATOR_ID>" scans the name creator id field associated with creators and returns a list of EPrint ID 
-- "/<REPO_ID>/creator-orcid/<ORCID>" scans the "orcid" field associated with creators and returns a list of EPrint ID 
-- "/<REPO_ID>/editor-id/<CREATOR_ID>" scans the name creator id field associated with editors and returns a list of EPrint ID 
-- "/<REPO_ID>/contributor-id/<CONTRIBUTOR_ID>" scans the "id" field associated with a contributors and returns a list of EPrint ID 
-- "/<REPO_ID>/advisor-id/<ADVISOR_ID>" scans the name advisor id field associated with advisors and returns a list of EPrint ID 
-- "/<REPO_ID>/committee-id/<COMMITTEE_ID>" scans the committee id field associated with committee members and returns a list of EPrint ID
-- "/<REPO_ID>/group-id/<GROUP_ID>" this scans group ID and returns a list of EPrint IDs associated with the group
-- "/<REPO_ID>/grant-number/<GRANT_NUMBER>" returns a list of EPrint IDs associated with the grant number
-- "/<REPO_ID>/creator-name/<FAMILY_NAME>/<GIVEN_NAME>" scans the name fields associated with creators and returns a list of EPrint ID 
-- "/<REPO_ID>/editor-name/<FAMILY_NAME>/<GIVEN_NAME>" scans the family and given name field associated with a editors and returns a list of EPrint ID 
-- "/<REPO_ID>/contributor-name/<FAMILY_NAME>/<GIVEN_NAME>" scans the family and given name field associated with a contributors and returns a list of EPrint ID 
-- "/<REPO_ID>/advisor-name/<FAMILY_NAME>/<GIVEN_NAME>" scans the name fields associated with advisors returns a list of EPrint ID 
-- "/<REPO_ID>/committee-name/<FAMILY_NAME>/<GIVEN_NAME>" scans the family and given name fields associated with committee members and returns a list of EPrint ID
-- "/<REPO_ID>/pubmed/<PUBMED_ID>" returns a list of EPrint IDs associated with the PubMed ID
-- "/<REPO_ID>/issn/<ISSN>" returns a list of EPrint IDs associated with the ISSN
-- "/<REPO_ID>/isbn/<ISSN>" returns a list of EPrint IDs associated with the ISSN
-- "/<REPO_ID>/patent-number/<PATENT_NUMBER>" returns a list of EPrint IDs associated with the patent number
+### Unique ID to EPrint ID
 
-Change Events
--------------
+- '/<REPO_ID>/doi/<DOI>' with the adoption of EPrints "doi" field in the EPrint table it makes sense to have a quick translation of DOI to EPrint id for a given EPrints repository. 
+- '/<REPO_ID>/creator-id/<CREATOR_ID>' scans the name creator id field associated with creators and returns a list of EPrint ID 
+- '/<REPO_ID>/creator-orcid/<ORCID>' scans the "orcid" field associated with creators and returns a list of EPrint ID 
+- '/<REPO_ID>/editor-id/<CREATOR_ID>' scans the name creator id field associated with editors and returns a list of EPrint ID 
+- '/<REPO_ID>/contributor-id/<CONTRIBUTOR_ID>' scans the "id" field associated with a contributors and returns a list of EPrint ID 
+- '/<REPO_ID>/advisor-id/<ADVISOR_ID>' scans the name advisor id field associated with advisors and returns a list of EPrint ID 
+- '/<REPO_ID>/committee-id/<COMMITTEE_ID>' scans the committee id field associated with committee members and returns a list of EPrint ID
+- '/<REPO_ID>/group-id/<GROUP_ID>' this scans group ID and returns a list of EPrint IDs associated with the group
+- '/<REPO_ID>/funder-id/<FUNDER_ID>' returns a list of EPrint IDs associated with the funder's ROR
+- '/<REPO_ID>/grant-number/<GRANT_NUMBER>' returns a list of EPrint IDs associated with the grant number
+
+### Change Events
 
 The follow API end points would facilitate faster updates to our feeds platform as well as allow us to create a separate public view of our EPrint repository content.
 
-- "/<REPO_ID>/created/<TIMESTAMP>/<TIMESTAMP>" returns a list of EPrint IDs creatd starting at the first timestamp (timestamps should have a resolution to the minute, e.g. "YYYY-MM-DD HH:MM:SS") through inclusive of the second timestmap (if the second is omitted the timestamp is assumed to be "now")
-- "/<REPO_ID>/updated/<TIMESTAMP>/<TIMESTAMP>" returns a list of EPrint IDs updated starting at the first timestamp (timestamps should have a resolution to the minute, e.g. "YYYY-MM-DD HH:MM:SS") through inclusive of the second timestmap (if the second is omitted the timestamp is assumed to be "now")
-- "/<REPO_ID>/deleted/<TIMESTAMP>/<TIMESTAMP>" through the returns a list of EPrint IDs deleted starting at first timestamp through inclusive of the second timestamp, if the second timestamp is omitted it is assumed to be "now"
-- "/<REPO_ID>/pubdate/<APROX_DATESTAMP>/<APPOX_DATESTAMP>" this query scans the EPrint table for records with publication starts starting with the first approximate date through inclusive of the second approximate date. If the second date is omitted it is assumed to be "today". Approximate dates my be expressed just the year (starting with Jan 1, ending with Dec 31), just the year and month (starting with first day of month ending with the last day) or year, month and day. The end returns zero or more EPrint IDs.
+- '/<REPO_ID>/updated/<TIMESTAMP>/<TIMESTAMP>' returns a list of EPrint IDs updated starting at the first timestamp (timestamps should have a resolution to the minute, e.g. "YYYY-MM-DD HH:MM:SS") through inclusive of the second timestmap (if the second is omitted the timestamp is assumed to be "now")
+- '/<REPO_ID>/deleted/<TIMESTAMP>/<TIMESTAMP>' through the returns a list of EPrint IDs deleted starting at first timestamp through inclusive of the second timestamp, if the second timestamp is omitted it is assumed to be "now"
+- '/<REPO_ID>/pubdate/<APROX_DATESTAMP>/<APPOX_DATESTMP>' this query scans the EPrint table for records with publication starts starting with the first approximate date through inclusive of the second approximate date. If the second date is omitted it is assumed to be "today". Approximate dates my be expressed just the year (starting with Jan 1, ending with Dec 31), just the year and month (starting with first day of month ending with the last day) or year, month and day. The end returns zero or more EPrint IDs.
 
-Simplified Record
------------------
+` + "```" + `
+  -h	Display this help message
+  -help
+    	Display this help message
+  -license
+    	Display software license
+  -version
+    	Display software version
+` + "```" + `
 
-This version of the API includes a simplified JSON record view. The
-JSON represents the JSON model used in DataCite and InvenioRDMs.
 
-- "/<REPO_ID>/record/<EPRINT_ID>" returns a complex JSON object representing the EPrint record identified by <EPRINT_ID>.
+
+Settings (configuration)
+------------------------
+
+To run the web service create a JSON file named settings.ini in the current directory where you're invoking _ep3apid_ from. The web service can be started with running
+
+` + "```" + `
+    ep3apid
+` + "```" + `
+
+or to load "settings.json" from the current work directory.
+
+` + "```" + `
+    ep3apid settings.json
+` + "```" + `
 
 Write API
 ---------
 
-As of {app_name} version 1.0.3 a new end point exists for reading
-and writing EPrints XML. This can be enabled per repository. It
-only supports interaction with one record.  If the eprint ID furnished
-in the call is 0 (zero) then a new record will be created. Otherwise
-the contents of the EPrint XML you post will replace the existing 
-eprint record.  This transaction takes place only at the SQL
-level. None Perl EPrints API is invoked. 
+As of __ep3apid__ version 1.0.3 a new end point exists for reading and writing EPrints XML. This can be enabled per repository. It only supports interaction with one record.  If the eprint ID furnished in the call is 0 (zero) then a new record will be created. Otherwise the contents of the EPrint XML you post will replace the existing eprint record.  This transaction takes place only at the SQL level. None Perl EPrints API is invoked. 
 
-The end point is "/<REPO_ID>/eprint/<EPRINT_ID>" for EPrint XML.
+The end point is '/<REPO_ID>/eprint/<EPRINT_ID>' for EPrint XML.
 
-To enable this feature add the attribute '"readwrite": true' to
-the repositories setting in settins.json.
+To enable this feature add the attribute '"readwrite": true' to the repositories setting in settins.json.
 
-`, Version)
+`
+}
+
+func repositoriesDocument() string {
+	return `
+Repositories (end point)
+========================
+
+This end point lists the repositories known to the __ep3apid__ service.
+
+- '/repositories' returns a JSON array of repository names defined in settings.json
+- '/repositories/help' returns this documentation.
+
+Example
+-------
+
+In this example we assume the __ep3apid__ services is running on "localhost:8484" and is configured to support two repositories "lemurprints" and "test3". We are using curl to retrieve the data.
+
+` + "```" + `shell
+    curl -X GET http://localhost:8484/repositories
+` + "```" + `
+
+This should return a JSON array like
+
+` + "```" + `json
+    [
+        "lemurprints",
+        "test3"
+    ]
+` + "```" + `
+
+`
+}
+
+func repositoryDocument() string {
+	return `
+Repository (end point)
+----------------------
+
+The end point executes a sequence of "SHOW" SQL statements to build a JSON object with table names as attributes pointing at an array of column names. This is suitable to determine on a per repository bases the related table and columnames representing an EPrint record.
+
+- '/repository' return this documentation
+- '/repository/<REPO_ID>' return the JSON representation
+- '/repository/<REPO_ID/help' return this documentation
+
+Example
+-------
+
+
+` + "```" + `shell
+   curl http://localhost:8485/lemurprints/tables
+` + "```" + `
+
+Would return a JSON expression similar to the expression below.  The object has attributes that map to the EPrint talbles and for each table the attribute points at an array of column names.
+
+The "eprint" table is the root of the object. Each other table is a sub object or array. Tables containing a "pos" field render as an array of objects (e.g. the "item" elements in the EPrint XML). If pos is missing then it is an object with attributes and values.
+
+Each table is relatated by the "eprintid" column ("..." in the object below means the text was abbeviated).
+
+
+` + "```" + `json
+{
+  "eprint": [ "abstract", "alt_url", "book_title", "collection", "commentary", "completion_time", "composition_type", "contact_email", "coverage_dates", "data_type", "date_day", "date_month", "date_type", "date_year", "datestamp_day", "datestamp_hour", "datestamp_minute", ... ],
+  "eprint_accompaniment": [ "accompaniment", "eprintid", "pos" ],
+  "eprint_alt_title": [ "alt_title", "eprintid", "pos" ],
+  "eprint_conductors_id": [ "conductors_id", "eprintid", "pos" ],
+  "eprint_conductors_name": [ "conductors_name_family", "conductors_name_given", "conductors_name_honourific", "conductors_name_lineage", "eprintid", "pos" ],
+  "eprint_conductors_uri": [ "conductors_uri", "eprintid", "pos" ],
+  "eprint_conf_creators_id": [ "conf_creators_id", "eprintid", "pos" ],
+  "eprint_conf_creators_name": [ "conf_creators_name", "eprintid", "pos" ],
+  "eprint_conf_creators_uri": [ "conf_creators_uri", "eprintid", "pos" ],
+  "eprint_contributors_id": [ "contributors_id", "eprintid", "pos" ],
+  "eprint_contributors_name": [ "contributors_name_family", "contributors_name_given", "contributors_name_honourific", "contributors_name_lineage", "eprintid", "pos" ],
+  "eprint_contributors_type": [ "contributors_type", "eprintid", "pos" ], "eprint_contributors_uri": [ "contributors_uri", "eprintid", "pos" ],
+  "eprint_copyright_holders": [ "copyright_holders", "eprintid", "pos" ],
+  "eprint_corp_creators_id": [ "corp_creators_id", "eprintid", "pos" ],
+  "eprint_corp_creators_name": [ "corp_creators_name", "eprintid", "pos" ],
+  "eprint_corp_creators_uri": [ "corp_creators_uri", "eprintid", "pos" ],
+  "eprint_creators_id": [ "creators_id", "eprintid", "pos" ],
+  "eprint_creators_name": [ "creators_name_family", "creators_name_given", "creators_name_honourific", "creators_name_lineage", "eprintid", "pos" ],
+  "eprint_creators_uri": [ "creators_uri", "eprintid", "pos" ],
+  "eprint_divisions": [ "divisions", "eprintid", "pos" ],
+  "eprint_editors_id": [ "editors_id", "eprintid", "pos" ],
+  "eprint_editors_name": [ "editors_name_family", "editors_name_given", "editors_name_honourific", "editors_name_lineage", "eprintid", "pos" ],
+  "eprint_editors_uri": [ "editors_uri", "eprintid", "pos" ],
+  "eprint_exhibitors_id": [ "eprintid", "exhibitors_id", "pos" ],
+  "eprint_exhibitors_name": [ "eprintid", "exhibitors_name_family", "exhibitors_name_given", "exhibitors_name_honourific", "exhibitors_name_lineage", "pos" ],
+  "eprint_exhibitors_uri": [ "eprintid", "exhibitors_uri", "pos" ],
+  "eprint_funders_agency": [ "eprintid", "funders_agency", "pos" ],
+  "eprint_funders_grant_number": [ "eprintid", "funders_grant_number", "pos" ],
+  ...
+}
+` + "```" + `
+
+`
 }
 
 func createdDocument(repoID string) string {
@@ -355,6 +488,9 @@ POST:
 //
 
 func repositoriesEndPoint(w http.ResponseWriter, r *http.Request) (int, error) {
+	if strings.HasSuffix(r.URL.Path, "/help") {
+		return packageDocument(w, repositoryDocument())
+	}
 	repositories := []string{}
 	for repository, _ := range config.Repositories {
 		repositories = append(repositories, repository)
@@ -364,6 +500,18 @@ func repositoriesEndPoint(w http.ResponseWriter, r *http.Request) (int, error) {
 		return 500, fmt.Errorf("Internal Server Error, %s", err)
 	}
 	return packageDocument(w, fmt.Sprintf("%s", src))
+}
+
+func repositoryEndPoint(w http.ResponseWriter, r *http.Request, repoID string) (int, error) {
+	if repoID == "" || strings.HasSuffix(r.URL.Path, "/help") {
+		return packageDocument(w, repositoryDocument())
+	}
+	if db, ok := config.Connections[repoID]; ok == true {
+		data, err := EPrintTablesAndColumns(db, repoID)
+		src, err := json.MarshalIndent(data, "", "    ")
+		return packageJSON(w, repoID, src, err)
+	}
+	return 404, fmt.Errorf("not found")
 }
 
 //
@@ -862,19 +1010,24 @@ func api(w http.ResponseWriter, r *http.Request) {
 		err        error
 		statusCode int
 	)
-	//FIXME: the API should reject requests that are not application/json or text/plain since that is all we provide.
-	if r.Method != "GET" {
+	if r.Method != "GET" && r.Method != "POST" {
 		statusCode, err = 405, fmt.Errorf("Method Not Allowed")
 		handleError(w, statusCode, err)
 	} else {
-		switch r.URL.Path {
-		case "/favicon.ico":
+		switch {
+		case r.URL.Path == "/favicon.ico":
 			statusCode, err = 200, nil
 			fmt.Fprintf(w, "")
 			//statusCode, err = 404, fmt.Errorf("Not Found")
 			//handleError(w, statusCode, err)
-		case "/repositories":
+		case strings.HasPrefix(r.URL.Path, "/repositories"):
 			statusCode, err = repositoriesEndPoint(w, r)
+			if err != nil {
+				handleError(w, statusCode, err)
+			}
+		case strings.HasPrefix(r.URL.Path, "/repository"):
+			repoID := strings.TrimPrefix(r.URL.Path, "/repository/")
+			statusCode, err = repositoryEndPoint(w, r, repoID)
 			if err != nil {
 				handleError(w, statusCode, err)
 			}
