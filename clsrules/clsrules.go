@@ -126,13 +126,13 @@ func Apply(eprintsList *eprinttools.EPrints) (*eprinttools.EPrints, error) {
 			changed = true
 		}
 		// Conform Volume value per George and DR-46
-		if volNo := trimNumberString(eprint.Volume); volNo != eprint.Volume {
-			eprint.Volume = volNo
+		if volNo := trimNumberString(*eprint.Volume); volNo != *eprint.Volume {
+			*eprint.Volume = volNo
 			changed = true
 		}
 		// Conform Number value per George and DR-46
-		if no := trimNumberString(eprint.Number); no != eprint.Number {
-			eprint.Number = no
+		if no := trimNumberString(*eprint.Number); no != *eprint.Number {
+			*eprint.Number = no
 			changed = true
 		}
 
@@ -150,8 +150,8 @@ func Apply(eprintsList *eprinttools.EPrints) (*eprinttools.EPrints, error) {
 		*/
 
 		// Caltech Library doesn't import series information
-		if eprint.Series != "" {
-			eprint.Series = ""
+		if eprint.Series != nil {
+			*eprint.Series = ""
 			changed = true
 		}
 
@@ -178,12 +178,12 @@ func Apply(eprintsList *eprinttools.EPrints) (*eprinttools.EPrints, error) {
 		}
 
 		// Normalize Publisher name and Publication from ISSN
-		if eprint.ISSN != "" {
-			if publisher, ok := issnPublisher[eprint.ISSN]; ok == true {
+		if eprint.ISSN != nil {
+			if publisher, ok := issnPublisher[*eprint.ISSN]; ok == true {
 				eprint.Publisher = publisher
 				changed = true
 			}
-			if publication, ok := issnPublication[eprint.ISSN]; ok == true {
+			if publication, ok := issnPublication[*eprint.ISSN]; ok == true {
 				eprint.Publication = publication
 				changed = true
 			}
@@ -209,13 +209,13 @@ func Apply1_0_0(eprintsList *eprinttools.EPrints) (*eprinttools.EPrints, error) 
 			changed = true
 		}
 		// Conform Volume value per George and DR-46
-		if volNo := trimNumberString(eprint.Volume); volNo != eprint.Volume {
-			eprint.Volume = volNo
+		if volNo := trimNumberString(*eprint.Volume); volNo != *eprint.Volume {
+			*eprint.Volume = volNo
 			changed = true
 		}
 		// Conform Number value per George and DR-46
-		if no := trimNumberString(eprint.Number); no != eprint.Number {
-			eprint.Number = no
+		if no := trimNumberString(*eprint.Number); no != *eprint.Number {
+			*eprint.Number = no
 			changed = true
 		}
 
@@ -233,16 +233,16 @@ func Apply1_0_0(eprintsList *eprinttools.EPrints) (*eprinttools.EPrints, error) 
 		*/
 
 		// Caltech Library doesn't import series information
-		if eprint.Series != "" {
-			eprint.Series = ""
+		if eprint.Series != nil {
+			eprint.Series = nil
 			changed = true
 		}
 
 		// Handle Caltech Library's pecular DOI assignment behavior
-		if eprint.DOI != "" {
-			if relatedURLs, hasChanged := migrateDOI(eprint.DOI, eprint.Type, eprint.RelatedURL); hasChanged {
+		if eprint.DOI != nil {
+			if relatedURLs, hasChanged := migrateDOI(*eprint.DOI, eprint.Type, eprint.RelatedURL); hasChanged {
 				eprint.RelatedURL = relatedURLs
-				eprint.DOI = ""
+				*eprint.DOI = ""
 				changed = true
 			}
 		}
@@ -256,12 +256,12 @@ func Apply1_0_0(eprintsList *eprinttools.EPrints) (*eprinttools.EPrints, error) 
 		}
 
 		// Normalize Publisher name and Publication from ISSN
-		if eprint.ISSN != "" {
-			if publisher, ok := issnPublisher[eprint.ISSN]; ok == true {
+		if eprint.ISSN != nil {
+			if publisher, ok := issnPublisher[*eprint.ISSN]; ok == true {
 				eprint.Publisher = publisher
 				changed = true
 			}
-			if publication, ok := issnPublication[eprint.ISSN]; ok == true {
+			if publication, ok := issnPublication[*eprint.ISSN]; ok == true {
 				eprint.Publication = publication
 				changed = true
 			}

@@ -378,25 +378,25 @@ func (rec *Record) parentFromEPrint(eprint *EPrint) error {
 func (rec *Record) externalPIDFromEPrint(eprint *EPrint) error {
 	rec.ExternalPIDs = map[string]*PersistentIdentifier{}
 	// Pickup DOI
-	if eprint.DOI != "" {
+	if eprint.DOI != nil {
 		pid := new(PersistentIdentifier)
-		pid.Identifier = eprint.DOI
+		pid.Identifier = *eprint.DOI
 		pid.Provider = "datacite" // FIXME: should be DataCite or CrossRef
 		pid.Client = ""           // FIXME: need to find out client string
 		rec.ExternalPIDs["doi"] = pid
 	}
 	// Pickup ISSN
-	if eprint.ISBN != "" {
+	if eprint.ISBN != nil {
 		pid := new(PersistentIdentifier)
-		pid.Identifier = eprint.ISSN
+		pid.Identifier = *eprint.ISSN
 		pid.Provider = "" // FIXME: Need to find out identifier string
 		pid.Client = ""   // FIXME: need to find out client string
 		rec.ExternalPIDs["ISSN"] = pid
 	}
 	// Pickup ISBN
-	if eprint.ISBN != "" {
+	if eprint.ISBN != nil {
 		pid := new(PersistentIdentifier)
-		pid.Identifier = eprint.ISBN
+		pid.Identifier = *eprint.ISBN
 		pid.Provider = "" // FIXME: Need to find out identifier string
 		pid.Client = ""   // FIXME: need to find out client string
 		rec.ExternalPIDs["ISBN"] = pid
@@ -409,10 +409,10 @@ func (rec *Record) externalPIDFromEPrint(eprint *EPrint) error {
 // recordAccessFromEPrint extracts access permissions from the EPrint
 func (rec *Record) recordAccessFromEPrint(eprint *EPrint) error {
 	isPublic := true
-	if (eprint.ReviewStatus == "review") ||
-		(eprint.ReviewStatus == "withheld") ||
-		(eprint.ReviewStatus == "gradoffice") ||
-		(eprint.ReviewStatus == "notapproved") {
+	if (*eprint.ReviewStatus == "review") ||
+		(*eprint.ReviewStatus == "withheld") ||
+		(*eprint.ReviewStatus == "gradoffice") ||
+		(*eprint.ReviewStatus == "notapproved") {
 		isPublic = false
 	}
 	if eprint.EPrintStatus != "archive" || eprint.MetadataVisibility != "show" {
@@ -431,7 +431,9 @@ func (rec *Record) recordAccessFromEPrint(eprint *EPrint) error {
 			if doc.DateEmbargo != "" {
 				embargo := new(Embargo)
 				embargo.Until = doc.DateEmbargo
-				embargo.Reason = eprint.Suggestions
+				if eprint.Suggestions != nil {
+					embargo.Reason = *eprint.Suggestions
+				}
 				if doc.Security == "internal" {
 					embargo.Active = true
 				} else {
@@ -564,7 +566,9 @@ func (rec *Record) metadataFromEPrint(eprint *EPrint) error {
 			metadata.AdditionalTitles = append(metadata.AdditionalTitles, title)
 		}
 	}
-	metadata.Description = eprint.Abstract
+	if eprint.Abstract != nil {
+		metadata.Description = *eprint.Abstract
+	}
 	metadata.PublicationDate = eprint.PubDate()
 
 	// Rights are scattered in several EPrints fields, they need to
@@ -576,9 +580,9 @@ func (rec *Record) metadataFromEPrint(eprint *EPrint) error {
 		rights.Description = eprint.Rights
 	}
 	// Figure out if our copyright information is in the Note field.
-	if (eprint.Note != "") && (strings.Contains(eprint.Note, "©") || strings.Contains(eprint.Note, "copyright") || strings.Contains(eprint.Note, "(c)")) {
+	if (eprint.Note != nil) && (strings.Contains(*eprint.Note, "©") || strings.Contains(*eprint.Note, "copyright") || strings.Contains(*eprint.Note, "(c)")) {
 		addRights = true
-		rights.Description = eprint.Note
+		rights.Description = fmt.Sprintf("%s", eprint.Note)
 	}
 	if addRights {
 		metadata.Rights = append(metadata.Rights, rights)
@@ -606,8 +610,8 @@ func (rec *Record) metadataFromEPrint(eprint *EPrint) error {
 	if (eprint.DateType != "published") && (eprint.Date != "") {
 		metadata.Dates = append(metadata.Dates, dateTypeFromTimestamp("pub_date", eprint.Date, "Publication Date"))
 	}
-	if eprint.DateStamp != "" {
-		metadata.Dates = append(metadata.Dates, dateTypeFromTimestamp("created", eprint.DateStamp, "Created from EPrint's datestamp field"))
+	if eprint.Datestamp != "" {
+		metadata.Dates = append(metadata.Dates, dateTypeFromTimestamp("created", eprint.Datestamp, "Created from EPrint's datestamp field"))
 	}
 	if eprint.LastModified != "" {
 		metadata.Dates = append(metadata.Dates, dateTypeFromTimestamp("updated", eprint.LastModified, "Created from EPrint's last_modified field"))
@@ -622,17 +626,17 @@ func (rec *Record) metadataFromEPrint(eprint *EPrint) error {
 	if eprint.Publisher != "" {
 		metadata.Publisher = eprint.Publisher
 	}
-	if eprint.DOI != "" {
-		metadata.Identifiers = append(metadata.Identifiers, mkSimpleIdentifier("DOI", eprint.DOI))
+	if eprint.DOI != nil {
+		metadata.Identifiers = append(metadata.Identifiers, mkSimpleIdentifier("DOI", *eprint.DOI))
 	}
-	if eprint.ISBN != "" {
-		metadata.Identifiers = append(metadata.Identifiers, mkSimpleIdentifier("ISBN", eprint.ISBN))
+	if eprint.ISBN != nil {
+		metadata.Identifiers = append(metadata.Identifiers, mkSimpleIdentifier("ISBN", *eprint.ISBN))
 	}
-	if eprint.ISSN != "" {
-		metadata.Identifiers = append(metadata.Identifiers, mkSimpleIdentifier("ISSN", eprint.ISSN))
+	if eprint.ISSN != nil {
+		metadata.Identifiers = append(metadata.Identifiers, mkSimpleIdentifier("ISSN", *eprint.ISSN))
 	}
-	if eprint.PMCID != "" {
-		metadata.Identifiers = append(metadata.Identifiers, mkSimpleIdentifier("PMCID", eprint.PMCID))
+	if eprint.PMCID != nil {
+		metadata.Identifiers = append(metadata.Identifiers, mkSimpleIdentifier("PMCID", *eprint.PMCID))
 	}
 	if (eprint.Funders != nil) && (eprint.Funders.Items != nil) {
 		for _, item := range eprint.Funders.Items {
@@ -682,8 +686,8 @@ func (rec *Record) tombstoneFromEPrint(eprint *EPrint) error {
 		tombstone.RemovedBy = new(User)
 		tombstone.RemovedBy.DisplayName = eprint.Reviewer
 		tombstone.RemovedBy.User = eprint.UserID
-		if eprint.Suggestions != "" {
-			tombstone.Reason = eprint.Suggestions
+		if eprint.Suggestions != nil {
+			tombstone.Reason = *eprint.Suggestions
 		}
 		rec.Tombstone = tombstone
 	}
@@ -698,12 +702,12 @@ func (rec *Record) createdUpdatedFromEPrint(eprint *EPrint) error {
 		tmFmt            string
 	)
 	// crosswalk Created date
-	if len(eprint.DateStamp) > 0 {
+	if len(eprint.Datestamp) > 0 {
 		tmFmt = timestamp
-		if len(eprint.DateStamp) < 11 {
+		if len(eprint.Datestamp) < 11 {
 			tmFmt = datestamp
 		}
-		created, err = time.Parse(tmFmt, eprint.DateStamp)
+		created, err = time.Parse(tmFmt, eprint.Datestamp)
 		if err != nil {
 			return fmt.Errorf("Error parsing datestamp, %s", err)
 		}

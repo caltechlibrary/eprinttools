@@ -1,7 +1,6 @@
 {
     "repo_id": {
         "dsn": "db_user:secret@/database_name",
-        "rest": "https://username:secret@eprints.library.example.edu",
-        "readwrite": false
+        "write": false
     }
 }

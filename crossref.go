@@ -82,36 +82,36 @@ func CrossRefWorksToEPrint(obj crossrefapi.Object) (*EPrint, error) {
 	if eprint.Type == "book" {
 		if l, ok := indexInto(obj, "message", "container-title"); ok == true {
 			if len(l.([]interface{})) > 0 {
-				eprint.Series = l.([]interface{})[0].(string)
+				*eprint.Series = l.([]interface{})[0].(string)
 			}
 		}
 	}
 	if l, ok := indexInto(obj, "message", "short-container-title"); ok == true {
 		if len(l.([]interface{})) > 0 {
-			eprint.Series = l.([]interface{})[0].(string)
+			*eprint.Series = l.([]interface{})[0].(string)
 		}
 	}
 
 	// Volume
 	if eprint.Type == "article" {
 		if s, ok := indexInto(obj, "message", "volume"); ok == true {
-			eprint.Volume = fmt.Sprintf("%s", s)
+			*eprint.Volume = fmt.Sprintf("%s", s)
 		}
 		// Number
 		if s, ok := indexInto(obj, "message", "journal-issue", "issue"); ok == true {
-			eprint.Number = fmt.Sprintf("%s", s)
+			*eprint.Number = fmt.Sprintf("%s", s)
 		}
 
 	}
 
 	// PlaceOfPub taken from publisher-location in CrossRef
 	if s, ok := indexInto(obj, "message", "publisher-location"); ok == true {
-		eprint.PlaceOfPub = fmt.Sprintf("%s", s)
+		*eprint.PlaceOfPub = fmt.Sprintf("%s", s)
 	}
 
 	// PageRange
 	if s, ok := indexInto(obj, "message", "page"); ok == true {
-		eprint.PageRange = fmt.Sprintf("%s", s)
+		*eprint.PageRange = fmt.Sprintf("%s", s)
 
 	}
 
@@ -119,21 +119,21 @@ func CrossRefWorksToEPrint(obj crossrefapi.Object) (*EPrint, error) {
 	if a, ok := indexInto(obj, "message", "ISBN"); ok == true {
 		if len(a.([]interface{})) > 0 {
 			s := a.([]interface{})[0]
-			eprint.ISBN = fmt.Sprintf("%s", s)
+			*eprint.ISBN = fmt.Sprintf("%s", s)
 		}
 	}
 
 	// ISSN
 	if a, ok := indexInto(obj, "message", "ISSN"); ok == true {
 		if len(a.([]interface{})) > 0 {
-			eprint.ISSN = fmt.Sprintf("%s", a.([]interface{})[0])
+			*eprint.ISSN = fmt.Sprintf("%s", a.([]interface{})[0])
 		}
 	}
 
 	// NOTE: This doesn't appear to be used by CaltechAUTHORS for full book
 	// BookTitle
 	if eprint.Title != "" && eprint.Type == "book" {
-		eprint.BookTitle = eprint.Title
+		*eprint.BookTitle = eprint.Title
 	}
 
 	// Funders
@@ -161,7 +161,7 @@ func CrossRefWorksToEPrint(obj crossrefapi.Object) (*EPrint, error) {
 	// location. If you need Caltech Library's bahavior use clsrules.Apply()
 	// to conform to that regime.
 	if doi, ok := indexInto(obj, "message", "DOI"); ok == true {
-		eprint.DOI = doi.(string)
+		*eprint.DOI = doi.(string)
 	}
 	if l, ok := indexInto(obj, "message", "update-to"); ok == true {
 		for _, o := range l.([]interface{}) {

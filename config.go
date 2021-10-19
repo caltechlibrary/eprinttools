@@ -40,10 +40,10 @@ type DataSource struct {
 	// NOTE: assumes Basic Auth for authentication
 	RestAPI string `json:"rest,omitempty"`
 
-	// ReadWrite enables the API read/write API for creating
+	// Write enables the write API for creating
 	// or replacing EPrint records via SQL database calls.
 	// The default value is false.
-	ReadWrite bool `json:"create" default:"false"`
+	Write bool `json:"write" default:"false"`
 
 	// TableMap holds the mapping of tables and columns for
 	// the repository presented.

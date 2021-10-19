@@ -24,6 +24,7 @@ package eprinttools
 
 import (
 	"encoding/json"
+	"encoding/xml"
 	"fmt"
 	"log"
 	"net/http"
@@ -138,6 +139,16 @@ func packageJSON(w http.ResponseWriter, repoID string, src []byte, err error) (i
 	return 200, nil
 }
 
+func packageXML(w http.ResponseWriter, repoID string, src []byte, err error) (int, error) {
+	if err != nil {
+		log.Printf("ERROR: (%s) package JSON error, %s", repoID, err)
+		return 500, fmt.Errorf("Internal Server Error")
+	}
+	w.Header().Set("Content-Type", "application/xml")
+	fmt.Fprintf(w, "%s", src)
+	return 200, nil
+}
+
 //
 // EPrints Metadata Structure
 //
@@ -199,50 +210,60 @@ USAGE
 SYNOPSIS
 --------
 
-Run an extended EPrints 3.x web API
+Run an extended EPrints 3.x web API based on direct manipulation
+of EPrint's MySQL database(s).
+
 
 DETAIL
 ------
 
-ep3apid can be run from the command line and the will create an http web service on __ep3apid__. The web service provides a limitted number of end points providing eprint ids for content matched in EPrints's MySQL databases.
+__ep3apid__ can be run from the command line and the will create an http web service. The web service provides a limitted number of end points providing eprint ids for content matched in EPrints's MySQL databases. You can configure it to provide read/write support to and from the MySQL databases used by EPrints.
 
 The following URL end points are intended to take one unique identifier and map that to one or more EPrint IDs. This can be done because each unique ID  targeted can be identified by querying a single table in EPrints.  In addition the scan can return the complete results since all EPrint IDs are integers and returning all EPrint IDs in any of our repositories is sufficiently small to be returned in a single HTTP request.
 
-### Unique ID to EPrint ID
+Configuration information
+-------------------------
 
-- '/<REPO_ID>/doi/<DOI>' with the adoption of EPrints "doi" field in the EPrint table it makes sense to have a quick translation of DOI to EPrint id for a given EPrints repository. 
-- '/<REPO_ID>/creator-id/<CREATOR_ID>' scans the name creator id field associated with creators and returns a list of EPrint ID 
-- '/<REPO_ID>/creator-orcid/<ORCID>' scans the "orcid" field associated with creators and returns a list of EPrint ID 
-- '/<REPO_ID>/editor-id/<CREATOR_ID>' scans the name creator id field associated with editors and returns a list of EPrint ID 
-- '/<REPO_ID>/contributor-id/<CONTRIBUTOR_ID>' scans the "id" field associated with a contributors and returns a list of EPrint ID 
-- '/<REPO_ID>/advisor-id/<ADVISOR_ID>' scans the name advisor id field associated with advisors and returns a list of EPrint ID 
-- '/<REPO_ID>/committee-id/<COMMITTEE_ID>' scans the committee id field associated with committee members and returns a list of EPrint ID
-- '/<REPO_ID>/group-id/<GROUP_ID>' this scans group ID and returns a list of EPrint IDs associated with the group
-- '/<REPO_ID>/funder-id/<FUNDER_ID>' returns a list of EPrint IDs associated with the funder's ROR
-- '/<REPO_ID>/grant-number/<GRANT_NUMBER>' returns a list of EPrint IDs associated with the grant number
+There are two end points that give you information about what repositories are configured in for __ep3apid__ and what the database structure (tables and column names) for each configure repository.
 
-### Change Events
+- '/repositores' - returns a list of repositories configured for access by __ep3apid__
+- '/repository/{REPO_ID}' returns the databases and columns of the repository indicated by "{REPO_ID}".
+
+
+Unique ID to EPrint ID
+----------------------
+
+- '/{REPO_ID}/doi/{DOI}' with the adoption of EPrints "doi" field in the EPrint table it makes sense to have a quick translation of DOI to EPrint id for a given EPrints repository. 
+- '/{REPO_ID}/creator-id/{CREATOR_ID}' scans the name creator id field associated with creators and returns a list of EPrint ID 
+- '/{REPO_ID}/creator-orcid/{ORCID}' scans the "orcid" field associated with creators and returns a list of EPrint ID 
+- '/{REPO_ID}/editor-id/{CREATOR_ID}' scans the name creator id field associated with editors and returns a list of EPrint ID 
+- '/{REPO_ID}/contributor-id/{CONTRIBUTOR_ID}' scans the "id" field associated with a contributors and returns a list of EPrint ID 
+- '/{REPO_ID}/advisor-id/{ADVISOR_ID}' scans the name advisor id field associated with advisors and returns a list of EPrint ID 
+- '/{REPO_ID}/committee-id/{COMMITTEE_ID}' scans the committee id field associated with committee members and returns a list of EPrint ID
+- '/{REPO_ID}/group-id/{GROUP_ID}' this scans group ID and returns a list of EPrint IDs associated with the group
+- '/{REPO_ID}/funder-id/{FUNDER_ID}' returns a list of EPrint IDs associated with the funder's ROR
+- '/{REPO_ID}/grant-number/{GRANT_NUMBER}' returns a list of EPrint IDs associated with the grant number
+
+Change Events
+-------------
 
 The follow API end points would facilitate faster updates to our feeds platform as well as allow us to create a separate public view of our EPrint repository content.
 
-- '/<REPO_ID>/updated/<TIMESTAMP>/<TIMESTAMP>' returns a list of EPrint IDs updated starting at the first timestamp (timestamps should have a resolution to the minute, e.g. "YYYY-MM-DD HH:MM:SS") through inclusive of the second timestmap (if the second is omitted the timestamp is assumed to be "now")
-- '/<REPO_ID>/deleted/<TIMESTAMP>/<TIMESTAMP>' through the returns a list of EPrint IDs deleted starting at first timestamp through inclusive of the second timestamp, if the second timestamp is omitted it is assumed to be "now"
-- '/<REPO_ID>/pubdate/<APROX_DATESTAMP>/<APPOX_DATESTMP>' this query scans the EPrint table for records with publication starts starting with the first approximate date through inclusive of the second approximate date. If the second date is omitted it is assumed to be "today". Approximate dates my be expressed just the year (starting with Jan 1, ending with Dec 31), just the year and month (starting with first day of month ending with the last day) or year, month and day. The end returns zero or more EPrint IDs.
+- '/{REPO_ID}/updated/{TIMESTAMP}/{TIMESTAMP}' returns a list of EPrint IDs updated starting at the first timestamp (timestamps should have a resolution to the minute, e.g. "YYYY-MM-DD HH:MM:SS") through inclusive of the second timestmap (if the second is omitted the timestamp is assumed to be "now")
+- '/{REPO_ID}/deleted/{TIMESTAMP}/{TIMESTAMP}' through the returns a list of EPrint IDs deleted starting at first timestamp through inclusive of the second timestamp, if the second timestamp is omitted it is assumed to be "now"
+- '/{REPO_ID}/pubdate/{APROX_DATESTAMP}/{APPOX_DATESTMP}' this query scans the EPrint table for records with publication starts starting with the first approximate date through inclusive of the second approximate date. If the second date is omitted it is assumed to be "today". Approximate dates my be expressed just the year (starting with Jan 1, ending with Dec 31), just the year and month (starting with first day of month ending with the last day) or year, month and day. The end returns zero or more EPrint IDs.
 
-` + "```" + `
-  -h	Display this help message
-  -help
-    	Display this help message
-  -license
-    	Display software license
-  -version
-    	Display software version
-` + "```" + `
+Write API
+---------
 
+As of __ep3apid__ version 1.0.3 a new set of end points exists for reading and writing EPrints XML. This can be enabled per repository. It only supports interaction with one record at a time.  You can retrieve full EPrint XML using a GET request. This EPrint XML is generate dynamically based on the contents of the MySQL tables configured in the EPrints instance.  You can write EPrints records with a POST.  If the eprint ID furnished in the POST is 0 (zero) then a new record will be created. Otherwise the contents of the EPrint XML you post will replace the existing eprint record.  This transaction takes place only at the SQL level. None of EPrints's native Perl API is invoked. 
 
+The end point is '/{REPO_ID}/eprint/{EPRINT_ID}' for EPrint XML.
 
-Settings (configuration)
-------------------------
+To enable this feature add the attribute '"write": true' to the repositories setting in settins.json.
+
+settings.json (configuration)
+-----------------------------
 
 To run the web service create a JSON file named settings.ini in the current directory where you're invoking _ep3apid_ from. The web service can be started with running
 
@@ -256,14 +277,36 @@ or to load "settings.json" from the current work directory.
     ep3apid settings.json
 ` + "```" + `
 
-Write API
----------
+The JSON settings.json file should look something like "REPO_ID" would
+be the name used in the __ep3apid__ to access a specific repsitory. The
+"dsn" value should be replaced with an appropriate data source name to
+access the MySQL database for the repository you're supporting. You can have many repositories configured in a single __ep3apid__ instance.
 
-As of __ep3apid__ version 1.0.3 a new end point exists for reading and writing EPrints XML. This can be enabled per repository. It only supports interaction with one record.  If the eprint ID furnished in the call is 0 (zero) then a new record will be created. Otherwise the contents of the EPrint XML you post will replace the existing eprint record.  This transaction takes place only at the SQL level. None Perl EPrints API is invoked. 
+` + "```" + `
+    {
+        "repositories": {
+            "REPO_ID": {
+                "dsn": "DB_USER:SECRET@/DB_NAME",
+                "write": false
+	        },
+	        ... /* Additional repositories configured here */ ...
+        }
+    }
+` + "```" + `
 
-The end point is '/<REPO_ID>/eprint/<EPRINT_ID>' for EPrint XML.
+Options
+-------
 
-To enable this feature add the attribute '"readwrite": true' to the repositories setting in settins.json.
+` + "```" + `
+  -h	Display this help message
+  -help
+    	Display this help message
+  -license
+    	Display software license
+  -version
+    	Display software version
+` + "```" + `
+
 
 `
 }
@@ -307,8 +350,8 @@ Repository (end point)
 The end point executes a sequence of "SHOW" SQL statements to build a JSON object with table names as attributes pointing at an array of column names. This is suitable to determine on a per repository bases the related table and columnames representing an EPrint record.
 
 - '/repository' return this documentation
-- '/repository/<REPO_ID>' return the JSON representation
-- '/repository/<REPO_ID/help' return this documentation
+- '/repository/{REPO_ID}' return the JSON representation
+- '/repository/{REPO_ID/help' return this documentation
 
 Example
 -------
@@ -363,89 +406,89 @@ Each table is relatated by the "eprintid" column ("..." in the object below mean
 }
 
 func createdDocument(repoID string) string {
-	return fmt.Sprintf(`"/%s/created/<TIMESTAMP>/<TIMESTAMP>" returns a list of EPrint IDs created starting at the first timestamp (timestamps should have a resolution to the minute, e.g. "YYYY-MM-DD HH:MM:SS") through inclusive of the second timestmap (if the second is omitted the timestamp is assumed to be "now")`, repoID)
+	return fmt.Sprintf(`'/%s/created/{TIMESTAMP}/{TIMESTAMP}' returns a list of EPrint IDs created starting at the first timestamp (timestamps should have a resolution to the minute, e.g. "YYYY-MM-DD HH:MM:SS") through inclusive of the second timestmap (if the second is omitted the timestamp is assumed to be "now")`, repoID)
 }
 
 func updatedDocument(repoID string) string {
-	return fmt.Sprintf(`"/%s/updated/<TIMESTAMP>/<TIMESTAMP>" returns a list of EPrint IDs updated starting at the first timestamp (timestamps should have a resolution to the minute, e.g. "YYYY-MM-DD HH:MM:SS") through inclusive of the second timestmap (if the second is omitted the timestamp is assumed to be "now")`, repoID)
+	return fmt.Sprintf(`'/%s/updated/{TIMESTAMP}/{TIMESTAMP}' returns a list of EPrint IDs updated starting at the first timestamp (timestamps should have a resolution to the minute, e.g. "YYYY-MM-DD HH:MM:SS") through inclusive of the second timestmap (if the second is omitted the timestamp is assumed to be "now")`, repoID)
 }
 
 func deletedDocument(repoID string) string {
-	return fmt.Sprintf(`"/%s/deleted/<TIMESTAMP>/<TIMESTAMP>" through the returns a list of EPrint IDs deleted starting at first timestamp through inclusive of the second timestamp, if the second timestamp is omitted it is assumed to be "now"`, repoID)
+	return fmt.Sprintf(`'/%s/deleted/{TIMESTAMP}/{TIMESTAMP}' through the returns a list of EPrint IDs deleted starting at first timestamp through inclusive of the second timestamp, if the second timestamp is omitted it is assumed to be "now"`, repoID)
 }
 
 func pubdateDocument(repoID string) string {
-	return fmt.Sprintf(`"/%s/pubdate/<APROX_DATESTAMP>/<APPOX_DATESTAMP>" this query scans the EPrint table for records with publication starts starting with the first approximate date through inclusive of the second approximate date. If the second date is omitted it is assumed to be "today". Approximate dates my be expressed just the year (starting with Jan 1, ending with Dec 31), just the year and month (starting with first day of month ending with the last day) or year, month and day. The end returns zero or more EPrint IDs.`, repoID)
+	return fmt.Sprintf(`'/%s/pubdate/{APROX_DATESTAMP}/{APPOX_DATESTAMP}' this query scans the EPrint table for records with publication starts starting with the first approximate date through inclusive of the second approximate date. If the second date is omitted it is assumed to be "today". Approximate dates my be expressed just the year (starting with Jan 1, ending with Dec 31), just the year and month (starting with first day of month ending with the last day) or year, month and day. The end returns zero or more EPrint IDs.`, repoID)
 }
 
 func doiDocument(repoID string) string {
-	return fmt.Sprintf(`"/%s/doi/<DOI>" with the adoption of EPrints "doi" field in the EPrint table it makes sense to have a quick translation of DOI to EPrint id for a given EPrints repository.`, repoID)
+	return fmt.Sprintf(`'/%s/doi/{DOI}' with the adoption of EPrints "doi" field in the EPrint table it makes sense to have a quick translation of DOI to EPrint id for a given EPrints repository.`, repoID)
 }
 
 func creatorIDDocument(repoID string) string {
-	return fmt.Sprintf(`"/%s/creator-id/<CREATOR_ID>" scans the name creator id field associated with creators and returns a list of EPrint ID`, repoID)
+	return fmt.Sprintf(`'/%s/creator-id/{CREATOR_ID}' scans the name creator id field associated with creators and returns a list of EPrint ID`, repoID)
 }
 
 func creatorORCIDDocument(repoID string) string {
-	return fmt.Sprintf(`"/%s/creator-orcid/<ORCID>" scans the "orcid" field associated with creators and returns a list of EPrint ID`, repoID)
+	return fmt.Sprintf(`'/%s/creator-orcid/{ORCID}' scans the "orcid" field associated with creators and returns a list of EPrint ID`, repoID)
 }
 
 func editorIDDocument(repoID string) string {
-	return fmt.Sprintf(`"/%s/editor-id/<CREATOR_ID>" scans the name creator id field associated with editors and returns a list of EPrint ID`, repoID)
+	return fmt.Sprintf(`'/%s/editor-id/{CREATOR_ID}' scans the name creator id field associated with editors and returns a list of EPrint ID`, repoID)
 }
 
 func contributorIDDocument(repoID string) string {
-	return fmt.Sprintf(`"/%s/contributor-id/<CONTRIBUTOR_ID>" scans the "id" field associated with a contributors and returns a list of EPrint ID`, repoID)
+	return fmt.Sprintf(`'/%s/contributor-id/{CONTRIBUTOR_ID}' scans the "id" field associated with a contributors and returns a list of EPrint ID`, repoID)
 }
 
 func advisorIDDocument(repoID string) string {
-	return fmt.Sprintf(`"/%s/advisor-id/<ADVISOR_ID>" scans the name advisor id field associated with advisors and returns a list of EPrint ID`, repoID)
+	return fmt.Sprintf(`'/%s/advisor-id/{ADVISOR_ID}' scans the name advisor id field associated with advisors and returns a list of EPrint ID`, repoID)
 }
 
 func committeeIDDocument(repoID string) string {
-	return fmt.Sprintf(`"/%s/committee-id/<COMMITTEE_ID>" scans the committee id field associated with committee members and returns a list of EPrint ID`, repoID)
+	return fmt.Sprintf(`'/%s/committee-id/{COMMITTEE_ID}' scans the committee id field associated with committee members and returns a list of EPrint ID`, repoID)
 }
 
 func groupIDDocument(repoID string) string {
-	return fmt.Sprintf(`"/%s/group-id/<GROUP_ID>" this scans group ID and returns a list of EPrint IDs associated with the group`, repoID)
+	return fmt.Sprintf(`'/%s/group-id/{GROUP_ID}' this scans group ID and returns a list of EPrint IDs associated with the group`, repoID)
 }
 
 func grantNumberDocument(repoID string) string {
-	return fmt.Sprintf(`"/%s/grant-number/<GRANT_NUMBER>" returns a list of EPrint IDs associated with the grant number`, repoID)
+	return fmt.Sprintf(`'/%s/grant-number/{GRANT_NUMBER}' returns a list of EPrint IDs associated with the grant number`, repoID)
 }
 
 func creatorNameDocument(repoID string) string {
-	return fmt.Sprintf(`"/%s/creator-name/<FAMILY_NAME>/<GIVEN_NAME>" scans the name fields associated with creators and returns a list of EPrint ID `, repoID)
+	return fmt.Sprintf(`'/%s/creator-name/{FAMILY_NAME}/{GIVEN_NAME}' scans the name fields associated with creators and returns a list of EPrint ID `, repoID)
 }
 func editorNameDocument(repoID string) string {
-	return fmt.Sprintf(`"/%s/editor-name/<FAMILY_NAME>/<GIVEN_NAME>" scans the family and given name field associated with a editors and returns a list of EPrint ID`, repoID)
+	return fmt.Sprintf(`'/%s/editor-name/{FAMILY_NAME}/{GIVEN_NAME}' scans the family and given name field associated with a editors and returns a list of EPrint ID`, repoID)
 }
 
 func contributorNameDocument(repoID string) string {
-	return fmt.Sprintf(`"/%s/contributor-name/<FAMILY_NAME>/<GIVEN_NAME>" scans the family and given name field associated with a contributors and returns a list of EPrint ID`, repoID)
+	return fmt.Sprintf(`'/%s/contributor-name/{FAMILY_NAME}/{GIVEN_NAME}' scans the family and given name field associated with a contributors and returns a list of EPrint ID`, repoID)
 }
 
 func advisorNameDocument(repoID string) string {
-	return fmt.Sprintf(`"/%s/advisor-name/<FAMILY_NAME>/<GIVEN_NAME>" scans the name fields associated with advisors returns a list of EPrint ID`, repoID)
+	return fmt.Sprintf(`'/%s/advisor-name/{FAMILY_NAME}/{GIVEN_NAME}' scans the name fields associated with advisors returns a list of EPrint ID`, repoID)
 }
 func committeeNameDocument(repoID string) string {
-	return fmt.Sprintf(`"/%s/committee-name/<FAMILY_NAME>/<GIVEN_NAME>" scans the family and given name fields associated with committee members and returns a list of EPrint ID`, repoID)
+	return fmt.Sprintf(`'/%s/committee-name/{FAMILY_NAME}/{GIVEN_NAME}' scans the family and given name fields associated with committee members and returns a list of EPrint ID`, repoID)
 }
 
 func pubmedDocument(repoID string) string {
-	return fmt.Sprintf(`"/%s/pubmed/<PUBMED_ID>" returns a list of EPrint IDs associated with the PubMed ID`, repoID)
+	return fmt.Sprintf(`'/%s/pubmed/{PUBMED_ID}' returns a list of EPrint IDs associated with the PubMed ID`, repoID)
 }
 
 func issnDocument(repoID string) string {
-	return fmt.Sprintf(`"/%s/issn/<ISSN>" returns a list of EPrint IDs associated with the ISSN`, repoID)
+	return fmt.Sprintf(`'/%s/issn/{ISSN}' returns a list of EPrint IDs associated with the ISSN`, repoID)
 }
 
 func isbnDocument(repoID string) string {
-	return fmt.Sprintf(`"/%s/isbn/<ISSN>" returns a list of EPrint IDs associated with the ISSN`, repoID)
+	return fmt.Sprintf(`'/%s/isbn/{ISSN}' returns a list of EPrint IDs associated with the ISSN`, repoID)
 }
 
 func patentNumberDocument(repoID string) string {
-	return fmt.Sprintf(`"/%s/patent-number/<PATENT_NUMBER>" returns a list of EPrint IDs associated with the patent number`, repoID)
+	return fmt.Sprintf(`'/%s/patent-number/{PATENT_NUMBER}' returns a list of EPrint IDs associated with the patent number`, repoID)
 }
 
 func recordDocument(repoID string) string {
@@ -455,7 +498,7 @@ func recordDocument(repoID string) string {
 This version of the API includes a simplified JSON record view. The
 JSON represents the JSON model used in DataCite and InvenioRDMs.
 
-- "/%s/record/<EPRINT_ID>" returns a complex JSON object representing the EPrint record identified by <EPRINT_ID>.
+- '/%s/record/{EPRINT_ID}' returns a complex JSON object representing the EPrint record identified by {EPRINT_ID}.
 `, repoID)
 }
 
@@ -473,12 +516,12 @@ files.  It does NOT use the Perl API.
 
 GET:
 
-- "/%s/eprint/<EPRINT_ID>" will retrieve an existing EPrint record as EPrint XML by building up an eprint record via SQL queries.
+- '/%s/eprint/{EPRINT_ID}' will retrieve an existing EPrint record as EPrint XML by building up an eprint record via SQL queries.
 
 POST:
 
-- "/%s/eprint/<EPRINT_ID>" will replace an existing EPrint, POST must be valid EPrint XML with a content type of "application/xml".
-- "/%s/eprint/0" will create a new EPrint record. The POST must be valid EPrint XML with a content type of "application/xml".
+- '/%s/eprint/{EPRINT_ID}' will replace an existing EPrint, POST must be valid EPrint XML with a content type of "application/xml".
+- '/%s/eprint/0' will create a new EPrint record. The POST must be valid EPrint XML with a content type of "application/xml".
 
 `, repoID)
 }
@@ -507,15 +550,17 @@ func repositoryEndPoint(w http.ResponseWriter, r *http.Request, repoID string) (
 		return packageDocument(w, repositoryDocument())
 	}
 	if db, ok := config.Connections[repoID]; ok == true {
+		log.Printf("DEBUG getting EPrint tables and columns for %q", repoID)
 		data, err := EPrintTablesAndColumns(db, repoID)
 		src, err := json.MarshalIndent(data, "", "    ")
+		log.Printf("DEBUG src: %s\n", src)
 		return packageJSON(w, repoID, src, err)
 	}
 	return 404, fmt.Errorf("not found")
 }
 
 //
-// End Point handles (route as defined `/<REPO_ID>/<END-POINT>/<ARGS>`)
+// End Point handles (route as defined `/{REPO_ID}/{END-POINT}/{ARGS}`)
 //
 
 func createdEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
@@ -913,22 +958,13 @@ func recordEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args 
 	if err != nil {
 		return 400, fmt.Errorf("Bad Request, eprint id invalid, %s", err)
 	}
-	baseURL := ""
-	if dataSource, ok := config.Repositories[repoID]; ok == true {
-		baseURL = dataSource.RestAPI
-	} else {
-		log.Printf("Data Source not found for %q", repoID)
-		return 404, fmt.Errorf("Not Found")
-	}
-	eprint, err := GetEPrint(baseURL, eprintID)
+	eprint, err := CrosswalkSQLToEPrint(repoID, eprintID)
 	if err != nil {
-		log.Printf("REST Client Error: %s\n", err)
+		log.Printf("CrosswalkSQLToEPrint Error: %s\n", err)
 		return 500, fmt.Errorf("Internal Server Error")
 	}
-	if len(eprint.EPrint) == 0 {
-		return 404, fmt.Errorf("Not Found")
-	}
-	simple, err := CrosswalkEPrintToRecord(eprint.EPrint[0])
+	//FIXME: we should just be a simple JSON from SQL ...
+	simple, err := CrosswalkEPrintToRecord(eprint)
 	if err != nil {
 		return 500, fmt.Errorf("Internal Server Error")
 	}
@@ -944,10 +980,50 @@ func recordEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args 
 // configuraiton.
 //
 func eprintEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
-	if len(args) == 0 || strings.HasSuffix(r.URL.Path, "/help") {
+	if len(args) == 0 || repoID == "" || strings.HasSuffix(r.URL.Path, "/help") {
 		return packageDocument(w, eprintDocument(repoID))
 	}
-	return 500, fmt.Errorf("Not Implemented")
+	contentType := r.Header.Get("Content-Type")
+	writeAccess := false
+	dataSource, ok := config.Repositories[repoID]
+	if ok == true {
+		writeAccess = dataSource.Write
+	} else {
+		log.Printf("Data Source not found for %q", repoID)
+		return 404, fmt.Errorf("not found")
+	}
+	if (r.Method != "GET" && r.Method != "POST") ||
+		(r.Method == "POST" && writeAccess == false) {
+		return 405, fmt.Errorf("method not allowed")
+	}
+	if len(args) != 1 {
+		return 400, fmt.Errorf("bad request, missing eprint id in path")
+	}
+	eprintID, err := strconv.Atoi(args[0])
+	if err != nil {
+		return 400, fmt.Errorf("bad request, eprint id %q not valid", eprintID)
+	}
+	if r.Method == "POST" {
+		return 500, fmt.Errorf("not implemented, POST")
+	}
+	eprint, err := CrosswalkSQLToEPrint(repoID, eprintID)
+	if err != nil {
+		return 404, fmt.Errorf("not found, %s", err)
+
+	}
+	switch contentType {
+	case "application/json":
+		src, err := json.MarshalIndent(eprint, "", "    ")
+		return packageJSON(w, repoID, src, err)
+	case "application/xml":
+		src, err := xml.MarshalIndent(eprint, "", "    ")
+		return packageXML(w, repoID, src, err)
+	case "":
+		src, err := xml.MarshalIndent(eprint, "", "    ")
+		return packageXML(w, repoID, src, err)
+	default:
+		return 415, fmt.Errorf("unsupported media type, %q", contentType)
+	}
 }
 
 // The following define the API as a service handling errors,
@@ -1090,11 +1166,7 @@ func InitExtendedAPI(settings string) error {
 		"isbn":             isbnEndPoint,
 		"patent-number":    patentNumberEndPoint,
 		"record":           recordEndPoint,
-	}
-	// This define read/write routes which are disabled by default
-	// for each respository.
-	rwRoutes := map[string]func(http.ResponseWriter, *http.Request, string, []string) (int, error){
-		"eprint": eprintEndPoint,
+		"eprint":           eprintEndPoint,
 	}
 
 	/* NOTE: We need a DB connection to MySQL for each
@@ -1103,14 +1175,14 @@ func InitExtendedAPI(settings string) error {
 	for repoID, dataSource := range config.Repositories {
 		dataSourceName := dataSource.DSN
 		// Setup DB connection for target repository
-		if db, err := sql.Open("mysql", dataSourceName); err != nil {
+		db, err := sql.Open("mysql", dataSourceName)
+		if err != nil {
 			return fmt.Errorf("Could not open MySQL connection for %s, %s", repoID, err)
-		} else {
-			//log.Printf("Setting  DB connection to %q", repoID)
-			//db.Ping()
-			config.Connections[repoID] = db
-			dataSource.TableMap, err = EPrintTablesAndColumns(db, repoID)
 		}
+		//log.Printf("Setting  DB connection to %q", repoID)
+		//db.Ping()
+		config.Connections[repoID] = db
+		dataSource.TableMap, err = EPrintTablesAndColumns(db, repoID)
 		if err != nil {
 			return fmt.Errorf("failed to map table and columns for %q, %s", repoID, err)
 		}
@@ -1120,15 +1192,6 @@ func InitExtendedAPI(settings string) error {
 				config.Routes[repoID] = map[string]func(http.ResponseWriter, *http.Request, string, []string) (int, error){}
 			}
 			config.Routes[repoID][route] = fn
-		}
-		// If readwrite is enabled add /<REPO_ID>/eprint route
-		if dataSource.ReadWrite {
-			for route, fn := range rwRoutes {
-				if config.Routes[repoID] == nil {
-					config.Routes[repoID] = map[string]func(http.ResponseWriter, *http.Request, string, []string) (int, error){}
-				}
-				config.Routes[repoID][route] = fn
-			}
 		}
 	}
 	return nil

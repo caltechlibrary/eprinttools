@@ -7457,12 +7457,12 @@ func IssnToPublisherRule(eprintsList *eprinttools.EPrints) (*eprinttools.EPrints
 	for i, eprint := range eprintsList.EPrint {
 		changed := false
 		// Normalize Publisher name and Publication from ISSN
-		if eprint.ISSN != "" {
-			if publisher, ok := issnPublisher[eprint.ISSN]; ok == true {
+		if eprint.ISSN != nil {
+			if publisher, ok := issnPublisher[*eprint.ISSN]; ok == true {
 				eprint.Publisher = publisher
 				changed = true
 			}
-			if publication, ok := issnPublication[eprint.ISSN]; ok == true {
+			if publication, ok := issnPublication[*eprint.ISSN]; ok == true {
 				eprint.Publication = publication
 				changed = true
 			}
