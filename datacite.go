@@ -182,7 +182,7 @@ func DataCiteWorksToEPrint(obj dataciteapi.Object) (*EPrint, error) {
 	// location. If you need Caltech Library's bahavior use clsrules.Apply()
 	// to conform to that regime.
 	if doi, ok := indexInto(obj, "message", "DOI"); ok == true {
-		*eprint.DOI = doi.(string)
+		eprint.DOI = doi.(string)
 	}
 	// FIXME: RelatedURLs (links in message of DataCite works object)
 	// NOTE: related URL type is NOT Mime-Type in CaltechAUTHORS, import URL without type being set.
@@ -235,7 +235,7 @@ func DataCiteWorksToEPrint(obj dataciteapi.Object) (*EPrint, error) {
 	// Abstract
 	//FIXME: Need to find value in DataCite works metadata for this
 	if s, ok := indexInto(obj, "data", "attributes", "description"); ok == true {
-		*eprint.Abstract = fmt.Sprintf("%s", s)
+		eprint.Abstract = fmt.Sprintf("%s", s)
 	}
 
 	// Refereed

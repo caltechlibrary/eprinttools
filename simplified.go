@@ -378,25 +378,25 @@ func (rec *Record) parentFromEPrint(eprint *EPrint) error {
 func (rec *Record) externalPIDFromEPrint(eprint *EPrint) error {
 	rec.ExternalPIDs = map[string]*PersistentIdentifier{}
 	// Pickup DOI
-	if eprint.DOI != nil {
+	if eprint.DOI != "" {
 		pid := new(PersistentIdentifier)
-		pid.Identifier = *eprint.DOI
+		pid.Identifier = eprint.DOI
 		pid.Provider = "datacite" // FIXME: should be DataCite or CrossRef
 		pid.Client = ""           // FIXME: need to find out client string
 		rec.ExternalPIDs["doi"] = pid
 	}
 	// Pickup ISSN
-	if eprint.ISBN != nil {
+	if eprint.ISBN != "" {
 		pid := new(PersistentIdentifier)
-		pid.Identifier = *eprint.ISSN
+		pid.Identifier = eprint.ISSN
 		pid.Provider = "" // FIXME: Need to find out identifier string
 		pid.Client = ""   // FIXME: need to find out client string
 		rec.ExternalPIDs["ISSN"] = pid
 	}
 	// Pickup ISBN
-	if eprint.ISBN != nil {
+	if eprint.ISBN != "" {
 		pid := new(PersistentIdentifier)
-		pid.Identifier = *eprint.ISBN
+		pid.Identifier = eprint.ISBN
 		pid.Provider = "" // FIXME: Need to find out identifier string
 		pid.Client = ""   // FIXME: need to find out client string
 		rec.ExternalPIDs["ISBN"] = pid
@@ -409,10 +409,10 @@ func (rec *Record) externalPIDFromEPrint(eprint *EPrint) error {
 // recordAccessFromEPrint extracts access permissions from the EPrint
 func (rec *Record) recordAccessFromEPrint(eprint *EPrint) error {
 	isPublic := true
-	if (*eprint.ReviewStatus == "review") ||
-		(*eprint.ReviewStatus == "withheld") ||
-		(*eprint.ReviewStatus == "gradoffice") ||
-		(*eprint.ReviewStatus == "notapproved") {
+	if (eprint.ReviewStatus == "review") ||
+		(eprint.ReviewStatus == "withheld") ||
+		(eprint.ReviewStatus == "gradoffice") ||
+		(eprint.ReviewStatus == "notapproved") {
 		isPublic = false
 	}
 	if eprint.EPrintStatus != "archive" || eprint.MetadataVisibility != "show" {
@@ -431,8 +431,8 @@ func (rec *Record) recordAccessFromEPrint(eprint *EPrint) error {
 			if doc.DateEmbargo != "" {
 				embargo := new(Embargo)
 				embargo.Until = doc.DateEmbargo
-				if eprint.Suggestions != nil {
-					embargo.Reason = *eprint.Suggestions
+				if eprint.Suggestions != "" {
+					embargo.Reason = eprint.Suggestions
 				}
 				if doc.Security == "internal" {
 					embargo.Active = true
@@ -566,8 +566,8 @@ func (rec *Record) metadataFromEPrint(eprint *EPrint) error {
 			metadata.AdditionalTitles = append(metadata.AdditionalTitles, title)
 		}
 	}
-	if eprint.Abstract != nil {
-		metadata.Description = *eprint.Abstract
+	if eprint.Abstract != "" {
+		metadata.Description = eprint.Abstract
 	}
 	metadata.PublicationDate = eprint.PubDate()
 
@@ -580,7 +580,7 @@ func (rec *Record) metadataFromEPrint(eprint *EPrint) error {
 		rights.Description = eprint.Rights
 	}
 	// Figure out if our copyright information is in the Note field.
-	if (eprint.Note != nil) && (strings.Contains(*eprint.Note, "©") || strings.Contains(*eprint.Note, "copyright") || strings.Contains(*eprint.Note, "(c)")) {
+	if (eprint.Note != "") && (strings.Contains(eprint.Note, "©") || strings.Contains(eprint.Note, "copyright") || strings.Contains(eprint.Note, "(c)")) {
 		addRights = true
 		rights.Description = fmt.Sprintf("%s", eprint.Note)
 	}
@@ -626,17 +626,17 @@ func (rec *Record) metadataFromEPrint(eprint *EPrint) error {
 	if eprint.Publisher != "" {
 		metadata.Publisher = eprint.Publisher
 	}
-	if eprint.DOI != nil {
-		metadata.Identifiers = append(metadata.Identifiers, mkSimpleIdentifier("DOI", *eprint.DOI))
+	if eprint.DOI != "" {
+		metadata.Identifiers = append(metadata.Identifiers, mkSimpleIdentifier("DOI", eprint.DOI))
 	}
-	if eprint.ISBN != nil {
-		metadata.Identifiers = append(metadata.Identifiers, mkSimpleIdentifier("ISBN", *eprint.ISBN))
+	if eprint.ISBN != "" {
+		metadata.Identifiers = append(metadata.Identifiers, mkSimpleIdentifier("ISBN", eprint.ISBN))
 	}
-	if eprint.ISSN != nil {
-		metadata.Identifiers = append(metadata.Identifiers, mkSimpleIdentifier("ISSN", *eprint.ISSN))
+	if eprint.ISSN != "" {
+		metadata.Identifiers = append(metadata.Identifiers, mkSimpleIdentifier("ISSN", eprint.ISSN))
 	}
-	if eprint.PMCID != nil {
-		metadata.Identifiers = append(metadata.Identifiers, mkSimpleIdentifier("PMCID", *eprint.PMCID))
+	if eprint.PMCID != "" {
+		metadata.Identifiers = append(metadata.Identifiers, mkSimpleIdentifier("PMCID", eprint.PMCID))
 	}
 	if (eprint.Funders != nil) && (eprint.Funders.Items != nil) {
 		for _, item := range eprint.Funders.Items {
@@ -686,8 +686,8 @@ func (rec *Record) tombstoneFromEPrint(eprint *EPrint) error {
 		tombstone.RemovedBy = new(User)
 		tombstone.RemovedBy.DisplayName = eprint.Reviewer
 		tombstone.RemovedBy.User = eprint.UserID
-		if eprint.Suggestions != nil {
-			tombstone.Reason = *eprint.Suggestions
+		if eprint.Suggestions != "" {
+			tombstone.Reason = eprint.Suggestions
 		}
 		rec.Tombstone = tombstone
 	}

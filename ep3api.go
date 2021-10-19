@@ -156,6 +156,7 @@ func packageXML(w http.ResponseWriter, repoID string, src []byte, err error) (in
 // EPrintTablesAndColumns takes a DB connection and repoID then builds a map[string][]string{}
 // structure representing the tables and their columns available in a EPrints Repository
 func EPrintTablesAndColumns(db *sql.DB, repoID string) (map[string][]string, error) {
+	data := map[string][]string{}
 	stmt := `SHOW TABLES LIKE "eprint%"`
 	rows, err := db.Query(stmt)
 	if err != nil {
@@ -170,7 +171,82 @@ func EPrintTablesAndColumns(db *sql.DB, repoID string) (map[string][]string, err
 	}
 	rows.Close()
 
-	data := map[string][]string{}
+	for _, tableName := range tables {
+		data[tableName] = []string{}
+		stmt := fmt.Sprintf(`SHOW COLUMNS IN %s`, tableName)
+		cRows, err := db.Query(stmt)
+		if err != nil {
+			return nil, fmt.Errorf("SQL(%q), %s", repoID, err)
+		}
+		columns := []string{}
+		var (
+			colName, f1, f2, f3, f5 string
+			f4                      interface{}
+		)
+		for cRows.Next() {
+			//colName, f1, f2, f3, f4, f5 = &"", &"", &"", &"", nil, &""
+			if err := cRows.Scan(&colName, &f1, &f2, &f3, &f4, &f5); err != nil {
+				log.Printf("cRows.Scan() error: %s", err)
+			} else {
+				columns = append(columns, colName)
+			}
+		}
+		data[tableName] = columns
+		cRows.Close()
+	}
+	// We need to add the document set of tables too.
+	stmt = `SHOW TABLES LIKE "document%"`
+	rows, err = db.Query(stmt)
+	if err != nil {
+		return nil, fmt.Errorf("SQL(%q), %s", repoID, err)
+	}
+	tables = []string{}
+	for rows.Next() {
+		tableName := ""
+		if err := rows.Scan(&tableName); err == nil {
+			tables = append(tables, tableName)
+		}
+	}
+	rows.Close()
+
+	for _, tableName := range tables {
+		data[tableName] = []string{}
+		stmt := fmt.Sprintf(`SHOW COLUMNS IN %s`, tableName)
+		cRows, err := db.Query(stmt)
+		if err != nil {
+			return nil, fmt.Errorf("SQL(%q), %s", repoID, err)
+		}
+		columns := []string{}
+		var (
+			colName, f1, f2, f3, f5 string
+			f4                      interface{}
+		)
+		for cRows.Next() {
+			//colName, f1, f2, f3, f4, f5 = &"", &"", &"", &"", nil, &""
+			if err := cRows.Scan(&colName, &f1, &f2, &f3, &f4, &f5); err != nil {
+				log.Printf("cRows.Scan() error: %s", err)
+			} else {
+				columns = append(columns, colName)
+			}
+		}
+		data[tableName] = columns
+		cRows.Close()
+	}
+	// We need to add the files set of tables too.
+	stmt = `SHOW TABLES LIKE "file%"`
+	rows, err = db.Query(stmt)
+	if err != nil {
+		return nil, fmt.Errorf("SQL(%q), %s", repoID, err)
+	}
+	tables = []string{}
+	for rows.Next() {
+		tableName := ""
+		if err := rows.Scan(&tableName); err == nil {
+			tables = append(tables, tableName)
+		}
+	}
+	rows.Close()
+
 	for _, tableName := range tables {
 		data[tableName] = []string{}
 		stmt := fmt.Sprintf(`SHOW COLUMNS IN %s`, tableName)
@@ -365,7 +441,7 @@ Would return a JSON expression similar to the expression below.  The object has 
 
 The "eprint" table is the root of the object. Each other table is a sub object or array. Tables containing a "pos" field render as an array of objects (e.g. the "item" elements in the EPrint XML). If pos is missing then it is an object with attributes and values.
 
-Each table is relatated by the "eprintid" column ("..." in the object below means the text was abbeviated).
+Each table is relatated by the "eprintid" column ("..." in the object below means the text was abbeviated). Sub tables are related by eprintid and pos columns. All metadata table names begin with "eprint%" or "document%".
 
 
 ` + "```" + `json
@@ -550,10 +626,8 @@ func repositoryEndPoint(w http.ResponseWriter, r *http.Request, repoID string) (
 		return packageDocument(w, repositoryDocument())
 	}
 	if db, ok := config.Connections[repoID]; ok == true {
-		log.Printf("DEBUG getting EPrint tables and columns for %q", repoID)
 		data, err := EPrintTablesAndColumns(db, repoID)
 		src, err := json.MarshalIndent(data, "", "    ")
-		log.Printf("DEBUG src: %s\n", src)
 		return packageJSON(w, repoID, src, err)
 	}
 	return 404, fmt.Errorf("not found")
