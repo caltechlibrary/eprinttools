@@ -118,8 +118,8 @@ type EPrint struct {
 	OtherNumberingSystem *OtherNumberingSystemItemList `xml:"other_numbering_system,omitempty" json:"other_numbering_system,omitempty"`
 	LocalGroup           *LocalGroupItemList           `xml:"local_group,omitempty" json:"local_group,omitempty"`
 	// ErratText holds errata configure as a single text field. e.g. CampusPubs
-	ErrataText    string               `xml:"-" json:"-"`
-	Errata        *ErrataItemList      `xml:"errata,omitempty" json:"errata,omitempty"`
+	ErrataText    string               `xml:"errata,omitempty" json:"errata,omitempty"`
+	Errata        *ErrataItemList      `xml:"-" json:"-"` //`xml:"errata,omitempty" json:"errata,omitempty"`
 	Contributors  *ContributorItemList `xml:"contributors,omitempty" json:"contributors,omitempty"`
 	MonographType string               `xml:"monograph_type,omitempty" json:"monograph_type,omitempty"`
 
@@ -224,9 +224,9 @@ type EPrint struct {
 	OptionMinor              *OptionMinorItemList     `xml:"option_minor,omitempty" json:"option_major,omitempty"`
 	CopyrightStatement       string                   `xml:"copyright_statement,omitempty" json:"copyright_statement,omitempty"`
 
-	// Custom fields from EPrints repositories
+	// Custom fields from some EPrints repositories
 	Source     string `xml:"source,omitempty" json:"source,omitempty"`
-	ReplacedBy int    `xml"replacedby,omitempty" json:"replacedby,omitempty"`
+	ReplacedBy int    `xml:"replacedby,omitempty" json:"replacedby,omitempty"`
 
 	// Edit Control Fields
 	EditLockUser  int `xml:"-" json:"-"`
@@ -251,6 +251,7 @@ func (eprint *EPrint) PubDate() string {
 type Item struct {
 	XMLName     xml.Name `xml:"item" json:"-"`
 	Name        *Name    `xml:"name,omitempty" json:"name,omitempty"`
+	Pos         int      `xml:"-" json:"-"`
 	ID          string   `xml:"id,omitempty" json:"id,omitempty"`
 	EMail       string   `xml:"email,omitempty" json:"email,omitempty"`
 	ShowEMail   string   `xml:"show_email,omitempty" json:"show_email,omitempty"`
@@ -848,32 +849,41 @@ func (accompanimentItemList *AccompanimentItemList) AddItem(item *Item) int {
 
 // Name handles the "name" types found in Items.
 type Name struct {
-	XMLName xml.Name `json:"-"`
-	Family  string   `xml:"family,omitempty" json:"family,omitempty"`
-	Given   string   `xml:"given,omitempty" json:"given,omitempty"`
-	ID      string   `xml:"id,omitempty" json:"id,omitempty"`
-	ORCID   string   `xml:"orcid,omitempty" json:"orcid,omitempty"`
-	Value   string   `xml:",chardata" json:"value,omitempty"`
+	XMLName    xml.Name `json:"-"`
+	Family     string   `xml:"family,omitempty" json:"family,omitempty"`
+	Given      string   `xml:"given,omitempty" json:"given,omitempty"`
+	ID         string   `xml:"id,omitempty" json:"id,omitempty"`
+	ORCID      string   `xml:"orcid,omitempty" json:"orcid,omitempty"`
+	Honourific string   `xml:"honourific,omitempty" json:"honourific,omitempty"`
+	Lineage    string   `xml:"lineage,omitempty" json:"lineage,omitempty"`
+	Value      string   `xml:",chardata" json:"value,omitempty"`
+}
+
+func nameToMap(name *Name) map[string]string {
+	m := map[string]string{}
+	if s := strings.TrimSpace(name.Family); s != "" {
+		m["family"] = s
+	}
+	if s := strings.TrimSpace(name.Given); s != "" {
+		m["given"] = s
+	}
+	if s := strings.TrimSpace(name.Honourific); s != "" {
+		m["honourific"] = s
+	}
+	if s := strings.TrimSpace(name.Lineage); s != "" {
+		m["lineage"] = s
+	}
+	if s := strings.TrimSpace(name.Value); s != "" {
+		m["value"] = s
+	}
+	return m
 }
 
 // MarshalJSON() is a custom JSON marshaler for Name
 func (name *Name) MarshalJSON() ([]byte, error) {
-	m := map[string]interface{}{}
-	flatten := true
-	if s := strings.TrimSpace(name.Family); s != "" {
-		m["family"] = s
-		flatten = false
-	}
-
-	if s := strings.TrimSpace(name.Given); s != "" {
-		m["given"] = s
-		flatten = false
-	}
-	if s := strings.TrimSpace(name.Value); s != "" {
-		if flatten == true {
-			return json.Marshal(s)
-		}
-		m["value"] = s
+	m := nameToMap(name)
+	if value, flatten := m["value"]; flatten {
+		return json.Marshal(value)
 	}
 	return json.Marshal(m)
 }
@@ -915,18 +925,24 @@ func (eprints *EPrints) AddEPrint(eprint *EPrint) int {
 
 // File structures in Document
 type File struct {
-	XMLName   xml.Name `json:"-"`
-	ID        string   `xml:"id,attr" json:"id"`
-	FileID    int      `xml:"fileid" json:"fileid"`
-	DatasetID string   `xml:"datasetid" json:"datasetid"`
-	ObjectID  int      `xml:"objectid" json:"objectid"`
-	Filename  string   `xml:"filename" json:"filename"`
-	MimeType  string   `xml:"mime_type" json:"mime_type"`
-	Hash      string   `xml:"hash,omitempty" json:"hash,omitempty"`
-	HashType  string   `xml:"hash_type,omitempty" json:"hash_type,omitempty"`
-	FileSize  int      `xml:"filesize" json:"filesize"`
-	MTime     string   `xml:"mtime" json:"mtime"`
-	URL       string   `xml:"url" json:"url"`
+	XMLName     xml.Name `json:"-"`
+	ID          string   `xml:"id,attr" json:"id"`
+	FileID      int      `xml:"fileid" json:"fileid"`
+	DatasetID   string   `xml:"datasetid" json:"datasetid"`
+	ObjectID    int      `xml:"objectid" json:"objectid"`
+	Filename    string   `xml:"filename" json:"filename"`
+	MimeType    string   `xml:"mime_type" json:"mime_type"`
+	Hash        string   `xml:"hash,omitempty" json:"hash,omitempty"`
+	HashType    string   `xml:"hash_type,omitempty" json:"hash_type,omitempty"`
+	FileSize    int      `xml:"filesize" json:"filesize"`
+	MTime       string   `xml:"mtime" json:"mtime"`
+	MTimeYear   int      `xml:"-" json:"-"`
+	MTimeMonth  int      `xml:"-" json:"-"`
+	MTimeDay    int      `xml:"-" json:"-"`
+	MTimeHour   int      `xml:"-" json:"-"`
+	MTimeMinute int      `xml:"-" json:"-"`
+	MTimeSecond int      `xml:"-" json:"-"`
+	URL         string   `xml:"url" json:"url"`
 }
 
 // Document structures inside a Record (i.e. <eprint>...<documents><document>...</document>...</documents>...</eprint>)
@@ -960,8 +976,8 @@ type Document struct {
 	MediaSampleStart string `xml:"media_sample_start,omitempty" json:"media_sample_start,omitempty"`
 	MediaSampleStop  string `xml:"media_sample_stop,omitempty" json:"media_sample_stop,omitempty"`
 
-	Content  string  `xml:"content,omitempty" json:"content,omitempty"`
-	Relation []*Item `xml:"relation>item,omitempty" json:"relation,omitempty"`
+	Content  string    `xml:"content,omitempty" json:"content,omitempty"`
+	Relation *ItemList `xml:"relation>item,omitempty" json:"relation,omitempty"`
 }
 
 // DocumentList is an array of pointers to Document structs
@@ -985,6 +1001,34 @@ func (documentList DocumentList) IndexOf(i int) *Document {
 		return nil
 	}
 	return documentList[i]
+}
+
+// ItemList is an array of pointers to Item structs
+type ItemList []*Item
+
+// AddItem adds a Item to the relation list and returns the new count of items
+func (itemList *ItemList) AddItem(item *Item) int {
+	*itemList = append(*itemList, item)
+	return len(*itemList)
+}
+
+// Length returns the length of ItemList
+func (itemList *ItemList) Length() int {
+	return len(*itemList)
+}
+
+// GetItem takes a position (zero based) and returns the *Item
+// in the ItemList or nil.
+func (itemList *ItemList) IndexOf(i int) *Item {
+	if (i < 0) || i >= itemList.Length() {
+		return nil
+	}
+	for j, item := range *itemList {
+		if i == j {
+			return item
+		}
+	}
+	return nil
 }
 
 // ePrintIDs is a struct for parsing the ids page of EPrints REST API

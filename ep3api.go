@@ -145,6 +145,7 @@ func packageXML(w http.ResponseWriter, repoID string, src []byte, err error) (in
 		return 500, fmt.Errorf("Internal Server Error")
 	}
 	w.Header().Set("Content-Type", "application/xml")
+	fmt.Fprintln(w, `<?xml version='1.0' encoding='utf-8'?>`)
 	fmt.Fprintf(w, "%s", src)
 	return 200, nil
 }
@@ -599,7 +600,7 @@ POST:
 - '/%s/eprint/{EPRINT_ID}' will replace an existing EPrint, POST must be valid EPrint XML with a content type of "application/xml".
 - '/%s/eprint/0' will create a new EPrint record. The POST must be valid EPrint XML with a content type of "application/xml".
 
-`, repoID)
+`, repoID, repoID, repoID, repoID)
 }
 
 //
@@ -1028,11 +1029,16 @@ func recordEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args 
 	if len(args) != 1 {
 		return 400, fmt.Errorf("Bad Request")
 	}
+	baseURL := ""
+	dataSource, ok := config.Repositories[repoID]
+	if ok {
+		baseURL = dataSource.BaseURL
+	}
 	eprintID, err := strconv.Atoi(args[0])
 	if err != nil {
 		return 400, fmt.Errorf("Bad Request, eprint id invalid, %s", err)
 	}
-	eprint, err := CrosswalkSQLToEPrint(repoID, eprintID)
+	eprint, err := CrosswalkSQLToEPrint(repoID, baseURL, eprintID)
 	if err != nil {
 		log.Printf("CrosswalkSQLToEPrint Error: %s\n", err)
 		return 500, fmt.Errorf("Internal Server Error")
@@ -1080,7 +1086,7 @@ func eprintEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args 
 	if r.Method == "POST" {
 		return 500, fmt.Errorf("not implemented, POST")
 	}
-	eprint, err := CrosswalkSQLToEPrint(repoID, eprintID)
+	eprint, err := CrosswalkSQLToEPrint(repoID, dataSource.BaseURL, eprintID)
 	if err != nil {
 		return 404, fmt.Errorf("not found, %s", err)
 
@@ -1090,10 +1096,14 @@ func eprintEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args 
 		src, err := json.MarshalIndent(eprint, "", "    ")
 		return packageJSON(w, repoID, src, err)
 	case "application/xml":
-		src, err := xml.MarshalIndent(eprint, "", "    ")
+		eprints := new(EPrints)
+		eprints.AddEPrint(eprint)
+		src, err := xml.MarshalIndent(eprints, "", "    ")
 		return packageXML(w, repoID, src, err)
 	case "":
-		src, err := xml.MarshalIndent(eprint, "", "    ")
+		eprints := new(EPrints)
+		eprints.AddEPrint(eprint)
+		src, err := xml.MarshalIndent(eprints, "", "    ")
 		return packageXML(w, repoID, src, err)
 	default:
 		return 415, fmt.Errorf("unsupported media type, %q", contentType)

@@ -36,6 +36,10 @@ type DataSource struct {
 	// DSN is used to connect to a MySQL style DB.
 	DSN string `json:"dsn,omitempty"`
 
+	// BaseURL is the URL to use in constructing eprint id, document id
+	// and file id attribute strings.
+	BaseURL string `json:"base_url,omitempty"`
+
 	// Rest is used to connect to EPrints REST API
 	// NOTE: assumes Basic Auth for authentication
 	RestAPI string `json:"rest,omitempty"`
