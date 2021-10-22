@@ -1097,12 +1097,12 @@ func eprintEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args 
 		return packageJSON(w, repoID, src, err)
 	case "application/xml":
 		eprints := new(EPrints)
-		eprints.AddEPrint(eprint)
+		eprints.Append(eprint)
 		src, err := xml.MarshalIndent(eprints, "", "    ")
 		return packageXML(w, repoID, src, err)
 	case "":
 		eprints := new(EPrints)
-		eprints.AddEPrint(eprint)
+		eprints.Append(eprint)
 		src, err := xml.MarshalIndent(eprints, "", "    ")
 		return packageXML(w, repoID, src, err)
 	default:

@@ -241,7 +241,7 @@ func main() {
 				if err != nil {
 					fmt.Fprintf(os.Stderr, "ERROR (CrossRef to EPrintXML): skipping %q, %s\n", doi, err)
 				} else {
-					eprintsList.AddEPrint(eprint)
+					eprintsList.Append(eprint)
 				}
 			} else {
 				fmt.Fprintf(os.Stderr, "WARNING (CrossRef API): %q, %s\n", doi, apiCrossRef.Status)
@@ -257,7 +257,7 @@ func main() {
 				if err != nil {
 					fmt.Fprintf(os.Stderr, "ERROR (DataCite to EPrintXML): skipping %q, %s\n", doi, err)
 				} else {
-					eprintsList.AddEPrint(eprint)
+					eprintsList.Append(eprint)
 				}
 			} else {
 				fmt.Fprintf(os.Stderr, "WARNING (DataCite API): %q, %s\n", doi, apiDataCite.Status)
@@ -279,7 +279,7 @@ func main() {
 				if err != nil {
 					fmt.Fprintf(os.Stderr, "ERROR (CrossRef to EPrintXML): skipping %q, %s\n", doi, err)
 				} else {
-					eprintsList.AddEPrint(eprint)
+					eprintsList.Append(eprint)
 				}
 			}
 
@@ -296,7 +296,7 @@ func main() {
 					if err != nil {
 						fmt.Fprintf(os.Stderr, "ERROR (DataCite to EPrintXML): skipping %q, %s\n", doi, err)
 					} else {
-						eprintsList.AddEPrint(eprint)
+						eprintsList.Append(eprint)
 					}
 				}
 			}

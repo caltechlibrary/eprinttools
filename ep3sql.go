@@ -11,9 +11,6 @@ import (
 	"time"
 )
 
-type EPrintTable struct {
-}
-
 // includesString takes an array of string and checks to see
 // if the one provided is included.
 func includesString(list []string, target string) bool {
@@ -380,9 +377,18 @@ func eprintToColumnsAndValues(eprint *EPrint, columnsIn []string) ([]string, []i
 		case "gradofc_approval_date":
 			values = append(values, &eprint.GradOfficeApprovalDate)
 			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, '') AS %s`, key, key))
+		case "gradofc_approval_date_year":
+			values = append(values, &eprint.GradOfficeApprovalDateYear)
+			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, 0) AS %s`, key, key))
+		case "gradofc_approval_date_month":
+			values = append(values, &eprint.GradOfficeApprovalDateMonth)
+			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, 0) AS %s`, key, key))
+		case "gradofc_approval_date_day":
+			values = append(values, &eprint.GradOfficeApprovalDateDay)
+			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, 0) AS %s`, key, key))
 		case "thesis_awards":
 			values = append(values, &eprint.ThesisAwards)
-			columnsOut = append(columnsOut, key)
+			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, '') AS %s`, key, key))
 		case "review_status":
 			values = append(values, &eprint.ReviewStatus)
 			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, '') AS %s`, key, key))
@@ -469,6 +475,73 @@ func makeApproxDate(year int, month int, day int) string {
 	return time.Date(year, time.Month(month), day, 0, 0, 0, 0, time.UTC).Format(layout)
 }
 
+func eprintIDToPersonItemList(db *sql.DB, tables map[string][]string, repoID string, eprintID int, tableName string, itemList ItemsInterface) int {
+	var (
+		pos                                       int
+		value, honourific, given, family, lineage string
+	)
+	_, ok := tables[tableName]
+	if ok {
+		columnPrefix := strings.TrimPrefix(tableName, `eprint_`)
+		stmt := fmt.Sprintf(`SELECT pos, IFNULL(%s_honourific, '') AS honourific, IFNULL(%s_given, '') AS given, IFNULL(%s_family, '') AS family, IFNULL(%s_lineage, '') AS lineage FROM %s WHERE eprintid = ? ORDER BY eprintid, pos`, columnPrefix, columnPrefix, columnPrefix, columnPrefix, tableName)
+		rows, err := db.Query(stmt, eprintID)
+		if err != nil {
+			log.Printf("Could not query %s for %d in %q, %s", tableName, eprintID, repoID, err)
+		} else {
+			i := 0
+			for rows.Next() {
+				if err := rows.Scan(&pos, &honourific, &given, &family, &lineage); err != nil {
+					log.Printf("Could not scan %s for %d in %q, %s", tableName, eprintID, repoID, err)
+				} else {
+					item := new(Item)
+					item.Pos = pos
+					item.Name = makePersonName(given, family, honourific, lineage)
+					itemList.Append(item)
+				}
+				i++
+			}
+			rows.Close()
+
+			if itemList.Length() > 0 {
+				tablesAndColumn := map[string][2]string{}
+				for _, suffix := range []string{"id", "orcid", "uri", "role", "email"} {
+					key := fmt.Sprintf("eprint_%s_%s", columnPrefix, suffix)
+					tablesAndColumn[key] = [2]string{
+						// Column Name
+						fmt.Sprintf("%s_%s", columnPrefix, suffix),
+						// Column Alias
+						suffix,
+					}
+				}
+				for tableName, columnNames := range tablesAndColumn {
+					columnName, columnAlias := columnNames[0], columnNames[1]
+					_, ok := tables[tableName]
+					if ok {
+						stmt := fmt.Sprintf(`SELECT pos, IFNULL(%s, "") AS %s FROM %s WHERE eprintid = ? ORDER BY eprintid, pos`, columnName, columnAlias, tableName)
+						rows, err = db.Query(stmt, eprintID)
+						if err != nil {
+							log.Printf("Could not query (%d) %s for %d in %q, %s", i, tableName, eprintID, repoID, err)
+						} else {
+							i := 0
+							for rows.Next() {
+								if err := rows.Scan(&pos, &value); err != nil {
+									log.Printf("Could not scan (%d) %s for %d in %q, %s", i, tableName, eprintID, repoID, err)
+								} else {
+									// NOTE: SetCell finds the pos in the list, sets the attribute identified by columnAlias to the value
+									itemList.SetAttributeOf(pos, columnAlias, value)
+								}
+								i++
+							}
+							rows.Close()
+						}
+					}
+				}
+			}
+		}
+	}
+	return itemList.Length()
+}
+
 func eprintIDToCreators(repoID string, eprintID int, db *sql.DB, tables map[string][]string) *CreatorItemList {
 	var (
 		pos                                       int
@@ -502,6 +575,8 @@ func eprintIDToCreators(repoID string, eprintID int, db *sql.DB, tables map[stri
 					"eprint_creators_id":    "creators_id",
 					"eprint_creators_orcid": "creators_orcid",
 					"eprint_creators_uri":   "creators_uri",
+					"eprint_creators_role":  "creators_role",
+					"eprint_creators_email": "creators_email",
 				}
 				for tableName, columnName := range tablesAndColumn {
 					_, ok := tables[tableName]
@@ -525,6 +600,10 @@ func eprintIDToCreators(repoID string, eprintID int, db *sql.DB, tables map[stri
 												item.ORCID = value
 											case "creators_uri":
 												item.URI = value
+											case "creators_role":
+												item.Role = value
+											case "creators_email":
+												item.EMail = value
 											}
 											break
 										}
@@ -657,6 +736,8 @@ func eprintIDToEditors(repoID string, eprintID int, db *sql.DB, tables map[strin
 					"eprint_editors_id":    "editors_id",
 					"eprint_editors_orcid": "editors_orcid",
 					"eprint_editors_uri":   "editors_uri",
+					"eprint_editors_role":  "editors_role",
+					"eprint_editors_email": "editors_email",
 				}
 				for tableName, columnName := range tablesAndColumn {
 					_, ok := tables[tableName]
@@ -680,6 +761,10 @@ func eprintIDToEditors(repoID string, eprintID int, db *sql.DB, tables map[strin
 												item.ORCID = value
 											case "editors_uri":
 												item.URI = value
+											case "editors_role":
+												item.Role = value
+											case "editors_email":
+												item.EMail = value
 											}
 											break
 										}
@@ -732,6 +817,8 @@ func eprintIDToContributors(repoID string, eprintID int, db *sql.DB, tables map[
 					"eprint_contributors_id":    "contributors_id",
 					"eprint_contributors_orcid": "contributors_orcid",
 					"eprint_contributors_uri":   "contributors_uri",
+					"eprint_contributors_role":  "contributors_role",
+					"eprint_contributors_email": "contributors_email",
 				}
 				for tableName, columnName := range tablesAndColumn {
 					_, ok := tables[tableName]
@@ -755,6 +842,10 @@ func eprintIDToContributors(repoID string, eprintID int, db *sql.DB, tables map[
 												item.ORCID = value
 											case "contributors_uri":
 												item.URI = value
+											case "contributors_role":
+												item.Role = value
+											case "contributors_email":
+												item.EMail = value
 											}
 											break
 										}
@@ -1136,8 +1227,7 @@ func eprintIDToDocumentList(repoID string, baseURL string, eprintID int, db *sql
 			rows.Close()
 		}
 
-		// FIXME How to Handle document_permission_group, the table appears to be empty?
-
+		// NOTE: The document_permission_group the table is empty in our repositories
 		if documentList.Length() > 0 {
 			// Attach files to documents
 			for i := 0; i < documentList.Length(); i++ {
@@ -1529,7 +1619,7 @@ func eprintIDToProducers(repoID string, eprintID int, db *sql.DB, tables map[str
 	_, ok := tables[tableName]
 	if ok {
 		itemList := new(ProducerItemList)
-		stmt := `SELECT pos, IFNULL(producers_name_honourific, '') AS producers_name_honourific, IFNULL(producers_name_given, '') AS producers_name_given, IFNULL(producers_name_family, '') AS producers_name_family, IFNULL(producers_name_lineage, '') AS producers_name_lineage FROM eprint_producers_name WHERE eprintid = ? ORDER BY eprintid, pos`
+		stmt := fmt.Sprintf(`SELECT pos, IFNULL(producers_name_honourific, '') AS producers_name_honourific, IFNULL(producers_name_given, '') AS producers_name_given, IFNULL(producers_name_family, '') AS producers_name_family, IFNULL(producers_name_lineage, '') AS producers_name_lineage FROM %s WHERE eprintid = ? ORDER BY eprintid, pos`, tableName)
 		rows, err := db.Query(stmt, eprintID)
 		if err != nil {
 			log.Printf("Could not query %s for %d in %q, %s", tableName, eprintID, repoID, err)
@@ -1606,7 +1696,7 @@ func eprintIDToConductors(repoID string, eprintID int, db *sql.DB, tables map[st
 	_, ok := tables[tableName]
 	if ok {
 		itemList := new(ConductorItemList)
-		stmt := `SELECT pos, IFNULL(conductors_name_honourific, '') AS conductors_name_honourific, IFNULL(conductors_name_given, '') AS conductors_name_given, IFNULL(conductors_name_family, '') AS conductors_name_family, IFNULL(conductors_name_lineage, '') AS conductors_name_lineage FROM eprint_conductors_name WHERE eprintid = ? ORDER BY eprintid, pos`
+		stmt := fmt.Sprintf(`SELECT pos, IFNULL(conductors_name_honourific, '') AS conductors_name_honourific, IFNULL(conductors_name_given, '') AS conductors_name_given, IFNULL(conductors_name_family, '') AS conductors_name_family, IFNULL(conductors_name_lineage, '') AS conductors_name_lineage FROM %s WHERE eprintid = ? ORDER BY eprintid, pos`, tableName)
 		rows, err := db.Query(stmt, eprintID)
 		if err != nil {
 			log.Printf("Could not query %s for %d in %q, %s", tableName, eprintID, repoID, err)
@@ -1683,7 +1773,7 @@ func eprintIDToLyricists(repoID string, eprintID int, db *sql.DB, tables map[str
 	_, ok := tables[tableName]
 	if ok {
 		itemList := new(LyricistItemList)
-		stmt := `SELECT pos, IFNULL(lyricists_name_honourific, '') AS lyricists_name_honourific, IFNULL(lyricists_name_given, '') AS lyricists_name_given, IFNULL(lyricists_name_family, '') AS lyricists_name_family, IFNULL(lyricists_name_lineage, '') AS lyricists_name_lineage FROM eprint_lyricists_name WHERE eprintid = ? ORDER BY eprintid, pos`
+		stmt := fmt.Sprintf(`SELECT pos, IFNULL(lyricists_name_honourific, '') AS lyricists_name_honourific, IFNULL(lyricists_name_given, '') AS lyricists_name_given, IFNULL(lyricists_name_family, '') AS lyricists_name_family, IFNULL(lyricists_name_lineage, '') AS lyricists_name_lineage FROM %s WHERE eprintid = ? ORDER BY eprintid, pos`, tableName)
 		rows, err := db.Query(stmt, eprintID)
 		if err != nil {
 			log.Printf("Could not query %s for %d in %q, %s", tableName, eprintID, repoID, err)
@@ -1984,6 +2074,394 @@ FROM %s WHERE eprintid = ? ORDER BY eprintid, pos`, columnName, columnName, tabl
 	return nil
 }
 
+func eprintIDToAltTitle(repoID string, eprintID int, db *sql.DB, tables map[string][]string) *AltTitleItemList {
+	var (
+		pos   int
+		value string
+	)
+	tableName := `eprint_alt_title`
+	columnName := `alt_title`
+	_, ok := tables[tableName]
+	if ok {
+		itemList := new(AltTitleItemList)
+		stmt := fmt.Sprintf(`SELECT pos, IFNULL(%s, '') AS %s FROM %s WHERE eprintid = ? ORDER BY eprintid, pos`, columnName, columnName, tableName)
+		rows, err := db.Query(stmt, eprintID)
+		if err != nil {
+			log.Printf("Could not query %s for %d in %q, %s", tableName, eprintID, repoID, err)
+		} else {
+			i := 0
+			for rows.Next() {
+				if err := rows.Scan(&pos, &value); err != nil {
+					log.Printf("Could not scan %s for %d in %q, %s", tableName, eprintID, repoID, err)
+				} else {
+					item := new(Item)
+					item.Pos = pos
+					if value != "" {
+						item.Value = value
+					}
+					itemList.Append(item)
+				}
+				i++
+			}
+			rows.Close()
+		}
+		if itemList.Length() > 0 {
+			return itemList
+		}
+	}
+	return nil
+}
+
+func eprintIDToPatentAssignee(repoID string, eprintID int, db *sql.DB, tables map[string][]string) *PatentAssigneeItemList {
+	var (
+		pos   int
+		value string
+	)
+	tableName := `eprint_patent_assignee`
+	columnName := `patent_assignee`
+	_, ok := tables[tableName]
+	if ok {
+		itemList := new(PatentAssigneeItemList)
+		stmt := fmt.Sprintf(`SELECT pos, IFNULL(%s, '') AS %s FROM %s WHERE eprintid = ? ORDER BY eprintid, pos`, columnName, columnName, tableName)
+		rows, err := db.Query(stmt, eprintID)
+		if err != nil {
+			log.Printf("Could not query %s for %d in %q, %s", tableName, eprintID, repoID, err)
+		} else {
+			i := 0
+			for rows.Next() {
+				if err := rows.Scan(&pos, &value); err != nil {
+					log.Printf("Could not scan %s for %d in %q, %s", tableName, eprintID, repoID, err)
+				} else {
+					item := new(Item)
+					item.Pos = pos
+					if value != "" {
+						item.Value = value
+					}
+					itemList.Append(item)
+				}
+				i++
+			}
+			rows.Close()
+		}
+		if itemList.Length() > 0 {
+			return itemList
+		}
+	}
+	return nil
+}
+
+func eprintIDToRelatedPatents(repoID string, eprintID int, db *sql.DB, tables map[string][]string) *RelatedPatentItemList {
+	var (
+		pos   int
+		value string
+	)
+	tableName := `eprint_related_patents`
+	columnName := `related_patents`
+	_, ok := tables[tableName]
+	if ok {
+		itemList := new(RelatedPatentItemList)
+		stmt := fmt.Sprintf(`SELECT pos, IFNULL(%s, '') AS %s FROM %s WHERE eprintid = ? ORDER BY eprintid, pos`, columnName, columnName, tableName)
+		rows, err := db.Query(stmt, eprintID)
+		if err != nil {
+			log.Printf("Could not query %s for %d in %q, %s", tableName, eprintID, repoID, err)
+		} else {
+			i := 0
+			for rows.Next() {
+				if err := rows.Scan(&pos, &value); err != nil {
+					log.Printf("Could not scan %s for %d in %q, %s", tableName, eprintID, repoID, err)
+				} else {
+					item := new(Item)
+					item.Pos = pos
+					if value != "" {
+						item.Value = value
+					}
+					itemList.Append(item)
+				}
+				i++
+			}
+			rows.Close()
+		}
+		if itemList.Length() > 0 {
+			return itemList
+		}
+	}
+	return nil
+}
+
+func eprintIDToDivisions(repoID string, eprintID int, db *sql.DB, tables map[string][]string) *DivisionItemList {
+	var (
+		pos   int
+		value string
+	)
+	tableName := `eprint_divisions`
+	columnName := strings.TrimPrefix(tableName, `eprint_`)
+	_, ok := tables[tableName]
+	if ok {
+		itemList := new(DivisionItemList)
+		stmt := fmt.Sprintf(`SELECT pos, IFNULL(%s, '') AS %s FROM %s WHERE eprintid = ? ORDER BY eprintid, pos`, columnName, columnName, tableName)
+		rows, err := db.Query(stmt, eprintID)
+		if err != nil {
+			log.Printf("Could not query %s for %d in %q, %s", tableName, eprintID, repoID, err)
+		} else {
+			i := 0
+			for rows.Next() {
+				if err := rows.Scan(&pos, &value); err != nil {
+					log.Printf("Could not scan %s for %d in %q, %s", tableName, eprintID, repoID, err)
+				} else {
+					item := new(Item)
+					item.Pos = pos
+					if value != "" {
+						item.Value = value
+					}
+					itemList.Append(item)
+				}
+				i++
+			}
+			rows.Close()
+		}
+		if itemList.Length() > 0 {
+			return itemList
+		}
+	}
+	return nil
+}
+
+func eprintIDToThesisAdvisors(repoID string, eprintID int, db *sql.DB, tables map[string][]string) *ThesisAdvisorItemList {
+	var (
+		pos                                       int
+		value, honourific, given, family, lineage string
+	)
+	tableName := `eprint_thesis_advisor_name`
+	_, ok := tables[tableName]
+	if ok {
+		itemList := new(ThesisAdvisorItemList)
+		stmt := fmt.Sprintf(`SELECT pos, IFNULL(thesis_advisor_name_honourific, '') AS thesis_advisor_name_honourific, IFNULL(thesis_advisor_name_given, '') AS thesis_advisor_name_given, IFNULL(thesis_advisor_name_family, '') AS thesis_advisor_name_family, IFNULL(thesis_advisor_name_lineage, '') AS thesis_advisor_name_lineage FROM %s WHERE eprintid = ? ORDER BY eprintid, pos`, tableName)
+		rows, err := db.Query(stmt, eprintID)
+		if err != nil {
+			log.Printf("Could not query %s for %d in %q, %s", tableName, eprintID, repoID, err)
+		} else {
+			i := 0
+			for rows.Next() {
+				if err := rows.Scan(&pos, &honourific, &given, &family, &lineage); err != nil {
+					log.Printf("Could not scan %s for %d in %q, %s", tableName, eprintID, repoID, err)
+				} else {
+					item := new(Item)
+					item.Pos = pos
+					item.Name = makePersonName(given, family, honourific, lineage)
+					itemList.Append(item)
+				}
+				i++
+			}
+			rows.Close()
+
+			if itemList.Length() > 0 {
+				tablesAndColumn := map[string]string{
+					"eprint_thesis_advisor_id":    "thesis_advisor_id",
+					"eprint_thesis_advisor_orcid": "thesis_advisor_orcid",
+					"eprint_thesis_advisor_uri":   "thesis_advisor_uri",
+					"eprint_thesis_advisor_role":  "thesis_advisor_role",
+					"eprint_thesis_advisor_email": "thesis_advisor_email",
+				}
+				for tableName, columnName := range tablesAndColumn {
+					_, ok := tables[tableName]
+					if ok {
+						stmt := fmt.Sprintf(`SELECT pos, IFNULL(%s, "") AS %s FROM %s WHERE eprintid = ? ORDER BY eprintid, pos`, columnName, columnName, tableName)
+						rows, err = db.Query(stmt, eprintID)
+						if err != nil {
+							log.Printf("Could not query (%d) %s for %d in %q, %s", i, tableName, eprintID, repoID, err)
+						} else {
+							i := 0
+							for rows.Next() {
+								if err := rows.Scan(&pos, &value); err != nil {
+									log.Printf("Could not scan (%d) %s for %d in %q, %s", i, tableName, eprintID, repoID, err)
+								} else {
+									for _, item := range itemList.Items {
+										if item.Pos == pos && value != "" {
+											switch columnName {
+											case "thesis_advisor_id":
+												item.ID = value
+											case "thesis_advisor_orcid":
+												item.ORCID = value
+											case "thesis_advisor_uri":
+												item.URI = value
+											case "thesis_advisor_role":
+												item.Role = value
+											case "thesis_advisor_email":
+												item.EMail = value
+											}
+											break
+										}
+									}
+								}
+								i++
+							}
+							rows.Close()
+						}
+					}
+					return itemList
+				}
+			}
+		}
+	}
+	return nil
+}
+
+func eprintIDToThesisCommittee(repoID string, eprintID int, db *sql.DB, tables map[string][]string) *ThesisCommitteeItemList {
+	var (
+		pos                                       int
+		value, honourific, given, family, lineage string
+	)
+	tableName := `eprint_thesis_committee_name`
+	_, ok := tables[tableName]
+	if ok {
+		itemList := new(ThesisCommitteeItemList)
+		stmt := fmt.Sprintf(`SELECT pos, IFNULL(thesis_committee_name_honourific, '') AS thesis_committee_name_honourific, IFNULL(thesis_committee_name_given, '') AS thesis_committee_name_given, IFNULL(thesis_committee_name_family, '') AS thesis_committee_name_family, IFNULL(thesis_committee_name_lineage, '') AS thesis_committee_name_lineage FROM %s WHERE eprintid = ? ORDER BY eprintid, pos`, tableName)
+		rows, err := db.Query(stmt, eprintID)
+		if err != nil {
+			log.Printf("Could not query %s for %d in %q, %s", tableName, eprintID, repoID, err)
+		} else {
+			i := 0
+			for rows.Next() {
+				if err := rows.Scan(&pos, &honourific, &given, &family, &lineage); err != nil {
+					log.Printf("Could not scan %s for %d in %q, %s", tableName, eprintID, repoID, err)
+				} else {
+					item := new(Item)
+					item.Pos = pos
+					item.Name = makePersonName(given, family, honourific, lineage)
+					itemList.Append(item)
+				}
+				i++
+			}
+			rows.Close()
+
+			if itemList.Length() > 0 {
+				tablesAndColumn := map[string]string{
+					"eprint_thesis_committee_id":    "thesis_committee_id",
+					"eprint_thesis_committee_orcid": "thesis_committee_orcid",
+					"eprint_thesis_committee_uri":   "thesis_committee_uri",
+					"eprint_thesis_committee_role":  "thesis_committee_role",
+					"eprint_thesis_committee_email": "thesis_committee_email",
+				}
+				for tableName, columnName := range tablesAndColumn {
+					_, ok := tables[tableName]
+					if ok {
+						stmt := fmt.Sprintf(`SELECT pos, IFNULL(%s, "") AS %s FROM %s WHERE eprintid = ? ORDER BY eprintid, pos`, columnName, columnName, tableName)
+						rows, err = db.Query(stmt, eprintID)
+						if err != nil {
+							log.Printf("Could not query (%d) %s for %d in %q, %s", i, tableName, eprintID, repoID, err)
+						} else {
+							i := 0
+							for rows.Next() {
+								if err := rows.Scan(&pos, &value); err != nil {
+									log.Printf("Could not scan (%d) %s for %d in %q, %s", i, tableName, eprintID, repoID, err)
+								} else {
+									for _, item := range itemList.Items {
+										if item.Pos == pos && value != "" {
+											switch columnName {
+											case "thesis_committee_id":
+												item.ID = value
+											case "thesis_committee_orcid":
+												item.ORCID = value
+											case "thesis_committee_uri":
+												item.URI = value
+											case "thesis_committee_role":
+												item.Role = value
+											case "thesis_committee_email":
+												item.EMail = value
+											}
+											break
+										}
+									}
+								}
+								i++
+							}
+							rows.Close()
+						}
+					}
+					return itemList
+				}
+			}
+		}
+	}
+	return nil
+}
+
+func eprintIDToOptionMajor(repoID string, eprintID int, db *sql.DB, tables map[string][]string) *OptionMajorItemList {
+	var (
+		pos   int
+		value string
+	)
+	tableName := `eprint_option_major`
+	columnName := `option_major`
+	_, ok := tables[tableName]
+	if ok {
+		itemList := new(OptionMajorItemList)
+		stmt := fmt.Sprintf(`SELECT pos, IFNULL(%s, '') AS %s FROM %s WHERE eprintid = ? ORDER BY eprintid, pos`, columnName, columnName, tableName)
+		rows, err := db.Query(stmt, eprintID)
+		if err != nil {
+			log.Printf("Could not query %s for %d in %q, %s", tableName, eprintID, repoID, err)
+		} else {
+			i := 0
+			for rows.Next() {
+				if err := rows.Scan(&pos, &value); err != nil {
+					log.Printf("Could not scan %s for %d in %q, %s", tableName, eprintID, repoID, err)
+				} else {
+					item := new(Item)
+					item.Pos = pos
+					if value != "" {
+						item.Value = value
+					}
+					itemList.Append(item)
+				}
+				i++
+			}
+			rows.Close()
+		}
+		if itemList.Length() > 0 {
+			return itemList
+		}
+	}
+	return nil
+}
+
+func eprintIDToOptionMinor(repoID string, eprintID int, db *sql.DB, tables map[string][]string) *OptionMinorItemList {
+	var (
+		pos   int
+		value string
+	)
+	tableName := `eprint_option_minor`
+	columnName := `option_minor`
+	_, ok := tables[tableName]
+	if ok {
+		itemList := new(OptionMinorItemList)
+		stmt := fmt.Sprintf(`SELECT pos, IFNULL(%s, '') AS %s FROM %s WHERE eprintid = ? ORDER BY eprintid, pos`, columnName, columnName, tableName)
+		rows, err := db.Query(stmt, eprintID)
+		if err != nil {
+			log.Printf("Could not query %s for %d in %q, %s", tableName, eprintID, repoID, err)
+		} else {
+			i := 0
+			for rows.Next() {
+				if err := rows.Scan(&pos, &value); err != nil {
+					log.Printf("Could not scan %s for %d in %q, %s", tableName, eprintID, repoID, err)
+				} else {
+					item := new(Item)
+					item.Pos = pos
+					if value != "" {
+						item.Value = value
+					}
+					itemList.Append(item)
+				}
+				i++
+			}
+			rows.Close()
+		}
+		if itemList.Length() > 0 {
+			return itemList
+		}
+	}
+	return nil
+}
+
 // CrosswalkSQLToEPrint expects a repository map and EPrint ID
 // and will generate a series of SELECT statements populating
 // a new EPrint struct or return an error
@@ -2046,18 +2524,22 @@ func CrosswalkSQLToEPrint(repoID string, baseURL string, eprintID int) (*EPrint,
 	eprint.StatusChanged = makeTimestamp(eprint.StatusChangedYear, eprint.StatusChangedMonth, eprint.StatusChangedDay, eprint.StatusChangedHour, eprint.StatusChangedMinute, eprint.StatusChangedSecond)
 	eprint.Date = makeApproxDate(eprint.DateYear, eprint.DateMonth, eprint.DateDay)
 
+	// Used in CaltechTHESIS
+	eprint.GradOfficeApprovalDate = makeDatestamp(eprint.GradOfficeApprovalDateYear, eprint.GradOfficeApprovalDateMonth, eprint.GradOfficeApprovalDateDay)
+
 	// CreatorsItemList
 	eprint.Creators = eprintIDToCreators(repoID, eprintID, db, tables)
 	// EditorsItemList
 	eprint.Editors = eprintIDToEditors(repoID, eprintID, db, tables)
 	// ContributorsItemList
 	eprint.Contributors = eprintIDToContributors(repoID, eprintID, db, tables)
+
 	// CorpCreators
 	eprint.CorpCreators = eprintIDToCorpCreators(repoID, eprintID, db, tables)
 
-	// LocalGroupItemList
+	// LocalGroupItemList (SimpleItemList)
 	eprint.LocalGroup = eprintIDToLocalGroup(repoID, eprintID, db, tables)
-	// FundersItemList
+	// FundersItemList (custom)
 	eprint.Funders = eprintIDToFunders(repoID, eprintID, db, tables)
 	// Documents (*DocumentList)
 	eprint.Documents = eprintIDToDocumentList(repoID, baseURL, eprintID, db, tables)
@@ -2095,38 +2577,38 @@ func CrosswalkSQLToEPrint(repoID string, baseURL string, eprintID int) (*EPrint,
 
 	// ConfCreators
 	eprint.ConfCreators = eprintIDToConfCreators(repoID, eprintID, db, tables)
-
-	// FIXME: add various related table data.
-	// LearningLevels (not an item list in EPrints)
-	// - LearningLevelText or LearningLevelItemList
-	//eprint.LearningLevels = eprintIDToLearningLevels(repoID, eprintID, db, tables)
-
 	// AltTitle
-	//eprint.AltTitle = eprintIDToAltTitle(repoID, erpintID,db, tables)
-	// GScholar
-	//eprint.GScholar = eprintIDToGScholar(repoID, eprintID, db, tables)
-	// Shelves
-	//eprint.Shelves = eprintIDToSchelves(repoID, eprintID, db, tables)
+	eprint.AltTitle = eprintIDToAltTitle(repoID, eprintID, db, tables)
 	// PatentAssignee
-	//eprint.PatentAssignee = eprintIDToPatentAssignee(repoID, eprintID, db, tables
-	// PatentClassification (this may be a text field not item list)
-	//   - PatentClassificationText to PatentClassificationItemList?
-	//eprint.PatentClassification = eprintIDToPatentClassification(repoID, eprintID, db, tables)
+	eprint.PatentAssignee = eprintIDToPatentAssignee(repoID, eprintID, db, tables)
 	// RelatedPatents
-	//eprint.RelatedPatents = eprintIDToRelatedPatents(repoID, eprintID, db, tables)
+	eprint.RelatedPatents = eprintIDToRelatedPatents(repoID, eprintID, db, tables)
 	// Divisions
-	//eprint.Divisions = eprintIDToDivisions(repoID, eprintID, db, tables)
+	eprint.Divisions = eprintIDToDivisions(repoID, eprintID, db, tables)
 	// ThesisAdvisor
-	//eprint.ThesisAdvisor = eprintIDToThesisAdvisor(repoID, eprintID,db, tables)
+	eprint.ThesisAdvisor = eprintIDToThesisAdvisors(repoID, eprintID, db, tables)
 	// ThesisCommittee
-	//eprint.ThesisCommittee = eprintIDToThesisCommittee(repoID, eprintID, db, tables)
-	// OptionMajor
-	//eprint.OptionMajor = eprintIDToOptionMajor(repoID, eprintID, db, tables)
-	// OptionMinor
-	//eprint.OptionMinor = eprintIDToOptionMinor(repoID, eprintID, db, tables)
+	eprint.ThesisCommittee = eprintIDToThesisCommittee(repoID, eprintID, db, tables)
 
-	// OtherURL ?? appears to be an extaneous field to EPrints/InvenioRDM
-	// CorpContributors ?? apears to be an extraneous field to EPrints
+	// OptionMajor
+	eprint.OptionMajor = eprintIDToOptionMajor(repoID, eprintID, db, tables)
+	// OptionMinor
+	eprint.OptionMinor = eprintIDToOptionMinor(repoID, eprintID, db, tables)
+
+	/*************************************************************
+		NOTE: These are notes about possible original implementation
+		errors or elements that did not surprive the upgrade to
+		EPrints 3.3.16
+
+		eprint.LearningLevels (not an item list in EPrints) using LearningLevelText
+		GScholar, skipping not an item list, a 2010 plugin for EPRints 3.2.
+		eprint.GScholar = eprintIDToGScholar(repoID, eprintID, db, tables)
+		Shelves, a plugin, not replicating, not an item list
+		eprint.Shelves = eprintIDToSchelves(repoID, eprintID, db, tables)
+		eprint.PatentClassification is not not an item list, using eprint.PatentClassificationText
+		eprint.OtherURL appears to be an extraneous
+		eprint.CorpContributors apears to be an extraneous
+	*************************************************************/
 
 	return eprint, nil
 }

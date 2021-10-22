@@ -185,41 +185,44 @@ type EPrint struct {
 	RelatedPatents           *RelatedPatentItemList        `xml:"related_patents,omitempty" json:"related_patents,omitempty"`
 
 	// Thesis oriented fields
-	Divisions                *DivisionItemList        `xml:"divisions,omitemmpty" json:"divisions,omitempty"`
-	Institution              string                   `xml:"institution,omitempty" json:"institution,omitempty"`
-	ThesisType               string                   `xml:"thesis_type,omitempty" json:"thesis_type,omitempty"`
-	ThesisAdvisor            *ThesisAdvisorItemList   `xml:"thesis_advisor,omitempty" json:"thesis_advisor,omitempty"`
-	ThesisCommittee          *ThesisCommitteeItemList `xml:"thesis_committee,omitempty" json:"thesis_committee,omitempty"`
-	ThesisDegree             string                   `xml:"thesis_degree,omitempty" json:"thesis_degree,omitempty"`
-	ThesisDegreeGrantor      string                   `xml:"thesis_degree_grantor,omitempty" json:"thesis_degree_grantor,omitempty"`
-	ThesisDegreeDate         string                   `xml:"thesis_degree_date,omitempty" json:"thesis_degree_date,omitempty"`
-	ThesisDegreeDateYear     int                      `xml:"-" json:"-"`
-	ThesisDegreeDateMonth    int                      `xml:"-" json:"-"`
-	ThesisDegreeDateDay      int                      `xml:"-" json:"-"`
-	ThesisSubmittedDate      string                   `xml:"thesis_submit_date,omitempty" json:"thesis_submit_date,omitempty"`
-	ThesisSubmittedDateYear  int                      `xml:"-" json:"-"`
-	ThesisSubmittedDateMonth int                      `xml:"-" json:"-"`
-	ThesisSubmittedDateDay   int                      `xml:"-" json:"-"`
-	ThesisDefenseDate        string                   `xml:"thesis_defense_date,omitempty" json:"thesis_defense_date,omitempty"`
-	ThesisDefenseDateYear    int                      `xml:"-" json:"-"`
-	ThesisDefenseDateMonth   int                      `xml:"-" json:"-"`
-	ThesisDefenseDateDay     int                      `xml:"-" json:"-"`
-	ThesisApprovedDate       string                   `xml:"thesis_approved_date,omitempty" json:"thesis_approved_date,omitempty"`
-	ThesisApprovedDateYear   int                      `xml:"-" json:"-"`
-	ThesisApprovedDateMonth  int                      `xml:"-" json:"-"`
-	ThesisApprovedDateDay    int                      `xml:"-" json:"-"`
-	ThesisPublicDate         string                   `xml:"thesis_public_date,omitempty" json:"thesis_public_date,omitempty"`
-	ThesisPublicDateYear     int                      `xml:"-" json:"-"`
-	ThesisPublicDateMonth    int                      `xml:"-" json:"-"`
-	ThesisPublicDateDay      int                      `xml:"-" json:"-"`
-	ThesisAuthorEMail        string                   `xml:"thesis_author_email,omitempty" json:"thesis_author_email,omitempty"`
-	HideThesisAuthorEMail    string                   `xml:"hide_thesis_author_email,omitempty" json:"hide_thesis_author_email,omitempty"`
-	GradOfficeApprovalDate   string                   `xml:"gradofc_approval_date,omitempty" json:"gradofc_approval_date,omitempty"`
-	ThesisAwards             string                   `xml:"thesis_awards,omitempty" json:"thesis_awards,omitempty"`
-	ReviewStatus             string                   `xml:"review_status,omitempty" json:"review_status,omitempty"`
-	OptionMajor              *OptionMajorItemList     `xml:"option_major,omitempty" json:"option_major,omitempty"`
-	OptionMinor              *OptionMinorItemList     `xml:"option_minor,omitempty" json:"option_major,omitempty"`
-	CopyrightStatement       string                   `xml:"copyright_statement,omitempty" json:"copyright_statement,omitempty"`
+	Divisions                   *DivisionItemList        `xml:"divisions,omitemmpty" json:"divisions,omitempty"`
+	Institution                 string                   `xml:"institution,omitempty" json:"institution,omitempty"`
+	ThesisType                  string                   `xml:"thesis_type,omitempty" json:"thesis_type,omitempty"`
+	ThesisAdvisor               *ThesisAdvisorItemList   `xml:"thesis_advisor,omitempty" json:"thesis_advisor,omitempty"`
+	ThesisCommittee             *ThesisCommitteeItemList `xml:"thesis_committee,omitempty" json:"thesis_committee,omitempty"`
+	ThesisDegree                string                   `xml:"thesis_degree,omitempty" json:"thesis_degree,omitempty"`
+	ThesisDegreeGrantor         string                   `xml:"thesis_degree_grantor,omitempty" json:"thesis_degree_grantor,omitempty"`
+	ThesisDegreeDate            string                   `xml:"thesis_degree_date,omitempty" json:"thesis_degree_date,omitempty"`
+	ThesisDegreeDateYear        int                      `xml:"-" json:"-"`
+	ThesisDegreeDateMonth       int                      `xml:"-" json:"-"`
+	ThesisDegreeDateDay         int                      `xml:"-" json:"-"`
+	ThesisSubmittedDate         string                   `xml:"thesis_submit_date,omitempty" json:"thesis_submit_date,omitempty"`
+	ThesisSubmittedDateYear     int                      `xml:"-" json:"-"`
+	ThesisSubmittedDateMonth    int                      `xml:"-" json:"-"`
+	ThesisSubmittedDateDay      int                      `xml:"-" json:"-"`
+	ThesisDefenseDate           string                   `xml:"thesis_defense_date,omitempty" json:"thesis_defense_date,omitempty"`
+	ThesisDefenseDateYear       int                      `xml:"-" json:"-"`
+	ThesisDefenseDateMonth      int                      `xml:"-" json:"-"`
+	ThesisDefenseDateDay        int                      `xml:"-" json:"-"`
+	ThesisApprovedDate          string                   `xml:"thesis_approved_date,omitempty" json:"thesis_approved_date,omitempty"`
+	ThesisApprovedDateYear      int                      `xml:"-" json:"-"`
+	ThesisApprovedDateMonth     int                      `xml:"-" json:"-"`
+	ThesisApprovedDateDay       int                      `xml:"-" json:"-"`
+	ThesisPublicDate            string                   `xml:"thesis_public_date,omitempty" json:"thesis_public_date,omitempty"`
+	ThesisPublicDateYear        int                      `xml:"-" json:"-"`
+	ThesisPublicDateMonth       int                      `xml:"-" json:"-"`
+	ThesisPublicDateDay         int                      `xml:"-" json:"-"`
+	ThesisAuthorEMail           string                   `xml:"thesis_author_email,omitempty" json:"thesis_author_email,omitempty"`
+	HideThesisAuthorEMail       string                   `xml:"hide_thesis_author_email,omitempty" json:"hide_thesis_author_email,omitempty"`
+	GradOfficeApprovalDate      string                   `xml:"gradofc_approval_date,omitempty" json:"gradofc_approval_date,omitempty"`
+	GradOfficeApprovalDateYear  int                      `xml:"-" json:"-"`
+	GradOfficeApprovalDateMonth int                      `xml:"-" json:"-"`
+	GradOfficeApprovalDateDay   int                      `xml:"-" json:"-"`
+	ThesisAwards                string                   `xml:"thesis_awards,omitempty" json:"thesis_awards,omitempty"`
+	ReviewStatus                string                   `xml:"review_status,omitempty" json:"review_status,omitempty"`
+	OptionMajor                 *OptionMajorItemList     `xml:"option_major,omitempty" json:"option_major,omitempty"`
+	OptionMinor                 *OptionMinorItemList     `xml:"option_minor,omitempty" json:"option_major,omitempty"`
+	CopyrightStatement          string                   `xml:"copyright_statement,omitempty" json:"copyright_statement,omitempty"`
 
 	// Custom fields from some EPrints repositories
 	Source     string `xml:"source,omitempty" json:"source,omitempty"`
@@ -395,9 +398,14 @@ func (item *Item) UnmarshalJSON(src []byte) error {
 
 // ItemsInterface describes a common set of operations on an item list.
 type ItemsInterface interface {
+	// Append an item to an ItemList
 	Append(*Item) int
+	// Length returns the item count
 	Length() int
+	// IndexOf returns Item or nil
 	IndexOf(int) *Item
+	// SetAttributOf at index position sets an item's attribute
+	//SetAttributeOf(int, string, string) bool
 }
 
 // CreatorItemList holds a list of authors
@@ -1039,6 +1047,19 @@ func (patentAssigneeItemList *PatentAssigneeItemList) Append(item *Item) int {
 	return len(patentAssigneeItemList.Items)
 }
 
+// Length return item count
+func (patentAssigneeItemList *PatentAssigneeItemList) Length() int {
+	return len(patentAssigneeItemList.Items)
+}
+
+// IndexOf return item or nil
+func (patentAssigneeItemList *PatentAssigneeItemList) IndexOf(i int) *Item {
+	if i >= 0 && i < patentAssigneeItemList.Length() {
+		return patentAssigneeItemList.Items[i]
+	}
+	return nil
+}
+
 // ShelfItemList
 type ShelfItemList struct {
 	XMLName xml.Name `xml:"shelves" json:"-"`
@@ -1334,10 +1355,23 @@ func (name *Name) String() string {
 	return string(src)
 }
 
-// AddEPrint appends an EPrint struct to an EPrints struct returning the count of attached eprints
-func (eprints *EPrints) AddEPrint(eprint *EPrint) int {
+// Append an EPrint struct to an EPrints struct returning the count of attached eprints
+func (eprints *EPrints) Append(eprint *EPrint) int {
 	eprints.EPrint = append(eprints.EPrint, eprint)
 	return len(eprints.EPrint)
+}
+
+// Length returns EPrint count
+func (eprints *EPrints) Length() int {
+	return len(eprints.EPrint)
+}
+
+// IndexOf returns an EPrint or nil
+func (eprints *EPrints) IndexOf(i int) *EPrint {
+	if i >= 0 && i < eprints.Length() {
+		return eprints.EPrint[i]
+	}
+	return nil
 }
 
 // File structures in Document
