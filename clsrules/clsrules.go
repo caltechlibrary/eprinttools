@@ -56,7 +56,7 @@ func migrateDOI(doi string, description string, relatedURLs *eprinttools.Related
 
 		//NOTE: doi needs to be inserted in the initial position
 		newRelatedURLs := new(eprinttools.RelatedURLItemList)
-		newRelatedURLs.AddItem(entry)
+		newRelatedURLs.Append(entry)
 		if len(relatedURLs.Items) > 0 {
 			newRelatedURLs.Items = append(newRelatedURLs.Items, relatedURLs.Items...)
 		}
