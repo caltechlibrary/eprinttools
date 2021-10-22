@@ -40,7 +40,7 @@ func TestRecordFromEPrint(t *testing.T) {
 			t.Errorf("Failed to read %q, %s", fName, err)
 			t.FailNow()
 		}
-		eprints := new(EPrints)
+		eprints := NewEPrints()
 		err = xml.Unmarshal(src, &eprints)
 		if err != nil {
 			t.Errorf("Failed to unmarshal %q, %s", fName, err)

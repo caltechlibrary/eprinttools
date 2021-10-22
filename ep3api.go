@@ -145,7 +145,7 @@ func packageXML(w http.ResponseWriter, repoID string, src []byte, err error) (in
 		return 500, fmt.Errorf("Internal Server Error")
 	}
 	w.Header().Set("Content-Type", "application/xml")
-	fmt.Fprintln(w, `<?xml version='1.0' encoding='utf-8'?>`)
+	fmt.Fprintln(w, `<?xml version="1.0" encoding="utf-8"?>`)
 	fmt.Fprintf(w, "%s", src)
 	return 200, nil
 }
@@ -321,11 +321,14 @@ Unique ID to EPrint ID
 - '/{REPO_ID}/funder-id/{FUNDER_ID}' returns a list of EPrint IDs associated with the funder's ROR
 - '/{REPO_ID}/grant-number/{GRANT_NUMBER}' returns a list of EPrint IDs associated with the grant number
 
+
+
 Change Events
 -------------
 
 The follow API end points would facilitate faster updates to our feeds platform as well as allow us to create a separate public view of our EPrint repository content.
 
+- '/{REPO_ID}/keys' returns complete list of EPrint ID in the repository
 - '/{REPO_ID}/updated/{TIMESTAMP}/{TIMESTAMP}' returns a list of EPrint IDs updated starting at the first timestamp (timestamps should have a resolution to the minute, e.g. "YYYY-MM-DD HH:MM:SS") through inclusive of the second timestmap (if the second is omitted the timestamp is assumed to be "now")
 - '/{REPO_ID}/deleted/{TIMESTAMP}/{TIMESTAMP}' through the returns a list of EPrint IDs deleted starting at first timestamp through inclusive of the second timestamp, if the second timestamp is omitted it is assumed to be "now"
 - '/{REPO_ID}/pubdate/{APROX_DATESTAMP}/{APPOX_DATESTMP}' this query scans the EPrint table for records with publication starts starting with the first approximate date through inclusive of the second approximate date. If the second date is omitted it is assumed to be "today". Approximate dates my be expressed just the year (starting with Jan 1, ending with Dec 31), just the year and month (starting with first day of month ending with the last day) or year, month and day. The end returns zero or more EPrint IDs.
@@ -480,6 +483,10 @@ Each table is relatated by the "eprintid" column ("..." in the object below mean
 ` + "```" + `
 
 `
+}
+
+func keysDocument(repoID string) string {
+	return fmt.Sprintf(`'/%s/keys' returns a list of EPrint ID in the repository`, repoID)
 }
 
 func createdDocument(repoID string) string {
@@ -638,9 +645,17 @@ func repositoryEndPoint(w http.ResponseWriter, r *http.Request, repoID string) (
 // End Point handles (route as defined `/{REPO_ID}/{END-POINT}/{ARGS}`)
 //
 
+func keysEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
+	if len(args) != 0 || strings.HasSuffix(r.URL.Path, "/help") {
+		return packageDocument(w, keysDocument(repoID))
+	}
+	eprintIDs, err := sqlQueryIDs(repoID, `SELECT eprintid FROM eprint`)
+	return packageIDs(w, repoID, eprintIDs, err)
+}
+
 func createdEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
 	if len(args) == 0 {
-		return packageDocument(w, updatedDocument(repoID))
+		return packageDocument(w, createdDocument(repoID))
 	}
 	if (len(args) < 1) || (len(args) > 2) {
 		return 400, fmt.Errorf("Bad Request")
@@ -1096,14 +1111,16 @@ func eprintEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args 
 		src, err := json.MarshalIndent(eprint, "", "    ")
 		return packageJSON(w, repoID, src, err)
 	case "application/xml":
-		eprints := new(EPrints)
+		eprints := NewEPrints()
+		eprints.XMLNS = `http://eprints.org/ep2/data/2.0`
 		eprints.Append(eprint)
-		src, err := xml.MarshalIndent(eprints, "", "    ")
+		src, err := xml.MarshalIndent(eprints, "", "  ")
 		return packageXML(w, repoID, src, err)
 	case "":
-		eprints := new(EPrints)
+		eprints := NewEPrints()
+		eprints.XMLNS = `http://eprints.org/ep2/data/2.0`
 		eprints.Append(eprint)
-		src, err := xml.MarshalIndent(eprints, "", "    ")
+		src, err := xml.MarshalIndent(eprints, "", "  ")
 		return packageXML(w, repoID, src, err)
 	default:
 		return 415, fmt.Errorf("unsupported media type, %q", contentType)
@@ -1227,6 +1244,7 @@ func InitExtendedAPI(settings string) error {
 	// This is a map endpoints and point handlers.
 	// This implements the registration design pattern
 	routes := map[string]func(http.ResponseWriter, *http.Request, string, []string) (int, error){
+		"keys":             keysEndPoint,
 		"created":          createdEndPoint,
 		"updated":          updatedEndPoint,
 		"deleted":          deletedEndPoint,

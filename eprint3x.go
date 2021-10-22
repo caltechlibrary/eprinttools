@@ -124,17 +124,21 @@ type EPrint struct {
 	// Caltech Library uses suggestions as an internal note field (RSD, 2018-02-15)
 	Suggestions string `xml:"suggestions,omitempty" json:"suggestions,omitempty"`
 
+	// CaletchLN has a "coverage_dates" field in the eprint table.
+	CoverageDates string `xml:"coverage_dates,omitempty" json:"coverage_dates,omitempty"`
+
 	// NOTE: Misc fields discoverd exploring REST API records, not currently used at Caltech Library (RSD, 2018-01-02)
-	Subjects           *SubjectItemList         `xml:"subjects,omitempty" json:"subjects,omitempty"`
-	PresType           string                   `xml:"pres_type,omitempty" json:"presentation_type,omitempty"`
-	Succeeds           string                   `xml:"succeeds,omitempty" json:"succeeds,omitempty"`
-	Commentary         string                   `xml:"commentary,omitempty" json:"commentary,omitempty"`
-	ContactEMail       string                   `xml:"contact_email,omitempty" json:"contect_email,omitempty"`
-	FileInfo           string                   `xml:"fileinfo,omitempty" json:"file_info,omitempty"`
+	Subjects     *SubjectItemList `xml:"subjects,omitempty" json:"subjects,omitempty"`
+	PresType     string           `xml:"pres_type,omitempty" json:"presentation_type,omitempty"`
+	Succeeds     string           `xml:"succeeds,omitempty" json:"succeeds,omitempty"`
+	Commentary   string           `xml:"commentary,omitempty" json:"commentary,omitempty"`
+	ContactEMail string           `xml:"contact_email,omitempty" json:"contect_email,omitempty"`
+	// NOTE: EPrints XML doesn't include fileinfo
+	FileInfo           string                   `xml:"-" json:"-"`
 	Latitude           string                   `xml:"latitude,omitempty" json:"latitude,omitempty"`
 	Longitude          string                   `xml:"longitude,omitempty" json:"longitude,omitempty"`
 	ItemIssues         *ItemIssueItemList       `xml:"item_issues,omitempty" json:"item_issues,omitempty"`
-	ItemIssuesCount    int                      `xml:"item_issues_count,omitempty" json:"item_issues_count,omitempty"`
+	ItemIssuesCount    int                      `xml:"item_issues_count" json:"item_issues_count,omitempty"`
 	CorpCreators       *CorpCreatorItemList     `xml:"corp_creators,omitempty" json:"corp_creators,omitempty"`
 	CorpContributors   *CorpContributorItemList `xml:"corp_contributors,omitempty" json:"corp_contributors,omitempty"`
 	Department         string                   `xml:"department,omitempty" json:"department,omitempty"`
@@ -185,44 +189,45 @@ type EPrint struct {
 	RelatedPatents           *RelatedPatentItemList        `xml:"related_patents,omitempty" json:"related_patents,omitempty"`
 
 	// Thesis oriented fields
-	Divisions                   *DivisionItemList        `xml:"divisions,omitemmpty" json:"divisions,omitempty"`
-	Institution                 string                   `xml:"institution,omitempty" json:"institution,omitempty"`
-	ThesisType                  string                   `xml:"thesis_type,omitempty" json:"thesis_type,omitempty"`
-	ThesisAdvisor               *ThesisAdvisorItemList   `xml:"thesis_advisor,omitempty" json:"thesis_advisor,omitempty"`
-	ThesisCommittee             *ThesisCommitteeItemList `xml:"thesis_committee,omitempty" json:"thesis_committee,omitempty"`
-	ThesisDegree                string                   `xml:"thesis_degree,omitempty" json:"thesis_degree,omitempty"`
-	ThesisDegreeGrantor         string                   `xml:"thesis_degree_grantor,omitempty" json:"thesis_degree_grantor,omitempty"`
-	ThesisDegreeDate            string                   `xml:"thesis_degree_date,omitempty" json:"thesis_degree_date,omitempty"`
-	ThesisDegreeDateYear        int                      `xml:"-" json:"-"`
-	ThesisDegreeDateMonth       int                      `xml:"-" json:"-"`
-	ThesisDegreeDateDay         int                      `xml:"-" json:"-"`
-	ThesisSubmittedDate         string                   `xml:"thesis_submit_date,omitempty" json:"thesis_submit_date,omitempty"`
-	ThesisSubmittedDateYear     int                      `xml:"-" json:"-"`
-	ThesisSubmittedDateMonth    int                      `xml:"-" json:"-"`
-	ThesisSubmittedDateDay      int                      `xml:"-" json:"-"`
-	ThesisDefenseDate           string                   `xml:"thesis_defense_date,omitempty" json:"thesis_defense_date,omitempty"`
-	ThesisDefenseDateYear       int                      `xml:"-" json:"-"`
-	ThesisDefenseDateMonth      int                      `xml:"-" json:"-"`
-	ThesisDefenseDateDay        int                      `xml:"-" json:"-"`
-	ThesisApprovedDate          string                   `xml:"thesis_approved_date,omitempty" json:"thesis_approved_date,omitempty"`
-	ThesisApprovedDateYear      int                      `xml:"-" json:"-"`
-	ThesisApprovedDateMonth     int                      `xml:"-" json:"-"`
-	ThesisApprovedDateDay       int                      `xml:"-" json:"-"`
-	ThesisPublicDate            string                   `xml:"thesis_public_date,omitempty" json:"thesis_public_date,omitempty"`
-	ThesisPublicDateYear        int                      `xml:"-" json:"-"`
-	ThesisPublicDateMonth       int                      `xml:"-" json:"-"`
-	ThesisPublicDateDay         int                      `xml:"-" json:"-"`
-	ThesisAuthorEMail           string                   `xml:"thesis_author_email,omitempty" json:"thesis_author_email,omitempty"`
-	HideThesisAuthorEMail       string                   `xml:"hide_thesis_author_email,omitempty" json:"hide_thesis_author_email,omitempty"`
-	GradOfficeApprovalDate      string                   `xml:"gradofc_approval_date,omitempty" json:"gradofc_approval_date,omitempty"`
-	GradOfficeApprovalDateYear  int                      `xml:"-" json:"-"`
-	GradOfficeApprovalDateMonth int                      `xml:"-" json:"-"`
-	GradOfficeApprovalDateDay   int                      `xml:"-" json:"-"`
-	ThesisAwards                string                   `xml:"thesis_awards,omitempty" json:"thesis_awards,omitempty"`
-	ReviewStatus                string                   `xml:"review_status,omitempty" json:"review_status,omitempty"`
-	OptionMajor                 *OptionMajorItemList     `xml:"option_major,omitempty" json:"option_major,omitempty"`
-	OptionMinor                 *OptionMinorItemList     `xml:"option_minor,omitempty" json:"option_major,omitempty"`
-	CopyrightStatement          string                   `xml:"copyright_statement,omitempty" json:"copyright_statement,omitempty"`
+	Divisions                *DivisionItemList        `xml:"divisions,omitemmpty" json:"divisions,omitempty"`
+	Institution              string                   `xml:"institution,omitempty" json:"institution,omitempty"`
+	ThesisType               string                   `xml:"thesis_type,omitempty" json:"thesis_type,omitempty"`
+	ThesisAdvisor            *ThesisAdvisorItemList   `xml:"thesis_advisor,omitempty" json:"thesis_advisor,omitempty"`
+	ThesisCommittee          *ThesisCommitteeItemList `xml:"thesis_committee,omitempty" json:"thesis_committee,omitempty"`
+	ThesisDegree             string                   `xml:"thesis_degree,omitempty" json:"thesis_degree,omitempty"`
+	ThesisDegreeGrantor      string                   `xml:"thesis_degree_grantor,omitempty" json:"thesis_degree_grantor,omitempty"`
+	ThesisDegreeDate         string                   `xml:"thesis_degree_date,omitempty" json:"thesis_degree_date,omitempty"`
+	ThesisDegreeDateYear     int                      `xml:"-" json:"-"`
+	ThesisDegreeDateMonth    int                      `xml:"-" json:"-"`
+	ThesisDegreeDateDay      int                      `xml:"-" json:"-"`
+	ThesisSubmittedDate      string                   `xml:"thesis_submitted_date,omitempty" json:"thesis_submitted_date,omitempty"`
+	ThesisSubmittedDateYear  int                      `xml:"-" json:"-"`
+	ThesisSubmittedDateMonth int                      `xml:"-" json:"-"`
+	ThesisSubmittedDateDay   int                      `xml:"-" json:"-"`
+	ThesisDefenseDate        string                   `xml:"thesis_defense_date,omitempty" json:"thesis_defense_date,omitempty"`
+	ThesisDefenseDateYear    int                      `xml:"-" json:"-"`
+	ThesisDefenseDateMonth   int                      `xml:"-" json:"-"`
+	ThesisDefenseDateDay     int                      `xml:"-" json:"-"`
+	ThesisApprovedDate       string                   `xml:"thesis_approved_date,omitempty" json:"thesis_approved_date,omitempty"`
+	ThesisApprovedDateYear   int                      `xml:"-" json:"-"`
+	ThesisApprovedDateMonth  int                      `xml:"-" json:"-"`
+	ThesisApprovedDateDay    int                      `xml:"-" json:"-"`
+	ThesisPublicDate         string                   `xml:"thesis_public_date,omitempty" json:"thesis_public_date,omitempty"`
+	ThesisPublicDateYear     int                      `xml:"-" json:"-"`
+	ThesisPublicDateMonth    int                      `xml:"-" json:"-"`
+	ThesisPublicDateDay      int                      `xml:"-" json:"-"`
+	ThesisAuthorEMail        string                   `xml:"thesis_author_email,omitempty" json:"thesis_author_email,omitempty"`
+	HideThesisAuthorEMail    string                   `xml:"hide_thesis_author_email,omitempty" json:"hide_thesis_author_email,omitempty"`
+	// NOTE: GradOfficeApproval isn't output by CaltechTHESIS.
+	GradOfficeApprovalDate      string               `xml:"gradofc_approval_date,omitempty" json:"gradofc_approval_date,omitempty"`
+	GradOfficeApprovalDateYear  int                  `xml:"-" json:"-"`
+	GradOfficeApprovalDateMonth int                  `xml:"-" json:"-"`
+	GradOfficeApprovalDateDay   int                  `xml:"-" json:"-"`
+	ThesisAwards                string               `xml:"thesis_awards,omitempty" json:"thesis_awards,omitempty"`
+	ReviewStatus                string               `xml:"review_status,omitempty" json:"review_status,omitempty"`
+	OptionMajor                 *OptionMajorItemList `xml:"option_major,omitempty" json:"option_major,omitempty"`
+	OptionMinor                 *OptionMinorItemList `xml:"option_minor,omitempty" json:"option_major,omitempty"`
+	CopyrightStatement          string               `xml:"copyright_statement,omitempty" json:"copyright_statement,omitempty"`
 
 	// Custom fields from some EPrints repositories
 	Source     string `xml:"source,omitempty" json:"source,omitempty"`
@@ -270,6 +275,89 @@ type Item struct {
 	ResolvedBy  string   `xml:"resolved_by,omitempty" json:"resolved_by,omitempty"`
 	Comment     string   `xml:"comment,omitempty" json:"comment,omitempty"`
 	Value       string   `xml:",chardata" json:"value,omitempty"`
+}
+
+// SetAttribute takes a lower case string and value and sets
+// the attribute of the related item.
+func (item *Item) SetAttribute(key string, value interface{}) bool {
+	switch strings.ToLower(key) {
+	case "name":
+		item.Name = value.(*Name)
+		return true
+	case "pos":
+		item.Pos = value.(int)
+		return true
+	case "id":
+		item.ID = value.(string)
+		return true
+	case "email":
+		item.EMail = value.(string)
+		return true
+	case "showemail":
+		item.ShowEMail = value.(string)
+		return true
+	case "show_email":
+		item.ShowEMail = value.(string)
+		return true
+	case "role":
+		item.Role = value.(string)
+		return true
+	case "url":
+		item.URL = value.(string)
+		return true
+	case "type":
+		item.Type = value.(string)
+		return true
+	case "description":
+		item.Description = value.(string)
+		return true
+	case "agency":
+		item.Agency = value.(string)
+		return true
+	case "grantnumber":
+		item.GrantNumber = value.(string)
+		return true
+	case "grant_number":
+		item.GrantNumber = value.(string)
+		return true
+	case "uri":
+		item.URI = value.(string)
+		return true
+	case "orcid":
+		item.ORCID = value.(string)
+		return true
+	case "ror":
+		item.ROR = value.(string)
+		return true
+	case "timestamp":
+		item.Timestamp = value.(string)
+		return true
+	case "status":
+		item.Status = value.(string)
+		return true
+	case "reportedby":
+		item.ReportedBy = value.(string)
+		return true
+	case "reported_by":
+		item.ReportedBy = value.(string)
+		return true
+	case "resolvedby":
+		item.ResolvedBy = value.(string)
+		return true
+	case "resolved_by":
+		item.ResolvedBy = value.(string)
+		return true
+	case "comment":
+		item.Comment = value.(string)
+		return true
+	case "value":
+		item.Value = value.(string)
+		return true
+	case "":
+		item.Value = value.(string)
+		return true
+	}
+	return false
 }
 
 // MarshalJSON() is a custom JSON marshaler for Item
@@ -405,7 +493,7 @@ type ItemsInterface interface {
 	// IndexOf returns Item or nil
 	IndexOf(int) *Item
 	// SetAttributOf at index position sets an item's attribute
-	//SetAttributeOf(int, string, string) bool
+	SetAttributeOf(int, string, interface{}) bool
 }
 
 // CreatorItemList holds a list of authors
@@ -415,22 +503,30 @@ type CreatorItemList struct {
 }
 
 // Append adds an item to the Creator list and returns the new count of items
-func (creatorItemList *CreatorItemList) Append(item *Item) int {
-	creatorItemList.Items = append(creatorItemList.Items, item)
-	return len(creatorItemList.Items)
+func (itemList *CreatorItemList) Append(item *Item) int {
+	itemList.Items = append(itemList.Items, item)
+	return len(itemList.Items)
 }
 
-// Length() returns the numnber of items in the list
-func (creatorItemList *CreatorItemList) Length() int {
-	return len(creatorItemList.Items)
+// Length() returns item count
+func (itemList *CreatorItemList) Length() int {
+	return len(itemList.Items)
 }
 
-// IndexOf() returns an item in the list or nil
-func (creatorItemList *CreatorItemList) IndexOf(i int) *Item {
-	if i >= 0 && i < creatorItemList.Length() {
-		return creatorItemList.Items[i]
+// IndexOf() returns item or nil
+func (itemList *CreatorItemList) IndexOf(i int) *Item {
+	if i >= 0 && i < itemList.Length() {
+		return itemList.Items[i]
 	}
 	return nil
+}
+
+// SetAttributeOf at pos set item attribute return success
+func (itemList *CreatorItemList) SetAttributeOf(i int, key string, value interface{}) bool {
+	if i >= 0 && i < itemList.Length() {
+		return itemList.Items[i].SetAttribute(key, value)
+	}
+	return false
 }
 
 // EditorItemList holds a list of editors
@@ -440,22 +536,30 @@ type EditorItemList struct {
 }
 
 // Append adds an item to the Editor item list and returns the new count of items
-func (editorItemList *EditorItemList) Append(item *Item) int {
-	editorItemList.Items = append(editorItemList.Items, item)
-	return len(editorItemList.Items)
+func (itemList *EditorItemList) Append(item *Item) int {
+	itemList.Items = append(itemList.Items, item)
+	return len(itemList.Items)
 }
 
 // Length() returns the number of items in the list
-func (editorItemList *EditorItemList) Length() int {
-	return len(editorItemList.Items)
+func (itemList *EditorItemList) Length() int {
+	return len(itemList.Items)
 }
 
 // IndexOf() returns an item in the list or nil
-func (editorItemList *EditorItemList) IndexOf(i int) *Item {
-	if i >= 0 && i < editorItemList.Length() {
-		return editorItemList.Items[i]
+func (itemList *EditorItemList) IndexOf(i int) *Item {
+	if i >= 0 && i < itemList.Length() {
+		return itemList.Items[i]
 	}
 	return nil
+}
+
+// SetAttributeOf at pos set item attribute return success
+func (itemList *EditorItemList) SetAttributeOf(i int, key string, value interface{}) bool {
+	if i >= 0 && i < itemList.Length() {
+		return itemList.Items[i].SetAttribute(key, value)
+	}
+	return false
 }
 
 // RelatedURLItemList holds the related URLs (e.g. doi, aux material doi)
@@ -464,23 +568,31 @@ type RelatedURLItemList struct {
 	Items   []*Item  `xml:"item,omitempty" json:"items,omitempty"`
 }
 
-// Append adds an item to the related url item list and returns the new count of items
-func (relatedURLItemList *RelatedURLItemList) Append(item *Item) int {
-	relatedURLItemList.Items = append(relatedURLItemList.Items, item)
-	return len(relatedURLItemList.Items)
+// Append an item to the related url item list
+func (itemList *RelatedURLItemList) Append(item *Item) int {
+	itemList.Items = append(itemList.Items, item)
+	return len(itemList.Items)
 }
 
-// Length() returns the number of items in the list
-func (relatedURLItemList *RelatedURLItemList) Length() int {
-	return len(relatedURLItemList.Items)
+// Length() returns item count
+func (itemList *RelatedURLItemList) Length() int {
+	return len(itemList.Items)
 }
 
-// IndexOf() returns an item in the list or nil
-func (relatedURLItemList *RelatedURLItemList) IndexOf(i int) *Item {
-	if i >= 0 && i < relatedURLItemList.Length() {
-		return relatedURLItemList.Items[i]
+// IndexOf() returns item or nil
+func (itemList *RelatedURLItemList) IndexOf(i int) *Item {
+	if i >= 0 && i < itemList.Length() {
+		return itemList.Items[i]
 	}
 	return nil
+}
+
+// SetAttributeOf at pos set item attribute return success
+func (itemList *RelatedURLItemList) SetAttributeOf(i int, key string, value interface{}) bool {
+	if i >= 0 && i < itemList.Length() {
+		return itemList.Items[i].SetAttribute(key, value)
+	}
+	return false
 }
 
 // ReferenceTextItemList
@@ -490,27 +602,35 @@ type ReferenceTextItemList struct {
 }
 
 // Append adds an item to the reference text url item list and returns the new count of items
-func (referenceTextItemList *ReferenceTextItemList) Append(item *Item) int {
-	referenceTextItemList.Items = append(referenceTextItemList.Items, item)
-	return len(referenceTextItemList.Items)
+func (itemList *ReferenceTextItemList) Append(item *Item) int {
+	itemList.Items = append(itemList.Items, item)
+	return len(itemList.Items)
 }
 
 // Length returns the length of an ReferenceTextItemList
-func (referenceTextItemList *ReferenceTextItemList) Length() int {
-	return len(referenceTextItemList.Items)
+func (itemList *ReferenceTextItemList) Length() int {
+	return len(itemList.Items)
 }
 
 // IndexOf returns an Item or nil
-func (referenceTextItemList *ReferenceTextItemList) IndexOf(i int) *Item {
-	if i >= 0 && i < referenceTextItemList.Length() {
-		return referenceTextItemList.Items[i]
+func (itemList *ReferenceTextItemList) IndexOf(i int) *Item {
+	if i >= 0 && i < itemList.Length() {
+		return itemList.Items[i]
 	}
 	return nil
 }
 
+// SetAttributeOf at pos set item attribute return success
+func (itemList *ReferenceTextItemList) SetAttributeOf(i int, key string, value interface{}) bool {
+	if i >= 0 && i < itemList.Length() {
+		return itemList.Items[i].SetAttribute(key, value)
+	}
+	return false
+}
+
 // UnmarshJSON takes a reference text list of item and returns
 // an appropriately values to assigned struct.
-func (referenceTextItemList *ReferenceTextItemList) UnmarshalJSON(src []byte) error {
+func (itemList *ReferenceTextItemList) UnmarshalJSON(src []byte) error {
 	var values []string
 
 	m := make(map[string][]interface{})
@@ -528,8 +648,8 @@ func (referenceTextItemList *ReferenceTextItemList) UnmarshalJSON(src []byte) er
 	}
 	for _, value := range values {
 		item := new(Item)
-		item.Value = value
-		referenceTextItemList.Append(item)
+		item.SetAttribute("value", value)
+		itemList.Append(item)
 	}
 	return err
 }
@@ -541,22 +661,30 @@ type ProjectItemList struct {
 }
 
 // Append adds an item to the project item list and returns the new count of items
-func (projectItemList *ProjectItemList) Append(item *Item) int {
-	projectItemList.Items = append(projectItemList.Items, item)
-	return len(projectItemList.Items)
+func (itemList *ProjectItemList) Append(item *Item) int {
+	itemList.Items = append(itemList.Items, item)
+	return len(itemList.Items)
 }
 
 // Length() returns the length of the item list
-func (projectItemList *ProjectItemList) Length() int {
-	return len(projectItemList.Items)
+func (itemList *ProjectItemList) Length() int {
+	return len(itemList.Items)
 }
 
 // IndexOf returns an item or nil
-func (projectItemList *ProjectItemList) IndexOf(i int) *Item {
-	if i >= 0 && i < projectItemList.Length() {
-		return projectItemList.Items[i]
+func (itemList *ProjectItemList) IndexOf(i int) *Item {
+	if i >= 0 && i < itemList.Length() {
+		return itemList.Items[i]
 	}
 	return nil
+}
+
+// SetAttributeOf at pos set item attribute return success
+func (itemList *ProjectItemList) SetAttributeOf(i int, key string, value interface{}) bool {
+	if i >= 0 && i < itemList.Length() {
+		return itemList.Items[i].SetAttribute(key, value)
+	}
+	return false
 }
 
 // FunderItemList
@@ -566,22 +694,30 @@ type FunderItemList struct {
 }
 
 // Append adds an item to the funder item list and returns the new count of items
-func (funderItemList *FunderItemList) Append(item *Item) int {
-	funderItemList.Items = append(funderItemList.Items, item)
-	return len(funderItemList.Items)
+func (itemList *FunderItemList) Append(item *Item) int {
+	itemList.Items = append(itemList.Items, item)
+	return len(itemList.Items)
 }
 
 // Length of item list
-func (funderItemList *FunderItemList) Length() int {
-	return len(funderItemList.Items)
+func (itemList *FunderItemList) Length() int {
+	return len(itemList.Items)
 }
 
 // IndexOf returns an item or nil
-func (funderItemList *FunderItemList) IndexOf(i int) *Item {
-	if i >= 0 && i < funderItemList.Length() {
-		return funderItemList.Items[i]
+func (itemList *FunderItemList) IndexOf(i int) *Item {
+	if i >= 0 && i < itemList.Length() {
+		return itemList.Items[i]
 	}
 	return nil
+}
+
+// SetAttributeOf at pos set item attribute return success
+func (itemList *FunderItemList) SetAttributeOf(i int, key string, value interface{}) bool {
+	if i >= 0 && i < itemList.Length() {
+		return itemList.Items[i].SetAttribute(key, value)
+	}
+	return false
 }
 
 // LocalGroupItemList holds the related URLs (e.g. doi, aux material doi)
@@ -591,22 +727,30 @@ type LocalGroupItemList struct {
 }
 
 // Append adds an item to the local group item list and returns the new count of items
-func (localGroupItemList *LocalGroupItemList) Append(item *Item) int {
-	localGroupItemList.Items = append(localGroupItemList.Items, item)
-	return len(localGroupItemList.Items)
+func (itemList *LocalGroupItemList) Append(item *Item) int {
+	itemList.Items = append(itemList.Items, item)
+	return len(itemList.Items)
 }
 
 // Length returns length of item list
-func (localGroupItemList *LocalGroupItemList) Length() int {
-	return len(localGroupItemList.Items)
+func (itemList *LocalGroupItemList) Length() int {
+	return len(itemList.Items)
 }
 
 // IndexOf returns an item or nil
-func (localGroupItemList *LocalGroupItemList) IndexOf(i int) *Item {
-	if i >= 0 && i < localGroupItemList.Length() {
-		return localGroupItemList.Items[i]
+func (itemList *LocalGroupItemList) IndexOf(i int) *Item {
+	if i >= 0 && i < itemList.Length() {
+		return itemList.Items[i]
 	}
 	return nil
+}
+
+// SetAttributeOf at pos set item attribute return success
+func (itemList *LocalGroupItemList) SetAttributeOf(i int, key string, value interface{}) bool {
+	if i >= 0 && i < itemList.Length() {
+		return itemList.Items[i].SetAttribute(key, value)
+	}
+	return false
 }
 
 // OtherNumberingSystemItemList
@@ -616,22 +760,30 @@ type OtherNumberingSystemItemList struct {
 }
 
 // Append adds an item to the other numbering system item list and returns the new count of items
-func (otherNumberingSystemItemList *OtherNumberingSystemItemList) Append(item *Item) int {
-	otherNumberingSystemItemList.Items = append(otherNumberingSystemItemList.Items, item)
-	return len(otherNumberingSystemItemList.Items)
+func (itemList *OtherNumberingSystemItemList) Append(item *Item) int {
+	itemList.Items = append(itemList.Items, item)
+	return len(itemList.Items)
 }
 
 // Length returns the length of the item
-func (otherNumberingSystemItemList *OtherNumberingSystemItemList) Length() int {
-	return len(otherNumberingSystemItemList.Items)
+func (itemList *OtherNumberingSystemItemList) Length() int {
+	return len(itemList.Items)
 }
 
 // IndexOf return an item or nil
-func (otherNumberingSystemItemList *OtherNumberingSystemItemList) IndexOf(i int) *Item {
-	if i >= 0 && i < otherNumberingSystemItemList.Length() {
-		return otherNumberingSystemItemList.Items[i]
+func (itemList *OtherNumberingSystemItemList) IndexOf(i int) *Item {
+	if i >= 0 && i < itemList.Length() {
+		return itemList.Items[i]
 	}
 	return nil
+}
+
+// SetAttributeOf at pos set item attribute return success
+func (itemList *OtherNumberingSystemItemList) SetAttributeOf(i int, key string, value interface{}) bool {
+	if i >= 0 && i < itemList.Length() {
+		return itemList.Items[i].SetAttribute(key, value)
+	}
+	return false
 }
 
 // ContributorItemList
@@ -641,22 +793,30 @@ type ContributorItemList struct {
 }
 
 // Append adds an item to the contributor item list and returns the new count of items
-func (contributorItemList *ContributorItemList) Append(item *Item) int {
-	contributorItemList.Items = append(contributorItemList.Items, item)
-	return len(contributorItemList.Items)
+func (itemList *ContributorItemList) Append(item *Item) int {
+	itemList.Items = append(itemList.Items, item)
+	return len(itemList.Items)
 }
 
 // Length returns the number of items in list
-func (contributorItemList *ContributorItemList) Length() int {
-	return len(contributorItemList.Items)
+func (itemList *ContributorItemList) Length() int {
+	return len(itemList.Items)
 }
 
 // IndexOf returns an item or nil
-func (contributorItemList *ContributorItemList) IndexOf(i int) *Item {
-	if i >= 0 && i < contributorItemList.Length() {
-		return contributorItemList.Items[i]
+func (itemList *ContributorItemList) IndexOf(i int) *Item {
+	if i >= 0 && i < itemList.Length() {
+		return itemList.Items[i]
 	}
 	return nil
+}
+
+// SetAttributeOf at pos set item attribute return success
+func (itemList *ContributorItemList) SetAttributeOf(i int, key string, value interface{}) bool {
+	if i >= 0 && i < itemList.Length() {
+		return itemList.Items[i].SetAttribute(key, value)
+	}
+	return false
 }
 
 // SubjectItemList
@@ -666,22 +826,30 @@ type SubjectItemList struct {
 }
 
 // Append adds an item to the subject item list and returns the new count of items
-func (subjectItemList *SubjectItemList) Append(item *Item) int {
-	subjectItemList.Items = append(subjectItemList.Items, item)
-	return len(subjectItemList.Items)
+func (itemList *SubjectItemList) Append(item *Item) int {
+	itemList.Items = append(itemList.Items, item)
+	return len(itemList.Items)
 }
 
 // Length returns number of items in list
-func (subjectItemList *SubjectItemList) Length() int {
-	return len(subjectItemList.Items)
+func (itemList *SubjectItemList) Length() int {
+	return len(itemList.Items)
 }
 
 // IndexOf returns an item or nil
-func (subjectItemList *SubjectItemList) IndexOf(i int) *Item {
-	if i >= 0 && i < subjectItemList.Length() {
-		return subjectItemList.Items[i]
+func (itemList *SubjectItemList) IndexOf(i int) *Item {
+	if i >= 0 && i < itemList.Length() {
+		return itemList.Items[i]
 	}
 	return nil
+}
+
+// SetAttributeOf at pos set item attribute return success
+func (itemList *SubjectItemList) SetAttributeOf(i int, key string, value interface{}) bool {
+	if i >= 0 && i < itemList.Length() {
+		return itemList.Items[i].SetAttribute(key, value)
+	}
+	return false
 }
 
 // ItemIssueItemList
@@ -691,22 +859,30 @@ type ItemIssueItemList struct {
 }
 
 // Append adds an item to the issue item list and returns the new count of items
-func (issueItemList *ItemIssueItemList) Append(item *Item) int {
-	issueItemList.Items = append(issueItemList.Items, item)
-	return len(issueItemList.Items)
+func (itemList *ItemIssueItemList) Append(item *Item) int {
+	itemList.Items = append(itemList.Items, item)
+	return len(itemList.Items)
 }
 
 // Lengths returns the number of items in the list
-func (issueItemList *ItemIssueItemList) Length() int {
-	return len(issueItemList.Items)
+func (itemList *ItemIssueItemList) Length() int {
+	return len(itemList.Items)
 }
 
 // IndexOf returns an item or nil
-func (issueItemList *ItemIssueItemList) IndexOf(i int) *Item {
-	if i >= 0 && i < issueItemList.Length() {
-		return issueItemList.Items[i]
+func (itemList *ItemIssueItemList) IndexOf(i int) *Item {
+	if i >= 0 && i < itemList.Length() {
+		return itemList.Items[i]
 	}
 	return nil
+}
+
+// SetAttributeOf at pos set item attribute return success
+func (itemList *ItemIssueItemList) SetAttributeOf(i int, key string, value interface{}) bool {
+	if i >= 0 && i < itemList.Length() {
+		return itemList.Items[i].SetAttribute(key, value)
+	}
+	return false
 }
 
 // CorpCreatorItemList
@@ -716,22 +892,30 @@ type CorpCreatorItemList struct {
 }
 
 // Append adds an item to the corp creator item list and returns the new count of items
-func (corpCreatorItemList *CorpCreatorItemList) Append(item *Item) int {
-	corpCreatorItemList.Items = append(corpCreatorItemList.Items, item)
-	return len(corpCreatorItemList.Items)
+func (itemList *CorpCreatorItemList) Append(item *Item) int {
+	itemList.Items = append(itemList.Items, item)
+	return len(itemList.Items)
 }
 
 // Length returns count of items in list
-func (corpCreatorItemList *CorpCreatorItemList) Length() int {
-	return len(corpCreatorItemList.Items)
+func (itemList *CorpCreatorItemList) Length() int {
+	return len(itemList.Items)
 }
 
 // IndexOf returns an item or nil
-func (corpCreatorItemList *CorpCreatorItemList) IndexOf(i int) *Item {
-	if i >= 0 && i < corpCreatorItemList.Length() {
-		return corpCreatorItemList.Items[i]
+func (itemList *CorpCreatorItemList) IndexOf(i int) *Item {
+	if i >= 0 && i < itemList.Length() {
+		return itemList.Items[i]
 	}
 	return nil
+}
+
+// SetAttributeOf at pos set item attribute return success
+func (itemList *CorpCreatorItemList) SetAttributeOf(i int, key string, value interface{}) bool {
+	if i >= 0 && i < itemList.Length() {
+		return itemList.Items[i].SetAttribute(key, value)
+	}
+	return false
 }
 
 // CorpContributorItemList (not used in EPrints, but used in Invenio)
@@ -741,22 +925,30 @@ type CorpContributorItemList struct {
 }
 
 // Append adds an item to the corp creator item list and returns the new count of items
-func (corpContributorItemList *CorpContributorItemList) Append(item *Item) int {
-	corpContributorItemList.Items = append(corpContributorItemList.Items, item)
-	return len(corpContributorItemList.Items)
+func (itemList *CorpContributorItemList) Append(item *Item) int {
+	itemList.Items = append(itemList.Items, item)
+	return len(itemList.Items)
 }
 
 // Length returns count of items in list
-func (corpContributorItemList *CorpContributorItemList) Length() int {
-	return len(corpContributorItemList.Items)
+func (itemList *CorpContributorItemList) Length() int {
+	return len(itemList.Items)
 }
 
 // IndexOf returns an items or nil
-func (corpContributorItemList *CorpContributorItemList) IndexOf(i int) *Item {
-	if i >= 0 && i < corpContributorItemList.Length() {
-		return corpContributorItemList.Items[i]
+func (itemList *CorpContributorItemList) IndexOf(i int) *Item {
+	if i >= 0 && i < itemList.Length() {
+		return itemList.Items[i]
 	}
 	return nil
+}
+
+// SetAttributeOf at pos set item attribute return success
+func (itemList *CorpContributorItemList) SetAttributeOf(i int, key string, value interface{}) bool {
+	if i >= 0 && i < itemList.Length() {
+		return itemList.Items[i].SetAttribute(key, value)
+	}
+	return false
 }
 
 // ExhibitorItemList
@@ -766,22 +958,30 @@ type ExhibitorItemList struct {
 }
 
 // Append adds an item to the exhibitor item list and returns the new count of items
-func (exhibitorItemList *ExhibitorItemList) Append(item *Item) int {
-	exhibitorItemList.Items = append(exhibitorItemList.Items, item)
-	return len(exhibitorItemList.Items)
+func (itemList *ExhibitorItemList) Append(item *Item) int {
+	itemList.Items = append(itemList.Items, item)
+	return len(itemList.Items)
 }
 
 // Length returns count of items
-func (exhibitorItemList *ExhibitorItemList) Length() int {
-	return len(exhibitorItemList.Items)
+func (itemList *ExhibitorItemList) Length() int {
+	return len(itemList.Items)
 }
 
 // IndexOf returns an item or nil
-func (exhibitorItemList *ExhibitorItemList) IndexOf(i int) *Item {
-	if i >= 0 && i < exhibitorItemList.Length() {
-		return exhibitorItemList.Items[i]
+func (itemList *ExhibitorItemList) IndexOf(i int) *Item {
+	if i >= 0 && i < itemList.Length() {
+		return itemList.Items[i]
 	}
 	return nil
+}
+
+// SetAttributeOf at pos set item attribute return success
+func (itemList *ExhibitorItemList) SetAttributeOf(i int, key string, value interface{}) bool {
+	if i >= 0 && i < itemList.Length() {
+		return itemList.Items[i].SetAttribute(key, value)
+	}
+	return false
 }
 
 // ProducerItemList
@@ -791,22 +991,30 @@ type ProducerItemList struct {
 }
 
 // Append adds an item to the producer item list and returns the new count of items
-func (producerItemList *ProducerItemList) Append(item *Item) int {
-	producerItemList.Items = append(producerItemList.Items, item)
-	return len(producerItemList.Items)
+func (itemList *ProducerItemList) Append(item *Item) int {
+	itemList.Items = append(itemList.Items, item)
+	return len(itemList.Items)
 }
 
 // Length return count of items
-func (producerItemList *ProducerItemList) Length() int {
-	return len(producerItemList.Items)
+func (itemList *ProducerItemList) Length() int {
+	return len(itemList.Items)
 }
 
 // IndexOf returns an item or nil
-func (producerItemList *ProducerItemList) IndexOf(i int) *Item {
-	if i >= 0 && i < producerItemList.Length() {
-		return producerItemList.Items[i]
+func (itemList *ProducerItemList) IndexOf(i int) *Item {
+	if i >= 0 && i < itemList.Length() {
+		return itemList.Items[i]
 	}
 	return nil
+}
+
+// SetAttributeOf at pos set item attribute return success
+func (itemList *ProducerItemList) SetAttributeOf(i int, key string, value interface{}) bool {
+	if i >= 0 && i < itemList.Length() {
+		return itemList.Items[i].SetAttribute(key, value)
+	}
+	return false
 }
 
 // ConductorItemList
@@ -816,22 +1024,30 @@ type ConductorItemList struct {
 }
 
 // Append adds an item to the conductor item list and returns the new count of items
-func (conductorItemList *ConductorItemList) Append(item *Item) int {
-	conductorItemList.Items = append(conductorItemList.Items, item)
-	return len(conductorItemList.Items)
+func (itemList *ConductorItemList) Append(item *Item) int {
+	itemList.Items = append(itemList.Items, item)
+	return len(itemList.Items)
 }
 
 // Length returns count of items
-func (conductorItemList *ConductorItemList) Length() int {
-	return len(conductorItemList.Items)
+func (itemList *ConductorItemList) Length() int {
+	return len(itemList.Items)
 }
 
 // IndexOf return an item or nil
-func (conductorItemList *ConductorItemList) IndexOf(i int) *Item {
-	if i >= 0 && i < conductorItemList.Length() {
-		return conductorItemList.Items[i]
+func (itemList *ConductorItemList) IndexOf(i int) *Item {
+	if i >= 0 && i < itemList.Length() {
+		return itemList.Items[i]
 	}
 	return nil
+}
+
+// SetAttributeOf at pos set item attribute return success
+func (itemList *ConductorItemList) SetAttributeOf(i int, key string, value interface{}) bool {
+	if i >= 0 && i < itemList.Length() {
+		return itemList.Items[i].SetAttribute(key, value)
+	}
+	return false
 }
 
 // LyricistItemList
@@ -841,22 +1057,30 @@ type LyricistItemList struct {
 }
 
 // Append adds an item to the lyricist item list and returns the new count of items
-func (lyricistItemList *LyricistItemList) Append(item *Item) int {
-	lyricistItemList.Items = append(lyricistItemList.Items, item)
-	return len(lyricistItemList.Items)
+func (itemList *LyricistItemList) Append(item *Item) int {
+	itemList.Items = append(itemList.Items, item)
+	return len(itemList.Items)
 }
 
 // Length return count of items
-func (lyricistItemList *LyricistItemList) Length() int {
-	return len(lyricistItemList.Items)
+func (itemList *LyricistItemList) Length() int {
+	return len(itemList.Items)
 }
 
 // IndexOf return item or nil
-func (lyricistItemList *LyricistItemList) IndexOf(i int) *Item {
-	if i >= 0 && i < lyricistItemList.Length() {
-		return lyricistItemList.Items[i]
+func (itemList *LyricistItemList) IndexOf(i int) *Item {
+	if i >= 0 && i < itemList.Length() {
+		return itemList.Items[i]
 	}
 	return nil
+}
+
+// SetAttributeOf at pos set item attribute return success
+func (itemList *LyricistItemList) SetAttributeOf(i int, key string, value interface{}) bool {
+	if i >= 0 && i < itemList.Length() {
+		return itemList.Items[i].SetAttribute(key, value)
+	}
+	return false
 }
 
 // OptionMajorItemList
@@ -866,22 +1090,30 @@ type OptionMajorItemList struct {
 }
 
 // Append adds an item to the option major item list and returns the new count of items
-func (optionMajorItemList *OptionMajorItemList) Append(item *Item) int {
-	optionMajorItemList.Items = append(optionMajorItemList.Items, item)
-	return len(optionMajorItemList.Items)
+func (itemList *OptionMajorItemList) Append(item *Item) int {
+	itemList.Items = append(itemList.Items, item)
+	return len(itemList.Items)
 }
 
 // Length return count of items
-func (optionMajorItemList *OptionMajorItemList) Length() int {
-	return len(optionMajorItemList.Items)
+func (itemList *OptionMajorItemList) Length() int {
+	return len(itemList.Items)
 }
 
 // IndexOf return an item or nil
-func (optionMajorItemList *OptionMajorItemList) IndexOf(i int) *Item {
-	if 0 >= i && i < optionMajorItemList.Length() {
-		return optionMajorItemList.Items[i]
+func (itemList *OptionMajorItemList) IndexOf(i int) *Item {
+	if 0 >= i && i < itemList.Length() {
+		return itemList.Items[i]
 	}
 	return nil
+}
+
+// SetAttributeOf at pos set item attribute return success
+func (itemList *OptionMajorItemList) SetAttributeOf(i int, key string, value interface{}) bool {
+	if i >= 0 && i < itemList.Length() {
+		return itemList.Items[i].SetAttribute(key, value)
+	}
+	return false
 }
 
 // OptionMinorItemList
@@ -891,23 +1123,30 @@ type OptionMinorItemList struct {
 }
 
 // Append adds an item to the option minor item list and returns the new count of items
-func (optionMinorItemList *OptionMinorItemList) Append(item *Item) int {
-	optionMinorItemList.Items = append(optionMinorItemList.Items, item)
-	return len(optionMinorItemList.Items)
+func (itemList *OptionMinorItemList) Append(item *Item) int {
+	itemList.Items = append(itemList.Items, item)
+	return len(itemList.Items)
 }
 
 // Length return count of items
-func (optionMinorItemList *OptionMinorItemList) Length() int {
-	return len(optionMinorItemList.Items)
+func (itemList *OptionMinorItemList) Length() int {
+	return len(itemList.Items)
 }
 
 // IndexOf return an item or nil
-func (optionMinorItemList *OptionMinorItemList) IndexOf(i int) *Item {
-	if i >= 0 && i < optionMinorItemList.Length() {
-		return optionMinorItemList.Items[i]
+func (itemList *OptionMinorItemList) IndexOf(i int) *Item {
+	if i >= 0 && i < itemList.Length() {
+		return itemList.Items[i]
 	}
-
 	return nil
+}
+
+// SetAttributeOf at pos set item attribute return success
+func (itemList *OptionMinorItemList) SetAttributeOf(i int, key string, value interface{}) bool {
+	if i >= 0 && i < itemList.Length() {
+		return itemList.Items[i].SetAttribute(key, value)
+	}
+	return false
 }
 
 // ThesisCommitteeItemList
@@ -917,22 +1156,30 @@ type ThesisCommitteeItemList struct {
 }
 
 // Append adds an item to the thesis committee item list and returns the new count of items
-func (thesisCommitteeItemList *ThesisCommitteeItemList) Append(item *Item) int {
-	thesisCommitteeItemList.Items = append(thesisCommitteeItemList.Items, item)
-	return len(thesisCommitteeItemList.Items)
+func (itemList *ThesisCommitteeItemList) Append(item *Item) int {
+	itemList.Items = append(itemList.Items, item)
+	return len(itemList.Items)
 }
 
 // Length return count of items in list
-func (thesisCommitteeItemList *ThesisCommitteeItemList) Length() int {
-	return len(thesisCommitteeItemList.Items)
+func (itemList *ThesisCommitteeItemList) Length() int {
+	return len(itemList.Items)
 }
 
 // IndexOf return an item or nil
-func (thesisCommitteeItemList *ThesisCommitteeItemList) IndexOf(i int) *Item {
-	if i >= 0 && i < thesisCommitteeItemList.Length() {
-		return thesisCommitteeItemList.Items[i]
+func (itemList *ThesisCommitteeItemList) IndexOf(i int) *Item {
+	if i >= 0 && i < itemList.Length() {
+		return itemList.Items[i]
 	}
 	return nil
+}
+
+// SetAttributeOf at pos set item attribute return success
+func (itemList *ThesisCommitteeItemList) SetAttributeOf(i int, key string, value interface{}) bool {
+	if i >= 0 && i < itemList.Length() {
+		return itemList.Items[i].SetAttribute(key, value)
+	}
+	return false
 }
 
 // ThesisAdvisorItemList
@@ -942,22 +1189,30 @@ type ThesisAdvisorItemList struct {
 }
 
 // Append adds an item to the thesis advisor item list and returns the new count of items
-func (thesisAdvisorItemList *ThesisAdvisorItemList) Append(item *Item) int {
-	thesisAdvisorItemList.Items = append(thesisAdvisorItemList.Items, item)
-	return len(thesisAdvisorItemList.Items)
+func (itemList *ThesisAdvisorItemList) Append(item *Item) int {
+	itemList.Items = append(itemList.Items, item)
+	return len(itemList.Items)
 }
 
 // Length return count of items
-func (thesisAdvisorItemList *ThesisAdvisorItemList) Length() int {
-	return len(thesisAdvisorItemList.Items)
+func (itemList *ThesisAdvisorItemList) Length() int {
+	return len(itemList.Items)
 }
 
 // IndexOf return an item or nil
-func (thesisAdvisorItemList *ThesisAdvisorItemList) IndexOf(i int) *Item {
-	if i >= 0 && i < thesisAdvisorItemList.Length() {
-		return thesisAdvisorItemList.Items[i]
+func (itemList *ThesisAdvisorItemList) IndexOf(i int) *Item {
+	if i >= 0 && i < itemList.Length() {
+		return itemList.Items[i]
 	}
 	return nil
+}
+
+// SetAttributeOf at pos set item attribute return success
+func (itemList *ThesisAdvisorItemList) SetAttributeOf(i int, key string, value interface{}) bool {
+	if i >= 0 && i < itemList.Length() {
+		return itemList.Items[i].SetAttribute(key, value)
+	}
+	return false
 }
 
 // DivisionItemList
@@ -967,22 +1222,30 @@ type DivisionItemList struct {
 }
 
 // Append adds an item to the division item list and returns the new count of items
-func (divisionItemList *DivisionItemList) Append(item *Item) int {
-	divisionItemList.Items = append(divisionItemList.Items, item)
-	return len(divisionItemList.Items)
+func (itemList *DivisionItemList) Append(item *Item) int {
+	itemList.Items = append(itemList.Items, item)
+	return len(itemList.Items)
 }
 
 // Length return a count of items
-func (divisionItemList *DivisionItemList) Length() int {
-	return len(divisionItemList.Items)
+func (itemList *DivisionItemList) Length() int {
+	return len(itemList.Items)
 }
 
 // IndexOf returns an item or nil
-func (divisionItemList *DivisionItemList) IndexOf(i int) *Item {
-	if i >= 0 && i < divisionItemList.Length() {
-		return divisionItemList.Items[i]
+func (itemList *DivisionItemList) IndexOf(i int) *Item {
+	if i >= 0 && i < itemList.Length() {
+		return itemList.Items[i]
 	}
 	return nil
+}
+
+// SetAttributeOf at pos set item attribute return success
+func (itemList *DivisionItemList) SetAttributeOf(i int, key string, value interface{}) bool {
+	if i >= 0 && i < itemList.Length() {
+		return itemList.Items[i].SetAttribute(key, value)
+	}
+	return false
 }
 
 // RelatedPatentItemList
@@ -992,22 +1255,30 @@ type RelatedPatentItemList struct {
 }
 
 // Append adds an item to the related patent item list and returns the new count of items
-func (relatedPatentItemList *RelatedPatentItemList) Append(item *Item) int {
-	relatedPatentItemList.Items = append(relatedPatentItemList.Items, item)
-	return len(relatedPatentItemList.Items)
+func (itemList *RelatedPatentItemList) Append(item *Item) int {
+	itemList.Items = append(itemList.Items, item)
+	return len(itemList.Items)
 }
 
 // Length return count of items
-func (relatedPatentItemList *RelatedPatentItemList) Length() int {
-	return len(relatedPatentItemList.Items)
+func (itemList *RelatedPatentItemList) Length() int {
+	return len(itemList.Items)
 }
 
 // IndexOf return an item or nil
-func (relatedPatentItemList *RelatedPatentItemList) IndexOf(i int) *Item {
-	if i >= 0 && i < relatedPatentItemList.Length() {
-		return relatedPatentItemList.Items[i]
+func (itemList *RelatedPatentItemList) IndexOf(i int) *Item {
+	if i >= 0 && i < itemList.Length() {
+		return itemList.Items[i]
 	}
 	return nil
+}
+
+// SetAttributeOf at pos set item attribute return success
+func (itemList *RelatedPatentItemList) SetAttributeOf(i int, key string, value interface{}) bool {
+	if i >= 0 && i < itemList.Length() {
+		return itemList.Items[i].SetAttribute(key, value)
+	}
+	return false
 }
 
 // PatentClassificationItemList
@@ -1017,22 +1288,30 @@ type PatentClassificationItemList struct {
 }
 
 // Append adds an item to the patent classification item list and returns the new count of items
-func (patentClassificationItemList *PatentClassificationItemList) Append(item *Item) int {
-	patentClassificationItemList.Items = append(patentClassificationItemList.Items, item)
-	return len(patentClassificationItemList.Items)
+func (itemList *PatentClassificationItemList) Append(item *Item) int {
+	itemList.Items = append(itemList.Items, item)
+	return len(itemList.Items)
 }
 
 // Length return an item count
-func (patentClassificationItemList *PatentClassificationItemList) Length() int {
-	return len(patentClassificationItemList.Items)
+func (itemList *PatentClassificationItemList) Length() int {
+	return len(itemList.Items)
 }
 
 // IndexOf return an item or nil
-func (patentClassificationItemList *PatentClassificationItemList) IndexOf(i int) *Item {
-	if i >= 0 && i < patentClassificationItemList.Length() {
-		return patentClassificationItemList.Items[i]
+func (itemList *PatentClassificationItemList) IndexOf(i int) *Item {
+	if i >= 0 && i < itemList.Length() {
+		return itemList.Items[i]
 	}
 	return nil
+}
+
+// SetAttributeOf at pos set item attribute return success
+func (itemList *PatentClassificationItemList) SetAttributeOf(i int, key string, value interface{}) bool {
+	if i >= 0 && i < itemList.Length() {
+		return itemList.Items[i].SetAttribute(key, value)
+	}
+	return false
 }
 
 // PatentAssigneeItemList
@@ -1042,22 +1321,30 @@ type PatentAssigneeItemList struct {
 }
 
 // Append adds an item to the patent assignee item list and returns the new count of items
-func (patentAssigneeItemList *PatentAssigneeItemList) Append(item *Item) int {
-	patentAssigneeItemList.Items = append(patentAssigneeItemList.Items, item)
-	return len(patentAssigneeItemList.Items)
+func (itemList *PatentAssigneeItemList) Append(item *Item) int {
+	itemList.Items = append(itemList.Items, item)
+	return len(itemList.Items)
 }
 
 // Length return item count
-func (patentAssigneeItemList *PatentAssigneeItemList) Length() int {
-	return len(patentAssigneeItemList.Items)
+func (itemList *PatentAssigneeItemList) Length() int {
+	return len(itemList.Items)
 }
 
 // IndexOf return item or nil
-func (patentAssigneeItemList *PatentAssigneeItemList) IndexOf(i int) *Item {
-	if i >= 0 && i < patentAssigneeItemList.Length() {
-		return patentAssigneeItemList.Items[i]
+func (itemList *PatentAssigneeItemList) IndexOf(i int) *Item {
+	if i >= 0 && i < itemList.Length() {
+		return itemList.Items[i]
 	}
 	return nil
+}
+
+// SetAttributeOf at pos set item attribute return success
+func (itemList *PatentAssigneeItemList) SetAttributeOf(i int, key string, value interface{}) bool {
+	if i >= 0 && i < itemList.Length() {
+		return itemList.Items[i].SetAttribute(key, value)
+	}
+	return false
 }
 
 // ShelfItemList
@@ -1067,22 +1354,30 @@ type ShelfItemList struct {
 }
 
 // Append adds an item to the shelf item list and returns the new count of items
-func (shelfItemList *ShelfItemList) Append(item *Item) int {
-	shelfItemList.Items = append(shelfItemList.Items, item)
-	return len(shelfItemList.Items)
+func (itemList *ShelfItemList) Append(item *Item) int {
+	itemList.Items = append(itemList.Items, item)
+	return len(itemList.Items)
 }
 
 // Length return item count
-func (shelfItemList *ShelfItemList) Length() int {
-	return len(shelfItemList.Items)
+func (itemList *ShelfItemList) Length() int {
+	return len(itemList.Items)
 }
 
 // IndexOf return item or nil
-func (shelfItemList *ShelfItemList) IndexOf(i int) *Item {
-	if i >= 0 && i <= shelfItemList.Length() {
-		return shelfItemList.Items[i]
+func (itemList *ShelfItemList) IndexOf(i int) *Item {
+	if i >= 0 && i <= itemList.Length() {
+		return itemList.Items[i]
 	}
 	return nil
+}
+
+// SetAttributeOf at pos set item attribute return success
+func (itemList *ShelfItemList) SetAttributeOf(i int, key string, value interface{}) bool {
+	if i >= 0 && i < itemList.Length() {
+		return itemList.Items[i].SetAttribute(key, value)
+	}
+	return false
 }
 
 // GScholarItemList
@@ -1092,22 +1387,30 @@ type GScholarItemList struct {
 }
 
 // Append adds an item to the gScholar item list and returns the new count of items
-func (gScholarItemList *GScholarItemList) Append(item *Item) int {
-	gScholarItemList.Items = append(gScholarItemList.Items, item)
-	return len(gScholarItemList.Items)
+func (itemList *GScholarItemList) Append(item *Item) int {
+	itemList.Items = append(itemList.Items, item)
+	return len(itemList.Items)
 }
 
 // Length return item count
-func (gScholarItemList *GScholarItemList) Length() int {
-	return len(gScholarItemList.Items)
+func (itemList *GScholarItemList) Length() int {
+	return len(itemList.Items)
 }
 
 // IndexOf return item or nil
-func (gScholarItemList *GScholarItemList) IndexOf(i int) *Item {
-	if i >= 0 && i < gScholarItemList.Length() {
-		return gScholarItemList.Items[i]
+func (itemList *GScholarItemList) IndexOf(i int) *Item {
+	if i >= 0 && i < itemList.Length() {
+		return itemList.Items[i]
 	}
 	return nil
+}
+
+// SetAttributeOf at pos set item attribute return success
+func (itemList *GScholarItemList) SetAttributeOf(i int, key string, value interface{}) bool {
+	if i >= 0 && i < itemList.Length() {
+		return itemList.Items[i].SetAttribute(key, value)
+	}
+	return false
 }
 
 // AltTitleItemList
@@ -1117,22 +1420,30 @@ type AltTitleItemList struct {
 }
 
 // Append adds an item to the altTitle item list and returns the new count of items
-func (altTitleItemList *AltTitleItemList) Append(item *Item) int {
-	altTitleItemList.Items = append(altTitleItemList.Items, item)
-	return len(altTitleItemList.Items)
+func (itemList *AltTitleItemList) Append(item *Item) int {
+	itemList.Items = append(itemList.Items, item)
+	return len(itemList.Items)
 }
 
 // Length return item count
-func (altTitleItemList *AltTitleItemList) Length() int {
-	return len(altTitleItemList.Items)
+func (itemList *AltTitleItemList) Length() int {
+	return len(itemList.Items)
 }
 
 // IndexOf return item or nil
-func (altTitleItemList *AltTitleItemList) IndexOf(i int) *Item {
-	if i >= 0 && i < altTitleItemList.Length() {
-		return altTitleItemList.Items[i]
+func (itemList *AltTitleItemList) IndexOf(i int) *Item {
+	if i >= 0 && i < itemList.Length() {
+		return itemList.Items[i]
 	}
 	return nil
+}
+
+// SetAttributeOf at pos set item attribute return success
+func (itemList *AltTitleItemList) SetAttributeOf(i int, key string, value interface{}) bool {
+	if i >= 0 && i < itemList.Length() {
+		return itemList.Items[i].SetAttribute(key, value)
+	}
+	return false
 }
 
 // ConfCreatorItemList
@@ -1142,22 +1453,30 @@ type ConfCreatorItemList struct {
 }
 
 // Append adds an item to the confCreator item list and returns the new count of items
-func (confCreatorItemList *ConfCreatorItemList) Append(item *Item) int {
-	confCreatorItemList.Items = append(confCreatorItemList.Items, item)
-	return len(confCreatorItemList.Items)
+func (itemList *ConfCreatorItemList) Append(item *Item) int {
+	itemList.Items = append(itemList.Items, item)
+	return len(itemList.Items)
 }
 
 // Length return item count
-func (confCreatorItemList *ConfCreatorItemList) Length() int {
-	return len(confCreatorItemList.Items)
+func (itemList *ConfCreatorItemList) Length() int {
+	return len(itemList.Items)
 }
 
 // IndexOf return item or nil
-func (confCreatorItemList *ConfCreatorItemList) IndexOf(i int) *Item {
-	if i >= 0 && i < confCreatorItemList.Length() {
-		return confCreatorItemList.Items[i]
+func (itemList *ConfCreatorItemList) IndexOf(i int) *Item {
+	if i >= 0 && i < itemList.Length() {
+		return itemList.Items[i]
 	}
 	return nil
+}
+
+// SetAttributeOf at pos set item attribute return success
+func (itemList *ConfCreatorItemList) SetAttributeOf(i int, key string, value interface{}) bool {
+	if i >= 0 && i < itemList.Length() {
+		return itemList.Items[i].SetAttribute(key, value)
+	}
+	return false
 }
 
 // ReferenceItemList
@@ -1167,22 +1486,30 @@ type ReferenceItemList struct {
 }
 
 // Append adds an item to the reference item list and returns the new count of items
-func (referenceItemList *ReferenceItemList) Append(item *Item) int {
-	referenceItemList.Items = append(referenceItemList.Items, item)
-	return len(referenceItemList.Items)
+func (itemList *ReferenceItemList) Append(item *Item) int {
+	itemList.Items = append(itemList.Items, item)
+	return len(itemList.Items)
 }
 
 // Length return item count
-func (referenceItemList *ReferenceItemList) Length() int {
-	return len(referenceItemList.Items)
+func (itemList *ReferenceItemList) Length() int {
+	return len(itemList.Items)
 }
 
 // IndexOf return item or nil
-func (referenceItemList *ReferenceItemList) IndexOf(i int) *Item {
-	if i >= 0 && i < referenceItemList.Length() {
-		return referenceItemList.Items[i]
+func (itemList *ReferenceItemList) IndexOf(i int) *Item {
+	if i >= 0 && i < itemList.Length() {
+		return itemList.Items[i]
 	}
 	return nil
+}
+
+// SetAttributeOf at pos set item attribute return success
+func (itemList *ReferenceItemList) SetAttributeOf(i int, key string, value interface{}) bool {
+	if i >= 0 && i < itemList.Length() {
+		return itemList.Items[i].SetAttribute(key, value)
+	}
+	return false
 }
 
 // LearningLevelItemList
@@ -1192,22 +1519,30 @@ type LearningLevelItemList struct {
 }
 
 // Append adds an item to the learningLevel item list and returns the new count of items
-func (learningLevelItemList *LearningLevelItemList) Append(item *Item) int {
-	learningLevelItemList.Items = append(learningLevelItemList.Items, item)
-	return len(learningLevelItemList.Items)
+func (itemList *LearningLevelItemList) Append(item *Item) int {
+	itemList.Items = append(itemList.Items, item)
+	return len(itemList.Items)
 }
 
 // Length return item count
-func (learningLevelItemList *LearningLevelItemList) Length() int {
-	return len(learningLevelItemList.Items)
+func (itemList *LearningLevelItemList) Length() int {
+	return len(itemList.Items)
 }
 
 // IndexOf return item or nil
-func (learningLevelItemList *LearningLevelItemList) IndexOf(i int) *Item {
-	if i >= 0 && i < learningLevelItemList.Length() {
-		return learningLevelItemList.Items[i]
+func (itemList *LearningLevelItemList) IndexOf(i int) *Item {
+	if i >= 0 && i < itemList.Length() {
+		return itemList.Items[i]
 	}
 	return nil
+}
+
+// SetAttributeOf at pos set item attribute return success
+func (itemList *LearningLevelItemList) SetAttributeOf(i int, key string, value interface{}) bool {
+	if i >= 0 && i < itemList.Length() {
+		return itemList.Items[i].SetAttribute(key, value)
+	}
+	return false
 }
 
 // CopyrightHolderItemList
@@ -1217,22 +1552,30 @@ type CopyrightHolderItemList struct {
 }
 
 // Append adds an item to the copyrightHolder item list and returns the new count of items
-func (copyrightHolderItemList *CopyrightHolderItemList) Append(item *Item) int {
-	copyrightHolderItemList.Items = append(copyrightHolderItemList.Items, item)
-	return len(copyrightHolderItemList.Items)
+func (itemList *CopyrightHolderItemList) Append(item *Item) int {
+	itemList.Items = append(itemList.Items, item)
+	return len(itemList.Items)
 }
 
 // Length return item count
-func (copyrightHolderItemList *CopyrightHolderItemList) Length() int {
-	return len(copyrightHolderItemList.Items)
+func (itemList *CopyrightHolderItemList) Length() int {
+	return len(itemList.Items)
 }
 
 // IndexOf return item or nil
-func (copyrightHolderItemList *CopyrightHolderItemList) IndexOf(i int) *Item {
-	if i >= 0 && i < copyrightHolderItemList.Length() {
-		return copyrightHolderItemList.Items[i]
+func (itemList *CopyrightHolderItemList) IndexOf(i int) *Item {
+	if i >= 0 && i < itemList.Length() {
+		return itemList.Items[i]
 	}
 	return nil
+}
+
+// SetAttributeOf at pos set item attribute return success
+func (itemList *CopyrightHolderItemList) SetAttributeOf(i int, key string, value interface{}) bool {
+	if i >= 0 && i < itemList.Length() {
+		return itemList.Items[i].SetAttribute(key, value)
+	}
+	return false
 }
 
 // SkillAreaItemList
@@ -1242,22 +1585,30 @@ type SkillAreaItemList struct {
 }
 
 // Append adds an item to the skillArea item list and returns the new count of items
-func (skillAreaItemList *SkillAreaItemList) Append(item *Item) int {
-	skillAreaItemList.Items = append(skillAreaItemList.Items, item)
-	return len(skillAreaItemList.Items)
+func (itemList *SkillAreaItemList) Append(item *Item) int {
+	itemList.Items = append(itemList.Items, item)
+	return len(itemList.Items)
 }
 
 // Length return item count
-func (skillAreaItemList *SkillAreaItemList) Length() int {
-	return len(skillAreaItemList.Items)
+func (itemList *SkillAreaItemList) Length() int {
+	return len(itemList.Items)
 }
 
 // IndexOf return item or nil
-func (skillAreaItemList *SkillAreaItemList) IndexOf(i int) *Item {
-	if i >= 0 && i < skillAreaItemList.Length() {
-		return skillAreaItemList.Items[i]
+func (itemList *SkillAreaItemList) IndexOf(i int) *Item {
+	if i >= 0 && i < itemList.Length() {
+		return itemList.Items[i]
 	}
 	return nil
+}
+
+// SetAttributeOf at pos set item attribute return success
+func (itemList *SkillAreaItemList) SetAttributeOf(i int, key string, value interface{}) bool {
+	if i >= 0 && i < itemList.Length() {
+		return itemList.Items[i].SetAttribute(key, value)
+	}
+	return false
 }
 
 // AccompanimentItemList
@@ -1267,22 +1618,30 @@ type AccompanimentItemList struct {
 }
 
 // Append adds an item to the accompaniment item list and returns the new count of items
-func (accompanimentItemList *AccompanimentItemList) Append(item *Item) int {
-	accompanimentItemList.Items = append(accompanimentItemList.Items, item)
-	return len(accompanimentItemList.Items)
+func (itemList *AccompanimentItemList) Append(item *Item) int {
+	itemList.Items = append(itemList.Items, item)
+	return len(itemList.Items)
 }
 
 // Length return item count
-func (accompanimentItemList *AccompanimentItemList) Length() int {
-	return len(accompanimentItemList.Items)
+func (itemList *AccompanimentItemList) Length() int {
+	return len(itemList.Items)
 }
 
 // IndexOf return item or nil
-func (accompanimentItemList *AccompanimentItemList) IndexOf(i int) *Item {
-	if i >= 0 && i < accompanimentItemList.Length() {
-		return accompanimentItemList.Items[i]
+func (itemList *AccompanimentItemList) IndexOf(i int) *Item {
+	if i >= 0 && i < itemList.Length() {
+		return itemList.Items[i]
 	}
 	return nil
+}
+
+// SetAttributeOf at pos set item attribute return success
+func (itemList *AccompanimentItemList) SetAttributeOf(i int, key string, value interface{}) bool {
+	if i >= 0 && i < itemList.Length() {
+		return itemList.Items[i].SetAttribute(key, value)
+	}
+	return false
 }
 
 // Name handles the "name" types found in Items.
@@ -1295,6 +1654,36 @@ type Name struct {
 	Honourific string   `xml:"honourific,omitempty" json:"honourific,omitempty"`
 	Lineage    string   `xml:"lineage,omitempty" json:"lineage,omitempty"`
 	Value      string   `xml:",chardata" json:"value,omitempty"`
+}
+
+func (name *Name) SetAttribute(key string, value string) bool {
+	switch strings.ToLower(key) {
+	case "Family":
+		name.Family = value
+		return true
+	case "Given":
+		name.Given = value
+		return true
+	case "id":
+		name.ID = value
+		return true
+	case "orcid":
+		name.ORCID = value
+		return true
+	case "honourific":
+		name.Honourific = value
+		return true
+	case "lineage ":
+		name.Lineage = value
+		return true
+	case "value":
+		name.Value = value
+		return true
+	case "":
+		name.Value = value
+		return true
+	}
+	return false
 }
 
 func nameToMap(name *Name) map[string]string {
@@ -1355,8 +1744,18 @@ func (name *Name) String() string {
 	return string(src)
 }
 
+// NewEPrints returns a *EPrint with the name space set.
+func NewEPrints() *EPrints {
+	eprints := new(EPrints)
+	eprints.XMLNS = `http://eprints.org/ep2/data/2.0`
+	return eprints
+}
+
 // Append an EPrint struct to an EPrints struct returning the count of attached eprints
 func (eprints *EPrints) Append(eprint *EPrint) int {
+	if eprints.XMLNS == "" {
+		eprints.XMLNS = `http://eprints.org/ep2/data/2.0`
+	}
 	eprints.EPrint = append(eprints.EPrint, eprint)
 	return len(eprints.EPrint)
 }
@@ -1406,7 +1805,7 @@ type Document struct {
 	EPrintID         int      `xml:"eprintid" json:"eprint_id"`
 	Pos              int      `xml:"pos" json:"pos,omitempty"`
 	Placement        int      `xml:"placement,omitempty" json:"placement,omitempty"`
-	MimeType         string   `xml:"mime_type" json:"mime_type"`
+	MimeType         string   `xml:"mime_type,omitempty" json:"mime_type,omitempty"`
 	Format           string   `xml:"format" json:"format"`
 	FormatDesc       string   `xml:"formatdesc,omitempty" json:"format_desc,omitempty"`
 	Language         string   `xml:"language,omitempty" json:"language,omitempty"`

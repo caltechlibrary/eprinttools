@@ -345,7 +345,7 @@ eff
 </eprints>
 `)
 	// Test parsing
-	rec := new(EPrints)
+	rec := NewEPrints()
 	err := xml.Unmarshal(src, &rec)
 	if err != nil {
 		t.Errorf("Can't parse eprint id 84590.xml, %s", err)
@@ -743,7 +743,7 @@ of the target materials, and validate these computations against experimental da
 </eprints>
 `)
 
-	records := new(EPrints)
+	records := NewEPrints()
 	err := xml.Unmarshal(src, records)
 	if err != nil {
 		t.Errorf("Couldn't unmarshal multi-record response, %s", err)
@@ -1119,7 +1119,7 @@ Wei Zhu (祝伟) et al. 2015 ApJ 805 8</official_cit>
   </eprint>
 </eprints>
 `)
-	records := new(EPrints)
+	records := NewEPrints()
 	err := xml.Unmarshal(src, &records)
 	if err != nil {
 		t.Errorf("unmashal failed, %s", err)
