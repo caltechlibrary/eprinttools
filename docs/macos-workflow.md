@@ -1,11 +1,12 @@
+Notes on using doi2eprintxml on Mac OS X
+========================================
 
-# Notes on using doi2eprintxml on Mac OS X
-
-## Installation and setup
+Installation and setup
+----------------------
 
 1. With your web browser goto https://github.com/caltechlibrary/eprinttools/releases/
-2. Download the file called "eprinttools-v0.0.18-macosx-amd64.zip".
-    + if there is a newer version (e.g. v0.0.19) download that instead
+2. Download the file called "eprinttools-v1.0.3-macos-amd64.zip" (for older Intel based Macs) or "eprinttools-v1.0.3-macos-arm64.zip" (for newer M1 based Macs).
+    + if there is a newer version (e.g. v1.0.4) download that instead
 3. Unzip the downloaded zip file
 4. Copy "bin/doi2eprintxml" to your local **bin** folder 
     (e.g. /Users/rsdoiel/bin)
@@ -14,7 +15,8 @@
 5. Open the your "Terminal" application
 6. Run `doi2printxml -h` to see the help page
 
-## Getting started
+Getting started
+---------------
 
 The tool `doi2eprintxml` is a command line program, it is normally
 run from the terminal's command prompt. The purpose of the program 

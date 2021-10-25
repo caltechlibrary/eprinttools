@@ -10,16 +10,12 @@ Below are generalized instructions for installation of a release.
 Compiled version
 ----------------
 
-Compiled versions are available for Mac OS X (amd64 and M1 processor,
-macos-amd64, macos-arm64), Linux (amd64 process, linux-amd64), Windows (amd64
-processor, windows-amd64) and Rapsberry Pi (arm7 processor,
-raspbian-arm7)
+Compiled versions are available for Mac OS X (amd64 and M1 processor, macos-amd64, macos-arm64), Linux (amd64 process, linux-amd64), Windows (amd64 processor, windows-amd64) and Rapsberry Pi (arm7 processor, raspbian-arm7)
 
 VERSION\_NUMBER is a [symantic version number](http://semver.org/) (e.g.
-`v1.0.1`)
+`v1.0.3`)
 
-For all the released version go to the project page on Github and click
-latest release
+For all the released version go to the project page on Github and click latest release
 
 > <https://github.com/caltechlibrary/eprinttools/releases/latest>
 
@@ -55,8 +51,7 @@ The basic recipe
 4.  Make sure the new location in in our path
 5.  Test
 
-Here's an example of the commands run in the Terminal App after
-downloading the zip file.
+Here's an example of the commands run in the Terminal App after downloading the zip file.
 
 ``` shell
     cd Downloads/
@@ -74,8 +69,7 @@ downloading the zip file.
 3.  Copy the executables to $HOME/bin (or a folder in your path)
 4.  Test
 
-Here's an example of the commands run in from the Bash shell on Windows
-10 after downloading the zip file.
+Here's an example of the commands run in from the Bash shell on Windows 10 after downloading the zip file.
 
 ``` shell
     cd Downloads/
@@ -93,8 +87,7 @@ Here's an example of the commands run in from the Bash shell on Windows
 3.  Copy the executables to $HOME/bin (or a folder in your path)
 4.  Test
 
-Here's an example of the commands run in from the Bash shell after
-downloading the zip file.
+Here's an example of the commands run in from the Bash shell after downloading the zip file.
 
 ``` shell
     cd Downloads/
@@ -115,8 +108,7 @@ Released version is for a Raspberry Pi 2 or later use (i.e. requires ARM
 3.  Copy the executables to $HOME/bin (or a folder in your path)
 4.  Test
 
-Here's an example of the commands run in from the Bash shell after
-downloading the zip file.
+Here's an example of the commands run in from the Bash shell after downloading the zip file.
 
 ``` shell
     cd Downloads/
@@ -130,8 +122,7 @@ downloading the zip file.
 Compiling from source
 ---------------------
 
-*eprinttools* is "go gettable". Use the "go get" command to download the
-dependant packages as well as *eprinttools*'s source code.
+*eprinttools* is "go gettable". Use the "go get" command to download the dependant packages as well as *eprinttools*'s source code.
 
 ``` shell
     go get -u github.com/caltechlibrary/eprinttools/...

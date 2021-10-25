@@ -112,6 +112,9 @@ The follow API end points would facilitate faster updates to our feeds platform 
 </p>
 <ul>
 <li>
+‘/{REPO_ID}/keys’ returns complete list of EPrint ID in the repository
+</li>
+<li>
 ‘/{REPO_ID}/updated/{TIMESTAMP}/{TIMESTAMP}’ returns a list of EPrint IDs updated starting at the first timestamp (timestamps should have a resolution to the minute, e.g. “YYYY-MM-DD HH:MM:SS”) through inclusive of the second timestmap (if the second is omitted the timestamp is assumed to be “now”)
 </li>
 <li>

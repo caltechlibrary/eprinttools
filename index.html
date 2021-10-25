@@ -77,9 +77,10 @@ Configuration is via a JSON “settings.json” file. The settings includes a re
 <pre class="sourceCode json"><code class="sourceCode json"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a>    <span class="fu">{</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true"></a>        <span class="dt">&quot;authors&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true"></a>            <span class="dt">&quot;dsn&quot;</span><span class="fu">:</span> <span class="st">&quot;USERNAME:SECRET@/authors&quot;</span><span class="fu">,</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true"></a>            <span class="dt">&quot;rest&quot;</span><span class="fu">:</span> <span class="st">&quot;https://USERNAME:SECRET@authors.example.edu&quot;</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true"></a>        <span class="fu">}</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true"></a>    <span class="fu">}</span></span></code></pre>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true"></a>            <span class="dt">&quot;base_url&quot;</span><span class="fu">:</span> <span class="st">&quot;https://authors.example.edu&quot;</span><span class="fu">,</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true"></a>            <span class="dt">&quot;write&quot;</span><span class="fu">:</span> <span class="kw">true</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true"></a>        <span class="fu">}</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true"></a>    <span class="fu">}</span></span></code></pre>
 </div>
 <p>
 In the “dsn” attribute <strong>USERNAME:SECRET</strong> are the username/password for accessing the database. In the “rest” attribute the <strong>USERNAME:SECRET</strong> are the username/password for accessing the REST API.

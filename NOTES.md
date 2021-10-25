@@ -1,12 +1,7 @@
 
 # Overview
 
-Caltech Library uses EPrints heavily for several different repositories 
-(e.g. CaltechAUTHORS, CaltechTHESIS). We wished to use the metadata from 
-our repositories in ways that were not convient inside EPrints as well as 
-aggregate our metadata with other systems.  This lead us to create the 
-_eputil_ and _ep_ command line programs making it easy get JSON 
-representations of EPrint records output via EPrints' REST API.
+Caltech Library uses EPrints heavily for several different repositories (e.g. CaltechAUTHORS, CaltechTHESIS). We wished to use the metadata from our repositories in ways that were not convient inside EPrints as well as aggregate our metadata with other systems.  This lead us to create the _eputil_ and _ep_ command line programs making it easy get JSON representations of EPrint records output via EPrints' REST API.
 
 ## Reference materials
 
