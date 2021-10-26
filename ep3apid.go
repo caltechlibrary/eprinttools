@@ -730,9 +730,21 @@ func committeeNameEndPoint(w http.ResponseWriter, r *http.Request, repoID string
 	return packageIntIDs(w, repoID, eprintIDs, err)
 }
 
-func pubmedEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
+func pubmedIDEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
 	if len(args) == 0 || strings.HasSuffix(r.URL.Path, `/help`) {
-		return packageDocument(w, pubmedDocument(repoID))
+		return packageDocument(w, pubmedIDDocument(repoID))
+	}
+	if len(args) != 1 {
+		return 400, fmt.Errorf("Bad Request")
+	}
+	var err error
+	eprintIDs, err := sqlQueryIntIDs(repoID, `SELECT eprintid FROM eprint WHERE pmid = ?`, args[0])
+	return packageIntIDs(w, repoID, eprintIDs, err)
+}
+
+func pubmedCentralIDEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
+	if len(args) == 0 || strings.HasSuffix(r.URL.Path, `/help`) {
+		return packageDocument(w, pubmedCentralIDDocument(repoID))
 	}
 	if len(args) != 1 {
 		return 400, fmt.Errorf("Bad Request")
@@ -791,10 +803,10 @@ func patentNumberEndPoint(w http.ResponseWriter, r *http.Request, repoID string,
 }
 
 func patentClassificationEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
-	if len(args) == 0 || strings.HasSuffix(r.URL.Path, `/help`) {
+	if strings.HasSuffix(r.URL.Path, `/help`) {
 		return packageDocument(w, patentClassificationDocument(repoID))
 	}
-	if len(args) != 1 {
+	if len(args) == 0 {
 		values, err := sqlQueryStringIDs(repoID, `SELECT patent_classification FROM eprint WHERE patent_classification IS NOT NULL GROUP BY patent_classification ORDER BY patent_classification`)
 		return packageStringIDs(w, repoID, values, err)
 	}
@@ -1041,41 +1053,44 @@ func InitExtendedAPI(settings string) error {
 	if config.Routes == nil {
 		config.Routes = map[string]map[string]func(http.ResponseWriter, *http.Request, string, []string) (int, error){}
 	}
-	// This is a map endpoints and point handlers.
-	// This implements the registration design pattern
+	// This is a map standard endpoints and end point handlers.
+	// NOTE: Eventually this should evolving into a registration
+	// style design pattern based on unique fields in repositories.
 	routes := map[string]func(http.ResponseWriter, *http.Request, string, []string) (int, error){
-		"keys":                  keysEndPoint,
-		"created":               createdEndPoint,
-		"updated":               updatedEndPoint,
-		"deleted":               deletedEndPoint,
-		"pubdate":               pubdateEndPoint,
-		"doi":                   doiEndPoint,
-		"creator-id":            creatorIDEndPoint,
-		"creator-orcid":         creatorORCIDEndPoint,
-		"editor-id":             editorIDEndPoint,
-		"contributor-id":        contributorIDEndPoint,
-		"advisor-id":            advisorIDEndPoint,
-		"committee-id":          committeeIDEndPoint,
-		"group-id":              groupIDEndPoint,
-		"funder-id":             funderIDEndPoint,
-		"grant-number":          grantNumberEndPoint,
-		"creator-name":          creatorNameEndPoint,
-		"editor-name":           editorNameEndPoint,
-		"contributor-name":      contributorNameEndPoint,
-		"advisor-name":          advisorNameEndPoint,
-		"commitee-name":         committeeNameEndPoint,
-		"pubmed":                pubmedEndPoint,
-		"issn":                  issnEndPoint,
-		"isbn":                  isbnEndPoint,
+		// Standard fields
+		"keys":             keysEndPoint,
+		"created":          createdEndPoint,
+		"updated":          updatedEndPoint,
+		"deleted":          deletedEndPoint,
+		"pubdate":          pubdateEndPoint,
+		"doi":              doiEndPoint,
+		"record":           recordEndPoint,
+		"eprint":           eprintEndPoint,
+		"creator-id":       creatorIDEndPoint,
+		"creator-orcid":    creatorORCIDEndPoint,
+		"editor-id":        editorIDEndPoint,
+		"contributor-id":   contributorIDEndPoint,
+		"advisor-id":       advisorIDEndPoint,
+		"committee-id":     committeeIDEndPoint,
+		"group-id":         groupIDEndPoint,
+		"funder-id":        funderIDEndPoint,
+		"grant-number":     grantNumberEndPoint,
+		"creator-name":     creatorNameEndPoint,
+		"editor-name":      editorNameEndPoint,
+		"contributor-name": contributorNameEndPoint,
+		"advisor-name":     advisorNameEndPoint,
+		"commitee-name":    committeeNameEndPoint,
+		"pmcid":            pubmedCentralIDEndPoint,
+		"pmid":             pubmedIDEndPoint,
+		"issn":             issnEndPoint,
+		"isbn":             isbnEndPoint,
+		//FIXME: make sure each end point is supported by repository
+		// e.g. CaltechTHESIS doens't have patent number field
 		"patent-applicant":      patentApplicantEndPoint,
 		"patent-number":         patentNumberEndPoint,
 		"patent-classification": patentClassificationEndPoint,
 		"patent-assignee":       patentAssigneeEndPoint,
-		"record":                recordEndPoint,
-		"eprint":                eprintEndPoint,
 	}
-	//FIXME: make sure each end point is supported by repository
-	// e.g. CaltechTHESIS doens't have patent number field
 
 	/* NOTE: We need a DB connection to MySQL for each
 	   EPrints repository supported by the API

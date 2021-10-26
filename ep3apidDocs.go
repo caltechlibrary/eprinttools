@@ -43,6 +43,8 @@ Unique ID to EPrint ID
 Unique ids maybe standards based (e.g. ORCID, DOI, ISSN, ISBN) or internal (e.g. group ids, funder ids)
 
 - '/{REPO_ID}/doi/{DOI}' with the adoption of EPrints "doi" field in the EPrint table it makes sense to have a quick translation of DOI to EPrint id for a given EPrints repository. 
+- '/{REPO_ID}/pmid/{PMID}' with the "pmid" field in the EPrint table, it refers to PubMed is an index of the biomedical literature.
+- '/{REPO_ID}/pmcid/{PMCID}' with the "pmcid" field in the EPrint table, PMCID an Identifier to each full-text paper in PubMed Central Archive
 - '/{REPO_ID}/creator-id' returns a list of creaator-id available in the eprints repository
 - '/{REPO_ID}/creator-id/{CREATOR_ID}' scans the name creator id field associated with creators and returns a list of EPrint ID 
 - '/{REPO_ID}/creator-orcid' return a list of "orcid" associated with creators in repository 
@@ -352,9 +354,15 @@ func committeeNameDocument(repoID string) string {
 `, repoID)
 }
 
-func pubmedDocument(repoID string) string {
+func pubmedIDDocument(repoID string) string {
 	return fmt.Sprintf(`
-- '/%s/pubmed/{PUBMED_ID}' returns a list of EPrint IDs associated with the PubMed ID
+- '/%s/pmid/{PMID}' with the "pmid" field in the EPrint table, it refers to PubMed is an index of the biomedical literature.
+`, repoID)
+}
+
+func pubmedCentralIDDocument(repoID string) string {
+	return fmt.Sprintf(`
+- '/%s/pmcid/{PMCID}' with the "pmcid" field in the EPrint table, PMCID an Identifier to each full-text paper in PubMed Central Archive
 `, repoID)
 }
 
