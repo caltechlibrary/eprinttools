@@ -40,17 +40,39 @@ There are two end points that give you information about what repositories are c
 Unique ID to EPrint ID
 ----------------------
 
-- '/{REPO_ID}/doi/{DOI}' with the adoption of EPrints "doi" field in the EPrint table it makes sense to have a quick translation of DOI to EPrint id for a given EPrints repository. 
-- '/{REPO_ID}/creator-id/{CREATOR_ID}' scans the name creator id field associated with creators and returns a list of EPrint ID 
-- '/{REPO_ID}/creator-orcid/{ORCID}' scans the "orcid" field associated with creators and returns a list of EPrint ID 
-- '/{REPO_ID}/editor-id/{CREATOR_ID}' scans the name creator id field associated with editors and returns a list of EPrint ID 
-- '/{REPO_ID}/contributor-id/{CONTRIBUTOR_ID}' scans the "id" field associated with a contributors and returns a list of EPrint ID 
-- '/{REPO_ID}/advisor-id/{ADVISOR_ID}' scans the name advisor id field associated with advisors and returns a list of EPrint ID 
-- '/{REPO_ID}/committee-id/{COMMITTEE_ID}' scans the committee id field associated with committee members and returns a list of EPrint ID
-- '/{REPO_ID}/group-id/{GROUP_ID}' this scans group ID and returns a list of EPrint IDs associated with the group
-- '/{REPO_ID}/funder-id/{FUNDER_ID}' returns a list of EPrint IDs associated with the funder's ROR
-- '/{REPO_ID}/grant-number/{GRANT_NUMBER}' returns a list of EPrint IDs associated with the grant number
+Unique ids maybe standards based (e.g. ORCID, DOI, ISSN, ISBN) or internal (e.g. group ids, funder ids)
 
+- '/{REPO_ID}/doi/{DOI}' with the adoption of EPrints "doi" field in the EPrint table it makes sense to have a quick translation of DOI to EPrint id for a given EPrints repository. 
+- '/{REPO_ID}/creator-id' returns a list of creaator-id available in the eprints repository
+- '/{REPO_ID}/creator-id/{CREATOR_ID}' scans the name creator id field associated with creators and returns a list of EPrint ID 
+- '/{REPO_ID}/creator-orcid' return a list of "orcid" associated with creators in repository 
+- '/{REPO_ID}/creator-orcid/{ORCID}' scans the "orcid" field associated with creators and returns a list of EPrint ID 
+- '/{REPO_ID}/editor-id' returns a list of editor ids available in the EPrints repository
+- '/{REPO_ID}/editor-id/{CREATOR_ID}' scans the name creator id field associated with editors and returns a list of EPrint ID 
+- '/{REPO_ID}/contributor-id' returns a list of contributor ids available in the eprints repository
+- '/{REPO_ID}/contributor-id/{CONTRIBUTOR_ID}' scans the "id" field associated with a contributors and returns a list of EPrint ID 
+- '/{REPO_ID}/advisor-id' returns a list of advisor ids in the eprints repository
+- '/{REPO_ID}/advisor-id/{ADVISOR_ID}' scans the name advisor id field associated with advisors and returns a list of EPrint ID 
+- '/{REPO_ID}/committee-id' returns a list of committee id in EPrints repository
+- '/{REPO_ID}/committee-id/{COMMITTEE_ID}' scans the committee id field associated with committee members and returns a list of EPrint ID
+- '/{REPO_ID}/group-id' returns a list of group ids in EPrints repository
+- '/{REPO_ID}/group-id/{GROUP_ID}' this scans group ID and returns a list of EPrint IDs associated with the group
+- '/{REPO_ID}/funder-id' returns a list of funders in the EPrints repository
+- '/{REPO_ID}/funder-id/{FUNDER_ID}' returns a list of EPrint IDs associated with the funder
+- '/{REPO_ID}/grant-number' returns a list of grant numbers in EPrints repository
+- '/{REPO_ID}/grant-number/{GRANT_NUMBER}' returns a list of EPrint IDs associated with the grant number
+- '/{REPO_ID}/issn' - returns a list of ISSN in repository
+- '/{REPO_ID}/issn/{ISSN}' - returns a list eprint id for ISSN in repository
+- '/{REPO_ID}/isbn' - returns a list of ISBN in repository
+- '/{REPO_ID}/isbn/{ISBN}' - returns a list eprint id for ISBN in repository
+- '/{REPO_ID}/patent-number' - return a list of patent numbers in repository
+- '/{REPO_ID}/patent-number/{PATENT_NUMBER}' - return a list eprint ids for patent number in repository
+- '/{REPO_ID}/patent-applicant' - return a list of patent applicants in repository
+- '/{REPO_ID}/patent-applicant/{PATENT_APPLICANT}' - return a list eprint ids for patent applicant in repository
+- '/{REPO_ID}/patent-classification' - return a list of patent classificatins in repository
+- '/{REPO_ID}/patent-classification/{PATENT_CLASSIFICATION}' - return a list eprint ids for patent classification in repository
+- '/{REPO_ID}/patent-assignee' - return a list of patent assignee in repository
+- '/{REPO_ID}/patent-assignee/{PATENT_ASSIGNEE}' - return a list eprint ids for patent assignee in repository
 
 
 Change Events
@@ -240,69 +262,142 @@ func doiDocument(repoID string) string {
 }
 
 func creatorIDDocument(repoID string) string {
-	return fmt.Sprintf(`'/%s/creator-id/{CREATOR_ID}' scans the name creator id field associated with creators and returns a list of EPrint ID`, repoID)
+	return fmt.Sprintf(`
+- '/%s/creator-id' returns a list of creaator-id available in the eprints repository
+- '/%s/creator-id/{CREATOR_ID}' scans the name creator id field associated with creators and returns a list of EPrint ID 
+`, repoID, repoID)
 }
 
 func creatorORCIDDocument(repoID string) string {
-	return fmt.Sprintf(`'/%s/creator-orcid/{ORCID}' scans the "orcid" field associated with creators and returns a list of EPrint ID`, repoID)
+	return fmt.Sprintf(`
+- '/%s/creator-orcid' return a list of "orcid" associated with creators in repository 
+- '/%s/creator-orcid/{ORCID}' scans the "orcid" field associated with creators and returns a list of EPrint ID
+`, repoID, repoID)
 }
 
 func editorIDDocument(repoID string) string {
-	return fmt.Sprintf(`'/%s/editor-id/{CREATOR_ID}' scans the name creator id field associated with editors and returns a list of EPrint ID`, repoID)
+	return fmt.Sprintf(`
+- '/%s/editor-id' returns a list of editor ids available in the EPrints repository
+- '/%s/editor-id/{CREATOR_ID}' scans the name creator id field associated with editors and returns a list of EPrint ID 
+`, repoID, repoID)
 }
 
 func contributorIDDocument(repoID string) string {
-	return fmt.Sprintf(`'/%s/contributor-id/{CONTRIBUTOR_ID}' scans the "id" field associated with a contributors and returns a list of EPrint ID`, repoID)
+	return fmt.Sprintf(`
+- '/%s/contributor-id' returns a list of contributor ids available in the eprints repository
+- '/%s/contributor-id/{CONTRIBUTOR_ID}' scans the "id" field associated with a contributors and returns a list of EPrint ID 
+`, repoID, repoID)
 }
 
 func advisorIDDocument(repoID string) string {
-	return fmt.Sprintf(`'/%s/advisor-id/{ADVISOR_ID}' scans the name advisor id field associated with advisors and returns a list of EPrint ID`, repoID)
+	return fmt.Sprintf(`
+- '/%s/advisor-id' returns a list of advisor ids in the eprints repository
+- '/%s/advisor-id/{ADVISOR_ID}' scans the name advisor id field associated with advisors and returns a list of EPrint ID 
+`, repoID, repoID)
 }
 
 func committeeIDDocument(repoID string) string {
-	return fmt.Sprintf(`'/%s/committee-id/{COMMITTEE_ID}' scans the committee id field associated with committee members and returns a list of EPrint ID`, repoID)
+	return fmt.Sprintf(`
+- '/%s/committee-id' returns a list of committee id in EPrints repository
+- '/%s/committee-id/{COMMITTEE_ID}' scans the committee id field associated with committee members and returns a list of EPrint ID
+`, repoID, repoID)
 }
 
 func groupIDDocument(repoID string) string {
-	return fmt.Sprintf(`'/%s/group-id/{GROUP_ID}' this scans group ID and returns a list of EPrint IDs associated with the group`, repoID)
+	return fmt.Sprintf(`
+- '/%s/group-id' returns a list of group ids in EPrints repository
+- '/%s/group-id/{GROUP_ID}' this scans group ID and returns a list of EPrint IDs associated with the group
+`, repoID, repoID)
+}
+
+func funderIDDocument(repoID string) string {
+	return fmt.Sprintf(`
+- '/%s/funder-id' returns a list of funders in the EPrints repository
+- '/%s/funder-id/{FUNDER_ID}' returns a list of EPrint IDs associated with the funder
+`, repoID, repoID)
 }
 
 func grantNumberDocument(repoID string) string {
-	return fmt.Sprintf(`'/%s/grant-number/{GRANT_NUMBER}' returns a list of EPrint IDs associated with the grant number`, repoID)
+	return fmt.Sprintf(`
+- '/%s/grant-number' returns a list of grant numbers in EPrints repository
+- '/%s/grant-number/{GRANT_NUMBER}' returns a list of EPrint IDs associated with the grant number
+`, repoID, repoID)
 }
 
 func creatorNameDocument(repoID string) string {
-	return fmt.Sprintf(`'/%s/creator-name/{FAMILY_NAME}/{GIVEN_NAME}' scans the name fields associated with creators and returns a list of EPrint ID `, repoID)
+	return fmt.Sprintf(`
+- '/%s/creator-name/{FAMILY_NAME}/{GIVEN_NAME}' scans the name fields associated with creators and returns a list of EPrint ID
+`, repoID)
 }
 func editorNameDocument(repoID string) string {
-	return fmt.Sprintf(`'/%s/editor-name/{FAMILY_NAME}/{GIVEN_NAME}' scans the family and given name field associated with a editors and returns a list of EPrint ID`, repoID)
+	return fmt.Sprintf(`
+- '/%s/editor-name/{FAMILY_NAME}/{GIVEN_NAME}' scans the family and given name field associated with a editors and returns a list of EPrint ID
+`, repoID)
 }
 
 func contributorNameDocument(repoID string) string {
-	return fmt.Sprintf(`'/%s/contributor-name/{FAMILY_NAME}/{GIVEN_NAME}' scans the family and given name field associated with a contributors and returns a list of EPrint ID`, repoID)
+	return fmt.Sprintf(`
+- '/%s/contributor-name/{FAMILY_NAME}/{GIVEN_NAME}' scans the family and given name field associated with a contributors and returns a list of EPrint ID
+`, repoID)
 }
 
 func advisorNameDocument(repoID string) string {
-	return fmt.Sprintf(`'/%s/advisor-name/{FAMILY_NAME}/{GIVEN_NAME}' scans the name fields associated with advisors returns a list of EPrint ID`, repoID)
+	return fmt.Sprintf(`
+- '/%s/advisor-name/{FAMILY_NAME}/{GIVEN_NAME}' scans the name fields associated with advisors returns a list of EPrint ID
+`, repoID)
 }
 func committeeNameDocument(repoID string) string {
-	return fmt.Sprintf(`'/%s/committee-name/{FAMILY_NAME}/{GIVEN_NAME}' scans the family and given name fields associated with committee members and returns a list of EPrint ID`, repoID)
+	return fmt.Sprintf(`
+- '/%s/committee-name/{FAMILY_NAME}/{GIVEN_NAME}' scans the family and given name fields associated with committee members and returns a list of EPrint ID
+`, repoID)
 }
 
 func pubmedDocument(repoID string) string {
-	return fmt.Sprintf(`'/%s/pubmed/{PUBMED_ID}' returns a list of EPrint IDs associated with the PubMed ID`, repoID)
+	return fmt.Sprintf(`
+- '/%s/pubmed/{PUBMED_ID}' returns a list of EPrint IDs associated with the PubMed ID
+`, repoID)
 }
 
 func issnDocument(repoID string) string {
-	return fmt.Sprintf(`'/%s/issn/{ISSN}' returns a list of EPrint IDs associated with the ISSN`, repoID)
+	return fmt.Sprintf(`
+- '/%s/issn' - returns a list of ISSN in repository
+- '/%s/issn/{ISSN}' - returns a list eprint id for ISSN in repository
+`, repoID, repoID)
 }
 
 func isbnDocument(repoID string) string {
-	return fmt.Sprintf(`'/%s/isbn/{ISSN}' returns a list of EPrint IDs associated with the ISSN`, repoID)
+	return fmt.Sprintf(`
+- '/%s/isbn' - returns a list of ISBN in repository
+- '/%s/isbn/{ISBN}' - returns a list eprint id for ISBN in repository
+`, repoID, repoID)
 }
 
 func patentNumberDocument(repoID string) string {
-	return fmt.Sprintf(`'/%s/patent-number/{PATENT_NUMBER}' returns a list of EPrint IDs associated with the patent number`, repoID)
+	return fmt.Sprintf(`
+- '/%s/patent-number' - return a list of patent numbers in repository
+- '/%s/patent-number/{PATENT_NUMBER}' - return a list eprint ids for patent number in repository
+`, repoID, repoID)
+}
+
+func patentApplicantDocument(repoID string) string {
+	return fmt.Sprintf(`
+- '/%s/patent-applicant' - return a list of patent applicants in repository
+- '/%s/patent-applicant/{PATENT_APPLICANT}' - return a list eprint ids for patent applicant in repository
+`, repoID, repoID)
+}
+
+func patentClassificationDocument(repoID string) string {
+	return fmt.Sprintf(`
+- '/%s/patent-classification' - return a list of patent classificatins in repository
+- '/%s/patent-classification/{PATENT_CLASSIFICATION}' - return a list eprint ids for patent classification in repository
+`, repoID, repoID)
+}
+
+func patentAssigneeDocument(repoID string) string {
+	return fmt.Sprintf(`
+- '/{REPO_ID}/patent-assignee' - return a list of patent assignee in repository
+- '/{REPO_ID}/patent-assignee/{PATENT_ASSIGNEE}' - return a list eprint ids for patent assignee in repository
+`, repoID, repoID)
 }
 
 func recordDocument(repoID string) string {

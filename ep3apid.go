@@ -28,6 +28,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
+	"os/signal"
 	"strconv"
 	"strings"
 	"time"
@@ -73,21 +75,21 @@ func expandAproxDate(dt string, roundDown bool) string {
 // DB SQL functions.
 //
 
-// sqlQueryIDs takes a repostory ID, a SQL statement and applies
-// the args returning a list of EPrint ID or error.
-func sqlQueryIDs(repoID string, stmt string, args ...interface{}) ([]int, error) {
+// sqlQueryIntIDs takes a repostory ID, a SQL statement and applies
+// the args returning a list of integer id or error.
+func sqlQueryIntIDs(repoID string, stmt string, args ...interface{}) ([]int, error) {
 	if db, ok := config.Connections[repoID]; ok == true {
 		rows, err := db.Query(stmt, args...)
 		if err != nil {
 			return nil, fmt.Errorf("ERROR: query error (%q), %s", repoID, err)
 		}
 		defer rows.Close()
-		eprintid := 0
-		eprintIDs := []int{}
+		value := 0
+		values := []int{}
 		for rows.Next() {
-			err := rows.Scan(&eprintid)
-			if (err == nil) && (eprintid > 0) {
-				eprintIDs = append(eprintIDs, eprintid)
+			err := rows.Scan(&value)
+			if (err == nil) && (value > 0) {
+				values = append(values, value)
 			} else {
 				return nil, fmt.Errorf("ERROR: scan error (%q), %s", repoID, err)
 			}
@@ -98,7 +100,37 @@ func sqlQueryIDs(repoID string, stmt string, args ...interface{}) ([]int, error)
 		if err != nil {
 			return nil, fmt.Errorf("ERROR: query error (%q), %s", repoID, err)
 		}
-		return eprintIDs, nil
+		return values, nil
+	}
+	return nil, fmt.Errorf("Bad Request")
+}
+
+// sqlQueryStringIDs takes a repostory ID, a SQL statement and applies
+// the args returning a list of string type id or error.
+func sqlQueryStringIDs(repoID string, stmt string, args ...interface{}) ([]string, error) {
+	if db, ok := config.Connections[repoID]; ok == true {
+		rows, err := db.Query(stmt, args...)
+		if err != nil {
+			return nil, fmt.Errorf("ERROR: query error (%q), %s", repoID, err)
+		}
+		defer rows.Close()
+		value := ``
+		values := []string{}
+		for rows.Next() {
+			err := rows.Scan(&value)
+			if err == nil {
+				values = append(values, value)
+			} else {
+				return nil, fmt.Errorf("ERROR: scan error (%q), %q, %s", repoID, stmt, err)
+			}
+		}
+		if err := rows.Err(); err != nil {
+			return nil, fmt.Errorf("ERROR: rows error (%q), %s", repoID, err)
+		}
+		if err != nil {
+			return nil, fmt.Errorf("ERROR: query error (%q), %s", repoID, err)
+		}
+		return values, nil
 	}
 	return nil, fmt.Errorf("Bad Request")
 }
@@ -108,12 +140,27 @@ func sqlQueryIDs(repoID string, stmt string, args ...interface{}) ([]int, error)
 // response.
 //
 
-func packageIDs(w http.ResponseWriter, repoID string, eprintIDs []int, err error) (int, error) {
+func packageIntIDs(w http.ResponseWriter, repoID string, values []int, err error) (int, error) {
 	if err != nil {
 		log.Printf("ERROR: (%s) query error, %s", repoID, err)
 		return 500, fmt.Errorf("Internal Server Error")
 	}
-	src, err := json.MarshalIndent(eprintIDs, "", "  ")
+	src, err := json.MarshalIndent(values, "", "  ")
+	if err != nil {
+		log.Printf("ERROR: marshal error (%q), %s", repoID, err)
+		return 500, fmt.Errorf("Internal Server Error")
+	}
+	w.Header().Set("Content-Type", "application/json")
+	fmt.Fprintf(w, "%s", src)
+	return 200, nil
+}
+
+func packageStringIDs(w http.ResponseWriter, repoID string, values []string, err error) (int, error) {
+	if err != nil {
+		log.Printf("ERROR: (%s) query error, %s", repoID, err)
+		return 500, fmt.Errorf("Internal Server Error")
+	}
+	src, err := json.MarshalIndent(values, "", "  ")
 	if err != nil {
 		log.Printf("ERROR: marshal error (%q), %s", repoID, err)
 		return 500, fmt.Errorf("Internal Server Error")
@@ -313,8 +360,8 @@ func keysEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []
 	if len(args) != 0 || strings.HasSuffix(r.URL.Path, "/help") {
 		return packageDocument(w, keysDocument(repoID))
 	}
-	eprintIDs, err := sqlQueryIDs(repoID, `SELECT eprintid FROM eprint`)
-	return packageIDs(w, repoID, eprintIDs, err)
+	eprintIDs, err := sqlQueryIntIDs(repoID, `SELECT eprintid FROM eprint`)
+	return packageIntIDs(w, repoID, eprintIDs, err)
 }
 
 func createdEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
@@ -339,7 +386,7 @@ func createdEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args
 			return 400, fmt.Errorf("Bad Request, (end) %s", err)
 		}
 	}
-	eprintIDs, err := sqlQueryIDs(repoID,
+	eprintIDs, err := sqlQueryIntIDs(repoID,
 		`SELECT eprintid FROM eprint WHERE 
 (CONCAT(datestamp_year, "-", 
 LPAD(IFNULL(datestamp_month, 1), 2, "0"), "-", 
@@ -354,11 +401,11 @@ LPAD(IFNULL(datestamp_hour, 23), 2, "0"), ":",
 LPAD(IFNULL(datestamp_minute, 59), 2, "0"), ":", 
 LPAD(IFNULL(datestamp_second, 59), 2, "0")) <= ?)`,
 		start.Format(timestamp), end.Format(timestamp))
-	return packageIDs(w, repoID, eprintIDs, err)
+	return packageIntIDs(w, repoID, eprintIDs, err)
 }
 
 func updatedEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
-	if len(args) == 0 {
+	if len(args) == 0 || strings.HasSuffix(r.URL.Path, `/help`) {
 		return packageDocument(w, updatedDocument(repoID))
 	}
 	if (len(args) < 1) || (len(args) > 2) {
@@ -379,7 +426,7 @@ func updatedEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args
 			return 400, fmt.Errorf("Bad Request, (end) %s", err)
 		}
 	}
-	eprintIDs, err := sqlQueryIDs(repoID,
+	eprintIDs, err := sqlQueryIntIDs(repoID,
 		`SELECT eprintid FROM eprint WHERE 
 (CONCAT(lastmod_year, "-", 
 LPAD(IFNULL(lastmod_month, 1), 2, "0"), "-", 
@@ -394,11 +441,11 @@ LPAD(IFNULL(lastmod_hour, 23), 2, "0"), ":",
 LPAD(IFNULL(lastmod_minute, 59), 2, "0"), ":", 
 LPAD(IFNULL(lastmod_second, 59), 2, "0")) <= ?)`,
 		start.Format(timestamp), end.Format(timestamp))
-	return packageIDs(w, repoID, eprintIDs, err)
+	return packageIntIDs(w, repoID, eprintIDs, err)
 }
 
 func deletedEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
-	if len(args) == 0 {
+	if len(args) == 0 || strings.HasSuffix(r.URL.Path, `/help`) {
 		return packageDocument(w, deletedDocument(repoID))
 	}
 	if (len(args) < 1) || (len(args) > 2) {
@@ -419,7 +466,7 @@ func deletedEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args
 			return 400, fmt.Errorf("Bad Request, (end) %s", err)
 		}
 	}
-	eprintIDs, err := sqlQueryIDs(repoID,
+	eprintIDs, err := sqlQueryIntIDs(repoID,
 		`SELECT eprintid FROM eprint WHERE (eprint_status = "deletion") AND 
 (CONCAT(lastmod_year, "-", 
 LPAD(IFNULL(lastmod_month, 1), 2, "0"), "-", 
@@ -434,11 +481,11 @@ LPAD(IFNULL(lastmod_hour, 23), 2, "0"), ":",
 LPAD(IFNULL(lastmod_minute, 59), 2, "0"), ":",
 LPAD(IFNULL(lastmod_second, 59), 2, "0")) <= ?)`,
 		start.Format(timestamp), end.Format(timestamp))
-	return packageIDs(w, repoID, eprintIDs, err)
+	return packageIntIDs(w, repoID, eprintIDs, err)
 }
 
 func pubdateEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
-	if len(args) == 0 {
+	if len(args) == 0 || strings.HasSuffix(r.URL.Path, `/help`) {
 		return packageDocument(w, pubdateDocument(repoID))
 	}
 	if (len(args) < 1) || (len(args) > 2) {
@@ -464,7 +511,7 @@ func pubdateEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args
 			return 400, fmt.Errorf("Bad Request, (end date) %s", err)
 		}
 	}
-	eprintIDs, err := sqlQueryIDs(repoID,
+	eprintIDs, err := sqlQueryIntIDs(repoID,
 		`SELECT eprintid FROM eprint
 WHERE ((date_type) = "published") AND 
 (CONCAT(date_year, "-", 
@@ -474,12 +521,12 @@ LPAD(IFNULL(date_day, 1), 2, "0")) >= ?) AND
 LPAD(IFNULL(date_month, 12), 2, "0"), "-", 
 LPAD(IFNULL(date_day, 28), 2, "0")) <= ?)`,
 		start.Format(datestamp), end.Format(datestamp))
-	return packageIDs(w, repoID, eprintIDs, err)
+	return packageIntIDs(w, repoID, eprintIDs, err)
 }
 
 func doiEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
-	if len(args) == 0 {
-		return packageDocument(w, doiDocument(repoID))
+	if len(args) == 0 || strings.HasSuffix(r.URL.Path, `/help`) {
+		return packageDocument(w, creatorIDDocument(repoID))
 	}
 	if len(args) < 1 {
 		return 400, fmt.Errorf("Bad Request")
@@ -487,213 +534,284 @@ func doiEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []s
 	var err error
 	doi := strings.Join(args, "/")
 	//FIXME: Should validate DOI format ...
-	eprintIDs, err := sqlQueryIDs(repoID, `SELECT eprintid FROM eprint WHERE doi = ?`, doi)
-	return packageIDs(w, repoID, eprintIDs, err)
+	eprintIDs, err := sqlQueryIntIDs(repoID, `SELECT eprintid FROM eprint WHERE doi = ?`, doi)
+	return packageIntIDs(w, repoID, eprintIDs, err)
 }
 
 func creatorIDEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
-	if len(args) == 0 {
+	if strings.HasSuffix(r.URL.Path, `/help`) {
 		return packageDocument(w, creatorIDDocument(repoID))
 	}
-	if len(args) != 1 {
-		return 400, fmt.Errorf("Bad Request")
+	if len(args) == 0 {
+		values, err := sqlQueryStringIDs(repoID, `SELECT creators_id
+FROM eprint_creators_id
+WHERE creators_id IS NOT NULL
+GROUP BY creators_id ORDER BY creators_id`)
+		return packageStringIDs(w, repoID, values, err)
 	}
-	var err error
-	eprintIDs, err := sqlQueryIDs(repoID, `SELECT eprintid FROM eprint_creators_id WHERE creators_id = ?`, args[0])
-	return packageIDs(w, repoID, eprintIDs, err)
+	eprintIDs, err := sqlQueryIntIDs(repoID, `SELECT eprintid
+FROM eprint_creators_id WHERE creators_id = ?`, args[0])
+	return packageIntIDs(w, repoID, eprintIDs, err)
 }
 
 func creatorORCIDEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
-	if len(args) == 0 {
+	if strings.HasSuffix(r.URL.Path, `/help`) {
 		return packageDocument(w, creatorORCIDDocument(repoID))
 	}
-	if len(args) != 1 {
-		return 400, fmt.Errorf("Bad Request")
+	if len(args) == 0 {
+		values, err := sqlQueryStringIDs(repoID, `SELECT creators_orcid
+FROM eprint_creators_orcid
+WHERE creators_orcid IS NOT NULL
+GROUP BY creators_orcid ORDER BY creators_orcid`)
+		return packageStringIDs(w, repoID, values, err)
 	}
-	var err error
 	//FIXME: Should validate ORCID format ...
-	eprintIDs, err := sqlQueryIDs(repoID, `SELECT eprintid FROM eprint_creators_orcid WHERE creators_orcid = ?`, args[0])
-	return packageIDs(w, repoID, eprintIDs, err)
+	eprintIDs, err := sqlQueryIntIDs(repoID, `SELECT eprintid
+FROM eprint_creators_orcid WHERE creators_orcid = ?`, args[0])
+	return packageIntIDs(w, repoID, eprintIDs, err)
 }
 
 func editorIDEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
-	if len(args) == 0 {
+	if strings.HasSuffix(r.URL.Path, `/help`) {
 		return packageDocument(w, editorIDDocument(repoID))
-	} else if len(args) != 1 {
-		return 400, fmt.Errorf("Bad Request")
 	}
-	var err error
-	eprintIDs, err := sqlQueryIDs(repoID, `SELECT eprintid FROM eprint_editors_id WHERE editors_id = ?`, args[0])
-	return packageIDs(w, repoID, eprintIDs, err)
+	if len(args) == 0 {
+		values, err := sqlQueryStringIDs(repoID, `SELECT editors_id
+FROM eprint_editors_id
+WHERE editors_id IS NOT NULL
+GROUP BY editors_id ORDER BY editors_id`)
+		return packageStringIDs(w, repoID, values, err)
+	}
+	eprintIDs, err := sqlQueryIntIDs(repoID, `SELECT eprintid
+FROM eprint_editors_id WHERE editors_id = ?`, args[0])
+	return packageIntIDs(w, repoID, eprintIDs, err)
 }
 
 func contributorIDEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
-	if len(args) == 0 {
+	if strings.HasSuffix(r.URL.Path, `/help`) {
 		return packageDocument(w, contributorIDDocument(repoID))
 	}
-	if len(args) != 1 {
-		return 400, fmt.Errorf("Bad Request")
+	if len(args) == 0 {
+		values, err := sqlQueryStringIDs(repoID, `SELECT contributors_id
+FROM eprint_contributors_id
+WHERE contributors_id IS NOT NULL
+GROUP BY contributors_id ORDER BY contributors_id`)
+		return packageStringIDs(w, repoID, values, err)
 	}
-	var err error
-	eprintIDs, err := sqlQueryIDs(repoID, `SELECT eprintid FROM eprint_contibutors_id WHERE contibutors_id = ?`, args[0])
-	return packageIDs(w, repoID, eprintIDs, err)
+	eprintIDs, err := sqlQueryIntIDs(repoID, `SELECT eprintid FROM eprint_contibutors_id WHERE contibutors_id = ?`, args[0])
+	return packageIntIDs(w, repoID, eprintIDs, err)
 }
 
 func advisorIDEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
-	if len(args) == 0 {
+	if strings.HasSuffix(r.URL.Path, `/help`) {
 		return packageDocument(w, advisorIDDocument(repoID))
 	}
-	if len(args) != 1 {
-		return 400, fmt.Errorf("Bad Request")
+	if len(args) == 0 {
+		values, err := sqlQueryStringIDs(repoID, `SELECT thesis_advisor_id
+FROM eprint_thesis_advisor_id
+WHERE thesis_advisor_id IS NOT NULL
+GROUP BY thesis_advisor_id ORDER BY thesis_advisor_id`)
+		return packageStringIDs(w, repoID, values, err)
 	}
-	var err error
-	eprintIDs, err := sqlQueryIDs(repoID, `SELECT eprintid FROM eprint_thesis_advisor_id WHERE thesis_advisor_id = ?`, args[0])
-	return packageIDs(w, repoID, eprintIDs, err)
+	eprintIDs, err := sqlQueryIntIDs(repoID, `SELECT eprintid FROM eprint_thesis_advisor_id WHERE thesis_advisor_id = ?`, args[0])
+	return packageIntIDs(w, repoID, eprintIDs, err)
 }
 
 func committeeIDEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
-	if len(args) == 0 {
+	if strings.HasSuffix(r.URL.Path, `/help`) {
 		return packageDocument(w, committeeIDDocument(repoID))
 	}
-	if len(args) != 1 {
-		return 400, fmt.Errorf("Bad Request")
+	if len(args) == 0 {
+		values, err := sqlQueryStringIDs(repoID, `SELECT thesis_committee_id
+FROM eprint_thesis_committee_id
+WHERE thesis_committee_id IS NOT NULL
+GROUP BY thesis_committee_id ORDER BY thesis_committee_id`)
+		return packageStringIDs(w, repoID, values, err)
 	}
-	var err error
-	eprintIDs, err := sqlQueryIDs(repoID, `SELECT eprintid FROM eprint_thesis_committee_id WHERE thesis_committee_id = ?`, args[0])
-	return packageIDs(w, repoID, eprintIDs, err)
+	eprintIDs, err := sqlQueryIntIDs(repoID, `SELECT eprintid FROM eprint_thesis_committee_id WHERE thesis_committee_id = ?`, args[0])
+	return packageIntIDs(w, repoID, eprintIDs, err)
 }
 
 func groupIDEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
-	if len(args) == 0 {
+	if strings.HasSuffix(r.URL.Path, `/help`) {
 		return packageDocument(w, groupIDDocument(repoID))
 	}
-	if len(args) != 1 {
-		return 400, fmt.Errorf("Bad Request")
+	if len(args) == 0 {
+		values, err := sqlQueryStringIDs(repoID, `SELECT local_group
+FROM eprint_local_group WHERE local_group IS NOT NULL GROUP BY local_group ORDER BY local_group`)
+		return packageStringIDs(w, repoID, values, err)
 	}
-	var err error
-	eprintIDs, err := sqlQueryIDs(repoID, `SELECT eprintid FROM eprint_local_group WHERE local_group = ?`, args[0])
-	return packageIDs(w, repoID, eprintIDs, err)
+	eprintIDs, err := sqlQueryIntIDs(repoID, `SELECT eprintid FROM eprint_local_group WHERE local_group = ?`, args[0])
+	return packageIntIDs(w, repoID, eprintIDs, err)
+}
+
+func funderIDEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
+	if strings.HasSuffix(r.URL.Path, `/help`) {
+		return packageDocument(w, funderIDDocument(repoID))
+	}
+	if len(args) == 0 {
+		values, err := sqlQueryStringIDs(repoID, `SELECT funders_agency FROM eprint_funders_agency WHERE funders_agency IS NOT NULL GROUP BY funders_agency ORDER BY funders_agency`)
+		return packageStringIDs(w, repoID, values, err)
+	}
+	eprintIDs, err := sqlQueryIntIDs(repoID, `SELECT eprintid FROM eprint_funders_agency WHERE funders_agency = ?`, args[0])
+	return packageIntIDs(w, repoID, eprintIDs, err)
 }
 
 func grantNumberEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
-	if len(args) == 0 {
+	if strings.HasSuffix(r.URL.Path, `/help`) {
 		return packageDocument(w, grantNumberDocument(repoID))
 	}
-	if len(args) != 1 {
-		return 400, fmt.Errorf("Bad Request")
+	if len(args) == 0 {
+		values, err := sqlQueryStringIDs(repoID, `SELECT funders_grant_number FROM eprint_funders_grant_number WHERE funders_grant_number IS NOT NULL GROUP BY funders_grant_number ORDER BY funders_grant_number`)
+		return packageStringIDs(w, repoID, values, err)
 	}
-	var err error
-	eprintIDs, err := sqlQueryIDs(repoID, `SELECT eprintid FROM eprint_funders_grant_number WHERE funders_grant_number = ?`, args[0])
-	return packageIDs(w, repoID, eprintIDs, err)
+	eprintIDs, err := sqlQueryIntIDs(repoID, `SELECT eprintid FROM eprint_funders_grant_number WHERE funders_grant_number = ?`, args[0])
+	return packageIntIDs(w, repoID, eprintIDs, err)
 }
 
 func creatorNameEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
-	if len(args) == 0 {
+	if len(args) == 0 || strings.HasSuffix(r.URL.Path, `/help`) {
 		return packageDocument(w, creatorNameDocument(repoID))
 	}
 	if len(args) != 2 {
 		return 400, fmt.Errorf("Bad Request")
 	}
 	var err error
-	eprintIDs, err := sqlQueryIDs(repoID, `SELECT eprintid FROM eprint_creator_name WHERE family_name = ? AND given_name = ?`, args[0], args[1])
-	return packageIDs(w, repoID, eprintIDs, err)
+	eprintIDs, err := sqlQueryIntIDs(repoID, `SELECT eprintid FROM eprint_creator_name WHERE family_name = ? AND given_name = ?`, args[0], args[1])
+	return packageIntIDs(w, repoID, eprintIDs, err)
 }
 
 func editorNameEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
 	//- `/<REPO_ID>/editor-name/<FAMILY_NAME>/<GIVEN_NAME>` scans the family and given name field associated with a editors and returns a list of EPrint ID
-	if len(args) == 0 {
+	if len(args) == 0 || strings.HasSuffix(r.URL.Path, `/help`) {
 		return packageDocument(w, editorNameDocument(repoID))
 	}
 	if len(args) != 2 {
 		return 400, fmt.Errorf("Bad Request")
 	}
 	var err error
-	eprintIDs, err := sqlQueryIDs(repoID, `SELECT eprintid FROM eprint_editor_name WHERE family_name = ? AND given_name = ?`, args[0], args[1])
-	return packageIDs(w, repoID, eprintIDs, err)
+	eprintIDs, err := sqlQueryIntIDs(repoID, `SELECT eprintid FROM eprint_editor_name WHERE family_name = ? AND given_name = ?`, args[0], args[1])
+	return packageIntIDs(w, repoID, eprintIDs, err)
 }
 
 func contributorNameEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
-	if len(args) == 0 {
+	if len(args) == 0 || strings.HasSuffix(r.URL.Path, `/help`) {
 		return packageDocument(w, contributorNameDocument(repoID))
 	}
 	if len(args) != 2 {
 		return 400, fmt.Errorf("Bad Request")
 	}
 	var err error
-	eprintIDs, err := sqlQueryIDs(repoID, `SELECT eprintid FROM eprint_contributors_name WHERE family_name = ? AND given_name = ?`, args[0], args[1])
-	return packageIDs(w, repoID, eprintIDs, err)
+	eprintIDs, err := sqlQueryIntIDs(repoID, `SELECT eprintid FROM eprint_contributors_name WHERE family_name = ? AND given_name = ?`, args[0], args[1])
+	return packageIntIDs(w, repoID, eprintIDs, err)
 }
 
 func advisorNameEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
-	if len(args) == 0 {
+	if len(args) == 0 || strings.HasSuffix(r.URL.Path, `/help`) {
 		return packageDocument(w, advisorNameDocument(repoID))
 	}
 	if len(args) != 2 {
 		return 400, fmt.Errorf("Bad Request")
 	}
 	var err error
-	eprintIDs, err := sqlQueryIDs(repoID, `SELECT eprintid FROM eprint_thesis_advisor_name WHERE family_name = ? AND given_name = ?`, args[0], args[1])
-	return packageIDs(w, repoID, eprintIDs, err)
+	eprintIDs, err := sqlQueryIntIDs(repoID, `SELECT eprintid FROM eprint_thesis_advisor_name WHERE family_name = ? AND given_name = ?`, args[0], args[1])
+	return packageIntIDs(w, repoID, eprintIDs, err)
 }
 
 func committeeNameEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
-	if len(args) == 0 {
+	if len(args) == 0 || strings.HasSuffix(r.URL.Path, `/help`) {
 		return packageDocument(w, committeeNameDocument(repoID))
 	}
 	if len(args) != 2 {
 		return 400, fmt.Errorf("Bad Request")
 	}
 	var err error
-	eprintIDs, err := sqlQueryIDs(repoID, `SELECT eprintid FROM eprint_thesis_committee_name WHERE family_name = ? AND given_name = ?`, args[0], args[1])
-	return packageIDs(w, repoID, eprintIDs, err)
+	eprintIDs, err := sqlQueryIntIDs(repoID, `SELECT eprintid FROM eprint_thesis_committee_name WHERE family_name = ? AND given_name = ?`, args[0], args[1])
+	return packageIntIDs(w, repoID, eprintIDs, err)
 }
 
 func pubmedEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
-	if len(args) == 0 {
+	if len(args) == 0 || strings.HasSuffix(r.URL.Path, `/help`) {
 		return packageDocument(w, pubmedDocument(repoID))
 	}
 	if len(args) != 1 {
 		return 400, fmt.Errorf("Bad Request")
 	}
 	var err error
-	eprintIDs, err := sqlQueryIDs(repoID, `SELECT eprintid FROM eprint WHERE pmc_id = ?`, args[0])
-	return packageIDs(w, repoID, eprintIDs, err)
+	eprintIDs, err := sqlQueryIntIDs(repoID, `SELECT eprintid FROM eprint WHERE pmc_id = ?`, args[0])
+	return packageIntIDs(w, repoID, eprintIDs, err)
 }
 
 func issnEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
-	if len(args) == 0 {
+	if strings.HasSuffix(r.URL.Path, `/help`) {
 		return packageDocument(w, issnDocument(repoID))
 	}
-	if len(args) != 1 {
-		return 400, fmt.Errorf("Bad Request")
+	if len(args) == 0 {
+		values, err := sqlQueryStringIDs(repoID, `SELECT issn FROM eprint WHERE issn IS NOT NULL GROUP BY issn ORDER BY issn`)
+		return packageStringIDs(w, repoID, values, err)
 	}
-	var err error
-	eprintIDs, err := sqlQueryIDs(repoID, `SELECT eprintid FROM eprint WHERE issn = ?`, args[0])
-	return packageIDs(w, repoID, eprintIDs, err)
+	eprintIDs, err := sqlQueryIntIDs(repoID, `SELECT eprintid FROM eprint WHERE issn = ?`, args[0])
+	return packageIntIDs(w, repoID, eprintIDs, err)
 }
 
 func isbnEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
-	if len(args) == 0 {
+	if strings.HasSuffix(r.URL.Path, `/help`) {
 		return packageDocument(w, isbnDocument(repoID))
 	}
-	if len(args) != 1 {
-		return 400, fmt.Errorf("Bad Request")
+	if len(args) == 0 {
+		values, err := sqlQueryStringIDs(repoID, `SELECT isbn FROM eprint WHERE isbn IS NOT NULL GROUP BY isbn ORDER BY isbn`)
+		return packageStringIDs(w, repoID, values, err)
 	}
-	var err error
-	eprintIDs, err := sqlQueryIDs(repoID, `SELECT eprintid FROM eprint WHERE isbn = ?`, args[0])
-	return packageIDs(w, repoID, eprintIDs, err)
+	eprintIDs, err := sqlQueryIntIDs(repoID, `SELECT eprintid FROM eprint WHERE isbn = ?`, args[0])
+	return packageIntIDs(w, repoID, eprintIDs, err)
+}
+
+func patentApplicantEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
+	if strings.HasSuffix(r.URL.Path, `/help`) {
+		return packageDocument(w, patentApplicantDocument(repoID))
+	}
+	if len(args) == 0 {
+		values, err := sqlQueryStringIDs(repoID, `SELECT patent_applicant FROM eprint WHERE patent_applicant IS NOT NULL GROUP BY patent_applicant ORDER BY patent_applicant`)
+		return packageStringIDs(w, repoID, values, err)
+	}
+	eprintIDs, err := sqlQueryIntIDs(repoID, `SELECT eprintid FROM eprint WHERE patent_applicant = ?`, args[0])
+	return packageIntIDs(w, repoID, eprintIDs, err)
 }
 
 func patentNumberEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
-	if len(args) == 0 {
+	if strings.HasSuffix(r.URL.Path, `/help`) {
 		return packageDocument(w, patentNumberDocument(repoID))
 	}
-	if len(args) != 1 {
-		return 400, fmt.Errorf("Bad Request")
+	if len(args) == 0 {
+		values, err := sqlQueryStringIDs(repoID, `SELECT patent_number FROM eprint WHERE patent_number IS NOT NULL GROUP BY patent_number ORDER BY patent_number`)
+		return packageStringIDs(w, repoID, values, err)
 	}
-	var err error
-	eprintIDs, err := sqlQueryIDs(repoID, `SELECT eprintid FROM eprint WHERE patent_number = ?`, args[0])
-	return packageIDs(w, repoID, eprintIDs, err)
+	eprintIDs, err := sqlQueryIntIDs(repoID, `SELECT eprintid FROM eprint WHERE patent_number = ?`, args[0])
+	return packageIntIDs(w, repoID, eprintIDs, err)
+}
+
+func patentClassificationEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
+	if len(args) == 0 || strings.HasSuffix(r.URL.Path, `/help`) {
+		return packageDocument(w, patentClassificationDocument(repoID))
+	}
+	if len(args) != 1 {
+		values, err := sqlQueryStringIDs(repoID, `SELECT patent_classification FROM eprint WHERE patent_classification IS NOT NULL GROUP BY patent_classification ORDER BY patent_classification`)
+		return packageStringIDs(w, repoID, values, err)
+	}
+	eprintIDs, err := sqlQueryIntIDs(repoID, `SELECT eprintid FROM eprint WHERE patent_classification = ?`, args[0])
+	return packageIntIDs(w, repoID, eprintIDs, err)
+}
+
+func patentAssigneeEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
+	if strings.HasSuffix(r.URL.Path, `/help`) {
+		return packageDocument(w, patentAssigneeDocument(repoID))
+	}
+	if len(args) != 1 {
+		values, err := sqlQueryStringIDs(repoID, `SELECT patent_assignee FROM eprint_patent_assignee WHERE patent_assignee IS NOT NULL GROUP BY patent_assignee ORDER BY patent_assignee`)
+		return packageStringIDs(w, repoID, values, err)
+	}
+	eprintIDs, err := sqlQueryIntIDs(repoID, `SELECT eprintid FROM eprint_assignee WHERE patent_assignee = ?`, args[0])
+	return packageIntIDs(w, repoID, eprintIDs, err)
 }
 
 //
@@ -882,6 +1000,24 @@ func api(w http.ResponseWriter, r *http.Request) {
 	logRequest(r, statusCode, err)
 }
 
+// Shutdown shutdowns the EPrints extended API web service started with
+// RunExtendedAPI.
+func Shutdown(appName string) int {
+	exitCode := 0
+	pid := os.Getpid()
+	log.Printf(`Closing database connections %s pid: %d`, appName, pid)
+	for name, db := range config.Connections {
+		if err := db.Close(); err != nil {
+			log.Printf("Failed to close %s, %s", name, err)
+			exitCode = 1
+		} else {
+			log.Printf("Closed %s", name)
+		}
+	}
+	log.Printf(`Shutdown completed %s pid: %d exit code: %d `, appName, pid, exitCode)
+	return exitCode
+}
+
 func InitExtendedAPI(settings string) error {
 	var err error
 	// NOTE: This reads the settings file and creates a global
@@ -908,32 +1044,38 @@ func InitExtendedAPI(settings string) error {
 	// This is a map endpoints and point handlers.
 	// This implements the registration design pattern
 	routes := map[string]func(http.ResponseWriter, *http.Request, string, []string) (int, error){
-		"keys":             keysEndPoint,
-		"created":          createdEndPoint,
-		"updated":          updatedEndPoint,
-		"deleted":          deletedEndPoint,
-		"pubdate":          pubdateEndPoint,
-		"doi":              doiEndPoint,
-		"creator-id":       creatorIDEndPoint,
-		"creator-orcid":    creatorORCIDEndPoint,
-		"editor-id":        editorIDEndPoint,
-		"contributor-id":   contributorIDEndPoint,
-		"advisor-id":       advisorIDEndPoint,
-		"committee-id":     committeeIDEndPoint,
-		"group-id":         groupIDEndPoint,
-		"grant-number":     grantNumberEndPoint,
-		"creator-name":     creatorNameEndPoint,
-		"editor-name":      editorNameEndPoint,
-		"contributor-name": contributorNameEndPoint,
-		"advisor-name":     advisorNameEndPoint,
-		"commitee-name":    committeeNameEndPoint,
-		"pubmed":           pubmedEndPoint,
-		"issn":             issnEndPoint,
-		"isbn":             isbnEndPoint,
-		"patent-number":    patentNumberEndPoint,
-		"record":           recordEndPoint,
-		"eprint":           eprintEndPoint,
+		"keys":                  keysEndPoint,
+		"created":               createdEndPoint,
+		"updated":               updatedEndPoint,
+		"deleted":               deletedEndPoint,
+		"pubdate":               pubdateEndPoint,
+		"doi":                   doiEndPoint,
+		"creator-id":            creatorIDEndPoint,
+		"creator-orcid":         creatorORCIDEndPoint,
+		"editor-id":             editorIDEndPoint,
+		"contributor-id":        contributorIDEndPoint,
+		"advisor-id":            advisorIDEndPoint,
+		"committee-id":          committeeIDEndPoint,
+		"group-id":              groupIDEndPoint,
+		"funder-id":             funderIDEndPoint,
+		"grant-number":          grantNumberEndPoint,
+		"creator-name":          creatorNameEndPoint,
+		"editor-name":           editorNameEndPoint,
+		"contributor-name":      contributorNameEndPoint,
+		"advisor-name":          advisorNameEndPoint,
+		"commitee-name":         committeeNameEndPoint,
+		"pubmed":                pubmedEndPoint,
+		"issn":                  issnEndPoint,
+		"isbn":                  isbnEndPoint,
+		"patent-applicant":      patentApplicantEndPoint,
+		"patent-number":         patentNumberEndPoint,
+		"patent-classification": patentClassificationEndPoint,
+		"patent-assignee":       patentAssigneeEndPoint,
+		"record":                recordEndPoint,
+		"eprint":                eprintEndPoint,
 	}
+	//FIXME: make sure each end point is supported by repository
+	// e.g. CaltechTHESIS doens't have patent number field
 
 	/* NOTE: We need a DB connection to MySQL for each
 	   EPrints repository supported by the API
@@ -974,6 +1116,15 @@ Listening on http://%s
 
 Press ctl-c to terminate.
 `, appName, Version, config.Hostname)
+
+	/* Listen for Ctr-C */
+	processControl := make(chan os.Signal, 1)
+	signal.Notify(processControl, os.Interrupt)
+	go func() {
+		<-processControl
+		os.Exit(Shutdown(appName))
+	}()
+
 	http.HandleFunc("/", api)
 	return http.ListenAndServe(config.Hostname, nil)
 }
