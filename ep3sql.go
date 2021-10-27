@@ -1744,7 +1744,10 @@ func CrosswalkEPrintToSQL(repoID string, eprint *EPrint) (int, error) {
 				case strings.HasPrefix(tableName, "file"):
 					log.Printf(`FIXME %s columns: %s`, tableName, strings.Join(columns, `, `))
 				default:
-					log.Printf(`Don't know how to handle table %s`, tableName)
+					if !newEPrint {
+						// Delete rows associated with related table
+					}
+					// Insert rows in associated table
 				}
 			}
 			return eprintID, nil
