@@ -14,10 +14,23 @@ import (
  * Column mapping for tables.
  */
 
+// colExpr takes a column name, ifNull bool and default value.
+// If the "ifNull" bool is true then the form expressed is
+// `IFNULL(%s, %s) AS %s` otherwise just the column name
+// is returned.
+func colExpr(name string, ifNull bool, value string) string {
+	if ifNull {
+		return fmt.Sprintf(`IFNULL(%s, %s) AS %s`, name, value, name)
+	}
+	return name
+}
+
 // eprintToColumnsAndValues for a given EPrints struct generate a
 // list of column names to query along with a recieving values array.
 // Return a list of column names (with null handle and aliases) and values.
-func eprintToColumnsAndValues(eprint *EPrint, columnsIn []string) ([]string, []interface{}) {
+//
+// The bool ifNull will control the type of expression of the column.
+func eprintToColumnsAndValues(eprint *EPrint, columnsIn []string, ifNull bool) ([]string, []interface{}) {
 	var (
 		columnsOut []string
 		values     []interface{}
@@ -29,262 +42,262 @@ func eprintToColumnsAndValues(eprint *EPrint, columnsIn []string) ([]string, []i
 			columnsOut = append(columnsOut, key)
 		case "rev_number":
 			values = append(values, &eprint.RevNumber)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, 0) AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
 		case "eprint_status":
 			values = append(values, &eprint.EPrintStatus)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, '') AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "userid":
 			values = append(values, &eprint.UserID)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, 0) AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
 		case "dir":
 			values = append(values, &eprint.Dir)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, '') AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "datestamp_year":
 			values = append(values, &eprint.DatestampYear)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, 0) AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "datestamp_month":
 			values = append(values, &eprint.DatestampMonth)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, 0) AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
 		case "datestamp_day":
 			values = append(values, &eprint.DatestampDay)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, 0) AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
 		case "datestamp_hour":
 			values = append(values, &eprint.DatestampHour)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, 0) AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
 		case "datestamp_minute":
 			values = append(values, &eprint.DatestampMinute)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, 0) AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
 		case "datestamp_second":
 			values = append(values, &eprint.DatestampSecond)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, 0) AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
 		case "lastmod_year":
 			values = append(values, &eprint.LastModifiedYear)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, 0) AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
 		case "lastmod_month":
 			values = append(values, &eprint.LastModifiedMonth)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, 0) AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
 		case "lastmod_day":
 			values = append(values, &eprint.LastModifiedDay)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, 0) AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
 		case "lastmod_hour":
 			values = append(values, &eprint.LastModifiedHour)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, 0) AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
 		case "lastmod_minute":
 			values = append(values, &eprint.LastModifiedMinute)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, 0) AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
 		case "lastmod_second":
 			values = append(values, &eprint.LastModifiedSecond)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, 0) AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
 		case "status_changed_year":
 			values = append(values, &eprint.StatusChangedYear)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, 0) AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
 		case "status_changed_month":
 			values = append(values, &eprint.StatusChangedMonth)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, 0) AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
 		case "status_changed_day":
 			values = append(values, &eprint.StatusChangedDay)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, 0) AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
 		case "status_changed_hour":
 			values = append(values, &eprint.StatusChangedHour)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, 0) AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
 		case "status_changed_minute":
 			values = append(values, &eprint.StatusChangedMinute)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, 0) AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
 		case "status_changed_second":
 			values = append(values, &eprint.StatusChangedSecond)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, 0) AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
 		case "type":
 			values = append(values, &eprint.Type)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, '') AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "metadata_visibility":
 			values = append(values, &eprint.MetadataVisibility)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, '') AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "title":
 			values = append(values, &eprint.Title)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, '') AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "ispublished":
 			values = append(values, &eprint.IsPublished)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, '') AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "full_text_status":
 			values = append(values, &eprint.FullTextStatus)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, '') AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "keywords":
 			values = append(values, &eprint.Keywords)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, '') AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "note":
 			values = append(values, &eprint.Note)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, '') AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "abstract":
 			values = append(values, &eprint.Abstract)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, '') AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "date_year":
 			values = append(values, &eprint.DateYear)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, 0) AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
 		case "date_month":
 			values = append(values, &eprint.DateMonth)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, 0) AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
 		case "date_day":
 			values = append(values, &eprint.DateDay)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, 0) AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
 		case "date_type":
 			values = append(values, &eprint.DateType)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, 0) AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
 		case "series":
 			values = append(values, &eprint.Series)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, '') AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "volume":
 			values = append(values, &eprint.Volume)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, '') AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "number":
 			values = append(values, &eprint.Number)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, '') AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "publication":
 			values = append(values, &eprint.Publication)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, '') AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "publisher":
 			values = append(values, &eprint.Publisher)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, '') AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "place_of_pub":
 			values = append(values, &eprint.PlaceOfPub)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, '') AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "edition":
 			values = append(values, &eprint.Edition)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, '') AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "pagerange":
 			values = append(values, &eprint.PageRange)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, '') AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "pages":
 			values = append(values, &eprint.Pages)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, '') AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "event_type":
 			values = append(values, &eprint.EventType)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, '') AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "event_title":
 			values = append(values, &eprint.EventTitle)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, '') AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "event_location":
 			values = append(values, &eprint.EventLocation)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, '') AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "event_dates":
 			values = append(values, &eprint.EventDates)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, '') AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "id_number":
 			values = append(values, &eprint.IDNumber)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, '') AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "refereed":
 			values = append(values, &eprint.Refereed)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, '') AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "isbn":
 			values = append(values, &eprint.ISBN)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, '') AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "issn":
 			values = append(values, &eprint.ISSN)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, '') AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "book_title":
 			values = append(values, &eprint.BookTitle)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, '') AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "official_url":
 			values = append(values, &eprint.OfficialURL)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, '') AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "alt_url":
 			values = append(values, &eprint.AltURL)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, '') AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "rights":
 			values = append(values, &eprint.Rights)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, '') AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "collection":
 			values = append(values, &eprint.Collection)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, '') AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "reviewer":
 			values = append(values, &eprint.Reviewer)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, '') AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "official_cit":
 			values = append(values, &eprint.OfficialCitation)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, '') AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "monograph_type":
 			values = append(values, &eprint.MonographType)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, '') AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "suggestions":
 			values = append(values, &eprint.Suggestions)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, '') AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "pres_type":
 			values = append(values, &eprint.PresType)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, '') AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "succeeds":
 			values = append(values, &eprint.Succeeds)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, '') AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "commentary":
 			values = append(values, &eprint.Commentary)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, '') AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "contact_email":
 			values = append(values, &eprint.ContactEMail)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, '') AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "fileinfo":
 			values = append(values, &eprint.FileInfo)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, '') AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "latitude":
 			values = append(values, &eprint.Latitude)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, '') AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "longitude":
 			values = append(values, &eprint.Longitude)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, '') AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "department":
 			values = append(values, &eprint.Department)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, '') AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "output_media":
 			values = append(values, &eprint.OutputMedia)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, '') AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "num_pieces":
 			values = append(values, &eprint.NumPieces)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, '') AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "composition_type":
 			values = append(values, &eprint.CompositionType)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, '') AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "data_type":
 			values = append(values, &eprint.DataType)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, '') AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "pedagogic_type":
 			values = append(values, new(string))
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, '') AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "learning_level":
 			values = append(values, &eprint.LearningLevelText)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, '') AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "completion_time":
 			values = append(values, &eprint.CompletionTime)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, '') AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "task_purpose":
 			values = append(values, &eprint.TaskPurpose)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, '') AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "doi":
 			values = append(values, &eprint.DOI)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, '') AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "pmc_id":
 			values = append(values, &eprint.PMCID)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, '') AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "pmid":
 			values = append(values, &eprint.PMID)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, '') AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "parent_url":
 			values = append(values, &eprint.ParentURL)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, '') AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "toc":
 			values = append(values, &eprint.TOC)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, '') AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "interviewer":
 			values = append(values, &eprint.Interviewer)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, '') AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "interviewdate":
 			values = append(values, &eprint.InterviewDate)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, '') AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "nonsubj_keywords":
 			values = append(values, &eprint.NonSubjKeywords)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, '') AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "season":
 			values = append(values, &eprint.Season)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, '') AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "classification_code":
 			values = append(values, &eprint.ClassificationCode)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, '') AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "sword_depositor":
 			values = append(values, &eprint.SwordDepository)
 			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s,'') AS %s`, key, key))
@@ -299,100 +312,100 @@ func eprintToColumnsAndValues(eprint *EPrint, columnsIn []string) ([]string, []i
 			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s,0) AS %s`, key, key))
 		case "patent_applicant":
 			values = append(values, &eprint.PatentApplicant)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, '') AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "patent_number":
 			values = append(values, &eprint.PatentNumber)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, '') AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "institution":
 			values = append(values, &eprint.Institution)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, '') AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "thesis_type":
 			values = append(values, &eprint.ThesisType)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, '') AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "thesis_degree":
 			values = append(values, &eprint.ThesisDegree)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, '') AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "thesis_degree_grantor":
 			values = append(values, &eprint.ThesisDegreeGrantor)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, '') AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "thesis_degree_date_year":
 			values = append(values, &eprint.ThesisDegreeDateYear)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, 0) AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
 		case "thesis_degree_date_month":
 			values = append(values, &eprint.ThesisDegreeDateMonth)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, 0) AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
 		case "thesis_degree_date_day":
 			values = append(values, &eprint.ThesisDegreeDateDay)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, 0) AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
 		case "thesis_submitted_date_year":
 			values = append(values, &eprint.ThesisSubmittedDateYear)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, 0) AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
 		case "thesis_submitted_date_month":
 			values = append(values, &eprint.ThesisSubmittedDateMonth)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, 0) AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
 		case "thesis_submitted_date_day":
 			values = append(values, &eprint.ThesisSubmittedDateDay)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, 0) AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
 		case "thesis_defense_date":
 			values = append(values, &eprint.ThesisDefenseDate)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, '') AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "thesis_defense_date_year":
 			values = append(values, &eprint.ThesisDefenseDateYear)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, 0) AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
 		case "thesis_defense_date_month":
 			values = append(values, &eprint.ThesisDefenseDateMonth)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, 0) AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
 		case "thesis_defense_date_day":
 			values = append(values, &eprint.ThesisDefenseDateDay)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, 0) AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
 		case "thesis_approved_date_year":
 			values = append(values, &eprint.ThesisApprovedDateYear)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, 0) AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
 		case "thesis_approved_date_month":
 			values = append(values, &eprint.ThesisApprovedDateMonth)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, 0) AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
 		case "thesis_approved_date_day":
 			values = append(values, &eprint.ThesisApprovedDateDay)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, 0) AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
 		case "thesis_public_date_year":
 			values = append(values, &eprint.ThesisPublicDateYear)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, 0) AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
 		case "thesis_public_date_month":
 			values = append(values, &eprint.ThesisPublicDateMonth)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, 0) AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
 		case "thesis_public_date_day":
 			values = append(values, &eprint.ThesisPublicDateDay)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, 0) AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
 		case "thesis_author_email":
 			values = append(values, &eprint.ThesisAuthorEMail)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, '') AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "hide_thesis_author_email":
 			values = append(values, &eprint.HideThesisAuthorEMail)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, '') AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "gradofc_approval_date":
 			values = append(values, &eprint.GradOfficeApprovalDate)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, '') AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "gradofc_approval_date_year":
 			values = append(values, &eprint.GradOfficeApprovalDateYear)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, 0) AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
 		case "gradofc_approval_date_month":
 			values = append(values, &eprint.GradOfficeApprovalDateMonth)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, 0) AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
 		case "gradofc_approval_date_day":
 			values = append(values, &eprint.GradOfficeApprovalDateDay)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, 0) AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
 		case "thesis_awards":
 			values = append(values, &eprint.ThesisAwards)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, '') AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "review_status":
 			values = append(values, &eprint.ReviewStatus)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, '') AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "copyright_statement":
 			values = append(values, &eprint.CopyrightStatement)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, '') AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "source":
 			values = append(values, &eprint.Source)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s, '') AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "replacedby":
 			values = append(values, &eprint.ReplacedBy)
 			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s,0) AS %s`, key, key))
@@ -427,7 +440,7 @@ func eprintToColumnsAndValues(eprint *EPrint, columnsIn []string) ([]string, []i
 	return columnsOut, values
 }
 
-func documentToColumnsAndValues(document *Document, columns []string) ([]string, []interface{}) {
+func documentToColumnsAndValues(document *Document, columns []string, ifNull bool) ([]string, []interface{}) {
 	columnsOut := []string{}
 	values := []interface{}{}
 	for i, key := range columns {
@@ -437,73 +450,73 @@ func documentToColumnsAndValues(document *Document, columns []string) ([]string,
 			columnsOut = append(columnsOut, key)
 		case "eprintid":
 			values = append(values, &document.EPrintID)
-			columnsOut = append(columnsOut, fmt.Sprintf("IFNULL(%s, 0) AS %s", key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
 		case "pos":
 			values = append(values, &document.Pos)
-			columnsOut = append(columnsOut, fmt.Sprintf("IFNULL(%s, 0) AS %s", key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
 		case "rev_number":
 			values = append(values, &document.RevNumber)
-			columnsOut = append(columnsOut, fmt.Sprintf("IFNULL(%s, 0) AS %s", key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
 		case "format":
 			values = append(values, &document.Format)
-			columnsOut = append(columnsOut, fmt.Sprintf("IFNULL(%s, '') AS %s", key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "formatdesc":
 			values = append(values, &document.FormatDesc)
-			columnsOut = append(columnsOut, fmt.Sprintf("IFNULL(%s, '') AS %s", key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "language":
 			values = append(values, &document.Language)
-			columnsOut = append(columnsOut, fmt.Sprintf("IFNULL(%s, '') AS %s", key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "security":
 			values = append(values, &document.Security)
-			columnsOut = append(columnsOut, fmt.Sprintf("IFNULL(%s, '') AS %s", key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "license":
 			values = append(values, &document.License)
-			columnsOut = append(columnsOut, fmt.Sprintf("IFNULL(%s, '') AS %s", key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "main":
 			values = append(values, &document.Main)
-			columnsOut = append(columnsOut, fmt.Sprintf("IFNULL(%s, '') AS %s", key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "date_embargo_year":
 			values = append(values, &document.DateEmbargoYear)
-			columnsOut = append(columnsOut, fmt.Sprintf("IFNULL(%s, 0) AS %s", key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
 		case "date_embargo_month":
 			values = append(values, &document.DateEmbargoMonth)
-			columnsOut = append(columnsOut, fmt.Sprintf("IFNULL(%s, 0) AS %s", key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
 		case "date_embargo_day":
 			values = append(values, &document.DateEmbargoDay)
-			columnsOut = append(columnsOut, fmt.Sprintf("IFNULL(%s, 0) AS %s", key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
 		case "content":
 			values = append(values, &document.Content)
-			columnsOut = append(columnsOut, fmt.Sprintf("IFNULL(%s, '') AS %s", key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "placement":
 			values = append(values, &document.Placement)
-			columnsOut = append(columnsOut, fmt.Sprintf("IFNULL(%s, 0) AS %s", key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "mime_type":
 			values = append(values, &document.MimeType)
-			columnsOut = append(columnsOut, fmt.Sprintf("IFNULL(%s, '') AS %s", key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "media_duration":
 			values = append(values, &document.MediaDuration)
-			columnsOut = append(columnsOut, fmt.Sprintf("IFNULL(%s, '') AS %s", key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
 		case "media_audio_codec":
 			values = append(values, &document.MediaAudioCodec)
-			columnsOut = append(columnsOut, fmt.Sprintf("IFNULL(%s, '') AS %s", key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "media_video_codec":
 			values = append(values, &document.MediaVideoCodec)
-			columnsOut = append(columnsOut, fmt.Sprintf("IFNULL(%s, '') AS %s", key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "media_width":
 			values = append(values, &document.MediaWidth)
-			columnsOut = append(columnsOut, fmt.Sprintf("IFNULL(%s, 0) AS %s", key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
 		case "media_height":
 			values = append(values, &document.MediaHeight)
-			columnsOut = append(columnsOut, fmt.Sprintf("IFNULL(%s, 0) AS %s", key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
 		case "media_aspect_ratio":
 			values = append(values, &document.MediaAspectRatio)
-			columnsOut = append(columnsOut, fmt.Sprintf("IFNULL(%s, '') AS %s", key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
 		case "media_sample_start":
 			values = append(values, &document.MediaSampleStart)
-			columnsOut = append(columnsOut, fmt.Sprintf("IFNULL(%s, '') AS %s", key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
 		case "media_sample_stop":
 			values = append(values, &document.MediaSampleStop)
-			columnsOut = append(columnsOut, fmt.Sprintf("IFNULL(%s, '') AS %s", key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
 		default:
 			log.Printf("%q (%d) not found in document table", key, i)
 			//return nil, nil, fmt.Errorf("%q (%d) not found in document", key, i)
@@ -512,53 +525,53 @@ func documentToColumnsAndValues(document *Document, columns []string) ([]string,
 	return columnsOut, values
 }
 
-func fileToColumnsAndValues(file *File, columns []string) ([]string, []interface{}) {
+func fileToColumnsAndValues(file *File, columns []string, ifNull bool) ([]string, []interface{}) {
 	columnsOut := []string{}
 	values := []interface{}{}
 	for i, key := range columns {
 		switch key {
 		case "fileid":
 			values = append(values, &file.FileID)
-			columnsOut = append(columnsOut, fmt.Sprintf("IFNULL(%s,'') AS %s", key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
 		case "datasetid":
 			values = append(values, &file.DatasetID)
-			columnsOut = append(columnsOut, fmt.Sprintf("IFNULL(%s,'') AS %s", key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "objectid":
 			values = append(values, &file.ObjectID)
-			columnsOut = append(columnsOut, fmt.Sprintf("IFNULL(%s,'') AS %s", key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
 		case "filename":
 			values = append(values, &file.Filename)
-			columnsOut = append(columnsOut, fmt.Sprintf("IFNULL(%s,'') AS %s", key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "mime_type":
 			values = append(values, &file.MimeType)
-			columnsOut = append(columnsOut, fmt.Sprintf("IFNULL(%s,'') AS %s", key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "hash":
 			values = append(values, &file.Hash)
-			columnsOut = append(columnsOut, fmt.Sprintf("IFNULL(%s,'') AS %s", key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "hash_type":
 			values = append(values, &file.HashType)
-			columnsOut = append(columnsOut, fmt.Sprintf("IFNULL(%s,'') AS %s", key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
 		case "filesize":
 			values = append(values, &file.FileSize)
-			columnsOut = append(columnsOut, fmt.Sprintf("IFNULL(%s,'') AS %s", key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
 		case "mtime_year":
 			values = append(values, &file.MTimeYear)
-			columnsOut = append(columnsOut, fmt.Sprintf("IFNULL(%s,'') AS %s", key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
 		case "mtime_month":
 			values = append(values, &file.MTimeMonth)
-			columnsOut = append(columnsOut, fmt.Sprintf("IFNULL(%s,'') AS %s", key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
 		case "mtime_day":
 			values = append(values, &file.MTimeDay)
-			columnsOut = append(columnsOut, fmt.Sprintf("IFNULL(%s,'') AS %s", key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
 		case "mtime_hour":
 			values = append(values, &file.MTimeHour)
-			columnsOut = append(columnsOut, fmt.Sprintf("IFNULL(%s,'') AS %s", key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
 		case "mtime_minute":
 			values = append(values, &file.MTimeMinute)
-			columnsOut = append(columnsOut, fmt.Sprintf("IFNULL(%s,'') AS %s", key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
 		case "mtime_second":
 			values = append(values, &file.MTimeSecond)
-			columnsOut = append(columnsOut, fmt.Sprintf("IFNULL(%s,'') AS %s", key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
 		default:
 			log.Printf("%q (%d) not found in file table", key, i)
 		}
@@ -585,7 +598,7 @@ func documentIDToFiles(repoID string, baseURL string, eprintID int, documentID i
 	if ok {
 		files := []*File{}
 		file := new(File)
-		columnSQL, values := fileToColumnsAndValues(file, columns)
+		columnSQL, values := fileToColumnsAndValues(file, columns, true)
 		//FIXME: This needs to be an ordered list.
 		stmt := fmt.Sprintf(`SELECT %s FROM %s WHERE datasetid = 'document' AND objectid = ?`, strings.Join(columnSQL, ", "), tableName)
 		rows, err := db.Query(stmt, documentID)
@@ -595,7 +608,7 @@ func documentIDToFiles(repoID string, baseURL string, eprintID int, documentID i
 			i := 0
 			for rows.Next() {
 				file = new(File)
-				_, values = fileToColumnsAndValues(file, columns)
+				_, values = fileToColumnsAndValues(file, columns, true)
 				if err := rows.Scan(values...); err != nil {
 					log.Printf("Could not scan %q for %d in %q, doc ID %d, %s", tableName, eprintID, repoID, documentID, err)
 				} else {
@@ -658,7 +671,7 @@ func eprintIDToDocumentList(repoID string, baseURL string, eprintID int, db *sql
 		document := new(Document)
 		// NOTE: Bind the values in document to the values array used by
 		// rows.Scan().
-		columnSQL, values := documentToColumnsAndValues(document, columns)
+		columnSQL, values := documentToColumnsAndValues(document, columns, true)
 		stmt := fmt.Sprintf(`SELECT %s FROM %s WHERE eprintid = ? ORDER BY eprintid ASC, pos ASC, rev_number DESC`, strings.Join(columnSQL, ", "), tableName)
 		rows, err := db.Query(stmt, eprintID)
 		if err != nil {
@@ -667,7 +680,7 @@ func eprintIDToDocumentList(repoID string, baseURL string, eprintID int, db *sql
 			i := 0
 			for rows.Next() {
 				document = new(Document)
-				_, values = documentToColumnsAndValues(document, columns)
+				_, values = documentToColumnsAndValues(document, columns, true)
 				if err := rows.Scan(values...); err != nil {
 					log.Printf("Could not scan %q for %d in %q, %s", tableName, eprintID, repoID, err)
 				} else {
@@ -1534,7 +1547,7 @@ func CrosswalkSQLToEPrint(repoID string, baseURL string, eprintID int) (*EPrint,
 	// generate both a map of values into the EPrint stucture and
 	// aggregated the SQL Column definitions to deal with the NULL
 	// values.
-	columnSQL, values := eprintToColumnsAndValues(eprint, columns)
+	columnSQL, values := eprintToColumnsAndValues(eprint, columns, true)
 
 	// NOTE: With the "values" pointer array setup the query can be built
 	// and executed in the usually SQL fashion.
@@ -1656,9 +1669,135 @@ func CrosswalkSQLToEPrint(repoID string, baseURL string, eprintID int) (*EPrint,
 	return eprint, nil
 }
 
-// CrosswalkEPrintToSQL will read an EPrint structure and
+// qmList generates an array of string where each element holds "?".
+func qmList(length int) []string {
+	list := []string{}
+	for i := 0; i < length; i++ {
+		list = append(list, `?`)
+	}
+	return list
+}
+
+// CrosswalkEPrintToSQL will read a EPrint structure and
 // generate SQL INSERT (eprint.ID == 0) or REPLACE statements
 // suitable for updating an EPrint record in the repository.
-func CrosswalkEPrintToSQL(eprint *EPrint) ([]byte, error) {
-	return nil, fmt.Errorf("Not implemented")
+// It then will execute that SQL and return the EPrint ID
+// created or updated otherwise it will return an error.
+func CrosswalkEPrintToSQL(repoID string, eprint *EPrint) (int, error) {
+	var (
+		err      error
+		eprintID int
+	)
+	newEPrint := (eprint.EPrintID == 0)
+	db, ok := config.Connections[repoID]
+	if ok == false {
+		return 0, fmt.Errorf("%s is not configured", repoID)
+	}
+
+	if dsn, ok := config.Repositories[repoID]; ok {
+		// If eprint id is zero generate a sequence of INSERT statements
+		// for the record. Others use generate the appropriate History
+		// records and then delete insert the new record.
+		tableName := `eprint`
+		if columns, ok := dsn.TableMap[tableName]; ok {
+			columnsSQL, values := eprintToColumnsAndValues(eprint, columns, false)
+			// Setup primary eprint table
+			if newEPrint {
+				stmt := fmt.Sprintf(`INSERT INTO %s (%s) VALUES (%s)`,
+					tableName,
+					strings.Join(columnsSQL, `, `),
+					strings.Join(qmList(len(columnsSQL)), `, `))
+				res, err := db.Exec(stmt, values...)
+				if err != nil {
+					return 0, fmt.Errorf(`SQL error, %q, %s`, stmt, err)
+				}
+				id64, err := res.LastInsertId()
+				if err != nil {
+					return 0, fmt.Errorf(`SQL failed to get insert id, %s`, err)
+				}
+				eprintID = int(id64)
+			} else {
+				stmt := fmt.Sprintf(`REPLACE INTO %s (%s) VALUES (%s)`,
+					tableName,
+					strings.Join(columnsSQL, `, `),
+					strings.Join(qmList(len(columnsSQL)), `, `))
+				_, err := db.Exec(stmt, values...)
+				if err != nil {
+					return 0, fmt.Errorf(`SQL error, %q, %s`, stmt, err)
+				}
+				eprintID = eprint.EPrintID
+			}
+			for tableName, columns := range dsn.TableMap {
+				// Handle the remaining tables, i.e. skip eprint table.
+				switch {
+				case tableName == "eprint":
+				// Skip eprint table, we've already processed it
+				case strings.HasPrefix(tableName, "eprint_"):
+					log.Printf(`FIXME %s columns: %s`, tableName, strings.Join(columns, `, `))
+					//FIXME: need to handle tables
+					if !newEPrint {
+						// Delete rows associated with related table
+					}
+					// Insert rows in associated table
+				case strings.HasPrefix(tableName, "document_"):
+					log.Printf(`FIXME %s columns: %s`, tableName, strings.Join(columns, `, `))
+				case strings.HasPrefix(tableName, "file"):
+					log.Printf(`FIXME %s columns: %s`, tableName, strings.Join(columns, `, `))
+				default:
+					log.Printf(`Don't know how to handle table %s`, tableName)
+				}
+			}
+			return eprintID, nil
+		} else {
+		}
+	} else {
+		return 0, fmt.Errorf("%s not configured", repoID)
+	}
+	return 0, err
+}
+
+// ImportEPrints take an repository id, eprints structure.
+// It is a re-implementation of EPrints Perl Import EPrint XML
+// extending that functionality to include updating existing EPrint
+// records.
+//
+// ImportEPrints will create or update EPrint records using
+// CrosswalkEPrintToSQL on the individual EPrint record. The import
+// must be consistant with the "updateImport" booling. If "updateImport"
+// is true then only update requests will be processed. If false
+// then it will only create new EPrint records.
+//
+// ImportEPrints returns a list of EPrint IDs created or update
+// if successful. It will return an error otherwise.
+func ImportEPrints(repoID string, eprints *EPrints, updateImport bool) ([]int, error) {
+	var importErrors error
+	ids := []int{}
+
+	// Check to make sure updates are allowed if non-Zero
+	// eprint ids present.
+	if updateImport {
+		for i, eprint := range eprints.EPrint {
+			if eprint.EPrintID == 0 {
+				return nil, fmt.Errorf("Update requires a non-zero EPrint ID for %s, %d-th eprint imported", repoID, i)
+			}
+		}
+	} else {
+		for _, eprint := range eprints.EPrint {
+			if eprint.EPrintID != 0 {
+				return nil, fmt.Errorf("Create failed, updated requested for %s, eprint id %d", repoID, eprint.EPrintID)
+			}
+		}
+	}
+	for _, eprint := range eprints.EPrint {
+		id, err := CrosswalkEPrintToSQL(repoID, eprint)
+		if err != nil {
+			if importErrors == nil {
+				importErrors = err
+			} else {
+				importErrors = fmt.Errorf("%s; %s", importErrors, err)
+			}
+		}
+		ids = append(ids, id)
+	}
+	return ids, importErrors
 }

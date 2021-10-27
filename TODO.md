@@ -12,6 +12,8 @@ Bugs
 Next
 ----
 
+- [ ] Split handling of create (INSERT), read (SELECT) and update (REPLACE) into separate URL end points, e.g. `/{REPO_ID}/eprint-create`, `/{REPO_ID}/eprint`, `/{REPO_ID}/eprint-update`
+- [ ] Split ImportEPrint into two separate functions, ImportEPrint() and UpdateEPrint() in order to simplify the code and declutter flow
 - [ ] Add end point for `/{REPO_ID}/year` (list years that have eprint records)
 - [ ] Add end point for `/{REPO_ID}/year/{YEAR}` lists eprint records published in that year
 - [ ] Add Person A-Z list

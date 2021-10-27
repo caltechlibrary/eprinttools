@@ -26,6 +26,7 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -195,6 +196,32 @@ func packageXML(w http.ResponseWriter, repoID string, src []byte, err error) (in
 	fmt.Fprintln(w, `<?xml version="1.0" encoding="utf-8"?>`)
 	fmt.Fprintf(w, "%s", src)
 	return 200, nil
+}
+
+// Given a POST Request, read the Request body and
+// populate an EPrints structure or return an error.
+func unpackageEPrintsPOST(r *http.Request) (*EPrints, error) {
+	var (
+		eprints *EPrints
+		err     error
+		src     []byte
+	)
+	contentType := r.Header.Get("Content-Type")
+	switch contentType {
+	case "application/json":
+		if src, err = ioutil.ReadAll(r.Body); err != nil {
+			return nil, fmt.Errorf("Failed to read, %s", err)
+		}
+		err = json.Unmarshal(src, &eprints)
+	case "application/xml":
+		if src, err = ioutil.ReadAll(r.Body); err != nil {
+			return nil, fmt.Errorf("Failed to read, %s", err)
+		}
+		err = xml.Unmarshal(src, &eprints)
+	default:
+		return nil, fmt.Errorf("%s not supported", contentType)
+	}
+	return eprints, err
 }
 
 //
@@ -822,7 +849,7 @@ func patentAssigneeEndPoint(w http.ResponseWriter, r *http.Request, repoID strin
 		values, err := sqlQueryStringIDs(repoID, `SELECT patent_assignee FROM eprint_patent_assignee WHERE patent_assignee IS NOT NULL GROUP BY patent_assignee ORDER BY patent_assignee`)
 		return packageStringIDs(w, repoID, values, err)
 	}
-	eprintIDs, err := sqlQueryIntIDs(repoID, `SELECT eprintid FROM eprint_assignee WHERE patent_assignee = ?`, args[0])
+	eprintIDs, err := sqlQueryIntIDs(repoID, `SELECT eprintid FROM eprint_patent_assignee WHERE patent_assignee = ?`, args[0])
 	return packageIntIDs(w, repoID, eprintIDs, err)
 }
 
@@ -868,6 +895,9 @@ func recordEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args 
 // Note this end point has to be enabled for the repository in the
 // configuraiton.
 //
+// If writing data via a POST it needs to be sent as
+// "application/json" (JSON version of EPrint XML) or "application/xml"
+// (EPrint XML). The extended API does not support form processing.
 func eprintEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
 	if len(args) == 0 || repoID == "" || strings.HasSuffix(r.URL.Path, "/help") {
 		return packageDocument(w, eprintDocument(repoID))
@@ -890,10 +920,25 @@ func eprintEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args 
 	}
 	eprintID, err := strconv.Atoi(args[0])
 	if err != nil {
-		return 400, fmt.Errorf("bad request, eprint id %q not valid", eprintID)
+		return 400, fmt.Errorf("bad request, eprint id (%s) %q not valid", repoID, eprintID)
 	}
 	if r.Method == "POST" {
-		return 500, fmt.Errorf("not implemented, POST")
+		// Check to see if we have application/xml or application/json
+		// Get data from post
+		eprints, err := unpackageEPrintsPOST(r)
+		if err != nil {
+			return 400, fmt.Errorf("bad request, POST failed (%s), %s", repoID, err)
+		}
+		ids := []int{}
+		if eprintID == 0 {
+			ids, err = ImportEPrints(repoID, eprints, false)
+		} else {
+			ids, err = ImportEPrints(repoID, eprints, true)
+		}
+		if err != nil {
+			return 400, fmt.Errorf("bad request, create EPrint failed, %s", err)
+		}
+		return packageIntIDs(w, repoID, ids, err)
 	}
 	eprint, err := CrosswalkSQLToEPrint(repoID, dataSource.BaseURL, eprintID)
 	if err != nil {
@@ -1012,6 +1057,19 @@ func api(w http.ResponseWriter, r *http.Request) {
 	logRequest(r, statusCode, err)
 }
 
+// hasColumn takes a table map (key = table name, value is
+// array of column names) and return true if table and column found.
+func hasColumn(tableMap map[string][]string, tableName string, columnName string) bool {
+	if columns, ok := tableMap[tableName]; ok {
+		for _, value := range columns {
+			if value == columnName {
+				return true
+			}
+		}
+	}
+	return false
+}
+
 // Shutdown shutdowns the EPrints extended API web service started with
 // RunExtendedAPI.
 func Shutdown(appName string) int {
@@ -1080,16 +1138,8 @@ func InitExtendedAPI(settings string) error {
 		"contributor-name": contributorNameEndPoint,
 		"advisor-name":     advisorNameEndPoint,
 		"commitee-name":    committeeNameEndPoint,
-		"pmcid":            pubmedCentralIDEndPoint,
-		"pmid":             pubmedIDEndPoint,
 		"issn":             issnEndPoint,
 		"isbn":             isbnEndPoint,
-		//FIXME: make sure each end point is supported by repository
-		// e.g. CaltechTHESIS doens't have patent number field
-		"patent-applicant":      patentApplicantEndPoint,
-		"patent-number":         patentNumberEndPoint,
-		"patent-classification": patentClassificationEndPoint,
-		"patent-assignee":       patentAssigneeEndPoint,
 	}
 
 	/* NOTE: We need a DB connection to MySQL for each
@@ -1115,6 +1165,28 @@ func InitExtendedAPI(settings string) error {
 				config.Routes[repoID] = map[string]func(http.ResponseWriter, *http.Request, string, []string) (int, error){}
 			}
 			config.Routes[repoID][route] = fn
+		}
+		// NOTE: make sure each end point is supported by repository
+		// e.g. CaltechTHESIS doens't have "patent_number",
+		// "patent_classification", "parent_assignee", "pmc_id",
+		// or "pmid".
+		if hasColumn(dataSource.TableMap, "eprint", "pmc_id") {
+			config.Routes[repoID]["pmcid"] = pubmedCentralIDEndPoint
+		}
+		if hasColumn(dataSource.TableMap, "eprint", "pmid") {
+			config.Routes[repoID]["pmid"] = pubmedIDEndPoint
+		}
+		if hasColumn(dataSource.TableMap, "eprint", "patent_applicant") {
+			config.Routes[repoID]["patent-applicant"] = patentApplicantEndPoint
+		}
+		if hasColumn(dataSource.TableMap, "eprint", "patent_number") {
+			config.Routes[repoID]["patent-number"] = patentNumberEndPoint
+		}
+		if hasColumn(dataSource.TableMap, "eprint", "patent_classification") {
+			config.Routes[repoID]["patent-classification"] = patentClassificationEndPoint
+		}
+		if hasColumn(dataSource.TableMap, "eprint_patent_assignee", "patent_assignee") {
+			config.Routes[repoID]["patent-assignee"] = patentAssigneeEndPoint
 		}
 	}
 	return nil

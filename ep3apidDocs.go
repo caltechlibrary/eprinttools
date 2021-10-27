@@ -121,9 +121,10 @@ access the MySQL database for the repository you're supporting. You can have man
         "repositories": {
             "REPO_ID": {
                 "dsn": "DB_USER:SECRET@/DB_NAME",
+                "base_url": "URL_TO_EPRINT_REPOSITORY",
                 "write": false
-	        },
-	        ... /* Additional repositories configured here */ ...
+            },
+            ... /* Additional repositories configured here */ ...
         }
     }
 ` + "```" + `
