@@ -489,7 +489,7 @@ func documentToColumnsAndValues(document *Document, columns []string, ifNull boo
 			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "placement":
 			values = append(values, &document.Placement)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
 		case "mime_type":
 			values = append(values, &document.MimeType)
 			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
