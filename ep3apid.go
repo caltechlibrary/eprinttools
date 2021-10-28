@@ -1228,7 +1228,8 @@ func RunExtendedAPI(appName string, settings string) error {
 	if config.Logfile == `` {
 		lg = log.Default()
 	} else {
-		lp, err := os.Create(config.Logfile)
+		// Append or create a new log file
+		lp, err := os.OpenFile(config.Logfile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
 		if err != nil {
 			return err
 		}

@@ -31,17 +31,23 @@ func httpGet(u string) ([]byte, error) {
 }
 
 func checkForHelpPages(hostname string, repoID string, route string) error {
-	switch route {
-	case "eprint-import":
+	var u string
+	switch {
+	case repoID == `` && route == ``:
+		u = fmt.Sprintf(`http://%s`, config.Hostname)
+	case repoID == `` && route != ``:
+		u = fmt.Sprintf(`http://%s/%s`, config.Hostname, route)
+	case route == ``:
+		u = fmt.Sprintf(`http://%s/%s`, config.Hostname, repoID)
 	default:
-		u := fmt.Sprintf(`http://%s/%s/%s/help`, config.Hostname, repoID, route)
-		src, err := httpGet(u)
-		if err != nil {
-			return fmt.Errorf("client error, %s", err)
-		}
-		if len(src) == 0 {
-			return fmt.Errorf("expected src, got empty byte array for %s", u)
-		}
+		u = fmt.Sprintf(`http://%s/%s/%s`, config.Hostname, repoID, route)
+	}
+	src, err := httpGet(u)
+	if err != nil {
+		return fmt.Errorf("client error, %s", err)
+	}
+	if len(src) == 0 {
+		return fmt.Errorf("expected src, got empty byte array for %s", u)
 	}
 	return nil
 }
@@ -57,6 +63,17 @@ func runClientForTest(t *testing.T, appName string, settings string) {
 	if len(config.Routes) == 0 {
 		t.Errorf(`Expected some routes for test`)
 	}
+	// Check for repositories help
+	if err := checkForHelpPages(config.Hostname, ``, ``); err != nil {
+		t.Error(err)
+	}
+	if err := checkForHelpPages(config.Hostname, ``, `repositories`); err != nil {
+		t.Error(err)
+	}
+	if err := checkForHelpPages(config.Hostname, ``, `repository`); err != nil {
+		t.Error(err)
+	}
+	// Let's test for help pages
 	for repoID, routes := range config.Routes {
 		t.Logf(`Testing routes for %s`, repoID)
 		for route := range routes {
