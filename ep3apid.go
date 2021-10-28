@@ -1258,7 +1258,7 @@ Press ctl-c to terminate.
 			os.Exit(Shutdown(appName, sig.String()))
 		case syscall.SIGHUP:
 			if err := Reload(appName, sig.String(), settings); err != nil {
-				log.Printf("%s", err)
+				log.Println(err)
 				os.Exit(1)
 			}
 		default:
