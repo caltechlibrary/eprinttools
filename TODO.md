@@ -12,19 +12,26 @@ Bugs
 Next
 ----
 
-- [ ] Split handling of create (INSERT), read (SELECT) and update (REPLACE) into separate URL end points, e.g. `/{REPO_ID}/eprint-create`, `/{REPO_ID}/eprint`, `/{REPO_ID}/eprint-update`
-- [ ] Split ImportEPrint into two separate functions, ImportEPrint() and UpdateEPrint() in order to simplify the code and declutter flow
-- [ ] Add end point for `/{REPO_ID}/year` (list years that have eprint records)
-- [ ] Add end point for `/{REPO_ID}/year/{YEAR}` lists eprint records published in that year
-- [ ] Add Person A-Z list
-- [ ] Split rules into separate options to allow for more specific control
-- [ ] Add create/update/delete of eprints record support to ep3apid, needed to push records generated through Acacia into EPrints
+
+- [ ] Add create end points to support importing EPrint XML metadata into eprints
     - [ ] Implement a method that takes a table/column map and EPrint structure then renders a INSERT or REPLACE sequence to create or update an EPrint record
     - [ ] Implement a method that takes a table/column map and EPrint structure and update the EPrint structure from a sequnce of SELECT statements
-- [ ] Implement a method to show which tables a repository instance has and the column names in each table
-    - [ ] Implement a start data structure that captures the `/repository/` end point data so that table/column map can be used to build the SQL queries need to read, create, and update an EPrint record
-    - [x] Implement `/repository/<REPO_ID>` end point with `map[string][]string{}` output
+- [ ] Add update end point to support update EPrints Metadata
+    - [ ] Figure out host historical diffs of EPrints XML are generated in EPrints' History tab
+    - [ ] Impement updates versioning the EPrint Metadata record
+    - [ ] Implement file upload and manage document versioning
 - [ ] Implement Solr index record view for Solr 8.9 ingest
+- [ ] Add end point for `/{REPO_ID}/year` (list years that have eprint records)
+- [ ] Add end point for `/{REPO_ID}/year/{YEAR}` lists eprint records published in that year
+- [ ] Add Person A-Z list support
+- [ ] Split clsrules into separate options to allow for more specific control
+
+Completed
+---------
+
+- [x] Implement a method to show which tables a repository instance has and the column names in each table
+    - [x] Implement a startup data structure that captures the `/repository/` end point data so that table/column map can be used to build the SQL queries need to read, create, and update an EPrint record
+    - [x] Implement `/repository/<REPO_ID>` end point with `map[string][]string{}` output
 - [x] doi2eprintxml list of DOI should allow for pipe separator and URL to object and handle it like Acacia does
 - [x] doi2eprintxml needs to fetch the object URL and save results along side the generated EPrints XML
     - added with a -D,-download option in doi2eprintxml.

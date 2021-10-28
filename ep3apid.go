@@ -889,30 +889,24 @@ func recordEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args 
 }
 
 //
-// EPrint End Point is an experimental read/write end point provided
-// in the extended EPrint API.  It reads/writes EPrint data structures
-// based on SQL calls to the MySQL database for a given EPrints repository.
-// Note this end point has to be enabled for the repository in the
-// configuraiton.
+// EPrint End Point is an experimental read end point provided
+// in the extended EPrint API.  It reads EPrint data structures
+// based on SQL calls to the MySQL database for a given EPrints
+// repository. It accepts two content types - "application/xml"
+// which returns EPrints XML or "application/json" which returns
+// a JSON version of the EPrints XML.
 //
-// If writing data via a POST it needs to be sent as
-// "application/json" (JSON version of EPrint XML) or "application/xml"
-// (EPrint XML). The extended API does not support form processing.
 func eprintEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
 	if len(args) == 0 || repoID == "" || strings.HasSuffix(r.URL.Path, "/help") {
 		return packageDocument(w, eprintDocument(repoID))
 	}
 	contentType := r.Header.Get("Content-Type")
-	writeAccess := false
 	dataSource, ok := config.Repositories[repoID]
-	if ok == true {
-		writeAccess = dataSource.Write
-	} else {
+	if ok == false {
 		log.Printf("Data Source not found for %q", repoID)
 		return 404, fmt.Errorf("not found")
 	}
-	if (r.Method != "GET" && r.Method != "POST") ||
-		(r.Method == "POST" && writeAccess == false) {
+	if r.Method != "GET" {
 		return 405, fmt.Errorf("method not allowed")
 	}
 	if len(args) != 1 {
@@ -921,24 +915,6 @@ func eprintEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args 
 	eprintID, err := strconv.Atoi(args[0])
 	if err != nil {
 		return 400, fmt.Errorf("bad request, eprint id (%s) %q not valid", repoID, eprintID)
-	}
-	if r.Method == "POST" {
-		// Check to see if we have application/xml or application/json
-		// Get data from post
-		eprints, err := unpackageEPrintsPOST(r)
-		if err != nil {
-			return 400, fmt.Errorf("bad request, POST failed (%s), %s", repoID, err)
-		}
-		ids := []int{}
-		if eprintID == 0 {
-			ids, err = ImportEPrints(repoID, eprints, false)
-		} else {
-			ids, err = ImportEPrints(repoID, eprints, true)
-		}
-		if err != nil {
-			return 400, fmt.Errorf("bad request, create EPrint failed, %s", err)
-		}
-		return packageIntIDs(w, repoID, ids, err)
 	}
 	eprint, err := CrosswalkSQLToEPrint(repoID, dataSource.BaseURL, eprintID)
 	if err != nil {
@@ -964,6 +940,53 @@ func eprintEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args 
 	default:
 		return 415, fmt.Errorf("unsupported media type, %q", contentType)
 	}
+}
+
+//
+// EPrint Import End Point is an experimental write end point provided
+// in the extended EPrint API.  It Accepts EPrints XML or the JSON
+// expression of the EPrint XML and creates new EPrints medata records
+//
+// This end requires a POST method.  It accepts POST content encoded
+// as either "application/json" or "application/xml".
+//
+// NOTE: this end point has to be enabled in the settings.json file
+// defining the individual repository support. "write" needs to be
+// set to true.
+func eprintImportEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
+	if repoID == "" || strings.HasSuffix(r.URL.Path, "/help") {
+		return packageDocument(w, eprintDocument(repoID))
+	}
+	writeAccess := false
+	dataSource, ok := config.Repositories[repoID]
+	if ok == true {
+		writeAccess = dataSource.Write
+	} else {
+		log.Printf("Data Source not found for %q", repoID)
+		return 404, fmt.Errorf("not found")
+	}
+	if r.Method != "POST" || writeAccess == false {
+		return 405, fmt.Errorf("method not allowed")
+	}
+	if len(args) != 1 {
+		return 400, fmt.Errorf("bad request, missing eprint id in path")
+	}
+	eprintID, err := strconv.Atoi(args[0])
+	if err != nil {
+		return 400, fmt.Errorf("bad request, eprint id (%s) %q not valid", repoID, eprintID)
+	}
+	// Check to see if we have application/xml or application/json
+	// Get data from post
+	eprints, err := unpackageEPrintsPOST(r)
+	if err != nil {
+		return 400, fmt.Errorf("bad request, POST failed (%s), %s", repoID, err)
+	}
+	ids := []int{}
+	ids, err = ImportEPrints(repoID, eprints, false)
+	if err != nil {
+		return 400, fmt.Errorf("bad request, create EPrint failed, %s", err)
+	}
+	return packageIntIDs(w, repoID, ids, err)
 }
 
 // The following define the API as a service handling errors,
@@ -1124,6 +1147,7 @@ func InitExtendedAPI(settings string) error {
 		"doi":              doiEndPoint,
 		"record":           recordEndPoint,
 		"eprint":           eprintEndPoint,
+		"eprint-import":    eprintImportEndPoint,
 		"creator-id":       creatorIDEndPoint,
 		"creator-orcid":    creatorORCIDEndPoint,
 		"editor-id":        editorIDEndPoint,

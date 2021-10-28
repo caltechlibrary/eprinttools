@@ -87,14 +87,16 @@ The follow API end points would facilitate faster updates to our feeds platform 
 - '/{REPO_ID}/deleted/{TIMESTAMP}/{TIMESTAMP}' through the returns a list of EPrint IDs deleted starting at first timestamp through inclusive of the second timestamp, if the second timestamp is omitted it is assumed to be "now"
 - '/{REPO_ID}/pubdate/{APROX_DATESTAMP}/{APPOX_DATESTMP}' this query scans the EPrint table for records with publication starts starting with the first approximate date through inclusive of the second approximate date. If the second date is omitted it is assumed to be "today". Approximate dates my be expressed just the year (starting with Jan 1, ending with Dec 31), just the year and month (starting with first day of month ending with the last day) or year, month and day. The end returns zero or more EPrint IDs.
 
-Write API
----------
+Read/Write API
+--------------
 
-As of __ep3apid__ version 1.0.3 a new set of end points exists for reading and writing EPrints XML. This can be enabled per repository. It only supports interaction with one record at a time.  You can retrieve full EPrint XML using a GET request. This EPrint XML is generate dynamically based on the contents of the MySQL tables configured in the EPrints instance.  You can write EPrints records with a POST.  If the eprint ID furnished in the POST is 0 (zero) then a new record will be created. Otherwise the contents of the EPrint XML you post will replace the existing eprint record.  This transaction takes place only at the SQL level. None of EPrints's native Perl API is invoked. 
+As of __ep3apid__ version 1.0.3 a new set of end points exists for reading (retreiving EPrints XML) and writing (metadata import) of EPrints XML.  The extended API only supports working with EPrints metadata not directly with the documents or files associated with individual records.
 
-The end point is '/{REPO_ID}/eprint/{EPRINT_ID}' for EPrint XML.
+The metadata import functionality is enabled per repository. It only supports importing records at this time.  Importing an EPrint XML document, which could containing multiple EPrint metadata records, is implemented purely using SQL statements and not the EPrints Perl API. This allows you (with the right MySQL configuration) to run the extended API on a different server without resorting to Perl.
 
-To enable this feature add the attribute '"write": true' to the repositories setting in settins.json.
+- '/{REPO_ID}/eprint-import' POST accepts EPrints XML with content type of "application/xml" or JSON version of EPrints XML with content type "application/json". To enable this feature add the attribute '"write": true' to the repositories setting in settins.json.
+- '/{REPO_ID}/eprint/{EPRINT_ID}' method GET with a content type of "application/json" for JSON version of EPrint XML or "application/xml" for EPrint XML
+
 
 settings.json (configuration)
 -----------------------------
