@@ -164,7 +164,7 @@ func main() {
 		os.Exit(1)
 	}
 	/* Run Extended API web service */
-	if err := eprinttools.RunExtendedAPI(appName); err != nil {
+	if err := eprinttools.RunExtendedAPI(appName, settings); err != nil {
 		fmt.Fprintf(os.Stderr, "RunExtendedAPI(%q) failed, %s", appName, err)
 		os.Exit(1)
 	}

@@ -33,6 +33,7 @@ import (
 	"os/signal"
 	"strconv"
 	"strings"
+	"syscall"
 	"time"
 
 	"database/sql"
@@ -1095,9 +1096,10 @@ func hasColumn(tableMap map[string][]string, tableName string, columnName string
 
 // Shutdown shutdowns the EPrints extended API web service started with
 // RunExtendedAPI.
-func Shutdown(appName string) int {
+func Shutdown(appName string, sigName string) int {
 	exitCode := 0
 	pid := os.Getpid()
+	log.Printf(`Received signal %s`, sigName)
 	log.Printf(`Closing database connections %s pid: %d`, appName, pid)
 	for name, db := range config.Connections {
 		if err := db.Close(); err != nil {
@@ -1109,6 +1111,17 @@ func Shutdown(appName string) int {
 	}
 	log.Printf(`Shutdown completed %s pid: %d exit code: %d `, appName, pid, exitCode)
 	return exitCode
+}
+
+// Reload performs a Shutdown and an init after re-reading
+// in the settings.json file.
+func Reload(appName string, sigName string, settings string) error {
+	exitCode := Shutdown(appName, sigName)
+	if exitCode != 0 {
+		return fmt.Errorf("Reload failed, could not shutdown the current processes")
+	}
+	log.Printf("Restarting %s using %s", appName, settings)
+	return InitExtendedAPI(settings)
 }
 
 func InitExtendedAPI(settings string) error {
@@ -1216,24 +1229,43 @@ func InitExtendedAPI(settings string) error {
 	return nil
 }
 
-func RunExtendedAPI(appName string) error {
+func RunExtendedAPI(appName string, settings string) error {
 	/* Setup web server */
 	log.Printf(`
 %s %s
+
+Using configuration %s
+
+Process id: %d
 
 EPrints 3.3.x Extended API
 
 Listening on http://%s
 
 Press ctl-c to terminate.
-`, appName, Version, config.Hostname)
+`, appName, Version, settings, os.Getpid(), config.Hostname)
 
 	/* Listen for Ctr-C */
 	processControl := make(chan os.Signal, 1)
-	signal.Notify(processControl, os.Interrupt)
+	signal.Notify(processControl, syscall.SIGINT, syscall.SIGHUP, syscall.SIGTERM, syscall.SIGKILL)
+
 	go func() {
-		<-processControl
-		os.Exit(Shutdown(appName))
+		sig := <-processControl
+		switch sig {
+		case syscall.SIGKILL:
+			os.Exit(Shutdown(appName, sig.String()))
+		case syscall.SIGINT:
+			os.Exit(Shutdown(appName, sig.String()))
+		case syscall.SIGTERM:
+			os.Exit(Shutdown(appName, sig.String()))
+		case syscall.SIGHUP:
+			if err := Reload(appName, sig.String(), settings); err != nil {
+				log.Printf("%s", err)
+				os.Exit(1)
+			}
+		default:
+			os.Exit(Shutdown(appName, sig.String()))
+		}
 	}()
 
 	http.HandleFunc("/", api)
