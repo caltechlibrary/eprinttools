@@ -1247,13 +1247,11 @@ Press ctl-c to terminate.
 
 	/* Listen for Ctr-C */
 	processControl := make(chan os.Signal, 1)
-	signal.Notify(processControl, syscall.SIGINT, syscall.SIGHUP, syscall.SIGTERM, syscall.SIGKILL)
+	signal.Notify(processControl, syscall.SIGINT, syscall.SIGHUP, syscall.SIGTERM)
 
 	go func() {
 		sig := <-processControl
 		switch sig {
-		case syscall.SIGKILL:
-			os.Exit(Shutdown(appName, sig.String()))
 		case syscall.SIGINT:
 			os.Exit(Shutdown(appName, sig.String()))
 		case syscall.SIGTERM:
