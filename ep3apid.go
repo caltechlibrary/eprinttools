@@ -955,7 +955,7 @@ func eprintEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args 
 // defining the individual repository support. "write" needs to be
 // set to true.
 func eprintImportEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
-	if repoID == "" || strings.HasSuffix(r.URL.Path, "/help") {
+	if r.Method == "GET" || len(args[0]) != 0 || repoID == "" || strings.HasSuffix(r.URL.Path, "/help") {
 		return packageDocument(w, eprintReadWriteDocument(repoID))
 	}
 	writeAccess := false
@@ -968,13 +968,6 @@ func eprintImportEndPoint(w http.ResponseWriter, r *http.Request, repoID string,
 	}
 	if r.Method != "POST" || writeAccess == false {
 		return 405, fmt.Errorf("method not allowed")
-	}
-	if len(args) != 1 {
-		return 400, fmt.Errorf("bad request, missing eprint id in path")
-	}
-	eprintID, err := strconv.Atoi(args[0])
-	if err != nil {
-		return 400, fmt.Errorf("bad request, eprint id (%s) %q not valid", repoID, eprintID)
 	}
 	// Check to see if we have application/xml or application/json
 	// Get data from post
