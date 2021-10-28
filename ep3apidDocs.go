@@ -406,8 +406,8 @@ func patentClassificationDocument(repoID string) string {
 
 func patentAssigneeDocument(repoID string) string {
 	return fmt.Sprintf(`
-- '/{REPO_ID}/patent-assignee' - return a list of patent assignee in repository
-- '/{REPO_ID}/patent-assignee/{PATENT_ASSIGNEE}' - return a list eprint ids for patent assignee in repository
+- '/%s/patent-assignee' - return a list of patent assignee in repository
+- '/%s/patent-assignee/{PATENT_ASSIGNEE}' - return a list eprint ids for patent assignee in repository
 `, repoID, repoID)
 }
 

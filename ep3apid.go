@@ -49,6 +49,7 @@ const (
 
 var (
 	config *Config
+	lg     *log.Logger
 )
 
 //
@@ -144,12 +145,12 @@ func sqlQueryStringIDs(repoID string, stmt string, args ...interface{}) ([]strin
 
 func packageIntIDs(w http.ResponseWriter, repoID string, values []int, err error) (int, error) {
 	if err != nil {
-		log.Printf("ERROR: (%s) query error, %s", repoID, err)
+		lg.Printf("ERROR: (%s) query error, %s", repoID, err)
 		return 500, fmt.Errorf("Internal Server Error")
 	}
 	src, err := json.MarshalIndent(values, "", "  ")
 	if err != nil {
-		log.Printf("ERROR: marshal error (%q), %s", repoID, err)
+		lg.Printf("ERROR: marshal error (%q), %s", repoID, err)
 		return 500, fmt.Errorf("Internal Server Error")
 	}
 	w.Header().Set("Content-Type", "application/json")
@@ -159,12 +160,12 @@ func packageIntIDs(w http.ResponseWriter, repoID string, values []int, err error
 
 func packageStringIDs(w http.ResponseWriter, repoID string, values []string, err error) (int, error) {
 	if err != nil {
-		log.Printf("ERROR: (%s) query error, %s", repoID, err)
+		lg.Printf("ERROR: (%s) query error, %s", repoID, err)
 		return 500, fmt.Errorf("Internal Server Error")
 	}
 	src, err := json.MarshalIndent(values, "", "  ")
 	if err != nil {
-		log.Printf("ERROR: marshal error (%q), %s", repoID, err)
+		lg.Printf("ERROR: marshal error (%q), %s", repoID, err)
 		return 500, fmt.Errorf("Internal Server Error")
 	}
 	w.Header().Set("Content-Type", "application/json")
@@ -180,7 +181,7 @@ func packageDocument(w http.ResponseWriter, src string) (int, error) {
 
 func packageJSON(w http.ResponseWriter, repoID string, src []byte, err error) (int, error) {
 	if err != nil {
-		log.Printf("ERROR: (%s) package JSON error, %s", repoID, err)
+		lg.Printf("ERROR: (%s) package JSON error, %s", repoID, err)
 		return 500, fmt.Errorf("Internal Server Error")
 	}
 	w.Header().Set("Content-Type", "application/json")
@@ -190,7 +191,7 @@ func packageJSON(w http.ResponseWriter, repoID string, src []byte, err error) (i
 
 func packageXML(w http.ResponseWriter, repoID string, src []byte, err error) (int, error) {
 	if err != nil {
-		log.Printf("ERROR: (%s) package JSON error, %s", repoID, err)
+		lg.Printf("ERROR: (%s) package JSON error, %s", repoID, err)
 		return 500, fmt.Errorf("Internal Server Error")
 	}
 	w.Header().Set("Content-Type", "application/xml")
@@ -262,7 +263,7 @@ func EPrintTablesAndColumns(db *sql.DB, repoID string) (map[string][]string, err
 		for cRows.Next() {
 			//colName, f1, f2, f3, f4, f5 = &"", &"", &"", &"", nil, &""
 			if err := cRows.Scan(&colName, &f1, &f2, &f3, &f4, &f5); err != nil {
-				log.Printf("cRows.Scan() error: %s", err)
+				lg.Printf("cRows.Scan() error: %s", err)
 			} else {
 				columns = append(columns, colName)
 			}
@@ -300,7 +301,7 @@ func EPrintTablesAndColumns(db *sql.DB, repoID string) (map[string][]string, err
 		for cRows.Next() {
 			//colName, f1, f2, f3, f4, f5 = &"", &"", &"", &"", nil, &""
 			if err := cRows.Scan(&colName, &f1, &f2, &f3, &f4, &f5); err != nil {
-				log.Printf("cRows.Scan() error: %s", err)
+				lg.Printf("cRows.Scan() error: %s", err)
 			} else {
 				columns = append(columns, colName)
 			}
@@ -338,7 +339,7 @@ func EPrintTablesAndColumns(db *sql.DB, repoID string) (map[string][]string, err
 		for cRows.Next() {
 			//colName, f1, f2, f3, f4, f5 = &"", &"", &"", &"", nil, &""
 			if err := cRows.Scan(&colName, &f1, &f2, &f3, &f4, &f5); err != nil {
-				log.Printf("cRows.Scan() error: %s", err)
+				lg.Printf("cRows.Scan() error: %s", err)
 			} else {
 				columns = append(columns, colName)
 			}
@@ -393,7 +394,7 @@ func keysEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []
 }
 
 func createdEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
-	if len(args) == 0 {
+	if len(args) == 0 || strings.HasSuffix(r.URL.Path, `/help`) {
 		return packageDocument(w, createdDocument(repoID))
 	}
 	if (len(args) < 1) || (len(args) > 2) {
@@ -877,7 +878,7 @@ func recordEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args 
 	}
 	eprint, err := CrosswalkSQLToEPrint(repoID, baseURL, eprintID)
 	if err != nil {
-		log.Printf("CrosswalkSQLToEPrint Error: %s\n", err)
+		lg.Printf("CrosswalkSQLToEPrint Error: %s\n", err)
 		return 500, fmt.Errorf("Internal Server Error")
 	}
 	//FIXME: we should just be a simple JSON from SQL ...
@@ -904,7 +905,7 @@ func eprintEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args 
 	contentType := r.Header.Get("Content-Type")
 	dataSource, ok := config.Repositories[repoID]
 	if ok == false {
-		log.Printf("Data Source not found for %q", repoID)
+		lg.Printf("Data Source not found for %q", repoID)
 		return 404, fmt.Errorf("not found")
 	}
 	if r.Method != "GET" {
@@ -963,7 +964,7 @@ func eprintImportEndPoint(w http.ResponseWriter, r *http.Request, repoID string,
 	if ok == true {
 		writeAccess = dataSource.Write
 	} else {
-		log.Printf("Data Source not found for %q", repoID)
+		lg.Printf("Data Source not found for %q", repoID)
 		return 404, fmt.Errorf("not found")
 	}
 	if r.Method != "POST" || writeAccess == false {
@@ -993,9 +994,9 @@ func logRequest(r *http.Request, status int, err error) {
 		errStr = fmt.Sprintf("%s", err)
 	}
 	if len(q) > 0 {
-		log.Printf("%s %s RemoteAddr: %s UserAgent: %s Query: %+v Response: %d %s", r.Method, r.URL.Path, r.RemoteAddr, r.UserAgent(), q, status, errStr)
+		lg.Printf("%s %s RemoteAddr: %s UserAgent: %s Query: %+v Response: %d %s", r.Method, r.URL.Path, r.RemoteAddr, r.UserAgent(), q, status, errStr)
 	} else {
-		log.Printf("%s %s RemoteAddr: %s UserAgent: %s Response: %d %s", r.Method, r.URL.Path, r.RemoteAddr, r.UserAgent(), status, errStr)
+		lg.Printf("%s %s RemoteAddr: %s UserAgent: %s Response: %d %s", r.Method, r.URL.Path, r.RemoteAddr, r.UserAgent(), status, errStr)
 	}
 }
 
@@ -1092,17 +1093,17 @@ func hasColumn(tableMap map[string][]string, tableName string, columnName string
 func Shutdown(appName string, sigName string) int {
 	exitCode := 0
 	pid := os.Getpid()
-	log.Printf(`Received signal %s`, sigName)
-	log.Printf(`Closing database connections %s pid: %d`, appName, pid)
+	lg.Printf(`Received signal %s`, sigName)
+	lg.Printf(`Closing database connections %s pid: %d`, appName, pid)
 	for name, db := range config.Connections {
 		if err := db.Close(); err != nil {
-			log.Printf("Failed to close %s, %s", name, err)
+			lg.Printf("Failed to close %s, %s", name, err)
 			exitCode = 1
 		} else {
-			log.Printf("Closed %s", name)
+			lg.Printf("Closed %s", name)
 		}
 	}
-	log.Printf(`Shutdown completed %s pid: %d exit code: %d `, appName, pid, exitCode)
+	lg.Printf(`Shutdown completed %s pid: %d exit code: %d `, appName, pid, exitCode)
 	return exitCode
 }
 
@@ -1113,7 +1114,7 @@ func Reload(appName string, sigName string, settings string) error {
 	if exitCode != 0 {
 		return fmt.Errorf("Reload failed, could not shutdown the current processes")
 	}
-	log.Printf("Restarting %s using %s", appName, settings)
+	lg.Printf("Restarting %s using %s", appName, settings)
 	return InitExtendedAPI(settings)
 }
 
@@ -1182,7 +1183,7 @@ func InitExtendedAPI(settings string) error {
 		if err != nil {
 			return fmt.Errorf("Could not open MySQL connection for %s, %s", repoID, err)
 		}
-		//log.Printf("Setting  DB connection to %q", repoID)
+		//lg.Printf("Setting  DB connection to %q", repoID)
 		//db.Ping()
 		config.Connections[repoID] = db
 		dataSource.TableMap, err = EPrintTablesAndColumns(db, repoID)
@@ -1223,8 +1224,22 @@ func InitExtendedAPI(settings string) error {
 }
 
 func RunExtendedAPI(appName string, settings string) error {
+	/* Setup logging */
+	if config.Logfile == `` {
+		lg = log.Default()
+	} else {
+		lp, err := os.Create(config.Logfile)
+		if err != nil {
+			return err
+		}
+		lg = log.New(lp, ``, log.LstdFlags)
+		defer func() {
+			lp.Close()
+			lg = log.Default()
+		}()
+	}
 	/* Setup web server */
-	log.Printf(`
+	lg.Printf(`
 %s %s
 
 Using configuration %s
@@ -1241,7 +1256,6 @@ Press ctl-c to terminate.
 	/* Listen for Ctr-C */
 	processControl := make(chan os.Signal, 1)
 	signal.Notify(processControl, syscall.SIGINT, syscall.SIGHUP, syscall.SIGTERM)
-
 	go func() {
 		sig := <-processControl
 		switch sig {
@@ -1251,7 +1265,7 @@ Press ctl-c to terminate.
 			os.Exit(Shutdown(appName, sig.String()))
 		case syscall.SIGHUP:
 			if err := Reload(appName, sig.String(), settings); err != nil {
-				log.Println(err)
+				lg.Println(err)
 				os.Exit(1)
 			}
 		default:

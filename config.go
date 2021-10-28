@@ -18,6 +18,9 @@ type Config struct {
 	// Hostname for running service
 	Hostname string `json:"hostname"`
 
+	// Logfile
+	Logfile string `json:"logfile,omitempty"`
+
 	// Repositories are defined by a REPO_ID (string)
 	// that points at a MySQL Db connection string
 	Repositories map[string]*DataSource `json:"repositories"`
