@@ -45,16 +45,16 @@ func eprintToColumnsAndValues(eprint *EPrint, columnsIn []string, ifNull bool) (
 			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
 		case "eprint_status":
 			values = append(values, &eprint.EPrintStatus)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "userid":
 			values = append(values, &eprint.UserID)
 			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
 		case "dir":
 			values = append(values, &eprint.Dir)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "datestamp_year":
 			values = append(values, &eprint.DatestampYear)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "datestamp_month":
 			values = append(values, &eprint.DatestampMonth)
 			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
@@ -108,28 +108,28 @@ func eprintToColumnsAndValues(eprint *EPrint, columnsIn []string, ifNull bool) (
 			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
 		case "type":
 			values = append(values, &eprint.Type)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "metadata_visibility":
 			values = append(values, &eprint.MetadataVisibility)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "title":
 			values = append(values, &eprint.Title)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "ispublished":
 			values = append(values, &eprint.IsPublished)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "full_text_status":
 			values = append(values, &eprint.FullTextStatus)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "keywords":
 			values = append(values, &eprint.Keywords)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "note":
 			values = append(values, &eprint.Note)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "abstract":
 			values = append(values, &eprint.Abstract)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "date_year":
 			values = append(values, &eprint.DateYear)
 			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
@@ -144,160 +144,160 @@ func eprintToColumnsAndValues(eprint *EPrint, columnsIn []string, ifNull bool) (
 			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
 		case "series":
 			values = append(values, &eprint.Series)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "volume":
 			values = append(values, &eprint.Volume)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "number":
 			values = append(values, &eprint.Number)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "publication":
 			values = append(values, &eprint.Publication)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "publisher":
 			values = append(values, &eprint.Publisher)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "place_of_pub":
 			values = append(values, &eprint.PlaceOfPub)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "edition":
 			values = append(values, &eprint.Edition)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "pagerange":
 			values = append(values, &eprint.PageRange)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "pages":
 			values = append(values, &eprint.Pages)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "event_type":
 			values = append(values, &eprint.EventType)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "event_title":
 			values = append(values, &eprint.EventTitle)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "event_location":
 			values = append(values, &eprint.EventLocation)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "event_dates":
 			values = append(values, &eprint.EventDates)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "id_number":
 			values = append(values, &eprint.IDNumber)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "refereed":
 			values = append(values, &eprint.Refereed)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "isbn":
 			values = append(values, &eprint.ISBN)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "issn":
 			values = append(values, &eprint.ISSN)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "book_title":
 			values = append(values, &eprint.BookTitle)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "official_url":
 			values = append(values, &eprint.OfficialURL)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "alt_url":
 			values = append(values, &eprint.AltURL)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "rights":
 			values = append(values, &eprint.Rights)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "collection":
 			values = append(values, &eprint.Collection)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "reviewer":
 			values = append(values, &eprint.Reviewer)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "official_cit":
 			values = append(values, &eprint.OfficialCitation)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "monograph_type":
 			values = append(values, &eprint.MonographType)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "suggestions":
 			values = append(values, &eprint.Suggestions)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "pres_type":
 			values = append(values, &eprint.PresType)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "succeeds":
 			values = append(values, &eprint.Succeeds)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "commentary":
 			values = append(values, &eprint.Commentary)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "contact_email":
 			values = append(values, &eprint.ContactEMail)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "fileinfo":
 			values = append(values, &eprint.FileInfo)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "latitude":
 			values = append(values, &eprint.Latitude)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "longitude":
 			values = append(values, &eprint.Longitude)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "department":
 			values = append(values, &eprint.Department)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "output_media":
 			values = append(values, &eprint.OutputMedia)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "num_pieces":
 			values = append(values, &eprint.NumPieces)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "composition_type":
 			values = append(values, &eprint.CompositionType)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "data_type":
 			values = append(values, &eprint.DataType)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "pedagogic_type":
 			values = append(values, new(string))
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "learning_level":
 			values = append(values, &eprint.LearningLevelText)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "completion_time":
 			values = append(values, &eprint.CompletionTime)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "task_purpose":
 			values = append(values, &eprint.TaskPurpose)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "doi":
 			values = append(values, &eprint.DOI)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "pmc_id":
 			values = append(values, &eprint.PMCID)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "pmid":
 			values = append(values, &eprint.PMID)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "parent_url":
 			values = append(values, &eprint.ParentURL)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "toc":
 			values = append(values, &eprint.TOC)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "interviewer":
 			values = append(values, &eprint.Interviewer)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "interviewdate":
 			values = append(values, &eprint.InterviewDate)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "nonsubj_keywords":
 			values = append(values, &eprint.NonSubjKeywords)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "season":
 			values = append(values, &eprint.Season)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "classification_code":
 			values = append(values, &eprint.ClassificationCode)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "sword_depositor":
 			values = append(values, &eprint.SwordDepository)
 			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s,'') AS %s`, key, key))
@@ -312,22 +312,22 @@ func eprintToColumnsAndValues(eprint *EPrint, columnsIn []string, ifNull bool) (
 			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s,0) AS %s`, key, key))
 		case "patent_applicant":
 			values = append(values, &eprint.PatentApplicant)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "patent_number":
 			values = append(values, &eprint.PatentNumber)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "institution":
 			values = append(values, &eprint.Institution)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "thesis_type":
 			values = append(values, &eprint.ThesisType)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "thesis_degree":
 			values = append(values, &eprint.ThesisDegree)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "thesis_degree_grantor":
 			values = append(values, &eprint.ThesisDegreeGrantor)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "thesis_degree_date_year":
 			values = append(values, &eprint.ThesisDegreeDateYear)
 			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
@@ -348,7 +348,7 @@ func eprintToColumnsAndValues(eprint *EPrint, columnsIn []string, ifNull bool) (
 			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
 		case "thesis_defense_date":
 			values = append(values, &eprint.ThesisDefenseDate)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "thesis_defense_date_year":
 			values = append(values, &eprint.ThesisDefenseDateYear)
 			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
@@ -378,13 +378,13 @@ func eprintToColumnsAndValues(eprint *EPrint, columnsIn []string, ifNull bool) (
 			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
 		case "thesis_author_email":
 			values = append(values, &eprint.ThesisAuthorEMail)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "hide_thesis_author_email":
 			values = append(values, &eprint.HideThesisAuthorEMail)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "gradofc_approval_date":
 			values = append(values, &eprint.GradOfficeApprovalDate)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "gradofc_approval_date_year":
 			values = append(values, &eprint.GradOfficeApprovalDateYear)
 			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
@@ -396,16 +396,16 @@ func eprintToColumnsAndValues(eprint *EPrint, columnsIn []string, ifNull bool) (
 			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
 		case "thesis_awards":
 			values = append(values, &eprint.ThesisAwards)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "review_status":
 			values = append(values, &eprint.ReviewStatus)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "copyright_statement":
 			values = append(values, &eprint.CopyrightStatement)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "source":
 			values = append(values, &eprint.Source)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "replacedby":
 			values = append(values, &eprint.ReplacedBy)
 			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s,0) AS %s`, key, key))
@@ -459,22 +459,22 @@ func documentToColumnsAndValues(document *Document, columns []string, ifNull boo
 			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
 		case "format":
 			values = append(values, &document.Format)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "formatdesc":
 			values = append(values, &document.FormatDesc)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "language":
 			values = append(values, &document.Language)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "security":
 			values = append(values, &document.Security)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "license":
 			values = append(values, &document.License)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "main":
 			values = append(values, &document.Main)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "date_embargo_year":
 			values = append(values, &document.DateEmbargoYear)
 			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
@@ -486,22 +486,22 @@ func documentToColumnsAndValues(document *Document, columns []string, ifNull boo
 			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
 		case "content":
 			values = append(values, &document.Content)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "placement":
 			values = append(values, &document.Placement)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "mime_type":
 			values = append(values, &document.MimeType)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "media_duration":
 			values = append(values, &document.MediaDuration)
 			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
 		case "media_audio_codec":
 			values = append(values, &document.MediaAudioCodec)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "media_video_codec":
 			values = append(values, &document.MediaVideoCodec)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "media_width":
 			values = append(values, &document.MediaWidth)
 			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
@@ -535,22 +535,22 @@ func fileToColumnsAndValues(file *File, columns []string, ifNull bool) ([]string
 			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
 		case "datasetid":
 			values = append(values, &file.DatasetID)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "objectid":
 			values = append(values, &file.ObjectID)
 			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
 		case "filename":
 			values = append(values, &file.Filename)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "mime_type":
 			values = append(values, &file.MimeType)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "hash":
 			values = append(values, &file.Hash)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "hash_type":
 			values = append(values, &file.HashType)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, ``))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "filesize":
 			values = append(values, &file.FileSize)
 			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))

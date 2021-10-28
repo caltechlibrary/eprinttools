@@ -898,7 +898,7 @@ func recordEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args 
 //
 func eprintEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
 	if len(args) == 0 || repoID == "" || strings.HasSuffix(r.URL.Path, "/help") {
-		return packageDocument(w, eprintDocument(repoID))
+		return packageDocument(w, eprintReadWriteDocument(repoID))
 	}
 	contentType := r.Header.Get("Content-Type")
 	dataSource, ok := config.Repositories[repoID]
@@ -955,7 +955,7 @@ func eprintEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args 
 // set to true.
 func eprintImportEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
 	if repoID == "" || strings.HasSuffix(r.URL.Path, "/help") {
-		return packageDocument(w, eprintDocument(repoID))
+		return packageDocument(w, eprintReadWriteDocument(repoID))
 	}
 	writeAccess := false
 	dataSource, ok := config.Repositories[repoID]

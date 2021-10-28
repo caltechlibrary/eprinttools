@@ -94,8 +94,8 @@ As of __ep3apid__ version 1.0.3 a new set of end points exists for reading (retr
 
 The metadata import functionality is enabled per repository. It only supports importing records at this time.  Importing an EPrint XML document, which could containing multiple EPrint metadata records, is implemented purely using SQL statements and not the EPrints Perl API. This allows you (with the right MySQL configuration) to run the extended API on a different server without resorting to Perl.
 
-- '/{REPO_ID}/eprint-import' POST accepts EPrints XML with content type of "application/xml" or JSON version of EPrints XML with content type "application/json". To enable this feature add the attribute '"write": true' to the repositories setting in settins.json.
-- '/{REPO_ID}/eprint/{EPRINT_ID}' method GET with a content type of "application/json" for JSON version of EPrint XML or "application/xml" for EPrint XML
+- '/{REPO_ID}/eprint/{EPRINT_ID}' method GET with a content type of "application/json" (JSON of EPrint XML) or "application/xml" for EPrint XML
+- '/{REPO_ID}/eprint-import' POST accepts EPrints XML with content type of "application/xml" or JSON of EPrints XML with content type "application/json". To enable this feature add the attribute '"write": true' to the repositories setting in settins.json.
 
 
 settings.json (configuration)
@@ -422,17 +422,19 @@ JSON represents the JSON model used in DataCite and InvenioRDMs.
 `, repoID)
 }
 
-func eprintDocument(repoID string) string {
+func eprintReadWriteDocument(repoID string) string {
 	return fmt.Sprintf(`
-EPrint Record
--------------
+Read/Write metadata API
+-----------------------
 
-If the read/write is enabled for %q then this end point will
-access a retrieve an EPrint record as EPrint XML via http GET.
-You can create or replace an EPrint record using a POST containing
-valid EPrint XML. Not the transaction with the repository is only
-done via SQL. There is no facility to upload PDFs or other digital
-files.  It does NOT use the Perl API.
+As of 1.0.3 of the EPrints extended API support for reading (retrieving
+EPrint XML) and write (importing EPrint XML) metadata has been added.
+Reading is performed with a GET and writing with a POST to their
+respective end points.  The POST must be submitted with a 
+"applciation/xml" content type for EPrints XML or "application/json" for
+the JSON version of EPrint XML. The EPrints extended API does NOT use
+the Perl API, it talks directly to the MySQL database supporting your
+EPrints repository.
 
 GET:
 
@@ -440,8 +442,9 @@ GET:
 
 POST:
 
-- '/%s/eprint/{EPRINT_ID}' will replace an existing EPrint, POST must be valid EPrint XML with a content type of "application/xml".
-- '/%s/eprint/0' will create a new EPrint record. The POST must be valid EPrint XML with a content type of "application/xml".
+- '/%s/eprint-import' will create new EPrint record(s). The POST must be valid EPrint XML with a content type of "application/xml".
 
-`, repoID, repoID, repoID, repoID)
+EPrints XML can contiain more than one EPrint record so multiple EPrint metadata records can be created with one post.
+
+`, repoID, repoID)
 }
