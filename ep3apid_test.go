@@ -1,10 +1,13 @@
 package eprinttools
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"os"
+	"path"
 	"testing"
 	"time"
 )
@@ -30,6 +33,24 @@ func httpGet(u string) ([]byte, error) {
 	return ioutil.ReadAll(res.Body)
 }
 
+func httpPost(u string, contentType string, data []byte) ([]byte, error) {
+	buf := bytes.NewReader(data)
+	res, err := http.Post(u, contentType, buf)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+	src, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+	fmt.Printf("DEBUG response status %d, %s\n", res.StatusCode, res.Status)
+	if res.StatusCode != 200 {
+		return src, fmt.Errorf(`HTTP status code %d`, res.StatusCode)
+	}
+	return src, nil
+}
+
 func checkForHelpPages(hostname string, repoID string, route string) error {
 	var u string
 	switch {
@@ -53,11 +74,73 @@ func checkForHelpPages(hostname string, repoID string, route string) error {
 }
 
 func runWriteTest(t *testing.T, repoID string, repo *DataSource, route string) {
-	t.Errorf(`runWriteTest() not implemented`)
+	baseURL := fmt.Sprintf(`http://%s`, config.Hostname)
+	repo, ok := config.Repositories[repoID]
+	if ok == false || repo.Write == false {
+		t.Errorf(`%s not configured for writing`, repoID)
+		t.FailNow()
+	}
+	// Test writes to a Authors like database, e.g lemurAuthors
+	testFile := path.Join(`srctest`, fmt.Sprintf(`%sEPrint.xml`, repoID))
+	if _, err := os.Stat(testFile); os.IsNotExist(err) {
+		t.Errorf(`Could not find %q, %s`, testFile, err)
+		t.FailNow()
+	}
+	src, err := ioutil.ReadFile(testFile)
+	if err != nil {
+		t.Errorf(`Cound not read %q, %s`, testFile, err)
+		t.FailNow()
+	}
+	//t.Logf(`Read eprint XML %q: %s`, testFile, src)
+	u := fmt.Sprintf(`%s/%s/eprint-import`, baseURL, repoID)
+	src, err = httpPost(u, `application/xml`, src)
+	if err != nil {
+		t.Logf(`%s`, src)
+		t.Errorf(`Post failed, %q, %s`, u, err)
+		t.FailNow()
+	}
+	t.Logf(`Post returned: %s`, src)
+	ids := []int{}
+	if err := json.Unmarshal(src, &ids); err != nil {
+		t.Errorf(`Failed to unmarshal post results fo %q, %s`, u, err)
+		t.FailNow()
+	}
+	if len(ids) == 0 || ids[0] == 0 {
+		t.Errorf(`Expected non zero id in ids list`)
+		t.FailNow()
+	}
 }
 
 func runReadTests(t *testing.T, repoID string, route string) {
-	t.Errorf(`runWriteTest() not implemented`)
+	for repoID, dsn := range config.Repositories {
+		baseURL := fmt.Sprintf(`http://%s`, config.Hostname)
+		u := fmt.Sprintf(`%s/repository/%s`, baseURL, repoID)
+		src, err := httpGet(u)
+		if err != nil {
+			t.Errorf(`Failed %s, %s`, u, err)
+			t.FailNow()
+		}
+		repository := map[string][]string{}
+		if err := json.Unmarshal(src, &repository); err != nil {
+			t.Errorf(`Failed unmarshal %s, %s`, u, err)
+			t.FailNow()
+		}
+		u = fmt.Sprintf(`%s/%s/keys`, baseURL, repoID)
+		src, err = httpGet(u)
+		if err != nil {
+			t.Errorf(`Failed %s, %s`, u, err)
+			t.FailNow()
+		}
+		keys := []int{}
+		if err := json.Unmarshal(src, &keys); err != nil {
+			t.Errorf(`Failed %s, %s`, u, err)
+			t.FailNow()
+		}
+		if dsn.Write == false && len(keys) == 0 {
+			t.Errorf(`Failed %s, expected greater than zero keys`, u)
+			t.FailNow()
+		}
+	}
 }
 
 func checkRepoStructure(repoID string) error {

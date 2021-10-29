@@ -956,7 +956,11 @@ func eprintEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args 
 // defining the individual repository support. "write" needs to be
 // set to true.
 func eprintImportEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
-	if r.Method == "GET" || len(args[0]) != 0 || repoID == "" || strings.HasSuffix(r.URL.Path, "/help") {
+	if repoID == "" {
+		repoID = `{REPO_ID}`
+		return packageDocument(w, eprintReadWriteDocument(repoID))
+	}
+	if r.Method == "GET" || strings.HasSuffix(r.URL.Path, "/help") {
 		return packageDocument(w, eprintReadWriteDocument(repoID))
 	}
 	writeAccess := false
@@ -977,7 +981,7 @@ func eprintImportEndPoint(w http.ResponseWriter, r *http.Request, repoID string,
 		return 400, fmt.Errorf("bad request, POST failed (%s), %s", repoID, err)
 	}
 	ids := []int{}
-	ids, err = ImportEPrints(repoID, eprints, false)
+	ids, err = ImportEPrints(repoID, eprints)
 	if err != nil {
 		return 400, fmt.Errorf("bad request, create EPrint failed, %s", err)
 	}
@@ -1002,7 +1006,8 @@ func logRequest(r *http.Request, status int, err error) {
 
 func handleError(w http.ResponseWriter, statusCode int, err error) {
 	w.Header().Set("Content-Type", "text/plain")
-	fmt.Fprintf(w, `ERROR: %d %s`, statusCode, err)
+	http.Error(w, fmt.Sprintf(`%s`, err), statusCode)
+	//fmt.Fprintf(w, `ERROR: %d %s`, statusCode, err)
 }
 
 func routeEndPoints(w http.ResponseWriter, r *http.Request) (int, error) {

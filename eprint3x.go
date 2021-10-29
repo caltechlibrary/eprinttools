@@ -94,7 +94,7 @@ type EPrint struct {
 	PlaceOfPub           string                        `xml:"place_of_pub,omitempty" json:"place_of_pub,omitempty"`
 	Edition              string                        `xml:"edition,omitempty" json:"edition,omitempty"`
 	PageRange            string                        `xml:"pagerange,omitempty" json:"pagerange,omitempty"`
-	Pages                string                        `xml:"pages,omitempty" json:"pages,omitempty"`
+	Pages                int                           `xml:"pages,omitempty" json:"pages,omitempty"`
 	EventType            string                        `xml:"event_type,omitempty" json:"event_type,omitempty"`
 	EventTitle           string                        `xml:"event_title,omitempty" json:"event_title,omitempty"`
 	EventLocation        string                        `xml:"event_location,omitempty" json:"event_location,omitempty"`
@@ -130,13 +130,13 @@ type EPrint struct {
 	// NOTE: Misc fields discoverd exploring REST API records, not currently used at Caltech Library (RSD, 2018-01-02)
 	Subjects     *SubjectItemList `xml:"subjects,omitempty" json:"subjects,omitempty"`
 	PresType     string           `xml:"pres_type,omitempty" json:"presentation_type,omitempty"`
-	Succeeds     string           `xml:"succeeds,omitempty" json:"succeeds,omitempty"`
-	Commentary   string           `xml:"commentary,omitempty" json:"commentary,omitempty"`
+	Succeeds     int              `xml:"succeeds,omitempty" json:"succeeds,omitempty"`
+	Commentary   int              `xml:"commentary,omitempty" json:"commentary,omitempty"`
 	ContactEMail string           `xml:"contact_email,omitempty" json:"contect_email,omitempty"`
 	// NOTE: EPrints XML doesn't include fileinfo
 	FileInfo           string                   `xml:"-" json:"-"`
-	Latitude           string                   `xml:"latitude,omitempty" json:"latitude,omitempty"`
-	Longitude          string                   `xml:"longitude,omitempty" json:"longitude,omitempty"`
+	Latitude           float64                  `xml:"latitude,omitempty" json:"latitude,omitempty"`
+	Longitude          float64                  `xml:"longitude,omitempty" json:"longitude,omitempty"`
 	ItemIssues         *ItemIssueItemList       `xml:"item_issues,omitempty" json:"item_issues,omitempty"`
 	ItemIssuesCount    int                      `xml:"item_issues_count" json:"item_issues_count,omitempty"`
 	CorpCreators       *CorpCreatorItemList     `xml:"corp_creators,omitempty" json:"corp_creators,omitempty"`
@@ -144,7 +144,7 @@ type EPrint struct {
 	Department         string                   `xml:"department,omitempty" json:"department,omitempty"`
 	OutputMedia        string                   `xml:"output_media,omitempty" json:"output_media,omitempty"`
 	Exhibitors         *ExhibitorItemList       `xml:"exhibitors,omitempty" json:"exhibitors,omitempty"`
-	NumPieces          string                   `xml:"num_pieces,omitempty" json:"num_pieces,omitempty"`
+	NumPieces          int                      `xml:"num_pieces,omitempty" json:"num_pieces,omitempty"`
 	CompositionType    string                   `xml:"composition_type,omitempty" json:"composition_type,omitempty"`
 	Producers          *ProducerItemList        `xml:"producers,omitempty" json:"producers,omitempty"`
 	Conductors         *ConductorItemList       `xml:"conductors,omitempty" json:"conductors,omitempty"`
@@ -176,7 +176,7 @@ type EPrint struct {
 
 	// NOTE: Sword deposit fields
 	SwordDepository string `xml:"sword_depository,omitempty" json:"sword_depository,omitempty"`
-	SwordDepositor  string `xml:"sword_depositor,omitempty" json:"sword_depositor,omitempty"`
+	SwordDepositor  int    `xml:"sword_depositor,omitempty" json:"sword_depositor,omitempty"`
 	SwordSlug       string `xml:"sword_slug,omitempty" json:"sword_slug,omitempty"`
 	ImportID        int    `xml:"importid,omitempty" json:"import_id,omitempty"`
 

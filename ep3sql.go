@@ -168,7 +168,7 @@ func eprintToColumnsAndValues(eprint *EPrint, columnsIn []string, ifNull bool) (
 			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "pages":
 			values = append(values, &eprint.Pages)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
 		case "event_type":
 			values = append(values, &eprint.EventType)
 			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
@@ -225,10 +225,10 @@ func eprintToColumnsAndValues(eprint *EPrint, columnsIn []string, ifNull bool) (
 			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "succeeds":
 			values = append(values, &eprint.Succeeds)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
 		case "commentary":
 			values = append(values, &eprint.Commentary)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
 		case "contact_email":
 			values = append(values, &eprint.ContactEMail)
 			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
@@ -237,10 +237,10 @@ func eprintToColumnsAndValues(eprint *EPrint, columnsIn []string, ifNull bool) (
 			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "latitude":
 			values = append(values, &eprint.Latitude)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `0.0`))
 		case "longitude":
 			values = append(values, &eprint.Longitude)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `0.0`))
 		case "department":
 			values = append(values, &eprint.Department)
 			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
@@ -249,7 +249,7 @@ func eprintToColumnsAndValues(eprint *EPrint, columnsIn []string, ifNull bool) (
 			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "num_pieces":
 			values = append(values, &eprint.NumPieces)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
 		case "composition_type":
 			values = append(values, &eprint.CompositionType)
 			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
@@ -299,17 +299,17 @@ func eprintToColumnsAndValues(eprint *EPrint, columnsIn []string, ifNull bool) (
 			values = append(values, &eprint.ClassificationCode)
 			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "sword_depositor":
-			values = append(values, &eprint.SwordDepository)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s,'') AS %s`, key, key))
+			values = append(values, &eprint.SwordDepositor)
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
 		case "sword_depository":
 			values = append(values, &eprint.SwordDepository)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s,'') AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "sword_slug":
 			values = append(values, &eprint.SwordSlug)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s,'') AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "importid":
 			values = append(values, &eprint.ImportID)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s,0) AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
 		case "patent_applicant":
 			values = append(values, &eprint.PatentApplicant)
 			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
@@ -408,29 +408,29 @@ func eprintToColumnsAndValues(eprint *EPrint, columnsIn []string, ifNull bool) (
 			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "replacedby":
 			values = append(values, &eprint.ReplacedBy)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s,0) AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
 		case "item_issues_count":
 			values = append(values, &eprint.ItemIssuesCount)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s,0) AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
 		case "errata":
 			values = append(values, &eprint.ErrataText)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s,'') AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "coverage_dates":
 			values = append(values, &eprint.CoverageDates)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s,'') AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "edit_lock_user":
 			values = append(values, &eprint.EditLockUser)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s,0) AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
 		case "edit_lock_since":
 			values = append(values, &eprint.EditLockSince)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s,0) AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
 		case "edit_lock_until":
 			values = append(values, &eprint.EditLockUntil)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s,0) AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
 		// The follow values represent sub tables and processed separately.
 		case "patent_classification":
 			values = append(values, &eprint.PatentClassificationText)
-			columnsOut = append(columnsOut, fmt.Sprintf(`IFNULL(%s,'') AS %s`, key, key))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		default:
 			// Handle case where we have value that is unmapped or not available in EPrint struct
 			log.Printf("could not map %q (%d) into EPrint struct", key, i)
@@ -519,7 +519,6 @@ func documentToColumnsAndValues(document *Document, columns []string, ifNull boo
 			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
 		default:
 			log.Printf("%q (%d) not found in document table", key, i)
-			//return nil, nil, fmt.Errorf("%q (%d) not found in document", key, i)
 		}
 	}
 	return columnsOut, values
@@ -1678,121 +1677,115 @@ func qmList(length int) []string {
 	return list
 }
 
-// CrosswalkEPrintToSQL will read a EPrint structure and
-// generate SQL INSERT (eprint.ID == 0) or REPLACE statements
-// suitable for updating an EPrint record in the repository.
-// It then will execute that SQL and return the EPrint ID
-// created or updated otherwise it will return an error.
-func CrosswalkEPrintToSQL(repoID string, eprint *EPrint) (int, error) {
+// insertItemList takes an repoID, table name, list of columns and
+// an EPrint datastructure then generates and executes a series of
+// INSERT statement to create an Item List for the given table.
+func insertItemList(repoID string, tableName string, columns []string, eprint *EPrint) error {
+	return fmt.Errorf(`insertItemList() not implemented`)
+}
+
+// CrosswalkEPrintToSQLCreate will read a EPrint structure and
+// generate SQL INSERT, REPLACE and DELETE statements
+// suitable for creating a new EPrint record in the repository.
+func CrosswalkEPrintToSQLCreate(repoID string, eprint *EPrint) (int, error) {
 	var (
 		err      error
 		eprintID int
 	)
-	newEPrint := (eprint.EPrintID == 0)
 	db, ok := config.Connections[repoID]
 	if ok == false {
-		return 0, fmt.Errorf("%s is not configured", repoID)
+		return 0, fmt.Errorf(`%s is not configured`, repoID)
 	}
+	dsn, ok := config.Repositories[repoID]
+	if ok == false || dsn.Write == false {
+		return 0, fmt.Errorf(`%s is not configured for creating eprint records`, repoID)
+	}
+	// If eprint id is zero generate a sequence of INSERT statements
+	// for the record. Others use generate the appropriate History
+	// records and then delete insert the new record.
+	tableName := `eprint`
 
-	if dsn, ok := config.Repositories[repoID]; ok {
-		// If eprint id is zero generate a sequence of INSERT statements
-		// for the record. Others use generate the appropriate History
-		// records and then delete insert the new record.
-		tableName := `eprint`
-		if columns, ok := dsn.TableMap[tableName]; ok {
-			columnsSQL, values := eprintToColumnsAndValues(eprint, columns, false)
-			// Setup primary eprint table
-			if newEPrint {
-				stmt := fmt.Sprintf(`INSERT INTO %s (%s) VALUES (%s)`,
-					tableName,
-					strings.Join(columnsSQL, `, `),
-					strings.Join(qmList(len(columnsSQL)), `, `))
-				res, err := db.Exec(stmt, values...)
-				if err != nil {
-					return 0, fmt.Errorf(`SQL error, %q, %s`, stmt, err)
-				}
-				id64, err := res.LastInsertId()
-				if err != nil {
-					return 0, fmt.Errorf(`SQL failed to get insert id, %s`, err)
-				}
-				eprintID = int(id64)
-			} else {
-				stmt := fmt.Sprintf(`REPLACE INTO %s (%s) VALUES (%s)`,
-					tableName,
-					strings.Join(columnsSQL, `, `),
-					strings.Join(qmList(len(columnsSQL)), `, `))
-				_, err := db.Exec(stmt, values...)
-				if err != nil {
-					return 0, fmt.Errorf(`SQL error, %q, %s`, stmt, err)
-				}
-				eprintID = eprint.EPrintID
-			}
-			for tableName, columns := range dsn.TableMap {
-				// Handle the remaining tables, i.e. skip eprint table.
-				switch {
-				case tableName == "eprint":
-				// Skip eprint table, we've already processed it
-				case strings.HasPrefix(tableName, "eprint_"):
-					log.Printf(`FIXME %s columns: %s`, tableName, strings.Join(columns, `, `))
-					//FIXME: need to handle tables
-					if !newEPrint {
-						// Delete rows associated with related table
-					}
-					// Insert rows in associated table
-				case strings.HasPrefix(tableName, "document_"):
-					log.Printf(`FIXME %s columns: %s`, tableName, strings.Join(columns, `, `))
-				case strings.HasPrefix(tableName, "file"):
-					log.Printf(`FIXME %s columns: %s`, tableName, strings.Join(columns, `, `))
-				default:
-					if !newEPrint {
-						// Delete rows associated with related table
-					}
-					// Insert rows in associated table
-				}
-			}
-			return eprintID, nil
-		} else {
+	if columns, ok := dsn.TableMap[tableName]; ok {
+		// Step one, as a transaction get the highest eprintid, add one and
+		// generate an empty eprint row.
+		stmt := fmt.Sprintf(`INSERT INTO eprint (eprintid) SELECT IFNULL((SELECT (eprintid + 1) FROM eprint ORDER BY eprintid DESC LIMIT 1), 1)`)
+		_, err := db.Exec(stmt)
+		if err != nil {
+			return 0, fmt.Errorf(`SQL error, %q, %s`, stmt, err)
 		}
-	} else {
-		return 0, fmt.Errorf("%s not configured", repoID)
+		stmt = fmt.Sprintf(`SELECT eprintid FROM eprint ORDER BY eprintid DESC LIMIT 1`)
+		rows, err := db.Query(stmt)
+		if err != nil {
+			return 0, fmt.Errorf(`SQL error, %q, %s`, stmt, err)
+		}
+		id := 0
+		for rows.Next() {
+			if err := rows.Scan(&id); err != nil {
+				return 0, fmt.Errorf(`Could not calculate the new eprintid value, %s`, err)
+			}
+		}
+		rows.Close()
+		if err != nil {
+			return 0, fmt.Errorf(`SQL failed to get insert id, %s`, err)
+		}
+		log.Printf("DEBUG retrieved the last insert ID of %d", id)
+		eprint.EPrintID = id
+		// Step two, write the rest of the date into the main table.
+		columnsSQL, values := eprintToColumnsAndValues(eprint, columns, false)
+		stmt = fmt.Sprintf(`REPLACE INTO %s (%s) VALUES (%s)`,
+			tableName,
+			strings.Join(columnsSQL, `, `),
+			strings.Join(qmList(len(columnsSQL)), `, `))
+		_, err = db.Exec(stmt, values...)
+		if err != nil {
+			return 0, fmt.Errorf(`SQL error, %q, %s`, stmt, err)
+		}
+	}
+	log.Printf(`DEBUG we should now have eprintid %d %s table populated for %s`, eprint.EPrintID, tableName, repoID)
+	if eprint.EPrintID != 0 {
+		for tableName, columns := range dsn.TableMap {
+			// Handle the remaining tables, i.e. skip eprint table.
+			switch {
+			case tableName == `eprint`:
+			// Skip eprint table, we've already processed it
+			case strings.HasPrefix(tableName, `document`):
+				log.Printf(`FIXME %s columns: %s`, tableName, strings.Join(columns, `, `))
+			case strings.HasPrefix(tableName, `file`):
+				log.Printf(`FIXME %s columns: %s`, tableName, strings.Join(columns, `, `))
+			default:
+				log.Printf(`DEBUG attempted to insert an ItemList %s, %s`, tableName, strings.Join(columns, `, `))
+				// Insert new rows in associated table
+				if err := insertItemList(repoID, tableName, columns, eprint); err != nil {
+					return eprint.EPrintID, fmt.Errorf(`Failed to insert eprintid %d in %s for %s, %s`, eprint.EPrintID, tableName, repoID, err)
+				}
+			}
+		}
+		return eprintID, nil
 	}
 	return 0, err
 }
 
 // ImportEPrints take an repository id, eprints structure.
-// It is a re-implementation of EPrints Perl Import EPrint XML
-// extending that functionality to include updating existing EPrint
-// records.
+// It is a re-implementation of EPrints Perl Import EPrint XML.
 //
-// ImportEPrints will create or update EPrint records using
-// CrosswalkEPrintToSQL on the individual EPrint record. The import
-// must be consistant with the "updateImport" booling. If "updateImport"
-// is true then only update requests will be processed. If false
-// then it will only create new EPrint records.
+// ImportEPrints will create EPrint records using
+// CrosswalkEPrintToSQLCreate function.
 //
-// ImportEPrints returns a list of EPrint IDs created or update
-// if successful. It will return an error otherwise.
-func ImportEPrints(repoID string, eprints *EPrints, updateImport bool) ([]int, error) {
+// ImportEPrints returns a list of EPrint IDs created
+// if successful and an error if something goes wrong.
+func ImportEPrints(repoID string, eprints *EPrints) ([]int, error) {
 	var importErrors error
 	ids := []int{}
 
 	// Check to make sure updates are allowed if non-Zero
 	// eprint ids present.
-	if updateImport {
-		for i, eprint := range eprints.EPrint {
-			if eprint.EPrintID == 0 {
-				return nil, fmt.Errorf("Update requires a non-zero EPrint ID for %s, %d-th eprint imported", repoID, i)
-			}
-		}
-	} else {
-		for _, eprint := range eprints.EPrint {
-			if eprint.EPrintID != 0 {
-				return nil, fmt.Errorf("Create failed, updated requested for %s, eprint id %d", repoID, eprint.EPrintID)
-			}
+	for _, eprint := range eprints.EPrint {
+		if eprint.EPrintID != 0 {
+			return nil, fmt.Errorf("Create failed eprint id %d in %s", eprint.EPrintID, repoID)
 		}
 	}
 	for _, eprint := range eprints.EPrint {
-		id, err := CrosswalkEPrintToSQL(repoID, eprint)
+		id, err := CrosswalkEPrintToSQLCreate(repoID, eprint)
 		if err != nil {
 			if importErrors == nil {
 				importErrors = err

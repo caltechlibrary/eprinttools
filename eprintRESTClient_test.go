@@ -30,36 +30,48 @@ import (
 )
 
 func configRestClient() (*Config, error) {
-	if _, err := os.Stat("test-settings.json"); os.IsNotExist(err) {
+	if _, err := os.Stat(`test-settings.json`); os.IsNotExist(err) {
 		return nil, err
 	}
-	src, err := ioutil.ReadFile("test-settings.json")
+	src, err := ioutil.ReadFile(`test-settings.json`)
 	if err != nil {
 		return nil, err
 	}
 	config := new(Config)
-	err = json.Unmarshal(src, config)
+	err = json.Unmarshal(src, &config)
+	if err != nil {
+		return nil, err
+	}
+	configuredClientFound := false
+	for _, dsn := range config.Repositories {
+		if dsn.RestAPI != `` {
+			configuredClientFound = true
+		}
+	}
+	if !configuredClientFound {
+		return config, fmt.Errorf(`RestAPI not defined for any repositories`)
+	}
 	return config, err
 }
 
 func TestRestClient(t *testing.T) {
 	config, err := configRestClient()
 	if err != nil {
-		t.Skip("Skipping TestRestClient(), requires test-settings.json")
+		t.Skipf(`Skipping TestRestClient(), %s`, err)
 		t.SkipNow()
 	}
 	for repoID, dataSource := range config.Repositories {
 		eprintURL := dataSource.RestAPI
-		if eprintURL == "" {
-			t.Logf("RestAPI not configured for %s", repoID)
+		if eprintURL == `` {
+			t.Logf(`RestAPI not configured for %s`, repoID)
 		} else {
 			keys, err := GetKeys(eprintURL)
 			if err != nil {
-				t.Errorf("  GetKeys(%q) returned an error, %s", eprintURL, err)
+				t.Errorf(`  GetKeys(%q) returned an error, %s`, eprintURL, err)
 				t.FailNow()
 			}
 			if len(keys) < 1 {
-				t.Errorf("  Expected some keys form GetKeys(%q)", eprintURL)
+				t.Errorf(`  Expected some keys form GetKeys(%q)`, eprintURL)
 				t.FailNow()
 			}
 			// Take a sample of 25 keys
