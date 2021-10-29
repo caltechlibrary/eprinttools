@@ -52,6 +52,27 @@ func checkForHelpPages(hostname string, repoID string, route string) error {
 	return nil
 }
 
+func runWriteTest(t *testing.T, repoID string, repo *DataSource, route string) {
+	t.Errorf(`runWriteTest() not implemented`)
+}
+
+func runReadTests(t *testing.T, repoID string, route string) {
+	t.Errorf(`runWriteTest() not implemented`)
+}
+
+func checkRepoStructure(repoID string) error {
+	u := fmt.Sprintf(`http://%s/repository/%s`, config.Hostname, repoID)
+	src, err := httpGet(u)
+	if err != nil {
+		return err
+	}
+	if len(src) == 0 {
+		return fmt.Errorf(`Expected JSON content for /repository/%s, got none`, repoID)
+	}
+	//FIXME: make sure we get back a valid JSON structure.
+	return nil
+}
+
 func runClientForTest(t *testing.T, appName string, settings string) {
 	// Run client tests
 	const wait = 1
@@ -76,9 +97,20 @@ func runClientForTest(t *testing.T, appName string, settings string) {
 	// Let's test for help pages
 	for repoID, routes := range config.Routes {
 		t.Logf(`Testing routes for %s`, repoID)
+		if err := checkRepoStructure(repoID); err != nil {
+			t.Errorf(`%s /repository/%s failed, %s`, repoID, repoID, err)
+		}
 		for route := range routes {
 			if err := checkForHelpPages(config.Hostname, repoID, route); err != nil {
-				t.Error(err)
+				t.Errorf(`%s, route %s, %s`, repoID, route, err)
+			}
+			switch route {
+			case `eprint-import`:
+				if repo, ok := config.Repositories[repoID]; ok && repo.Write {
+					runWriteTest(t, repoID, repo, route)
+				}
+			default:
+				runReadTests(t, repoID, route)
 			}
 		}
 	}
