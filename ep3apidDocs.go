@@ -47,16 +47,30 @@ Unique ids maybe standards based (e.g. ORCID, DOI, ISSN, ISBN) or internal (e.g.
 - '/{REPO_ID}/pmcid/{PMCID}' with the "pmcid" field in the EPrint table, PMCID an Identifier to each full-text paper in PubMed Central Archive
 - '/{REPO_ID}/creator-id' returns a list of creaator-id available in the eprints repository
 - '/{REPO_ID}/creator-id/{CREATOR_ID}' scans the name creator id field associated with creators and returns a list of EPrint ID 
+- '/{REPO_ID}/creator-name' returns a list of creator names (family, given) in repository
+- '/{REPO_ID}/creator-name/{FAMILY}/{GIVEN}' returns a list of EPrint ID for the given creator using their family and given names
 - '/{REPO_ID}/creator-orcid' return a list of "orcid" associated with creators in repository 
 - '/{REPO_ID}/creator-orcid/{ORCID}' scans the "orcid" field associated with creators and returns a list of EPrint ID 
 - '/{REPO_ID}/editor-id' returns a list of editor ids available in the EPrints repository
 - '/{REPO_ID}/editor-id/{CREATOR_ID}' scans the name creator id field associated with editors and returns a list of EPrint ID 
+- '/{REPO_ID}/editor-name' returns a list of editor names (family, given) in repository
+- '/{REPO_ID}/editor-name/{FAMILY}/{GIVEN}' returns a list of EPrint ID for the given editor using their family and given names
 - '/{REPO_ID}/contributor-id' returns a list of contributor ids available in the eprints repository
 - '/{REPO_ID}/contributor-id/{CONTRIBUTOR_ID}' scans the "id" field associated with a contributors and returns a list of EPrint ID 
+- '/{REPO_ID}/contributor-name' returns a list of contributor names (family, given) in repository
+- '/{REPO_ID}/contributor-name/{FAMILY}/{GIVEN}' returns a list of EPrint ID for the given contributor using their family and given names
 - '/{REPO_ID}/advisor-id' returns a list of advisor ids in the eprints repository
 - '/{REPO_ID}/advisor-id/{ADVISOR_ID}' scans the name advisor id field associated with advisors and returns a list of EPrint ID 
+- '/{REPO_ID}/advisor-name' returns a list of advisor names (family, given) in repository
+- '/{REPO_ID}/advisor-name/{FAMILY}/{GIVEN}' returns a list of EPrint ID for the given advisor using their family and given names
 - '/{REPO_ID}/committee-id' returns a list of committee id in EPrints repository
 - '/{REPO_ID}/committee-id/{COMMITTEE_ID}' scans the committee id field associated with committee members and returns a list of EPrint ID
+- '/{REPO_ID}/committee-name' returns a list of committee members names (family, given) in repository
+- '/{REPO_ID}/committee-name/{FAMILY}/{GIVEN}' returns a list of EPrint ID for the given committee member using their family and given names
+- '/{REPO_ID}/corp-ceator-id' returns a list of corp creator ids in the eprints repository
+- '/{REPO_ID}/corp-create-id/{CORP_CREATOR_ID}' returns the list of eprint id for the corporate creator id
+- '/{REPO_ID}/corp-ceator-uri' returns a list of corp creator uri in the eprints repository
+- '/{REPO_ID}/corp-create-uri/{CORP_CREATOR_URI}' returns the list of eprint id for the corporate creator's URI
 - '/{REPO_ID}/group-id' returns a list of group ids in EPrints repository
 - '/{REPO_ID}/group-id/{GROUP_ID}' this scans group ID and returns a list of EPrint IDs associated with the group
 - '/{REPO_ID}/funder-id' returns a list of funders in the EPrints repository
@@ -266,95 +280,74 @@ func doiDocument(repoID string) string {
 	return fmt.Sprintf(`'/%s/doi/{DOI}' with the adoption of EPrints "doi" field in the EPrint table it makes sense to have a quick translation of DOI to EPrint id for a given EPrints repository.`, repoID)
 }
 
-func creatorIDDocument(repoID string) string {
+func creatorDocument(repoID string) string {
 	return fmt.Sprintf(`
 - '/%s/creator-id' returns a list of creaator-id available in the eprints repository
 - '/%s/creator-id/{CREATOR_ID}' scans the name creator id field associated with creators and returns a list of EPrint ID 
-`, repoID, repoID)
-}
-
-func creatorORCIDDocument(repoID string) string {
-	return fmt.Sprintf(`
+- '/%s/creator-name' returns a list of creator names (family, given) in repository
+- '/%s/creator-name/{FAMILY}/{GIVEN}' returns a list of EPrint ID for the given creator using their family and given names
 - '/%s/creator-orcid' return a list of "orcid" associated with creators in repository 
 - '/%s/creator-orcid/{ORCID}' scans the "orcid" field associated with creators and returns a list of EPrint ID
-`, repoID, repoID)
+`, repoID, repoID, repoID, repoID, repoID, repoID)
 }
 
-func editorIDDocument(repoID string) string {
-	return fmt.Sprintf(`
-- '/%s/editor-id' returns a list of editor ids available in the EPrints repository
+func editorDocument(repoID string) string {
+	return fmt.Sprintf(`- '/%s/editor-id' returns a list of editor ids available in the EPrints repository
 - '/%s/editor-id/{CREATOR_ID}' scans the name creator id field associated with editors and returns a list of EPrint ID 
-`, repoID, repoID)
+- '/%s/editor-name' returns a list of editor names (family, given) in repository
+- '/%s/editor-name/{FAMILY}/{GIVEN}' returns a list of EPrint ID for the given editor using their family and given names
+`, repoID, repoID, repoID, repoID)
 }
 
-func contributorIDDocument(repoID string) string {
+func contributorDocument(repoID string) string {
 	return fmt.Sprintf(`
 - '/%s/contributor-id' returns a list of contributor ids available in the eprints repository
 - '/%s/contributor-id/{CONTRIBUTOR_ID}' scans the "id" field associated with a contributors and returns a list of EPrint ID 
-`, repoID, repoID)
+- '/%s/contributor-name' returns a list of contributor names (family, given) in repository
+- '/%s/contributor-name/{FAMILY}/{GIVEN}' returns a list of EPrint ID for the given contributor using their family and given names
+`, repoID, repoID, repoID, repoID)
 }
 
-func advisorIDDocument(repoID string) string {
+func advisorDocument(repoID string) string {
 	return fmt.Sprintf(`
 - '/%s/advisor-id' returns a list of advisor ids in the eprints repository
 - '/%s/advisor-id/{ADVISOR_ID}' scans the name advisor id field associated with advisors and returns a list of EPrint ID 
-`, repoID, repoID)
+- '/%s/advisor-name' returns a list of advisor names (family, given) in repository
+- '/%s/advisor-name/{FAMILY}/{GIVEN}' returns a list of EPrint ID for the given advisor using their family and given names
+`, repoID, repoID, repoID, repoID)
 }
 
-func committeeIDDocument(repoID string) string {
+func committeeDocument(repoID string) string {
 	return fmt.Sprintf(`
 - '/%s/committee-id' returns a list of committee id in EPrints repository
 - '/%s/committee-id/{COMMITTEE_ID}' scans the committee id field associated with committee members and returns a list of EPrint ID
-`, repoID, repoID)
+- '/%s/committee-name' returns a list of committee members names (family, given) in repository
+- '/%s/committee-name/{FAMILY}/{GIVEN}' returns a list of EPrint ID for the given committee member using their family and given names
+`, repoID, repoID, repoID, repoID)
 }
 
-func groupIDDocument(repoID string) string {
+func corpCreatorDocument(repoID string) string {
+	return fmt.Sprintf(`
+- '/%s/corp-ceator-id' returns a list of corp creator ids in the eprints repository
+- '/%s/corp-create-id/{CORP_CREATOR_ID}' returns the list of eprint id for the corporate creator id
+- '/%s/corp-ceator-uri' returns a list of corp creator uri in the eprints repository
+- '/%s/corp-create-uri/{CORP_CREATOR_URI}' returns the list of eprint id for the corporate creator's URI
+`, repoID, repoID, repoID, repoID)
+}
+func groupDocument(repoID string) string {
 	return fmt.Sprintf(`
 - '/%s/group-id' returns a list of group ids in EPrints repository
 - '/%s/group-id/{GROUP_ID}' this scans group ID and returns a list of EPrint IDs associated with the group
 `, repoID, repoID)
 }
 
-func funderIDDocument(repoID string) string {
+func funderDocument(repoID string) string {
 	return fmt.Sprintf(`
 - '/%s/funder-id' returns a list of funders in the EPrints repository
 - '/%s/funder-id/{FUNDER_ID}' returns a list of EPrint IDs associated with the funder
-`, repoID, repoID)
-}
-
-func grantNumberDocument(repoID string) string {
-	return fmt.Sprintf(`
 - '/%s/grant-number' returns a list of grant numbers in EPrints repository
 - '/%s/grant-number/{GRANT_NUMBER}' returns a list of EPrint IDs associated with the grant number
-`, repoID, repoID)
-}
-
-func creatorNameDocument(repoID string) string {
-	return fmt.Sprintf(`
-- '/%s/creator-name/{FAMILY_NAME}/{GIVEN_NAME}' scans the name fields associated with creators and returns a list of EPrint ID
-`, repoID)
-}
-func editorNameDocument(repoID string) string {
-	return fmt.Sprintf(`
-- '/%s/editor-name/{FAMILY_NAME}/{GIVEN_NAME}' scans the family and given name field associated with a editors and returns a list of EPrint ID
-`, repoID)
-}
-
-func contributorNameDocument(repoID string) string {
-	return fmt.Sprintf(`
-- '/%s/contributor-name/{FAMILY_NAME}/{GIVEN_NAME}' scans the family and given name field associated with a contributors and returns a list of EPrint ID
-`, repoID)
-}
-
-func advisorNameDocument(repoID string) string {
-	return fmt.Sprintf(`
-- '/%s/advisor-name/{FAMILY_NAME}/{GIVEN_NAME}' scans the name fields associated with advisors returns a list of EPrint ID
-`, repoID)
-}
-func committeeNameDocument(repoID string) string {
-	return fmt.Sprintf(`
-- '/%s/committee-name/{FAMILY_NAME}/{GIVEN_NAME}' scans the family and given name fields associated with committee members and returns a list of EPrint ID
-`, repoID)
+`, repoID, repoID, repoID, repoID)
 }
 
 func pubmedIDDocument(repoID string) string {

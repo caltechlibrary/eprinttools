@@ -43,10 +43,20 @@ const (
 	datestamp = "2006-01-02"
 )
 
-var (
-	config *Config
-	lg     *log.Logger
-)
+type EP3API struct {
+	Config *Config
+	Log    *log.Logger
+}
+
+//
+// Handle parameters that may continue URL
+func joinArgs(args []string) string {
+	if len(args) > 0 && (strings.HasPrefix(args[0], `http:`) ||
+		strings.HasPrefix(args[0], `https:`)) {
+		args[0] = args[0] + `/`
+	}
+	return strings.Join(args, `/`)
+}
 
 //
 // Date/Time expansion
@@ -75,14 +85,14 @@ func expandAproxDate(dt string, roundDown bool) string {
 // response.
 //
 
-func packageIntIDs(w http.ResponseWriter, repoID string, values []int, err error) (int, error) {
+func (api *EP3API) packageIntIDs(w http.ResponseWriter, repoID string, values []int, err error) (int, error) {
 	if err != nil {
-		lg.Printf("ERROR: (%s) query error, %s", repoID, err)
+		api.Log.Printf("ERROR: (%s) query error, %s", repoID, err)
 		return 500, fmt.Errorf("internal server error")
 	}
 	src, err := json.MarshalIndent(values, "", "  ")
 	if err != nil {
-		lg.Printf("ERROR: marshal error (%q), %s", repoID, err)
+		api.Log.Printf("ERROR: marshal error (%q), %s", repoID, err)
 		return 500, fmt.Errorf("internal server error")
 	}
 	w.Header().Set("Content-Type", "application/json")
@@ -90,14 +100,14 @@ func packageIntIDs(w http.ResponseWriter, repoID string, values []int, err error
 	return 200, nil
 }
 
-func packageStringIDs(w http.ResponseWriter, repoID string, values []string, err error) (int, error) {
+func (api *EP3API) packageStringIDs(w http.ResponseWriter, repoID string, values []string, err error) (int, error) {
 	if err != nil {
-		lg.Printf("ERROR: (%s) query error, %s", repoID, err)
+		api.Log.Printf("ERROR: (%s) query error, %s", repoID, err)
 		return 500, fmt.Errorf("internal server error")
 	}
 	src, err := json.MarshalIndent(values, "", "  ")
 	if err != nil {
-		lg.Printf("ERROR: marshal error (%q), %s", repoID, err)
+		api.Log.Printf("ERROR: marshal error (%q), %s", repoID, err)
 		return 500, fmt.Errorf("internal server error")
 	}
 	w.Header().Set("Content-Type", "application/json")
@@ -105,15 +115,15 @@ func packageStringIDs(w http.ResponseWriter, repoID string, values []string, err
 	return 200, nil
 }
 
-func packageDocument(w http.ResponseWriter, src string) (int, error) {
+func (api *EP3API) packageDocument(w http.ResponseWriter, src string) (int, error) {
 	w.Header().Set("Content-Type", "text/plain")
 	fmt.Fprint(w, src)
 	return 200, nil
 }
 
-func packageJSON(w http.ResponseWriter, repoID string, src []byte, err error) (int, error) {
+func (api *EP3API) packageJSON(w http.ResponseWriter, repoID string, src []byte, err error) (int, error) {
 	if err != nil {
-		lg.Printf("ERROR: (%s) package JSON error, %s", repoID, err)
+		api.Log.Printf("ERROR: (%s) package JSON error, %s", repoID, err)
 		return 500, fmt.Errorf("internal server error")
 	}
 	w.Header().Set("Content-Type", "application/json")
@@ -121,9 +131,9 @@ func packageJSON(w http.ResponseWriter, repoID string, src []byte, err error) (i
 	return 200, nil
 }
 
-func packageXML(w http.ResponseWriter, repoID string, src []byte, err error) (int, error) {
+func (api *EP3API) packageXML(w http.ResponseWriter, repoID string, src []byte, err error) (int, error) {
 	if err != nil {
-		lg.Printf("ERROR: (%s) package JSON error, %s", repoID, err)
+		api.Log.Printf("ERROR: (%s) package JSON error, %s", repoID, err)
 		return 500, fmt.Errorf("internal server error")
 	}
 	w.Header().Set("Content-Type", "application/xml")
@@ -159,60 +169,64 @@ func unpackageEPrintsPOST(r *http.Request) (*EPrints, error) {
 }
 
 //
+// EP3API End Points
+//
+
+//
 // Expose the repositories available
 //
 
-func repositoriesEndPoint(w http.ResponseWriter, r *http.Request) (int, error) {
+func (api *EP3API) repositoriesEndPoint(w http.ResponseWriter, r *http.Request) (int, error) {
 	if strings.HasSuffix(r.URL.Path, "/help") {
-		return packageDocument(w, repositoryDocument())
+		return api.packageDocument(w, repositoryDocument())
 	}
 	repositories := []string{}
-	for repository, _ := range config.Repositories {
+	for repository, _ := range api.Config.Repositories {
 		repositories = append(repositories, repository)
 	}
 	src, err := json.MarshalIndent(repositories, "", "  ")
 	if err != nil {
 		return 500, fmt.Errorf("internal server error, %s", err)
 	}
-	return packageDocument(w, string(src))
+	return api.packageDocument(w, string(src))
 }
 
-func repositoryEndPoint(w http.ResponseWriter, r *http.Request, repoID string) (int, error) {
+func (api *EP3API) repositoryEndPoint(w http.ResponseWriter, r *http.Request, repoID string) (int, error) {
 	if repoID == "" || strings.HasSuffix(r.URL.Path, "/help") {
-		return packageDocument(w, repositoryDocument())
+		return api.packageDocument(w, repositoryDocument())
 	}
-	if config.Connections == nil {
-		log.Printf("Database connections not configured.")
+	if api.Config.Connections == nil {
+		api.Log.Printf("Database connections not configured.")
 		return 500, fmt.Errorf("internal server error")
 	}
-	if _, ok := config.Connections[repoID]; !ok {
-		log.Printf("Database connections not configured for %s", repoID)
+	if _, ok := api.Config.Connections[repoID]; !ok {
+		api.Log.Printf("Database connections not configured for %s", repoID)
 		return 404, fmt.Errorf("not found")
 	}
-	data, err := GetTablesAndColumns(repoID)
+	data, err := GetTablesAndColumns(api.Config, repoID)
 	if err != nil {
-		log.Printf("GetTablesAndColumn(%q), %s", repoID, err)
+		api.Log.Printf("GetTablesAndColumn(%q), %s", repoID, err)
 		return 500, fmt.Errorf("internal server error")
 	}
 	src, err := json.MarshalIndent(data, "", "    ")
-	return packageJSON(w, repoID, src, err)
+	return api.packageJSON(w, repoID, src, err)
 }
 
 //
 // End Point handles (route as defined `/{REPO_ID}/{END-POINT}/{ARGS}`)
 //
 
-func keysEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
+func (api *EP3API) keysEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
 	if len(args) != 0 || strings.HasSuffix(r.URL.Path, "/help") {
-		return packageDocument(w, keysDocument(repoID))
+		return api.packageDocument(w, keysDocument(repoID))
 	}
-	eprintIDs, err := GetAllEPrintIDs(repoID)
-	return packageIntIDs(w, repoID, eprintIDs, err)
+	eprintIDs, err := GetAllEPrintIDs(api.Config, repoID)
+	return api.packageIntIDs(w, repoID, eprintIDs, err)
 }
 
-func createdEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
+func (api *EP3API) createdEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
 	if len(args) == 0 || strings.HasSuffix(r.URL.Path, `/help`) {
-		return packageDocument(w, createdDocument(repoID))
+		return api.packageDocument(w, createdDocument(repoID))
 	}
 	if (len(args) < 1) || (len(args) > 2) {
 		return 400, fmt.Errorf("bad request")
@@ -232,13 +246,13 @@ func createdEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args
 			return 400, fmt.Errorf("bad request, (end) %s", err)
 		}
 	}
-	eprintIDs, err := GetEPrintIDsInTimestampRange(repoID, "datestamp", start.Format(timestamp), end.Format(timestamp))
-	return packageIntIDs(w, repoID, eprintIDs, err)
+	eprintIDs, err := GetEPrintIDsInTimestampRange(api.Config, repoID, "datestamp", start.Format(timestamp), end.Format(timestamp))
+	return api.packageIntIDs(w, repoID, eprintIDs, err)
 }
 
-func updatedEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
+func (api *EP3API) updatedEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
 	if len(args) == 0 || strings.HasSuffix(r.URL.Path, `/help`) {
-		return packageDocument(w, updatedDocument(repoID))
+		return api.packageDocument(w, updatedDocument(repoID))
 	}
 	if (len(args) < 1) || (len(args) > 2) {
 		return 400, fmt.Errorf("bad request")
@@ -258,13 +272,13 @@ func updatedEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args
 			return 400, fmt.Errorf("bad request, (end) %s", err)
 		}
 	}
-	eprintIDs, err := GetEPrintIDsInTimestampRange(repoID, "lastmod", start.Format(timestamp), end.Format(timestamp))
-	return packageIntIDs(w, repoID, eprintIDs, err)
+	eprintIDs, err := GetEPrintIDsInTimestampRange(api.Config, repoID, "lastmod", start.Format(timestamp), end.Format(timestamp))
+	return api.packageIntIDs(w, repoID, eprintIDs, err)
 }
 
-func deletedEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
+func (api *EP3API) deletedEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
 	if len(args) == 0 || strings.HasSuffix(r.URL.Path, `/help`) {
-		return packageDocument(w, deletedDocument(repoID))
+		return api.packageDocument(w, deletedDocument(repoID))
 	}
 	if (len(args) < 1) || (len(args) > 2) {
 		return 400, fmt.Errorf("bad request")
@@ -284,13 +298,13 @@ func deletedEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args
 			return 400, fmt.Errorf("bad request, (end) %s", err)
 		}
 	}
-	eprintIDs, err := GetEPrintIDsWithStatus(repoID, "deletion", start.Format(timestamp), end.Format(timestamp))
-	return packageIntIDs(w, repoID, eprintIDs, err)
+	eprintIDs, err := GetEPrintIDsWithStatus(api.Config, repoID, "deletion", start.Format(timestamp), end.Format(timestamp))
+	return api.packageIntIDs(w, repoID, eprintIDs, err)
 }
 
-func pubdateEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
+func (api *EP3API) pubdateEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
 	if len(args) == 0 || strings.HasSuffix(r.URL.Path, `/help`) {
-		return packageDocument(w, pubdateDocument(repoID))
+		return api.packageDocument(w, pubdateDocument(repoID))
 	}
 	if (len(args) < 1) || (len(args) > 2) {
 		return 400, fmt.Errorf("bad request")
@@ -315,142 +329,77 @@ func pubdateEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args
 			return 400, fmt.Errorf("bad request, (end date) %s", err)
 		}
 	}
-	eprintIDs, err := GetEPrintIDsForDateType(repoID, "published", start.Format(datestamp), end.Format(datestamp))
-	return packageIntIDs(w, repoID, eprintIDs, err)
+	eprintIDs, err := GetEPrintIDsForDateType(api.Config, repoID, "published", start.Format(datestamp), end.Format(datestamp))
+	return api.packageIntIDs(w, repoID, eprintIDs, err)
 }
 
 //
 // Person or Organizational end points
 //
 
-func creatorIDEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
+func (api *EP3API) creatorIDEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
 	if strings.HasSuffix(r.URL.Path, `/help`) {
-		return packageDocument(w, creatorIDDocument(repoID))
+		return api.packageDocument(w, creatorDocument(repoID))
 	}
 	if len(args) == 0 {
-		values, err := GetAllPersonOrOrgIDs(repoID, "creators")
-		return packageStringIDs(w, repoID, values, err)
+		values, err := GetAllPersonOrOrgIDs(api.Config, repoID, "creators")
+		return api.packageStringIDs(w, repoID, values, err)
 	}
-	eprintIDs, err := GetEPrintIDsForPersonOrOrgID(repoID, "creators", args[0])
-	return packageIntIDs(w, repoID, eprintIDs, err)
+	eprintIDs, err := GetEPrintIDsForPersonOrOrgID(api.Config, repoID, "creators", args[0])
+	return api.packageIntIDs(w, repoID, eprintIDs, err)
 }
 
-func creatorORCIDEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
+func (api *EP3API) creatorNameEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
 	if strings.HasSuffix(r.URL.Path, `/help`) {
-		return packageDocument(w, creatorORCIDDocument(repoID))
+		return api.packageDocument(w, creatorDocument(repoID))
 	}
 	if len(args) == 0 {
-		values, err := GetAllORCIDs(repoID)
-		return packageStringIDs(w, repoID, values, err)
+		values, err := GetAllPersonNames(api.Config, repoID, "creators_name")
+		return api.packageStringIDs(w, repoID, values, err)
+	}
+	family, given := args[0], ``
+	if len(args) == 2 {
+		given = args[1]
+	}
+	if len(args) > 2 {
+		return 400, fmt.Errorf("bad request")
+	}
+	eprintIDs, err := GetEPrintIDsForPersonName(api.Config, repoID, "creators_name", family, given)
+	return api.packageIntIDs(w, repoID, eprintIDs, err)
+}
+
+func (api *EP3API) creatorORCIDEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
+	if strings.HasSuffix(r.URL.Path, `/help`) {
+		return api.packageDocument(w, creatorDocument(repoID))
+	}
+	if len(args) == 0 {
+		values, err := GetAllORCIDs(api.Config, repoID)
+		return api.packageStringIDs(w, repoID, values, err)
 	}
 	//FIXME: Should validate ORCID format ...
-	eprintIDs, err := GetEPrintIDsForORCID(repoID, args[0])
-	return packageIntIDs(w, repoID, eprintIDs, err)
+	eprintIDs, err := GetEPrintIDsForORCID(api.Config, repoID, args[0])
+	return api.packageIntIDs(w, repoID, eprintIDs, err)
 }
 
-func editorIDEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
+func (api *EP3API) editorIDEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
 	if strings.HasSuffix(r.URL.Path, `/help`) {
-		return packageDocument(w, editorIDDocument(repoID))
+		return api.packageDocument(w, editorDocument(repoID))
 	}
 	if len(args) == 0 {
-		values, err := GetAllPersonOrOrgIDs(repoID, "editors")
-		return packageStringIDs(w, repoID, values, err)
+		values, err := GetAllPersonOrOrgIDs(api.Config, repoID, "editors")
+		return api.packageStringIDs(w, repoID, values, err)
 	}
-	eprintIDs, err := GetEPrintIDsForPersonOrOrgID(repoID, "editors", args[0])
-	return packageIntIDs(w, repoID, eprintIDs, err)
+	eprintIDs, err := GetEPrintIDsForPersonOrOrgID(api.Config, repoID, "editors", args[0])
+	return api.packageIntIDs(w, repoID, eprintIDs, err)
 }
 
-func contributorIDEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
+func (api *EP3API) editorNameEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
 	if strings.HasSuffix(r.URL.Path, `/help`) {
-		return packageDocument(w, contributorIDDocument(repoID))
+		return api.packageDocument(w, editorDocument(repoID))
 	}
 	if len(args) == 0 {
-		values, err := GetAllPersonOrOrgIDs(repoID, "contributors")
-		return packageStringIDs(w, repoID, values, err)
-	}
-	eprintIDs, err := GetEPrintIDsForPersonOrOrgID(repoID, "contributors", args[0])
-	return packageIntIDs(w, repoID, eprintIDs, err)
-}
-
-func advisorIDEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
-	if strings.HasSuffix(r.URL.Path, `/help`) {
-		return packageDocument(w, advisorIDDocument(repoID))
-	}
-	if len(args) == 0 {
-		values, err := GetAllPersonOrOrgIDs(repoID, "thesis_advisor")
-		return packageStringIDs(w, repoID, values, err)
-	}
-	eprintIDs, err := GetEPrintIDsForPersonOrOrgID(repoID, "thesis_advisor", args[0])
-	return packageIntIDs(w, repoID, eprintIDs, err)
-}
-
-func committeeIDEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
-	if strings.HasSuffix(r.URL.Path, `/help`) {
-		return packageDocument(w, committeeIDDocument(repoID))
-	}
-	if len(args) == 0 {
-		values, err := GetAllPersonOrOrgIDs(repoID, "thesis_committee")
-		return packageStringIDs(w, repoID, values, err)
-	}
-	eprintIDs, err := GetEPrintIDsForPersonOrOrgID(repoID, "thesis_committee", args[0])
-	return packageIntIDs(w, repoID, eprintIDs, err)
-}
-
-func groupIDEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
-	if strings.HasSuffix(r.URL.Path, `/help`) {
-		return packageDocument(w, groupIDDocument(repoID))
-	}
-	if len(args) == 0 {
-		values, err := GetAllItems(repoID, "local_group")
-		return packageStringIDs(w, repoID, values, err)
-	}
-	eprintIDs, err := GetEPrintIDsForItem(repoID, "local_group", args[0])
-	return packageIntIDs(w, repoID, eprintIDs, err)
-}
-
-func funderIDEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
-	if strings.HasSuffix(r.URL.Path, `/help`) {
-		return packageDocument(w, funderIDDocument(repoID))
-	}
-	if len(args) == 0 {
-		values, err := GetAllItems(repoID, "funders_agency")
-		return packageStringIDs(w, repoID, values, err)
-	}
-	eprintIDs, err := GetEPrintIDsForItem(repoID, "funders_agency", args[0])
-	return packageIntIDs(w, repoID, eprintIDs, err)
-}
-
-func grantNumberEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
-	if strings.HasSuffix(r.URL.Path, `/help`) {
-		return packageDocument(w, grantNumberDocument(repoID))
-	}
-	if len(args) == 0 {
-		values, err := GetAllItems(repoID, "funders_grant_number")
-		return packageStringIDs(w, repoID, values, err)
-	}
-	eprintIDs, err := GetEPrintIDsForItem(repoID, "funders_grant_number", args[0])
-	return packageIntIDs(w, repoID, eprintIDs, err)
-}
-
-func patentAssigneeEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
-	if strings.HasSuffix(r.URL.Path, `/help`) {
-		return packageDocument(w, patentAssigneeDocument(repoID))
-	}
-	if len(args) == 0 {
-		values, err := GetAllItems(repoID, "patent_assignee")
-		return packageStringIDs(w, repoID, values, err)
-	}
-	eprintIDs, err := GetEPrintIDsForItem(repoID, "patent_assignee", args[0])
-	return packageIntIDs(w, repoID, eprintIDs, err)
-}
-
-func creatorNameEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
-	if strings.HasSuffix(r.URL.Path, `/help`) {
-		return packageDocument(w, creatorNameDocument(repoID))
-	}
-	if len(args) == 0 {
-		values, err := GetAllPersonNames(repoID, "creator_name")
-		return packageStringIDs(w, repoID, values, err)
+		values, err := GetAllPersonNames(api.Config, repoID, "editors_name")
+		return api.packageStringIDs(w, repoID, values, err)
 	}
 	family, given := args[0], ``
 	if len(args) == 2 {
@@ -459,18 +408,29 @@ func creatorNameEndPoint(w http.ResponseWriter, r *http.Request, repoID string, 
 	if len(args) > 2 {
 		return 400, fmt.Errorf("bad request")
 	}
-	eprintIDs, err := GetEPrintIDsForPersonName(repoID, "creator_name", family, given)
-	return packageIntIDs(w, repoID, eprintIDs, err)
+	eprintIDs, err := GetEPrintIDsForPersonName(api.Config, repoID, "editors_name", family, given)
+	return api.packageIntIDs(w, repoID, eprintIDs, err)
 }
 
-func editorNameEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
-	//- `/<REPO_ID>/editor-name/<FAMILY_NAME>/<GIVEN_NAME>` scans the family and given name field associated with a editors and returns a list of EPrint ID
+func (api *EP3API) contributorIDEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
 	if strings.HasSuffix(r.URL.Path, `/help`) {
-		return packageDocument(w, editorNameDocument(repoID))
+		return api.packageDocument(w, contributorDocument(repoID))
 	}
 	if len(args) == 0 {
-		values, err := GetAllPersonNames(repoID, "editor_name")
-		return packageStringIDs(w, repoID, values, err)
+		values, err := GetAllPersonOrOrgIDs(api.Config, repoID, "contributors")
+		return api.packageStringIDs(w, repoID, values, err)
+	}
+	eprintIDs, err := GetEPrintIDsForPersonOrOrgID(api.Config, repoID, "contributors", args[0])
+	return api.packageIntIDs(w, repoID, eprintIDs, err)
+}
+
+func (api *EP3API) contributorNameEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
+	if strings.HasSuffix(r.URL.Path, `/help`) {
+		return api.packageDocument(w, contributorDocument(repoID))
+	}
+	if len(args) == 0 {
+		values, err := GetAllPersonNames(api.Config, repoID, "contributors_name")
+		return api.packageStringIDs(w, repoID, values, err)
 	}
 	family, given := args[0], ``
 	if len(args) == 2 {
@@ -479,17 +439,29 @@ func editorNameEndPoint(w http.ResponseWriter, r *http.Request, repoID string, a
 	if len(args) > 2 {
 		return 400, fmt.Errorf("bad request")
 	}
-	eprintIDs, err := GetEPrintIDsForPersonName(repoID, "editor_name", family, given)
-	return packageIntIDs(w, repoID, eprintIDs, err)
+	eprintIDs, err := GetEPrintIDsForPersonName(api.Config, repoID, "contributors_name", family, given)
+	return api.packageIntIDs(w, repoID, eprintIDs, err)
 }
 
-func contributorNameEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
+func (api *EP3API) advisorIDEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
 	if strings.HasSuffix(r.URL.Path, `/help`) {
-		return packageDocument(w, contributorNameDocument(repoID))
+		return api.packageDocument(w, advisorDocument(repoID))
 	}
 	if len(args) == 0 {
-		values, err := GetAllPersonNames(repoID, "contributors_name")
-		return packageStringIDs(w, repoID, values, err)
+		values, err := GetAllPersonOrOrgIDs(api.Config, repoID, "thesis_advisor")
+		return api.packageStringIDs(w, repoID, values, err)
+	}
+	eprintIDs, err := GetEPrintIDsForPersonOrOrgID(api.Config, repoID, "thesis_advisor", args[0])
+	return api.packageIntIDs(w, repoID, eprintIDs, err)
+}
+
+func (api *EP3API) advisorNameEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
+	if strings.HasSuffix(r.URL.Path, `/help`) {
+		return api.packageDocument(w, advisorDocument(repoID))
+	}
+	if len(args) == 0 {
+		values, err := GetAllPersonNames(api.Config, repoID, "thesis_advisor_name")
+		return api.packageStringIDs(w, repoID, values, err)
 	}
 	family, given := args[0], ``
 	if len(args) == 2 {
@@ -498,17 +470,29 @@ func contributorNameEndPoint(w http.ResponseWriter, r *http.Request, repoID stri
 	if len(args) > 2 {
 		return 400, fmt.Errorf("bad request")
 	}
-	eprintIDs, err := GetEPrintIDsForPersonName(repoID, "contributors_name", family, given)
-	return packageIntIDs(w, repoID, eprintIDs, err)
+	eprintIDs, err := GetEPrintIDsForPersonName(api.Config, repoID, "thesis_advisor_name", family, given)
+	return api.packageIntIDs(w, repoID, eprintIDs, err)
 }
 
-func advisorNameEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
+func (api *EP3API) committeeIDEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
 	if strings.HasSuffix(r.URL.Path, `/help`) {
-		return packageDocument(w, advisorNameDocument(repoID))
+		return api.packageDocument(w, committeeDocument(repoID))
 	}
 	if len(args) == 0 {
-		values, err := GetAllPersonNames(repoID, "thesis_advisor_name")
-		return packageStringIDs(w, repoID, values, err)
+		values, err := GetAllPersonOrOrgIDs(api.Config, repoID, "thesis_committee")
+		return api.packageStringIDs(w, repoID, values, err)
+	}
+	eprintIDs, err := GetEPrintIDsForPersonOrOrgID(api.Config, repoID, "thesis_committee", args[0])
+	return api.packageIntIDs(w, repoID, eprintIDs, err)
+}
+
+func (api *EP3API) committeeNameEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
+	if strings.HasSuffix(r.URL.Path, `/help`) {
+		return api.packageDocument(w, committeeDocument(repoID))
+	}
+	if len(args) == 0 {
+		values, err := GetAllPersonNames(api.Config, repoID, "thesis_committee_name")
+		return api.packageStringIDs(w, repoID, values, err)
 	}
 	family, given := args[0], ``
 	if len(args) == 2 {
@@ -517,128 +501,193 @@ func advisorNameEndPoint(w http.ResponseWriter, r *http.Request, repoID string, 
 	if len(args) > 2 {
 		return 400, fmt.Errorf("bad request")
 	}
-	eprintIDs, err := GetEPrintIDsForPersonName(repoID, "thesis_advisor_name", family, given)
-	return packageIntIDs(w, repoID, eprintIDs, err)
+	eprintIDs, err := GetEPrintIDsForPersonName(api.Config, repoID, "thesis_committee_name", family, given)
+	return api.packageIntIDs(w, repoID, eprintIDs, err)
 }
 
-func committeeNameEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
+func (api *EP3API) corpCreatorIDEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
 	if strings.HasSuffix(r.URL.Path, `/help`) {
-		return packageDocument(w, committeeNameDocument(repoID))
+		return api.packageDocument(w, corpCreatorDocument(repoID))
 	}
 	if len(args) == 0 {
-		values, err := GetAllPersonNames(repoID, "thesis_committee_name")
-		return packageStringIDs(w, repoID, values, err)
+		values, err := GetAllItems(api.Config, repoID, "corp_creators_id")
+		return api.packageStringIDs(w, repoID, values, err)
 	}
-	family, given := args[0], ``
-	if len(args) == 2 {
-		given = args[1]
+	eprintIDs, err := GetEPrintIDsForItem(api.Config, repoID, "corp_creators_id", args[0])
+	return api.packageIntIDs(w, repoID, eprintIDs, err)
+}
+
+func (api *EP3API) corpCreatorNameEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
+	if strings.HasSuffix(r.URL.Path, `/help`) {
+		return api.packageDocument(w, corpCreatorDocument(repoID))
 	}
-	if len(args) > 2 {
-		return 400, fmt.Errorf("bad request")
+	if len(args) == 0 {
+		values, err := GetAllItems(api.Config, repoID, "corp_creators_name")
+		return api.packageStringIDs(w, repoID, values, err)
 	}
-	eprintIDs, err := GetEPrintIDsForPersonName(repoID, "thesis_committee_name", family, given)
-	return packageIntIDs(w, repoID, eprintIDs, err)
+	eprintIDs, err := GetEPrintIDsForItem(api.Config, repoID, "corp_creators_name", joinArgs(args))
+	return api.packageIntIDs(w, repoID, eprintIDs, err)
+}
+
+func (api *EP3API) corpCreatorURIEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
+	if strings.HasSuffix(r.URL.Path, `/help`) {
+		return api.packageDocument(w, corpCreatorDocument(repoID))
+	}
+	if len(args) == 0 {
+		values, err := GetAllItems(api.Config, repoID, "corp_creators_uri")
+		return api.packageStringIDs(w, repoID, values, err)
+	}
+	eprintIDs, err := GetEPrintIDsForItem(api.Config, repoID, "corp_creators_uri", joinArgs(args))
+	return api.packageIntIDs(w, repoID, eprintIDs, err)
+}
+
+func (api *EP3API) groupIDEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
+	if strings.HasSuffix(r.URL.Path, `/help`) {
+		return api.packageDocument(w, groupDocument(repoID))
+	}
+	if len(args) == 0 {
+		values, err := GetAllItems(api.Config, repoID, "local_group")
+		return api.packageStringIDs(w, repoID, values, err)
+	}
+	eprintIDs, err := GetEPrintIDsForItem(api.Config, repoID, "local_group", args[0])
+	return api.packageIntIDs(w, repoID, eprintIDs, err)
+}
+
+func (api *EP3API) funderIDEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
+	if strings.HasSuffix(r.URL.Path, `/help`) {
+		return api.packageDocument(w, funderDocument(repoID))
+	}
+	if len(args) == 0 {
+		values, err := GetAllItems(api.Config, repoID, "funders_agency")
+		return api.packageStringIDs(w, repoID, values, err)
+	}
+	eprintIDs, err := GetEPrintIDsForItem(api.Config, repoID, "funders_agency", joinArgs(args))
+	return api.packageIntIDs(w, repoID, eprintIDs, err)
+}
+
+func (api *EP3API) grantNumberEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
+	if strings.HasSuffix(r.URL.Path, `/help`) {
+		return api.packageDocument(w, funderDocument(repoID))
+	}
+	if len(args) == 0 {
+		values, err := GetAllItems(api.Config, repoID, "funders_grant_number")
+		return api.packageStringIDs(w, repoID, values, err)
+	}
+	eprintIDs, err := GetEPrintIDsForItem(api.Config, repoID, "funders_grant_number", joinArgs(args))
+	return api.packageIntIDs(w, repoID, eprintIDs, err)
+}
+
+func (api EP3API) patentAssigneeEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
+	if strings.HasSuffix(r.URL.Path, `/help`) {
+		return api.packageDocument(w, patentAssigneeDocument(repoID))
+	}
+	if len(args) == 0 {
+		values, err := GetAllItems(api.Config, repoID, "patent_assignee")
+		return api.packageStringIDs(w, repoID, values, err)
+	}
+	eprintIDs, err := GetEPrintIDsForItem(api.Config, repoID, "patent_assignee", joinArgs(args))
+	return api.packageIntIDs(w, repoID, eprintIDs, err)
 }
 
 //
 // Unique identifiers (e.g. doi, issn, isbn) end points
 //
-func doiEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
+func (api *EP3API) doiEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
 	if strings.HasSuffix(r.URL.Path, `/help`) {
-		return packageDocument(w, creatorIDDocument(repoID))
+		return api.packageDocument(w, doiDocument(repoID))
 	}
 	if len(args) == 0 {
-		values, err := GetAllUniqueID(repoID, "doi")
-		packageStringIDs(w, repoID, values, err)
+		values, err := GetAllUniqueID(api.Config, repoID, "doi")
+		return api.packageStringIDs(w, repoID, values, err)
 	}
-	doi := strings.Join(args, "/")
+	doi := joinArgs(args)
 	//FIXME: Should validate DOI format ...
-	eprintIDs, err := GetEPrintIDsForUniqueID(repoID, "doi", doi)
-	return packageIntIDs(w, repoID, eprintIDs, err)
+	eprintIDs, err := GetEPrintIDsForUniqueID(api.Config, repoID, "doi", doi)
+	return api.packageIntIDs(w, repoID, eprintIDs, err)
 }
 
-func pubmedIDEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
+func (api *EP3API) pubmedIDEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
 	if strings.HasSuffix(r.URL.Path, `/help`) {
-		return packageDocument(w, pubmedIDDocument(repoID))
+		return api.packageDocument(w, pubmedIDDocument(repoID))
 	}
 	if len(args) == 0 {
-		values, err := GetAllUniqueID(repoID, "pmid")
-		return packageStringIDs(w, repoID, values, err)
+		values, err := GetAllUniqueID(api.Config, repoID, "pmid")
+		return api.packageStringIDs(w, repoID, values, err)
 	}
-	eprintIDs, err := GetEPrintIDsForUniqueID(repoID, `pmid`, args[0])
-	return packageIntIDs(w, repoID, eprintIDs, err)
+	eprintIDs, err := GetEPrintIDsForUniqueID(api.Config, repoID, `pmid`, args[0])
+	return api.packageIntIDs(w, repoID, eprintIDs, err)
 }
 
-func pubmedCentralIDEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
+func (api *EP3API) pubmedCentralIDEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
 	if strings.HasSuffix(r.URL.Path, `/help`) {
-		return packageDocument(w, pubmedCentralIDDocument(repoID))
+		return api.packageDocument(w, pubmedCentralIDDocument(repoID))
 	}
 	if len(args) == 0 {
-		values, err := GetAllUniqueID(repoID, "pmc_id")
-		return packageStringIDs(w, repoID, values, err)
+		values, err := GetAllUniqueID(api.Config, repoID, "pmc_id")
+		return api.packageStringIDs(w, repoID, values, err)
 	}
-	eprintIDs, err := GetEPrintIDsForUniqueID(repoID, `pmc_id`, args[0])
-	return packageIntIDs(w, repoID, eprintIDs, err)
+	eprintIDs, err := GetEPrintIDsForUniqueID(api.Config, repoID, `pmc_id`, args[0])
+	return api.packageIntIDs(w, repoID, eprintIDs, err)
 }
 
-func issnEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
+func (api *EP3API) issnEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
 	if strings.HasSuffix(r.URL.Path, `/help`) {
-		return packageDocument(w, issnDocument(repoID))
+		return api.packageDocument(w, issnDocument(repoID))
 	}
 	if len(args) == 0 {
-		values, err := GetAllUniqueID(repoID, "issn")
-		return packageStringIDs(w, repoID, values, err)
+		values, err := GetAllUniqueID(api.Config, repoID, "issn")
+		return api.packageStringIDs(w, repoID, values, err)
 	}
-	eprintIDs, err := GetEPrintIDsForUniqueID(repoID, `issn`, args[0])
-	return packageIntIDs(w, repoID, eprintIDs, err)
+	eprintIDs, err := GetEPrintIDsForUniqueID(api.Config, repoID, `issn`, args[0])
+	return api.packageIntIDs(w, repoID, eprintIDs, err)
 }
 
-func isbnEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
+func (api *EP3API) isbnEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
 	if strings.HasSuffix(r.URL.Path, `/help`) {
-		return packageDocument(w, isbnDocument(repoID))
+		return api.packageDocument(w, isbnDocument(repoID))
 	}
 	if len(args) == 0 {
-		values, err := GetAllUniqueID(repoID, "isbn")
-		return packageStringIDs(w, repoID, values, err)
+		values, err := GetAllUniqueID(api.Config, repoID, "isbn")
+		return api.packageStringIDs(w, repoID, values, err)
 	}
-	eprintIDs, err := GetEPrintIDsForUniqueID(repoID, `isbn`, args[0])
-	return packageIntIDs(w, repoID, eprintIDs, err)
+	eprintIDs, err := GetEPrintIDsForUniqueID(api.Config, repoID, `isbn`, args[0])
+	return api.packageIntIDs(w, repoID, eprintIDs, err)
 }
 
-func patentApplicantEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
+func (api *EP3API) patentApplicantEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
 	if strings.HasSuffix(r.URL.Path, `/help`) {
-		return packageDocument(w, patentApplicantDocument(repoID))
+		return api.packageDocument(w, patentApplicantDocument(repoID))
 	}
 	if len(args) == 0 {
-		values, err := GetAllUniqueID(repoID, "patent_applicant")
-		return packageStringIDs(w, repoID, values, err)
+		values, err := GetAllUniqueID(api.Config, repoID, "patent_applicant")
+		return api.packageStringIDs(w, repoID, values, err)
 	}
-	eprintIDs, err := GetEPrintIDsForUniqueID(repoID, `patent_applicant`, args[0])
-	return packageIntIDs(w, repoID, eprintIDs, err)
+	eprintIDs, err := GetEPrintIDsForUniqueID(api.Config, repoID, `patent_applicant`, args[0])
+	return api.packageIntIDs(w, repoID, eprintIDs, err)
 }
 
-func patentNumberEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
+func (api *EP3API) patentNumberEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
 	if strings.HasSuffix(r.URL.Path, `/help`) {
-		return packageDocument(w, patentNumberDocument(repoID))
+		return api.packageDocument(w, patentNumberDocument(repoID))
 	}
 	if len(args) == 0 {
-		values, err := GetAllUniqueID(repoID, "patent_number")
-		return packageStringIDs(w, repoID, values, err)
+		values, err := GetAllUniqueID(api.Config, repoID, "patent_number")
+		return api.packageStringIDs(w, repoID, values, err)
 	}
-	eprintIDs, err := GetEPrintIDsForUniqueID(repoID, `patent_number`, args[0])
-	return packageIntIDs(w, repoID, eprintIDs, err)
+	eprintIDs, err := GetEPrintIDsForUniqueID(api.Config, repoID, `patent_number`, args[0])
+	return api.packageIntIDs(w, repoID, eprintIDs, err)
 }
 
-func patentClassificationEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
+func (api *EP3API) patentClassificationEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
 	if strings.HasSuffix(r.URL.Path, `/help`) {
-		return packageDocument(w, patentClassificationDocument(repoID))
+		return api.packageDocument(w, patentClassificationDocument(repoID))
 	}
 	if len(args) == 0 {
-		values, err := GetAllUniqueID(repoID, "patent_classification")
-		return packageStringIDs(w, repoID, values, err)
+		values, err := GetAllUniqueID(api.Config, repoID, "patent_classification")
+		return api.packageStringIDs(w, repoID, values, err)
 	}
-	eprintIDs, err := GetEPrintIDsForUniqueID(repoID, `patent_classification`, args[0])
-	return packageIntIDs(w, repoID, eprintIDs, err)
+	eprintIDs, err := GetEPrintIDsForUniqueID(api.Config, repoID, `patent_classification`, args[0])
+	return api.packageIntIDs(w, repoID, eprintIDs, err)
 }
 
 //
@@ -646,41 +695,35 @@ func patentClassificationEndPoint(w http.ResponseWriter, r *http.Request, repoID
 // release version of eprinttools. It accepts a EPrint ID and returns
 // a simplfied JSON object.
 //
-func recordEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
+func (api *EP3API) recordEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
 	if len(args) == 0 || strings.HasSuffix(r.URL.Path, "/help") {
-		return packageDocument(w, recordDocument(repoID))
+		return api.packageDocument(w, recordDocument(repoID))
 	}
 	if len(args) != 1 {
 		return 400, fmt.Errorf("bad request")
 	}
-	ds, ok := config.Repositories[repoID]
+	ds, ok := api.Config.Repositories[repoID]
 	if !ok {
-		lg.Printf("Data Source not found for %q", repoID)
+		api.Log.Printf("Data Source not found for %q", repoID)
 		return 404, fmt.Errorf("not found")
 	}
-	baseURL := ds.BaseURL
 	eprintID, err := strconv.Atoi(args[0])
 	if err != nil {
 		return 400, fmt.Errorf("bad request, eprint id invalid, %s", err)
 	}
 
-	db, ok := config.Connections[repoID]
-	if !ok {
-		log.Printf("Database connection for %q not found", repoID)
-		return 404, fmt.Errorf(`not found`)
-	}
-	eprint, err := CrosswalkSQLToEPrint(db, repoID, baseURL, eprintID)
+	eprint, err := CrosswalkSQLToEPrint(api.Config, repoID, ds.BaseURL, eprintID)
 	if err != nil {
-		lg.Printf("CrosswalkSQLToEPrint Error: %s\n", err)
+		api.Log.Printf("CrosswalkSQLToEPrint Error: %s\n", err)
 		return 500, fmt.Errorf("internal server error")
 	}
-	//FIXME: we should just be a simple JSON from SQL ...
+	//FIXME: this should just be a simple JSON from SQL ...
 	simple, err := CrosswalkEPrintToRecord(eprint)
 	if err != nil {
 		return 500, fmt.Errorf("internal server error")
 	}
 	src, err := json.MarshalIndent(simple, "", "    ")
-	return packageJSON(w, repoID, src, err)
+	return api.packageJSON(w, repoID, src, err)
 }
 
 //
@@ -691,9 +734,9 @@ func recordEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args 
 // which returns EPrints XML or "application/json" which returns
 // a JSON version of the EPrints XML.
 //
-func eprintEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
+func (api *EP3API) eprintEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
 	if len(args) == 0 || repoID == "" || strings.HasSuffix(r.URL.Path, "/help") {
-		return packageDocument(w, eprintReadWriteDocument(repoID))
+		return api.packageDocument(w, eprintReadWriteDocument(repoID))
 	}
 	contentType := r.Header.Get("Content-Type")
 	if r.Method != "GET" {
@@ -706,17 +749,12 @@ func eprintEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args 
 	if err != nil {
 		return 400, fmt.Errorf("bad request, eprint id (%s) %q not valid", repoID, eprintID)
 	}
-	ds, ok := config.Repositories[repoID]
+	ds, ok := api.Config.Repositories[repoID]
 	if !ok {
-		lg.Printf("Data Source not found for %q", repoID)
+		api.Log.Printf("Data Source not found for %q", repoID)
 		return 404, fmt.Errorf("not found")
 	}
-	db, ok := config.Connections[repoID]
-	if !ok {
-		lg.Printf("Database connection not found for %q", repoID)
-		return 404, fmt.Errorf("not found")
-	}
-	eprint, err := CrosswalkSQLToEPrint(db, repoID, ds.BaseURL, eprintID)
+	eprint, err := CrosswalkSQLToEPrint(api.Config, repoID, ds.BaseURL, eprintID)
 	if err != nil {
 		return 404, fmt.Errorf("not found, %s", err)
 
@@ -724,19 +762,19 @@ func eprintEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args 
 	switch contentType {
 	case "application/json":
 		src, err := json.MarshalIndent(eprint, "", "    ")
-		return packageJSON(w, repoID, src, err)
+		return api.packageJSON(w, repoID, src, err)
 	case "application/xml":
 		eprints := NewEPrints()
 		eprints.XMLNS = `http://eprints.org/ep2/data/2.0`
 		eprints.Append(eprint)
 		src, err := xml.MarshalIndent(eprints, "", "  ")
-		return packageXML(w, repoID, src, err)
+		return api.packageXML(w, repoID, src, err)
 	case "":
 		eprints := NewEPrints()
 		eprints.XMLNS = `http://eprints.org/ep2/data/2.0`
 		eprints.Append(eprint)
 		src, err := xml.MarshalIndent(eprints, "", "  ")
-		return packageXML(w, repoID, src, err)
+		return api.packageXML(w, repoID, src, err)
 	default:
 		return 415, fmt.Errorf("unsupported media type, %q", contentType)
 	}
@@ -753,20 +791,20 @@ func eprintEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args 
 // NOTE: this end point has to be enabled in the settings.json file
 // defining the individual repository support. "write" needs to be
 // set to true.
-func eprintImportEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
+func (api *EP3API) eprintImportEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
 	if repoID == "" {
 		repoID = `{REPO_ID}`
-		return packageDocument(w, eprintReadWriteDocument(repoID))
+		return api.packageDocument(w, eprintReadWriteDocument(repoID))
 	}
 	if r.Method == "GET" || strings.HasSuffix(r.URL.Path, "/help") {
-		return packageDocument(w, eprintReadWriteDocument(repoID))
+		return api.packageDocument(w, eprintReadWriteDocument(repoID))
 	}
 	writeAccess := false
-	dataSource, ok := config.Repositories[repoID]
+	dataSource, ok := api.Config.Repositories[repoID]
 	if ok == true {
 		writeAccess = dataSource.Write
 	} else {
-		lg.Printf("Data Source not found for %q", repoID)
+		api.Log.Printf("Data Source not found for %q", repoID)
 		return 404, fmt.Errorf("not found")
 	}
 	if r.Method != "POST" || writeAccess == false {
@@ -779,27 +817,26 @@ func eprintImportEndPoint(w http.ResponseWriter, r *http.Request, repoID string,
 		return 400, fmt.Errorf("bad request, POST failed (%s), %s", repoID, err)
 	}
 	ids := []int{}
-	db, _ := config.Connections[repoID]
-	ids, err = ImportEPrints(db, repoID, dataSource, eprints)
+	ids, err = ImportEPrints(api.Config, repoID, dataSource, eprints)
 	if err != nil {
 		return 400, fmt.Errorf("bad request, create EPrint failed, %s", err)
 	}
-	return packageIntIDs(w, repoID, ids, err)
+	return api.packageIntIDs(w, repoID, ids, err)
 }
 
 // The following define the API as a service handling errors,
 // routes and logging.
 //
-func logRequest(r *http.Request, status int, err error) {
+func (api *EP3API) logRequest(r *http.Request, status int, err error) {
 	q := r.URL.Query()
 	errStr := "OK"
 	if err != nil {
 		errStr = fmt.Sprintf("%s", err)
 	}
 	if len(q) > 0 {
-		lg.Printf("%s %s RemoteAddr: %s UserAgent: %s Query: %+v Response: %d %s", r.Method, r.URL.Path, r.RemoteAddr, r.UserAgent(), q, status, errStr)
+		api.Log.Printf("%s %s RemoteAddr: %s UserAgent: %s Query: %+v Response: %d %s", r.Method, r.URL.Path, r.RemoteAddr, r.UserAgent(), q, status, errStr)
 	} else {
-		lg.Printf("%s %s RemoteAddr: %s UserAgent: %s Response: %d %s", r.Method, r.URL.Path, r.RemoteAddr, r.UserAgent(), status, errStr)
+		api.Log.Printf("%s %s RemoteAddr: %s UserAgent: %s Response: %d %s", r.Method, r.URL.Path, r.RemoteAddr, r.UserAgent(), status, errStr)
 	}
 }
 
@@ -809,7 +846,7 @@ func handleError(w http.ResponseWriter, statusCode int, err error) {
 	//fmt.Fprintf(w, `ERROR: %d %s`, statusCode, err)
 }
 
-func routeEndPoints(w http.ResponseWriter, r *http.Request) (int, error) {
+func (api *EP3API) routeEndPoints(w http.ResponseWriter, r *http.Request) (int, error) {
 	parts := strings.Split(r.URL.Path, "/")
 	// Create args by removing empty strings from path parts
 	repoID, endPoint, args := "", "", []string{}
@@ -820,10 +857,10 @@ func routeEndPoints(w http.ResponseWriter, r *http.Request) (int, error) {
 		}
 	}
 	if len(args) == 0 {
-		return packageDocument(w, readmeDocument())
+		return api.packageDocument(w, readmeDocument())
 	}
 	if len(args) == 1 {
-		return packageDocument(w, strings.ReplaceAll(readmeDocument(), "<REPO_ID>", args[0]))
+		return api.packageDocument(w, strings.ReplaceAll(readmeDocument(), "{REPO_ID}", args[0]))
 	}
 	// Expected URL structure of `/<REPO_ID>/<END_POINT>/<ARGS>`
 	if len(args) == 2 {
@@ -831,11 +868,11 @@ func routeEndPoints(w http.ResponseWriter, r *http.Request) (int, error) {
 	} else {
 		repoID, endPoint, args = args[0], args[1], args[2:]
 	}
-	if routes, hasRepo := config.Routes[repoID]; hasRepo == true {
+	if routes, hasRepo := api.Config.Routes[repoID]; hasRepo == true {
 		// Confirm we have a route
 		if fn, hasRoute := routes[endPoint]; hasRoute == true {
 			// Confirm we have a DB connection
-			if _, hasConnection := config.Connections[repoID]; hasConnection == true {
+			if _, hasConnection := api.Config.Connections[repoID]; hasConnection == true {
 				return fn(w, r, repoID, args)
 			}
 		}
@@ -843,7 +880,7 @@ func routeEndPoints(w http.ResponseWriter, r *http.Request) (int, error) {
 	return 404, fmt.Errorf("Not Found")
 }
 
-func api(w http.ResponseWriter, r *http.Request) {
+func (api *EP3API) routeHandler(w http.ResponseWriter, r *http.Request) {
 	var (
 		err        error
 		statusCode int
@@ -859,24 +896,24 @@ func api(w http.ResponseWriter, r *http.Request) {
 			//statusCode, err = 404, fmt.Errorf("Not Found")
 			//handleError(w, statusCode, err)
 		case strings.HasPrefix(r.URL.Path, "/repositories"):
-			statusCode, err = repositoriesEndPoint(w, r)
+			statusCode, err = api.repositoriesEndPoint(w, r)
 			if err != nil {
 				handleError(w, statusCode, err)
 			}
 		case strings.HasPrefix(r.URL.Path, "/repository"):
 			repoID := strings.TrimPrefix(r.URL.Path, "/repository/")
-			statusCode, err = repositoryEndPoint(w, r, repoID)
+			statusCode, err = api.repositoryEndPoint(w, r, repoID)
 			if err != nil {
 				handleError(w, statusCode, err)
 			}
 		default:
-			statusCode, err = routeEndPoints(w, r)
+			statusCode, err = api.routeEndPoints(w, r)
 			if err != nil {
 				handleError(w, statusCode, err)
 			}
 		}
 	}
-	logRequest(r, statusCode, err)
+	api.logRequest(r, statusCode, err)
 }
 
 // hasColumn takes a table map (key = table name, value is
@@ -894,143 +931,142 @@ func hasColumn(tableMap map[string][]string, tableName string, columnName string
 
 // Shutdown shutdowns the EPrints extended API web service started with
 // RunExtendedAPI.
-func Shutdown(appName string, sigName string) int {
+func (api *EP3API) Shutdown(appName string, sigName string) int {
 	exitCode := 0
 	pid := os.Getpid()
-	lg.Printf(`Received signal %s`, sigName)
-	lg.Printf(`Closing database connections %s pid: %d`, appName, pid)
-	if err := CloseConnections(config); err != nil {
+	api.Log.Printf(`Received signal %s`, sigName)
+	api.Log.Printf(`Closing database connections %s pid: %d`, appName, pid)
+	if err := CloseConnections(api.Config); err != nil {
 		exitCode = 1
 	}
-	lg.Printf(`Shutdown completed %s pid: %d exit code: %d `, appName, pid, exitCode)
+	api.Log.Printf(`Shutdown completed %s pid: %d exit code: %d `, appName, pid, exitCode)
 	return exitCode
 }
 
 // Reload performs a Shutdown and an init after re-reading
 // in the settings.json file.
-func Reload(appName string, sigName string, settings string) error {
-	exitCode := Shutdown(appName, sigName)
+func (api *EP3API) Reload(appName string, sigName string, settings string) error {
+	exitCode := api.Shutdown(appName, sigName)
 	if exitCode != 0 {
 		return fmt.Errorf("Reload failed, could not shutdown the current processes")
 	}
-	lg.Printf("Restarting %s using %s", appName, settings)
-	return InitExtendedAPI(settings)
+	api.Log.Printf("Restarting %s using %s", appName, settings)
+	return api.InitExtendedAPI(settings)
 }
 
-func InitExtendedAPI(settings string) error {
+func (api *EP3API) InitExtendedAPI(settings string) error {
 	var err error
 	// NOTE: This reads the settings file and creates a global
 	// config object.
-	config, err = LoadConfig(settings)
+	api.Config, err = LoadConfig(settings)
 	if err != nil {
 		return fmt.Errorf("Failed to load %q, %s", settings, err)
 	}
-	if config == nil {
+	if api.Config == nil {
 		return fmt.Errorf("Missing configuration")
 	}
 	/* Setup logging */
-	if config.Logfile == `` {
-		lg = log.Default()
+	if api.Config.Logfile == `` {
+		api.Log = log.Default()
 	} else {
 		// Append or create a new log file
-		lp, err := os.OpenFile(config.Logfile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
+		lp, err := os.OpenFile(api.Config.Logfile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
 		if err != nil {
 			return err
 		}
-		lg = log.New(lp, ``, log.LstdFlags)
-		defer func() {
-			lp.Close()
-			lg = log.Default()
-		}()
+		api.Log = log.New(lp, ``, log.LstdFlags)
 	}
-	if config.Hostname == "" {
+	if api.Config.Hostname == "" {
 		return fmt.Errorf("Hostings hostname for service")
 	}
-	if config.Repositories == nil || len(config.Repositories) < 1 {
+	if api.Config.Repositories == nil || len(api.Config.Repositories) < 1 {
 		return fmt.Errorf(`Missing "repositories" configuration`)
 	}
-	if err := OpenConnections(config); err != nil {
+	if err := OpenConnections(api.Config); err != nil {
 		return fmt.Errorf(`Failed to open database connecitons`)
 	}
-	if config.Routes == nil {
-		config.Routes = map[string]map[string]func(http.ResponseWriter, *http.Request, string, []string) (int, error){}
+	if api.Config.Routes == nil {
+		api.Config.Routes = map[string]map[string]func(http.ResponseWriter, *http.Request, string, []string) (int, error){}
 	}
 	// This is a map standard endpoints and end point handlers.
 	// NOTE: Eventually this should evolving into a registration
 	// style design pattern based on unique fields in repositories.
 	routes := map[string]func(http.ResponseWriter, *http.Request, string, []string) (int, error){
 		// Standard fields
-		"keys":             keysEndPoint,
-		"created":          createdEndPoint,
-		"updated":          updatedEndPoint,
-		"deleted":          deletedEndPoint,
-		"pubdate":          pubdateEndPoint,
-		"doi":              doiEndPoint,
-		"record":           recordEndPoint,
-		"eprint":           eprintEndPoint,
-		"eprint-import":    eprintImportEndPoint,
-		"creator-id":       creatorIDEndPoint,
-		"creator-orcid":    creatorORCIDEndPoint,
-		"editor-id":        editorIDEndPoint,
-		"contributor-id":   contributorIDEndPoint,
-		"advisor-id":       advisorIDEndPoint,
-		"committee-id":     committeeIDEndPoint,
-		"group-id":         groupIDEndPoint,
-		"funder-id":        funderIDEndPoint,
-		"grant-number":     grantNumberEndPoint,
-		"creator-name":     creatorNameEndPoint,
-		"editor-name":      editorNameEndPoint,
-		"contributor-name": contributorNameEndPoint,
-		"advisor-name":     advisorNameEndPoint,
-		"commitee-name":    committeeNameEndPoint,
-		"issn":             issnEndPoint,
-		"isbn":             isbnEndPoint,
+		"keys":              api.keysEndPoint,
+		"created":           api.createdEndPoint,
+		"updated":           api.updatedEndPoint,
+		"deleted":           api.deletedEndPoint,
+		"pubdate":           api.pubdateEndPoint,
+		"doi":               api.doiEndPoint,
+		"record":            api.recordEndPoint,
+		"eprint":            api.eprintEndPoint,
+		"eprint-import":     api.eprintImportEndPoint,
+		"creator-id":        api.creatorIDEndPoint,
+		"creator-orcid":     api.creatorORCIDEndPoint,
+		"editor-id":         api.editorIDEndPoint,
+		"contributor-id":    api.contributorIDEndPoint,
+		"advisor-id":        api.advisorIDEndPoint,
+		"committee-id":      api.committeeIDEndPoint,
+		"corp-creator-id":   api.corpCreatorIDEndPoint,
+		"group-id":          api.groupIDEndPoint,
+		"funder-id":         api.funderIDEndPoint,
+		"grant-number":      api.grantNumberEndPoint,
+		"creator-name":      api.creatorNameEndPoint,
+		"editor-name":       api.editorNameEndPoint,
+		"contributor-name":  api.contributorNameEndPoint,
+		"advisor-name":      api.advisorNameEndPoint,
+		"committee-name":    api.committeeNameEndPoint,
+		"corp-creator-name": api.corpCreatorNameEndPoint,
+		"corp-creator-uri":  api.corpCreatorURIEndPoint,
+		"issn":              api.issnEndPoint,
+		"isbn":              api.isbnEndPoint,
 	}
 
 	/* NOTE: We need a DB connection to MySQL for each
 	   EPrints repository supported by the API
 	   for access to MySQL */
-	if err := OpenConnections(config); err != nil {
+	if err := OpenConnections(api.Config); err != nil {
 		return err
 	}
 
-	for repoID, dataSource := range config.Repositories {
+	for repoID, dataSource := range api.Config.Repositories {
 		// Add routes (end points) for the target repository
 		for route, fn := range routes {
-			if config.Routes[repoID] == nil {
-				config.Routes[repoID] = map[string]func(http.ResponseWriter, *http.Request, string, []string) (int, error){}
+			if api.Config.Routes[repoID] == nil {
+				api.Config.Routes[repoID] = map[string]func(http.ResponseWriter, *http.Request, string, []string) (int, error){}
 			}
-			config.Routes[repoID][route] = fn
+			api.Config.Routes[repoID][route] = fn
 		}
 		// NOTE: make sure each end point is supported by repository
 		// e.g. CaltechTHESIS doens't have "patent_number",
 		// "patent_classification", "parent_assignee", "pmc_id",
 		// or "pmid".
 		if hasColumn(dataSource.TableMap, "eprint", "pmc_id") {
-			config.Routes[repoID]["pmcid"] = pubmedCentralIDEndPoint
+			api.Config.Routes[repoID]["pmcid"] = api.pubmedCentralIDEndPoint
 		}
 		if hasColumn(dataSource.TableMap, "eprint", "pmid") {
-			config.Routes[repoID]["pmid"] = pubmedIDEndPoint
+			api.Config.Routes[repoID]["pmid"] = api.pubmedIDEndPoint
 		}
 		if hasColumn(dataSource.TableMap, "eprint", "patent_applicant") {
-			config.Routes[repoID]["patent-applicant"] = patentApplicantEndPoint
+			api.Config.Routes[repoID]["patent-applicant"] = api.patentApplicantEndPoint
 		}
 		if hasColumn(dataSource.TableMap, "eprint", "patent_number") {
-			config.Routes[repoID]["patent-number"] = patentNumberEndPoint
+			api.Config.Routes[repoID]["patent-number"] = api.patentNumberEndPoint
 		}
 		if hasColumn(dataSource.TableMap, "eprint", "patent_classification") {
-			config.Routes[repoID]["patent-classification"] = patentClassificationEndPoint
+			api.Config.Routes[repoID]["patent-classification"] = api.patentClassificationEndPoint
 		}
 		if hasColumn(dataSource.TableMap, "eprint_patent_assignee", "patent_assignee") {
-			config.Routes[repoID]["patent-assignee"] = patentAssigneeEndPoint
+			api.Config.Routes[repoID]["patent-assignee"] = api.patentAssigneeEndPoint
 		}
 	}
 	return nil
 }
 
-func RunExtendedAPI(appName string, settings string) error {
+func (api *EP3API) RunExtendedAPI(appName string, settings string) error {
 	/* Setup web server */
-	lg.Printf(`
+	api.Log.Printf(`
 %s %s
 
 Using configuration %s
@@ -1042,7 +1078,7 @@ EPrints 3.3.x Extended API
 Listening on http://%s
 
 Press ctl-c to terminate.
-`, appName, Version, settings, os.Getpid(), config.Hostname)
+`, appName, Version, settings, os.Getpid(), api.Config.Hostname)
 
 	/* Listen for Ctr-C */
 	processControl := make(chan os.Signal, 1)
@@ -1051,19 +1087,19 @@ Press ctl-c to terminate.
 		sig := <-processControl
 		switch sig {
 		case syscall.SIGINT:
-			os.Exit(Shutdown(appName, sig.String()))
+			os.Exit(api.Shutdown(appName, sig.String()))
 		case syscall.SIGTERM:
-			os.Exit(Shutdown(appName, sig.String()))
+			os.Exit(api.Shutdown(appName, sig.String()))
 		case syscall.SIGHUP:
-			if err := Reload(appName, sig.String(), settings); err != nil {
-				lg.Println(err)
+			if err := api.Reload(appName, sig.String(), settings); err != nil {
+				api.Log.Println(err)
 				os.Exit(1)
 			}
 		default:
-			os.Exit(Shutdown(appName, sig.String()))
+			os.Exit(api.Shutdown(appName, sig.String()))
 		}
 	}()
 
-	http.HandleFunc("/", api)
-	return http.ListenAndServe(config.Hostname, nil)
+	http.HandleFunc("/", api.routeHandler)
+	return http.ListenAndServe(api.Config.Hostname, nil)
 }

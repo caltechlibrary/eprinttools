@@ -12,14 +12,14 @@ import (
 	"time"
 )
 
-func runServiceForTest(t *testing.T, fName string) {
-	if err := RunExtendedAPI("Go test", fName); err != nil {
+func runServiceForTest(t *testing.T, api *EP3API, fName string) {
+	if err := api.RunExtendedAPI("Go test", fName); err != nil {
 		t.Errorf(`RunExtendedAPI("Go test", %s) failed, %s`, fName, err)
 	}
 }
 
-func runShutdownForTest(t *testing.T, appName string) {
-	if Shutdown(appName, "simulated signal") != 0 {
+func runShutdownForTest(t *testing.T, api *EP3API, appName string) {
+	if api.Shutdown(appName, "simulated signal") != 0 {
 		t.Errorf("Expected zero return for Shutdown()")
 	}
 }
@@ -50,17 +50,17 @@ func httpPost(u string, contentType string, data []byte) ([]byte, error) {
 	return src, nil
 }
 
-func checkForHelpPages(hostname string, repoID string, route string) error {
+func checkForHelpPages(api *EP3API, hostname string, repoID string, route string) error {
 	var u string
 	switch {
 	case repoID == `` && route == ``:
-		u = fmt.Sprintf(`http://%s`, config.Hostname)
+		u = fmt.Sprintf(`http://%s`, api.Config.Hostname)
 	case repoID == `` && route != ``:
-		u = fmt.Sprintf(`http://%s/%s`, config.Hostname, route)
+		u = fmt.Sprintf(`http://%s/%s`, api.Config.Hostname, route)
 	case route == ``:
-		u = fmt.Sprintf(`http://%s/%s`, config.Hostname, repoID)
+		u = fmt.Sprintf(`http://%s/%s`, api.Config.Hostname, repoID)
 	default:
-		u = fmt.Sprintf(`http://%s/%s/%s`, config.Hostname, repoID, route)
+		u = fmt.Sprintf(`http://%s/%s/%s`, api.Config.Hostname, repoID, route)
 	}
 	src, err := httpGet(u)
 	if err != nil {
@@ -72,9 +72,9 @@ func checkForHelpPages(hostname string, repoID string, route string) error {
 	return nil
 }
 
-func runWriteTest(t *testing.T, repoID string, repo *DataSource, route string) {
-	baseURL := fmt.Sprintf(`http://%s`, config.Hostname)
-	repo, ok := config.Repositories[repoID]
+func runWriteTest(t *testing.T, api *EP3API, repoID string, repo *DataSource, route string) {
+	baseURL := fmt.Sprintf(`http://%s`, api.Config.Hostname)
+	repo, ok := api.Config.Repositories[repoID]
 	if ok == false || repo.Write == false {
 		t.Errorf(`%s not configured for writing`, repoID)
 		t.FailNow()
@@ -110,9 +110,9 @@ func runWriteTest(t *testing.T, repoID string, repo *DataSource, route string) {
 	}
 }
 
-func runReadTests(t *testing.T, repoID string, route string) {
-	for repoID, dsn := range config.Repositories {
-		baseURL := fmt.Sprintf(`http://%s`, config.Hostname)
+func runReadTests(t *testing.T, api *EP3API, repoID string, route string) {
+	for repoID, dsn := range api.Config.Repositories {
+		baseURL := fmt.Sprintf(`http://%s`, api.Config.Hostname)
 		u := fmt.Sprintf(`%s/repository/%s`, baseURL, repoID)
 		src, err := httpGet(u)
 		if err != nil {
@@ -142,8 +142,8 @@ func runReadTests(t *testing.T, repoID string, route string) {
 	}
 }
 
-func checkRepoStructure(repoID string) error {
-	u := fmt.Sprintf(`http://%s/repository/%s`, config.Hostname, repoID)
+func checkRepoStructure(api *EP3API, repoID string) error {
+	u := fmt.Sprintf(`http://%s/repository/%s`, api.Config.Hostname, repoID)
 	src, err := httpGet(u)
 	if err != nil {
 		return err
@@ -155,44 +155,44 @@ func checkRepoStructure(repoID string) error {
 	return nil
 }
 
-func runClientForTest(t *testing.T, appName string, settings string) {
+func runClientForTest(t *testing.T, api *EP3API, appName string, settings string) {
 	// Run client tests
 	const wait = 1
 	t.Logf("Starting client test sequence in %d seconds", wait)
 	time.Sleep(time.Second * wait)
-	if err := Reload("Go test reload", "simulated signal", settings); err != nil {
+	if err := api.Reload("Go test reload", "simulated signal", settings); err != nil {
 		t.Errorf("Reload(), %s", err)
 	}
-	if len(config.Routes) == 0 {
+	if len(api.Config.Routes) == 0 {
 		t.Errorf(`Expected some routes for test`)
 	}
 	// Check for repositories help
-	if err := checkForHelpPages(config.Hostname, ``, ``); err != nil {
+	if err := checkForHelpPages(api, api.Config.Hostname, ``, ``); err != nil {
 		t.Error(err)
 	}
-	if err := checkForHelpPages(config.Hostname, ``, `repositories`); err != nil {
+	if err := checkForHelpPages(api, api.Config.Hostname, ``, `repositories`); err != nil {
 		t.Error(err)
 	}
-	if err := checkForHelpPages(config.Hostname, ``, `repository`); err != nil {
+	if err := checkForHelpPages(api, api.Config.Hostname, ``, `repository`); err != nil {
 		t.Error(err)
 	}
 	// Let's test for help pages
-	for repoID, routes := range config.Routes {
+	for repoID, routes := range api.Config.Routes {
 		t.Logf(`Testing routes for %s`, repoID)
-		if err := checkRepoStructure(repoID); err != nil {
+		if err := checkRepoStructure(api, repoID); err != nil {
 			t.Errorf(`%s /repository/%s failed, %s`, repoID, repoID, err)
 		}
 		for route := range routes {
-			if err := checkForHelpPages(config.Hostname, repoID, route); err != nil {
+			if err := checkForHelpPages(api, api.Config.Hostname, repoID, route); err != nil {
 				t.Errorf(`%s, route %s, %s`, repoID, route, err)
 			}
 			switch route {
 			case `eprint-import`:
-				if repo, ok := config.Repositories[repoID]; ok && repo.Write {
-					runWriteTest(t, repoID, repo, route)
+				if repo, ok := api.Config.Repositories[repoID]; ok && repo.Write {
+					runWriteTest(t, api, repoID, repo, route)
 				}
 			default:
-				runReadTests(t, repoID, route)
+				runReadTests(t, api, repoID, route)
 			}
 		}
 	}
@@ -205,17 +205,26 @@ func TestExtendedAPI(t *testing.T) {
 		t.Skipf(`Can't find %q, %s`, settings, err)
 		t.SkipNow()
 	}
+	api := new(EP3API)
 	// Startup a test instance of the API.
-	if err := InitExtendedAPI(settings); err != nil {
+	if err := api.InitExtendedAPI(settings); err != nil {
 		t.Errorf(`Can't init extended API, %s`, err)
+		t.FailNow()
+	}
+	if api.Config == nil {
+		t.Errorf("API not configured")
+		t.FailNow()
+	}
+	if api.Config.Logfile == `` {
+		t.Errorf(`expected logging to file for tests`)
 		t.FailNow()
 	}
 	// Run a test of the extended API to test.
 	go func() {
-		runServiceForTest(t, settings)
+		runServiceForTest(t, api, settings)
 	}()
 	defer func() {
-		runShutdownForTest(t, appName)
+		runShutdownForTest(t, api, appName)
 	}()
-	runClientForTest(t, appName, settings)
+	runClientForTest(t, api, appName, settings)
 }

@@ -11,7 +11,7 @@ var (
 	err error
 )
 
-func assertOpenConnection(t *testing.T, repoID string, config *Config) {
+func assertOpenConnection(t *testing.T, config *Config, repoID string) {
 	t.Logf("Open Connection %s", repoID)
 	ds, ok := config.Repositories[repoID]
 	if !ok {
@@ -46,7 +46,7 @@ func assertOpenConnection(t *testing.T, repoID string, config *Config) {
 	}
 }
 
-func assertCloseConnection(t *testing.T, repoID string, config *Config) {
+func assertCloseConnection(t *testing.T, config *Config, repoID string) {
 	if err := CloseConnections(config); err != nil {
 		t.Errorf("Close error, %s", err)
 		t.FailNow()
@@ -178,19 +178,19 @@ func TestCrosswalkEPrintToSQLCreate(t *testing.T) {
 	var err error
 	fName := `test-settings.json`
 	repoID := `lemurprints`
-	testConfig, err := LoadConfig(fName)
+	config, err := LoadConfig(fName)
 	if err != nil {
 		t.Errorf("Cailed to reload %q, %s", fName, err)
 	}
-	ds, ok := testConfig.Repositories[repoID]
+	ds, ok := config.Repositories[repoID]
 	if ds == nil || ok == false || ds.Write == false {
 		t.Skipf(`%s not available for testing`, repoID)
 		t.SkipNow()
 	}
 	baseURL := ds.BaseURL
-	assertOpenConnection(t, repoID, testConfig)
-	defer assertCloseConnection(t, repoID, testConfig)
-	db, _ := testConfig.Connections[repoID]
+	assertOpenConnection(t, config, repoID)
+	defer assertCloseConnection(t, config, repoID)
+
 	// Cleanup any data associated with the test repository
 
 	now := time.Now()
@@ -247,7 +247,7 @@ generated in TestCrosswalkEPrintToSQLCreate() in ep3sql_test.go.
 	eprint.LastModifiedMonth = int(month)
 	eprint.LastModifiedDay = day
 
-	id, err := CrosswalkEPrintToSQLCreate(db, repoID, ds, eprint)
+	id, err := CrosswalkEPrintToSQLCreate(config, repoID, ds, eprint)
 	if err != nil {
 		t.Errorf("%s, %s", repoID, err)
 		t.FailNow()
@@ -256,7 +256,7 @@ generated in TestCrosswalkEPrintToSQLCreate() in ep3sql_test.go.
 		t.Errorf("%s, failed to return non-zero eprint id", repoID)
 		t.FailNow()
 	}
-	eprintCopy, err := CrosswalkSQLToEPrint(db, repoID, baseURL, id)
+	eprintCopy, err := CrosswalkSQLToEPrint(config, repoID, baseURL, id)
 	if err != nil {
 		t.Errorf("%s, %s", repoID, err)
 		t.FailNow()

@@ -30,17 +30,55 @@ There are two end points that give you information about what repositories are c
 Unique ID to EPrint ID
 ----------------------
 
-- '/{REPO_ID}/doi/{DOI}' with the adoption of EPrints "doi" field in the EPrint table it makes sense to have a quick translation of DOI to EPrint id for a given EPrints repository. 
-- '/{REPO_ID}/creator-id/{CREATOR_ID}' scans the name creator id field associated with creators and returns a list of EPrint ID 
-- '/{REPO_ID}/creator-orcid/{ORCID}' scans the "orcid" field associated with creators and returns a list of EPrint ID 
-- '/{REPO_ID}/editor-id/{CREATOR_ID}' scans the name creator id field associated with editors and returns a list of EPrint ID 
-- '/{REPO_ID}/contributor-id/{CONTRIBUTOR_ID}' scans the "id" field associated with a contributors and returns a list of EPrint ID 
-- '/{REPO_ID}/advisor-id/{ADVISOR_ID}' scans the name advisor id field associated with advisors and returns a list of EPrint ID 
-- '/{REPO_ID}/committee-id/{COMMITTEE_ID}' scans the committee id field associated with committee members and returns a list of EPrint ID
-- '/{REPO_ID}/group-id/{GROUP_ID}' this scans group ID and returns a list of EPrint IDs associated with the group
-- '/{REPO_ID}/funder-id/{FUNDER_ID}' returns a list of EPrint IDs associated with the funder's ROR
-- '/{REPO_ID}/grant-number/{GRANT_NUMBER}' returns a list of EPrint IDs associated with the grant number
+Unique ids maybe standards based (e.g. ORCID, DOI, ISSN, ISBN) or internal (e.g. group ids, funder ids)
 
+- '/{REPO_ID}/doi/{DOI}' with the adoption of EPrints "doi" field in the EPrint table it makes sense to have a quick translation of DOI to EPrint id for a given EPrints repository.
+- '/{REPO_ID}/pmid/{PMID}' with the "pmid" field in the EPrint table, it refers to PubMed is an index of the biomedical literature.
+- '/{REPO_ID}/pmcid/{PMCID}' with the "pmcid" field in the EPrint table, PMCID an Identifier to each full-text paper in PubMed Central Archive
+- '/{REPO_ID}/creator-id' returns a list of creaator-id available in the eprints repository
+- '/{REPO_ID}/creator-id/{CREATOR_ID}' scans the name creator id field associated with creators and returns a list of EPrint ID
+- '/{REPO_ID}/creator-name' returns a list of creator names (family, given) in repository
+- '/{REPO_ID}/creator-name/{FAMILY}/{GIVEN}' returns a list of EPrint ID for the given creator using their family and given names
+- '/{REPO_ID}/creator-orcid' return a list of "orcid" associated with creators in repository
+- '/{REPO_ID}/creator-orcid/{ORCID}' scans the "orcid" field associated with creators and returns a list of EPrint ID
+- '/{REPO_ID}/editor-id' returns a list of editor ids available in the EPrints repository
+- '/{REPO_ID}/editor-id/{CREATOR_ID}' scans the name creator id field associated with editors and returns a list of EPrint ID
+- '/{REPO_ID}/editor-name' returns a list of editor names (family, given) in repository
+- '/{REPO_ID}/editor-name/{FAMILY}/{GIVEN}' returns a list of EPrint ID for the given editor using their family and given names
+- '/{REPO_ID}/contributor-id' returns a list of contributor ids available in the eprints repository
+- '/{REPO_ID}/contributor-id/{CONTRIBUTOR_ID}' scans the "id" field associated with a contributors and returns a list of EPrint ID
+- '/{REPO_ID}/contributor-name' returns a list of contributor names (family, given) in repository
+- '/{REPO_ID}/contributor-name/{FAMILY}/{GIVEN}' returns a list of EPrint ID for the given contributor using their family and given names
+- '/{REPO_ID}/advisor-id' returns a list of advisor ids in the eprints repository
+- '/{REPO_ID}/advisor-id/{ADVISOR_ID}' scans the name advisor id field associated with advisors and returns a list of EPrint ID
+- '/{REPO_ID}/advisor-name' returns a list of advisor names (family, given) in repository
+- '/{REPO_ID}/advisor-name/{FAMILY}/{GIVEN}' returns a list of EPrint ID for the given advisor using their family and given names
+- '/{REPO_ID}/committee-id' returns a list of committee id in EPrints repository
+- '/{REPO_ID}/committee-id/{COMMITTEE_ID}' scans the committee id field associated with committee members and returns a list of EPrint ID
+- '/{REPO_ID}/committee-name' returns a list of committee members names (family, given) in repository
+- '/{REPO_ID}/committee-name/{FAMILY}/{GIVEN}' returns a list of EPrint ID for the given committee member using their family and given names
+- '/{REPO_ID}/corp-ceator-id' returns a list of corp creator ids in the eprints repository
+- '/{REPO_ID}/corp-create-id/{CORP_CREATOR_ID}' returns the list of eprint id for the corporate creator id
+- '/{REPO_ID}/corp-ceator-uri' returns a list of corp creator uri in the eprints repository
+- '/{REPO_ID}/corp-create-uri/{CORP_CREATOR_URI}' returns the list of eprint id for the corporate creator's URI
+- '/{REPO_ID}/group-id' returns a list of group ids in EPrints repository
+- '/{REPO_ID}/group-id/{GROUP_ID}' this scans group ID and returns a list of EPrint IDs associated with the group
+- '/{REPO_ID}/funder-id' returns a list of funders in the EPrints repository
+- '/{REPO_ID}/funder-id/{FUNDER_ID}' returns a list of EPrint IDs associated with the funder
+- '/{REPO_ID}/grant-number' returns a list of grant numbers in EPrints repository
+- '/{REPO_ID}/grant-number/{GRANT_NUMBER}' returns a list of EPrint IDs associated with the grant number
+- '/{REPO_ID}/issn' - returns a list of ISSN in repository
+- '/{REPO_ID}/issn/{ISSN}' - returns a list eprint id for ISSN in repository
+- '/{REPO_ID}/isbn' - returns a list of ISBN in repository
+- '/{REPO_ID}/isbn/{ISBN}' - returns a list eprint id for ISBN in repository
+- '/{REPO_ID}/patent-number' - return a list of patent numbers in repository
+- '/{REPO_ID}/patent-number/{PATENT_NUMBER}' - return a list eprint ids for patent number in repository
+- '/{REPO_ID}/patent-applicant' - return a list of patent applicants in repository
+- '/{REPO_ID}/patent-applicant/{PATENT_APPLICANT}' - return a list eprint ids for patent applicant in repository
+- '/{REPO_ID}/patent-classification' - return a list of patent classificatins in repository
+- '/{REPO_ID}/patent-classification/{PATENT_CLASSIFICATION}' - return a list eprint ids for patent classification in repository
+- '/{REPO_ID}/patent-assignee' - return a list of patent assignee in repository
+- '/{REPO_ID}/patent-assignee/{PATENT_ASSIGNEE}' - return a list eprint ids for patent assignee in repository
 
 
 Change Events
@@ -53,19 +91,21 @@ The follow API end points would facilitate faster updates to our feeds platform 
 - '/{REPO_ID}/deleted/{TIMESTAMP}/{TIMESTAMP}' through the returns a list of EPrint IDs deleted starting at first timestamp through inclusive of the second timestamp, if the second timestamp is omitted it is assumed to be "now"
 - '/{REPO_ID}/pubdate/{APROX_DATESTAMP}/{APPOX_DATESTMP}' this query scans the EPrint table for records with publication starts starting with the first approximate date through inclusive of the second approximate date. If the second date is omitted it is assumed to be "today". Approximate dates my be expressed just the year (starting with Jan 1, ending with Dec 31), just the year and month (starting with first day of month ending with the last day) or year, month and day. The end returns zero or more EPrint IDs.
 
-Write API
----------
+Read/Write API
+--------------
 
-As of __ep3apid__ version 1.0.3 a new set of end points exists for reading and writing EPrints XML. This can be enabled per repository. It only supports interaction with one record at a time.  You can retrieve full EPrint XML using a GET request. This EPrint XML is generate dynamically based on the contents of the MySQL tables configured in the EPrints instance.  You can write EPrints records with a POST.  If the eprint ID furnished in the POST is 0 (zero) then a new record will be created. Otherwise the contents of the EPrint XML you post will replace the existing eprint record.  This transaction takes place only at the SQL level. None of EPrints's native Perl API is invoked. 
+As of __ep3apid__ version 1.0.3 a new set of end points exists for reading (retreiving EPrints XML) and writing (metadata import) of EPrints XML.  The extended API only supports working with EPrints metadata not directly with the documents or files associated with individual records.
 
-The end point is '/{REPO_ID}/eprint/{EPRINT_ID}' for EPrint XML.
+The metadata import functionality is enabled per repository. It only supports importing records at this time.  Importing an EPrint XML document, which could containing multiple EPrint metadata records, is implemented purely using SQL statements and not the EPrints Perl API. This allows you (with the right MySQL configuration) to run the extended API on a different server without resorting to Perl.
 
-To enable this feature add the attribute '"write": true' to the repositories setting in settins.json.
+- '/{REPO_ID}/eprint/{EPRINT_ID}' method GET with a content type of "application/json" (JSON of EPrint XML) or "application/xml" for EPrint XML
+- '/{REPO_ID}/eprint-import' POST accepts EPrints XML with content type of "application/xml" or JSON of EPrints XML with content type "application/json". To enable this feature add the attribute '"write": true' to the repositories setting in settins.json.
+
 
 settings.json (configuration)
 -----------------------------
 
-To run the web service create a JSON file named settings.ini in the current directory where you're invoking _ep3apid_ from. The web service can be started with running
+To run the web service create a JSON file named settings.ini in the current directory where you're invoking __ep3apid__ from. The web service can be started with running
 
 ```
     ep3apid
@@ -87,9 +127,10 @@ access the MySQL database for the repository you're supporting. You can have man
         "repositories": {
             "REPO_ID": {
                 "dsn": "DB_USER:SECRET@/DB_NAME",
+                "base_url": "URL_TO_EPRINT_REPOSITORY",
                 "write": false
-	        },
-	        ... /* Additional repositories configured here */ ...
+            },
+            ... /* Additional repositories configured here */ ...
         }
     }
 ```
@@ -106,4 +147,6 @@ Options
   -version
     	Display software version
 ```
+
+
 

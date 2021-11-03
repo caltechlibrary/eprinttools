@@ -59,7 +59,7 @@ func CloseConnections(config *Config) error {
 
 // sqlQueryIntIDs takes a repostory ID, a SQL statement and applies
 // the args returning a list of integer id or error.
-func sqlQueryIntIDs(repoID string, stmt string, args ...interface{}) ([]int, error) {
+func sqlQueryIntIDs(config *Config, repoID string, stmt string, args ...interface{}) ([]int, error) {
 	if db, ok := config.Connections[repoID]; ok == true {
 		rows, err := db.Query(stmt, args...)
 		if err != nil {
@@ -89,7 +89,7 @@ func sqlQueryIntIDs(repoID string, stmt string, args ...interface{}) ([]int, err
 
 // sqlQueryStringIDs takes a repostory ID, a SQL statement and applies
 // the args returning a list of string type id or error.
-func sqlQueryStringIDs(repoID string, stmt string, args ...interface{}) ([]string, error) {
+func sqlQueryStringIDs(config *Config, repoID string, stmt string, args ...interface{}) ([]string, error) {
 	if db, ok := config.Connections[repoID]; ok == true {
 		rows, err := db.Query(stmt, args...)
 		if err != nil {
@@ -121,7 +121,7 @@ func sqlQueryStringIDs(repoID string, stmt string, args ...interface{}) ([]strin
 // Expose EPrint meta data structure
 //
 
-func GetTablesAndColumns(repoID string) (map[string][]string, error) {
+func GetTablesAndColumns(config *Config, repoID string) (map[string][]string, error) {
 	if config.Connections == nil {
 		return nil, fmt.Errorf(`database access not configured`)
 	}
@@ -136,14 +136,14 @@ func GetTablesAndColumns(repoID string) (map[string][]string, error) {
 //
 
 // GetAllEPrintIDs return a list of all eprint ids in repository or error
-func GetAllEPrintIDs(repoID string) ([]int, error) {
-	return sqlQueryIntIDs(repoID, `SELECT eprintid FROM eprint
+func GetAllEPrintIDs(config *Config, repoID string) ([]int, error) {
+	return sqlQueryIntIDs(config, repoID, `SELECT eprintid FROM eprint
 ORDER BY date_year DESC, date_month DESC, date_day DESC`)
 }
 
 // GetEPrintIDsInTimestampRange return a list of EPrintIDs in created timestamp range
 // or return error. field maybe either "datestamp" (for created date), "lastmod" (for last modified date)
-func GetEPrintIDsInTimestampRange(repoID string, field string, start string, end string) ([]int, error) {
+func GetEPrintIDsInTimestampRange(config *Config, repoID string, field string, start string, end string) ([]int, error) {
 	stmt := fmt.Sprintf(`SELECT eprintid FROM eprint WHERE 
 (CONCAT(%s_year, "-", 
 LPAD(IFNULL(%s_month, 1), 2, "0"), "-", 
@@ -160,12 +160,12 @@ LPAD(IFNULL(%s_second, 59), 2, "0")) <= ?)
 ORDER BY %s DESC, %s DESC, %s DESC, %s DESC, %s DESC, %s DESC`,
 		field, field, field, field, field, field, field, field, field, field, field, field,
 		field, field, field, field, field, field)
-	return sqlQueryIntIDs(repoID, stmt, start, end)
+	return sqlQueryIntIDs(config, repoID, stmt, start, end)
 }
 
 // GetEPrintIDsWithStatus returns a list of eprints in a timestmap range for
 // a given status or returns an error
-func GetEPrintIDsWithStatus(repoID string, status string, start string, end string) ([]int, error) {
+func GetEPrintIDsWithStatus(config *Config, repoID string, status string, start string, end string) ([]int, error) {
 	stmt := `SELECT eprintid FROM eprint WHERE (eprint_status = ?) AND 
 (CONCAT(lastmod_year, "-", 
 LPAD(IFNULL(lastmod_month, 1), 2, "0"), "-", 
@@ -181,12 +181,12 @@ LPAD(IFNULL(lastmod_minute, 59), 2, "0"), ":",
 LPAD(IFNULL(lastmod_second, 59), 2, "0")) <= ?)
 ORDER BY lastmod_year DESC, lastmod_month DESC, lastmod_day DESC,
          lastmod_hour DESC, lastmod_minute DESC, lastmod_minute DESC`
-	return sqlQueryIntIDs(repoID, stmt, status, start, end)
+	return sqlQueryIntIDs(config, repoID, stmt, status, start, end)
 }
 
 // GetEPrintIDsForDateType returns list of eprints in date range for
 // a given status or returns an error
-func GetEPrintIDsForDateType(repoID string, dateType string, start string, end string) ([]int, error) {
+func GetEPrintIDsForDateType(config *Config, repoID string, dateType string, start string, end string) ([]int, error) {
 	stmt := fmt.Sprintf(`SELECT eprintid FROM eprint
 WHERE ((date_type) = ?) AND 
 (CONCAT(date_year, "-", 
@@ -197,47 +197,47 @@ LPAD(IFNULL(date_month, 12), 2, "0"), "-",
 LPAD(IFNULL(date_day, 28), 2, "0")) <= ?)
 ORDER BY date_year DESC, date_month DESC, date_day DESC
 `)
-	return sqlQueryIntIDs(repoID, stmt, dateType, start, end)
+	return sqlQueryIntIDs(config, repoID, stmt, dateType, start, end)
 }
 
 // GetAllUniqueID return a list of unique id values in repository
-func GetAllUniqueID(repoID string, field string) ([]string, error) {
+func GetAllUniqueID(config *Config, repoID string, field string) ([]string, error) {
 	stmt := fmt.Sprintf(`SELECT %s
 FROM eprint
 WHERE %s IS NOT NULL
 GROUP BY %s ORDER BY %s`,
 		field, field, field, field)
-	return sqlQueryStringIDs(repoID, stmt)
+	return sqlQueryStringIDs(config, repoID, stmt)
 }
 
 // GetEPrintIDsForUniqueID return list of eprints for DOI
-func GetEPrintIDsForUniqueID(repoID string, field string, value string) ([]int, error) {
+func GetEPrintIDsForUniqueID(config *Config, repoID string, field string, value string) ([]int, error) {
 	// NOTE: There should only be one eprint per DOI but we have dirty data because the field is not contrained as Unique
 	stmt := fmt.Sprintf(`SELECT eprintid FROM eprint WHERE %s = ?`, field)
-	return sqlQueryIntIDs(repoID, stmt, value)
+	return sqlQueryIntIDs(config, repoID, stmt, value)
 }
 
 // GetAllPersonOrOrgIDs return a list of creator ids or error
-func GetAllPersonOrOrgIDs(repoID string, field string) ([]string, error) {
+func GetAllPersonOrOrgIDs(config *Config, repoID string, field string) ([]string, error) {
 	stmt := fmt.Sprintf(`SELECT %s_id FROM eprint_%s_id
 WHERE %s_id IS NOT NULL
 GROUP BY %s_id ORDER BY %s_id`, field, field, field, field, field)
-	return sqlQueryStringIDs(repoID, stmt)
+	return sqlQueryStringIDs(config, repoID, stmt)
 }
 
 // GetEPrintIDForPersonOrOrgID return a list of eprint ids associated with the person or organization id
-func GetEPrintIDsForPersonOrOrgID(repoID string, personOrOrgType string, personOrOrgID string) ([]int, error) {
+func GetEPrintIDsForPersonOrOrgID(config *Config, repoID string, personOrOrgType string, personOrOrgID string) ([]int, error) {
 	stmt := fmt.Sprintf(`SELECT eprint_%s_id.eprintid AS eprintid
 FROM eprint_%s_id JOIN eprint ON (eprint_%s_id.eprintid = eprint.eprintid)
 WHERE eprint_%s_id.%s_id = ?
 ORDER BY date_year DESC, date_month DESC, date_day DESC`,
 		personOrOrgType, personOrOrgType, personOrOrgType, personOrOrgType, personOrOrgType)
-	return sqlQueryIntIDs(repoID, stmt, personOrOrgID)
+	return sqlQueryIntIDs(config, repoID, stmt, personOrOrgID)
 }
 
 // GetAllORCIDs return a list of all ORCID in repository
-func GetAllORCIDs(repoID string) ([]string, error) {
-	values, err := sqlQueryStringIDs(repoID, `SELECT creators_orcid
+func GetAllORCIDs(config *Config, repoID string) ([]string, error) {
+	values, err := sqlQueryStringIDs(config, repoID, `SELECT creators_orcid
 	FROM eprint_creators_orcid
 	WHERE creators_orcid IS NOT NULL
 	GROUP BY creators_orcid ORDER BY creators_orcid`)
@@ -245,8 +245,8 @@ func GetAllORCIDs(repoID string) ([]string, error) {
 }
 
 // GetEPrintIDsForORCID return a list of eprint ids associated with the ORCID
-func GetEPrintIDsForORCID(repoID string, orcid string) ([]int, error) {
-	return sqlQueryIntIDs(repoID, `SELECT eprint.eprintid AS eprintid
+func GetEPrintIDsForORCID(config *Config, repoID string, orcid string) ([]int, error) {
+	return sqlQueryIntIDs(config, repoID, `SELECT eprint.eprintid AS eprintid
 FROM eprint_creators_orcid JOIN eprint ON (eprint_creators_orcid.eprintid = eprint.eprintid)
 WHERE creators_orcid = ?
 ORDER BY date_year DESC, date_month DESC, date_day DESC
@@ -254,35 +254,37 @@ ORDER BY date_year DESC, date_month DESC, date_day DESC
 }
 
 // GetAllItems returns a list of simple items (e.g. local_group)
-func GetAllItems(repoID string, field string) ([]string, error) {
+func GetAllItems(config *Config, repoID string, field string) ([]string, error) {
 	stmt := fmt.Sprintf(`SELECT %s
 FROM eprint_%s
 WHERE eprint_%s.%s IS NOT NULL
 GROUP BY eprint_%s.%s ORDER BY eprint_%s.%s`,
 		field, field, field, field, field, field, field, field)
-	return sqlQueryStringIDs(repoID, stmt)
+	return sqlQueryStringIDs(config, repoID, stmt)
 }
 
 // GetEPrintIDsForItem
-func GetEPrintIDsForItem(repoID string, field string, value string) ([]int, error) {
+func GetEPrintIDsForItem(config *Config, repoID string, field string, value string) ([]int, error) {
 	stmt := fmt.Sprintf(`SELECT eprint.eprintid AS eprintid 
 FROM eprint_%s JOIN eprint ON (eprint_%s.eprintid = eprint.eprintid)
 WHERE eprint_%s.%s = ?
 ORDER BY eprint.date_year DESC, eprint.date_month DESC, eprint.date_day DESC`, field, field, field, field)
-	return sqlQueryIntIDs(repoID, stmt, value)
+	return sqlQueryIntIDs(config, repoID, stmt, value)
 }
 
 // GetAllPersonNames return a list of person names in repository
-func GetAllPersonNames(repoID string, field string) ([]string, error) {
-	stmt := fmt.Sprintf(`SELECT %s
+func GetAllPersonNames(config *Config, repoID string, field string) ([]string, error) {
+	stmt := fmt.Sprintf(`SELECT CONCAT(%s_family, ", ", %s_given) AS %s
 FROM eprint_%s
-WHERE (family_name IS NOT NULL) OR (given_name IS NOT NULL)
-GROUP BY family_name, given_name ORDER BY family_name, given_name`, field, field)
-	return sqlQueryStringIDs(repoID, stmt)
+WHERE (%s_family IS NOT NULL) OR (%s_given IS NOT NULL)
+GROUP BY %s_family, %s_given ORDER BY %s_family, %s_given`,
+		field, field, field,
+		field, field, field, field, field, field, field)
+	return sqlQueryStringIDs(config, repoID, stmt)
 }
 
 // GetEPrintIDsForPersonName return a list of eprint id for a person's name (family, given)
-func GetEPrintIDsForPersonName(repoID, field string, family string, given string) ([]int, error) {
+func GetEPrintIDsForPersonName(config *Config, repoID, field string, family string, given string) ([]int, error) {
 	conditions := []string{}
 	if strings.Contains(family, "*") || strings.Contains(given, "%") {
 		conditions = append(conditions, `family_name LIKE ?`)
@@ -299,7 +301,7 @@ FROM eprint_%s JOIN eprint ON (eprint_%s.eprintid = eprint.eprintid)
 WHERE %s
 ORDER BY family_name ASC, given_name ASC, eprint.date_year DESC, eprint.date_month DESC, eprint.date_day DESC`,
 		field, field, strings.Join(conditions, " AND "))
-	return sqlQueryIntIDs(repoID, stmt, family, given)
+	return sqlQueryIntIDs(config, repoID, stmt, family, given)
 }
 
 //
@@ -1929,7 +1931,7 @@ FROM %s WHERE eprintid = ? ORDER BY eprintid, pos`, tableName)
 // CrosswalkSQLToEPrint expects a repository map and EPrint ID
 // and will generate a series of SELECT statements populating
 // a new EPrint struct or return an error
-func CrosswalkSQLToEPrint(db *sql.DB, repoID string, baseURL string, eprintID int) (*EPrint, error) {
+func CrosswalkSQLToEPrint(config *Config, repoID string, baseURL string, eprintID int) (*EPrint, error) {
 	var (
 		tables  map[string][]string
 		columns []string
@@ -1945,6 +1947,10 @@ func CrosswalkSQLToEPrint(db *sql.DB, repoID string, baseURL string, eprintID in
 	columns, ok = tables["eprint"]
 	if !ok {
 		return nil, fmt.Errorf("not found, %q eprint table not defined", repoID)
+	}
+	db, ok := config.Connections[repoID]
+	if !ok {
+		return nil, fmt.Errorf("no database connection for %s", repoID)
 	}
 
 	// NOTE: since the specific subset of columns in a repository
@@ -2237,11 +2243,15 @@ func insertItemList(db *sql.DB, repoID string, tableName string, columns []strin
 // CrosswalkEPrintToSQLCreate will read a EPrint structure and
 // generate SQL INSERT, REPLACE and DELETE statements
 // suitable for creating a new EPrint record in the repository.
-func CrosswalkEPrintToSQLCreate(db *sql.DB, repoID string, ds *DataSource, eprint *EPrint) (int, error) {
+func CrosswalkEPrintToSQLCreate(config *Config, repoID string, ds *DataSource, eprint *EPrint) (int, error) {
 	var (
 		err      error
 		eprintID int
 	)
+	db, ok := config.Connections[repoID]
+	if !ok {
+		return 0, fmt.Errorf(`no database connection for %s`, repoID)
+	}
 	// If eprint id is zero generate a sequence of INSERT statements
 	// for the record. Others use generate the appropriate History
 	// records and then delete insert the new record.
@@ -2312,9 +2322,17 @@ func CrosswalkEPrintToSQLCreate(db *sql.DB, repoID string, ds *DataSource, eprin
 //
 // ImportEPrints returns a list of EPrint IDs created
 // if successful and an error if something goes wrong.
-func ImportEPrints(db *sql.DB, repoID string, ds *DataSource, eprints *EPrints) ([]int, error) {
+func ImportEPrints(config *Config, repoID string, ds *DataSource, eprints *EPrints) ([]int, error) {
 	var importErrors error
 	ids := []int{}
+
+	if config.Connections == nil {
+		return nil, fmt.Errorf(`no databases are not configured`)
+	}
+	_, ok := config.Connections[repoID]
+	if !ok {
+		return nil, fmt.Errorf(`%s database connection not configured`, repoID)
+	}
 
 	// Check to make sure updates are allowed if non-Zero
 	// eprint ids present.
@@ -2324,7 +2342,7 @@ func ImportEPrints(db *sql.DB, repoID string, ds *DataSource, eprints *EPrints) 
 		}
 	}
 	for _, eprint := range eprints.EPrint {
-		id, err := CrosswalkEPrintToSQLCreate(db, repoID, ds, eprint)
+		id, err := CrosswalkEPrintToSQLCreate(config, repoID, ds, eprint)
 		if err != nil {
 			if importErrors == nil {
 				importErrors = err
