@@ -75,70 +75,6 @@ func expandAproxDate(dt string, roundDown bool) string {
 }
 
 //
-// DB SQL functions.
-//
-
-// sqlQueryIntIDs takes a repostory ID, a SQL statement and applies
-// the args returning a list of integer id or error.
-func sqlQueryIntIDs(repoID string, stmt string, args ...interface{}) ([]int, error) {
-	if db, ok := config.Connections[repoID]; ok == true {
-		rows, err := db.Query(stmt, args...)
-		if err != nil {
-			return nil, fmt.Errorf("ERROR: query error (%q), %s", repoID, err)
-		}
-		defer rows.Close()
-		value := 0
-		values := []int{}
-		for rows.Next() {
-			err := rows.Scan(&value)
-			if (err == nil) && (value > 0) {
-				values = append(values, value)
-			} else {
-				return nil, fmt.Errorf("ERROR: scan error (%q), %s", repoID, err)
-			}
-		}
-		if err := rows.Err(); err != nil {
-			return nil, fmt.Errorf("ERROR: rows error (%q), %s", repoID, err)
-		}
-		if err != nil {
-			return nil, fmt.Errorf("ERROR: query error (%q), %s", repoID, err)
-		}
-		return values, nil
-	}
-	return nil, fmt.Errorf("Bad Request")
-}
-
-// sqlQueryStringIDs takes a repostory ID, a SQL statement and applies
-// the args returning a list of string type id or error.
-func sqlQueryStringIDs(repoID string, stmt string, args ...interface{}) ([]string, error) {
-	if db, ok := config.Connections[repoID]; ok == true {
-		rows, err := db.Query(stmt, args...)
-		if err != nil {
-			return nil, fmt.Errorf("ERROR: query error (%q), %s", repoID, err)
-		}
-		defer rows.Close()
-		value := ``
-		values := []string{}
-		for rows.Next() {
-			err := rows.Scan(&value)
-			if err == nil {
-				values = append(values, value)
-			} else {
-				return nil, fmt.Errorf("ERROR: scan error (%q), %q, %s", repoID, stmt, err)
-			}
-		}
-		if err := rows.Err(); err != nil {
-			return nil, fmt.Errorf("ERROR: rows error (%q), %s", repoID, err)
-		}
-		if err != nil {
-			return nil, fmt.Errorf("ERROR: query error (%q), %s", repoID, err)
-		}
-		return values, nil
-	}
-	return nil, fmt.Errorf("Bad Request")
-}
-
-//
 // Package functions take the collected data and package into an HTTP
 // response.
 //
@@ -224,130 +160,6 @@ func unpackageEPrintsPOST(r *http.Request) (*EPrints, error) {
 		return nil, fmt.Errorf("%s not supported", contentType)
 	}
 	return eprints, err
-}
-
-//
-// EPrints Metadata Structure
-//
-
-// EPrintTablesAndColumns takes a DB connection and repoID then builds a map[string][]string{}
-// structure representing the tables and their columns available in a EPrints Repository
-func EPrintTablesAndColumns(db *sql.DB, repoID string) (map[string][]string, error) {
-	data := map[string][]string{}
-	stmt := `SHOW TABLES LIKE "eprint%"`
-	rows, err := db.Query(stmt)
-	if err != nil {
-		return nil, fmt.Errorf("SQL(%q), %s", repoID, err)
-	}
-	tables := []string{}
-	for rows.Next() {
-		tableName := ""
-		if err := rows.Scan(&tableName); err == nil {
-			tables = append(tables, tableName)
-		}
-	}
-	rows.Close()
-
-	for _, tableName := range tables {
-		data[tableName] = []string{}
-		stmt := fmt.Sprintf(`SHOW COLUMNS IN %s`, tableName)
-		cRows, err := db.Query(stmt)
-		if err != nil {
-			return nil, fmt.Errorf("SQL(%q), %s", repoID, err)
-		}
-		columns := []string{}
-		var (
-			colName, f1, f2, f3, f5 string
-			f4                      interface{}
-		)
-		for cRows.Next() {
-			//colName, f1, f2, f3, f4, f5 = &"", &"", &"", &"", nil, &""
-			if err := cRows.Scan(&colName, &f1, &f2, &f3, &f4, &f5); err != nil {
-				lg.Printf("cRows.Scan() error: %s", err)
-			} else {
-				columns = append(columns, colName)
-			}
-		}
-		data[tableName] = columns
-		cRows.Close()
-	}
-	// We need to add the document set of tables too.
-	stmt = `SHOW TABLES LIKE "document%"`
-	rows, err = db.Query(stmt)
-	if err != nil {
-		return nil, fmt.Errorf("SQL(%q), %s", repoID, err)
-	}
-	tables = []string{}
-	for rows.Next() {
-		tableName := ""
-		if err := rows.Scan(&tableName); err == nil {
-			tables = append(tables, tableName)
-		}
-	}
-	rows.Close()
-
-	for _, tableName := range tables {
-		data[tableName] = []string{}
-		stmt := fmt.Sprintf(`SHOW COLUMNS IN %s`, tableName)
-		cRows, err := db.Query(stmt)
-		if err != nil {
-			return nil, fmt.Errorf("SQL(%q), %s", repoID, err)
-		}
-		columns := []string{}
-		var (
-			colName, f1, f2, f3, f5 string
-			f4                      interface{}
-		)
-		for cRows.Next() {
-			//colName, f1, f2, f3, f4, f5 = &"", &"", &"", &"", nil, &""
-			if err := cRows.Scan(&colName, &f1, &f2, &f3, &f4, &f5); err != nil {
-				lg.Printf("cRows.Scan() error: %s", err)
-			} else {
-				columns = append(columns, colName)
-			}
-		}
-		data[tableName] = columns
-		cRows.Close()
-	}
-	// We need to add the files set of tables too.
-	stmt = `SHOW TABLES LIKE "file%"`
-	rows, err = db.Query(stmt)
-	if err != nil {
-		return nil, fmt.Errorf("SQL(%q), %s", repoID, err)
-	}
-	tables = []string{}
-	for rows.Next() {
-		tableName := ""
-		if err := rows.Scan(&tableName); err == nil {
-			tables = append(tables, tableName)
-		}
-	}
-	rows.Close()
-
-	for _, tableName := range tables {
-		data[tableName] = []string{}
-		stmt := fmt.Sprintf(`SHOW COLUMNS IN %s`, tableName)
-		cRows, err := db.Query(stmt)
-		if err != nil {
-			return nil, fmt.Errorf("SQL(%q), %s", repoID, err)
-		}
-		columns := []string{}
-		var (
-			colName, f1, f2, f3, f5 string
-			f4                      interface{}
-		)
-		for cRows.Next() {
-			//colName, f1, f2, f3, f4, f5 = &"", &"", &"", &"", nil, &""
-			if err := cRows.Scan(&colName, &f1, &f2, &f3, &f4, &f5); err != nil {
-				lg.Printf("cRows.Scan() error: %s", err)
-			} else {
-				columns = append(columns, colName)
-			}
-		}
-		data[tableName] = columns
-		cRows.Close()
-	}
-	return data, nil
 }
 
 //
@@ -876,7 +688,8 @@ func recordEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args 
 	if err != nil {
 		return 400, fmt.Errorf("Bad Request, eprint id invalid, %s", err)
 	}
-	eprint, err := CrosswalkSQLToEPrint(repoID, baseURL, eprintID)
+	db, _ := config.Connections[repoID]
+	eprint, err := CrosswalkSQLToEPrint(db, repoID, baseURL, eprintID)
 	if err != nil {
 		lg.Printf("CrosswalkSQLToEPrint Error: %s\n", err)
 		return 500, fmt.Errorf("Internal Server Error")
@@ -918,7 +731,8 @@ func eprintEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args 
 	if err != nil {
 		return 400, fmt.Errorf("bad request, eprint id (%s) %q not valid", repoID, eprintID)
 	}
-	eprint, err := CrosswalkSQLToEPrint(repoID, dataSource.BaseURL, eprintID)
+	db, _ := config.Connections[repoID]
+	eprint, err := CrosswalkSQLToEPrint(db, repoID, dataSource.BaseURL, eprintID)
 	if err != nil {
 		return 404, fmt.Errorf("not found, %s", err)
 
@@ -981,7 +795,8 @@ func eprintImportEndPoint(w http.ResponseWriter, r *http.Request, repoID string,
 		return 400, fmt.Errorf("bad request, POST failed (%s), %s", repoID, err)
 	}
 	ids := []int{}
-	ids, err = ImportEPrints(repoID, eprints)
+	db, _ := config.Connections[repoID]
+	ids, err = ImportEPrints(db, repoID, dataSource, eprints)
 	if err != nil {
 		return 400, fmt.Errorf("bad request, create EPrint failed, %s", err)
 	}
@@ -1100,13 +915,8 @@ func Shutdown(appName string, sigName string) int {
 	pid := os.Getpid()
 	lg.Printf(`Received signal %s`, sigName)
 	lg.Printf(`Closing database connections %s pid: %d`, appName, pid)
-	for name, db := range config.Connections {
-		if err := db.Close(); err != nil {
-			lg.Printf("Failed to close %s, %s", name, err)
-			exitCode = 1
-		} else {
-			lg.Printf("Closed %s", name)
-		}
+	if err := CloseConnections(config); err != nil {
+		exitCode = 1
 	}
 	lg.Printf(`Shutdown completed %s pid: %d exit code: %d `, appName, pid, exitCode)
 	return exitCode
@@ -1133,6 +943,21 @@ func InitExtendedAPI(settings string) error {
 	}
 	if config == nil {
 		return fmt.Errorf("Missing configuration")
+	}
+	/* Setup logging */
+	if config.Logfile == `` {
+		lg = log.Default()
+	} else {
+		// Append or create a new log file
+		lp, err := os.OpenFile(config.Logfile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
+		if err != nil {
+			return err
+		}
+		lg = log.New(lp, ``, log.LstdFlags)
+		defer func() {
+			lp.Close()
+			lg = log.Default()
+		}()
 	}
 	if config.Hostname == "" {
 		return fmt.Errorf("Hostings hostname for service")
@@ -1181,20 +1006,11 @@ func InitExtendedAPI(settings string) error {
 	/* NOTE: We need a DB connection to MySQL for each
 	   EPrints repository supported by the API
 	   for access to MySQL */
+	if err := OpenConnections(config); err != nil {
+		return err
+	}
+
 	for repoID, dataSource := range config.Repositories {
-		dataSourceName := dataSource.DSN
-		// Setup DB connection for target repository
-		db, err := sql.Open("mysql", dataSourceName)
-		if err != nil {
-			return fmt.Errorf("Could not open MySQL connection for %s, %s", repoID, err)
-		}
-		//lg.Printf("Setting  DB connection to %q", repoID)
-		//db.Ping()
-		config.Connections[repoID] = db
-		dataSource.TableMap, err = EPrintTablesAndColumns(db, repoID)
-		if err != nil {
-			return fmt.Errorf("failed to map table and columns for %q, %s", repoID, err)
-		}
 		// Add routes (end points) for the target repository
 		for route, fn := range routes {
 			if config.Routes[repoID] == nil {
@@ -1229,21 +1045,6 @@ func InitExtendedAPI(settings string) error {
 }
 
 func RunExtendedAPI(appName string, settings string) error {
-	/* Setup logging */
-	if config.Logfile == `` {
-		lg = log.Default()
-	} else {
-		// Append or create a new log file
-		lp, err := os.OpenFile(config.Logfile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
-		if err != nil {
-			return err
-		}
-		lg = log.New(lp, ``, log.LstdFlags)
-		defer func() {
-			lp.Close()
-			lg = log.Default()
-		}()
-	}
 	/* Setup web server */
 	lg.Printf(`
 %s %s

@@ -44,7 +44,6 @@ func httpPost(u string, contentType string, data []byte) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	fmt.Printf("DEBUG response status %d, %s\n", res.StatusCode, res.Status)
 	if res.StatusCode != 200 {
 		return src, fmt.Errorf(`HTTP status code %d`, res.StatusCode)
 	}

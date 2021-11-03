@@ -510,7 +510,10 @@ func (itemList *CreatorItemList) Append(item *Item) int {
 
 // Length() returns item count
 func (itemList *CreatorItemList) Length() int {
-	return len(itemList.Items)
+	if itemList != nil {
+		return len(itemList.Items)
+	}
+	return 0
 }
 
 // IndexOf() returns item or nil
@@ -543,7 +546,10 @@ func (itemList *EditorItemList) Append(item *Item) int {
 
 // Length() returns the number of items in the list
 func (itemList *EditorItemList) Length() int {
-	return len(itemList.Items)
+	if itemList != nil {
+		return len(itemList.Items)
+	}
+	return 0
 }
 
 // IndexOf() returns an item in the list or nil
@@ -576,7 +582,10 @@ func (itemList *RelatedURLItemList) Append(item *Item) int {
 
 // Length() returns item count
 func (itemList *RelatedURLItemList) Length() int {
-	return len(itemList.Items)
+	if itemList != nil {
+		return len(itemList.Items)
+	}
+	return 0
 }
 
 // IndexOf() returns item or nil
@@ -609,7 +618,10 @@ func (itemList *ReferenceTextItemList) Append(item *Item) int {
 
 // Length returns the length of an ReferenceTextItemList
 func (itemList *ReferenceTextItemList) Length() int {
-	return len(itemList.Items)
+	if itemList != nil {
+		return len(itemList.Items)
+	}
+	return 0
 }
 
 // IndexOf returns an Item or nil
@@ -668,7 +680,10 @@ func (itemList *ProjectItemList) Append(item *Item) int {
 
 // Length() returns the length of the item list
 func (itemList *ProjectItemList) Length() int {
-	return len(itemList.Items)
+	if itemList != nil {
+		return len(itemList.Items)
+	}
+	return 0
 }
 
 // IndexOf returns an item or nil
@@ -701,7 +716,10 @@ func (itemList *FunderItemList) Append(item *Item) int {
 
 // Length of item list
 func (itemList *FunderItemList) Length() int {
-	return len(itemList.Items)
+	if itemList != nil {
+		return len(itemList.Items)
+	}
+	return 0
 }
 
 // IndexOf returns an item or nil
@@ -734,7 +752,10 @@ func (itemList *LocalGroupItemList) Append(item *Item) int {
 
 // Length returns length of item list
 func (itemList *LocalGroupItemList) Length() int {
-	return len(itemList.Items)
+	if itemList != nil {
+		return len(itemList.Items)
+	}
+	return 0
 }
 
 // IndexOf returns an item or nil
@@ -767,7 +788,10 @@ func (itemList *OtherNumberingSystemItemList) Append(item *Item) int {
 
 // Length returns the length of the item
 func (itemList *OtherNumberingSystemItemList) Length() int {
-	return len(itemList.Items)
+	if itemList != nil {
+		return len(itemList.Items)
+	}
+	return 0
 }
 
 // IndexOf return an item or nil
@@ -800,7 +824,10 @@ func (itemList *ContributorItemList) Append(item *Item) int {
 
 // Length returns the number of items in list
 func (itemList *ContributorItemList) Length() int {
-	return len(itemList.Items)
+	if itemList != nil {
+		return len(itemList.Items)
+	}
+	return 0
 }
 
 // IndexOf returns an item or nil
@@ -833,7 +860,10 @@ func (itemList *SubjectItemList) Append(item *Item) int {
 
 // Length returns number of items in list
 func (itemList *SubjectItemList) Length() int {
-	return len(itemList.Items)
+	if itemList != nil {
+		return len(itemList.Items)
+	}
+	return 0
 }
 
 // IndexOf returns an item or nil
@@ -866,7 +896,10 @@ func (itemList *ItemIssueItemList) Append(item *Item) int {
 
 // Lengths returns the number of items in the list
 func (itemList *ItemIssueItemList) Length() int {
-	return len(itemList.Items)
+	if itemList != nil {
+		return len(itemList.Items)
+	}
+	return 0
 }
 
 // IndexOf returns an item or nil
@@ -899,7 +932,10 @@ func (itemList *CorpCreatorItemList) Append(item *Item) int {
 
 // Length returns count of items in list
 func (itemList *CorpCreatorItemList) Length() int {
-	return len(itemList.Items)
+	if itemList != nil {
+		return len(itemList.Items)
+	}
+	return 0
 }
 
 // IndexOf returns an item or nil
@@ -932,7 +968,10 @@ func (itemList *CorpContributorItemList) Append(item *Item) int {
 
 // Length returns count of items in list
 func (itemList *CorpContributorItemList) Length() int {
-	return len(itemList.Items)
+	if itemList != nil {
+		return len(itemList.Items)
+	}
+	return 0
 }
 
 // IndexOf returns an items or nil
@@ -965,7 +1004,10 @@ func (itemList *ExhibitorItemList) Append(item *Item) int {
 
 // Length returns count of items
 func (itemList *ExhibitorItemList) Length() int {
-	return len(itemList.Items)
+	if itemList != nil {
+		return len(itemList.Items)
+	}
+	return 0
 }
 
 // IndexOf returns an item or nil
@@ -998,7 +1040,10 @@ func (itemList *ProducerItemList) Append(item *Item) int {
 
 // Length return count of items
 func (itemList *ProducerItemList) Length() int {
-	return len(itemList.Items)
+	if itemList != nil {
+		return len(itemList.Items)
+	}
+	return 0
 }
 
 // IndexOf returns an item or nil
@@ -1031,7 +1076,10 @@ func (itemList *ConductorItemList) Append(item *Item) int {
 
 // Length returns count of items
 func (itemList *ConductorItemList) Length() int {
-	return len(itemList.Items)
+	if itemList != nil {
+		return len(itemList.Items)
+	}
+	return 0
 }
 
 // IndexOf return an item or nil
@@ -1064,7 +1112,10 @@ func (itemList *LyricistItemList) Append(item *Item) int {
 
 // Length return count of items
 func (itemList *LyricistItemList) Length() int {
-	return len(itemList.Items)
+	if itemList != nil {
+		return len(itemList.Items)
+	}
+	return 0
 }
 
 // IndexOf return item or nil
@@ -1097,7 +1148,10 @@ func (itemList *OptionMajorItemList) Append(item *Item) int {
 
 // Length return count of items
 func (itemList *OptionMajorItemList) Length() int {
-	return len(itemList.Items)
+	if itemList != nil {
+		return len(itemList.Items)
+	}
+	return 0
 }
 
 // IndexOf return an item or nil
@@ -1130,7 +1184,10 @@ func (itemList *OptionMinorItemList) Append(item *Item) int {
 
 // Length return count of items
 func (itemList *OptionMinorItemList) Length() int {
-	return len(itemList.Items)
+	if itemList != nil {
+		return len(itemList.Items)
+	}
+	return 0
 }
 
 // IndexOf return an item or nil
@@ -1163,7 +1220,10 @@ func (itemList *ThesisCommitteeItemList) Append(item *Item) int {
 
 // Length return count of items in list
 func (itemList *ThesisCommitteeItemList) Length() int {
-	return len(itemList.Items)
+	if itemList != nil {
+		return len(itemList.Items)
+	}
+	return 0
 }
 
 // IndexOf return an item or nil
@@ -1196,7 +1256,10 @@ func (itemList *ThesisAdvisorItemList) Append(item *Item) int {
 
 // Length return count of items
 func (itemList *ThesisAdvisorItemList) Length() int {
-	return len(itemList.Items)
+	if itemList != nil {
+		return len(itemList.Items)
+	}
+	return 0
 }
 
 // IndexOf return an item or nil
@@ -1229,7 +1292,10 @@ func (itemList *DivisionItemList) Append(item *Item) int {
 
 // Length return a count of items
 func (itemList *DivisionItemList) Length() int {
-	return len(itemList.Items)
+	if itemList != nil {
+		return len(itemList.Items)
+	}
+	return 0
 }
 
 // IndexOf returns an item or nil
@@ -1262,7 +1328,10 @@ func (itemList *RelatedPatentItemList) Append(item *Item) int {
 
 // Length return count of items
 func (itemList *RelatedPatentItemList) Length() int {
-	return len(itemList.Items)
+	if itemList != nil {
+		return len(itemList.Items)
+	}
+	return 0
 }
 
 // IndexOf return an item or nil
@@ -1295,7 +1364,10 @@ func (itemList *PatentClassificationItemList) Append(item *Item) int {
 
 // Length return an item count
 func (itemList *PatentClassificationItemList) Length() int {
-	return len(itemList.Items)
+	if itemList != nil {
+		return len(itemList.Items)
+	}
+	return 0
 }
 
 // IndexOf return an item or nil
@@ -1328,7 +1400,10 @@ func (itemList *PatentAssigneeItemList) Append(item *Item) int {
 
 // Length return item count
 func (itemList *PatentAssigneeItemList) Length() int {
-	return len(itemList.Items)
+	if itemList != nil {
+		return len(itemList.Items)
+	}
+	return 0
 }
 
 // IndexOf return item or nil
@@ -1361,7 +1436,10 @@ func (itemList *ShelfItemList) Append(item *Item) int {
 
 // Length return item count
 func (itemList *ShelfItemList) Length() int {
-	return len(itemList.Items)
+	if itemList != nil {
+		return len(itemList.Items)
+	}
+	return 0
 }
 
 // IndexOf return item or nil
@@ -1394,7 +1472,10 @@ func (itemList *GScholarItemList) Append(item *Item) int {
 
 // Length return item count
 func (itemList *GScholarItemList) Length() int {
-	return len(itemList.Items)
+	if itemList != nil {
+		return len(itemList.Items)
+	}
+	return 0
 }
 
 // IndexOf return item or nil
@@ -1427,7 +1508,10 @@ func (itemList *AltTitleItemList) Append(item *Item) int {
 
 // Length return item count
 func (itemList *AltTitleItemList) Length() int {
-	return len(itemList.Items)
+	if itemList != nil {
+		return len(itemList.Items)
+	}
+	return 0
 }
 
 // IndexOf return item or nil
@@ -1460,7 +1544,10 @@ func (itemList *ConfCreatorItemList) Append(item *Item) int {
 
 // Length return item count
 func (itemList *ConfCreatorItemList) Length() int {
-	return len(itemList.Items)
+	if itemList != nil {
+		return len(itemList.Items)
+	}
+	return 0
 }
 
 // IndexOf return item or nil
@@ -1493,7 +1580,10 @@ func (itemList *ReferenceItemList) Append(item *Item) int {
 
 // Length return item count
 func (itemList *ReferenceItemList) Length() int {
-	return len(itemList.Items)
+	if itemList != nil {
+		return len(itemList.Items)
+	}
+	return 0
 }
 
 // IndexOf return item or nil
@@ -1526,7 +1616,10 @@ func (itemList *LearningLevelItemList) Append(item *Item) int {
 
 // Length return item count
 func (itemList *LearningLevelItemList) Length() int {
-	return len(itemList.Items)
+	if itemList != nil {
+		return len(itemList.Items)
+	}
+	return 0
 }
 
 // IndexOf return item or nil
@@ -1559,7 +1652,10 @@ func (itemList *CopyrightHolderItemList) Append(item *Item) int {
 
 // Length return item count
 func (itemList *CopyrightHolderItemList) Length() int {
-	return len(itemList.Items)
+	if itemList != nil {
+		return len(itemList.Items)
+	}
+	return 0
 }
 
 // IndexOf return item or nil
@@ -1592,7 +1688,10 @@ func (itemList *SkillAreaItemList) Append(item *Item) int {
 
 // Length return item count
 func (itemList *SkillAreaItemList) Length() int {
-	return len(itemList.Items)
+	if itemList != nil {
+		return len(itemList.Items)
+	}
+	return 0
 }
 
 // IndexOf return item or nil
@@ -1625,7 +1724,10 @@ func (itemList *AccompanimentItemList) Append(item *Item) int {
 
 // Length return item count
 func (itemList *AccompanimentItemList) Length() int {
-	return len(itemList.Items)
+	if itemList != nil {
+		return len(itemList.Items)
+	}
+	return 0
 }
 
 // IndexOf return item or nil
@@ -1762,7 +1864,10 @@ func (eprints *EPrints) Append(eprint *EPrint) int {
 
 // Length returns EPrint count
 func (eprints *EPrints) Length() int {
-	return len(eprints.EPrint)
+	if eprints != nil {
+		return len(eprints.EPrint)
+	}
+	return 0
 }
 
 // IndexOf returns an EPrint or nil
@@ -1841,7 +1946,10 @@ func (documentList *DocumentList) Append(document *Document) int {
 
 // Length returns the length of DocumentList
 func (documentList *DocumentList) Length() int {
-	return len(*documentList)
+	if documentList != nil {
+		return len(*documentList)
+	}
+	return 0
 }
 
 // GetDocument takes a position (zero based) and returns the *Document
@@ -1864,7 +1972,10 @@ func (itemList *ItemList) Append(item *Item) int {
 
 // Length returns the length of ItemList
 func (itemList *ItemList) Length() int {
-	return len(*itemList)
+	if itemList != nil {
+		return len(*itemList)
+	}
+	return 0
 }
 
 // IndexOf return item or nil
