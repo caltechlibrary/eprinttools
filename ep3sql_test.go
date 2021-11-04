@@ -3,6 +3,7 @@ package eprinttools
 import (
 	"database/sql"
 	"fmt"
+	"os"
 	"testing"
 	"time"
 )
@@ -12,7 +13,6 @@ var (
 )
 
 func assertOpenConnection(t *testing.T, config *Config, repoID string) {
-	t.Logf("Open Connection %s", repoID)
 	ds, ok := config.Repositories[repoID]
 	if !ok {
 		t.Skipf("can't fund %q", repoID)
@@ -91,8 +91,25 @@ func assertStringSame(t *testing.T, label string, expected string, got string) {
 
 func assertItemSame(t *testing.T, label string, expected *Item, item *Item) {
 	assertNameSame(t, expected.Name, item.Name)
-	assertIntSame(t, "eprint.Pos", expected.Pos, item.Pos)
-	assertStringSame(t, "eprint.ID", expected.ID, item.ID)
+	assertIntSame(t, "item.Pos", expected.Pos, item.Pos)
+	assertStringSame(t, "item.ID", expected.ID, item.ID)
+	assertStringSame(t, "item.EMail", expected.EMail, item.EMail)
+	assertStringSame(t, "item.ShowEMail", expected.ShowEMail, item.ShowEMail)
+	assertStringSame(t, "item.Role", expected.Role, item.Role)
+	assertStringSame(t, "item.URL", expected.URL, item.URL)
+	assertStringSame(t, "item.Type", expected.Type, item.Type)
+	assertStringSame(t, "item.Description", expected.Description, item.Description)
+	assertStringSame(t, "item.Agency", expected.Agency, item.Agency)
+	assertStringSame(t, "item.GrantNumber", expected.GrantNumber, item.GrantNumber)
+	assertStringSame(t, "item.URI", expected.URI, item.URI)
+	assertStringSame(t, "item.ORCID", expected.ORCID, item.ORCID)
+	assertStringSame(t, "item.ROR", expected.ROR, item.ROR)
+	assertStringSame(t, "item.Timestamp", expected.Timestamp, item.Timestamp)
+	assertStringSame(t, "item.Status", expected.Status, item.Status)
+	assertStringSame(t, "item.ReportedBy", expected.ReportedBy, item.ReportedBy)
+	assertStringSame(t, "item.ResolvedBy", expected.ResolvedBy, item.ResolvedBy)
+	assertStringSame(t, "item.Comment", expected.Comment, item.Comment)
+	assertStringSame(t, "item.Value", expected.Value, item.Value)
 }
 
 func assertEPrintSame(t *testing.T, expected *EPrint, eprint *EPrint) {
@@ -165,7 +182,19 @@ func assertEPrintSame(t *testing.T, expected *EPrint, eprint *EPrint) {
 	assertIntSame(t, "LastModifiedYear", expected.LastModifiedYear, eprint.LastModifiedYear)
 	assertIntSame(t, "LastModifiedMonth", expected.LastModifiedMonth, eprint.LastModifiedMonth)
 	assertIntSame(t, "LastModifiedDay", expected.LastModifiedDay, eprint.LastModifiedDay)
+	assertIntSame(t, "LastModifiedHour", expected.LastModifiedHour, eprint.LastModifiedHour)
+	assertIntSame(t, "LastModifiedMinute", expected.LastModifiedMinute, eprint.LastModifiedMinute)
+	assertIntSame(t, "LastModifiedSecond", expected.LastModifiedSecond, eprint.LastModifiedSecond)
+
+	assertStringSame(t, "StatusChanged", expected.StatusChanged, eprint.StatusChanged)
+	assertIntSame(t, "StatusChangedYear", expected.StatusChangedYear, eprint.StatusChangedYear)
+	assertIntSame(t, "StatusChangedMonth", expected.StatusChangedMonth, eprint.StatusChangedMonth)
+	assertIntSame(t, "StatusChangedDay", expected.StatusChangedDay, eprint.StatusChangedDay)
+	assertIntSame(t, "StatusChangedHour", expected.StatusChangedHour, eprint.StatusChangedHour)
+	assertIntSame(t, "StatusChangedMinute", expected.StatusChangedMinute, eprint.StatusChangedMinute)
+	assertIntSame(t, "StatusChangedSecond", expected.StatusChangedSecond, eprint.StatusChangedSecond)
 	//FIXME: check the rest of the fields.
+	t.Errorf("Additional field tests need to be implemented")
 }
 
 //
@@ -191,26 +220,28 @@ func TestCrosswalkEPrintToSQLCreate(t *testing.T) {
 	assertOpenConnection(t, config, repoID)
 	defer assertCloseConnection(t, config, repoID)
 
-	// Cleanup any data associated with the test repository
+	// FIXME: Cleanup any data associated with the test repository
 
+	userID := os.Getuid()
 	now := time.Now()
 	year, month, day := now.Date()
+	hour, minute, second := now.Hour(), now.Minute(), now.Second()
+	idNumber := fmt.Sprintf(`DLD-TEST:%d%d%d%d%d%d.%d`, year, month, day, hour, minute, second, userID)
 
 	eprint := new(EPrint)
 	eprint.EPrintID = 0
 	eprint.Title = `TestCrosswalkEPrintToSQLCreate()`
 	eprint.EPrintStatus = "archive"
-	eprint.UserID = 1
-	eprint.Datestamp = now.Format(`2006-01-02`)
+	eprint.UserID = userID
+	eprint.Datestamp = now.Format(`2006-01-02 15:04:05`)
 	eprint.DatestampYear = year
 	eprint.DatestampMonth = int(month)
 	eprint.DatestampDay = day
-	eprint.DatestampHour = 0
-	eprint.DatestampMinute = 0
-	eprint.DatestampSecond = 0
+	eprint.DatestampHour = hour
+	eprint.DatestampMinute = minute
+	eprint.DatestampSecond = second
 	eprint.Abstract = `This is an example test recorded
-generated in TestCrosswalkEPrintToSQLCreate() in ep3sql_test.go.
-`
+generated in TestCrosswalkEPrintToSQLCreate() in ep3sql_test.go.`
 
 	eprint.Creators = new(CreatorItemList)
 	item := new(Item)
@@ -218,34 +249,96 @@ generated in TestCrosswalkEPrintToSQLCreate() in ep3sql_test.go.
 	item.Name.Family = `Doe`
 	item.Name.Given = `Jane`
 	item.Name.ID = `Doe-Jane`
+	item.ORCID = `0000-0000-0000-0000`
 	eprint.Creators.Append(item)
+
+	eprint.Editors = new(EditorItemList)
 	item = new(Item)
 	item.Name = new(Name)
 	item.Name.Family = `Doe`
 	item.Name.Given = `Jill`
 	item.Name.ID = `Doe-Jill`
-	eprint.Editors = new(EditorItemList)
+	item.ORCID = `0000-0000-0000-0001`
 	eprint.Editors.Append(item)
+
+	eprint.Contributors = new(ContributorItemList)
 	item = new(Item)
 	item.Name = new(Name)
 	item.Name.Family = `Doe`
 	item.Name.Given = `Jack`
 	item.Name.ID = `Doi-Jack`
-	eprint.Contributors = new(ContributorItemList)
+	item.ORCID = `0000-0000-0000-0002`
+	eprint.Contributors.Append(item)
+	item = new(Item)
+	item.Name = new(Name)
+	item.Name.Family = `Doe`
+	item.Name.Given = `Jaqualine`
+	item.Name.ID = `Doe-Jaqualine`
+	item.ORCID = `0000-0000-0000-0003`
+	eprint.Contributors.Append(item)
+
+	eprint.CorpCreators = new(CorpCreatorItemList)
 	item = new(Item)
 	item.Name = new(Name)
 	item.Name.Value = `Acme, Experimental Labratories`
-	eprint.Contributors.Append(item)
-	eprint.CorpCreators = new(CorpCreatorItemList)
+	item.URI = `uri://example.library.edu/Acme-Experimental-Labrarories`
+	eprint.CorpCreators.Append(item)
+
+	eprint.Funders = new(FunderItemList)
+	item = new(Item)
+	item.Agency = `Digital Libraries Group`
+	item.GrantNumber = `DLD-R-000000.007`
+	eprint.Funders.Append(item)
+
 	eprint.DateType = "publication"
 	eprint.Date = now.Format(`2006-01-02`)
 	eprint.DateYear = year
 	eprint.DateMonth = int(month)
 	eprint.DateDay = day
-	eprint.LastModified = now.Format(`2006-01-02`)
+
+	eprint.LastModified = now.Format(`2006-01-02 15:04:05`)
 	eprint.LastModifiedYear = year
 	eprint.LastModifiedMonth = int(month)
 	eprint.LastModifiedDay = day
+	eprint.LastModifiedHour = hour
+	eprint.LastModifiedMinute = minute
+	eprint.LastModifiedSecond = second
+
+	eprint.EPrintStatus = `archive`
+	eprint.StatusChanged = now.Format(`2006-01-02 15:04:05`)
+	eprint.StatusChangedYear = year
+	eprint.StatusChangedMonth = int(month)
+	eprint.StatusChangedDay = day
+	eprint.StatusChangedHour = hour
+	eprint.StatusChangedMinute = minute
+	eprint.StatusChangedSecond = second
+
+	eprint.DOI = fmt.Sprintf(`0000.00/%s`, idNumber)
+	eprint.RevNumber = 1
+	eprint.MetadataVisibility = `show`
+	eprint.FullTextStatus = `public`
+	eprint.Type = `article`
+	eprint.IsPublished = `pub`
+	eprint.Keywords = `EPrints, Golang, API, Testing`
+	eprint.Note = `This is a test record, simulating an article`
+	eprint.Suggestions = `This is where suggestions go`
+	eprint.Publication = `DLD Software Testing and Development`
+	eprint.Volume = `1`
+	eprint.Number = `2`
+	eprint.Pages = 3
+	eprint.PageRange = `15 - 18`
+	eprint.PlaceOfPub = `Los Angeles, California, USA`
+	eprint.Edition = `1st`
+	eprint.Refereed = `TRUE`
+	eprint.Series = `Software Testing Practice`
+	eprint.IDNumber = idNumber
+	eprint.OfficialURL = fmt.Sprintf(`https://resolver.example.edu/%s`, idNumber)
+	eprint.Publisher = `The Library`
+	eprint.ISSN = `0000-0000`
+	eprint.Rights = `No commercial reproduction, distribution, display or performance rights in this work are provided.`
+	eprint.OfficialCitation = fmt.Sprintf(`Doe, Jaqualine;&quot;An Alternate API for EPrints&quot;in DLD Software Testing and Development; vol. 1, pp. 15-18, doi %s`, eprint.DOI)
+	eprint.Collection = `Test Records`
+	eprint.Reviewer = `George Harrison`
 
 	id, err := CrosswalkEPrintToSQLCreate(config, repoID, ds, eprint)
 	if err != nil {

@@ -1221,7 +1221,7 @@ func eprintIDToPersonItemList(db *sql.DB, tables map[string][]string, repoID str
 			if itemList.Length() > 0 {
 				tablesAndColumn := map[string][2]string{}
 				columnPrefix := strings.TrimPrefix(tablePrefix, `eprint_`)
-				for _, suffix := range []string{"id", "orcid", "uri", "role", "email", "show_email"} {
+				for _, suffix := range []string{"id", "orcid", "uri", "url", "role", "email", "show_email"} {
 					key := fmt.Sprintf("%s_%s", tablePrefix, suffix)
 					tablesAndColumn[key] = [2]string{
 						// Column Name
@@ -1277,7 +1277,7 @@ func eprintIDToEditors(repoID string, eprintID int, db *sql.DB, tables map[strin
 }
 
 func eprintIDToContributors(repoID string, eprintID int, db *sql.DB, tables map[string][]string) *ContributorItemList {
-	tablePrefix := `eprint_constibutors`
+	tablePrefix := `eprint_contributors`
 	itemList := new(ContributorItemList)
 	if count := eprintIDToPersonItemList(db, tables, repoID, eprintID, tablePrefix, itemList); count > 0 {
 		return itemList
@@ -1988,7 +1988,7 @@ func CrosswalkSQLToEPrint(config *Config, repoID string, baseURL string, eprintI
 	eprint.LastModified = makeTimestamp(eprint.LastModifiedYear, eprint.LastModifiedMonth, eprint.LastModifiedDay, eprint.LastModifiedHour, eprint.LastModifiedMinute, eprint.LastModifiedSecond)
 	// NOTE: EPrint XML uses a datestamp for output but tracks a timestamp.
 	//eprint.Datestamp = makeTimestamp(eprint.DatestampYear, eprint.DatestampMonth, eprint.DatestampDay, eprint.DatestampHour, eprint.DatestampMinute, eprint.DatestampSecond)
-	eprint.Datestamp = makeDatestamp(eprint.DatestampYear, eprint.DatestampMonth, eprint.DatestampDay)
+	eprint.Datestamp = makeTimestamp(eprint.DatestampYear, eprint.DatestampMonth, eprint.DatestampDay, eprint.DatestampHour, eprint.DatestampMinute, eprint.DatestampSecond)
 	eprint.StatusChanged = makeTimestamp(eprint.StatusChangedYear, eprint.StatusChangedMonth, eprint.StatusChangedDay, eprint.StatusChangedHour, eprint.StatusChangedMinute, eprint.StatusChangedSecond)
 	eprint.Date = makeApproxDate(eprint.DateYear, eprint.DateMonth, eprint.DateDay)
 
@@ -2100,7 +2100,6 @@ func qmList(length int) []string {
 // INSERT statement to create an Item List for the given table.
 func insertItemList(db *sql.DB, repoID string, tableName string, columns []string, eprint *EPrint) error {
 	var (
-		values   []interface{}
 		itemList ItemsInterface
 	)
 	eprintid := eprint.EPrintID
@@ -2176,62 +2175,87 @@ func insertItemList(db *sql.DB, repoID string, tableName string, columns []strin
 	}
 	for pos := 0; pos < itemList.Length(); pos++ {
 		item := itemList.IndexOf(pos)
+		values := []interface{}{}
+		columnsSQL := []string{"eprintid", "pos"}
+		values = append(values, eprintid)
+		values = append(values, pos)
 		for _, col := range columns {
 			switch {
 			case col == `eprintid`:
-				values = append(values, eprintid)
+				// these are always first and second
 			case col == `pos`:
-				values = append(values, pos)
+				// these are always first and second
 			case strings.HasSuffix(col, `_id`):
 				values = append(values, item.ID)
+				columnsSQL = append(columnsSQL, col)
 			case strings.HasSuffix(col, `_type`):
 				values = append(values, item.Type)
+				columnsSQL = append(columnsSQL, col)
 			case strings.HasSuffix(col, `_family`):
 				values = append(values, item.Name.Family)
+				columnsSQL = append(columnsSQL, col)
 			case strings.HasSuffix(col, `_given`):
 				values = append(values, item.Name.Given)
+				columnsSQL = append(columnsSQL, col)
 			case strings.HasSuffix(col, `_honourific`):
 				values = append(values, item.Name.Honourific)
+				columnsSQL = append(columnsSQL, col)
 			case strings.HasSuffix(col, `_lineage`):
 				values = append(values, item.Name.Lineage)
+				columnsSQL = append(columnsSQL, col)
 			case strings.HasSuffix(col, `_name`):
 				values = append(values, item.Name.Value)
+				columnsSQL = append(columnsSQL, col)
 			case strings.HasSuffix(col, `_email`):
 				values = append(values, item.EMail)
+				columnsSQL = append(columnsSQL, col)
 			case strings.HasSuffix(col, `_show_email`):
 				values = append(values, item.ShowEMail)
+				columnsSQL = append(columnsSQL, col)
 			case strings.HasSuffix(col, `_role`):
 				values = append(values, item.Role)
+				columnsSQL = append(columnsSQL, col)
 			case strings.HasSuffix(col, `_url`):
 				values = append(values, item.URL)
+				columnsSQL = append(columnsSQL, col)
 			case strings.HasSuffix(col, `_description`):
 				values = append(values, item.Description)
+				columnsSQL = append(columnsSQL, col)
 			case strings.HasSuffix(col, `_agency`):
 				values = append(values, item.Agency)
-			case strings.HasSuffix(col, `_grand_number`):
+				columnsSQL = append(columnsSQL, col)
+			case strings.HasSuffix(col, `_grant_number`):
 				values = append(values, item.GrantNumber)
+				columnsSQL = append(columnsSQL, col)
 			case strings.HasSuffix(col, `_uri`):
 				values = append(values, item.URI)
+				columnsSQL = append(columnsSQL, col)
 			case strings.HasSuffix(col, `_orcid`):
 				values = append(values, item.ORCID)
+				columnsSQL = append(columnsSQL, col)
 			case strings.HasSuffix(col, `_ror`):
 				values = append(values, item.ROR)
+				columnsSQL = append(columnsSQL, col)
 			case strings.HasSuffix(col, `_timestamp`):
 				values = append(values, item.Timestamp)
+				columnsSQL = append(columnsSQL, col)
 			case strings.HasSuffix(col, `_status`):
 				values = append(values, item.Status)
+				columnsSQL = append(columnsSQL, col)
 			case strings.HasSuffix(col, `_reported_by`):
 				values = append(values, item.ReportedBy)
+				columnsSQL = append(columnsSQL, col)
 			case strings.HasSuffix(col, `_resolved_by`):
 				values = append(values, item.ResolvedBy)
+				columnsSQL = append(columnsSQL, col)
 			case strings.HasSuffix(col, `_comment`):
 				values = append(values, item.ResolvedBy)
-				//Value       string   `xml:",chardata" json:"value,omitempty"`
+				columnsSQL = append(columnsSQL, col)
 			default:
-				return fmt.Errorf(`do not understanda columns %s.%s`, tableName, col)
+				return fmt.Errorf("do not understand column %s.%s\n", tableName, col)
 			}
 		}
-		stmt := fmt.Sprintf(`INSERT INTO %s (%s) VALUES (%s)`, tableName, strings.Join(columns, `, `), strings.Join(qmList(len(columns)), `, `))
+		stmt := fmt.Sprintf(`INSERT INTO %s (%s) VALUES (%s)`, tableName, strings.Join(columnsSQL, `, `), strings.Join(qmList(len(columnsSQL)), `, `))
 		_, err := db.Exec(stmt, values...)
 		if err != nil {
 			return fmt.Errorf(`SQL error, %q, %s`, stmt, err)
@@ -2245,8 +2269,7 @@ func insertItemList(db *sql.DB, repoID string, tableName string, columns []strin
 // suitable for creating a new EPrint record in the repository.
 func CrosswalkEPrintToSQLCreate(config *Config, repoID string, ds *DataSource, eprint *EPrint) (int, error) {
 	var (
-		err      error
-		eprintID int
+		err error
 	)
 	db, ok := config.Connections[repoID]
 	if !ok {
@@ -2302,6 +2325,7 @@ func CrosswalkEPrintToSQLCreate(config *Config, repoID string, ds *DataSource, e
 				log.Printf(`FIXME %s columns: %s`, tableName, strings.Join(columns, `, `))
 			case strings.HasPrefix(tableName, `file`):
 				log.Printf(`FIXME %s columns: %s`, tableName, strings.Join(columns, `, `))
+
 			default:
 				// Insert new rows in associated table
 				if err := insertItemList(db, repoID, tableName, columns, eprint); err != nil {
@@ -2309,7 +2333,7 @@ func CrosswalkEPrintToSQLCreate(config *Config, repoID string, ds *DataSource, e
 				}
 			}
 		}
-		return eprintID, nil
+		return eprint.EPrintID, nil
 	}
 	return 0, err
 }

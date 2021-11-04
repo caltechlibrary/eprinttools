@@ -13,6 +13,7 @@ Next
 ----
 
 
+- [ ] Add script to generate "lemurprints" database with support for all fields present across our repositories so I can do robust testing and generate appropriate testdata
 - [ ] Add create end points to support importing EPrint XML metadata into eprints
     - [ ] Creating a new row in eprint table and getting the eprintid assigne needs to be atomic. Wrap in a transaction.
     - [ ] Implement a method that takes a table/column map and EPrint structure then renders a INSERT or REPLACE sequence to create or update an EPrint record
