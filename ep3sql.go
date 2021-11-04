@@ -274,7 +274,7 @@ ORDER BY eprint.date_year DESC, eprint.date_month DESC, eprint.date_day DESC`, f
 
 // GetAllPersonNames return a list of person names in repository
 func GetAllPersonNames(config *Config, repoID string, field string) ([]string, error) {
-	stmt := fmt.Sprintf(`SELECT CONCAT(%s_family, ", ", %s_given) AS %s
+	stmt := fmt.Sprintf(`SELECT CONCAT(%s_family, "/", %s_given) AS %s
 FROM eprint_%s
 WHERE (%s_family IS NOT NULL) OR (%s_given IS NOT NULL)
 GROUP BY %s_family, %s_given ORDER BY %s_family, %s_given`,
@@ -287,20 +287,20 @@ GROUP BY %s_family, %s_given ORDER BY %s_family, %s_given`,
 func GetEPrintIDsForPersonName(config *Config, repoID, field string, family string, given string) ([]int, error) {
 	conditions := []string{}
 	if strings.Contains(family, "*") || strings.Contains(given, "%") {
-		conditions = append(conditions, `family_name LIKE ?`)
+		conditions = append(conditions, fmt.Sprintf(`%s_family LIKE ?`, field))
 	} else if family != "" {
-		conditions = append(conditions, `family_name = ?`)
+		conditions = append(conditions, fmt.Sprintf(`%s_family = ?`, field))
 	}
 	if strings.Contains(given, "*") || strings.Contains(given, "%") {
-		conditions = append(conditions, `given_name LIKE ?`)
+		conditions = append(conditions, fmt.Sprintf(`%s_given LIKE ?`, field))
 	} else if given != "" {
-		conditions = append(conditions, `given_name = ?`)
+		conditions = append(conditions, fmt.Sprintf(`%s_given = ?`, field))
 	}
 	stmt := fmt.Sprintf(`SELECT eprint.eprintid AS eprintid
 FROM eprint_%s JOIN eprint ON (eprint_%s.eprintid = eprint.eprintid)
 WHERE %s
-ORDER BY family_name ASC, given_name ASC, eprint.date_year DESC, eprint.date_month DESC, eprint.date_day DESC`,
-		field, field, strings.Join(conditions, " AND "))
+ORDER BY %s_family ASC, %s_given ASC, eprint.date_year DESC, eprint.date_month DESC, eprint.date_day DESC`,
+		field, field, strings.Join(conditions, " AND "), field, field)
 	return sqlQueryIntIDs(config, repoID, stmt, family, given)
 }
 
