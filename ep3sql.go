@@ -26,7 +26,7 @@ func OpenConnections(config *Config) error {
 		// Setup DB connection for target repository
 		db, err := sql.Open("mysql", dataSourceName)
 		if err != nil {
-			return fmt.Errorf("Could not open MySQL connection for %s, %s", repoID, err)
+			return fmt.Errorf("could not open MySQL connection for %s, %s", repoID, err)
 		}
 		config.Connections[repoID] = db
 		dataSource.TableMap, err = eprintTablesAndColumns(db, repoID)
@@ -44,7 +44,7 @@ func CloseConnections(config *Config) error {
 	)
 	if config.Connections == nil {
 		config.Connections = map[string]*sql.DB{}
-		return fmt.Errorf("No connections defined")
+		return fmt.Errorf("no connections defined")
 	}
 	for name, db := range config.Connections {
 		if err := db.Close(); err != nil {
@@ -60,7 +60,7 @@ func CloseConnections(config *Config) error {
 // sqlQueryIntIDs takes a repostory ID, a SQL statement and applies
 // the args returning a list of integer id or error.
 func sqlQueryIntIDs(config *Config, repoID string, stmt string, args ...interface{}) ([]int, error) {
-	if db, ok := config.Connections[repoID]; ok == true {
+	if db, ok := config.Connections[repoID]; ok {
 		rows, err := db.Query(stmt, args...)
 		if err != nil {
 			return nil, fmt.Errorf("ERROR: query error (%q), %s", repoID, err)
@@ -84,13 +84,13 @@ func sqlQueryIntIDs(config *Config, repoID string, stmt string, args ...interfac
 		}
 		return values, nil
 	}
-	return nil, fmt.Errorf("Bad Request")
+	return nil, fmt.Errorf("bad request")
 }
 
 // sqlQueryStringIDs takes a repostory ID, a SQL statement and applies
 // the args returning a list of string type id or error.
 func sqlQueryStringIDs(config *Config, repoID string, stmt string, args ...interface{}) ([]string, error) {
-	if db, ok := config.Connections[repoID]; ok == true {
+	if db, ok := config.Connections[repoID]; ok {
 		rows, err := db.Query(stmt, args...)
 		if err != nil {
 			return nil, fmt.Errorf("ERROR: query error (%q), %s", repoID, err)
@@ -1044,14 +1044,14 @@ func documentIDToFiles(repoID string, baseURL string, eprintID int, documentID i
 	return nil
 }
 
-func documentIDToRelation(repoID string, baseURL string, documentID int, pos int, db *sql.DB, tables map[string][]string) *ItemList {
+func documentIDToRelation(repoID string, baseURL string, documentID int, pos int, db *sql.DB, tables map[string][]string) *RelationItemList {
 	typeTable := "document_relation_type"
 	_, okTypeTable := tables[typeTable]
 	uriTable := "document_relation_uri"
 	_, okUriTable := tables[uriTable]
 
 	if okTypeTable && okUriTable {
-		itemList := new(ItemList)
+		itemList := new(RelationItemList)
 		stmt := fmt.Sprintf(`SELECT document_relation_type.relation_type, document_relation_uri.relation_uri FROM %s JOIN %s ON ((%s.docid = %s.docid) AND (%s.pos = %s.pos)) WHERE (%s.docid = ?)`, typeTable, uriTable, typeTable, uriTable, typeTable, uriTable, typeTable)
 		rows, err := db.Query(stmt, documentID)
 		if err != nil {
@@ -2105,35 +2105,41 @@ func insertItemList(db *sql.DB, repoID string, tableName string, columns []strin
 	eprintid := eprint.EPrintID
 	switch {
 	case strings.HasPrefix(tableName, `eprint_creators_`):
+		fmt.Printf("DEBUG working with table %q, columns %s\n", tableName, strings.Join(columns, `, `))
 		itemList = eprint.Creators
 	case strings.HasPrefix(tableName, `eprint_editors_`):
+		fmt.Printf("DEBUG working with table %q, columns %s\n", tableName, strings.Join(columns, `, `))
 		itemList = eprint.Editors
 	case strings.HasPrefix(tableName, `eprint_contributors_`):
+		fmt.Printf("DEBUG working with table %q, columns %s\n", tableName, strings.Join(columns, `, `))
 		itemList = eprint.Contributors
 	case strings.HasPrefix(tableName, `eprint_corp_creators_`):
+		fmt.Printf("DEBUG working with table %q, columns %s\n", tableName, strings.Join(columns, `, `))
 		itemList = eprint.CorpCreators
 	case strings.HasPrefix(tableName, `eprint_thesis_advisor_`):
+		fmt.Printf("DEBUG working with table %q, columns %s\n", tableName, strings.Join(columns, `, `))
 		itemList = eprint.ThesisAdvisor
 	case strings.HasPrefix(tableName, `eprint_thesis_committee_`):
+		fmt.Printf("DEBUG working with table %q, columns %s\n", tableName, strings.Join(columns, `, `))
 		itemList = eprint.ThesisCommittee
 	case strings.HasPrefix(tableName, `eprint_item_issues_`):
 		itemList = eprint.ItemIssues
 	case strings.HasPrefix(tableName, `eprint_alt_title`):
 		itemList = eprint.AltTitle
 	case strings.HasPrefix(tableName, `eprint_conductors`):
-		itemList = eprint.AltTitle
+		itemList = eprint.Conductors
 	case strings.HasPrefix(tableName, `eprint_conf_creators_`):
 		itemList = eprint.ConfCreators
 	case strings.HasPrefix(tableName, `eprint_exhibitors_`):
 		itemList = eprint.Exhibitors
 	case strings.HasPrefix(tableName, `eprint_producers_`):
-		itemList = eprint.Exhibitors
+		itemList = eprint.Producers
 	case strings.HasPrefix(tableName, `eprint_lyricists_`):
 		itemList = eprint.Lyricists
 	case strings.HasPrefix(tableName, `eprint_accompaniment`):
 		itemList = eprint.Accompaniment
 	case strings.HasPrefix(tableName, `eprint_subjects`):
-		itemList = eprint.Exhibitors
+		itemList = eprint.Subjects
 	case strings.HasPrefix(tableName, `eprint_local_group`):
 		itemList = eprint.LocalGroup
 	case strings.HasPrefix(tableName, `eprint_divisions`):
@@ -2165,27 +2171,30 @@ func insertItemList(db *sql.DB, repoID string, tableName string, columns []strin
 	case strings.HasPrefix(tableName, `eprint_copyright_holders`):
 		itemList = eprint.CopyrightHolders
 	case strings.HasPrefix(tableName, `eprint_relation`):
-		// Skip, this is a document item list
-		return nil
+		// This is not the same as document_relation_*, it is a separate item list item list
+		// it has the same structure with a uri and type. Our eprint implementations use a Relation
+		itemList = eprint.Relation
 	case strings.HasPrefix(tableName, `eprint_keyword`):
-		// FIXME this is a stale table, keyword is a longtext in eprint table.
-		return nil
+		// FIXME this we appear to use the longtext of key in our eprint table. Not sure if this
+		// is new or old structure. It is posssible that our longtext for keywords is a legacy structure.
+		itemList = eprint.Keyword
 	default:
 		return fmt.Errorf(`do not understand %q, %s`, tableName, strings.Join(columns, `, `))
 	}
 	for pos := 0; pos < itemList.Length(); pos++ {
 		item := itemList.IndexOf(pos)
 		values := []interface{}{}
-		columnsSQL := []string{"eprintid", "pos"}
-		values = append(values, eprintid)
-		values = append(values, pos)
+		columnsSQL := []string{}
 		for _, col := range columns {
 			switch {
 			case col == `eprintid`:
-				// these are always first and second
+				values = append(values, eprintid)
+				columnsSQL = append(columnsSQL, col)
 			case col == `pos`:
-				// these are always first and second
+				values = append(values, pos)
+				columnsSQL = append(columnsSQL, col)
 			case strings.HasSuffix(col, `_id`):
+				fmt.Printf("DEBUG found *_id in %q\n", tableName)
 				values = append(values, item.ID)
 				columnsSQL = append(columnsSQL, col)
 			case strings.HasSuffix(col, `_type`):
@@ -2322,9 +2331,9 @@ func CrosswalkEPrintToSQLCreate(config *Config, repoID string, ds *DataSource, e
 			case tableName == `eprint`:
 			// Skip eprint table, we've already processed it
 			case strings.HasPrefix(tableName, `document`):
-				log.Printf(`FIXME %s columns: %s`, tableName, strings.Join(columns, `, `))
+				//log.Printf(`FIXME %s columns: %s`, tableName, strings.Join(columns, `, `))
 			case strings.HasPrefix(tableName, `file`):
-				log.Printf(`FIXME %s columns: %s`, tableName, strings.Join(columns, `, `))
+				//log.Printf(`FIXME %s columns: %s`, tableName, strings.Join(columns, `, `))
 
 			default:
 				// Insert new rows in associated table

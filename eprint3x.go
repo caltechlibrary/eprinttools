@@ -79,6 +79,7 @@ type EPrint struct {
 	IsPublished          string                        `xml:"ispublished,omitempty" json:"ispublished,omitempty"`
 	FullTextStatus       string                        `xml:"full_text_status,omitempty" json:"full_text_status,omitempty"`
 	Keywords             string                        `xml:"keywords,omitempty" json:"keywords,omitempty"`
+	Keyword              *KeywordItemList              `xml:"keyword,omitempty" json:"keyword,omitemtpy"`
 	Note                 string                        `xml:"note,omitempty" json:"note,omitempty"`
 	Abstract             string                        `xml:"abstract,omitempty" json:"abstract,omitempty"`
 	Date                 string                        `xml:"date,omitempty" json:"date,omitempty"`
@@ -173,6 +174,7 @@ type EPrint struct {
 	Season             string                   `xml:"season,omitempty" json:"season,omitempty"`
 	ClassificationCode string                   `xml:"classification_code,omitempty" json:"classification_code,omitempty"`
 	Shelves            *ShelfItemList           `xml:"shelves,omitempty" json:"shelves,omitempty"`
+	Relation           *RelationItemList        `xml:"relation,omitempty" json:"relation,omitempty"`
 
 	// NOTE: Sword deposit fields
 	SwordDepository string `xml:"sword_depository,omitempty" json:"sword_depository,omitempty"`
@@ -876,6 +878,78 @@ func (itemList *SubjectItemList) IndexOf(i int) *Item {
 
 // SetAttributeOf at pos set item attribute return success
 func (itemList *SubjectItemList) SetAttributeOf(i int, key string, value interface{}) bool {
+	if i >= 0 && i < itemList.Length() {
+		return itemList.Items[i].SetAttribute(key, value)
+	}
+	return false
+}
+
+// KeywordItemList
+type KeywordItemList struct {
+	XMLName xml.Name `xml:"keywords" json:"-"`
+	Items   []*Item  `xml:"item,omitempty" json:"items,omitempty"`
+}
+
+// Append adds an item to the subject item list and returns the new count of items
+func (itemList *KeywordItemList) Append(item *Item) int {
+	itemList.Items = append(itemList.Items, item)
+	return len(itemList.Items)
+}
+
+// Length returns number of items in list
+func (itemList *KeywordItemList) Length() int {
+	if itemList != nil {
+		return len(itemList.Items)
+	}
+	return 0
+}
+
+// IndexOf returns an item or nil
+func (itemList *KeywordItemList) IndexOf(i int) *Item {
+	if i >= 0 && i < itemList.Length() {
+		return itemList.Items[i]
+	}
+	return nil
+}
+
+// SetAttributeOf at pos set item attribute return success
+func (itemList *KeywordItemList) SetAttributeOf(i int, key string, value interface{}) bool {
+	if i >= 0 && i < itemList.Length() {
+		return itemList.Items[i].SetAttribute(key, value)
+	}
+	return false
+}
+
+// RelationItemList is an array of pointers to Item structs
+type RelationItemList struct {
+	XMLName xml.Name `xml:"relation" json:"-"`
+	Items   []*Item  `xml:"item,omitempty" json:"items,omitempty"`
+}
+
+// Append adds an item to the subject item list and returns the new count of items
+func (itemList *RelationItemList) Append(item *Item) int {
+	itemList.Items = append(itemList.Items, item)
+	return len(itemList.Items)
+}
+
+// Length returns number of items in list
+func (itemList *RelationItemList) Length() int {
+	if itemList != nil {
+		return len(itemList.Items)
+	}
+	return 0
+}
+
+// IndexOf returns an item or nil
+func (itemList *RelationItemList) IndexOf(i int) *Item {
+	if i >= 0 && i < itemList.Length() {
+		return itemList.Items[i]
+	}
+	return nil
+}
+
+// SetAttributeOf at pos set item attribute return success
+func (itemList *RelationItemList) SetAttributeOf(i int, key string, value interface{}) bool {
 	if i >= 0 && i < itemList.Length() {
 		return itemList.Items[i].SetAttribute(key, value)
 	}
@@ -1931,8 +2005,8 @@ type Document struct {
 	MediaSampleStart string `xml:"media_sample_start,omitempty" json:"media_sample_start,omitempty"`
 	MediaSampleStop  string `xml:"media_sample_stop,omitempty" json:"media_sample_stop,omitempty"`
 
-	Content  string    `xml:"content,omitempty" json:"content,omitempty"`
-	Relation *ItemList `xml:"relation>item,omitempty" json:"relation,omitempty"`
+	Content  string            `xml:"content,omitempty" json:"content,omitempty"`
+	Relation *RelationItemList `xml:"relation,omitempty" json:"relation,omitempty"`
 }
 
 // DocumentList is an array of pointers to Document structs
@@ -1959,35 +2033,6 @@ func (documentList DocumentList) IndexOf(i int) *Document {
 		return nil
 	}
 	return documentList[i]
-}
-
-// ItemList is an array of pointers to Item structs
-type ItemList []*Item
-
-// Append adds a Item to the relation list and returns the new count of items
-func (itemList *ItemList) Append(item *Item) int {
-	*itemList = append(*itemList, item)
-	return len(*itemList)
-}
-
-// Length returns the length of ItemList
-func (itemList *ItemList) Length() int {
-	if itemList != nil {
-		return len(*itemList)
-	}
-	return 0
-}
-
-// IndexOf return item or nil
-func (itemList *ItemList) IndexOf(i int) *Item {
-	if i >= 0 && i < itemList.Length() {
-		for j, item := range *itemList {
-			if j == i {
-				return item
-			}
-		}
-	}
-	return nil
 }
 
 // ePrintIDs is a struct for parsing the ids page of EPrints REST API
