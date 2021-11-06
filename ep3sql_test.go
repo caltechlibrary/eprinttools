@@ -89,27 +89,27 @@ func assertStringSame(t *testing.T, label string, expected string, got string) {
 	}
 }
 
-func assertItemSame(t *testing.T, label string, expected *Item, item *Item) {
+func assertItemSame(t *testing.T, label string, eprintid int, pos int, expected *Item, item *Item) {
 	assertNameSame(t, expected.Name, item.Name)
-	assertIntSame(t, "item.Pos", expected.Pos, item.Pos)
-	assertStringSame(t, "item.ID", expected.ID, item.ID)
-	assertStringSame(t, "item.EMail", expected.EMail, item.EMail)
-	assertStringSame(t, "item.ShowEMail", expected.ShowEMail, item.ShowEMail)
-	assertStringSame(t, "item.Role", expected.Role, item.Role)
-	assertStringSame(t, "item.URL", expected.URL, item.URL)
-	assertStringSame(t, "item.Type", expected.Type, item.Type)
-	assertStringSame(t, "item.Description", expected.Description, item.Description)
-	assertStringSame(t, "item.Agency", expected.Agency, item.Agency)
-	assertStringSame(t, "item.GrantNumber", expected.GrantNumber, item.GrantNumber)
-	assertStringSame(t, "item.URI", expected.URI, item.URI)
-	assertStringSame(t, "item.ORCID", expected.ORCID, item.ORCID)
-	assertStringSame(t, "item.ROR", expected.ROR, item.ROR)
-	assertStringSame(t, "item.Timestamp", expected.Timestamp, item.Timestamp)
-	assertStringSame(t, "item.Status", expected.Status, item.Status)
-	assertStringSame(t, "item.ReportedBy", expected.ReportedBy, item.ReportedBy)
-	assertStringSame(t, "item.ResolvedBy", expected.ResolvedBy, item.ResolvedBy)
-	assertStringSame(t, "item.Comment", expected.Comment, item.Comment)
-	assertStringSame(t, "item.Value", expected.Value, item.Value)
+	assertIntSame(t, fmt.Sprintf(`(%s, %d, %d) item.Pos`, label, eprintid, pos), expected.Pos, item.Pos)
+	assertStringSame(t, fmt.Sprintf(`(%s, %d, %d) item.ID`, label, eprintid, pos), expected.ID, item.ID)
+	assertStringSame(t, fmt.Sprintf(`(%s, %d, %d) item.EMail`, label, eprintid, pos), expected.EMail, item.EMail)
+	assertStringSame(t, fmt.Sprintf(`(%s, %d, %d) item.ShowEMail`, label, eprintid, pos), expected.ShowEMail, item.ShowEMail)
+	assertStringSame(t, fmt.Sprintf(`(%s, %d, %d) item.Role`, label, eprintid, pos), expected.Role, item.Role)
+	assertStringSame(t, fmt.Sprintf(`(%s, %d, %d) item.URL`, label, eprintid, pos), expected.URL, item.URL)
+	assertStringSame(t, fmt.Sprintf(`(%s, %d, %d) item.Type`, label, eprintid, pos), expected.Type, item.Type)
+	assertStringSame(t, fmt.Sprintf(`(%s, %d, %d) item.Description`, label, eprintid, pos), expected.Description, item.Description)
+	assertStringSame(t, fmt.Sprintf(`(%s, %d, %d) item.Agency`, label, eprintid, pos), expected.Agency, item.Agency)
+	assertStringSame(t, fmt.Sprintf(`(%s, %d, %d) item.GrantNumber`, label, eprintid, pos), expected.GrantNumber, item.GrantNumber)
+	assertStringSame(t, fmt.Sprintf(`(%s, %d, %d) item.URI`, label, eprintid, pos), expected.URI, item.URI)
+	assertStringSame(t, fmt.Sprintf(`(%s, %d, %d) item.ORCID`, label, eprintid, pos), expected.ORCID, item.ORCID)
+	assertStringSame(t, fmt.Sprintf(`(%s, %d, %d) item.ROR`, label, eprintid, pos), expected.ROR, item.ROR)
+	assertStringSame(t, fmt.Sprintf(`(%s, %d, %d) item.Timestamp`, label, eprintid, pos), expected.Timestamp, item.Timestamp)
+	assertStringSame(t, fmt.Sprintf(`(%s, %d, %d) item.Status`, label, eprintid, pos), expected.Status, item.Status)
+	assertStringSame(t, fmt.Sprintf(`(%s, %d, %d) item.ReportedBy`, label, eprintid, pos), expected.ReportedBy, item.ReportedBy)
+	assertStringSame(t, fmt.Sprintf(`(%s, %d, %d) item.ResolvedBy`, label, eprintid, pos), expected.ResolvedBy, item.ResolvedBy)
+	assertStringSame(t, fmt.Sprintf(`(%s, %d, %d) item.Comment`, label, eprintid, pos), expected.Comment, item.Comment)
+	assertStringSame(t, fmt.Sprintf(`(%s, %d, %d) item.Value`, label, eprintid, pos), expected.Value, item.Value)
 }
 
 func assertEPrintSame(t *testing.T, expected *EPrint, eprint *EPrint) {
@@ -137,40 +137,36 @@ func assertEPrintSame(t *testing.T, expected *EPrint, eprint *EPrint) {
 		t.Errorf(`expected eprint creators length %d, got %d`, expected.Creators.Length(), eprint.Creators.Length())
 	} else {
 		for i := 0; i < expected.Creators.Length(); i++ {
-			t.Logf("checking creator %d", i)
 			expectedItem := expected.Creators.IndexOf(i)
 			eprintItem := eprint.Creators.IndexOf(i)
-			assertItemSame(t, fmt.Sprintf("creators[%d]", i), expectedItem, eprintItem)
+			assertItemSame(t, "creators", expected.EPrintID, i, expectedItem, eprintItem)
 		}
 	}
 	if expected.Editors.Length() != eprint.Editors.Length() {
 		t.Errorf(`expected eprint editors length %d, got %d`, expected.Editors.Length(), eprint.Editors.Length())
 	} else {
 		for i := 0; i < expected.Editors.Length(); i++ {
-			t.Logf("checking editor %d", i)
 			expectedItem := expected.Editors.IndexOf(i)
 			eprintItem := eprint.Editors.IndexOf(i)
-			assertItemSame(t, fmt.Sprintf("editors[%d]", i), expectedItem, eprintItem)
+			assertItemSame(t, "editors", expected.EPrintID, i, expectedItem, eprintItem)
 		}
 	}
 	if expected.Contributors.Length() != eprint.Contributors.Length() {
 		t.Errorf(`expected eprint contributors length %d, got %d`, expected.Contributors.Length(), eprint.Contributors.Length())
 	} else {
 		for i := 0; i < expected.Contributors.Length(); i++ {
-			t.Logf("checking contributor %d", i)
 			expectedItem := expected.Contributors.IndexOf(i)
 			eprintItem := eprint.Contributors.IndexOf(i)
-			assertItemSame(t, fmt.Sprintf("contributors[%d]", i), expectedItem, eprintItem)
+			assertItemSame(t, "contributors", expected.EPrintID, i, expectedItem, eprintItem)
 		}
 	}
 	if expected.CorpCreators.Length() != eprint.CorpCreators.Length() {
 		t.Errorf(`expected eprint corp creators length %d, got %d`, expected.CorpCreators.Length(), eprint.CorpCreators.Length())
 	} else {
 		for i := 0; i < expected.CorpCreators.Length(); i++ {
-			t.Logf("checking corp creator %d", i)
 			expectedItem := expected.CorpCreators.IndexOf(i)
 			eprintItem := eprint.CorpCreators.IndexOf(i)
-			assertItemSame(t, fmt.Sprintf("corp creators[%d]", i), expectedItem, eprintItem)
+			assertItemSame(t, "corp creators", expected.EPrintID, i, expectedItem, eprintItem)
 		}
 	}
 	assertStringSame(t, "DateType", expected.DateType, eprint.DateType)
@@ -198,12 +194,12 @@ func assertEPrintSame(t *testing.T, expected *EPrint, eprint *EPrint) {
 }
 
 //
-// TestCrosswalkEPrintToSQLCreate expects a writable
+// TestSQLCreateEPrint expects a writable
 // "lemurprints" repository to be configured. If not
 // the test will be skipped. The lemurprints repository
 // database schema should match the schema of CaltechAUTHORS.
 //
-func TestCrosswalkEPrintToSQLCreate(t *testing.T) {
+func TestSQLCreateEPrint(t *testing.T) {
 	var err error
 	fName := `test-settings.json`
 	repoID := `lemurprints`
@@ -230,26 +226,36 @@ func TestCrosswalkEPrintToSQLCreate(t *testing.T) {
 
 	eprint := new(EPrint)
 	eprint.EPrintID = 0
-	eprint.Title = `TestCrosswalkEPrintToSQLCreate()`
+	eprint.Title = `TestSQLCreateEPrint()`
 	eprint.EPrintStatus = "archive"
 	eprint.UserID = userID
-	eprint.Datestamp = now.Format(`2006-01-02 15:04:05`)
+	eprint.Datestamp = now.Format(timestamp)
 	eprint.DatestampYear = year
 	eprint.DatestampMonth = int(month)
 	eprint.DatestampDay = day
 	eprint.DatestampHour = hour
 	eprint.DatestampMinute = minute
 	eprint.DatestampSecond = second
+
+	eprint.LastModified = now.Format(timestamp)
+	eprint.LastModifiedYear = year
+	eprint.LastModifiedMonth = int(month)
+	eprint.LastModifiedDay = day
+	eprint.LastModifiedHour = hour
+	eprint.LastModifiedMinute = minute
+	eprint.LastModifiedSecond = second
+
+	eprint.Title = `This big SQL test`
 	eprint.Abstract = `This is an example test recorded
-generated in TestCrosswalkEPrintToSQLCreate() in ep3sql_test.go.`
+generated in TestSQLCreateEPrint() in ep3sql_test.go.`
 
 	eprint.Creators = new(CreatorItemList)
 	item := new(Item)
 	item.Name = new(Name)
 	item.Name.Family = `Doe`
 	item.Name.Given = `Jane`
-	item.Name.ID = `Doe-Jane`
-	item.ORCID = `0000-0000-0000-0000`
+	item.ID = `Doe-Jane`
+	item.ORCID = `0000-0000-0000-0001`
 	eprint.Creators.Append(item)
 
 	eprint.Editors = new(EditorItemList)
@@ -257,8 +263,8 @@ generated in TestCrosswalkEPrintToSQLCreate() in ep3sql_test.go.`
 	item.Name = new(Name)
 	item.Name.Family = `Doe`
 	item.Name.Given = `Jill`
-	item.Name.ID = `Doe-Jill`
-	item.ORCID = `0000-0000-0000-0001`
+	item.ID = `Doe-Jill`
+	item.ORCID = `0000-0000-0000-0002`
 	eprint.Editors.Append(item)
 
 	eprint.Contributors = new(ContributorItemList)
@@ -266,15 +272,15 @@ generated in TestCrosswalkEPrintToSQLCreate() in ep3sql_test.go.`
 	item.Name = new(Name)
 	item.Name.Family = `Doe`
 	item.Name.Given = `Jack`
-	item.Name.ID = `Doi-Jack`
-	item.ORCID = `0000-0000-0000-0002`
+	item.ID = `Doi-Jack`
+	item.ORCID = `0000-0000-0000-0003`
 	eprint.Contributors.Append(item)
 	item = new(Item)
 	item.Name = new(Name)
 	item.Name.Family = `Doe`
 	item.Name.Given = `Jaqualine`
-	item.Name.ID = `Doe-Jaqualine`
-	item.ORCID = `0000-0000-0000-0003`
+	item.ID = `Doe-Jaqualine`
+	item.ORCID = `0000-0000-0000-0004`
 	eprint.Contributors.Append(item)
 
 	eprint.CorpCreators = new(CorpCreatorItemList)
@@ -296,16 +302,9 @@ generated in TestCrosswalkEPrintToSQLCreate() in ep3sql_test.go.`
 	eprint.DateMonth = int(month)
 	eprint.DateDay = day
 
-	eprint.LastModified = now.Format(`2006-01-02 15:04:05`)
-	eprint.LastModifiedYear = year
-	eprint.LastModifiedMonth = int(month)
-	eprint.LastModifiedDay = day
-	eprint.LastModifiedHour = hour
-	eprint.LastModifiedMinute = minute
-	eprint.LastModifiedSecond = second
 
 	eprint.EPrintStatus = `archive`
-	eprint.StatusChanged = now.Format(`2006-01-02 15:04:05`)
+	eprint.StatusChanged = now.Format(timestamp)
 	eprint.StatusChangedYear = year
 	eprint.StatusChangedMonth = int(month)
 	eprint.StatusChangedDay = day
@@ -340,7 +339,7 @@ generated in TestCrosswalkEPrintToSQLCreate() in ep3sql_test.go.`
 	eprint.Collection = `Test Records`
 	eprint.Reviewer = `George Harrison`
 
-	id, err := CrosswalkEPrintToSQLCreate(config, repoID, ds, eprint)
+	id, err := SQLCreateEPrint(config, repoID, ds, eprint)
 	if err != nil {
 		t.Errorf("%s, %s", repoID, err)
 		t.FailNow()
@@ -349,7 +348,7 @@ generated in TestCrosswalkEPrintToSQLCreate() in ep3sql_test.go.`
 		t.Errorf("%s, failed to return non-zero eprint id", repoID)
 		t.FailNow()
 	}
-	eprintCopy, err := CrosswalkSQLToEPrint(config, repoID, baseURL, id)
+	eprintCopy, err := SQLReadEPrint(config, repoID, baseURL, id)
 	if err != nil {
 		t.Errorf("%s, %s", repoID, err)
 		t.FailNow()

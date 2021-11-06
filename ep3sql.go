@@ -8,8 +8,19 @@ import (
 	"fmt"
 	"log"
 	"strings"
+	"time"
+
+	// Caltech Packages
+	"github.com/caltechlibrary/pairtree"
 
 	_ "github.com/go-sql-driver/mysql"
+)
+
+
+const (
+	// timestamp holds the Format of a MySQL time field
+	timestamp = `2006-01-02 15:04:05`
+	datestamp = `2006-01-02`
 )
 
 //
@@ -238,9 +249,9 @@ ORDER BY date_year DESC, date_month DESC, date_day DESC`,
 // GetAllORCIDs return a list of all ORCID in repository
 func GetAllORCIDs(config *Config, repoID string) ([]string, error) {
 	values, err := sqlQueryStringIDs(config, repoID, `SELECT creators_orcid
-	FROM eprint_creators_orcid
-	WHERE creators_orcid IS NOT NULL
-	GROUP BY creators_orcid ORDER BY creators_orcid`)
+    FROM eprint_creators_orcid
+    WHERE creators_orcid IS NOT NULL
+    GROUP BY creators_orcid ORDER BY creators_orcid`)
 	return values, err
 }
 
@@ -1187,6 +1198,10 @@ func makeApproxDate(year int, month int, day int) string {
 	}
 }
 
+func makeDirValue(ID int) string {
+	return fmt.Sprintf(`disk0/%s`, pairtree.Encode(fmt.Sprintf("%08d", ID)))
+}
+
 /*
  * PersonItemList model
  */
@@ -1204,54 +1219,57 @@ func eprintIDToPersonItemList(db *sql.DB, tables map[string][]string, repoID str
 		if err != nil {
 			log.Printf("Could not query %s for %d in %q, %s", tableName, eprintID, repoID, err)
 		} else {
-			i := 0
 			for rows.Next() {
 				if err := rows.Scan(&pos, &honourific, &given, &family, &lineage); err != nil {
 					log.Printf("Could not scan %s for %d in %q, %s", tableName, eprintID, repoID, err)
 				} else {
-					item := new(Item)
-					item.Pos = pos
-					item.Name = makePersonName(given, family, honourific, lineage)
-					itemList.Append(item)
-				}
-				i++
-			}
-			rows.Close()
-
-			if itemList.Length() > 0 {
-				tablesAndColumn := map[string][2]string{}
-				columnPrefix := strings.TrimPrefix(tablePrefix, `eprint_`)
-				for _, suffix := range []string{"id", "orcid", "uri", "url", "role", "email", "show_email"} {
-					key := fmt.Sprintf("%s_%s", tablePrefix, suffix)
-					tablesAndColumn[key] = [2]string{
-						// Column Name
-						fmt.Sprintf("%s_%s", columnPrefix, suffix),
-						// Column Alias
-						suffix,
-					}
-				}
-				for tableName, columnNames := range tablesAndColumn {
-					columnName, columnAlias := columnNames[0], columnNames[1]
-					_, ok := tables[tableName]
-					if ok {
-						stmt := fmt.Sprintf(`SELECT pos, IFNULL(%s, "") AS %s FROM %s WHERE eprintid = ? ORDER BY eprintid, pos`, columnName, columnAlias, tableName)
-						rows, err = db.Query(stmt, eprintID)
-						if err != nil {
-							log.Printf("Could not query (%d) %s for %d in %q, %s", i, tableName, eprintID, repoID, err)
-						} else {
-							i := 0
-							for rows.Next() {
-								if err := rows.Scan(&pos, &value); err != nil {
-									log.Printf("Could not scan (%d) %s for %d in %q, %s", i, tableName, eprintID, repoID, err)
-								} else {
-									itemList.SetAttributeOf(pos, columnAlias, value)
-								}
-								i++
-							}
-							rows.Close()
+					// Check if we have enough items in our item list.
+					if pos >= itemList.Length() {
+						for j := itemList.Length(); j <= pos; j++ {
+							item := new(Item)
+							itemList.Append(item)
 						}
 					}
+					if item := itemList.IndexOf(pos); item != nil {
+						item.Name = makePersonName(given, family, honourific, lineage)
+					} else {
+						log.Printf("itemList too short, pos (%d) not found for %d in %s", pos, eprintID, tableName)
+					}
 				}
+			}
+			rows.Close()
+		}
+	}
+	tablesAndColumn := map[string][2]string{}
+	columnPrefix := strings.TrimPrefix(tablePrefix, `eprint_`)
+	for _, suffix := range []string{"id", "orcid", "uri", "url", "role", "email", "show_email"} {
+		key := fmt.Sprintf("%s_%s", tablePrefix, suffix)
+		tablesAndColumn[key] = [2]string{
+			// Column Name
+			fmt.Sprintf("%s_%s", columnPrefix, suffix),
+			// Column Alias
+			suffix,
+		}
+	}
+	i := 0
+	for tableName, columnNames := range tablesAndColumn {
+		columnName, columnAlias := columnNames[0], columnNames[1]
+		_, ok := tables[tableName]
+		if ok {
+			stmt := fmt.Sprintf(`SELECT pos, IFNULL(%s, "") AS %s FROM %s WHERE eprintid = ? ORDER BY eprintid, pos`, columnName, columnAlias, tableName)
+			rows, err := db.Query(stmt, eprintID)
+			if err != nil {
+				log.Printf("Could not query (%d) %s for %d in %q, %s", i, tableName, eprintID, repoID, err)
+			} else {
+				for rows.Next() {
+					if err := rows.Scan(&pos, &value); err != nil {
+						log.Printf("Could not scan (%d) %s for %d in %q, %s", i, tableName, eprintID, repoID, err)
+					} else {
+						log.Printf("DEBUG %s eprintid, pos, %s -> %d, %d, %q", tableName, columnName, eprintID, pos, value)
+						itemList.SetAttributeOf(pos, columnAlias, value)
+					}
+				}
+				rows.Close()
 			}
 		}
 	}
@@ -1592,80 +1610,84 @@ func eprintIDToCorpCreators(repoID string, eprintID int, db *sql.DB, tables map[
 		pos   int
 		value string
 	)
+	itemList := new(CorpCreatorItemList)
 	tableName := `eprint_corp_creators_name`
 	columnName := `corp_creators_name`
 	_, ok := tables[tableName]
 	if ok {
-		itemList := new(CorpCreatorItemList)
 		stmt := fmt.Sprintf(`SELECT pos, IFNULL(%s, '') AS %s
 FROM %s WHERE eprintid = ? ORDER BY eprintid, pos`, columnName, columnName, tableName)
 		rows, err := db.Query(stmt, eprintID)
 		if err != nil {
 			log.Printf("Could not query %s for %d in %q, %s", tableName, eprintID, repoID, err)
 		} else {
-			i := 0
 			for rows.Next() {
 				if err := rows.Scan(&pos, &value); err != nil {
 					log.Printf("Could not scan %s for %d in %q, %s", tableName, eprintID, repoID, err)
 				} else {
-					item := new(Item)
+					if pos >= itemList.Length() {
+						for j := itemList.Length(); j <= pos; j++ {
+							item := new(Item)
+							itemList.Append(item)
+						}
+					}
+					item := itemList.IndexOf(pos)
 					item.Pos = pos
 					item.Name = new(Name)
 					item.Name.Value = value
 					itemList.Append(item)
 				}
-				i++
 			}
 			rows.Close()
+		}
+	}
 
-			if itemList.Length() > 0 {
-				tablesAndColumn := map[string]string{
-					"eprint_corp_creators_id":  "corp_creators_id",
-					"eprint_corp_creators_ror": "corp_creators_ror",
-					"eprint_corp_creators_uri": "corp_creators_uri",
-					"eprint_corp_creators":     "corp_creators",
-				}
-				for tableName, columnName := range tablesAndColumn {
-					_, ok := tables[tableName]
-					if ok {
-						stmt := fmt.Sprintf(`SELECT pos, IFNULL(%s, "") AS %s FROM %s WHERE eprintid = ? ORDER BY eprintid, pos`, columnName, columnName, tableName)
-						rows, err = db.Query(stmt, eprintID)
-						if err != nil {
-							log.Printf("Could not query (%d) %s for %d in %q, %s", i, tableName, eprintID, repoID, err)
-						} else {
-							i := 0
-							for rows.Next() {
-								if err := rows.Scan(&pos, &value); err != nil {
-									log.Printf("Could not scan (%d) %s for %d in %q, %s", i, tableName, eprintID, repoID, err)
-								} else {
-									for _, item := range itemList.Items {
-										if item.Pos == pos && value != "" {
-											switch columnName {
-											case "corp_creators_id":
-												item.ID = value
-											case "corp_creators_ror":
-												item.ROR = value
-											case "corp_creators_uri":
-												item.URI = value
-											case "corp_creators":
-												item.Name = new(Name)
-												item.Name.Value = value
-											}
-											break
-										}
-									}
-								}
-								i++
+	tablesAndColumn := map[string]string{
+		"eprint_corp_creators_id":  "corp_creators_id",
+		"eprint_corp_creators_ror": "corp_creators_ror",
+		"eprint_corp_creators_uri": "corp_creators_uri",
+		"eprint_corp_creators":     "corp_creators",
+	}
+	for tableName, columnName := range tablesAndColumn {
+		_, ok := tables[tableName]
+		if ok {
+			stmt := fmt.Sprintf(`SELECT pos, IFNULL(%s, "") AS %s FROM %s WHERE eprintid = ? ORDER BY eprintid, pos`, columnName, columnName, tableName)
+			rows, err := db.Query(stmt, eprintID)
+			if err != nil {
+				log.Printf("Could not query %s for %d in %q, %s", tableName, eprintID, repoID, err)
+			} else {
+				i := 0
+				for rows.Next() {
+					if err := rows.Scan(&pos, &value); err != nil {
+						log.Printf("Could not scan (%d) %s for %d in %q, %s", i, tableName, eprintID, repoID, err)
+					} else {
+						if pos >= itemList.Length() {
+							for j := itemList.Length(); j <= pos; j++ {
+								item := new(Item)
+								itemList.Append(item)
 							}
-							rows.Close()
 						}
+						item := itemList.IndexOf(pos)
+						switch columnName {
+						case "corp_creators_id":
+							item.ID = value
+						case "corp_creators_ror":
+							item.ROR = value
+						case "corp_creators_uri":
+							item.URI = value
+						case "corp_creators":
+							item.Name = new(Name)
+							item.Name.Value = value
+						}
+						break
 					}
-					return itemList
+					i++
 				}
+				rows.Close()
 			}
 		}
 	}
-	return nil
+	return itemList
 }
 
 func eprintIDToFunders(repoID string, eprintID int, db *sql.DB, tables map[string][]string) *FunderItemList {
@@ -1928,10 +1950,10 @@ FROM %s WHERE eprintid = ? ORDER BY eprintid, pos`, tableName)
 	return nil
 }
 
-// CrosswalkSQLToEPrint expects a repository map and EPrint ID
+// SQLReadEPrint expects a repository map and EPrint ID
 // and will generate a series of SELECT statements populating
 // a new EPrint struct or return an error
-func CrosswalkSQLToEPrint(config *Config, repoID string, baseURL string, eprintID int) (*EPrint, error) {
+func SQLReadEPrint(config *Config, repoID string, baseURL string, eprintID int) (*EPrint, error) {
 	var (
 		tables  map[string][]string
 		columns []string
@@ -2069,18 +2091,18 @@ func CrosswalkSQLToEPrint(config *Config, repoID string, baseURL string, eprintI
 	eprint.OptionMinor = eprintIDToOptionMinor(repoID, eprintID, db, tables)
 
 	/*************************************************************
-		NOTE: These are notes about possible original implementation
-		errors or elements that did not survive the upgrade to
-		EPrints 3.3.16
+	    NOTE: These are notes about possible original implementation
+	    errors or elements that did not survive the upgrade to
+	    EPrints 3.3.16
 
-		eprint.LearningLevels (not an item list in EPrints) using LearningLevelText
-		GScholar, skipping not an item list, a 2010 plugin for EPRints 3.2.
-		eprint.GScholar = eprintIDToGScholar(repoID, eprintID, db, tables)
-		Shelves, a plugin, not replicating, not an item list
-		eprint.Shelves = eprintIDToSchelves(repoID, eprintID, db, tables)
-		eprint.PatentClassification is not not an item list, using eprint.PatentClassificationText
-		eprint.OtherURL appears to be an extraneous
-		eprint.CorpContributors apears to be an extraneous
+	    eprint.LearningLevels (not an item list in EPrints) using LearningLevelText
+	    GScholar, skipping not an item list, a 2010 plugin for EPRints 3.2.
+	    eprint.GScholar = eprintIDToGScholar(repoID, eprintID, db, tables)
+	    Shelves, a plugin, not replicating, not an item list
+	    eprint.Shelves = eprintIDToSchelves(repoID, eprintID, db, tables)
+	    eprint.PatentClassification is not not an item list, using eprint.PatentClassificationText
+	    eprint.OtherURL appears to be an extraneous
+	    eprint.CorpContributors apears to be an extraneous
 	*************************************************************/
 
 	return eprint, nil
@@ -2105,22 +2127,16 @@ func insertItemList(db *sql.DB, repoID string, tableName string, columns []strin
 	eprintid := eprint.EPrintID
 	switch {
 	case strings.HasPrefix(tableName, `eprint_creators_`):
-		fmt.Printf("DEBUG working with table %q, columns %s\n", tableName, strings.Join(columns, `, `))
 		itemList = eprint.Creators
 	case strings.HasPrefix(tableName, `eprint_editors_`):
-		fmt.Printf("DEBUG working with table %q, columns %s\n", tableName, strings.Join(columns, `, `))
 		itemList = eprint.Editors
 	case strings.HasPrefix(tableName, `eprint_contributors_`):
-		fmt.Printf("DEBUG working with table %q, columns %s\n", tableName, strings.Join(columns, `, `))
 		itemList = eprint.Contributors
 	case strings.HasPrefix(tableName, `eprint_corp_creators_`):
-		fmt.Printf("DEBUG working with table %q, columns %s\n", tableName, strings.Join(columns, `, `))
 		itemList = eprint.CorpCreators
 	case strings.HasPrefix(tableName, `eprint_thesis_advisor_`):
-		fmt.Printf("DEBUG working with table %q, columns %s\n", tableName, strings.Join(columns, `, `))
 		itemList = eprint.ThesisAdvisor
 	case strings.HasPrefix(tableName, `eprint_thesis_committee_`):
-		fmt.Printf("DEBUG working with table %q, columns %s\n", tableName, strings.Join(columns, `, `))
 		itemList = eprint.ThesisCommittee
 	case strings.HasPrefix(tableName, `eprint_item_issues_`):
 		itemList = eprint.ItemIssues
@@ -2177,7 +2193,7 @@ func insertItemList(db *sql.DB, repoID string, tableName string, columns []strin
 	case strings.HasPrefix(tableName, `eprint_keyword`):
 		// FIXME this we appear to use the longtext of key in our eprint table. Not sure if this
 		// is new or old structure. It is posssible that our longtext for keywords is a legacy structure.
-		itemList = eprint.Keyword
+		//itemList = eprint.Keyword
 	default:
 		return fmt.Errorf(`do not understand %q, %s`, tableName, strings.Join(columns, `, `))
 	}
@@ -2194,7 +2210,6 @@ func insertItemList(db *sql.DB, repoID string, tableName string, columns []strin
 				values = append(values, pos)
 				columnsSQL = append(columnsSQL, col)
 			case strings.HasSuffix(col, `_id`):
-				fmt.Printf("DEBUG found *_id in %q\n", tableName)
 				values = append(values, item.ID)
 				columnsSQL = append(columnsSQL, col)
 			case strings.HasSuffix(col, `_type`):
@@ -2273,10 +2288,10 @@ func insertItemList(db *sql.DB, repoID string, tableName string, columns []strin
 	return nil
 }
 
-// CrosswalkEPrintToSQLCreate will read a EPrint structure and
+// SQLCreateEPrint will read a EPrint structure and
 // generate SQL INSERT, REPLACE and DELETE statements
 // suitable for creating a new EPrint record in the repository.
-func CrosswalkEPrintToSQLCreate(config *Config, repoID string, ds *DataSource, eprint *EPrint) (int, error) {
+func SQLCreateEPrint(config *Config, repoID string, ds *DataSource, eprint *EPrint) (int, error) {
 	var (
 		err error
 	)
@@ -2312,7 +2327,24 @@ func CrosswalkEPrintToSQLCreate(config *Config, repoID string, ds *DataSource, e
 		if err != nil {
 			return 0, fmt.Errorf(`SQL failed to get insert id, %s`, err)
 		}
+		now := time.Now()
 		eprint.EPrintID = id
+		eprint.Dir = makeDirValue(eprint.EPrintID)
+		eprint.Datestamp = now.Format(timestamp)
+		eprint.DatestampYear = now.Year()
+		eprint.DatestampMonth = int(now.Month())
+		eprint.DatestampDay = now.Day()
+		eprint.DatestampHour = now.Hour()
+		eprint.DatestampMinute = now.Minute()
+		eprint.LastModified = now.Format(timestamp)
+		eprint.LastModifiedYear = now.Year()
+		eprint.LastModifiedMonth = int(now.Month())
+		eprint.LastModifiedDay = now.Day()
+		eprint.LastModifiedHour = now.Hour()
+		eprint.LastModifiedMinute = now.Minute()
+
+		//FIXME: Need to generate various dates and timestamps
+
 		// Step two, write the rest of the date into the main table.
 		columnsSQL, values := eprintToColumnsAndValues(eprint, columns, false)
 		stmt = fmt.Sprintf(`REPLACE INTO %s (%s) VALUES (%s)`,
@@ -2329,14 +2361,16 @@ func CrosswalkEPrintToSQLCreate(config *Config, repoID string, ds *DataSource, e
 			// Handle the remaining tables, i.e. skip eprint table.
 			switch {
 			case tableName == `eprint`:
-			// Skip eprint table, we've already processed it
+				// Skip eprint table, we've already processed it
+			case tableName == `eprint_keyword`:
+				// Skip eprint_keyword, our EPrints use keywords (longtext) in eprint table.
 			case strings.HasPrefix(tableName, `document`):
 				//log.Printf(`FIXME %s columns: %s`, tableName, strings.Join(columns, `, `))
 			case strings.HasPrefix(tableName, `file`):
 				//log.Printf(`FIXME %s columns: %s`, tableName, strings.Join(columns, `, `))
-
 			default:
 				// Insert new rows in associated table
+				log.Printf("DEBUG inserting into %s.%s (%s)", repoID, tableName, strings.Join(columns, ", "))
 				if err := insertItemList(db, repoID, tableName, columns, eprint); err != nil {
 					return eprint.EPrintID, fmt.Errorf(`failed to insert eprintid %d in %s for %s, %s`, eprint.EPrintID, tableName, repoID, err)
 				}
@@ -2351,7 +2385,7 @@ func CrosswalkEPrintToSQLCreate(config *Config, repoID string, ds *DataSource, e
 // It is a re-implementation of EPrints Perl Import EPrint XML.
 //
 // ImportEPrints will create EPrint records using
-// CrosswalkEPrintToSQLCreate function.
+// SQLCreateEPRint function.
 //
 // ImportEPrints returns a list of EPrint IDs created
 // if successful and an error if something goes wrong.
@@ -2375,7 +2409,7 @@ func ImportEPrints(config *Config, repoID string, ds *DataSource, eprints *EPrin
 		}
 	}
 	for _, eprint := range eprints.EPrint {
-		id, err := CrosswalkEPrintToSQLCreate(config, repoID, ds, eprint)
+		id, err := SQLCreateEPrint(config, repoID, ds, eprint)
 		if err != nil {
 			if importErrors == nil {
 				importErrors = err

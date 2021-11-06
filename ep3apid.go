@@ -37,11 +37,6 @@ import (
 	"time"
 )
 
-const (
-	// timestamp holds the Format of a MySQL time field
-	timestamp = "2006-01-02 15:04:05"
-	datestamp = "2006-01-02"
-)
 
 type EP3API struct {
 	Config *Config
@@ -712,9 +707,9 @@ func (api *EP3API) recordEndPoint(w http.ResponseWriter, r *http.Request, repoID
 		return 400, fmt.Errorf("bad request, eprint id invalid, %s", err)
 	}
 
-	eprint, err := CrosswalkSQLToEPrint(api.Config, repoID, ds.BaseURL, eprintID)
+	eprint, err := SQLReadEPrint(api.Config, repoID, ds.BaseURL, eprintID)
 	if err != nil {
-		api.Log.Printf("CrosswalkSQLToEPrint Error: %s\n", err)
+		api.Log.Printf("SQLReadEPrint Error: %s\n", err)
 		return 500, fmt.Errorf("internal server error")
 	}
 	//FIXME: this should just be a simple JSON from SQL ...
@@ -754,7 +749,7 @@ func (api *EP3API) eprintEndPoint(w http.ResponseWriter, r *http.Request, repoID
 		api.Log.Printf("Data Source not found for %q", repoID)
 		return 404, fmt.Errorf("not found")
 	}
-	eprint, err := CrosswalkSQLToEPrint(api.Config, repoID, ds.BaseURL, eprintID)
+	eprint, err := SQLReadEPrint(api.Config, repoID, ds.BaseURL, eprintID)
 	if err != nil {
 		return 404, fmt.Errorf("not found, %s", err)
 

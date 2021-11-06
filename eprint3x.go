@@ -79,7 +79,7 @@ type EPrint struct {
 	IsPublished          string                        `xml:"ispublished,omitempty" json:"ispublished,omitempty"`
 	FullTextStatus       string                        `xml:"full_text_status,omitempty" json:"full_text_status,omitempty"`
 	Keywords             string                        `xml:"keywords,omitempty" json:"keywords,omitempty"`
-	Keyword              *KeywordItemList              `xml:"keyword,omitempty" json:"keyword,omitemtpy"`
+	//Keyword              *KeywordItemList              `xml:"-" json:""`
 	Note                 string                        `xml:"note,omitempty" json:"note,omitempty"`
 	Abstract             string                        `xml:"abstract,omitempty" json:"abstract,omitempty"`
 	Date                 string                        `xml:"date,omitempty" json:"date,omitempty"`
@@ -528,7 +528,13 @@ func (itemList *CreatorItemList) IndexOf(i int) *Item {
 
 // SetAttributeOf at pos set item attribute return success
 func (itemList *CreatorItemList) SetAttributeOf(i int, key string, value interface{}) bool {
-	if i >= 0 && i < itemList.Length() {
+	if i >= 0 {
+		if i >= itemList.Length() {
+			for j := itemList.Length(); j <= i; j++ {
+				item := new(Item)
+				itemList.Append(item)
+			}
+		}
 		return itemList.Items[i].SetAttribute(key, value)
 	}
 	return false
