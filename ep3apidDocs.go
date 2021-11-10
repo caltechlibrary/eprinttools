@@ -89,6 +89,8 @@ Unique ids maybe standards based (e.g. ORCID, DOI, ISSN, ISBN) or internal (e.g.
 - '/{REPO_ID}/patent-classification/{PATENT_CLASSIFICATION}' - return a list eprint ids for patent classification in repository
 - '/{REPO_ID}/patent-assignee' - return a list of patent assignee in repository
 - '/{REPO_ID}/patent-assignee/{PATENT_ASSIGNEE}' - return a list eprint ids for patent assignee in repository
+- '/{REPO_ID}/year' - return a descending list of years containing record with a date type of "published".
+- '/{REPO_ID}/year/{YEAR}' - return a list of eprintid for a given year contaning date type of "published".
 
 
 Change Events
@@ -401,6 +403,13 @@ func patentAssigneeDocument(repoID string) string {
 	return fmt.Sprintf(`
 - '/%s/patent-assignee' - return a list of patent assignee in repository
 - '/%s/patent-assignee/{PATENT_ASSIGNEE}' - return a list eprint ids for patent assignee in repository
+`, repoID, repoID)
+}
+
+func yearDocument(repoID string) string {
+	return fmt.Sprintf(`
+- '/%s/year' - return a descending list of years containing record with a date type of "published".
+- '/%s/year/{YEAR}' - return a list of eprintid for a given year contaning date type of "published".
 `, repoID, repoID)
 }
 

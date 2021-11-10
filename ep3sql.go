@@ -16,7 +16,6 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-
 const (
 	// timestamp holds the Format of a MySQL time field
 	timestamp = `2006-01-02 15:04:05`
@@ -66,6 +65,33 @@ func CloseConnections(config *Config) error {
 		return fmt.Errorf("%s", strings.Join(errors, "\n"))
 	}
 	return nil
+}
+
+// sqlQueryInts takes a repostory ID, a SQL statement and returns
+// intergers retrieved.
+func sqlQueryInts(config *Config, repoID string, stmt string) ([]int, error) {
+	if db, ok := config.Connections[repoID]; ok {
+		rows, err := db.Query(stmt)
+		if err != nil {
+			return nil, fmt.Errorf("ERROR: query error (%q), %s", repoID, err)
+		}
+		defer rows.Close()
+		value := 0
+		values := []int{}
+		for rows.Next() {
+			err := rows.Scan(&value)
+			if err == nil {
+				values = append(values, value)
+			} else {
+				return nil, fmt.Errorf("ERROR: scan error (%q), %s", repoID, err)
+			}
+		}
+		if err := rows.Err(); err != nil {
+			return nil, fmt.Errorf("ERROR: rows error (%q), %s", repoID, err)
+		}
+		return values, nil
+	}
+	return nil, fmt.Errorf("bad request")
 }
 
 // sqlQueryIntIDs takes a repostory ID, a SQL statement and applies
@@ -313,6 +339,19 @@ WHERE %s
 ORDER BY %s_family ASC, %s_given ASC, eprint.date_year DESC, eprint.date_month DESC, eprint.date_day DESC`,
 		field, field, strings.Join(conditions, " AND "), field, field)
 	return sqlQueryIntIDs(config, repoID, stmt, family, given)
+}
+
+// GetAllYears returns the publication years found in a repository
+func GetAllYears(config *Config, repoID string) ([]int, error) {
+	stmt := fmt.Sprintf(`SELECT date_year FROM eprint WHERE date_type = "published" AND date_year IS NOT NULL GROUP BY date_year ORDER BY date_year DESC`)
+	return sqlQueryInts(config, repoID, stmt)
+}
+
+// GetEPrintsIDsForYear returns a list of published eprint IDs for a given
+// year.
+func GetEPrintIDsForYear(config *Config, repoID string, year int) ([]int, error) {
+	stmt := fmt.Sprintf(`SELECT eprintid FROM eprint WHERE date_type = "published" AND date_year  = ? ORDER BY date_year DESC, date_month DESC, date_day DESC`)
+	return sqlQueryIntIDs(config, repoID, stmt, year)
 }
 
 //
@@ -1265,7 +1304,6 @@ func eprintIDToPersonItemList(db *sql.DB, tables map[string][]string, repoID str
 					if err := rows.Scan(&pos, &value); err != nil {
 						log.Printf("Could not scan (%d) %s for %d in %q, %s", i, tableName, eprintID, repoID, err)
 					} else {
-						log.Printf("DEBUG %s eprintid, pos, %s -> %d, %d, %q", tableName, columnName, eprintID, pos, value)
 						itemList.SetAttributeOf(pos, columnAlias, value)
 					}
 				}
@@ -1635,7 +1673,6 @@ FROM %s WHERE eprintid = ? ORDER BY eprintid, pos`, columnName, columnName, tabl
 					item.Pos = pos
 					item.Name = new(Name)
 					item.Name.Value = value
-					itemList.Append(item)
 				}
 			}
 			rows.Close()
@@ -2370,7 +2407,6 @@ func SQLCreateEPrint(config *Config, repoID string, ds *DataSource, eprint *EPri
 				//log.Printf(`FIXME %s columns: %s`, tableName, strings.Join(columns, `, `))
 			default:
 				// Insert new rows in associated table
-				log.Printf("DEBUG inserting into %s.%s (%s)", repoID, tableName, strings.Join(columns, ", "))
 				if err := insertItemList(db, repoID, tableName, columns, eprint); err != nil {
 					return eprint.EPrintID, fmt.Errorf(`failed to insert eprintid %d in %s for %s, %s`, eprint.EPrintID, tableName, repoID, err)
 				}

@@ -37,7 +37,6 @@ import (
 	"time"
 )
 
-
 type EP3API struct {
 	Config *Config
 	Log    *log.Logger
@@ -584,6 +583,22 @@ func (api EP3API) patentAssigneeEndPoint(w http.ResponseWriter, r *http.Request,
 	return api.packageIntIDs(w, repoID, eprintIDs, err)
 }
 
+func (api EP3API) yearEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
+	if strings.HasSuffix(r.URL.Path, `/help`) {
+		return api.packageDocument(w, yearDocument(repoID))
+	}
+	if len(args) == 0 {
+		years, err := GetAllYears(api.Config, repoID)
+		return api.packageIntIDs(w, repoID, years, err)
+	}
+	year, err := strconv.Atoi(args[0])
+	if err != nil {
+		return api.packageIntIDs(w, repoID, []int{}, err)
+	}
+	eprintIDs, err := GetEPrintIDsForYear(api.Config, repoID, year)
+	return api.packageIntIDs(w, repoID, eprintIDs, err)
+}
+
 //
 // Unique identifiers (e.g. doi, issn, isbn) end points
 //
@@ -1016,6 +1031,7 @@ func (api *EP3API) InitExtendedAPI(settings string) error {
 		"corp-creator-uri":  api.corpCreatorURIEndPoint,
 		"issn":              api.issnEndPoint,
 		"isbn":              api.isbnEndPoint,
+		"year":              api.yearEndPoint,
 	}
 
 	/* NOTE: We need a DB connection to MySQL for each

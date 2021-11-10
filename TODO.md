@@ -23,14 +23,14 @@ Next
     - [ ] Impement updates versioning the EPrint Metadata record
     - [ ] Implement file upload and manage document versioning
 - [ ] Implement Solr index record view for Solr 8.9 ingest
-- [ ] Add end point for `/{REPO_ID}/year` (list years that have eprint records)
-- [ ] Add end point for `/{REPO_ID}/year/{YEAR}` lists eprint records published in that year
 - [ ] Add Person A-Z list support
 - [ ] Split clsrules into separate options to allow for more specific control
 
 Completed
 ---------
 
+- [x] Add end point for `/{REPO_ID}/year` (list years that have eprint records with a "published" date type)
+- [x] Add end point for `/{REPO_ID}/year/{YEAR}` lists eprint records published in that year
 - [x] Implement a method to show which tables a repository instance has and the column names in each table
     - [x] Implement a startup data structure that captures the `/repository/` end point data so that table/column map can be used to build the SQL queries need to read, create, and update an EPrint record
     - [x] Implement `/repository/<REPO_ID>` end point with `map[string][]string{}` output

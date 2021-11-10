@@ -2,6 +2,7 @@ package eprinttools
 
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"os"
 	"testing"
@@ -11,6 +12,11 @@ import (
 var (
 	err error
 )
+
+func objToString(obj interface{}) string {
+	src, _ := json.MarshalIndent(obj, "", "    ")
+	return string(src)
+}
 
 func assertOpenConnection(t *testing.T, config *Config, repoID string) {
 	ds, ok := config.Repositories[repoID]
@@ -135,6 +141,12 @@ func assertEPrintSame(t *testing.T, expected *EPrint, eprint *EPrint) {
 	assertStringSame(t, "Abstract", expected.Abstract, eprint.Abstract)
 	if expected.Creators.Length() != eprint.Creators.Length() {
 		t.Errorf(`expected eprint creators length %d, got %d`, expected.Creators.Length(), eprint.Creators.Length())
+		src1 := objToString(expected.Creators)
+		src2 := objToString(eprint.Creators)
+		t.Logf(`
+expected.Creators -> %s
+eprint.Creators -> %s
+`, src1, src2)
 	} else {
 		for i := 0; i < expected.Creators.Length(); i++ {
 			expectedItem := expected.Creators.IndexOf(i)
@@ -144,6 +156,12 @@ func assertEPrintSame(t *testing.T, expected *EPrint, eprint *EPrint) {
 	}
 	if expected.Editors.Length() != eprint.Editors.Length() {
 		t.Errorf(`expected eprint editors length %d, got %d`, expected.Editors.Length(), eprint.Editors.Length())
+		src1 := objToString(expected.Editors)
+		src2 := objToString(eprint.Editors)
+		t.Logf(`
+expected.Editors -> %s
+eprint.Editors -> %s
+`, src1, src2)
 	} else {
 		for i := 0; i < expected.Editors.Length(); i++ {
 			expectedItem := expected.Editors.IndexOf(i)
@@ -153,6 +171,12 @@ func assertEPrintSame(t *testing.T, expected *EPrint, eprint *EPrint) {
 	}
 	if expected.Contributors.Length() != eprint.Contributors.Length() {
 		t.Errorf(`expected eprint contributors length %d, got %d`, expected.Contributors.Length(), eprint.Contributors.Length())
+		src1 := objToString(expected.Contributors)
+		src2 := objToString(eprint.Contributors)
+		t.Logf(`
+expected.Contributors -> %s
+eprint.Contributors -> %s
+`, src1, src2)
 	} else {
 		for i := 0; i < expected.Contributors.Length(); i++ {
 			expectedItem := expected.Contributors.IndexOf(i)
@@ -161,7 +185,13 @@ func assertEPrintSame(t *testing.T, expected *EPrint, eprint *EPrint) {
 		}
 	}
 	if expected.CorpCreators.Length() != eprint.CorpCreators.Length() {
-		t.Errorf(`expected eprint corp creators length %d, got %d`, expected.CorpCreators.Length(), eprint.CorpCreators.Length())
+		t.Errorf(`expected eprint (eprintid %d) corp creators length %d, got %d`, expected.EPrintID, expected.CorpCreators.Length(), eprint.CorpCreators.Length())
+		src1 := objToString(expected.CorpCreators)
+		src2 := objToString(eprint.CorpCreators)
+		t.Logf(`
+expected.CorpCreators -> %s
+eprint.CorpCreators -> %s
+`, src1, src2)
 	} else {
 		for i := 0; i < expected.CorpCreators.Length(); i++ {
 			expectedItem := expected.CorpCreators.IndexOf(i)
@@ -189,6 +219,7 @@ func assertEPrintSame(t *testing.T, expected *EPrint, eprint *EPrint) {
 	assertIntSame(t, "StatusChangedHour", expected.StatusChangedHour, eprint.StatusChangedHour)
 	assertIntSame(t, "StatusChangedMinute", expected.StatusChangedMinute, eprint.StatusChangedMinute)
 	assertIntSame(t, "StatusChangedSecond", expected.StatusChangedSecond, eprint.StatusChangedSecond)
+
 	//FIXME: check the rest of the fields.
 	t.Errorf("Additional field tests need to be implemented")
 }
@@ -273,14 +304,14 @@ generated in TestSQLCreateEPrint() in ep3sql_test.go.`
 	item.Name.Family = `Doe`
 	item.Name.Given = `Jack`
 	item.ID = `Doi-Jack`
-	item.ORCID = `0000-0000-0000-0003`
+	//item.ORCID = `0000-0000-0000-0003`
 	eprint.Contributors.Append(item)
 	item = new(Item)
 	item.Name = new(Name)
 	item.Name.Family = `Doe`
 	item.Name.Given = `Jaqualine`
 	item.ID = `Doe-Jaqualine`
-	item.ORCID = `0000-0000-0000-0004`
+	//item.ORCID = `0000-0000-0000-0004`
 	eprint.Contributors.Append(item)
 
 	eprint.CorpCreators = new(CorpCreatorItemList)
@@ -301,7 +332,6 @@ generated in TestSQLCreateEPrint() in ep3sql_test.go.`
 	eprint.DateYear = year
 	eprint.DateMonth = int(month)
 	eprint.DateDay = day
-
 
 	eprint.EPrintStatus = `archive`
 	eprint.StatusChanged = now.Format(timestamp)
