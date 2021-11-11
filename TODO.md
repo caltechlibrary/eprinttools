@@ -14,10 +14,17 @@ Next
 
 
 - [ ] Add script to generate "lemurprints" database with support for all fields present across our repositories so I can do robust testing and generate appropriate testdata
+    - [x] Include all fields and tables in caltechauthors
+    - [ ] Include all fields and tables in caltechthesis
+    - [ ] Include all fields and tables in caltechconf
+    - [ ] Include all fields and tables in caltechcampuspubs
+    - [ ] Include all fields and tables in calteches
+    - [ ] Include all fields and tabels in caltechoh
+    - [ ] Include all fields and tabels in caltechln
 - [ ] Add create end points to support importing EPrint XML metadata into eprints
-    - [ ] Creating a new row in eprint table and getting the eprintid assigne needs to be atomic. Wrap in a transaction.
-    - [ ] Implement a method that takes a table/column map and EPrint structure then renders a INSERT or REPLACE sequence to create or update an EPrint record
-    - [ ] Implement a method that takes a table/column map and EPrint structure and update the EPrint structure from a sequnce of SELECT statements
+    - [x] Creating a new row in eprint table and getting the eprintid assigne needs to be atomic. Wrap in a transaction.
+    - [x] Implement a method that takes a table/column map and EPrint structure then renders a INSERT or REPLACE sequence to create or update an EPrint record
+    - [x] Implement a method that takes a table/column map and EPrint structure and update the EPrint structure from a sequnce of SELECT statements
 - [ ] Add update end point to support update EPrints Metadata
     - [ ] Figure out host historical diffs of EPrints XML are generated in EPrints' History tab
     - [ ] Impement updates versioning the EPrint Metadata record

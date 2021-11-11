@@ -221,7 +221,7 @@ eprint.CorpCreators -> %s
 	assertIntSame(t, "StatusChangedSecond", expected.StatusChangedSecond, eprint.StatusChangedSecond)
 
 	//FIXME: check the rest of the fields.
-	t.Errorf("Additional field tests need to be implemented")
+	t.Errorf("Additional field tests need for CaltechTHESIS specific field support")
 }
 
 //
@@ -304,14 +304,14 @@ generated in TestSQLCreateEPrint() in ep3sql_test.go.`
 	item.Name.Family = `Doe`
 	item.Name.Given = `Jack`
 	item.ID = `Doi-Jack`
-	//item.ORCID = `0000-0000-0000-0003`
+	item.ORCID = `0000-0000-0000-0003`
 	eprint.Contributors.Append(item)
 	item = new(Item)
 	item.Name = new(Name)
 	item.Name.Family = `Doe`
 	item.Name.Given = `Jaqualine`
 	item.ID = `Doe-Jaqualine`
-	//item.ORCID = `0000-0000-0000-0004`
+	item.ORCID = `0000-0000-0000-0004`
 	eprint.Contributors.Append(item)
 
 	eprint.CorpCreators = new(CorpCreatorItemList)
@@ -321,11 +321,156 @@ generated in TestSQLCreateEPrint() in ep3sql_test.go.`
 	item.URI = `uri://example.library.edu/Acme-Experimental-Labrarories`
 	eprint.CorpCreators.Append(item)
 
+	eprint.CorpContributors = new(CorpContributorItemList)
+	item = new(Item)
+	item.Name = new(Name)
+	item.Name.Value = `Lackey, Experimental Underwriters`
+	item.URI = `uri://example.library.edu/Lackey-Experimental-Underwriters`
+	eprint.CorpContributors.Append(item)
+
 	eprint.Funders = new(FunderItemList)
 	item = new(Item)
 	item.Agency = `Digital Libraries Group`
 	item.GrantNumber = `DLD-R-000000.007`
+	item.ROR = `https://ror.org/XXXXXXX/XXXXXXXX.XXX`
 	eprint.Funders.Append(item)
+
+	eprint.Conductors = new(ConductorItemList)
+	item = new(Item)
+	item.Name = new(Name)
+	item.Name.Given = `Quazi`
+	item.Name.Family = `Moto`
+	item.ID = `Moto-Quazi`
+	item.ORCID = `9999-9999-9999-9990`
+	eprint.Conductors.Append(item)
+
+	eprint.Lyricists = new(LyricistItemList)
+	item = new(Item)
+	item.Name = new(Name)
+	item.Name.Given = `Julia`
+	item.Name.Family = `Childs`
+	item.ID = `Childs-Julia`
+	item.ORCID = `9999-1111-2222-3330`
+	eprint.Lyricists.Append(item)
+
+	eprint.Exhibitors = new(ExhibitorItemList)
+	item = new(Item)
+	item.Name = new(Name)
+	item.Name.Value = `Museo of the Rodent Lackey`
+	item.ID = `Museo-Rodent-Lackey`
+	item.URI = `uri://Museo-Rodent-Lackey`
+	eprint.Exhibitors.Append(item)
+
+	eprint.Producers = new(ProducerItemList)
+	item = new(Item)
+	item.Name = new(Name)
+	item.Name.Given = "Billiana"
+	item.Name.Family = "Shakepole"
+	item.ID = `Billiana-Shakepole`
+	eprint.Producers.Append(item)
+
+	eprint.Accompaniment = new(AccompanimentItemList)
+	item = new(Item)
+	item.Value = `The Julia Child Kitchen Quartz Trio`
+	eprint.Accompaniment.Append(item)
+
+	eprint.SkillAreas = new(SkillAreaItemList)
+	item = new(Item)
+	item.Value = `Visualization and Projection`
+	eprint.SkillAreas.Append(item)
+
+	eprint.CopyrightHolders = new(CopyrightHolderItemList)
+	item = new(Item)
+	item.Value = `James Dean and famous dead people, LLC`
+	eprint.CopyrightHolders.Append(item)
+
+	// NOTE: eprint.Relation is not used in our EPRint repositories
+
+	eprint.RelatedURL = new(RelatedURLItemList)
+	item = new(Item)
+	item.URL = `http://doi.org/XXXX/XXXXXXX.02`
+	item.Type = `doi`
+	item.Description = `Figures 1 and 2`
+	eprint.RelatedURL.Append(item)
+	item = new(Item)
+	item.URL = `http://doi.org/XXXX/XXXXXXX.03`
+	item.Type = `doi`
+	item.Description = `Map of region`
+	eprint.RelatedURL.Append(item)
+
+	eprint.ReferenceText = new(ReferenceTextItemList)
+	item = new(Item)
+	item.Value = `Evergreen, S. (2016). Effective data visualization: The right chart for the right data. SAGE.`
+	eprint.ReferenceText.Append(item)
+	item = new(Item)
+	item.Value = `Nussbaumer, K. C. (2015). Storytelling with data: A data visualization guide for business professionals. Wiley & Sons.`
+	eprint.ReferenceText.Append(item)
+	item = new(Item)
+	item.Value = `Few, S. (2012). Show me the numbers: Designing tables and graphs to enlighten. Analytics Press.`
+	eprint.ReferenceText.Append(item)
+
+	// FIXME: Add test data for "projects", does not appear to be used in our repositories.
+
+	eprint.OtherNumberingSystem = new(OtherNumberingSystemItemList)
+	item = new(Item)
+	item.Name = new(Name)
+	item.Name.Value = `Ballad of green fluids`
+	item.ID = `1111-.II.II.VC`
+	eprint.OtherNumberingSystem.Append(item)
+
+	eprint.LocalGroup = new(LocalGroupItemList)
+	item = new(Item)
+	item.Value = `Hackers and Punters local 333`
+	eprint.LocalGroup.Append(item)
+
+	eprint.Subjects = new(SubjectItemList)
+	item = new(Item)
+	item.Value = `quandries`
+	eprint.Subjects.Append(item)
+	item = new(Item)
+	item.Value = `mathmatics`
+	eprint.Subjects.Append(item)
+
+	eprint.PatentAssignee = new(PatentAssigneeItemList)
+	item = new(Item)
+	item.Value = `Philbert Stickey-Didgets`
+	eprint.PatentAssignee.Append(item)
+
+	eprint.RelatedPatents = new(RelatedPatentItemList)
+	item = new(Item)
+	item.Value = `WO-101010101`
+	eprint.RelatedPatents.Append(item)
+
+	eprint.Divisions = new(DivisionItemList)
+	item = new(Item)
+	item.Value = `Obfuscation`
+	eprint.Divisions.Append(item)
+
+	eprint.ThesisAdvisor = new(ThesisAdvisorItemList)
+	item = new(Item)
+	item.Name = new(Name)
+	item.Name.Given = `Flake`
+	item.Name.Family = `Agiven`
+	item.ID = `Flakey-Chalk`
+	eprint.ThesisAdvisor.Append(item)
+
+	eprint.ThesisCommittee = new(ThesisCommitteeItemList)
+	item = new(Item)
+	item.Name = new(Name)
+	item.Name.Given = `Pear`
+	item.Name.Family = `Banana`
+	item.Role = `chair`
+	eprint.ThesisCommittee.Append(item)
+
+	eprint.OptionMajor = new(OptionMajorItemList)
+	item = new(Item)
+	item.Value = `Dithering`
+	eprint.OptionMajor.Append(item)
+
+	eprint.OptionMinor = new(OptionMinorItemList)
+	item = new(Item)
+	item.Value = `Dilly-Dally`
+	eprint.OptionMinor.Append(item)
 
 	eprint.DateType = "publication"
 	eprint.Date = now.Format(`2006-01-02`)

@@ -1417,12 +1417,16 @@ func eprintIDToSimpleItemList(db *sql.DB, tables map[string][]string, repoID str
 				if err := rows.Scan(&pos, &value); err != nil {
 					log.Printf("Could not scan %s for %d in %q, %s", tableName, eprintID, repoID, err)
 				} else {
-					item := new(Item)
-					item.Pos = pos
+					if pos >= itemList.Length() {
+						for j := itemList.Length(); j <= pos; j++ {
+							item := new(Item)
+							itemList.Append(item)
+						}
+					}
+					item := itemList.IndexOf(pos)
 					if value != "" {
 						item.Value = value
 					}
-					itemList.Append(item)
 				}
 				i++
 			}
@@ -1748,7 +1752,13 @@ func eprintIDToFunders(repoID string, eprintID int, db *sql.DB, tables map[strin
 				if err := rows.Scan(&pos, &value); err != nil {
 					log.Printf("Could not scan %s for %d in %q, %s", tableName, eprintID, repoID, err)
 				} else {
-					item := new(Item)
+					if pos >= itemList.Length() {
+						for j := itemList.Length(); j <= pos; j++ {
+							item := new(Item)
+							itemList.Append(item)
+						}
+					}
+					item := itemList.IndexOf(pos)
 					item.Pos = pos
 					if value != "" {
 						item.Agency = value
@@ -1776,6 +1786,12 @@ func eprintIDToFunders(repoID string, eprintID int, db *sql.DB, tables map[strin
 							if err := rows.Scan(&pos, &value); err != nil {
 								log.Printf("Could not scan (%d) %s for %d in %q, %s", i, tableName, eprintID, repoID, err)
 							} else {
+								if pos >= itemList.Length() {
+									for j := itemList.Length(); j <= pos; j++ {
+										item := new(Item)
+										itemList.Append(item)
+									}
+								}
 								if value != "" {
 									for _, item := range itemList.Items {
 										if item.Pos == pos {
@@ -2171,6 +2187,8 @@ func insertItemList(db *sql.DB, repoID string, tableName string, columns []strin
 		itemList = eprint.Contributors
 	case strings.HasPrefix(tableName, `eprint_corp_creators_`):
 		itemList = eprint.CorpCreators
+	case strings.HasPrefix(tableName, `eprint_corp_contributors_`):
+		itemList = eprint.CorpContributors
 	case strings.HasPrefix(tableName, `eprint_thesis_advisor_`):
 		itemList = eprint.ThesisAdvisor
 	case strings.HasPrefix(tableName, `eprint_thesis_committee_`):
@@ -2191,19 +2209,17 @@ func insertItemList(db *sql.DB, repoID string, tableName string, columns []strin
 		itemList = eprint.Lyricists
 	case strings.HasPrefix(tableName, `eprint_accompaniment`):
 		itemList = eprint.Accompaniment
-	case strings.HasPrefix(tableName, `eprint_subjects`):
+	case strings.HasPrefix(tableName, `eprint_subjec`):
 		itemList = eprint.Subjects
-	case strings.HasPrefix(tableName, `eprint_local_group`):
+	case strings.HasPrefix(tableName, `eprint_local_`):
 		itemList = eprint.LocalGroup
-	case strings.HasPrefix(tableName, `eprint_divisions`):
+	case strings.HasPrefix(tableName, `eprint_div`):
 		itemList = eprint.Divisions
-	case strings.HasPrefix(tableName, `eprint_option_major`):
+	case strings.HasPrefix(tableName, `eprint_option_maj`):
 		itemList = eprint.OptionMajor
-	case strings.HasPrefix(tableName, `eprint_option_minor`):
+	case strings.HasPrefix(tableName, `eprint_option_min`):
 		itemList = eprint.OptionMinor
-	case strings.HasPrefix(tableName, `eprint_funders_agency`):
-		itemList = eprint.Funders
-	case strings.HasPrefix(tableName, `eprint_funders_grant_number`):
+	case strings.HasPrefix(tableName, `eprint_funders_`):
 		itemList = eprint.Funders
 	case strings.HasPrefix(tableName, `eprint_other_numbering_system`):
 		itemList = eprint.OtherNumberingSystem
@@ -2219,10 +2235,20 @@ func insertItemList(db *sql.DB, repoID string, tableName string, columns []strin
 		itemList = eprint.PatentAssignee
 	case strings.HasPrefix(tableName, `eprint_related_patents`):
 		itemList = eprint.RelatedPatents
+	case strings.HasPrefix(tableName, `eprint_referencetext`):
+		itemList = eprint.ReferenceText
+	case strings.HasPrefix(tableName, `eprint_accompaniment`):
+		itemList = eprint.Accompaniment
 	case strings.HasPrefix(tableName, `eprint_reference`):
 		itemList = eprint.Reference
 	case strings.HasPrefix(tableName, `eprint_copyright_holders`):
 		itemList = eprint.CopyrightHolders
+	case strings.HasPrefix(tableName, `eprint_related_patent`):
+		itemList = eprint.RelatedPatents
+	case strings.HasPrefix(tableName, `eprint_parent_assign`):
+		itemList = eprint.PatentAssignee
+	case strings.HasPrefix(tableName, `eprint_skill`):
+		itemList = eprint.SkillAreas
 	case strings.HasPrefix(tableName, `eprint_relation`):
 		// This is not the same as document_relation_*, it is a separate item list item list
 		// it has the same structure with a uri and type. Our eprint implementations use a Relation
@@ -2233,6 +2259,12 @@ func insertItemList(db *sql.DB, repoID string, tableName string, columns []strin
 		//itemList = eprint.Keyword
 	default:
 		return fmt.Errorf(`do not understand %q, %s`, tableName, strings.Join(columns, `, `))
+	}
+	// Clear the list, then insert
+	stmt := fmt.Sprintf(`DELETE FROM %s WHERE eprintid = ?`, tableName)
+	_, err := db.Exec(stmt, eprint.EPrintID)
+	if err != nil {
+		return fmt.Errorf(`SQL error, %q, %s`, stmt, err)
 	}
 	for pos := 0; pos < itemList.Length(); pos++ {
 		item := itemList.IndexOf(pos)
@@ -2279,7 +2311,7 @@ func insertItemList(db *sql.DB, repoID string, tableName string, columns []strin
 			case strings.HasSuffix(col, `_url`):
 				values = append(values, item.URL)
 				columnsSQL = append(columnsSQL, col)
-			case strings.HasSuffix(col, `_description`):
+			case strings.HasSuffix(col, `description`):
 				values = append(values, item.Description)
 				columnsSQL = append(columnsSQL, col)
 			case strings.HasSuffix(col, `_agency`):
@@ -2312,11 +2344,48 @@ func insertItemList(db *sql.DB, repoID string, tableName string, columns []strin
 			case strings.HasSuffix(col, `_comment`):
 				values = append(values, item.ResolvedBy)
 				columnsSQL = append(columnsSQL, col)
+			case strings.HasSuffix(col, `_group`):
+				values = append(values, item.Value)
+				columnsSQL = append(columnsSQL, col)
+			case strings.HasSuffix(col, `_subjects`):
+				values = append(values, item.Value)
+				columnsSQL = append(columnsSQL, col)
+			case strings.HasSuffix(col, `_major`):
+				values = append(values, item.Value)
+				columnsSQL = append(columnsSQL, col)
+			case strings.HasSuffix(col, `_minor`):
+				values = append(values, item.Value)
+				columnsSQL = append(columnsSQL, col)
+			case strings.HasSuffix(col, `_holders`):
+				values = append(values, item.Value)
+				columnsSQL = append(columnsSQL, col)
+			case strings.HasSuffix(col, `divisions`):
+				values = append(values, item.Value)
+				columnsSQL = append(columnsSQL, col)
+			case strings.HasSuffix(col, `subjects`):
+				values = append(values, item.Value)
+				columnsSQL = append(columnsSQL, col)
+			case strings.HasSuffix(col, `referencetext`):
+				values = append(values, item.Value)
+				columnsSQL = append(columnsSQL, col)
+			case strings.HasSuffix(col, `accompaniment`):
+				values = append(values, item.Value)
+				columnsSQL = append(columnsSQL, col)
+			case strings.HasSuffix(col, `related_patents`):
+				values = append(values, item.Value)
+				columnsSQL = append(columnsSQL, col)
+			case strings.HasSuffix(col, `patent_assignee`):
+				values = append(values, item.Value)
+				columnsSQL = append(columnsSQL, col)
+			case strings.HasSuffix(col, `skill_areas`):
+				values = append(values, item.Value)
+				columnsSQL = append(columnsSQL, col)
 			default:
 				return fmt.Errorf("do not understand column %s.%s\n", tableName, col)
 			}
 		}
 		stmt := fmt.Sprintf(`INSERT INTO %s (%s) VALUES (%s)`, tableName, strings.Join(columnsSQL, `, `), strings.Join(qmList(len(columnsSQL)), `, `))
+		//log.Printf("DEBUG stmt: %s -> %+v", stmt, values)
 		_, err := db.Exec(stmt, values...)
 		if err != nil {
 			return fmt.Errorf(`SQL error, %q, %s`, stmt, err)
@@ -2367,6 +2436,7 @@ func SQLCreateEPrint(config *Config, repoID string, ds *DataSource, eprint *EPri
 		now := time.Now()
 		eprint.EPrintID = id
 		eprint.Dir = makeDirValue(eprint.EPrintID)
+		// Generate minimal date and time stamps
 		eprint.Datestamp = now.Format(timestamp)
 		eprint.DatestampYear = now.Year()
 		eprint.DatestampMonth = int(now.Month())
@@ -2379,8 +2449,6 @@ func SQLCreateEPrint(config *Config, repoID string, ds *DataSource, eprint *EPri
 		eprint.LastModifiedDay = now.Day()
 		eprint.LastModifiedHour = now.Hour()
 		eprint.LastModifiedMinute = now.Minute()
-
-		//FIXME: Need to generate various dates and timestamps
 
 		// Step two, write the rest of the date into the main table.
 		columnsSQL, values := eprintToColumnsAndValues(eprint, columns, false)

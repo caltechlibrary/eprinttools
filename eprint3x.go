@@ -43,42 +43,42 @@ type EPrints struct {
 // EPrint is the record contated in a EPrints XML document such as they used
 // to store revisions.
 type EPrint struct {
-	XMLName              xml.Name                      `json:"-"`
-	ID                   string                        `xml:"id,attr,omitempty" json:"id,omitempty"`
-	EPrintID             int                           `xml:"eprintid,omitempty" json:"eprint_id,omitempty"`
-	RevNumber            int                           `xml:"rev_number,omitempty" json:"rev_number,omitempty"`
-	Documents            *DocumentList                 `xml:"documents>document,omitempty" json:"documents,omitempty"`
-	EPrintStatus         string                        `xml:"eprint_status,omitempty" json:"eprint_status,omitempty"`
-	UserID               int                           `xml:"userid,omitempty" json:"userid,omitempty"`
-	Dir                  string                        `xml:"dir,omitempty" json:"dir,omitempty"`
-	Datestamp            string                        `xml:"datestamp,omitempty" json:"datestamp,omitempty"`
-	DatestampYear        int                           `xml:"-" json:"-"`
-	DatestampMonth       int                           `xml:"-" json:"-"`
-	DatestampDay         int                           `xml:"-" json:"-"`
-	DatestampHour        int                           `xml:"-" json:"-"`
-	DatestampMinute      int                           `xml:"-" json:"-"`
-	DatestampSecond      int                           `xml:"-" json:"-"`
-	LastModified         string                        `xml:"lastmod,omitempty" json:"lastmod,omitempty"`
-	LastModifiedYear     int                           `xml:"-" json:"-"`
-	LastModifiedMonth    int                           `xml:"-" json:"-"`
-	LastModifiedDay      int                           `xml:"-" json:"-"`
-	LastModifiedHour     int                           `xml:"-" json:"-"`
-	LastModifiedMinute   int                           `xml:"-" json:"-"`
-	LastModifiedSecond   int                           `xml:"-" json:"-"`
-	StatusChanged        string                        `xml:"status_changed,omitempty" json:"status_changed,omitempty"`
-	StatusChangedYear    int                           `xml:"-" json:"-"`
-	StatusChangedMonth   int                           `xml:"-" json:"-"`
-	StatusChangedDay     int                           `xml:"-" json:"-"`
-	StatusChangedHour    int                           `xml:"-" json:"-"`
-	StatusChangedMinute  int                           `xml:"-" json:"-"`
-	StatusChangedSecond  int                           `xml:"-" json:"-"`
-	Type                 string                        `xml:"type,omitempty" json:"type,omitempty"`
-	MetadataVisibility   string                        `xml:"metadata_visibility,omitempty" json:"metadata_visibility,omitempty"`
-	Creators             *CreatorItemList              `xml:"creators,omitempty" json:"creators,omitempty"`
-	Title                string                        `xml:"title,omitempty" json:"title,omitempty"`
-	IsPublished          string                        `xml:"ispublished,omitempty" json:"ispublished,omitempty"`
-	FullTextStatus       string                        `xml:"full_text_status,omitempty" json:"full_text_status,omitempty"`
-	Keywords             string                        `xml:"keywords,omitempty" json:"keywords,omitempty"`
+	XMLName             xml.Name         `json:"-"`
+	ID                  string           `xml:"id,attr,omitempty" json:"id,omitempty"`
+	EPrintID            int              `xml:"eprintid,omitempty" json:"eprint_id,omitempty"`
+	RevNumber           int              `xml:"rev_number,omitempty" json:"rev_number,omitempty"`
+	Documents           *DocumentList    `xml:"documents>document,omitempty" json:"documents,omitempty"`
+	EPrintStatus        string           `xml:"eprint_status,omitempty" json:"eprint_status,omitempty"`
+	UserID              int              `xml:"userid,omitempty" json:"userid,omitempty"`
+	Dir                 string           `xml:"dir,omitempty" json:"dir,omitempty"`
+	Datestamp           string           `xml:"datestamp,omitempty" json:"datestamp,omitempty"`
+	DatestampYear       int              `xml:"-" json:"-"`
+	DatestampMonth      int              `xml:"-" json:"-"`
+	DatestampDay        int              `xml:"-" json:"-"`
+	DatestampHour       int              `xml:"-" json:"-"`
+	DatestampMinute     int              `xml:"-" json:"-"`
+	DatestampSecond     int              `xml:"-" json:"-"`
+	LastModified        string           `xml:"lastmod,omitempty" json:"lastmod,omitempty"`
+	LastModifiedYear    int              `xml:"-" json:"-"`
+	LastModifiedMonth   int              `xml:"-" json:"-"`
+	LastModifiedDay     int              `xml:"-" json:"-"`
+	LastModifiedHour    int              `xml:"-" json:"-"`
+	LastModifiedMinute  int              `xml:"-" json:"-"`
+	LastModifiedSecond  int              `xml:"-" json:"-"`
+	StatusChanged       string           `xml:"status_changed,omitempty" json:"status_changed,omitempty"`
+	StatusChangedYear   int              `xml:"-" json:"-"`
+	StatusChangedMonth  int              `xml:"-" json:"-"`
+	StatusChangedDay    int              `xml:"-" json:"-"`
+	StatusChangedHour   int              `xml:"-" json:"-"`
+	StatusChangedMinute int              `xml:"-" json:"-"`
+	StatusChangedSecond int              `xml:"-" json:"-"`
+	Type                string           `xml:"type,omitempty" json:"type,omitempty"`
+	MetadataVisibility  string           `xml:"metadata_visibility,omitempty" json:"metadata_visibility,omitempty"`
+	Creators            *CreatorItemList `xml:"creators,omitempty" json:"creators,omitempty"`
+	Title               string           `xml:"title,omitempty" json:"title,omitempty"`
+	IsPublished         string           `xml:"ispublished,omitempty" json:"ispublished,omitempty"`
+	FullTextStatus      string           `xml:"full_text_status,omitempty" json:"full_text_status,omitempty"`
+	Keywords            string           `xml:"keywords,omitempty" json:"keywords,omitempty"`
 	//Keyword              *KeywordItemList              `xml:"-" json:""`
 	Note                 string                        `xml:"note,omitempty" json:"note,omitempty"`
 	Abstract             string                        `xml:"abstract,omitempty" json:"abstract,omitempty"`
@@ -135,46 +135,46 @@ type EPrint struct {
 	Commentary   int              `xml:"commentary,omitempty" json:"commentary,omitempty"`
 	ContactEMail string           `xml:"contact_email,omitempty" json:"contect_email,omitempty"`
 	// NOTE: EPrints XML doesn't include fileinfo
-	FileInfo           string                   `xml:"-" json:"-"`
-	Latitude           float64                  `xml:"latitude,omitempty" json:"latitude,omitempty"`
-	Longitude          float64                  `xml:"longitude,omitempty" json:"longitude,omitempty"`
-	ItemIssues         *ItemIssueItemList       `xml:"item_issues,omitempty" json:"item_issues,omitempty"`
-	ItemIssuesCount    int                      `xml:"item_issues_count" json:"item_issues_count,omitempty"`
-	CorpCreators       *CorpCreatorItemList     `xml:"corp_creators,omitempty" json:"corp_creators,omitempty"`
-	CorpContributors   *CorpContributorItemList `xml:"corp_contributors,omitempty" json:"corp_contributors,omitempty"`
-	Department         string                   `xml:"department,omitempty" json:"department,omitempty"`
-	OutputMedia        string                   `xml:"output_media,omitempty" json:"output_media,omitempty"`
-	Exhibitors         *ExhibitorItemList       `xml:"exhibitors,omitempty" json:"exhibitors,omitempty"`
-	NumPieces          int                      `xml:"num_pieces,omitempty" json:"num_pieces,omitempty"`
-	CompositionType    string                   `xml:"composition_type,omitempty" json:"composition_type,omitempty"`
-	Producers          *ProducerItemList        `xml:"producers,omitempty" json:"producers,omitempty"`
-	Conductors         *ConductorItemList       `xml:"conductors,omitempty" json:"conductors,omitempty"`
-	Lyricists          *LyricistItemList        `xml:"lyricists,omitempty" json:"lyricists,omitempty"`
-	Accompaniment      *AccompanimentItemList   `xml:"accompaniment,omitempty" json:"accompaniment,omitempty"`
-	DataType           string                   `xml:"data_type,omitempty" json:"data_type,omitempty"`
-	PedagogicType      string                   `xml:"pedagogic_type,omitempty" json:"pedagogic_type,omitempty"`
-	CompletionTime     string                   `xml:"completion_time,omitempty" json:"completion_time,omitempty"`
-	TaskPurpose        string                   `xml:"task_purpose,omitempty" json:"task_purpose,omitempty"`
-	SkillAreas         *SkillAreaItemList       `xml:"skill_areas,omitempty" json:"skill_areas,omitempty"`
-	CopyrightHolders   *CopyrightHolderItemList `xml:"copyright_holders,omitempty" json:"copyright_holders,omitempty"`
-	LearningLevelText  string                   `xml:"learning_level,omitempty" json:"learning_level,omitempty"`
-	LearningLevel      *LearningLevelItemList   `xml:"-" json:"-"`
-	DOI                string                   `xml:"doi,omitempty" json:"doi,omitempty"`
-	PMCID              string                   `xml:"pmc_id,omitempty" json:"pmcid,omitempty"`
-	PMID               string                   `xml:"pmid,omitempty" json:"pmid,omitempty"`
-	ParentURL          string                   `xml:"parent_url,omitempty" json:"parent_url,omitempty"`
-	Reference          *ReferenceItemList       `xml:"reference,omitempty" json:"reference,omitempty"`
-	ConfCreators       *ConfCreatorItemList     `xml:"conf_creators,omitempty" json:"conf_creators,omitempty"`
-	AltTitle           *AltTitleItemList        `xml:"alt_title,omitempty" json:"alt_title,omitempty"`
-	TOC                string                   `xml:"toc,omitempty" json:"toc,omitempty"`
-	Interviewer        string                   `xml:"interviewer,omitempty" json:"interviewer,omitempty"`
-	InterviewDate      string                   `xml:"interviewdate,omitempty" json:"interviewdate,omitempty"`
-	GScholar           *GScholarItemList        `xml:"gscholar,omitempty" json:"gscholar,omitempty"`
-	NonSubjKeywords    string                   `xml:"nonsubj_keywords,omitempty" json:"nonsubj_keywords,omitempty"`
-	Season             string                   `xml:"season,omitempty" json:"season,omitempty"`
-	ClassificationCode string                   `xml:"classification_code,omitempty" json:"classification_code,omitempty"`
-	Shelves            *ShelfItemList           `xml:"shelves,omitempty" json:"shelves,omitempty"`
-	Relation           *RelationItemList        `xml:"relation,omitempty" json:"relation,omitempty"`
+	FileInfo          string                   `xml:"-" json:"-"`
+	Latitude          float64                  `xml:"latitude,omitempty" json:"latitude,omitempty"`
+	Longitude         float64                  `xml:"longitude,omitempty" json:"longitude,omitempty"`
+	ItemIssues        *ItemIssueItemList       `xml:"item_issues,omitempty" json:"item_issues,omitempty"`
+	ItemIssuesCount   int                      `xml:"item_issues_count" json:"item_issues_count,omitempty"`
+	CorpCreators      *CorpCreatorItemList     `xml:"corp_creators,omitempty" json:"corp_creators,omitempty"`
+	CorpContributors  *CorpContributorItemList `xml:"corp_contributors,omitempty" json:"corp_contributors,omitempty"`
+	Department        string                   `xml:"department,omitempty" json:"department,omitempty"`
+	OutputMedia       string                   `xml:"output_media,omitempty" json:"output_media,omitempty"`
+	Exhibitors        *ExhibitorItemList       `xml:"exhibitors,omitempty" json:"exhibitors,omitempty"`
+	NumPieces         int                      `xml:"num_pieces,omitempty" json:"num_pieces,omitempty"`
+	CompositionType   string                   `xml:"composition_type,omitempty" json:"composition_type,omitempty"`
+	Producers         *ProducerItemList        `xml:"producers,omitempty" json:"producers,omitempty"`
+	Conductors        *ConductorItemList       `xml:"conductors,omitempty" json:"conductors,omitempty"`
+	Lyricists         *LyricistItemList        `xml:"lyricists,omitempty" json:"lyricists,omitempty"`
+	Accompaniment     *AccompanimentItemList   `xml:"accompaniment,omitempty" json:"accompaniment,omitempty"`
+	DataType          string                   `xml:"data_type,omitempty" json:"data_type,omitempty"`
+	PedagogicType     string                   `xml:"pedagogic_type,omitempty" json:"pedagogic_type,omitempty"`
+	CompletionTime    string                   `xml:"completion_time,omitempty" json:"completion_time,omitempty"`
+	TaskPurpose       string                   `xml:"task_purpose,omitempty" json:"task_purpose,omitempty"`
+	SkillAreas        *SkillAreaItemList       `xml:"skill_areas,omitempty" json:"skill_areas,omitempty"`
+	CopyrightHolders  *CopyrightHolderItemList `xml:"copyright_holders,omitempty" json:"copyright_holders,omitempty"`
+	LearningLevelText string                   `xml:"learning_level,omitempty" json:"learning_level,omitempty"`
+	//LearningLevel      *LearningLevelItemList   `xml:"-" json:"-"`
+	DOI           string               `xml:"doi,omitempty" json:"doi,omitempty"`
+	PMCID         string               `xml:"pmc_id,omitempty" json:"pmcid,omitempty"`
+	PMID          string               `xml:"pmid,omitempty" json:"pmid,omitempty"`
+	ParentURL     string               `xml:"parent_url,omitempty" json:"parent_url,omitempty"`
+	Reference     *ReferenceItemList   `xml:"reference,omitempty" json:"reference,omitempty"`
+	ConfCreators  *ConfCreatorItemList `xml:"conf_creators,omitempty" json:"conf_creators,omitempty"`
+	AltTitle      *AltTitleItemList    `xml:"alt_title,omitempty" json:"alt_title,omitempty"`
+	TOC           string               `xml:"toc,omitempty" json:"toc,omitempty"`
+	Interviewer   string               `xml:"interviewer,omitempty" json:"interviewer,omitempty"`
+	InterviewDate string               `xml:"interviewdate,omitempty" json:"interviewdate,omitempty"`
+	//GScholar           *GScholarItemList    `xml:"gscholar,omitempty" json:"gscholar,omitempty"`
+	NonSubjKeywords    string            `xml:"nonsubj_keywords,omitempty" json:"nonsubj_keywords,omitempty"`
+	Season             string            `xml:"season,omitempty" json:"season,omitempty"`
+	ClassificationCode string            `xml:"classification_code,omitempty" json:"classification_code,omitempty"`
+	Shelves            *ShelfItemList    `xml:"shelves,omitempty" json:"shelves,omitempty"`
+	Relation           *RelationItemList `xml:"relation,omitempty" json:"relation,omitempty"`
 
 	// NOTE: Sword deposit fields
 	SwordDepository string `xml:"sword_depository,omitempty" json:"sword_depository,omitempty"`
@@ -183,12 +183,12 @@ type EPrint struct {
 	ImportID        int    `xml:"importid,omitempty" json:"import_id,omitempty"`
 
 	// Patent related fields
-	PatentApplicant          string                        `xml:"patent_applicant,omitempty" json:"patent_applicant,omitempty"`
-	PatentNumber             string                        `xml:"patent_number,omitempty" json:"patent_number,omitempty"`
-	PatentAssignee           *PatentAssigneeItemList       `xml:"patent_assignee,omitempty" json:"patent_assignee,omitempty"`
-	PatentClassificationText string                        `xml:"-" json:"-"`
-	PatentClassification     *PatentClassificationItemList `xml:"patent_classification,omitempty" json:"patent_classification,omitempty"`
-	RelatedPatents           *RelatedPatentItemList        `xml:"related_patents,omitempty" json:"related_patents,omitempty"`
+	PatentApplicant          string                  `xml:"patent_applicant,omitempty" json:"patent_applicant,omitempty"`
+	PatentNumber             string                  `xml:"patent_number,omitempty" json:"patent_number,omitempty"`
+	PatentAssignee           *PatentAssigneeItemList `xml:"patent_assignee,omitempty" json:"patent_assignee,omitempty"`
+	PatentClassificationText string                  `xml:"-" json:"-"`
+	//PatentClassification     *PatentClassificationItemList `xml:"patent_classification,omitempty" json:"patent_classification,omitempty"`
+	RelatedPatents *RelatedPatentItemList `xml:"related_patents,omitempty" json:"related_patents,omitempty"`
 
 	// Thesis oriented fields
 	Divisions                *DivisionItemList        `xml:"divisions,omitemmpty" json:"divisions,omitempty"`
