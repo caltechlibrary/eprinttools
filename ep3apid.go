@@ -993,7 +993,7 @@ func (api *EP3API) InitExtendedAPI(settings string) error {
 		return fmt.Errorf(`Missing "repositories" configuration`)
 	}
 	if err := OpenConnections(api.Config); err != nil {
-		return fmt.Errorf(`Failed to open database connecitons`)
+		return fmt.Errorf(`Failed to open database connections, %s`, err)
 	}
 	if api.Config.Routes == nil {
 		api.Config.Routes = map[string]map[string]func(http.ResponseWriter, *http.Request, string, []string) (int, error){}

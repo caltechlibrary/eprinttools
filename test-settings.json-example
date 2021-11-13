@@ -1,0 +1,9 @@
+{
+    "repositories": {
+        "lemurprints": {
+            "dsn": "USERNAME:PASSWORD@/DATABASE",
+            "base_url": "http://library.example.edu",
+            "write": true
+        }
+    }
+}
