@@ -3,8 +3,11 @@ package eprinttools
 import (
 	"database/sql"
 	"encoding/json"
+	"encoding/xml"
 	"fmt"
+	"io/ioutil"
 	"os"
+	"path"
 	"testing"
 	"time"
 )
@@ -21,7 +24,7 @@ func objToString(obj interface{}) string {
 func assertOpenConnection(t *testing.T, config *Config, repoID string) {
 	ds, ok := config.Repositories[repoID]
 	if !ok {
-		t.Skipf("can't fund %q", repoID)
+		t.Skipf("can't find %q", repoID)
 		t.SkipNow()
 	}
 	if config.Connections == nil {
@@ -56,6 +59,18 @@ func assertCloseConnection(t *testing.T, config *Config, repoID string) {
 	if err := CloseConnections(config); err != nil {
 		t.Errorf("Close error, %s", err)
 		t.FailNow()
+	}
+}
+
+func clearTable(t *testing.T, config *Config, repoID string, tableName string) {
+	db, ok := config.Connections[repoID]
+	if !ok {
+		t.Skipf("can't find connection for %q", repoID)
+		t.SkipNow()
+	}
+	stmt := fmt.Sprintf(`DELETE FROM %s`, tableName)
+	if _, err := db.Exec(stmt); err != nil {
+		t.Errorf("Can't create table %q in %q, %s, ", tableName, repoID, err)
 	}
 }
 
@@ -106,7 +121,7 @@ func assertFloat64Same(t *testing.T, label string, expected float64, got float64
 
 func assertStringSame(t *testing.T, label string, expected string, got string) {
 	if expected != got {
-		t.Errorf(`expected %s %s, got %s`, label, expected, got)
+		t.Errorf(`expected %s %q, got %q`, label, expected, got)
 	}
 }
 
@@ -1010,7 +1025,14 @@ generated in TestSQLCreateEPrint() in ep3sql_test.go.`
 	item.Value = `Few, S. (2012). Show me the numbers: Designing tables and graphs to enlighten. Analytics Press.`
 	eprint.ReferenceText.Append(item)
 
-	// FIXME: Add test data for "projects", does not appear to be used in our repositories.
+	tablesAndColumns, err := GetTablesAndColumns(config, repoID)
+	if err != nil {
+		t.Errorf("Can't get tables and columns for %q, %s", repoID, err)
+		t.FailNow()
+	}
+	for tableName := range tablesAndColumns {
+		clearTable(t, config, repoID, tableName)
+	}
 
 	eprint.OtherNumberingSystem = new(OtherNumberingSystemItemList)
 	item = new(Item)
@@ -1166,4 +1188,69 @@ generated in TestSQLCreateEPrint() in ep3sql_test.go.`
 		t.FailNow()
 	}
 	assertEPrintSame(t, eprint, eprintCopy)
+}
+
+func TestImports(t *testing.T) {
+	var err error
+	fName := `test-settings.json`
+	repoID := `lemurprints`
+	config, err := LoadConfig(fName)
+	if err != nil {
+		t.Errorf("Cailed to reload %q, %s", fName, err)
+	}
+	ds, ok := config.Repositories[repoID]
+	if ds == nil || ok == false || ds.Write == false {
+		t.Skipf(`%s not available for testing`, repoID)
+		t.SkipNow()
+	}
+	baseURL := ds.BaseURL
+	assertOpenConnection(t, config, repoID)
+	defer assertCloseConnection(t, config, repoID)
+
+	tablesAndColumns, err := GetTablesAndColumns(config, repoID)
+	if err != nil {
+		t.Errorf("Can't get tables and columns for %q, %s", repoID, err)
+		t.FailNow()
+	}
+	for tableName := range tablesAndColumns {
+		clearTable(t, config, repoID, tableName)
+	}
+
+	// FIXME: Cleanup any data associated with the test repository
+
+	for _, fName := range []string{"lemurprints-0.xml"} {
+		fName := path.Join("srctest", fName)
+		src, err := ioutil.ReadFile(fName)
+		if err != nil {
+			t.Errorf("Can't read %q, %s", fName, err)
+			t.FailNow()
+		}
+		eprints := new(EPrints)
+		if err := xml.Unmarshal(src, &eprints); err != nil {
+			t.Errorf("Can't unmarshal XML for %q, %s", fName, err)
+			t.FailNow()
+		}
+		ids, err := ImportEPrints(config, repoID, ds, eprints)
+		if err != nil {
+			t.Errorf("Failed to create eprint for %q, %s", fName, err)
+		}
+		if len(ids) == 0 {
+			t.Errorf("Failed to generate new eprint id for %q", fName)
+		}
+		for i, id := range ids {
+			eprint := eprints.IndexOf(i)
+			fmt.Printf(`DEBUG %d
+    Datestamp: %s
+ LastModified: %s
+StatusChanged: %s
+         Date: %s
+`, id, eprint.Datestamp, eprint.LastModified, eprint.StatusChanged, eprint.Date)
+			eprintCopy, err := SQLReadEPrint(config, repoID, baseURL, id)
+			if err != nil {
+				t.Errorf("%s, %s", repoID, err)
+				t.FailNow()
+			}
+			assertEPrintSame(t, eprint, eprintCopy)
+		}
+	}
 }

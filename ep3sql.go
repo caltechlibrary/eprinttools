@@ -1427,7 +1427,7 @@ func eprintIDToSimpleItemList(db *sql.DB, tables map[string][]string, repoID str
 					item := itemList.IndexOf(pos)
 					item.Pos = pos
 					if value != "" {
-						item.Value = value
+						item.Value = strings.TrimSpace(value)
 					}
 				}
 				i++
@@ -1593,7 +1593,7 @@ FROM %s WHERE eprintid = ? ORDER BY eprintid, pos`, columnName, columnName, tabl
 					item := itemList.IndexOf(pos)
 					item.Pos = pos
 					item.Name = new(Name)
-					item.Name.Value = value
+					item.Name.Value = strings.TrimSpace(value)
 				}
 				i++
 			}
@@ -1630,7 +1630,7 @@ FROM %s WHERE eprintid = ? ORDER BY eprintid, pos`, columnName, columnName, tabl
 												item.URI = value
 											case "conf_creators":
 												item.Name = new(Name)
-												item.Name.Value = value
+												item.Name.Value = strings.TrimSpace(value)
 											}
 											break
 										}
@@ -1673,7 +1673,7 @@ FROM %s WHERE eprintid = ? ORDER BY eprintid, pos`, columnName, columnName, tabl
 					item := itemList.IndexOf(pos)
 					item.Pos = pos
 					item.Name = new(Name)
-					item.Name.Value = value
+					item.Name.Value = strings.TrimSpace(value)
 				}
 			}
 			rows.Close()
@@ -1711,7 +1711,7 @@ FROM %s WHERE eprintid = ? ORDER BY eprintid, pos`, columnName, columnName, tabl
 							item.URI = value
 						case "corp_creators":
 							item.Name = new(Name)
-							item.Name.Value = value
+							item.Name.Value = strings.TrimSpace(value)
 						}
 						break
 					}
@@ -1748,7 +1748,7 @@ FROM %s WHERE eprintid = ? ORDER BY eprintid, pos`, columnName, columnName, tabl
 					item := itemList.IndexOf(pos)
 					item.Pos = pos
 					item.Name = new(Name)
-					item.Name.Value = value
+					item.Name.Value = strings.TrimSpace(value)
 				}
 			}
 			rows.Close()
@@ -1786,7 +1786,7 @@ FROM %s WHERE eprintid = ? ORDER BY eprintid, pos`, columnName, columnName, tabl
 							item.URI = value
 						case "corp_contributors":
 							item.Name = new(Name)
-							item.Name.Value = value
+							item.Name.Value = strings.TrimSpace(value)
 						}
 						break
 					}
@@ -1956,7 +1956,7 @@ SELECT %s.pos AS pos, IFNULL(other_numbering_system_name, '') AS name, IFNULL(ot
 					item.ID = id
 					if name != "" {
 						item.Name = new(Name)
-						item.Name.Value = name
+						item.Name.Value = strings.TrimSpace(name)
 					}
 				}
 				i++
