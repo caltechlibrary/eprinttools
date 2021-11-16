@@ -529,6 +529,58 @@ CREATE TABLE `eprint_corp_creators_uri` (
 );
 
 --
+-- Table structure for table `eprint_corp_contributors_id`
+--
+
+DROP TABLE IF EXISTS `eprint_corp_contributors_id`;
+CREATE TABLE `eprint_corp_contributors_id` (
+  `eprintid` int(11) NOT NULL DEFAULT '0',
+  `pos` int(11) NOT NULL DEFAULT '0',
+  `corp_contributors_id` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
+  PRIMARY KEY (`eprintid`,`pos`),
+  KEY `eprint_corp_contributors_id_pos` (`pos`)
+);
+
+--
+-- Table structure for table `eprint_corp_contributors_ror`
+--
+
+DROP TABLE IF EXISTS `eprint_corp_contributors_ror`;
+CREATE TABLE `eprint_corp_contributors_ror` (
+  `eprintid` int(11) NOT NULL DEFAULT '0',
+  `pos` int(11) NOT NULL DEFAULT '0',
+  `corp_contributors_ror` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
+  PRIMARY KEY (`eprintid`,`pos`),
+  KEY `eprint_corp_contributors_ror_pos` (`pos`)
+);
+
+--
+-- Table structure for table `eprint_corp_contributors_name`
+--
+
+DROP TABLE IF EXISTS `eprint_corp_contributors_name`;
+CREATE TABLE `eprint_corp_contributors_name` (
+  `eprintid` int(11) NOT NULL DEFAULT '0',
+  `pos` int(11) NOT NULL DEFAULT '0',
+  `corp_contributors_name` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
+  PRIMARY KEY (`eprintid`,`pos`),
+  KEY `eprint_corp_contributors_name_pos` (`pos`)
+);
+
+--
+-- Table structure for table `eprint_corp_contributors_uri`
+--
+
+DROP TABLE IF EXISTS `eprint_corp_contributors_uri`;
+CREATE TABLE `eprint_corp_contributors_uri` (
+  `eprintid` int(11) NOT NULL DEFAULT '0',
+  `pos` int(11) NOT NULL DEFAULT '0',
+  `corp_contributors_uri` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
+  PRIMARY KEY (`eprintid`,`pos`),
+  KEY `eprint_corp_contributors_uri_pos` (`pos`)
+);
+
+--
 -- Table structure for table `eprint_creators_id`
 --
 

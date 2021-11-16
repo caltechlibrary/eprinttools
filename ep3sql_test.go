@@ -60,6 +60,15 @@ func assertCloseConnection(t *testing.T, config *Config, repoID string) {
 }
 
 func assertNameSame(t *testing.T, expected *Name, name *Name) {
+	if expected == nil && name != nil {
+		t.Errorf(`expected nil name, got %+v`, name)
+		t.FailNow()
+	}
+	if expected != nil && name == nil {
+		t.Errorf(`expected non-nil name for %+v`, expected)
+		t.FailNow()
+
+	}
 	if expected.Family != name.Family {
 		t.Errorf(`expected name family %s, got %s`, expected.Family, name.Family)
 	}
@@ -89,6 +98,12 @@ func assertIntSame(t *testing.T, label string, expected int, got int) {
 	}
 }
 
+func assertFloat64Same(t *testing.T, label string, expected float64, got float64) {
+	if expected != got {
+		t.Errorf(`expected %s %f, got %f`, label, expected, got)
+	}
+}
+
 func assertStringSame(t *testing.T, label string, expected string, got string) {
 	if expected != got {
 		t.Errorf(`expected %s %s, got %s`, label, expected, got)
@@ -96,7 +111,17 @@ func assertStringSame(t *testing.T, label string, expected string, got string) {
 }
 
 func assertItemSame(t *testing.T, label string, eprintid int, pos int, expected *Item, item *Item) {
-	assertNameSame(t, expected.Name, item.Name)
+	if expected.Name != nil {
+		assertNameSame(t, expected.Name, item.Name)
+	}
+	if expected.Pos != item.Pos {
+		src1 := objToString(expected)
+		src2 := objToString(item)
+		t.Logf(`
+expected (pos: %d) -> %s
+item (pos: %d) -> %s
+`, expected.Pos, src1, item.Pos, src2)
+	}
 	assertIntSame(t, fmt.Sprintf(`(%s, %d, %d) item.Pos`, label, eprintid, pos), expected.Pos, item.Pos)
 	assertStringSame(t, fmt.Sprintf(`(%s, %d, %d) item.ID`, label, eprintid, pos), expected.ID, item.ID)
 	assertStringSame(t, fmt.Sprintf(`(%s, %d, %d) item.EMail`, label, eprintid, pos), expected.EMail, item.EMail)
@@ -128,7 +153,7 @@ func assertEPrintSame(t *testing.T, expected *EPrint, eprint *EPrint) {
 		t.FailNow()
 	}
 	assertIntSame(t, "EPrintID", expected.EPrintID, eprint.EPrintID)
-	assertStringSame(t, "Title", expected.Title, eprint.Title)
+	assertIntSame(t, "RevNumber", expected.RevNumber, eprint.RevNumber)
 	assertStringSame(t, "EPrintStatus", expected.EPrintStatus, eprint.EPrintStatus)
 	assertIntSame(t, "UserID", expected.UserID, eprint.UserID)
 	assertStringSame(t, "Datestamp", expected.Datestamp, eprint.Datestamp)
@@ -138,7 +163,132 @@ func assertEPrintSame(t *testing.T, expected *EPrint, eprint *EPrint) {
 	assertIntSame(t, "DatestampHour", expected.DatestampHour, eprint.DatestampHour)
 	assertIntSame(t, "DatestampMinute", expected.DatestampMinute, eprint.DatestampMinute)
 	assertIntSame(t, "DatestmapSecond", expected.DatestampSecond, eprint.DatestampSecond)
+	assertStringSame(t, "LastModified", expected.LastModified, eprint.LastModified)
+	assertIntSame(t, "LastModifiedYear", expected.LastModifiedYear, eprint.LastModifiedYear)
+	assertIntSame(t, "LastModifiedMonth", expected.LastModifiedMonth, eprint.LastModifiedMonth)
+	assertIntSame(t, "LastModifiedDay", expected.LastModifiedDay, eprint.LastModifiedDay)
+	assertIntSame(t, "LastModifiedHour", expected.LastModifiedHour, eprint.LastModifiedHour)
+	assertIntSame(t, "LastModifiedMinute", expected.LastModifiedMinute, eprint.LastModifiedMinute)
+	assertIntSame(t, "LastModifiedSecond", expected.LastModifiedSecond, eprint.LastModifiedSecond)
+
+	assertStringSame(t, "StatusChanged", expected.StatusChanged, eprint.StatusChanged)
+	assertIntSame(t, "StatusChangedYear", expected.StatusChangedYear, eprint.StatusChangedYear)
+	assertIntSame(t, "StatusChangedMonth", expected.StatusChangedMonth, eprint.StatusChangedMonth)
+	assertIntSame(t, "StatusChangedDay", expected.StatusChangedDay, eprint.StatusChangedDay)
+	assertIntSame(t, "StatusChangedHour", expected.StatusChangedHour, eprint.StatusChangedHour)
+	assertIntSame(t, "StatusChangedMinute", expected.StatusChangedMinute, eprint.StatusChangedMinute)
+	assertIntSame(t, "StatusChangedSecond", expected.StatusChangedSecond, eprint.StatusChangedSecond)
+
+	assertStringSame(t, "MetadataVisilibity", expected.MetadataVisibility, eprint.MetadataVisibility)
+
+	assertStringSame(t, "Title", expected.Title, eprint.Title)
+	assertStringSame(t, "IsPublished", expected.IsPublished, eprint.IsPublished)
+	assertStringSame(t, "FullTextStatus", expected.FullTextStatus, eprint.FullTextStatus)
+	assertStringSame(t, "Keywords", expected.Keywords, eprint.Keywords)
+	assertStringSame(t, "Note", expected.Note, eprint.Note)
 	assertStringSame(t, "Abstract", expected.Abstract, eprint.Abstract)
+	assertStringSame(t, "Date", expected.Date, eprint.Date)
+	assertIntSame(t, "DateYear", expected.DateYear, eprint.DateYear)
+	assertIntSame(t, "DateMonth", int(expected.DateMonth), int(eprint.DateMonth))
+	assertIntSame(t, "DateDay", expected.DateDay, eprint.DateDay)
+	assertStringSame(t, "DateType", expected.DateType, eprint.DateType)
+	assertStringSame(t, "Series", expected.Series, eprint.Series)
+	assertStringSame(t, "Publiction", expected.Publication, eprint.Publication)
+	assertStringSame(t, "PlaceOfPub", expected.PlaceOfPub, eprint.PlaceOfPub)
+	assertStringSame(t, "Edition", expected.Edition, eprint.Edition)
+	assertStringSame(t, "PageRange", expected.PageRange, eprint.PageRange)
+	assertIntSame(t, "Pages", expected.Pages, eprint.Pages)
+	assertStringSame(t, "EventType", expected.EventType, eprint.EventType)
+	assertStringSame(t, "EventTitle", expected.EventTitle, eprint.EventTitle)
+	assertStringSame(t, "EventLocation", expected.EventLocation, eprint.EventLocation)
+	assertStringSame(t, "EventDates", expected.EventDates, eprint.EventDates)
+	assertStringSame(t, "IDNumber", expected.IDNumber, eprint.IDNumber)
+	assertStringSame(t, "Refereed", expected.Refereed, eprint.Refereed)
+	assertStringSame(t, "ISSN", expected.ISSN, eprint.ISSN)
+	assertStringSame(t, "ISBN", expected.ISBN, eprint.ISBN)
+	assertStringSame(t, "BookTitle", expected.BookTitle, eprint.BookTitle)
+	assertStringSame(t, "OffialURL", expected.OfficialURL, eprint.OfficialURL)
+	assertStringSame(t, "AltURL", expected.AltURL, eprint.AltURL)
+	assertStringSame(t, "Rights", expected.Rights, eprint.Rights)
+	assertStringSame(t, "Collection", expected.Collection, eprint.Collection)
+	assertStringSame(t, "Reviwer", expected.Reviewer, eprint.Reviewer)
+	assertStringSame(t, "OfficialCitation", expected.OfficialCitation, eprint.OfficialCitation)
+	assertStringSame(t, "ErrataText", expected.ErrataText, eprint.ErrataText)
+	assertStringSame(t, "MonographType", expected.MonographType, eprint.MonographType)
+	assertStringSame(t, "Suggestions", expected.Suggestions, eprint.Suggestions)
+	assertStringSame(t, "CoverageDates", expected.CoverageDates, eprint.CoverageDates)
+	assertStringSame(t, "PresType", expected.PresType, eprint.PresType)
+	assertIntSame(t, "Succeeds", expected.Succeeds, eprint.Succeeds)
+	assertIntSame(t, "Commentary", expected.Commentary, eprint.Commentary)
+	assertStringSame(t, "ContactEMail", expected.ContactEMail, eprint.ContactEMail)
+	assertStringSame(t, "FileInfo", expected.FileInfo, eprint.FileInfo)
+	assertFloat64Same(t, "Latitude", expected.Latitude, eprint.Latitude)
+	assertFloat64Same(t, "Longitude", expected.Longitude, eprint.Longitude)
+	assertIntSame(t, "ItemIssuesCount", expected.ItemIssuesCount, eprint.ItemIssuesCount)
+	assertStringSame(t, "Department", expected.Department, eprint.Department)
+	assertStringSame(t, "OutputMedia", expected.OutputMedia, eprint.OutputMedia)
+	assertIntSame(t, "NumPieces", expected.NumPieces, eprint.NumPieces)
+	assertStringSame(t, "CompositionType", expected.CompositionType, eprint.CompositionType)
+	assertStringSame(t, "DataType", expected.DataType, eprint.DataType)
+	assertStringSame(t, "PedagogicType", expected.PedagogicType, eprint.PedagogicType)
+	assertStringSame(t, "CompletionTime", expected.CompletionTime, eprint.CompletionTime)
+	assertStringSame(t, "TaskPurpose", expected.TaskPurpose, eprint.TaskPurpose)
+	assertStringSame(t, "LearningLevelText", expected.LearningLevelText, eprint.LearningLevelText)
+	assertStringSame(t, "DOI", expected.DOI, eprint.DOI)
+	assertStringSame(t, "PMCID", expected.PMCID, eprint.PMCID)
+	assertStringSame(t, "PMID", expected.PMID, eprint.PMID)
+	assertStringSame(t, "ParentURL", expected.ParentURL, eprint.ParentURL)
+	assertStringSame(t, "TOC", expected.TOC, eprint.TOC)
+	assertStringSame(t, "Interviewer", expected.Interviewer, eprint.Interviewer)
+	assertStringSame(t, "InterviewDate", expected.InterviewDate, eprint.InterviewDate)
+	assertStringSame(t, "NonSubjKeywords", expected.NonSubjKeywords, eprint.NonSubjKeywords)
+	assertStringSame(t, "Season", expected.Season, eprint.Season)
+	assertStringSame(t, "ClassificationCode", expected.ClassificationCode, eprint.ClassificationCode)
+	assertStringSame(t, "SwordDepository", expected.SwordDepository, eprint.SwordDepository)
+	assertIntSame(t, "SwordDepositor", expected.SwordDepositor, eprint.SwordDepositor)
+	assertStringSame(t, "SwordSlug", expected.SwordSlug, eprint.SwordSlug)
+	assertIntSame(t, "ImportID", expected.ImportID, eprint.ImportID)
+	assertStringSame(t, "PatentApplicant", expected.PatentApplicant, eprint.PatentApplicant)
+	assertStringSame(t, "PatentNumber", expected.PatentNumber, eprint.PatentNumber)
+	assertStringSame(t, "PatentClassificationText", expected.PatentClassificationText, eprint.PatentClassificationText)
+	assertStringSame(t, "Institution", expected.Institution, eprint.Institution)
+	assertStringSame(t, "ThesisType", expected.ThesisType, eprint.ThesisType)
+	assertStringSame(t, "ThesisDegree", expected.ThesisDegree, eprint.ThesisDegree)
+	assertStringSame(t, "ThesisDegreeGrantor", expected.ThesisDegreeGrantor, eprint.ThesisDegreeGrantor)
+	assertStringSame(t, "ThesisDegreeDate", expected.ThesisDegreeDate, eprint.ThesisDegreeDate)
+	assertIntSame(t, "ThesisDegreeDateYear", expected.ThesisDegreeDateYear, eprint.ThesisDegreeDateYear)
+	assertIntSame(t, "ThesisDegreeDateMonth", int(expected.ThesisDegreeDateMonth), int(eprint.ThesisDegreeDateMonth))
+	assertIntSame(t, "ThesisDegreeDateDay", expected.ThesisDegreeDateDay, eprint.ThesisDegreeDateDay)
+	assertStringSame(t, "ThesisSubmittedDate", expected.ThesisSubmittedDate, eprint.ThesisSubmittedDate)
+	assertIntSame(t, "ThesisSubmittedDateYear", expected.ThesisSubmittedDateYear, eprint.ThesisSubmittedDateYear)
+	assertIntSame(t, "ThesisSubmittedDateMonth", int(expected.ThesisSubmittedDateMonth), int(eprint.ThesisSubmittedDateMonth))
+	assertIntSame(t, "ThesisSubmittedDateDay", expected.ThesisSubmittedDateDay, eprint.ThesisSubmittedDateDay)
+	assertStringSame(t, "ThesisDefenseDate", expected.ThesisDefenseDate, eprint.ThesisDefenseDate)
+	assertIntSame(t, "ThesisDefenseDateYear", expected.ThesisDefenseDateYear, eprint.ThesisDefenseDateYear)
+	assertIntSame(t, "ThesisDefenseDateMonth", int(expected.ThesisDefenseDateMonth), int(eprint.ThesisDefenseDateMonth))
+	assertIntSame(t, "ThesisDefenseDateDay", expected.ThesisDefenseDateDay, eprint.ThesisDefenseDateDay)
+	assertStringSame(t, "ThesisApprovedDate", expected.ThesisApprovedDate, eprint.ThesisApprovedDate)
+	assertIntSame(t, "ThesisApprovedDateYear", expected.ThesisApprovedDateYear, eprint.ThesisApprovedDateYear)
+	assertIntSame(t, "ThesisApprovedDateMonth", int(expected.ThesisApprovedDateMonth), int(eprint.ThesisApprovedDateMonth))
+	assertIntSame(t, "ThesisApprovedDateDay", expected.ThesisApprovedDateDay, eprint.ThesisApprovedDateDay)
+	assertStringSame(t, "ThesisPublicDate", expected.ThesisPublicDate, eprint.ThesisPublicDate)
+	assertIntSame(t, "ThesisPublicDateYear", expected.ThesisPublicDateYear, eprint.ThesisPublicDateYear)
+	assertIntSame(t, "ThesisPublicDateMonth", int(expected.ThesisPublicDateMonth), int(eprint.ThesisPublicDateMonth))
+	assertIntSame(t, "ThesisPublicDateDay", expected.ThesisPublicDateDay, eprint.ThesisPublicDateDay)
+	assertStringSame(t, "HideThesisAuthorEMail", expected.HideThesisAuthorEMail, eprint.HideThesisAuthorEMail)
+	assertStringSame(t, "GradOfficeApprovalDate", expected.GradOfficeApprovalDate, eprint.GradOfficeApprovalDate)
+	assertIntSame(t, "GradOfficeApprovalDateYear", expected.GradOfficeApprovalDateYear, eprint.GradOfficeApprovalDateYear)
+	assertIntSame(t, "GradOfficeApprovalDateMonth", int(expected.GradOfficeApprovalDateMonth), int(eprint.GradOfficeApprovalDateMonth))
+	assertIntSame(t, "GradOfficeApprovalDateDay", expected.GradOfficeApprovalDateDay, eprint.GradOfficeApprovalDateDay)
+	assertStringSame(t, "ThesisAwards", expected.ThesisAwards, eprint.ThesisAwards)
+	assertStringSame(t, "ReviewStatus", expected.ReviewStatus, eprint.ReviewStatus)
+	assertStringSame(t, "CopyrightStatement", expected.CopyrightStatement, eprint.CopyrightStatement)
+	assertStringSame(t, "Source", expected.Source, eprint.Source)
+	assertIntSame(t, "ReplacedBy", expected.ReplacedBy, eprint.ReplacedBy)
+	assertIntSame(t, "EditLockUser", expected.EditLockUser, eprint.EditLockUser)
+	assertIntSame(t, "EditLockSince", expected.EditLockSince, eprint.EditLockSince)
+	assertIntSame(t, "EditLockUntil", expected.EditLockUntil, eprint.EditLockUntil)
+
 	if expected.Creators.Length() != eprint.Creators.Length() {
 		t.Errorf(`expected eprint creators length %d, got %d`, expected.Creators.Length(), eprint.Creators.Length())
 		src1 := objToString(expected.Creators)
@@ -199,29 +349,479 @@ eprint.CorpCreators -> %s
 			assertItemSame(t, "corp creators", expected.EPrintID, i, expectedItem, eprintItem)
 		}
 	}
-	assertStringSame(t, "DateType", expected.DateType, eprint.DateType)
-	assertStringSame(t, "Date", expected.Date, eprint.Date)
-	assertIntSame(t, "DateYear", expected.DateYear, eprint.DateYear)
-	assertIntSame(t, "DateMonth", expected.DateMonth, eprint.DateMonth)
-	assertIntSame(t, "DateDay", expected.DateDay, eprint.DateDay)
-	assertStringSame(t, "LastModified", expected.LastModified, eprint.LastModified)
-	assertIntSame(t, "LastModifiedYear", expected.LastModifiedYear, eprint.LastModifiedYear)
-	assertIntSame(t, "LastModifiedMonth", expected.LastModifiedMonth, eprint.LastModifiedMonth)
-	assertIntSame(t, "LastModifiedDay", expected.LastModifiedDay, eprint.LastModifiedDay)
-	assertIntSame(t, "LastModifiedHour", expected.LastModifiedHour, eprint.LastModifiedHour)
-	assertIntSame(t, "LastModifiedMinute", expected.LastModifiedMinute, eprint.LastModifiedMinute)
-	assertIntSame(t, "LastModifiedSecond", expected.LastModifiedSecond, eprint.LastModifiedSecond)
+	if expected.CorpContributors.Length() != eprint.CorpContributors.Length() {
+		t.Errorf(`expected eprint corp contributors length %d, got %d`, expected.CorpContributors.Length(), eprint.CorpContributors.Length())
+		src1 := objToString(expected.CorpContributors)
+		src2 := objToString(eprint.CorpContributors)
+		t.Logf(`
+expected.CorpContributors -> %s
+eprint.CorpContributors -> %s
+`, src1, src2)
+	} else {
+		for i := 0; i < expected.CorpContributors.Length(); i++ {
+			expectedItem := expected.CorpContributors.IndexOf(i)
+			eprintItem := eprint.CorpContributors.IndexOf(i)
+			assertItemSame(t, "corp contributors", expected.EPrintID, i, expectedItem, eprintItem)
+		}
+	}
+	if expected.Lyricists.Length() != eprint.Lyricists.Length() {
 
-	assertStringSame(t, "StatusChanged", expected.StatusChanged, eprint.StatusChanged)
-	assertIntSame(t, "StatusChangedYear", expected.StatusChangedYear, eprint.StatusChangedYear)
-	assertIntSame(t, "StatusChangedMonth", expected.StatusChangedMonth, eprint.StatusChangedMonth)
-	assertIntSame(t, "StatusChangedDay", expected.StatusChangedDay, eprint.StatusChangedDay)
-	assertIntSame(t, "StatusChangedHour", expected.StatusChangedHour, eprint.StatusChangedHour)
-	assertIntSame(t, "StatusChangedMinute", expected.StatusChangedMinute, eprint.StatusChangedMinute)
-	assertIntSame(t, "StatusChangedSecond", expected.StatusChangedSecond, eprint.StatusChangedSecond)
+		t.Errorf(`expected eprint (eprintid %d) lyricists length %d, got %d`, expected.EPrintID, expected.Lyricists.Length(), eprint.Lyricists.Length())
+		src1 := objToString(expected.Lyricists)
+		src2 := objToString(eprint.Lyricists)
+		t.Logf(`
+expected.Lyricists -> %s
+eprint.Lyricists -> %s
+`, src1, src2)
+	} else {
+		for i := 0; i < expected.Lyricists.Length(); i++ {
+			expectedItem := expected.Lyricists.IndexOf(i)
+			eprintItem := eprint.Lyricists.IndexOf(i)
+			assertItemSame(t, "lyricist", expected.EPrintID, i, expectedItem, eprintItem)
+		}
+	}
+	if expected.Producers.Length() != eprint.Producers.Length() {
 
-	//FIXME: check the rest of the fields.
-	t.Errorf("Additional field tests need for CaltechTHESIS specific field support")
+		t.Errorf(`expected eprint (eprintid %d) producers length %d, got %d`, expected.EPrintID, expected.Producers.Length(), eprint.Producers.Length())
+		src1 := objToString(expected.Producers)
+		src2 := objToString(eprint.Producers)
+		t.Logf(`
+expected.Producers -> %s
+eprint.Producers -> %s
+`, src1, src2)
+	} else {
+		for i := 0; i < expected.Producers.Length(); i++ {
+			expectedItem := expected.Producers.IndexOf(i)
+			eprintItem := eprint.Producers.IndexOf(i)
+			assertItemSame(t, "producers", expected.EPrintID, i, expectedItem, eprintItem)
+		}
+	}
+	if expected.Conductors.Length() != eprint.Conductors.Length() {
+
+		t.Errorf(`expected eprint (eprintid %d) conductors length %d, got %d`, expected.EPrintID, expected.Conductors.Length(), eprint.Conductors.Length())
+		src1 := objToString(expected.Conductors)
+		src2 := objToString(eprint.Conductors)
+		t.Logf(`
+expected.Conductors -> %s
+eprint.Conductors -> %s
+`, src1, src2)
+	} else {
+		for i := 0; i < expected.Conductors.Length(); i++ {
+			expectedItem := expected.Conductors.IndexOf(i)
+			eprintItem := eprint.Conductors.IndexOf(i)
+			assertItemSame(t, "conductor", expected.EPrintID, i, expectedItem, eprintItem)
+		}
+	}
+	if expected.Exhibitors.Length() != eprint.Exhibitors.Length() {
+
+		t.Errorf(`expected eprint (eprintid %d) exhibitor length %d, got %d`, expected.EPrintID, expected.Exhibitors.Length(), eprint.Exhibitors.Length())
+		src1 := objToString(expected.Exhibitors)
+		src2 := objToString(eprint.Exhibitors)
+		t.Logf(`
+expected.Exhibitors -> %s
+eprint.Exhitbitors -> %s
+`, src1, src2)
+	} else {
+		for i := 0; i < expected.Exhibitors.Length(); i++ {
+			expectedItem := expected.Exhibitors.IndexOf(i)
+			eprintItem := eprint.Exhibitors.IndexOf(i)
+			assertItemSame(t, "exhibitor", expected.EPrintID, i, expectedItem, eprintItem)
+		}
+	}
+	if expected.ThesisAdvisor.Length() != eprint.ThesisAdvisor.Length() {
+
+		t.Errorf(`expected eprint (eprintid %d) thesis advisor length %d, got %d`, expected.EPrintID, expected.ThesisAdvisor.Length(), eprint.ThesisAdvisor.Length())
+		src1 := objToString(expected.ThesisAdvisor)
+		src2 := objToString(eprint.ThesisAdvisor)
+		t.Logf(`
+expected.ThesisAdvisor -> %s
+eprint.ThesisAdvisor -> %s
+`, src1, src2)
+	} else {
+		for i := 0; i < expected.ThesisAdvisor.Length(); i++ {
+			expectedItem := expected.ThesisAdvisor.IndexOf(i)
+			eprintItem := eprint.ThesisAdvisor.IndexOf(i)
+			assertItemSame(t, "thesis advisor", expected.EPrintID, i, expectedItem, eprintItem)
+		}
+	}
+	if expected.ThesisCommittee.Length() != eprint.ThesisCommittee.Length() {
+
+		t.Errorf(`expected eprint (eprintid %d) thesis committee length %d, got %d`, expected.EPrintID, expected.ThesisCommittee.Length(), eprint.ThesisCommittee.Length())
+		src1 := objToString(expected.ThesisCommittee)
+		src2 := objToString(eprint.ThesisCommittee)
+		t.Logf(`
+expected.ThesisCommittee -> %s
+eprint.ThesisCommittee -> %s
+`, src1, src2)
+	} else {
+		for i := 0; i < expected.ThesisCommittee.Length(); i++ {
+			expectedItem := expected.ThesisCommittee.IndexOf(i)
+			eprintItem := eprint.ThesisCommittee.IndexOf(i)
+			assertItemSame(t, "thesis committee", expected.EPrintID, i, expectedItem, eprintItem)
+		}
+	}
+
+	//   RelatedURL
+	if expected.RelatedURL.Length() != eprint.RelatedURL.Length() {
+
+		t.Errorf(`expected eprint (eprintid %d) RelatedURL length %d, got %d`, expected.EPrintID, expected.RelatedURL.Length(), eprint.RelatedURL.Length())
+		src1 := objToString(expected.RelatedURL)
+		src2 := objToString(eprint.RelatedURL)
+		t.Logf(`
+expected.RelatedURL -> %s
+eprint.RelatedURL -> %s
+`, src1, src2)
+	} else {
+		for i := 0; i < expected.RelatedURL.Length(); i++ {
+			expectedItem := expected.RelatedURL.IndexOf(i)
+			eprintItem := eprint.RelatedURL.IndexOf(i)
+			assertItemSame(t, "RelatedURL", expected.EPrintID, i, expectedItem, eprintItem)
+		}
+	}
+
+	//   ReferenceText
+	if expected.ReferenceText.Length() != eprint.ReferenceText.Length() {
+
+		t.Errorf(`expected eprint (eprintid %d) ReferenceText length %d, got %d`, expected.EPrintID, expected.ReferenceText.Length(), eprint.ReferenceText.Length())
+		src1 := objToString(expected.ReferenceText)
+		src2 := objToString(eprint.ReferenceText)
+		t.Logf(`
+expected.ReferenceText -> %s
+eprint.ReferenceText -> %s
+`, src1, src2)
+	} else {
+		for i := 0; i < expected.ReferenceText.Length(); i++ {
+			expectedItem := expected.ReferenceText.IndexOf(i)
+			eprintItem := eprint.ReferenceText.IndexOf(i)
+			assertItemSame(t, "ReferenceText", expected.EPrintID, i, expectedItem, eprintItem)
+		}
+	}
+
+	//   Projects
+	if expected.Projects.Length() != eprint.Projects.Length() {
+
+		t.Errorf(`expected eprint (eprintid %d) Projects length %d, got %d`, expected.EPrintID, expected.Projects.Length(), eprint.Projects.Length())
+		src1 := objToString(expected.Projects)
+		src2 := objToString(eprint.Projects)
+		t.Logf(`
+expected.Projects -> %s
+eprint.Projects -> %s
+`, src1, src2)
+	} else {
+		for i := 0; i < expected.Projects.Length(); i++ {
+			expectedItem := expected.Projects.IndexOf(i)
+			eprintItem := eprint.Projects.IndexOf(i)
+			assertItemSame(t, "Projects", expected.EPrintID, i, expectedItem, eprintItem)
+		}
+	}
+
+	//   Funders
+	if expected.Funders.Length() != eprint.Funders.Length() {
+
+		t.Errorf(`expected eprint (eprintid %d) Funders length %d, got %d`, expected.EPrintID, expected.Funders.Length(), eprint.Funders.Length())
+		src1 := objToString(expected.Funders)
+		src2 := objToString(eprint.Funders)
+		t.Logf(`
+expected.Funders -> %s
+eprint.Funders -> %s
+`, src1, src2)
+	} else {
+		for i := 0; i < expected.Funders.Length(); i++ {
+			expectedItem := expected.Funders.IndexOf(i)
+			eprintItem := eprint.Funders.IndexOf(i)
+			assertItemSame(t, "Funders", expected.EPrintID, i, expectedItem, eprintItem)
+		}
+	}
+
+	//   OtherNumberSystem
+	if expected.OtherNumberingSystem.Length() != eprint.OtherNumberingSystem.Length() {
+
+		t.Errorf(`expected eprint (eprintid %d) OtherNumberingSystem length %d, got %d`, expected.EPrintID, expected.OtherNumberingSystem.Length(), eprint.OtherNumberingSystem.Length())
+		src1 := objToString(expected.OtherNumberingSystem)
+		src2 := objToString(eprint.OtherNumberingSystem)
+		t.Logf(`
+expected.OtherNumberingSystem -> %s
+eprint.OtherNumberingSystem -> %s
+`, src1, src2)
+	} else {
+		for i := 0; i < expected.OtherNumberingSystem.Length(); i++ {
+			expectedItem := expected.OtherNumberingSystem.IndexOf(i)
+			eprintItem := eprint.OtherNumberingSystem.IndexOf(i)
+			assertItemSame(t, "OtherNumberingSystem", expected.EPrintID, i, expectedItem, eprintItem)
+		}
+	}
+
+	//   LocalGroup
+	if expected.LocalGroup.Length() != eprint.LocalGroup.Length() {
+
+		t.Errorf(`expected eprint (eprintid %d) LocalGroup length %d, got %d`, expected.EPrintID, expected.LocalGroup.Length(), eprint.LocalGroup.Length())
+		src1 := objToString(expected.LocalGroup)
+		src2 := objToString(eprint.LocalGroup)
+		t.Logf(`
+expected.LocalGroup -> %s
+eprint.LocalGroup -> %s
+`, src1, src2)
+	} else {
+		for i := 0; i < expected.LocalGroup.Length(); i++ {
+			expectedItem := expected.LocalGroup.IndexOf(i)
+			eprintItem := eprint.LocalGroup.IndexOf(i)
+			assertItemSame(t, "LocalGroup", expected.EPrintID, i, expectedItem, eprintItem)
+		}
+	}
+
+	//   Subjects
+	if expected.Subjects.Length() != eprint.Subjects.Length() {
+
+		t.Errorf(`expected eprint (eprintid %d) Subjects length %d, got %d`, expected.EPrintID, expected.Subjects.Length(), eprint.Subjects.Length())
+		src1 := objToString(expected.Subjects)
+		src2 := objToString(eprint.Subjects)
+		t.Logf(`
+expected.Subjects -> %s
+eprint.Subjects -> %s
+`, src1, src2)
+	} else {
+		for i := 0; i < expected.Subjects.Length(); i++ {
+			expectedItem := expected.Subjects.IndexOf(i)
+			eprintItem := eprint.Subjects.IndexOf(i)
+			assertItemSame(t, "Subjects", expected.EPrintID, i, expectedItem, eprintItem)
+		}
+	}
+
+	//   ItemIssues
+	if expected.ItemIssues.Length() != eprint.ItemIssues.Length() {
+
+		t.Errorf(`expected eprint (eprintid %d) ItemIssues length %d, got %d`, expected.EPrintID, expected.ItemIssues.Length(), eprint.ItemIssues.Length())
+		src1 := objToString(expected.ItemIssues)
+		src2 := objToString(eprint.ItemIssues)
+		t.Logf(`
+expected.ItemIssues -> %s
+eprint.ItemIssues -> %s
+`, src1, src2)
+	} else {
+		for i := 0; i < expected.ItemIssues.Length(); i++ {
+			expectedItem := expected.ItemIssues.IndexOf(i)
+			eprintItem := eprint.ItemIssues.IndexOf(i)
+			assertItemSame(t, "ItemIssues", expected.EPrintID, i, expectedItem, eprintItem)
+		}
+	}
+
+	//   Accompaniment
+	if expected.Accompaniment.Length() != eprint.Accompaniment.Length() {
+
+		t.Errorf(`expected eprint (eprintid %d) Accompaniment length %d, got %d`, expected.EPrintID, expected.Accompaniment.Length(), eprint.Accompaniment.Length())
+		src1 := objToString(expected.Accompaniment)
+		src2 := objToString(eprint.Accompaniment)
+		t.Logf(`
+expected.Accompaniment -> %s
+eprint.Accompaniment -> %s
+`, src1, src2)
+	} else {
+		for i := 0; i < expected.Accompaniment.Length(); i++ {
+			expectedItem := expected.Accompaniment.IndexOf(i)
+			eprintItem := eprint.Accompaniment.IndexOf(i)
+			assertItemSame(t, "Accompaniment", expected.EPrintID, i, expectedItem, eprintItem)
+		}
+	}
+
+	//   SkillArea
+	if expected.SkillAreas.Length() != eprint.SkillAreas.Length() {
+
+		t.Errorf(`expected eprint (eprintid %d) SkillAreas length %d, got %d`, expected.EPrintID, expected.SkillAreas.Length(), eprint.SkillAreas.Length())
+		src1 := objToString(expected.SkillAreas)
+		src2 := objToString(eprint.SkillAreas)
+		t.Logf(`
+expected.SkillAreas -> %s
+eprint.SkillAreas -> %s
+`, src1, src2)
+	} else {
+		for i := 0; i < expected.SkillAreas.Length(); i++ {
+			expectedItem := expected.SkillAreas.IndexOf(i)
+			eprintItem := eprint.SkillAreas.IndexOf(i)
+			assertItemSame(t, "SkillAreas", expected.EPrintID, i, expectedItem, eprintItem)
+		}
+	}
+
+	//   CopyrightHolders
+	if expected.CopyrightHolders.Length() != eprint.CopyrightHolders.Length() {
+
+		t.Errorf(`expected eprint (eprintid %d) CopyrightHolders length %d, got %d`, expected.EPrintID, expected.CopyrightHolders.Length(), eprint.CopyrightHolders.Length())
+		src1 := objToString(expected.CopyrightHolders)
+		src2 := objToString(eprint.CopyrightHolders)
+		t.Logf(`
+expected.CopyrightHolders -> %s
+eprint.CopyrightHolders -> %s
+`, src1, src2)
+	} else {
+		for i := 0; i < expected.CopyrightHolders.Length(); i++ {
+			expectedItem := expected.CopyrightHolders.IndexOf(i)
+			eprintItem := eprint.CopyrightHolders.IndexOf(i)
+			assertItemSame(t, "CopyrightHolders", expected.EPrintID, i, expectedItem, eprintItem)
+		}
+	}
+
+	//   Reference
+	if expected.Reference.Length() != eprint.Reference.Length() {
+
+		t.Errorf(`expected eprint (eprintid %d) Reference length %d, got %d`, expected.EPrintID, expected.Reference.Length(), eprint.Reference.Length())
+		src1 := objToString(expected.Reference)
+		src2 := objToString(eprint.Reference)
+		t.Logf(`
+expected.Reference -> %s
+eprint.Reference -> %s
+`, src1, src2)
+	} else {
+		for i := 0; i < expected.Reference.Length(); i++ {
+			expectedItem := expected.Reference.IndexOf(i)
+			eprintItem := eprint.Reference.IndexOf(i)
+			assertItemSame(t, "Reference", expected.EPrintID, i, expectedItem, eprintItem)
+		}
+	}
+
+	//   ConfCreators
+	if expected.ConfCreators.Length() != eprint.ConfCreators.Length() {
+
+		t.Errorf(`expected eprint (eprintid %d) ConfCreators length %d, got %d`, expected.EPrintID, expected.ConfCreators.Length(), eprint.ConfCreators.Length())
+		src1 := objToString(expected.ConfCreators)
+		src2 := objToString(eprint.ConfCreators)
+		t.Logf(`
+expected.ConfCreators -> %s
+eprint.ConfCreators -> %s
+`, src1, src2)
+	} else {
+		for i := 0; i < expected.ConfCreators.Length(); i++ {
+			expectedItem := expected.ConfCreators.IndexOf(i)
+			eprintItem := eprint.ConfCreators.IndexOf(i)
+			assertItemSame(t, "ConfCreators", expected.EPrintID, i, expectedItem, eprintItem)
+		}
+	}
+
+	//   AltTitle
+	if expected.AltTitle.Length() != eprint.AltTitle.Length() {
+
+		t.Errorf(`expected eprint (eprintid %d) AltTitle length %d, got %d`, expected.EPrintID, expected.AltTitle.Length(), eprint.AltTitle.Length())
+		src1 := objToString(expected.AltTitle)
+		src2 := objToString(eprint.AltTitle)
+		t.Logf(`
+expected.AltTitle -> %s
+eprint.AltTitle -> %s
+`, src1, src2)
+	} else {
+		for i := 0; i < expected.AltTitle.Length(); i++ {
+			expectedItem := expected.AltTitle.IndexOf(i)
+			eprintItem := eprint.AltTitle.IndexOf(i)
+			assertItemSame(t, "AltTitle", expected.EPrintID, i, expectedItem, eprintItem)
+		}
+	}
+
+	//   Shelves (NOTE: Not supporting Shelves)
+
+	//   Relation
+	if expected.Relation.Length() != eprint.Relation.Length() {
+
+		t.Errorf(`expected eprint (eprintid %d) Relation length %d, got %d`, expected.EPrintID, expected.Relation.Length(), eprint.Relation.Length())
+		src1 := objToString(expected.Relation)
+		src2 := objToString(eprint.Relation)
+		t.Logf(`
+expected.Relation -> %s
+eprint.Relation -> %s
+`, src1, src2)
+	} else {
+		for i := 0; i < expected.Relation.Length(); i++ {
+			expectedItem := expected.Relation.IndexOf(i)
+			eprintItem := eprint.Relation.IndexOf(i)
+			assertItemSame(t, "Relation", expected.EPrintID, i, expectedItem, eprintItem)
+		}
+	}
+
+	//   PatentAssignee
+	if expected.PatentAssignee.Length() != eprint.PatentAssignee.Length() {
+
+		t.Errorf(`expected eprint (eprintid %d) PatentAssignee length %d, got %d`, expected.EPrintID, expected.PatentAssignee.Length(), eprint.PatentAssignee.Length())
+		src1 := objToString(expected.PatentAssignee)
+		src2 := objToString(eprint.PatentAssignee)
+		t.Logf(`
+expected.PatentAssignee -> %s
+eprint.PatentAssignee -> %s
+`, src1, src2)
+	} else {
+		for i := 0; i < expected.PatentAssignee.Length(); i++ {
+			expectedItem := expected.PatentAssignee.IndexOf(i)
+			eprintItem := eprint.PatentAssignee.IndexOf(i)
+			assertItemSame(t, "PatentAssignee", expected.EPrintID, i, expectedItem, eprintItem)
+		}
+	}
+
+	//   RelatedPatents
+	if expected.RelatedPatents.Length() != eprint.RelatedPatents.Length() {
+
+		t.Errorf(`expected eprint (eprintid %d) RelatedPatents length %d, got %d`, expected.EPrintID, expected.RelatedPatents.Length(), eprint.RelatedPatents.Length())
+		src1 := objToString(expected.RelatedPatents)
+		src2 := objToString(eprint.RelatedPatents)
+		t.Logf(`
+expected.RelatedPatents -> %s
+eprint.RelatedPatents -> %s
+`, src1, src2)
+	} else {
+		for i := 0; i < expected.RelatedPatents.Length(); i++ {
+			expectedItem := expected.RelatedPatents.IndexOf(i)
+			eprintItem := eprint.RelatedPatents.IndexOf(i)
+			assertItemSame(t, "RelatedPatents", expected.EPrintID, i, expectedItem, eprintItem)
+		}
+	}
+
+	//   Divisions
+	if expected.Divisions.Length() != eprint.Divisions.Length() {
+
+		t.Errorf(`expected eprint (eprintid %d) Divisions length %d, got %d`, expected.EPrintID, expected.Divisions.Length(), eprint.Divisions.Length())
+		src1 := objToString(expected.Divisions)
+		src2 := objToString(eprint.Divisions)
+		t.Logf(`
+expected.Divisions -> %s
+eprint.Divisions -> %s
+`, src1, src2)
+	} else {
+		for i := 0; i < expected.Divisions.Length(); i++ {
+			expectedItem := expected.Divisions.IndexOf(i)
+			eprintItem := eprint.Divisions.IndexOf(i)
+			assertItemSame(t, "Divisions", expected.EPrintID, i, expectedItem, eprintItem)
+		}
+	}
+
+	//   OptionMajor
+	if expected.OptionMajor.Length() != eprint.OptionMajor.Length() {
+
+		t.Errorf(`expected eprint (eprintid %d) OptionMajor length %d, got %d`, expected.EPrintID, expected.OptionMajor.Length(), eprint.OptionMajor.Length())
+		src1 := objToString(expected.OptionMajor)
+		src2 := objToString(eprint.OptionMajor)
+		t.Logf(`
+expected.OptionMajor -> %s
+eprint.OptionMajor -> %s
+`, src1, src2)
+	} else {
+		for i := 0; i < expected.OptionMajor.Length(); i++ {
+			expectedItem := expected.OptionMajor.IndexOf(i)
+			eprintItem := eprint.OptionMajor.IndexOf(i)
+			assertItemSame(t, "OptionMajor", expected.EPrintID, i, expectedItem, eprintItem)
+		}
+	}
+
+	//   OptionMinor
+	if expected.OptionMinor.Length() != eprint.OptionMinor.Length() {
+
+		t.Errorf(`expected eprint (eprintid %d) OptionMinor length %d, got %d`, expected.EPrintID, expected.OptionMinor.Length(), eprint.OptionMinor.Length())
+		src1 := objToString(expected.OptionMinor)
+		src2 := objToString(eprint.OptionMinor)
+		t.Logf(`
+expected.OptionMinor -> %s
+eprint.OptionMinor -> %s
+`, src1, src2)
+	} else {
+		for i := 0; i < expected.OptionMinor.Length(); i++ {
+			expectedItem := expected.OptionMinor.IndexOf(i)
+			eprintItem := eprint.OptionMinor.IndexOf(i)
+			assertItemSame(t, "OptionMinor", expected.EPrintID, i, expectedItem, eprintItem)
+		}
+	}
 }
 
 //
@@ -356,7 +956,8 @@ generated in TestSQLCreateEPrint() in ep3sql_test.go.`
 	eprint.Exhibitors = new(ExhibitorItemList)
 	item = new(Item)
 	item.Name = new(Name)
-	item.Name.Value = `Museo of the Rodent Lackey`
+	item.Name.Family = `of the Rodent Lackey`
+	item.Name.Given = `Museo`
 	item.ID = `Museo-Rodent-Lackey`
 	item.URI = `uri://Museo-Rodent-Lackey`
 	eprint.Exhibitors.Append(item)
@@ -486,6 +1087,42 @@ generated in TestSQLCreateEPrint() in ep3sql_test.go.`
 	eprint.StatusChangedHour = hour
 	eprint.StatusChangedMinute = minute
 	eprint.StatusChangedSecond = second
+
+	eprint.ThesisDegree = "BA"
+	eprint.ThesisSubmittedDate = now.Format(datestamp)
+	eprint.ThesisSubmittedDateYear = year
+	eprint.ThesisSubmittedDateMonth = int(month)
+	eprint.ThesisSubmittedDateDay = day
+	eprint.ThesisDefenseDate = now.Format(datestamp)
+	eprint.ThesisDefenseDateYear = year
+	eprint.ThesisDefenseDateMonth = int(month)
+	eprint.ThesisDefenseDateDay = day
+	eprint.ThesisApprovedDate = now.Format(datestamp)
+	eprint.ThesisApprovedDateYear = year
+	eprint.ThesisApprovedDateMonth = int(month)
+	eprint.ThesisApprovedDateDay = day
+	eprint.ThesisPublicDate = now.Format(datestamp)
+	eprint.ThesisPublicDateYear = year
+	eprint.ThesisPublicDateMonth = int(month)
+	eprint.ThesisPublicDateDay = day
+	eprint.ThesisAwards = "The R. S. Doiel has a tremedious Ego award for 2021"
+	eprint.ThesisDegreeGrantor = "Troope College if Rarified Design"
+	eprint.ThesisAdvisor = new(ThesisAdvisorItemList)
+	item = new(Item)
+	item.Name = new(Name)
+	item.Name.Family = "Doiel"
+	item.Name.Given = "Mark"
+	item.ORCID = "0000-0001-7321-1464"
+	item.ID = "Doiel-Mark"
+	eprint.ThesisAdvisor.Append(item)
+	eprint.ThesisCommittee = new(ThesisCommitteeItemList)
+	item = new(Item)
+	item.Name = new(Name)
+	item.Name.Family = "Doiel"
+	item.Name.Given = "Mark"
+	item.ORCID = "0000-0001-7321-1464"
+	item.ID = "Doiel-Mark"
+	eprint.ThesisCommittee.Append(item)
 
 	eprint.DOI = fmt.Sprintf(`0000.00/%s`, idNumber)
 	eprint.RevNumber = 1
