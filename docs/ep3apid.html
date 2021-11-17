@@ -36,17 +36,17 @@
 </nav>
 
 <section>
-<h1 id="usage">
+<h1>
 USAGE
 </h1>
 <pre><code>ep3apid [OPTIONS] [SETTINGS_FILENAME]</code></pre>
-<h2 id="synopsis">
+<h2>
 SYNOPSIS
 </h2>
 <p>
 Run an extended EPrints 3.x web API based on direct manipulation of EPrint’s MySQL database(s).
 </p>
-<h2 id="detail">
+<h2>
 DETAIL
 </h2>
 <p>
@@ -55,7 +55,7 @@ DETAIL
 <p>
 The following URL end points are intended to take one unique identifier and map that to one or more EPrint IDs. This can be done because each unique ID targeted can be identified by querying a single table in EPrints. In addition the scan can return the complete results since all EPrint IDs are integers and returning all EPrint IDs in any of our repositories is sufficiently small to be returned in a single HTTP request.
 </p>
-<h2 id="configuration-information">
+<h2>
 Configuration information
 </h2>
 <p>
@@ -69,7 +69,7 @@ There are two end points that give you information about what repositories are c
 ‘/repository/{REPO_ID}’ returns the databases and columns of the repository indicated by “{REPO_ID}”.
 </li>
 </ul>
-<h2 id="unique-id-to-eprint-id">
+<h2>
 Unique ID to EPrint ID
 </h2>
 <p>
@@ -218,7 +218,7 @@ Unique ids maybe standards based (e.g. ORCID, DOI, ISSN, ISBN) or internal (e.g
 ‘/{REPO_ID}/patent-assignee/{PATENT_ASSIGNEE}’ - return a list eprint ids for patent assignee in repository
 </li>
 </ul>
-<h2 id="change-events">
+<h2>
 Change Events
 </h2>
 <p>
@@ -238,7 +238,7 @@ The follow API end points would facilitate faster updates to our feeds platform 
 ‘/{REPO_ID}/pubdate/{APROX_DATESTAMP}/{APPOX_DATESTMP}’ this query scans the EPrint table for records with publication starts starting with the first approximate date through inclusive of the second approximate date. If the second date is omitted it is assumed to be “today”. Approximate dates my be expressed just the year (starting with Jan 1, ending with Dec 31), just the year and month (starting with first day of month ending with the last day) or year, month and day. The end returns zero or more EPrint IDs.
 </li>
 </ul>
-<h2 id="readwrite-api">
+<h2>
 Read/Write API
 </h2>
 <p>
@@ -255,7 +255,7 @@ The metadata import functionality is enabled per repository. It only supports im
 ‘/{REPO_ID}/eprint-import’ POST accepts EPrints XML with content type of “application/xml” or JSON of EPrints XML with content type “application/json”. To enable this feature add the attribute ‘“write”: true’ to the repositories setting in settins.json.
 </li>
 </ul>
-<h2 id="settings.json-configuration">
+<h2>
 settings.json (configuration)
 </h2>
 <p>
@@ -279,7 +279,7 @@ The JSON settings.json file should look something like “REPO_ID” would be th
             ... /* Additional repositories configured here */ ...
         }
     }</code></pre>
-<h2 id="options">
+<h2>
 Options
 </h2>
 <pre><code>  -h    Display this help message

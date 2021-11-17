@@ -36,10 +36,10 @@
 </nav>
 
 <section>
-<h1 id="notes-on-using-doi2eprintxml-on-mac-os-x">
+<h1>
 Notes on using doi2eprintxml on Mac OS X
 </h1>
-<h2 id="installation-and-setup">
+<h2>
 Installation and setup
 </h2>
 <ol type="1">
@@ -70,19 +70,19 @@ Open the your “Terminal” application
 Run <code>doi2printxml -h</code> to see the help page
 </li>
 </ol>
-<h2 id="getting-started">
+<h2>
 Getting started
 </h2>
 <p>
 The tool <code>doi2eprintxml</code> is a command line program, it is normally run from the terminal’s command prompt. The purpose of the program is to take a list of DOI contact CrossRef or DataCite and generate what is called an EPrint XML document. The EPrint XML document is used to import records into EPrints (e.g. CaltechAUTHORS) via the “import” button under “Manage Deposits” page.
 </p>
-<h3 id="workflow">
+<h3>
 Workflow
 </h3>
 <p>
 The typical workflow is to create a plain text file (UTF-8 encoded) using a text editor such as <a href="https://atom.io">Atom</a> with one DOI per line. The <code>doi2eprintxml</code> program can then read the list and generate an EPrint XML document for importing into EPrints. Follow the following steps to generate a file called <strong>eprint.xml</strong> based on a list of of DOI in a file called <strong>doi.txt</strong>.
 </p>
-<h4 id="general-recipe">
+<h4>
 General recipe
 </h4>
 <ol type="1">

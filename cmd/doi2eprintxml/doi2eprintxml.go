@@ -337,7 +337,7 @@ func main() {
 				}
 			}
 			if isCrossRefDOI == false && isDataCiteDOI == false {
-				fmt.Fprintf(os.Stderr, "WARNING: %s not found in CrossRef or DataCite API lookup", doi)
+				fmt.Fprintf(os.Stderr, "WARNING: %s not found in CrossRef or DataCite API lookup\n", doi)
 			}
 		}
 	}
