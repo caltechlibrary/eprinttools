@@ -71,3 +71,4 @@ htdocs/*
 #*.xml
 *.bak
 sql-dumps/*
+*.log

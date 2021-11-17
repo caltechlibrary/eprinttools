@@ -80,33 +80,36 @@ func runWriteTest(t *testing.T, api *EP3API, repoID string, repo *DataSource, ro
 		t.FailNow()
 	}
 	// Test writes to a Authors like database, e.g lemurAuthors
-	testFile := path.Join(`srctest`, fmt.Sprintf(`%sEPrint.xml`, repoID))
-	if _, err := os.Stat(testFile); os.IsNotExist(err) {
-		t.Errorf(`Could not find %q, %s`, testFile, err)
-		t.FailNow()
-	}
-	src, err := ioutil.ReadFile(testFile)
-	if err != nil {
-		t.Errorf(`Cound not read %q, %s`, testFile, err)
-		t.FailNow()
-	}
-	//t.Logf(`Read eprint XML %q: %s`, testFile, src)
-	u := fmt.Sprintf(`%s/%s/eprint-import`, baseURL, repoID)
-	src, err = httpPost(u, `application/xml`, src)
-	if err != nil {
-		t.Logf(`%s`, src)
-		t.Errorf(`Post failed, %q, %s`, u, err)
-		t.FailNow()
-	}
-	t.Logf(`Post returned: %s`, src)
-	ids := []int{}
-	if err := json.Unmarshal(src, &ids); err != nil {
-		t.Errorf(`Failed to unmarshal post results fo %q, %s`, u, err)
-		t.FailNow()
-	}
-	if len(ids) == 0 || ids[0] == 0 {
-		t.Errorf(`Expected non zero id in ids list`)
-		t.FailNow()
+	// NOTE: I used doi2eprintxml to create two new EPrint XML files for import testing.
+	for i := 1; i <= 15; i++ {
+		testFile := path.Join(`srctest`, fmt.Sprintf(`%s-import-api-%d.xml`, repoID, i))
+		if _, err := os.Stat(testFile); os.IsNotExist(err) {
+			t.Errorf(`Could not find %q, %s`, testFile, err)
+			t.FailNow()
+		}
+		src, err := ioutil.ReadFile(testFile)
+		if err != nil {
+			t.Errorf(`Cound not read %q, %s`, testFile, err)
+			t.FailNow()
+		}
+		//t.Logf(`Read eprint XML %q: %s`, testFile, src)
+		u := fmt.Sprintf(`%s/%s/eprint-import`, baseURL, repoID)
+		src, err = httpPost(u, `application/xml`, src)
+		if err != nil {
+			t.Logf(`%s`, src)
+			t.Errorf(`Post failed, %q, %s`, u, err)
+			t.FailNow()
+		}
+		t.Logf(`Post returned: %s`, src)
+		ids := []int{}
+		if err := json.Unmarshal(src, &ids); err != nil {
+			t.Errorf(`Failed to unmarshal post results fo %q, %s`, u, err)
+			t.FailNow()
+		}
+		if len(ids) == 0 || ids[0] == 0 {
+			t.Errorf(`Expected non zero id in ids list`)
+			t.FailNow()
+		}
 	}
 }
 

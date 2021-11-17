@@ -1,0 +1,25 @@
+<eprints xmlns="http://eprints.org/ep2/data/2.0">
+   <eprint>
+      <type>Teaching Resource</type>
+      <creators>
+         <item>
+            <name>
+               <family>Briney</family>
+               <given>Kristin A.</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Morrell</family>
+               <given>Thomas</given>
+            </name>
+         </item>
+      </creators>
+      <title>Caltech Example Data Management Plan</title>
+      <ispublished>pub</ispublished>
+      <abstract>The example data management plan describes data management for a microscopy project and uses general NSF template. Always refer to the specific guidance for your grant proposal when writing a data management plan, as requirements differ.</abstract>
+      <date>2020</date>
+      <date_type>published</date_type>
+      <publication>California Institute of Technology</publication>
+   </eprint>
+</eprints>

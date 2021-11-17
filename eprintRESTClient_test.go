@@ -85,10 +85,10 @@ func TestRestClient(t *testing.T) {
 			}
 			t.Logf("Running test with %d randomly selected keys\n", len(keys))
 
-			spinner := "._-+xX#*#Xx+-_."
+			//spinner := "._-+xX#*#Xx+-_."
 			t.Logf("  Testing GetEPrint(baseURL, key) %q ", repoID)
 			for i, key := range keys {
-				t.Logf("\r%s", string(spinner[i%len(spinner)]))
+				//t.Logf("\r%s", string(spinner[i%len(spinner)]))
 
 				//NOTE: we need to check ep and raw if we don't and an error
 				rec, err := GetEPrint(eprintURL, key)

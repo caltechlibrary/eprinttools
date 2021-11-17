@@ -1,0 +1,19 @@
+<eprints xmlns="http://eprints.org/ep2/data/2.0">
+   <eprint>
+      <type>other</type>
+      <creators>
+         <item>
+            <name>
+               <family>Rossman</family>
+               <given>George R.</given>
+            </name>
+         </item>
+      </creators>
+      <title>Mineral Spectroscopy Server</title>
+      <ispublished>pub</ispublished>
+      <abstract>This server provides information about mineralogy and is primarily dedicated to providing information about color in minerals and access to data on Mineral Absorption Spectra in the visible and infrared regions of the spectrum and Raman spectra of minerals. Most data on the server were obtained in the Caltech mineral spectroscopy labs. Other types of spectroscopic data on minerals are also available. Visible, near-infrared and infrared absorption spectra are available for a number of minerals. Examples include common rock-forming minerals, gem minerals, and other minerals of particular interest.</abstract>
+      <date>2010</date>
+      <date_type>published</date_type>
+      <publication>Caltech</publication>
+   </eprint>
+</eprints>

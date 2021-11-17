@@ -1,0 +1,67 @@
+<eprints xmlns="http://eprints.org/ep2/data/2.0">
+   <eprint>
+      <type>book_section</type>
+      <creators>
+         <item>
+            <name>
+               <family>Girard</family>
+               <given>Julian</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Finch</family>
+               <given>Peter M.</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Schwartz</family>
+               <given>Tal</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Yu</family>
+               <given>Wesley</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Strand</family>
+               <given>Christopher L.</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Austin</family>
+               <given>Joanna M.</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Hornung</family>
+               <given>Hans G.</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Hanson</family>
+               <given>Ronald K.</given>
+            </name>
+         </item>
+      </creators>
+      <title>Characterization of the T5 Reflected Shock Tunnel Freestream Temperature, Velocity, and Composition using Laser Absorption Spectroscopy</title>
+      <ispublished>pub</ispublished>
+      <date>2021-08-09</date>
+      <date_type>published</date_type>
+      <publisher>American Institute of Aeronautics and Astronautics</publisher>
+      <place_of_pub>Reston, Virginia</place_of_pub>
+      <related_url>
+         <item>
+            <url>https://arc.aiaa.org/doi/pdf/10.2514/6.2021-3525</url>
+         </item>
+      </related_url>
+      <doi>10.2514/6.2021-3525</doi>
+   </eprint>
+</eprints>

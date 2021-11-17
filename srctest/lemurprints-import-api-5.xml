@@ -1,0 +1,19 @@
+<eprints xmlns="http://eprints.org/ep2/data/2.0">
+   <eprint>
+      <type>Book</type>
+      <creators>
+         <item>
+            <name>
+               <family>Coles</family>
+               <given>Donald E.</given>
+            </name>
+         </item>
+      </creators>
+      <title>Topics in Shear Flow</title>
+      <ispublished>pub</ispublished>
+      <abstract>Unifinished manuscript left by Donald Coles at his death in May of 2013. From the author&#39;s draft preface: The fundamental premise for the book is that the only reliable information about turbulent flow is experimental information. This varies greatly in quality and completeness, and needs to be carefully screened. Some additional premises will be self-evident in the text. First, it is advisable to understand thoroughly the laminar version of a particular flow, because some conceptual problems are not peculiar to turbulent flow; e.g., the third boundary condition for the mixing layer, or the integral invariant for the wall jet. Second, the most powerful organizing principle so far available for both laminar and turbulent flow is the principle of similarity. Third, the most important phenomenological concept for many turbulent flows is the concept of entrainment. The need of the user is often likely to be for hard numbers and practical insights, rather than for elegance. I have therefore made some use of mixing-length and eddy-viscosity ideas, and even power-law methods, as primitive links between fundamental and technical problems. Each chapter of the book deals with one of the classical shear flows (mixing layers, jets, plumes, wakes, boundary layers, pipe flow, and so on ) and with its ramifications, or with an important technical problem such as flow management. Wherever possible, the presentation is intended to suggest how various flow problems might be connected analytically and experimentally one to another, using as far as possible a consistent notation and a consistent level of rigor and detail.</abstract>
+      <date>2017</date>
+      <date_type>published</date_type>
+      <publication>California Institute of Technology</publication>
+   </eprint>
+</eprints>

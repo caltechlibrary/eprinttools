@@ -33,7 +33,7 @@ exist in testdata as test_eprint1.xml and test_eprint2.xml.
 */
 
 func TestRecordFromEPrint(t *testing.T) {
-	for i, name := range []string{"test_eprint1.xml", "test_eprint2.xml", "test_eprint-embargoed.xml", "test_eprint4.xml"} {
+	for i, name := range []string{"test_eprint1.xml", "test_eprint2.xml", "test_eprint4.xml"} {
 		fName := path.Join("testdata", name)
 		src, err := ioutil.ReadFile(fName)
 		if err != nil {
