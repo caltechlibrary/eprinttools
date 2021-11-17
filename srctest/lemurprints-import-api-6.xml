@@ -1,0 +1,31 @@
+<eprints xmlns="http://eprints.org/ep2/data/2.0">
+   <eprint>
+      <type>book_section</type>
+      <creators>
+         <item>
+            <name>
+               <family>Lin</family>
+               <given>Jonathan</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Jovanovic</family>
+               <given>Nemanja</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Fitzgerald</family>
+               <given>Michael P.</given>
+            </name>
+         </item>
+      </creators>
+      <title>Design considerations of photonic lanterns for diffraction-limited spectrometry</title>
+      <ispublished>pub</ispublished>
+      <date>2021-09-01</date>
+      <date_type>published</date_type>
+      <publisher>SPIE</publisher>
+      <doi>10.1117/12.2594923</doi>
+   </eprint>
+</eprints>

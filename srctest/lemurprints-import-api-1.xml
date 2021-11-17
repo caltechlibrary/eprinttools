@@ -1,0 +1,68 @@
+<eprints xmlns="http://eprints.org/ep2/data/2.0">
+   <eprint>
+      <type>article</type>
+      <creators>
+         <item>
+            <name>
+               <family>Jiao</family>
+               <given>Hanwei</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Zhang</family>
+               <given>Chaojie</given>
+            </name>
+            <orcid>0000-0003-3108-8271</orcid>
+         </item>
+         <item>
+            <name>
+               <family>Yang</family>
+               <given>Mo</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Wu</family>
+               <given>Yanhui</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Zhou</family>
+               <given>Qi</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Hoffmann</family>
+               <given>Michael R.</given>
+            </name>
+         </item>
+      </creators>
+      <title>Photoreductive defluorination of trifluoroacetic acid (TFA) in the aqueous phase by hydrated electrons</title>
+      <ispublished>pub</ispublished>
+      <date>2022-02</date>
+      <date_type>published</date_type>
+      <publication>Chemical Engineering Journal</publication>
+      <volume>430</volume>
+      <publisher>Elsevier B.V.</publisher>
+      <pagerange>132724</pagerange>
+      <issn>1385-8947</issn>
+      <related_url>
+         <item>
+            <url>https://api.elsevier.com/content/article/PII:S1385894721043023?httpAccept=text/xml</url>
+         </item>
+         <item>
+            <url>https://api.elsevier.com/content/article/PII:S1385894721043023?httpAccept=text/plain</url>
+         </item>
+      </related_url>
+      <funders>
+         <item>
+            <agency>National Natural Science Foundation of China</agency>
+            <grant_number>21976135</grant_number>
+         </item>
+      </funders>
+      <doi>10.1016/j.cej.2021.132724</doi>
+   </eprint>
+</eprints>

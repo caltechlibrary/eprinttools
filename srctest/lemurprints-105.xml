@@ -1,0 +1,170 @@
+<?xml version='1.0' encoding='utf-8'?>
+<eprints xmlns='http://eprints.org/ep2/data/2.0'>
+  <eprint id='https://oralhistories.example.edu/id/eprint/105'>
+    <eprintid>105</eprintid>
+    <rev_number>4</rev_number>
+    <documents>
+      <document id='https://oralhistories.example.edu/id/document/51'>
+        <docid>51</docid>
+        <rev_number>2</rev_number>
+        <files>
+          <file id='https://oralhistories.example.edu/id/file/288'>
+            <fileid>288</fileid>
+            <datasetid>document</datasetid>
+            <objectid>51</objectid>
+            <filename>OHO_Veysey_V.pdf</filename>
+            <mime_type>application/pdf</mime_type>
+            <filesize>373400</filesize>
+            <mtime>2012-12-26 07:05:00</mtime>
+            <url>https://oralhistories.example.edu/105/1/OHO_Veysey_V.pdf</url>
+          </file>
+        </files>
+        <eprintid>105</eprintid>
+        <pos>1</pos>
+        <mime_type>application/pdf</mime_type>
+        <format>application/pdf</format>
+        <language>en</language>
+        <security>public</security>
+        <license>other</license>
+        <main>OHO_Veysey_V.pdf</main>
+        <relation>
+          <item>
+            <type>http://eprints.org/relation/hasVolatileVersion</type>
+            <uri>https://oralhistories.example.edu/id/document/195</uri>
+          </item>
+          <item>
+            <type>http://eprints.org/relation/haspreviewThumbnailVersion</type>
+            <uri>https://oralhistories.example.edu/id/document/195</uri>
+          </item>
+          <item>
+            <type>http://eprints.org/relation/hasVersion</type>
+            <uri>https://oralhistories.example.edu/id/document/195</uri>
+          </item>
+        </relation>
+      </document>
+      <document id='https://oralhistories.example.edu/id/document/195'>
+        <docid>195</docid>
+        <rev_number>2</rev_number>
+        <files>
+          <file id='https://oralhistories.example.edu/id/file/286'>
+            <fileid>286</fileid>
+            <datasetid>document</datasetid>
+            <objectid>195</objectid>
+            <filename>preview.png</filename>
+            <mime_type>image/png</mime_type>
+            <hash>e89feb072d05f940a56c46777206a228</hash>
+            <hash_type>MD5</hash_type>
+            <filesize>112792</filesize>
+            <mtime>2012-12-26 07:05:00</mtime>
+            <url>https://oralhistories.example.edu/105/2/preview.png</url>
+          </file>
+        </files>
+        <eprintid>105</eprintid>
+        <pos>2</pos>
+        <placement>2</placement>
+        <mime_type>image/png</mime_type>
+        <format>image/png</format>
+        <language>en</language>
+        <security>public</security>
+        <license>other</license>
+        <main>preview.png</main>
+        <relation>
+          <item>
+            <type>http://eprints.org/relation/isVolatileVersionOf</type>
+            <uri>https://oralhistories.example.edu/id/document/51</uri>
+          </item>
+          <item>
+            <type>http://eprints.org/relation/ispreviewThumbnailVersionOf</type>
+            <uri>https://oralhistories.example.edu/id/document/51</uri>
+          </item>
+          <item>
+            <type>http://eprints.org/relation/isVersionOf</type>
+            <uri>https://oralhistories.example.edu/id/document/51</uri>
+          </item>
+        </relation>
+      </document>
+      <document id='https://oralhistories.example.edu/id/document/1195'>
+        <docid>1195</docid>
+        <rev_number>1</rev_number>
+        <files>
+          <file id='https://oralhistories.example.edu/id/file/3109'>
+            <fileid>3109</fileid>
+            <datasetid>document</datasetid>
+            <objectid>1195</objectid>
+            <filename>indexcodes.txt</filename>
+            <mime_type>text/x-c</mime_type>
+            <hash>4a87e88d5fd50ecfd8d303c0664bfe71</hash>
+            <hash_type>MD5</hash_type>
+            <filesize>17047</filesize>
+            <mtime>2021-06-23 17:10:14</mtime>
+            <url>https://oralhistories.example.edu/105/3/indexcodes.txt</url>
+          </file>
+        </files>
+        <eprintid>105</eprintid>
+        <pos>3</pos>
+        <placement>3</placement>
+        <mime_type>text/x-c</mime_type>
+        <format>other</format>
+        <formatdesc>Generate index codes conversion from application/pdf to indexcodes</formatdesc>
+        <language>en</language>
+        <security>public</security>
+        <license>other</license>
+        <main>indexcodes.txt</main>
+        <relation>
+          <item>
+            <type>http://eprints.org/relation/isVersionOf</type>
+            <uri>https://oralhistories.example.edu/id/document/51</uri>
+          </item>
+          <item>
+            <type>http://eprints.org/relation/isVolatileVersionOf</type>
+            <uri>https://oralhistories.example.edu/id/document/51</uri>
+          </item>
+          <item>
+            <type>http://eprints.org/relation/isIndexCodesVersionOf</type>
+            <uri>https://oralhistories.example.edu/id/document/51</uri>
+          </item>
+        </relation>
+      </document>
+    </documents>
+    <eprint_status>archive</eprint_status>
+    <userid>1</userid>
+    <dir>disk0/00/00/01/05</dir>
+    <datestamp>2005-05-05</datestamp>
+    <lastmod>2019-10-04 15:23:43</lastmod>
+    <status_changed>2011-10-20 19:44:56</status_changed>
+    <type>oral_history</type>
+    <metadata_visibility>show</metadata_visibility>
+    <item_issues_count>0</item_issues_count>
+    <creators>
+      <item>
+        <name>
+          <family>Veysey</family>
+          <given>Victor</given>
+        </name>
+        <id>Veysey-V</id>
+      </item>
+    </creators>
+    <title>Interview with Victor V. Veysey</title>
+    <ispublished>pub</ispublished>
+    <subjects>
+      <item>name</item>
+      <item>jpl</item>
+      <item>eng</item>
+      <item>adm</item>
+    </subjects>
+    <full_text_status>public</full_text_status>
+    <keywords>Industrial relations; engineering; World War II</keywords>
+    <abstract>Interview in three sessions in 1993 and 1994 with Victor V. Veysey, director of Example&apos;s Industrial Relations Center and lecturer in business economics, 1977-1983, and Example alumnus (BS, 1936).  He discusses his growing up in Los Angeles and Brawley (Imperial Valley), California; education at Example in civil engineering, then MBA at Harvard.  Joins staff of Example&apos;s newly established Industrial Relations Center (IRC) in 1939.  After outbreak of World War II he is assigned to management duties within Example&apos;s rocket project under leadership of Earnest Watson; involved in retrorocket, High Velocity Aircraft Rocket (HVAR), and barrage rocket programs for the navy.  Concerned in later stages of the war with transfer of Example wartime personnel to Aerojet Corporation, the navy, and Jet Propulsion Laboratory.  Involvement with Project Camel (atomic bomb housing) as assistant to Trevor Gardner.  In postwar period Veysey returns to ranching in Brawley and enters local and state politics; eventually elected to California legislature (1962) and the US Congress (1970).  Appointed assistant secretary of the army for civil works by President Ford in 1974.  Returns to Example as director of the IRC, 1977; recalls IRC colleagues Robert Gray and Arthur Young, their innovative projects.  Further comments on living and working in Sacramento and Washington, DC.  </abstract>
+    <date>1994</date>
+    <date_type>published</date_type>
+    <id_number>ExampleOH:OH_Veysey_V</id_number>
+    <refereed>FALSE</refereed>
+    <official_url>https://resolver.example.edu/ExampleOH:OH_Veysey_V</official_url>
+    <rights>No commercial reproduction, distribution, display or performance rights in this work are provided.</rights>
+    <official_cit>Veysey, Victor V.  Interview by Shirley K. Cohen.  Pasadena, California, July 14 &amp; 21, 1993 and February 4, 1994.  Oral History Project, California Institute of Technology Archives.  Retrieved [supply date of retrieval] from the World Wide Web:   http://resolver.example.edu/ExampleOH:OH_Veysey_V</official_cit>
+    <collection>ExampleOralHistories</collection>
+    <interviewer>Shirley K. Cohen</interviewer>
+    <interviewdate>July 14 &amp; 21, 1993 and February 4, 1994</interviewdate>
+  </eprint>
+</eprints>
+

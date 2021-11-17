@@ -151,7 +151,7 @@ func CrossRefWorksToEPrint(obj crossrefapi.Object) (*EPrint, error) {
 				}
 			}
 			if entry.Agency != "" || entry.GrantNumber != "" {
-				eprint.Funders.AddItem(entry)
+				eprint.Funders.Append(entry)
 			}
 		}
 	}
@@ -181,7 +181,7 @@ func CrossRefWorksToEPrint(obj crossrefapi.Object) (*EPrint, error) {
 				if eprint.RelatedURL == nil {
 					eprint.RelatedURL = new(RelatedURLItemList)
 				}
-				eprint.RelatedURL.AddItem(entry)
+				eprint.RelatedURL.Append(entry)
 			}
 		}
 	}
@@ -202,7 +202,7 @@ func CrossRefWorksToEPrint(obj crossrefapi.Object) (*EPrint, error) {
 				entry.Type = s.(string)
 			}
 			if len(entry.URL) > 0 { //&& len(entry.Type) > 0 {
-				eprint.RelatedURL.AddItem(entry)
+				eprint.RelatedURL.Append(entry)
 			}
 		}
 	}
@@ -268,10 +268,10 @@ func CrossRefWorksToEPrint(obj crossrefapi.Object) (*EPrint, error) {
 				}
 			}
 			if item.Name.Given != "" && item.Name.Family != "" {
-				creators.AddItem(item)
+				creators.Append(item)
 			}
 			if item.Name.Value != "" {
-				corpCreators.AddItem(item)
+				corpCreators.Append(item)
 			}
 		}
 		if len(creators.Items) > 0 {

@@ -30,83 +30,98 @@ import (
 )
 
 func configRestClient() (*Config, error) {
-	if _, err := os.Stat("test-settings.json"); os.IsNotExist(err) {
+	if _, err := os.Stat(`test-settings.json`); os.IsNotExist(err) {
 		return nil, err
 	}
-	src, err := ioutil.ReadFile("test-settings.json")
+	src, err := ioutil.ReadFile(`test-settings.json`)
 	if err != nil {
 		return nil, err
 	}
 	config := new(Config)
-	err = json.Unmarshal(src, config)
+	err = json.Unmarshal(src, &config)
+	if err != nil {
+		return nil, err
+	}
+	configuredClientFound := false
+	for _, dsn := range config.Repositories {
+		if dsn.RestAPI != `` {
+			configuredClientFound = true
+		}
+	}
+	if !configuredClientFound {
+		return config, fmt.Errorf(`RestAPI not defined for any repositories`)
+	}
 	return config, err
 }
 
 func TestRestClient(t *testing.T) {
 	config, err := configRestClient()
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "Skipping TestRestClient(), requires test-settings.json")
-		return
+		t.Skipf(`Skipping TestRestClient(), %s`, err)
+		t.SkipNow()
 	}
 	for repoID, dataSource := range config.Repositories {
 		eprintURL := dataSource.RestAPI
-		keys, err := GetKeys(eprintURL)
-		if err != nil {
-			t.Errorf("  GetKeys(%q) returned an error, %s", eprintURL, err)
-			t.FailNow()
-		}
-		if len(keys) < 1 {
-			t.Errorf("  Expected some keys form GetKeys(%q)", eprintURL)
-			t.FailNow()
-		}
-		// Take a sample of 25 keys
-		sampleSize := 25
-		if len(keys) > sampleSize {
-			rand.Shuffle(len(keys), func(i, j int) {
-				keys[i], keys[j] = keys[j], keys[i]
-			})
-			keys = keys[0:sampleSize]
-			sort.Ints(keys)
-		}
-		fmt.Fprintf(os.Stderr, "Running test with %d randomly selected keys\n", len(keys))
-
-		spinner := "._-+xX#*#Xx+-_."
-		fmt.Fprintf(os.Stderr, "  Testing GetEPrint(baseURL, key) %q ", repoID)
-		for i, key := range keys {
-			fmt.Fprintf(os.Stderr, "\r%s", string(spinner[i%len(spinner)]))
-
-			//NOTE: we need to check ep and raw if we don't and an error
-			rec, err := GetEPrint(eprintURL, key)
+		if eprintURL == `` {
+			t.Logf(`RestAPI not configured for %s`, repoID)
+		} else {
+			keys, err := GetKeys(eprintURL)
 			if err != nil {
-				sErr := fmt.Sprintf("%s", err)
-				// NOTE: We should get an error for 401's, or when
-				// we try to retrieve something with eprint_status of
-				// buffer, deletion, and inbox.
-				if strings.HasPrefix(sErr, "401") == false &&
-					strings.HasSuffix(sErr, "buffer") == false &&
-					strings.HasSuffix(sErr, "deletion") == false &&
-					strings.HasSuffix(sErr, "inbox") == false {
-					t.Errorf("%d GetEPrint(%q, %d) -> %q", i, eprintURL, key, err)
-					t.FailNow()
-				}
+				t.Errorf(`  GetKeys(%q) returned an error, %s`, eprintURL, err)
+				t.FailNow()
 			}
-			if len(rec.EPrint) == 1 {
-				if rec.EPrint[0].ID == "" {
-					t.Errorf("Expected a eprint ID for %q Key: %d", repoID, key)
-				}
-				if rec.EPrint[0].EPrintStatus == "" {
-					t.Errorf("Expected a EPrintStatus for %q Key: %d", repoID, key)
-				}
-				if rec.EPrint[0].EPrintStatus == "published" {
-					if rec.EPrint[0].Title == "" {
-						t.Errorf("Expected a Title for %q Key: %d", repoID, key)
+			if len(keys) < 1 {
+				t.Errorf(`  Expected some keys form GetKeys(%q)`, eprintURL)
+				t.FailNow()
+			}
+			// Take a sample of 25 keys
+			sampleSize := 25
+			if len(keys) > sampleSize {
+				rand.Shuffle(len(keys), func(i, j int) {
+					keys[i], keys[j] = keys[j], keys[i]
+				})
+				keys = keys[0:sampleSize]
+				sort.Ints(keys)
+			}
+			t.Logf("Running test with %d randomly selected keys\n", len(keys))
+
+			//spinner := "._-+xX#*#Xx+-_."
+			t.Logf("  Testing GetEPrint(baseURL, key) %q ", repoID)
+			for i, key := range keys {
+				//t.Logf("\r%s", string(spinner[i%len(spinner)]))
+
+				//NOTE: we need to check ep and raw if we don't and an error
+				rec, err := GetEPrint(eprintURL, key)
+				if err != nil {
+					sErr := fmt.Sprintf("%s", err)
+					// NOTE: We should get an error for 401's, or when
+					// we try to retrieve something with eprint_status of
+					// buffer, deletion, and inbox.
+					if strings.HasPrefix(sErr, "401") == false &&
+						strings.HasSuffix(sErr, "buffer") == false &&
+						strings.HasSuffix(sErr, "deletion") == false &&
+						strings.HasSuffix(sErr, "inbox") == false {
+						t.Errorf("%d GetEPrint(%q, %d) -> %q", i, eprintURL, key, err)
+						t.FailNow()
 					}
 				}
-			} else {
-				t.Errorf("Expected to have one eprint from %q key: %d", repoID, key)
+				if len(rec.EPrint) == 1 {
+					if rec.EPrint[0].ID == "" {
+						t.Errorf("Expected a eprint ID for %q Key: %d", repoID, key)
+					}
+					if rec.EPrint[0].EPrintStatus == "" {
+						t.Errorf("Expected a EPrintStatus for %q Key: %d", repoID, key)
+					}
+					if rec.EPrint[0].EPrintStatus == "published" {
+						if rec.EPrint[0].Title == "" {
+							t.Errorf("Expected a Title for %q Key: %d", repoID, key)
+						}
+					}
+				} else {
+					t.Errorf("Expected to have one eprint from %q key: %d", repoID, key)
+				}
 			}
-
 		}
-		fmt.Fprint(os.Stderr, "\r \n")
+		t.Log("\r \n")
 	}
 }

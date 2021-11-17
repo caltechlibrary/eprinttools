@@ -1,0 +1,61 @@
+<eprints xmlns="http://eprints.org/ep2/data/2.0">
+   <eprint>
+      <type>book_section</type>
+      <creators>
+         <item>
+            <name>
+               <family>Brès</family>
+               <given>Guillaume A.</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Yeung</family>
+               <given>Brandon</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Schmidt</family>
+               <given>Oliver T.</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Ghassemi Isfahani</family>
+               <given>Ata</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Webb</family>
+               <given>Nathan J.</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Samimy</family>
+               <given>Mo</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Colonius</family>
+               <given>Tim</given>
+            </name>
+         </item>
+      </creators>
+      <title>Towards large-eddy simulations of supersonic jets from twin rectangular nozzle with plasma actuation</title>
+      <ispublished>pub</ispublished>
+      <date>2021-08-02</date>
+      <date_type>published</date_type>
+      <publisher>American Institute of Aeronautics and Astronautics</publisher>
+      <place_of_pub>Reston, Virginia</place_of_pub>
+      <related_url>
+         <item>
+            <url>https://arc.aiaa.org/doi/pdf/10.2514/6.2021-2154</url>
+         </item>
+      </related_url>
+      <doi>10.2514/6.2021-2154</doi>
+   </eprint>
+</eprints>

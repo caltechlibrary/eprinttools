@@ -18,6 +18,9 @@ type Config struct {
 	// Hostname for running service
 	Hostname string `json:"hostname"`
 
+	// Logfile
+	Logfile string `json:"logfile,omitempty"`
+
 	// Repositories are defined by a REPO_ID (string)
 	// that points at a MySQL Db connection string
 	Repositories map[string]*DataSource `json:"repositories"`
@@ -35,21 +38,23 @@ type Config struct {
 type DataSource struct {
 	// DSN is used to connect to a MySQL style DB.
 	DSN string `json:"dsn,omitempty"`
+
+	// BaseURL is the URL to use in constructing eprint id, document id
+	// and file id attribute strings.
+	BaseURL string `json:"base_url,omitempty"`
+
 	// Rest is used to connect to EPrints REST API
 	// NOTE: assumes Basic Auth for authentication
 	RestAPI string `json:"rest,omitempty"`
-	// Create enables the API to create new records in the repository.
-	// The value defaults to false.
-	Create bool `json:"create" default:"false"`
-	// Read enables the API to support read access in the repository.
-	// The value defaults to true.
-	Read bool `json:"read" default:"true"`
-	// Update enables the API to support updating records in the repository.
-	Update bool `json:"update" default:"false"`
-	// The value defaults to false.
-	// Delete enalbes the API to support "deleting" records in
-	// the repostiory. The value defaults to false.
-	Delete bool `json:"delete" default:"false"`
+
+	// Write enables the write API for creating
+	// or replacing EPrint records via SQL database calls.
+	// The default value is false.
+	Write bool `json:"write" default:"false"`
+
+	// TableMap holds the mapping of tables and columns for
+	// the repository presented.
+	TableMap map[string][]string `json:"tables,omitempty"`
 }
 
 // LoadConfig reads a JSON file and returns a Config structure

@@ -1,0 +1,196 @@
+<?xml version='1.0' encoding='utf-8'?>
+<eprints xmlns='http://eprints.org/ep2/data/2.0'>
+  <eprint id='https://caltechconf.example.edu/id/eprint/76'>
+    <eprintid>76</eprintid>
+    <rev_number>6</rev_number>
+    <documents>
+      <document id='https://caltechconf.example.edu/id/document/56'>
+        <docid>56</docid>
+        <rev_number>2</rev_number>
+        <files>
+          <file id='https://caltechconf.example.edu/id/file/323'>
+            <fileid>323</fileid>
+            <datasetid>document</datasetid>
+            <objectid>56</objectid>
+            <filename>paper_b8_001.pdf</filename>
+            <mime_type>application/pdf</mime_type>
+            <filesize>223250</filesize>
+            <mtime>2012-12-26 07:09:31</mtime>
+            <url>https://caltechconf.example.edu/76/1/paper_b8_001.pdf</url>
+          </file>
+        </files>
+        <eprintid>76</eprintid>
+        <pos>1</pos>
+        <mime_type>application/pdf</mime_type>
+        <format>application/pdf</format>
+        <security>public</security>
+        <license>other</license>
+        <main>paper_b8_001.pdf</main>
+        <relation>
+          <item>
+            <type>http://eprints.org/relation/hasVolatileVersion</type>
+            <uri>https://caltechconf.example.edu/id/document/285</uri>
+          </item>
+          <item>
+            <type>http://eprints.org/relation/haspreviewThumbnailVersion</type>
+            <uri>https://caltechconf.example.edu/id/document/285</uri>
+          </item>
+          <item>
+            <type>http://eprints.org/relation/hasVersion</type>
+            <uri>https://caltechconf.example.edu/id/document/285</uri>
+          </item>
+        </relation>
+      </document>
+      <document id='https://caltechconf.example.edu/id/document/285'>
+        <docid>285</docid>
+        <rev_number>2</rev_number>
+        <files>
+          <file id='https://caltechconf.example.edu/id/file/321'>
+            <fileid>321</fileid>
+            <datasetid>document</datasetid>
+            <objectid>285</objectid>
+            <filename>preview.png</filename>
+            <mime_type>image/png</mime_type>
+            <hash>4407f7c5aadb20773500d3be89188f79</hash>
+            <hash_type>MD5</hash_type>
+            <filesize>112897</filesize>
+            <mtime>2012-12-26 07:09:31</mtime>
+            <url>https://caltechconf.example.edu/76/2/preview.png</url>
+          </file>
+        </files>
+        <eprintid>76</eprintid>
+        <pos>2</pos>
+        <placement>1</placement>
+        <mime_type>image/png</mime_type>
+        <format>image/png</format>
+        <language>en</language>
+        <security>public</security>
+        <license>other</license>
+        <main>preview.png</main>
+        <relation>
+          <item>
+            <type>http://eprints.org/relation/isVolatileVersionOf</type>
+            <uri>https://caltechconf.example.edu/id/document/56</uri>
+          </item>
+          <item>
+            <type>http://eprints.org/relation/ispreviewThumbnailVersionOf</type>
+            <uri>https://caltechconf.example.edu/id/document/56</uri>
+          </item>
+          <item>
+            <type>http://eprints.org/relation/isVersionOf</type>
+            <uri>https://caltechconf.example.edu/id/document/56</uri>
+          </item>
+        </relation>
+      </document>
+      <document id='https://caltechconf.example.edu/id/document/727'>
+        <docid>727</docid>
+        <rev_number>1</rev_number>
+        <files>
+          <file id='https://caltechconf.example.edu/id/file/3012'>
+            <fileid>3012</fileid>
+            <datasetid>document</datasetid>
+            <objectid>727</objectid>
+            <filename>indexcodes.txt</filename>
+            <mime_type>text/plain</mime_type>
+            <hash>2105b2f516b78fdffec68e6063af2b48</hash>
+            <hash_type>MD5</hash_type>
+            <filesize>5745</filesize>
+            <mtime>2021-06-23 17:19:48</mtime>
+            <url>https://caltechconf.example.edu/76/3/indexcodes.txt</url>
+          </file>
+        </files>
+        <eprintid>76</eprintid>
+        <pos>3</pos>
+        <placement>3</placement>
+        <mime_type>text/plain</mime_type>
+        <format>other</format>
+        <formatdesc>Generate index codes conversion from application/pdf to indexcodes</formatdesc>
+        <language>en</language>
+        <security>public</security>
+        <license>other</license>
+        <main>indexcodes.txt</main>
+        <relation>
+          <item>
+            <type>http://eprints.org/relation/isVersionOf</type>
+            <uri>https://caltechconf.example.edu/id/document/56</uri>
+          </item>
+          <item>
+            <type>http://eprints.org/relation/isVolatileVersionOf</type>
+            <uri>https://caltechconf.example.edu/id/document/56</uri>
+          </item>
+          <item>
+            <type>http://eprints.org/relation/isIndexCodesVersionOf</type>
+            <uri>https://caltechconf.example.edu/id/document/56</uri>
+          </item>
+        </relation>
+      </document>
+    </documents>
+    <eprint_status>archive</eprint_status>
+    <userid>5</userid>
+    <dir>disk0/00/00/00/76</dir>
+    <datestamp>2001-05-01</datestamp>
+    <lastmod>2019-10-03 22:49:42</lastmod>
+    <status_changed>2011-10-24 21:38:05</status_changed>
+    <type>conference_item</type>
+    <metadata_visibility>show</metadata_visibility>
+    <item_issues_count>0</item_issues_count>
+    <creators>
+      <item>
+        <name>
+          <family>Hofmann</family>
+          <given>Michael</given>
+        </name>
+        <id>Hofmann-M</id>
+      </item>
+      <item>
+        <name>
+          <family>Stoffel</family>
+          <given>Bernd</given>
+        </name>
+        <id>Stoffel-B</id>
+      </item>
+      <item>
+        <name>
+          <family>Friedrichs</family>
+          <given>Jens</given>
+        </name>
+        <id>Friedrichs-J</id>
+      </item>
+      <item>
+        <name>
+          <family>Kosyna</family>
+          <given>G&amp;uuml;nter</given>
+        </name>
+        <id>Kosyna-G</id>
+      </item>
+    </creators>
+    <title>Similarities and Geometrical Effects on Rotating Cavitation In Two Scalted Centrifugal Pumps</title>
+    <ispublished>unpub</ispublished>
+    <full_text_status>public</full_text_status>
+    <pres_type>lecture</pres_type>
+    <abstract>Two scaled centrifugal pumps with vaneless radial diffuser running at identical Reynolds-Numbers are in the focus
+of experiments at Technical University of Braunschweig and Darmstadt University of Technology in the frame of a
+cooperation hosted by the DFG (Deutsche Forschungsgemeinschaft). Both pumps can hold different runner
+geometries as well as different leading edge geometries within the same runner. This paper describes experimental
+investigations of different configurations in both pumps. All configurations show the occurrence of a periodic
+cavitation state called &quot;rotating cavitation&quot; in a wide range of part load conditions, which onset can be characterized
+by an almost constant value of the dimensionless parameter ó/2á. Comparison of the main characteristics of both
+pumps as well as optical investigations to determine the dynamic properties in cavitating conditions have been carried
+out.</abstract>
+    <date>2001-01-01</date>
+    <date_type>published</date_type>
+    <publication>http://resolver.example.edu/cav2001:sessionB8.001</publication>
+    <event_title>CAV 2001: Fourth International Symposium on Cavitation</event_title>
+    <event_location>California Institute of Technology, Pasadena, CA USA</event_location>
+    <event_dates>June 20-23, 2001</event_dates>
+    <event_type>conference</event_type>
+    <id_number>CAV2001:sessionB8.001</id_number>
+    <institution>Darmstadt University of Technology</institution>
+    <department>Laboratory for Turbomachinery and Fluid Power (TFA)</department>
+    <refereed>FALSE</refereed>
+    <official_url>https://resolver.example.edu/CAV2001:sessionB8.001</official_url>
+    <rights>The papers of this symposium proceedings are protected by copyright, retained by the authors. Authors control translation and reproduction rights to these works. However, readers are granted permission for individual, educational, research and non-commercial reproduction, distribution, display and performance of this work in any format. This permission is in addition to rights of reproduction granted under Section 107, 108, and other provisions of the U.S. Copyright Act.</rights>
+    <collection>ExampleCONF</collection>
+  </eprint>
+</eprints>
+

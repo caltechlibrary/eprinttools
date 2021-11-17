@@ -36,7 +36,7 @@
 </nav>
 
 <section>
-<h1 id="eprinttools">
+<h1>
 eprinttools
 </h1>
 <p>
@@ -45,12 +45,12 @@ This is a collection of command line tools written in Go, a Go for working with 
 <p>
 This project also hosts demonstration code to replicate a public facing version of an EPrints repository outside of EPrints. Think of it as the public views and landing pages.
 </p>
-<h2 id="go-base-code">
+<h2>
 Go base code
 </h2>
-<h3 id="the-command-line-programs">
-The command line programs
-</h3>
+<p>
+The command line programs.
+</p>
 <ul>
 <li>
 <a href="docs/eputil.html">eputil</a> is a command line utility for interacting (e.g. harvesting) JSON and XML from EPrints’ REST API
@@ -74,31 +74,28 @@ minimal configuration (because it does so much less!)
 Configuration is via a JSON “settings.json” file. The settings includes a repository id with “dsn” (Data Source Name) attribute for accessing EPrint’s MySQL database(s) and “rest” attribute holding the base URL used to access the REST API. You can define more than one repository in “settings.json”. Below is a simple example for “example.edu”’s authors repository.
 </p>
 <div id="cb1" class="sourceCode">
-<pre class="sourceCode json"><code class="sourceCode json"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a>    <span class="fu">{</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true"></a>        <span class="dt">&quot;authors&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true"></a>            <span class="dt">&quot;dsn&quot;</span><span class="fu">:</span> <span class="st">&quot;USERNAME:SECRET@/authors&quot;</span><span class="fu">,</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true"></a>            <span class="dt">&quot;rest&quot;</span><span class="fu">:</span> <span class="st">&quot;https://USERNAME:SECRET@authors.example.edu&quot;</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true"></a>        <span class="fu">}</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true"></a>    <span class="fu">}</span></span></code></pre>
+<pre class="sourceCode json"><code class="sourceCode json"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>    <span class="fu">{</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&quot;authors&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;dsn&quot;</span><span class="fu">:</span> <span class="st">&quot;USERNAME:SECRET@/authors&quot;</span><span class="fu">,</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;base_url&quot;</span><span class="fu">:</span> <span class="st">&quot;https://authors.example.edu&quot;</span><span class="fu">,</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;write&quot;</span><span class="fu">:</span> <span class="kw">true</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span></span></code></pre>
 </div>
 <p>
 In the “dsn” attribute <strong>USERNAME:SECRET</strong> are the username/password for accessing the database. In the “rest” attribute the <strong>USERNAME:SECRET</strong> are the username/password for accessing the REST API.
 </p>
-<h2 id="related-github-projects">
+<h2>
 Related GitHub projects
 </h2>
-<h3 id="py_dataset">
-<a href="https://github.com/caltechlibrary/py_dataset">py_dataset</a>
-</h3>
-<p>
-This Python module provides access to dataset collections which we use as intermediate storage for JSON documents and related attachments.
-</p>
-<h3 id="ames">
-AMES
-</h3>
-<p>
-The eprintools command line programs have been made available to Python via the <a href="https://github.com/caltechlibrary/ames">AMES</a> project. This include support for both read and write to EPrints repository systems.
-</p>
+<ul>
+<li>
+<a href="https://github.com/caltechlibrary/py_dataset">py_dataset</a>, This Python module provides access to dataset collections which we use as intermediate storage for JSON documents and related attachments.
+</li>
+<li>
+<a href="https://github.com/caltechlibrary/ames">AMES</a>, The eprintools command line programs have been made available to Python via the AMES project. This include support for both read and write to EPrints repository systems.
+</li>
+</ul>
 </section>
 
 <footer>

@@ -112,11 +112,11 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 	generateManPage  bool
 	inputFName       string
 	outputFName      string
-	simplified       bool
 
 	// App Options
-	asJSON bool
-	asXML  bool
+	asJSON       bool
+	asXML        bool
+	asSimplified bool
 )
 
 func main() {
@@ -146,15 +146,15 @@ func main() {
 	// App Options
 	flagSet.BoolVar(&asXML, "xml", false, "output EPrint XML")
 	flagSet.BoolVar(&asJSON, "json", false, "output JSON version of EPrint XML")
-	flagSet.BoolVar(&simplified, "s", false, "output simplified JSON version of EPrints XML")
-	flagSet.BoolVar(&simplified, "simplified", false, "output simplified JSON version of EPrints XML")
+	flagSet.BoolVar(&asSimplified, "s", false, "output simplified JSON version of EPrints XML")
+	flagSet.BoolVar(&asSimplified, "simplified", false, "output simplified JSON version of EPrints XML")
 
 	// We're ready to process args
 	flagSet.Parse(os.Args[1:])
 	args := flagSet.Args()
 
 	// Simplified output is aways JSON formatted.
-	if simplified {
+	if asSimplified {
 		asJSON = true
 		asXML = false
 	}
@@ -234,7 +234,7 @@ func main() {
 	if asJSON == false && asXML == false {
 		asXML = (inputFmt == IsXML)
 	}
-	if simplified {
+	if asSimplified {
 		if len(obj.EPrint) == 1 {
 			sObject, err := eprinttools.CrosswalkEPrintToRecord(obj.EPrint[0])
 			if err != nil {

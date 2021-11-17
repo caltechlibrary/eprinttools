@@ -36,7 +36,7 @@
 </nav>
 
 <section>
-<h1 id="installation">
+<h1>
 Installation
 </h1>
 <p>
@@ -45,78 +45,26 @@ Installation
 <p>
 Below are generalized instructions for installation of a release.
 </p>
-<h2 id="compiled-version">
+<h2>
 Compiled version
 </h2>
 <p>
 Compiled versions are available for Mac OS X (amd64 and M1 processor, macos-amd64, macos-arm64), Linux (amd64 process, linux-amd64), Windows (amd64 processor, windows-amd64) and Rapsberry Pi (arm7 processor, raspbian-arm7)
 </p>
 <p>
-VERSION_NUMBER is a <a href="http://semver.org/">symantic version number</a> (e.g. <code>v1.0.1</code>)
+VERSION_NUMBER is a <a href="http://semver.org/">symantic version number</a> (e.g. <code>v1.0.3</code>)
 </p>
 <p>
 For all the released version go to the project page on Github and click latest release
 </p>
 <blockquote>
 <p>
-<a href="https://github.com/caltechlibrary/eprinttools/releases/latest" class="uri">https://github.com/caltechlibrary/eprinttools/releases/latest</a>
+<a href="https://github.com/caltechlibrary/eprinttools/releases/latest">https://github.com/caltechlibrary/eprinttools/releases/latest</a>
 </p>
 </blockquote>
-<table>
-<thead>
-<tr class="header">
-<th>
-Platform
-</th>
-<th>
-Zip Filename
-</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>
-Windows
-</td>
-<td>
-eprinttools-VERSION_NUMBER-windows-amd64.zip
-</td>
-</tr>
-<tr class="even">
-<td>
-macOS
-</td>
-<td>
-eprinttools-VERSION_NUMBER-macos-amd64.zip
-</td>
-</tr>
-<tr class="odd">
-<td>
-macOS
-</td>
-<td>
-eprinttools-VERSION_NUMBER-macos-arm64.zip
-</td>
-</tr>
-<tr class="even">
-<td>
-Linux/Intel
-</td>
-<td>
-eprinttools-VERSION_NUMBER-linux-amd64.zip
-</td>
-</tr>
-<tr class="odd">
-<td>
-Raspbery Pi
-</td>
-<td>
-eprinttools-VERSION_NUMBER-raspbian-os-arm7.zip
-</td>
-</tr>
-</tbody>
-</table>
-<h2 id="the-basic-recipe">
+<p>
+<div class="line-block">Platform | Zip Filename | |————-|———————————————-| | Windows | eprinttools-VERSION_NUMBER-windows-amd64.zip | | macOS | eprinttools-VERSION_NUMBER-macos-amd64.zip | | macOS | eprinttools-VERSION_NUMBER-macos-arm64.zip | | Linux/Intel | eprinttools-VERSION_NUMBER-linux-amd64.zip | | Raspbery Pi | eprinttools-VERSION_NUMBER-raspbian-os-arm7.zip |</div>
+<h2>
 The basic recipe
 </h2>
 <ul>
@@ -136,7 +84,7 @@ Adjust your PATH if needed - (e.g. <code>export PATH=“$HOME/bin:$PATH”</cod
 Test
 </li>
 </ul>
-<h3 id="mac-os-x">
+<h3>
 Mac OS X
 </h3>
 <ol type="1">
@@ -165,7 +113,7 @@ Here’s an example of the commands run in the Terminal App after downloading th
     cp -v bin/* $HOME/bin/
     export PATH=$HOME/bin:$PATH
     eputil -version</code></pre>
-<h3 id="windows">
+<h3>
 Windows
 </h3>
 <ol type="1">
@@ -191,7 +139,7 @@ Here’s an example of the commands run in from the Bash shell on Windows 10 aft
     cp -v bin/* $HOME/bin/
     export PATH=$HOME/bin:$PATH
     eputil -version</code></pre>
-<h3 id="linux">
+<h3>
 Linux
 </h3>
 <ol type="1">
@@ -217,7 +165,7 @@ Here’s an example of the commands run in from the Bash shell after downloading
     cp -v bin/* $HOME/bin/
     export PATH=$HOME/bin:$PATH
     eputil -version</code></pre>
-<h3 id="raspberry-pi">
+<h3>
 Raspberry Pi
 </h3>
 <p>
@@ -246,7 +194,7 @@ Here’s an example of the commands run in from the Bash shell after downloading
     cp -v bin/* $HOME/bin/
     export PATH=$HOME/bin:$PATH
     eputil -version</code></pre>
-<h2 id="compiling-from-source">
+<h2>
 Compiling from source
 </h2>
 <p>

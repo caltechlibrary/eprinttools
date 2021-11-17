@@ -112,6 +112,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 	showLicense bool
 
 	debugLogs bool
+
+	logFile string
 )
 
 func checkConfig(cfg *eprinttools.Config) {
@@ -159,13 +161,14 @@ func main() {
 	}
 
 	/* Initialize Extended API web service */
-	if err := eprinttools.InitExtendedAPI(settings); err != nil {
-		fmt.Fprintf(os.Stderr, "InitExtendedAPI(%q) failed, %s", settings, err)
+	api := new(eprinttools.EP3API)
+	if err := api.InitExtendedAPI(settings); err != nil {
+		fmt.Fprintf(os.Stderr, "InitExtendedAPI(%q) failed, %s\n", settings, err)
 		os.Exit(1)
 	}
 	/* Run Extended API web service */
-	if err := eprinttools.RunExtendedAPI(appName); err != nil {
-		fmt.Fprintf(os.Stderr, "RunExtendedAPI(%q) failed, %s", appName, err)
+	if err := api.RunExtendedAPI(appName, settings); err != nil {
+		fmt.Fprintf(os.Stderr, "RunExtendedAPI(%q) failed, %s\n", appName, err)
 		os.Exit(1)
 	}
 }

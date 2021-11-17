@@ -1,17 +1,19 @@
+Notes on using doi2eprintxml.exe on Windows 10
+==============================================
 
-# Notes on using doi2eprintxml.exe on Windows 10
-
-## Installation and setup
+Installation and setup
+----------------------
 
 1. With your web browser goto https://github.com/caltechlibrary/eprinttools/releases/
-2. Download the file called "eprinttools-v0.0.18-windows-amd64.zip".
-    + if there is a newer version (e.g. v0.0.19) download that instead
+2. Download the file called "eprinttools-v1.0.3-windows-amd64.zip".
+    + if there is a newer version (e.g. v1.0.4) download that instead
 3. Unzip the downloaded zip file
 4. Copy "doi2eprintxml.exe" to where you want to work (e.g. Desktop)
 5. Open the windows "command prompt" and change directory to your desktop
 6. Run `doi2printxml.exe -h` to see the help page
 
-## Getting started
+Getting started
+---------------
 
 The tool `doi2eprintxml.exe` is a command line program, it is normally
 run from the command prompt. The purpose of the program is to take

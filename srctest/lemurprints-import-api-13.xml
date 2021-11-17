@@ -1,0 +1,31 @@
+<eprints xmlns="http://eprints.org/ep2/data/2.0">
+   <eprint>
+      <type>dataset</type>
+      <creators>
+         <item>
+            <name>
+               <family>Meier</family>
+               <given>Men-Andrin</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Heaton</family>
+               <given>Thomas</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Clinton</family>
+               <given>John</given>
+            </name>
+         </item>
+      </creators>
+      <title>Waveform plot data used in &#39;Evidence for Universal Earthquake Rupture Initiation Behavior&#39;</title>
+      <ispublished>pub</ispublished>
+      <abstract>This data set contains a plot of all waveforms used in this study, including acceleration, velocity, displacement, prelogram and log(Pd) vs log(time)</abstract>
+      <date>2016</date>
+      <date_type>published</date_type>
+      <publication>Seismological Laboratory, California Institute of Technology</publication>
+   </eprint>
+</eprints>

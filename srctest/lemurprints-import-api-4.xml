@@ -1,0 +1,31 @@
+<eprints xmlns="http://eprints.org/ep2/data/2.0">
+   <eprint>
+      <type>book</type>
+      <creators>
+         <item>
+            <name>
+               <family>Wilkins</family>
+               <given>Olivia Harper</given>
+            </name>
+            <orcid>0000-0001-7794-7639</orcid>
+         </item>
+         <item>
+            <name>
+               <family>Blake</family>
+               <given>Geoffrey A.</given>
+            </name>
+            <orcid>0000-0003-0787-1610</orcid>
+         </item>
+      </creators>
+      <title>Astrochemistry</title>
+      <ispublished>pub</ispublished>
+      <date>2021-07-21</date>
+      <date_type>published</date_type>
+      <publisher>American Chemical Society</publisher>
+      <place_of_pub>Washington, DC, USA</place_of_pub>
+      <isbn>9780841299122</isbn>
+      <issn>2691-8307</issn>
+      <book_title>Astrochemistry</book_title>
+      <doi>10.1021/acsinfocus.7e5004</doi>
+   </eprint>
+</eprints>

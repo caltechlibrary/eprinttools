@@ -1,11 +1,9 @@
-
-# Enabling REST API for EPrints
+Enabling REST API for EPrints
+=============================
 
 These are just my quick notes for enabling the REST API for EPrints. 
 
-The REST API doesn't "automatically" become enabled even for Admin role users. You can alter this behavior
-by updating the roles in "archives/REPOSITORY_NAME/cfg/cfg.d/user_roles.pl" (where REPOSITORY_NAME is the
-name of the respository you setup with _epadmin creeate_) in your eprints directory.
+The REST API doesn't "automatically" become enabled even for Admin role users. You can alter this behavior by updating the roles in "archives/REPOSITORY_NAME/cfg/cfg.d/user_roles.pl" (where REPOSITORY_NAME is the name of the respository you setup with _epadmin creeate_) in your eprints directory.
 
 Below is I added "rest" role to the admin role.
 
@@ -28,9 +26,7 @@ Below is I added "rest" role to the admin role.
 
 ## eputil
 
-_eputil_ supports POST and PUT into EPrint's REST API. Content sent by the POST or PUT is assumed to be
-encoded before it is read from a file or standard input. In the example below the base we are "putting"
-the value (TRUE) into the lemurprints.local/authors EPrint collection for record 1's referreed field.
+__eputil__ supports POST and PUT into EPrint's REST API. Content sent by the POST or PUT is assumed to be encoded before it is read from a file or standard input. In the example below the base we are "putting" the value (TRUE) into the lemurprints.local/authors EPrint collection for record 1's referreed field.
 
 ```shell
     echo -n "TRUE" | eputil -u "$EP_USER" -p "$EP_PASSWORD" \
@@ -38,8 +34,8 @@ the value (TRUE) into the lemurprints.local/authors EPrint collection for record
 ```
 
 
-
-## Reference links
+Reference links
+---------------
 
 + [REST API Feature Announcement](http://wiki.eprints.org/w/New_Features_in_EPrints_3.2)
 + [EPrints XML Configuration](https://wiki.eprints.org/w/EPScript) - need to enable REST API access based on role

@@ -7,6 +7,8 @@ github.com/caltechlibrary/dataciteapi v1.0.1/go.mod h1:T6oYVCoQyHRi/0qPI+K5PM//F
 github.com/caltechlibrary/doitools v0.0.0-20190910184449-c524f84bb2b3/go.mod h1:dBtDM+sEd5W27XSuPTcYGUNmkO9PWJ4JMh5bW1EO8L0=
 github.com/caltechlibrary/doitools v0.0.1 h1:c6lvI5l9juo019GGUvuwbzeyv1c6VtSi8mkUv1drgwY=
 github.com/caltechlibrary/doitools v0.0.1/go.mod h1:1K36p/UIkIFM0JVaIVtFStKsFu5xjjYWMWAUExmFnP0=
+github.com/caltechlibrary/pairtree v1.0.2 h1:zcsFibPW7tBvjOvbxHzkE1CIPm0BxUCfQrLCa+bB5qc=
+github.com/caltechlibrary/pairtree v1.0.2/go.mod h1:VZdWqmXgJ+tMxM37n/W+CjS8CQVPus+0ReFdRL10AS4=
 github.com/go-sql-driver/mysql v1.6.0 h1:BCTh4TKNUYmOmMUcQ3IipzF5prigylS7XXjEkfCHuOE=
 github.com/go-sql-driver/mysql v1.6.0/go.mod h1:DCzpHaOWr8IXmIStZouvnhqoel9Qv2LBy8hT2VhHyBg=
 golang.org/x/crypto v0.0.0-20210921155107-089bfa567519 h1:7I4JAnoQBe7ZtJcBaYHi5UtiO8tQHbUSXxL+pnGRANg=

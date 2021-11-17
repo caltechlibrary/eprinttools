@@ -96,7 +96,7 @@ func GetEPrint(baseURL string, eprintID int) (*EPrints, error) {
 	if err != nil {
 		return nil, err
 	}
-	data := new(EPrints)
+	data := NewEPrints()
 	err = xml.Unmarshal(src, &data)
 	if err != nil {
 		return nil, err
