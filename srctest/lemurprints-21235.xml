@@ -1,0 +1,157 @@
+<?xml version='1.0' encoding='utf-8'?>
+<eprints xmlns='http://eprints.org/ep2/data/2.0'>
+  <eprint id='https://lemurprints.example.edu/id/eprint/21235'>
+    <eprintid>21235</eprintid>
+    <rev_number>14</rev_number>
+    <documents>
+      <document id='https://lemurprints.example.edu/id/document/24502'>
+        <docid>24502</docid>
+        <rev_number>4</rev_number>
+        <files>
+          <file id='https://lemurprints.example.edu/id/file/282355'>
+            <fileid>282355</fileid>
+            <datasetid>document</datasetid>
+            <objectid>24502</objectid>
+            <filename>260_Strand_LD_1980.pdf</filename>
+            <mime_type>application/pdf</mime_type>
+            <filesize>2998412</filesize>
+            <mtime>2012-12-26 12:44:11</mtime>
+            <url>https://lemurprints.example.edu/21235/1/260_Strand_LD_1980.pdf</url>
+          </file>
+        </files>
+        <eprintid>21235</eprintid>
+        <pos>1</pos>
+        <mime_type>application/pdf</mime_type>
+        <format>application/pdf</format>
+        <language>en</language>
+        <security>validuser</security>
+        <license>other</license>
+        <main>260_Strand_LD_1980.pdf</main>
+        <content>published</content>
+      </document>
+      <document id='https://lemurprints.example.edu/id/document/341441'>
+        <docid>341441</docid>
+        <rev_number>1</rev_number>
+        <files>
+          <file id='https://lemurprints.example.edu/id/file/1909824'>
+            <fileid>1909824</fileid>
+            <datasetid>document</datasetid>
+            <objectid>341441</objectid>
+            <filename>indexcodes.txt</filename>
+            <mime_type>text/plain</mime_type>
+            <hash>163babd3ef8fb81638c6fef3c3476f2d</hash>
+            <hash_type>MD5</hash_type>
+            <filesize>17830</filesize>
+            <mtime>2021-07-01 09:42:55</mtime>
+            <url>https://lemurprints.example.edu/21235/2/indexcodes.txt</url>
+          </file>
+        </files>
+        <eprintid>21235</eprintid>
+        <pos>2</pos>
+        <placement>2</placement>
+        <mime_type>text/plain</mime_type>
+        <format>other</format>
+        <formatdesc>Generate index codes conversion from application/pdf to indexcodes</formatdesc>
+        <language>en</language>
+        <security>validuser</security>
+        <license>other</license>
+        <main>indexcodes.txt</main>
+        <relation>
+          <item>
+            <type>http://eprints.org/relation/isVersionOf</type>
+            <uri>https://lemurprints.example.edu/id/document/24502</uri>
+          </item>
+          <item>
+            <type>http://eprints.org/relation/isVolatileVersionOf</type>
+            <uri>https://lemurprints.example.edu/id/document/24502</uri>
+          </item>
+          <item>
+            <type>http://eprints.org/relation/isIndexCodesVersionOf</type>
+            <uri>https://lemurprints.example.edu/id/document/24502</uri>
+          </item>
+        </relation>
+      </document>
+    </documents>
+    <eprint_status>archive</eprint_status>
+    <userid>772</userid>
+    <dir>disk0/00/02/12/35</dir>
+    <datestamp>2010-12-14 22:56:14</datestamp>
+    <lastmod>2019-10-03 02:21:35</lastmod>
+    <status_changed>2010-12-14 22:56:14</status_changed>
+    <type>monograph</type>
+    <metadata_visibility>show</metadata_visibility>
+    <item_issues_count>0</item_issues_count>
+    <creators>
+      <item>
+        <name>
+          <family>Strand</family>
+          <given>L. D.</given>
+        </name>
+        <id>Strand-L-D</id>
+      </item>
+      <item>
+        <name>
+          <family>Magiawala</family>
+          <given>K. R.</given>
+        </name>
+        <id>Magiawala-K-R</id>
+      </item>
+    </creators>
+    <title>Microwave measurement of solid propellant pressure-coupled response function</title>
+    <ispublished>pub</ispublished>
+    <full_text_status>restricted</full_text_status>
+    <monograph_type>technical_report</monograph_type>
+    <note>© 1984, Air Force Rocket Propulsion Laboratory. March 1980,
+Jet Propulsion Laboratory
+California Institute of Technology Pasadena, California 91103 (JPL Publication 80-4). Distribution limited to U.S. Government Agencies only: Test and evaluation; 26 March 1979. Other requests for this document must be referred to AFRPL/TSPR (STINFO), EDWARDS AFB, CA 93523. This technical report is approved for release and distribution in
+accordance with the distribution statement on the cover and on the DO Form 1473.</note>
+    <date>1984</date>
+    <date_type>published</date_type>
+    <series>Air Force Rocket Propulsion Laboratory</series>
+    <number>AFRPL-TR-79-84</number>
+    <publisher>Air Force Rocket Propulsion Laboratory</publisher>
+    <pages>86</pages>
+    <id_number>CaltechAUTHORS:20101208-091246752</id_number>
+    <refereed>TRUE</refereed>
+    <official_url>https://resolver.caltech.edu/CaltechAUTHORS:20101208-091246752</official_url>
+    <referencetext>
+      <item>1 Levine, J. N. and Andrepont, W.C., &quot;Measurement Methods of Transient Combustion Response Characteristics of Solid Propellant-An Assessment, &quot;Paper No. 79-1209, AIAA/SAE/ASME 15th. Joint Propulsion Conference, Las Vegas, Nevada (June 1979)
+2 Strand, L.D., Schultz, H. L., and Reedy, G. K., &quot;Microwave Doppler Shift Technique for Determining Solid Propellant Transient Regression Rates,&quot; Journal of Spacecraft and Rockets, Vol. 11, pp. 75-83 (Feb. 1974).
+3 Strand, L. D. and , R. P., &quot;A Variable-Frequency Drive-Microwave Transient Regression Rate Measurement System,&quot; Experimental Diagnostics in Combustion of Solids, edited by T. L. Boggs and B. T. linn, Vol. 63 of Progress in Astronautics and Aeronautics, American Institute of Aeronautics and Astronautics, New York, N.Y., pp. 155-172 (1978).
+4 Shelton, S.V., &quot;A Technique for Measurement of Solid Propellant Burning Rates During Rapid Pressure Transients,&quot;
+4th ICRPG Combustion Conference, Publication 162, vol.1. Chemical Propulsion Information Agency, Silver Spring, MD., pp. 361-372 (Dec. 1967).
+5 Alkidas, A., Clary, A., Giles, G., Shelton, S., &quot;Measurement of Steady State and Transient Solid Propellant Burning Rates with Microwaves,&quot; Final Report, Grant AFOSR-70-1934, Georgia Institute of Technology, Atlanta, GA (Dec. 1973).
+6 Russell, L. H., &quot;Burning Velocities of a Solid Gun Propellant, via a Microwave Technique, at Elevated Pressures and Pressurization Rates,&quot; 15th JANNAF Combustion Meeting, Publication 297, No. 1, Chemical Propulsion Information Agency, Laurel, MD. pp.475-512 (Feb. 1979).
+7 Buffum, F. B., Mathes, H. B., Slates, R. 0., and Price, E. W., &quot;Attenuation of Axial Acoustic Modes in a Model Missile Motor,&quot; Navweps Report 8643, NOTS TP 3684, Naval Ordnance Test Station, China Lake, California (July 1965).
+8 &quot;T-Burner Manual,&quot; Publication 191, Chemical Propulsion Information Agency, Silver Spring, MD (Nov. 1969).
+9 Brown, R. S., Erickson, J. E., and Babcock, W. R., &quot;Combustion Response Function Measurements by the Rotating Valve Method,&quot;AIAA J., Vol. 12, pp. 1502-1510 (Nov. 1974).
+10 Cohen, N. S., et al., &quot;Design of a Smokeless Solid Rocket Motor Emphasizing Combustion Stability,&quot; 12th JANNAF Combustion Meeting, Publication 273, Vol. II, Chemical Propulsion Information Agency, Laurel, MD, pp. 205-220
+(Aug. 1975).
+ll Applications Handbook of Precision Phase Measurement, Dranetz Engineering Laboratories, Inc., South Plainfield, N.J. (1975).
+12 Brown, R. 5., personal communication.
+13 Levine, J.N., personal communication.
+14 Brown, R. S., &quot;Development and Evaluation of Rotating Valve Combustion Response Test Technique,&quot; AFRPL-TR-76-72, United Technologies Corp., Chemical Systems Div., Sunnyvale, California (Oct. 1976).
+l5 Linfor, J. J., Lavine, R. L., Micheli, P. L., and Poynter, R. C., &quot;T-burner Motor Verification Program Final Report,&quot; AFRPL-TR-74-71, Aerojet Solid Propulsion, Company Sacramento, California (Jan. 1975).
+16 Brown, R. S., personal communication (July 27, 1979).
+17 Kraeut1e, K. J ., personal communication 18, 1979).
+18 Cohen, N. S., personal communication.
+19. Schwartz, M., Information Transmission, Modulation and Noise, McGraw Hill Book Co., Inc., New York, NY (1959).</item>
+    </referencetext>
+    <rights>No commercial reproduction, distribution, display or performance rights in this work are provided.</rights>
+    <other_numbering_system>
+      <item>
+        <name>Guggenheim Jet Propulsion Center</name>
+      </item>
+      <item>
+        <name>AFRPL</name>
+        <id>TR-79-84</id>
+      </item>
+    </other_numbering_system>
+    <collection>Test-AUTHORS</collection>
+    <reviewer>Kathy Johnson</reviewer>
+    <local_group>
+      <item>Guggenheim Jet Propulsion Center</item>
+    </local_group>
+  </eprint>
+</eprints>
+

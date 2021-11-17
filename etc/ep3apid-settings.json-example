@@ -1,0 +1,6 @@
+{
+    "repo_id": {
+        "dsn": "db_user:secret@/database_name",
+        "write": false
+    }
+}

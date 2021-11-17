@@ -1,8 +1,9 @@
 Caltech Library Rules
 =====================
 
-These are a collection of rules used before July 2021 (release 1.0.0 and
-earlier) for generating EPrints XML.  As of release 1.0.1 this rules
-are turned off by default.
-
+This package implements a collection of rules that can be applied to
+from EPrints data structure. The rules evolved from CaltechAUTHORS
+and CaltechTHESIS repository practice. The rules can be applied as
+a set (e.g. the `-clsrules` option in the doi2eprintxml tool) or
+individually building up from an empty set of rules.
 

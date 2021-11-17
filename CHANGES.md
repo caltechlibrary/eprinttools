@@ -1,3 +1,19 @@
+Release 1.0.3-next:
+
+Added `/<REPO_ID>/keys` to list all keys in a repository directly from the MySQL tables
+Added `/<REPO_ID>/eprint/<EPRINT_ID` (GET) for generating EPrint XML directly form the MySQL tables
+
+The eprint3x.go has been heavely updated. Included are corrections, deletions and additions in the various struct definitions. Added an `ItemsInterface` type so I can consolidate the SQL handling around common item list types.
+
+The ep3sql.go file contains all the SQL interaction mapping relational models to our structs.
+
+The ep3apid now only uses MySQL connection for returning results (not the EPrints REST API).  
+
+Release 1.0.2-simplified:
+
+Added `/<REPO_ID>/created/<TIMESTAMP>/<TIMESTAMP>` end point based on
+eprint table's "datestamp" fields.
+
 Release 1.0.2:
 
 Introduced a web service called `ep3apid` which can be run from the
@@ -14,6 +30,9 @@ Depreciated `eprintxml2json`, superceded by `epfmt`.
 By default clsrules now require the command line option to be applied.
 
 Removed Python experiments from this repository
+
+Removed dependencies on "github.com/caltechlibrary/cli" and
+"github.com/caltechlibrary/rc".
 
 Release 1.0.1:
 

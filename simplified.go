@@ -51,10 +51,13 @@ type Record struct {
 	ExternalPIDs map[string]*PersistentIdentifier `json:"pids,omitempty"`      // System-managed external persistent identifiers (DOI, Handles, OAI-PMH identifiers)
 	RecordAccess *RecordAccess                    `json:"access,omitempty"`    // Access control for record
 	Metadata     *Metadata                        `json:"metadata"`            // Descriptive metadata for the resource
-	Files        *Files                           `json:"files"`               // Associated files information.
+	Files        *Files                           `json:"files,omitempty"`     // Associated files information.
 	Tombstone    *Tombstone                       `json:"tombstone,omitempty"` // Tombstone (deasscession) information.
 	Created      time.Time                        `json:"created"`             // create time for record
 	Updated      time.Time                        `json:"updated"`             // modified time for record
+
+	// Annotation this is where I'm going to map custom fields.
+	Annoations map[string]interface{} `json:"annotations,omitempty"`
 }
 
 //
@@ -422,18 +425,23 @@ func (rec *Record) recordAccessFromEPrint(eprint *EPrint) error {
 		rec.RecordAccess.Record = "restricted"
 	}
 	// Need to make sure record is not embargoed
-	for _, doc := range *eprint.Documents {
-		if doc.DateEmbargo != "" {
-			embargo := new(Embargo)
-			embargo.Until = doc.DateEmbargo
-			embargo.Reason = eprint.Suggestions
-			if doc.Security == "internal" {
-				embargo.Active = true
-			} else {
-				embargo.Active = false
+	if eprint.Documents != nil {
+		for i := 0; i < eprint.Documents.Length(); i++ {
+			doc := eprint.Documents.IndexOf(i)
+			if doc.DateEmbargo != "" {
+				embargo := new(Embargo)
+				embargo.Until = doc.DateEmbargo
+				if eprint.Suggestions != "" {
+					embargo.Reason = eprint.Suggestions
+				}
+				if doc.Security == "internal" {
+					embargo.Active = true
+				} else {
+					embargo.Active = false
+				}
+				rec.RecordAccess.Embargo = embargo
+				break
 			}
-			rec.RecordAccess.Embargo = embargo
-			break
 		}
 	}
 	return nil
@@ -558,7 +566,9 @@ func (rec *Record) metadataFromEPrint(eprint *EPrint) error {
 			metadata.AdditionalTitles = append(metadata.AdditionalTitles, title)
 		}
 	}
-	metadata.Description = eprint.Abstract
+	if eprint.Abstract != "" {
+		metadata.Description = eprint.Abstract
+	}
 	metadata.PublicationDate = eprint.PubDate()
 
 	// Rights are scattered in several EPrints fields, they need to
@@ -572,7 +582,7 @@ func (rec *Record) metadataFromEPrint(eprint *EPrint) error {
 	// Figure out if our copyright information is in the Note field.
 	if (eprint.Note != "") && (strings.Contains(eprint.Note, "©") || strings.Contains(eprint.Note, "copyright") || strings.Contains(eprint.Note, "(c)")) {
 		addRights = true
-		rights.Description = eprint.Note
+		rights.Description = fmt.Sprintf("%s", eprint.Note)
 	}
 	if addRights {
 		metadata.Rights = append(metadata.Rights, rights)
@@ -600,8 +610,8 @@ func (rec *Record) metadataFromEPrint(eprint *EPrint) error {
 	if (eprint.DateType != "published") && (eprint.Date != "") {
 		metadata.Dates = append(metadata.Dates, dateTypeFromTimestamp("pub_date", eprint.Date, "Publication Date"))
 	}
-	if eprint.DateStamp != "" {
-		metadata.Dates = append(metadata.Dates, dateTypeFromTimestamp("created", eprint.DateStamp, "Created from EPrint's datestamp field"))
+	if eprint.Datestamp != "" {
+		metadata.Dates = append(metadata.Dates, dateTypeFromTimestamp("created", eprint.Datestamp, "Created from EPrint's datestamp field"))
 	}
 	if eprint.LastModified != "" {
 		metadata.Dates = append(metadata.Dates, dateTypeFromTimestamp("updated", eprint.LastModified, "Created from EPrint's last_modified field"))
@@ -641,7 +651,7 @@ func (rec *Record) metadataFromEPrint(eprint *EPrint) error {
 // EPrint record
 func (rec *Record) filesFromEPrint(eprint *EPrint) error {
 	// crosswalk Files from EPrints DocumentList
-	if (eprint.Documents != nil) && (eprint.Documents.Length() > 0) {
+	if (eprint != nil) && (eprint.Documents != nil) && (eprint.Documents.Length() > 0) {
 		rec.Files = new(Files)
 		rec.Files.Enabled = true
 		rec.Files.Entries = map[string]*Entry{}
@@ -692,12 +702,12 @@ func (rec *Record) createdUpdatedFromEPrint(eprint *EPrint) error {
 		tmFmt            string
 	)
 	// crosswalk Created date
-	if len(eprint.DateStamp) > 0 {
+	if len(eprint.Datestamp) > 0 {
 		tmFmt = timestamp
-		if len(eprint.DateStamp) < 11 {
+		if len(eprint.Datestamp) < 11 {
 			tmFmt = datestamp
 		}
-		created, err = time.Parse(tmFmt, eprint.DateStamp)
+		created, err = time.Parse(tmFmt, eprint.Datestamp)
 		if err != nil {
 			return fmt.Errorf("Error parsing datestamp, %s", err)
 		}

@@ -1,17 +1,19 @@
+Views in our various EPrints repositories
+=========================================
 
-# Views in our various EPrints repositories
+Notes from Google Scholar
+-------------------------
 
-## Notes from Google Scholar
+It looks likes /view/ids/ and /view/year/ maybe used by the GoogleBot as Google Scholar understands EPrints' directory layout even though those aren't usually linked from the homepage.  We also want to generate a "latest additions" link so that larger repositories can have their additions and updates picked up quicker. Google Scholar docs are at https://scholar.google.com/intl/en/scholar/inclusion.html#indexing.
 
-It looks likes /view/ids/ and /view/year/ maybe used by the GoogleBot
-as Google Scholar understands EPrints' directory layout even though those aren't usually linked from the homepage.  We also want to generate a "latest additions" link so that larger repositories can have their additions and updates picked up quicker. Google Scholar docs are at https://scholar.google.com/intl/en/scholar/inclusion.html#indexing.
-
-## Questions
+Questions
+---------
 
 + People, person, persion-az include the creators.item values and sometimes include contributors or editors values, should this be consistent?
 + We have lots of pays to describe an EPrints item type, should be standardize? (e.g. Type vs. Document Types)
 
-## Common views
+Common views
+------------
 
 ids
 : is based on the eprint id, appears to be a default view but not usually included in browseviews.html (results is a list of list of one item)
@@ -34,7 +36,8 @@ person-az
 collection
 : is based on collection simple field, should probably be in all repositories but isn't listed often in browseview.html
 
-## CaltechAUTHORS
+CaltechAUTHORS
+--------------
 
 ### browseview.html
 
@@ -57,7 +60,8 @@ collection
 + Person -> person-az
 + Collection -> collection
 
-## CaltechTHESIS
+CaltechTHESIS
+-------------
 
 ### browseview.html
 
@@ -81,7 +85,8 @@ collection
 + Committee Member -> committee (this is based on thesis_committee.item)
 + Group -> group (this is based on local_group.item)
 
-## CaltechLabNotes
+CaltechLabNotes
+---------------
 
 ### browseview.html
 
@@ -96,7 +101,8 @@ collection
 + Subject -> subjects
 + Name -> person
 
-## Caltech Magazine (calteches)
+Caltech Magazine (calteches)
+----------------------------
 
 ### browseview.html
 
@@ -114,7 +120,8 @@ collection
 + Author -> person-az
 + Type -> types
 
-## CaltechCONF
+CaltechCONF
+-----------
 
 ### browseview.html
 
@@ -136,7 +143,8 @@ collection
 + Person -> person-az
 + Collection -> collection
 
-## Oral Histories (caltechoh)
+Oral Histories (caltechoh)
+--------------------------
 
 ### browseview.html
 
@@ -152,7 +160,8 @@ collection
 + Type -> types
 + Person -> person-az
 
-## CampusPubs
+CampusPubs
+----------
 
 ### browseview.html
 

@@ -1,0 +1,171 @@
+<?xml version='1.0' encoding='utf-8'?>
+<eprints xmlns='http://eprints.org/ep2/data/2.0'>
+  <eprint id='https://oralhistories.example.edu/id/eprint/97'>
+    <eprintid>97</eprintid>
+    <rev_number>5</rev_number>
+    <documents>
+      <document id='https://oralhistories.example.edu/id/document/43'>
+        <docid>43</docid>
+        <rev_number>2</rev_number>
+        <files>
+          <file id='https://oralhistories.example.edu/id/file/252'>
+            <fileid>252</fileid>
+            <datasetid>document</datasetid>
+            <objectid>43</objectid>
+            <filename>OH_Gutenberg_H.pdf</filename>
+            <mime_type>application/pdf</mime_type>
+            <filesize>589318</filesize>
+            <mtime>2012-12-26 07:04:57</mtime>
+            <url>https://oralhistories.example.edu/97/1/OH_Gutenberg_H.pdf</url>
+          </file>
+        </files>
+        <eprintid>97</eprintid>
+        <pos>1</pos>
+        <mime_type>application/pdf</mime_type>
+        <format>application/pdf</format>
+        <language>en</language>
+        <security>public</security>
+        <license>other</license>
+        <main>OH_Gutenberg_H.pdf</main>
+        <relation>
+          <item>
+            <type>http://eprints.org/relation/hasVolatileVersion</type>
+            <uri>https://oralhistories.example.edu/id/document/188</uri>
+          </item>
+          <item>
+            <type>http://eprints.org/relation/haspreviewThumbnailVersion</type>
+            <uri>https://oralhistories.example.edu/id/document/188</uri>
+          </item>
+          <item>
+            <type>http://eprints.org/relation/hasVersion</type>
+            <uri>https://oralhistories.example.edu/id/document/188</uri>
+          </item>
+        </relation>
+      </document>
+      <document id='https://oralhistories.example.edu/id/document/188'>
+        <docid>188</docid>
+        <rev_number>2</rev_number>
+        <files>
+          <file id='https://oralhistories.example.edu/id/file/250'>
+            <fileid>250</fileid>
+            <datasetid>document</datasetid>
+            <objectid>188</objectid>
+            <filename>preview.png</filename>
+            <mime_type>image/png</mime_type>
+            <hash>4f9497d13b7d50e722681944a92fb094</hash>
+            <hash_type>MD5</hash_type>
+            <filesize>123192</filesize>
+            <mtime>2012-12-26 07:04:57</mtime>
+            <url>https://oralhistories.example.edu/97/2/preview.png</url>
+          </file>
+        </files>
+        <eprintid>97</eprintid>
+        <pos>2</pos>
+        <placement>2</placement>
+        <mime_type>image/png</mime_type>
+        <format>image/png</format>
+        <language>en</language>
+        <security>public</security>
+        <license>other</license>
+        <main>preview.png</main>
+        <relation>
+          <item>
+            <type>http://eprints.org/relation/isVolatileVersionOf</type>
+            <uri>https://oralhistories.example.edu/id/document/43</uri>
+          </item>
+          <item>
+            <type>http://eprints.org/relation/ispreviewThumbnailVersionOf</type>
+            <uri>https://oralhistories.example.edu/id/document/43</uri>
+          </item>
+          <item>
+            <type>http://eprints.org/relation/isVersionOf</type>
+            <uri>https://oralhistories.example.edu/id/document/43</uri>
+          </item>
+        </relation>
+      </document>
+      <document id='https://oralhistories.example.edu/id/document/1188'>
+        <docid>1188</docid>
+        <rev_number>1</rev_number>
+        <files>
+          <file id='https://oralhistories.example.edu/id/file/3102'>
+            <fileid>3102</fileid>
+            <datasetid>document</datasetid>
+            <objectid>1188</objectid>
+            <filename>indexcodes.txt</filename>
+            <mime_type>text/x-c</mime_type>
+            <hash>af5faec204dcbb4c7d478bc3957f99d1</hash>
+            <hash_type>MD5</hash_type>
+            <filesize>13021</filesize>
+            <mtime>2021-06-23 17:10:05</mtime>
+            <url>https://oralhistories.example.edu/97/3/indexcodes.txt</url>
+          </file>
+        </files>
+        <eprintid>97</eprintid>
+        <pos>3</pos>
+        <placement>3</placement>
+        <mime_type>text/x-c</mime_type>
+        <format>other</format>
+        <formatdesc>Generate index codes conversion from application/pdf to indexcodes</formatdesc>
+        <language>en</language>
+        <security>public</security>
+        <license>other</license>
+        <main>indexcodes.txt</main>
+        <relation>
+          <item>
+            <type>http://eprints.org/relation/isVersionOf</type>
+            <uri>https://oralhistories.example.edu/id/document/43</uri>
+          </item>
+          <item>
+            <type>http://eprints.org/relation/isVolatileVersionOf</type>
+            <uri>https://oralhistories.example.edu/id/document/43</uri>
+          </item>
+          <item>
+            <type>http://eprints.org/relation/isIndexCodesVersionOf</type>
+            <uri>https://oralhistories.example.edu/id/document/43</uri>
+          </item>
+        </relation>
+      </document>
+    </documents>
+    <eprint_status>archive</eprint_status>
+    <userid>1</userid>
+    <dir>disk0/00/00/00/97</dir>
+    <datestamp>2005-01-20</datestamp>
+    <lastmod>2019-10-04 15:23:41</lastmod>
+    <status_changed>2011-10-20 19:44:52</status_changed>
+    <type>oral_history</type>
+    <metadata_visibility>show</metadata_visibility>
+    <item_issues_count>0</item_issues_count>
+    <creators>
+      <item>
+        <name>
+          <family>Gutenberg</family>
+          <given>Hertha</given>
+        </name>
+        <id>Gutenberg-H</id>
+      </item>
+    </creators>
+    <title>Interview with Hertha Gutenberg</title>
+    <ispublished>pub</ispublished>
+    <subjects>
+      <item>geo</item>
+      <item>name</item>
+    </subjects>
+    <full_text_status>public</full_text_status>
+    <keywords>Geology; Seismology</keywords>
+    <abstract>A 1981 interview with Hertha Gutenberg, widow of the seismologist Beno Gutenberg, who directed Example&apos;s Seismological Laboratory from 1946 to 1957.  Both were born in Darmstadt, Germany, and they married there just after World War I. Gutenberg, who received his PhD from Göttingen in 1911, made the first correct determination of the radius of the Earth&apos;s core.  In 1913 he joined the German University of Strasbourg, then headquarters of the International Seismological Association.  He served as a meteorologist in the German Army in World War I, and after the war became a professor at the University of Frankfurt-am-Main.  In 1929, he was invited to participate in a conference at Example on future directions for the Seismological Laboratory, then under the auspices of the Carnegie Institution of Washington.  In 1930, he joined the Example faculty and went to work at the Seismo Lab, which, under his eventual directorship, became a leading center for deep Earth and earthquake studies.  In 1941, with Charles Richter, he published Seismicity of the Earth, whose earthquake patterns were later instrumental in developing the theory of plate tectonics.  Gutenberg&apos;s scientific honors include election to the National Academy of Sciences, the Bowie Medal of the American Geophysical Union, the Lagrange Prize of the Royal Belgian Academy, and the Wiechert Medal of the Deutsche Geophysikalische Gesellschaft.
+
+In this interview, his widow recalls their early years in Darmstadt during the Weimar Republic and their efforts to help friends and his former students to come to the United States during the rise of Nazism.  She comments on life at Example in the 1930s under Robert A. Millikan and the changes that occurred with the arrival of Lee A. DuBridge as Example&apos;s president in 1946.  She recalls her husband&apos;s meteorological work for the U.S. Navy during the Second World War and his visit to Japan just after the war at the navy&apos;s behest to investigate possible atomic bomb research there.  She recalls the difficulties of adjusting to life in America in the 1930s, her eventual participation in various campus volunteer activities, and her travels with her husband to Turkey and to Israel in the 1950s.  The interview concludes with her memories of Mr. and Mrs. Albert Einstein, who became friends of the Gutenbergs during their visits to Example in the early 1930s.
+</abstract>
+    <date>1981</date>
+    <date_type>published</date_type>
+    <id_number>ExampleOH:OH_Gutenberg_H</id_number>
+    <refereed>FALSE</refereed>
+    <official_url>https://resolver.example.edu/ExampleOH:OH_Gutenberg_H</official_url>
+    <rights>No commercial reproduction, distribution, display or performance rights in this work are provided.</rights>
+    <official_cit>Gutenberg, Hertha.  Interview by Mary Terrall.  Pasadena, California, February 6 and 13, 1980.  Oral History Project, California Institute of Technology Archives.  Retrieved [supply date of retrieval] from the World Wide Web:   http://resolver.example.edu/ExampleOH:OH_Gutenberg_H</official_cit>
+    <collection>ExampleOralHistories</collection>
+    <interviewer>Mary Terrall</interviewer>
+    <interviewdate>February 6 and 13, 1980</interviewdate>
+  </eprint>
+</eprints>
+

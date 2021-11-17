@@ -36,10 +36,10 @@
 </nav>
 
 <section>
-<h1 id="notes-on-using-doi2eprintxml.exe-on-windows-10">
+<h1>
 Notes on using doi2eprintxml.exe on Windows 10
 </h1>
-<h2 id="installation-and-setup">
+<h2>
 Installation and setup
 </h2>
 <ol type="1">
@@ -47,10 +47,10 @@ Installation and setup
 With your web browser goto https://github.com/caltechlibrary/eprinttools/releases/
 </li>
 <li>
-Download the file called “eprinttools-v0.0.18-windows-amd64.zip”.
+Download the file called “eprinttools-v1.0.3-windows-amd64.zip”.
 <ul>
 <li>
-if there is a newer version (e.g. v0.0.19) download that instead
+if there is a newer version (e.g. v1.0.4) download that instead
 </li>
 </ul>
 </li>
@@ -67,19 +67,19 @@ Open the windows “command prompt” and change directory to your desktop
 Run <code>doi2printxml.exe -h</code> to see the help page
 </li>
 </ol>
-<h2 id="getting-started">
+<h2>
 Getting started
 </h2>
 <p>
 The tool <code>doi2eprintxml.exe</code> is a command line program, it is normally run from the command prompt. The purpose of the program is to take a list of DOI contact CrossRef or DataCite and generate what is called an EPrint XML document. The EPrint XML document is used to import records into EPrints (e.g. CaltechAUTHORS) via the “import” button under “Manage Deposits” page.
 </p>
-<h3 id="workflow">
+<h3>
 Workflow
 </h3>
 <p>
 The typical workflow is to create a plain text file (UTF-8 encoded) using a text editor such as <a href="https://atom.io">Atom</a> with one DOI per line. The <code>doi2eprintxml.exe</code> file can then read the list and generate an EPrint XML document for importing into EPrints. Follow the following steps to generate a file called <strong>eprint.xml</strong> based on a list of of DOI in a file called <strong>doi.txt</strong>.
 </p>
-<h3 id="general-recipe">
+<h3>
 General recipe
 </h3>
 <ol type="1">
@@ -140,5 +140,27 @@ Click on “import items” buttons, this should import the items into your buff
 <span><a href="mailto:library@caltech.edu">Email Us</a></span> 
 <span>Phone: <a href="tel:+1-626-395-3405">(626)395-3405</a></span>
 </footer>
+<!-- START: PrettyFi from https://github.com/google/code-prettify -->
+<script>
+/* We want to add the class "prettyprint" to all the pre elements */
+var pre_list = document.querySelectorAll("pre");
+
+pre_list.forEach(function(elem) {
+    elem.classList.add("prettyprint");
+    elem.classList.add("linenums");/**/
+    elem.classList.add("json"); /**/
+});
+</script>
+<style>
+li.L0, li.L1, li.L2, li.L3, li.L4, li.L5, li.L6, li.L7, li.L8, li.L9
+{
+    color: #555;
+    list-style-type: decimal;
+}
+</style>
+<link rel="stylesheet" type="text/css" href="/css/prettify.css">
+<script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_
+prettify.js"></script>
+<!--  END: PrettyFi from https://github.com/google/code-prettify -->
 </body>
 </html>

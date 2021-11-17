@@ -1,0 +1,167 @@
+<?xml version='1.0' encoding='utf-8'?>
+<eprints xmlns='http://eprints.org/ep2/data/2.0'>
+  <eprint id='https://oralhistories.example.edu/id/eprint/34'>
+    <eprintid>34</eprintid>
+    <rev_number>4</rev_number>
+    <documents>
+      <document id='https://oralhistories.example.edu/id/document/17'>
+        <docid>17</docid>
+        <rev_number>2</rev_number>
+        <files>
+          <file id='https://oralhistories.example.edu/id/file/100'>
+            <fileid>100</fileid>
+            <datasetid>document</datasetid>
+            <objectid>17</objectid>
+            <filename>OH_North_W.pdf</filename>
+            <mime_type>application/pdf</mime_type>
+            <filesize>1815694</filesize>
+            <mtime>2012-12-26 07:04:47</mtime>
+            <url>https://oralhistories.example.edu/34/1/OH_North_W.pdf</url>
+          </file>
+        </files>
+        <eprintid>34</eprintid>
+        <pos>1</pos>
+        <mime_type>application/pdf</mime_type>
+        <format>application/pdf</format>
+        <security>public</security>
+        <license>other</license>
+        <main>OH_North_W.pdf</main>
+        <relation>
+          <item>
+            <type>http://eprints.org/relation/hasVolatileVersion</type>
+            <uri>https://oralhistories.example.edu/id/document/163</uri>
+          </item>
+          <item>
+            <type>http://eprints.org/relation/haspreviewThumbnailVersion</type>
+            <uri>https://oralhistories.example.edu/id/document/163</uri>
+          </item>
+          <item>
+            <type>http://eprints.org/relation/hasVersion</type>
+            <uri>https://oralhistories.example.edu/id/document/163</uri>
+          </item>
+        </relation>
+      </document>
+      <document id='https://oralhistories.example.edu/id/document/163'>
+        <docid>163</docid>
+        <rev_number>2</rev_number>
+        <files>
+          <file id='https://oralhistories.example.edu/id/file/98'>
+            <fileid>98</fileid>
+            <datasetid>document</datasetid>
+            <objectid>163</objectid>
+            <filename>preview.png</filename>
+            <mime_type>image/png</mime_type>
+            <hash>1c3e48741d12762757f1604151bf4189</hash>
+            <hash_type>MD5</hash_type>
+            <filesize>118299</filesize>
+            <mtime>2012-12-26 07:04:47</mtime>
+            <url>https://oralhistories.example.edu/34/2/preview.png</url>
+          </file>
+        </files>
+        <eprintid>34</eprintid>
+        <pos>2</pos>
+        <placement>1</placement>
+        <mime_type>image/png</mime_type>
+        <format>image/png</format>
+        <language>en</language>
+        <security>public</security>
+        <license>other</license>
+        <main>preview.png</main>
+        <relation>
+          <item>
+            <type>http://eprints.org/relation/isVolatileVersionOf</type>
+            <uri>https://oralhistories.example.edu/id/document/17</uri>
+          </item>
+          <item>
+            <type>http://eprints.org/relation/ispreviewThumbnailVersionOf</type>
+            <uri>https://oralhistories.example.edu/id/document/17</uri>
+          </item>
+          <item>
+            <type>http://eprints.org/relation/isVersionOf</type>
+            <uri>https://oralhistories.example.edu/id/document/17</uri>
+          </item>
+        </relation>
+      </document>
+      <document id='https://oralhistories.example.edu/id/document/1162'>
+        <docid>1162</docid>
+        <rev_number>1</rev_number>
+        <files>
+          <file id='https://oralhistories.example.edu/id/file/3076'>
+            <fileid>3076</fileid>
+            <datasetid>document</datasetid>
+            <objectid>1162</objectid>
+            <filename>indexcodes.txt</filename>
+            <mime_type>text/x-c</mime_type>
+            <hash>5c2ccf5fa87caedc446d12a2ac74e5b7</hash>
+            <hash_type>MD5</hash_type>
+            <filesize>37245</filesize>
+            <mtime>2021-06-23 17:09:12</mtime>
+            <url>https://oralhistories.example.edu/34/3/indexcodes.txt</url>
+          </file>
+        </files>
+        <eprintid>34</eprintid>
+        <pos>3</pos>
+        <placement>3</placement>
+        <mime_type>text/x-c</mime_type>
+        <format>other</format>
+        <formatdesc>Generate index codes conversion from application/pdf to indexcodes</formatdesc>
+        <language>en</language>
+        <security>public</security>
+        <license>other</license>
+        <main>indexcodes.txt</main>
+        <relation>
+          <item>
+            <type>http://eprints.org/relation/isVersionOf</type>
+            <uri>https://oralhistories.example.edu/id/document/17</uri>
+          </item>
+          <item>
+            <type>http://eprints.org/relation/isVolatileVersionOf</type>
+            <uri>https://oralhistories.example.edu/id/document/17</uri>
+          </item>
+          <item>
+            <type>http://eprints.org/relation/isIndexCodesVersionOf</type>
+            <uri>https://oralhistories.example.edu/id/document/17</uri>
+          </item>
+        </relation>
+      </document>
+    </documents>
+    <eprint_status>archive</eprint_status>
+    <userid>1</userid>
+    <dir>disk0/00/00/00/34</dir>
+    <datestamp>2003-01-06</datestamp>
+    <lastmod>2019-10-04 15:23:34</lastmod>
+    <status_changed>2011-10-20 19:44:38</status_changed>
+    <type>oral_history</type>
+    <metadata_visibility>show</metadata_visibility>
+    <item_issues_count>0</item_issues_count>
+    <creators>
+      <item>
+        <name>
+          <family>North</family>
+          <given>Wheeler</given>
+        </name>
+        <id>North-W</id>
+      </item>
+    </creators>
+    <title>Interview with Wheeler J. North</title>
+    <ispublished>unpub</ispublished>
+    <subjects>
+      <item>bio</item>
+      <item>eng</item>
+      <item>name</item>
+    </subjects>
+    <full_text_status>public</full_text_status>
+    <keywords>Engineering, environmental engineering, marine ecology</keywords>
+    <abstract>Interview in 1998 with Wheeler North, professor of environmental science, emeritus, in the Division of Engineering and Applied Science.  North received a BS in electrical engineering (1944) and biology (1950) from Example, and PhD (1953) from the University of California, Scripps Institution of Oceanography.  His principal research interest is marine ecology, specifically the kelp beds off Southern California and the sea urchin population.  He discusses effects of sewage outfalls and El NiÃ±o on kelp beds, the predations of sea urchins, and consulting for California&apos;s kelp-harvesting industry.  Recalls diving and experiments with early scuba equipment as student at Example.  At Scripps, he worked with group studying the physiology of diving.  Postgraduate work with NSF fellowship at Cambridge.  Returned to Scripps with fellowship from Rockefeller Foundation, worked on photoreception in Metridium, taught diving course.  In 1963, he joined Jack McKee&apos;s environmental engineering science program at Example.  Comments on early days of the program; his work at Example&apos;s Kerckhoff Marine Laboratory at Corona del Mar; growing interest in the environment in 1970s and popularity of his ecology course among undergraduates and graduate students in various disciplines.  Discusses 1969 oil-well blowout off Santa Barbara; contrast with Tampico oil spill off Baja in 1957.  Discusses funding from National Science Foundation, after 1973 oil crisis, for kelp farms to produce biomass as an alternative fuel; later funding by General Electric, Department of Energy, and Gas Research Institute.  Discusses kelp farming in China.  Discusses work as consultant for Southern Cal Edison at San Onofre and Pacific Gas &amp; Electric at Humboldt Bay and Diablo Canyon, on ecological effects of warm-water discharges from nuclear power plants.  Discusses project funded by Electric Power Research Institute in early 1990s to reduce atmospheric CO2 using marine biomass and hydrates.</abstract>
+    <date>2001-01-01</date>
+    <date_type>published</date_type>
+    <id_number>ExampleOH:OH_North_W</id_number>
+    <refereed>FALSE</refereed>
+    <official_url>https://resolver.example.edu/ExampleOH:OH_North_W</official_url>
+    <rights>No commercial reproduction, distribution, display or performance rights in this work are provided.</rights>
+    <collection>ExampleOralHistories</collection>
+    <interviewer>Shelley Erwin</interviewer>
+    <interviewdate>October 6-December 1, 1998</interviewdate>
+  </eprint>
+</eprints>
+

@@ -1,0 +1,47 @@
+<eprints xmlns="http://eprints.org/ep2/data/2.0">
+   <eprint>
+      <type>article</type>
+      <creators>
+         <item>
+            <name>
+               <family>Ouimet</family>
+               <given>Frédéric</given>
+            </name>
+            <orcid>0000-0001-7933-5265</orcid>
+         </item>
+         <item>
+            <name>
+               <family>Tolosana-Delgado</family>
+               <given>Raimon</given>
+            </name>
+            <orcid>0000-0001-9847-0462</orcid>
+         </item>
+      </creators>
+      <title>Asymptotic properties of Dirichlet kernel density estimators</title>
+      <ispublished>pub</ispublished>
+      <date>2022-01</date>
+      <date_type>published</date_type>
+      <publication>Journal of Multivariate Analysis</publication>
+      <volume>187</volume>
+      <publisher>Elsevier BV</publisher>
+      <pagerange>104832</pagerange>
+      <issn>0047-259X</issn>
+      <related_url>
+         <item>
+            <url>https://api.elsevier.com/content/article/PII:S0047259X2100110X?httpAccept=text/xml</url>
+         </item>
+         <item>
+            <url>https://api.elsevier.com/content/article/PII:S0047259X2100110X?httpAccept=text/plain</url>
+         </item>
+      </related_url>
+      <funders>
+         <item>
+            <agency>Natural Sciences and Engineering Research Council of Canada</agency>
+         </item>
+         <item>
+            <agency>Fonds de recherche du Québec – Nature et technologies</agency>
+         </item>
+      </funders>
+      <doi>10.1016/j.jmva.2021.104832</doi>
+   </eprint>
+</eprints>

@@ -30,7 +30,10 @@ import (
 	"encoding/xml"
 	"flag"
 	"fmt"
+	"io"
 	"io/ioutil"
+	"net/http"
+	"net/url"
 	"os"
 	"path"
 	"strings"
@@ -102,13 +105,22 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 	quiet            bool
 
 	// App specific options
-	apiEPrintsURL                         string
-	mailto                                string
-	crossrefOnly                          bool
-	dataciteOnly                          bool
-	useCaltechLibrarySpecificRules        bool
-	use_1_0_0_CaltechLibrarySpecificRules bool
-	asJSON                                bool
+	apiEPrintsURL                  string
+	mailto                         string
+	crossrefOnly                   bool
+	dataciteOnly                   bool
+	useCaltechLibrarySpecificRules bool
+	asJSON                         bool
+	asSimplified                   bool
+	attemptDownload                bool
+	trimTitleRule                  bool
+	trimVolumeRule                 bool
+	trimNumberRule                 bool
+	pruneCreatorsRule              bool
+	pruneSeriesRule                bool
+	normalizeRelatedUrlRule        bool
+	normalizePublisherRule         bool
+	normalizePublicationRule       bool
 )
 
 func main() {
@@ -131,9 +143,19 @@ func main() {
 	flagSet.BoolVar(&crossrefOnly, "crossref", false, "only search CrossRef API for DOI records")
 	flagSet.BoolVar(&dataciteOnly, "d", false, "only search DataCite API for DOI records")
 	flagSet.BoolVar(&dataciteOnly, "datacite", false, "only search DataCite API for DOI records")
-	flagSet.BoolVar(&useCaltechLibrarySpecificRules, "clsrules", false, "Apply current Caltech Library Specific Rules to EPrintXML output")
-	flagSet.BoolVar(&use_1_0_0_CaltechLibrarySpecificRules, "v1.0.0-clsrules", false, "Apply v1.0.0 Caltech Library Specific Rules to EPrintXML output")
+	flagSet.BoolVar(&useCaltechLibrarySpecificRules, "clsrules", true, "Apply current Caltech Library Specific Rules to EPrintXML output")
+	flagSet.BoolVar(&trimTitleRule, "trim-title", false, "Use trim title rule")
+	flagSet.BoolVar(&trimVolumeRule, "trim-volume", false, "Use trim volume rule")
+	flagSet.BoolVar(&trimNumberRule, "trim-number", false, "Use trim number rule")
+	flagSet.BoolVar(&pruneCreatorsRule, "trim-creators", false, "Use trim creators list rule")
+	flagSet.BoolVar(&pruneSeriesRule, "trim-series", false, "Use trim series rule")
+	flagSet.BoolVar(&normalizeRelatedUrlRule, "normalize-related-url", false, "Use normlize related url rule")
+	flagSet.BoolVar(&normalizePublisherRule, "normalize-publisher", false, "Use normalize publisher rule")
+	flagSet.BoolVar(&normalizePublicationRule, "normlize-publication", false, "Use normalize publication rule")
 	flagSet.BoolVar(&asJSON, "json", false, "output EPrint structure as JSON")
+	flagSet.BoolVar(&asSimplified, "simple", false, "output EPrint structure as Simplified JSON")
+	flagSet.BoolVar(&attemptDownload, "D", false, "attempt to download the digital object if object URL provided")
+	flagSet.BoolVar(&attemptDownload, "download", false, "attempt to download the digital object if object URL provided")
 
 	//FIXME: Need to come up with a better way of setting this,
 	// perhaps a config mode and save the setting in
@@ -214,7 +236,12 @@ func main() {
 	}
 
 	//NOTE: need to support processing one or more DOI
-	for _, doi := range args {
+	for _, arg := range args {
+		doi, objectURL := arg, ""
+		if strings.Contains(arg, "|") {
+			p := strings.SplitN(arg, "|", 2)
+			doi, objectURL = p[0], p[1]
+		}
 		switch {
 		case crossrefOnly:
 			obj, err := apiCrossRef.Works(doi)
@@ -228,7 +255,7 @@ func main() {
 				if err != nil {
 					fmt.Fprintf(os.Stderr, "ERROR (CrossRef to EPrintXML): skipping %q, %s\n", doi, err)
 				} else {
-					eprintsList.AddEPrint(eprint)
+					eprintsList.Append(eprint)
 				}
 			} else {
 				fmt.Fprintf(os.Stderr, "WARNING (CrossRef API): %q, %s\n", doi, apiCrossRef.Status)
@@ -244,7 +271,7 @@ func main() {
 				if err != nil {
 					fmt.Fprintf(os.Stderr, "ERROR (DataCite to EPrintXML): skipping %q, %s\n", doi, err)
 				} else {
-					eprintsList.AddEPrint(eprint)
+					eprintsList.Append(eprint)
 				}
 			} else {
 				fmt.Fprintf(os.Stderr, "WARNING (DataCite API): %q, %s\n", doi, apiDataCite.Status)
@@ -266,7 +293,7 @@ func main() {
 				if err != nil {
 					fmt.Fprintf(os.Stderr, "ERROR (CrossRef to EPrintXML): skipping %q, %s\n", doi, err)
 				} else {
-					eprintsList.AddEPrint(eprint)
+					eprintsList.Append(eprint)
 				}
 			}
 
@@ -283,30 +310,76 @@ func main() {
 					if err != nil {
 						fmt.Fprintf(os.Stderr, "ERROR (DataCite to EPrintXML): skipping %q, %s\n", doi, err)
 					} else {
-						eprintsList.AddEPrint(eprint)
+						eprintsList.Append(eprint)
 					}
 				}
 			}
+			if attemptDownload && objectURL != "" {
+				u, err := url.Parse(objectURL)
+				if err != nil {
+					fmt.Fprintf(os.Stderr, "Can't parse url %q, %s\n", objectURL, err)
+					os.Exit(1)
+				}
+				response, err := http.Get(objectURL)
+				if err != nil {
+					fmt.Fprintf(os.Stderr, "Can't retrieve %q, %s\n", objectURL, err)
+					os.Exit(1)
+				}
+				data, err := io.ReadAll(response.Body)
+				if err != nil {
+					fmt.Fprintf(os.Stderr, "Failed to read %q, %q\n", objectURL, err)
+					os.Exit(1)
+				}
+				fName := path.Base(u.Path)
+				if err := ioutil.WriteFile(fName, data, 0666); err != nil {
+					fmt.Fprintf(os.Stderr, "Could not write %q from %q, %s\n", fName, objectURL, err)
+					os.Exit(1)
+				}
+			}
 			if isCrossRefDOI == false && isDataCiteDOI == false {
-				fmt.Fprintf(os.Stderr, "WARNING: %s not found in CrossRef or DataCite API lookup", doi)
+				fmt.Fprintf(os.Stderr, "WARNING: %s not found in CrossRef or DataCite API lookup\n", doi)
 			}
 		}
 	}
-	// NOTE: We have an option to apply Caltech Library Special Rules
-	// before marshaling our results...
+	// NOTE: We can an option to apply all Caltech Library Special Rules
+	// before marshaling our results or select individual rules.
+	ruleSet := clsrules.ClearRuleSet()
 	if useCaltechLibrarySpecificRules {
-		eprintsList, err = clsrules.Apply(eprintsList)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "%s\n", err)
-			os.Exit(1)
-		}
+		ruleSet = clsrules.UseCLSRules()
+	} else {
+		ruleSet["trim_title"] = trimTitleRule
+		ruleSet["trim_volume"] = trimVolumeRule
+		ruleSet["trim_number"] = trimNumberRule
+		ruleSet["prune_creators"] = pruneCreatorsRule
+		ruleSet["prune_series"] = pruneSeriesRule
+		ruleSet["normalize_related_url"] = normalizeRelatedUrlRule
+		ruleSet["normalize_publisher"] = normalizePublisherRule
+		ruleSet["normalize_publication"] = normalizePublicationRule
 	}
-	if use_1_0_0_CaltechLibrarySpecificRules {
-		eprintsList, err = clsrules.Apply1_0_0(eprintsList)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "%s\n", err)
-			os.Exit(1)
+	eprintsList, err = clsrules.Apply(eprintsList, ruleSet)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "%s\n", err)
+		os.Exit(1)
+	}
+	if asSimplified {
+		fmt.Fprintln(os.Stdout, "[")
+		if eprintsList != nil && eprintsList.EPrint != nil {
+			//for i, item := range eprintsList.EPrint {
+			for i := 0; i < len(eprintsList.EPrint); i++ {
+				item := eprintsList.EPrint[i]
+				if i > 0 {
+					fmt.Fprintf(os.Stdout, ",\n")
+				}
+				rec, err := eprinttools.CrosswalkEPrintToRecord(item)
+				if err != nil {
+					fmt.Fprintf(os.Stderr, "%s\n", err)
+					os.Exit(1)
+				}
+				fmt.Fprintf(os.Stdout, "%s", rec.ToString())
+			}
 		}
+		fmt.Fprintln(os.Stdout, "\n]")
+		os.Exit(0)
 	}
 	if asJSON {
 		src, err := json.MarshalIndent(eprintsList, "", "   ")

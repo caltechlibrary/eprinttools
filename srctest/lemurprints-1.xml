@@ -1,0 +1,258 @@
+<?xml version='1.0' encoding='utf-8'?>
+<eprints xmlns='http://eprints.org/ep2/data/2.0'>
+  <eprint id='https://ir.example.edu/id/eprint/1'>
+    <eprintid>1</eprintid>
+    <rev_number>12</rev_number>
+    <documents>
+      <document id='https://ir.example.edu/id/document/11518'>
+        <docid>11518</docid>
+        <rev_number>4</rev_number>
+        <files>
+          <file id='https://ir.example.edu/id/file/81441'>
+            <fileid>81441</fileid>
+            <datasetid>document</datasetid>
+            <objectid>11518</objectid>
+            <filename>HILps08.pdf</filename>
+            <mime_type>application/pdf</mime_type>
+            <filesize>224677</filesize>
+            <mtime>2012-12-26 10:10:08</mtime>
+            <url>https://ir.example.edu/11175/1/HILps08.pdf</url>
+          </file>
+        </files>
+        <eprintid>11175</eprintid>
+        <pos>1</pos>
+        <mime_type>application/pdf</mime_type>
+        <format>application/pdf</format>
+        <language>en</language>
+        <security>public</security>
+        <license>other</license>
+        <main>HILps08.pdf</main>
+        <content>published</content>
+        <relation>
+          <item>
+            <type>http://eprints.org/relation/hasVolatileVersion</type>
+            <uri>https://ir.example.edu/id/document/53719</uri>
+          </item>
+          <item>
+            <type>http://eprints.org/relation/haspreviewThumbnailVersion</type>
+            <uri>https://ir.example.edu/id/document/53719</uri>
+          </item>
+          <item>
+            <type>http://eprints.org/relation/hasVersion</type>
+            <uri>https://ir.example.edu/id/document/53719</uri>
+          </item>
+        </relation>
+      </document>
+      <document id='https://ir.example.edu/id/document/53719'>
+        <docid>53719</docid>
+        <rev_number>2</rev_number>
+        <files>
+          <file id='https://ir.example.edu/id/file/81439'>
+            <fileid>81439</fileid>
+            <datasetid>document</datasetid>
+            <objectid>53719</objectid>
+            <filename>preview.png</filename>
+            <mime_type>image/png</mime_type>
+            <hash>8b575120be7fc0c983e1daba5063272b</hash>
+            <hash_type>MD5</hash_type>
+            <filesize>60851</filesize>
+            <mtime>2012-12-26 10:10:08</mtime>
+            <url>https://ir.example.edu/11175/2/preview.png</url>
+          </file>
+        </files>
+        <eprintid>11175</eprintid>
+        <pos>2</pos>
+        <placement>2</placement>
+        <mime_type>image/png</mime_type>
+        <format>image/png</format>
+        <language>en</language>
+        <security>public</security>
+        <license>other</license>
+        <main>preview.png</main>
+        <relation>
+          <item>
+            <type>http://eprints.org/relation/isVolatileVersionOf</type>
+            <uri>https://ir.example.edu/id/document/11518</uri>
+          </item>
+          <item>
+            <type>http://eprints.org/relation/ispreviewThumbnailVersionOf</type>
+            <uri>https://ir.example.edu/id/document/11518</uri>
+          </item>
+          <item>
+            <type>http://eprints.org/relation/isVersionOf</type>
+            <uri>https://ir.example.edu/id/document/11518</uri>
+          </item>
+        </relation>
+      </document>
+      <document id='https://ir.example.edu/id/document/331612'>
+        <docid>331612</docid>
+        <rev_number>1</rev_number>
+        <files>
+          <file id='https://ir.example.edu/id/file/1899992'>
+            <fileid>1899992</fileid>
+            <datasetid>document</datasetid>
+            <objectid>331612</objectid>
+            <filename>indexcodes.txt</filename>
+            <mime_type>text/plain</mime_type>
+            <hash>c0b35f0da2df4375b5b5223fb40abe94</hash>
+            <hash_type>MD5</hash_type>
+            <filesize>10314</filesize>
+            <mtime>2021-07-01 00:27:42</mtime>
+            <url>https://ir.example.edu/11175/3/indexcodes.txt</url>
+          </file>
+        </files>
+        <eprintid>11175</eprintid>
+        <pos>3</pos>
+        <placement>3</placement>
+        <mime_type>text/plain</mime_type>
+        <format>other</format>
+        <formatdesc>Generate index codes conversion from application/pdf to indexcodes</formatdesc>
+        <language>en</language>
+        <security>public</security>
+        <license>other</license>
+        <main>indexcodes.txt</main>
+        <relation>
+          <item>
+            <type>http://eprints.org/relation/isVersionOf</type>
+            <uri>https://ir.example.edu/id/document/11518</uri>
+          </item>
+          <item>
+            <type>http://eprints.org/relation/isVolatileVersionOf</type>
+            <uri>https://ir.example.edu/id/document/11518</uri>
+          </item>
+          <item>
+            <type>http://eprints.org/relation/isIndexCodesVersionOf</type>
+            <uri>https://ir.example.edu/id/document/11518</uri>
+          </item>
+        </relation>
+      </document>
+    </documents>
+    <eprint_status>archive</eprint_status>
+    <userid>1</userid>
+    <dir>disk0/00/01/11/75</dir>
+    <datestamp>2008-07-22 02:59:58</datestamp>
+    <lastmod>2019-10-03 00:16:37</lastmod>
+    <status_changed>2008-07-22 02:59:58</status_changed>
+    <type>article</type>
+    <metadata_visibility>show</metadata_visibility>
+    <item_issues_count>0</item_issues_count>
+    <creators>
+      <item>
+        <name>
+          <family>Hillenbrand</family>
+          <given>Lynne A.</given>
+        </name>
+        <id>Hillenbrand-L-A</id>
+      </item>
+    </creators>
+    <title>Disk-dispersal and planet-formation timescales</title>
+    <ispublished>pub</ispublished>
+    <subjects>
+      <item>cls</item>
+    </subjects>
+    <full_text_status>public</full_text_status>
+    <note>© 2008 The Royal Swedish Academy of Sciences. 
+
+Received 11 March 2008, accepted for publication 14 March 2008. Published 16 July 2008. Print publication: Issue T130 (August 2008). 
+
+Special issue: Nobel Symposium 135: Physics of Planetary Systems (18–22 June 2007, Lidingö, Stockholm, Sweden). Physica Scripta T130 http://www.iop.org/EJ/toc/1402-4896/2008/T130</note>
+    <abstract>Well before the existence of exo-solar systems was confirmed, it was accepted knowledge that most—if not all—stars possess circumstellar material during the first one-to-several million years of their pre-main sequence lives, and thus that these systems commonly have the potential to form planets. Here, I summarize current understanding regarding the evolution of protoplanetary disks.</abstract>
+    <date>2008-08</date>
+    <date_type>published</date_type>
+    <publication>Physica Scripta</publication>
+    <volume>T130</volume>
+    <publisher>Institute of Physics</publisher>
+    <pagerange>Art. No. 014024</pagerange>
+    <id_number>AUTHORS:HILps08</id_number>
+    <refereed>TRUE</refereed>
+    <issn>0031-8949</issn>
+    <official_url>https://resolver.example.edu/AUTHORS:HILps08</official_url>
+    <related_url>
+      <item>
+        <url>http://dx.doi.org/10.1088/0031-8949/2008/T130/014024</url>
+        <type>doi</type>
+      </item>
+      <item>
+        <url>http://stacks.iop.org/PhysScr/T130/014024</url>
+        <type>pub</type>
+      </item>
+    </related_url>
+    <referencetext>
+      <item>Adams F C et al 2008 Phys. Scr. T130 014029
+Aikawa Y and Nomura H 2008 Phys. Scr. T130 014011
+Alexander R D and Armitage P J 2005 Astrophys. J. Lett. 639 83
+Alexander R D and Armitage P J 2007 Mon. Not. R. Astron. Soc. 375 500
+Andrews S M and Williams J P 2005 Astrophys. J. 631 1134
+Andrews S M and Williams J P 2007 Astrophys. J. 671 1800
+Bary J S, Weintraub D A and Kastner J H 2002 Astrophys. J. Lett. 576 73
+Bary J S, Weintraub D A and Kastner J H 2003 Astrophys. J. 586 1136
+Bauer F, Dullemond C P and Henning Th 2008 Astron. Astrophys. 480 859
+Bertout C, Siess L and Cabrit S 2007 Astron. Astrophys. J
+473 21
+Bitner M A, Richter M J, Lacy J H, Greathouse T K, Jaffe D T and Blake G A 2007 Astrophys. J. Lett. 661 69
+Calvet N, Briceno C, Hernandez J, Hoyer S, Hartmann L, Sicilia-Aguilar A, Megeath S T and D’Alessio P 2005 Astron. J. 129 935
+Carpenter J M, Mamajek E E, Hillenbrand L A and Meyer M R 2006 Astrophys. J. Lett. 651 49
+Carr J and Najita J R 2008 Science 319 1504
+Cieza L et al 2007 Astrophys. J. 667 308
+Dahm S E 2005 PhD Thesis University of Hawaii 
+Dahm S E and Hillenbrand L A 2007 Astron. J. 133 2072
+Draine et al 2006 Astrophys. J. 636 1114
+Dullemond C P et al 2008 Phys. Scr. T130 014015
+Dutrey A, Guilloteau S, Duvert G, Prato L, Simon M, Schuster K and Menard F 1996 Astron. Astrophys. 309 493
+Edwards S et al 1994 Astron. J. 108 1056
+Foing B H et al 2008 Phys. Scr. T130 014026
+Furlan E et al 2006 Astrophys. J. Suppl. 165 568
+Garcia Lopez R, Natta A, Testi L and Habart E 2006 Astron. Astrophys. 459 797
+Gorti U and Hollenbach D 2008 arXiv 0804.3381
+Gullbring E, Hartmann L, Briceno C and Calvet N 1998 Astrophys. J. 492 323
+Hartigan P, Edwards S and Ghandour L 1995 Astrophys. J. 452 736
+Hartmann L, Calvet N, Gullbring E and D’Alessio P 1998 Astrophys. J. 495 385
+Hartmann L et al 2005 Astrophys. J. 629 881
+Henning Th 2008 Phys. Scr. T130 014019
+Herczeg G J, Najita J, Hillenbrand L A and Pascucci I 2007 670 504
+Hernandez J et al 2007 Astrophys. J. 662 1067
+Hillenbrand L A 2005 review article to appear in ‘A Decade of Discovery: Planets Around Other Stars’ (STScI Symposium Series vol. 19) ed M Livio Preprint astro-ph/0511083
+Hillenbrand L A, Bauermeister A and White R J 2007 ASP Conf. Ser. 384 200
+Hillenbrand L A, Bauermeister A and White R J 2008 in preparation
+Hillenbrand L A, Meyer M R and Carpenter J M 2009 in preparation
+Hillenbrand L A and White R J 2004 Astrophys. J. 604 741
+Hirota T et al 2007 PASJ 60 37
+Hollenbach D, Johnstone D, Lizano S and Shu F 1994 Astrophys. J. 428 654
+Jayawardhana R, Coffey J, Scholz A, Brandeker A and van Kerkwijk M H 2006 Astrophys. J. 648 1206
+Jeffries R D 2007 Mon. Not. R. Astron. Soc. 376 1109
+Lada C J et al 2006 Astron. J. 131 1574
+Lahuis F, van Dishoeck E F, Blake G A, Evans N J II, Kessler-Silacci J.E and Pontoppidan K M 2007 Astrophys. J. 665 492
+Low F J, Smith P S, Werner M, Chen C, Krause V, Jura M and Hines D C 2005 Astrophys. J. 631 1170
+Mamajek E E, Meyer M R, Hinz P M, Hoffmann W F, Cohen M and Hora J L 2004 Astrophys. J. 612 496
+Megeath S T, Hartmann L, Luhman K L and Fazio G G 2005 Astrophys. J. Lett. 634 113
+Menten K M, Reid M J, Forbrich J and Brunthaler A 2008 Astron. Astrophys. 474 515
+Metchev S A, Eisner J A, Hillenbrand L A and Wolf S 2005 Astrophys. J. 622 451
+Mohanty S, Jayawardhana R and Basri G 2005 Astrophys. J. 626 498
+Monin J-L, Clarke C J, Prato L and McCabe C 2007 Protostars and Planets V ed B Reipurth, D Jewitt and K Keil (Tucson: University of Arizona Press) p 395
+Muzerolle J, Hillenbrand L, Calvet N, Briceno C and Hartmann L 2003 Astrophys. J. 592 266
+Najita J R, Strom S E and Muzerolle J 2007 Mon. Not. R. Astron. Soc. 378 369
+Natta A 2008 Phys. Scr. T130 014014
+Nordh L et al 1996 Astron. Astrophys. Lett. 315 185
+Osterloh M and Beckwith S V W 1995 Astrophys. J. 439 288
+Pascucci I et al 2007 Astrophys. J. 663 383
+Pudritz R E, Ouyed R, Fendt Ch and Brandenburg A 2007 Protostars and Planets V ed B Reipurth, D Jewitt and K Keil (Tucson: University of Arizona Press) p 277
+Ramsay Howat S K and Greaves J S 2007 Mon. Not. R. Astron. Soc. 379 1658
+Salyk C, Blake G A, Boogert A C C and Brown J M 2007 Astrophys. J. Lett. 655 105
+Salyk C, Pontoppidan K M, Blake G A, Lahuis F, van Dishoeck E F and Evans II N J 2008 Astrophys. J. Lett. 676 49
+Sandstrom K M et al 2007 Astrophys. J. 667 1161
+Sicilia-Aguilar A, Hartmann L, Furesz G, Henning T, Dullemond C and Brandner W 2006a Astron. J. 132 2135
+Sicilia-Aguilar A et al 2006b Astrophys. J. 638 897
+Silverstone M D et al 2006 Astrophys. J. 639 1138
+Simon M and Prato L 1995 Astrophys. J. 450 824
+Skrutskie M F, Dutkevitch D, Strom S E, Edwards S, Strom K M and Shure M A 1990 Astron. J. 99 1187
+Takeuchi T, Clarke C J and Lin D N C 2005 Astrophys. J. 627 286
+Tout C A, Livio M and Bonnell I A 1999 Mon. Not. R. Astron. Soc. 310 360
+Watson D M et al 2007 Preprint astro-ph/0704.1518
+Weintraub D A, Kastner J H and Bary J S 2000 Astrophys. J. 541 767
+White R J and Basri G 2003 Astrophys. J. 582 1109
+Wolk S J and Walter F M 1996 Astron. J. 111 2066</item>
+    </referencetext>
+    <rights>No commercial reproduction, distribution, display or performance rights in this work are provided.</rights>
+    <collection>Test-AUTHORS</collection>
+  </eprint>
+</eprints>

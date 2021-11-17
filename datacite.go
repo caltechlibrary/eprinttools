@@ -206,10 +206,10 @@ func DataCiteWorksToEPrint(obj dataciteapi.Object) (*EPrint, error) {
 			entry.Name = name
 			if name.Value == "" {
 				//NOTE: Assume a person name
-				creators.AddItem(entry)
+				creators.Append(entry)
 			} else {
 				//NOTE: Assume a corporate name if we have only a single name
-				corpCreators.AddItem(entry)
+				corpCreators.Append(entry)
 			}
 		}
 		if len(creators.Items) > 0 {
