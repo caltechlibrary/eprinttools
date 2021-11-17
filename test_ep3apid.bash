@@ -9,7 +9,7 @@ function post_file () {
     echo "POSTing ${FNAME}"
     curl -X POST -H 'Content-Type: application/xml' \
          http://localhost:8484/lemurprints/eprint-import \
-         --data-binary "@${FNAME}" >> test-responses.txt
+         --data-binary "@${FNAME}" >/dev/null
 }
 
 echo 'Testing ep3apid'
