@@ -12,33 +12,32 @@ Bugs
 Next
 ----
 
-
-- [ ] Add script to generate "lemurprints" database with support for all fields present across our repositories so I can do robust testing and generate appropriate testdata
-    - [x] Include all fields and tables in caltechauthors
-    - [x] Include all fields and tables in caltechthesis
-    - [ ] Include all fields and tables in caltechconf
-    - [ ] Include all fields and tables in caltechcampuspubs
-    - [ ] Include all fields and tables in calteches
-    - [ ] Include all fields and tabels in caltechoh
-    - [ ] Include all fields and tabels in caltechln
-    - [ ] Exported selected records from production, sanitize them and write import test against lemurprints test database
-- [ ] Add create end points to support importing EPrint XML metadata into eprints
-    - [x] Implement SQLReadEPrint
-    - [x] Implement SQLCreateEPrint
-    - [ ] Implement ImportEPrint for importing EPrint XML metadata
-    - [x] Implement a method that takes a table/column map and EPrint structure then renders a INSERT or REPLACE sequence to create or update an EPrint record
-    - [x] Implement a method that takes a table/column map and EPrint structure and update the EPrint structure from a sequnce of SELECT statements
 - [ ] Add update end point to support update EPrints Metadata
     - [ ] Figure out how historical diffs of EPrints XML are generated in EPrints' History tab
     - [ ] Implement updates versioning the EPrint Metadata record
     - [ ] Implement file upload and manage document versioning
-- [x] Split clsrules into separate options to allow for more specific control
 - [ ] Implement Solr index record view for Solr 8.9 ingest
-- [ ] Add Person A-Z list support
 
 Completed
 ---------
 
+- [x] Add script to generate "lemurprints" database with support for all fields present across our repositories so I can do robust testing and generate appropriate testdata
+    - [x] Include all fields and tables in caltechauthors
+    - [x] Include all fields and tables in caltechthesis
+    - [x] Include all fields and tables in caltechconf
+    - [x] Include all fields and tables in caltechcampuspubs
+    - [x] Include all fields and tables in calteches
+    - [x] Include all fields and tabels in caltechoh
+    - [x] Include all fields and tabels in caltechln
+    - [x] Exported selected records from production, sanitize them and write import test against lemurprints test database
+    - [x] Fetch DOI of records found in EPrints use them to test in lemurprints
+- [x] Add create end points to support importing EPrint XML metadata into eprints
+    - [x] Implement SQLReadEPrint
+    - [x] Implement SQLCreateEPrint
+    - [x] Implement ImportEPrint for importing EPrint XML metadata
+    - [x] Implement a method that takes a table/column map and EPrint structure then renders a INSERT or REPLACE sequence to create or update an EPrint record
+    - [x] Implement a method that takes a table/column map and EPrint structure and update the EPrint structure from a sequnce of SELECT statements
+- [x] Split clsrules into separate options to allow for more specific control
 - [x] Add end point for `/{REPO_ID}/year` (list years that have eprint records with a "published" date type)
 - [x] Add end point for `/{REPO_ID}/year/{YEAR}` lists eprint records published in that year
 - [x] Implement a method to show which tables a repository instance has and the column names in each table
@@ -74,7 +73,4 @@ Someday, Maybe
 - [ ] Add end point for corp_creators
 - [ ] Add end point ofr issuing_body
 
-
-Completed
----------
 
