@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <eprints xmlns='http://eprints.org/ep2/data/2.0'>
-  <eprint id='https://ir.example.edu/id/eprint/11175'>
-    <eprintid>11175</eprintid>
+  <eprint id='https://ir.example.edu/id/eprint/1'>
+    <eprintid>1</eprintid>
     <rev_number>12</rev_number>
     <documents>
       <document id='https://ir.example.edu/id/document/11518'>
@@ -253,6 +253,6 @@ White R J and Basri G 2003 Astrophys. J. 582 1109
 Wolk S J and Walter F M 1996 Astron. J. 111 2066</item>
     </referencetext>
     <rights>No commercial reproduction, distribution, display or performance rights in this work are provided.</rights>
-    <collection>AUTHORS</collection>
+    <collection>Test-AUTHORS</collection>
   </eprint>
 </eprints>

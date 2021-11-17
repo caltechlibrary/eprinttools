@@ -214,8 +214,10 @@ CREATE TABLE `eprint` (
   `gradofc_approval_date_month` smallint(6) DEFAULT NULL,
   `gradofc_approval_date_day` smallint(6) DEFAULT NULL,
   `hide_thesis_author_email` varchar(5) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
+  `coverage_dates` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
   `nonsubj_keywords` longtext CHARACTER SET utf8 COLLATE utf8_bin,
   `reviewer` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
+  `review_status` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
   `season` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
   `classification_code` longtext CHARACTER SET utf8 COLLATE utf8_bin,
   `edit_lock_user` int(11) DEFAULT NULL,
@@ -633,6 +635,20 @@ CREATE TABLE `eprint_creators_uri` (
   `creators_uri` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
   PRIMARY KEY (`eprintid`,`pos`),
   KEY `eprint_creators_uri_pos` (`pos`)
+);
+
+--
+-- Table structure for table `eprint_creators_show_email`
+--
+
+DROP TABLE IF EXISTS `eprint_creators_show_email`;
+CREATE TABLE `eprint_creators_show_email` (
+  `eprintid` int NOT NULL DEFAULT '0',
+  `pos` int NOT NULL DEFAULT '0',
+  `creators_show_email` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
+  PRIMARY KEY (`eprintid`,`pos`),
+  KEY `eprint_creators_show_email_pos` (`pos`),
+  KEY `eprint_creatorstors_show_email` (`creators_show_email`)
 );
 
 --

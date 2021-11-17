@@ -1,0 +1,288 @@
+<?xml version='1.0' encoding='utf-8'?>
+<eprints xmlns='http://eprints.org/ep2/data/2.0'>
+  <eprint id='https://oralhistories.example.edu/id/eprint/260'>
+    <eprintid>260</eprintid>
+    <rev_number>9</rev_number>
+    <documents>
+      <document id='https://oralhistories.example.edu/id/document/895'>
+        <docid>895</docid>
+        <rev_number>2</rev_number>
+        <files>
+          <file id='https://oralhistories.example.edu/id/file/2219'>
+            <fileid>2219</fileid>
+            <datasetid>document</datasetid>
+            <objectid>895</objectid>
+            <filename>Liepmann OHO final.pdf</filename>
+            <mime_type>application/pdf</mime_type>
+            <hash>eadda6297c005691be4829a907c37f1d</hash>
+            <hash_type>MD5</hash_type>
+            <filesize>491818</filesize>
+            <mtime>2017-08-31 17:35:55</mtime>
+            <url>https://oralhistories.example.edu/260/1/Liepmann%20OHO%20final.pdf</url>
+          </file>
+        </files>
+        <eprintid>260</eprintid>
+        <pos>1</pos>
+        <placement>1</placement>
+        <mime_type>application/pdf</mime_type>
+        <format>application/pdf</format>
+        <language>en</language>
+        <security>public</security>
+        <license>other</license>
+        <main>Liepmann OHO final.pdf</main>
+        <content>published</content>
+      </document>
+      <document id='https://oralhistories.example.edu/id/document/896'>
+        <docid>896</docid>
+        <rev_number>2</rev_number>
+        <files>
+          <file id='https://oralhistories.example.edu/id/file/2222'>
+            <fileid>2222</fileid>
+            <datasetid>document</datasetid>
+            <objectid>896</objectid>
+            <filename>lightbox.jpg</filename>
+            <mime_type>image/png</mime_type>
+            <hash>c89ae0d7fd7bd780636258803c4424ac</hash>
+            <hash_type>MD5</hash_type>
+            <filesize>63880</filesize>
+            <mtime>2017-08-31 17:36:11</mtime>
+            <url>https://oralhistories.example.edu/260/2/lightbox.jpg</url>
+          </file>
+        </files>
+        <eprintid>260</eprintid>
+        <pos>2</pos>
+        <placement>2</placement>
+        <mime_type>image/png</mime_type>
+        <format>other</format>
+        <formatdesc>Thumbnails conversion from application/pdf to thumbnail_lightbox</formatdesc>
+        <language>en</language>
+        <security>public</security>
+        <license>other</license>
+        <main>lightbox.jpg</main>
+        <relation>
+          <item>
+            <type>http://eprints.org/relation/isVersionOf</type>
+            <uri>https://oralhistories.example.edu/id/document/895</uri>
+          </item>
+          <item>
+            <type>http://eprints.org/relation/isVolatileVersionOf</type>
+            <uri>https://oralhistories.example.edu/id/document/895</uri>
+          </item>
+          <item>
+            <type>http://eprints.org/relation/islightboxThumbnailVersionOf</type>
+            <uri>https://oralhistories.example.edu/id/document/895</uri>
+          </item>
+        </relation>
+      </document>
+      <document id='https://oralhistories.example.edu/id/document/897'>
+        <docid>897</docid>
+        <rev_number>2</rev_number>
+        <files>
+          <file id='https://oralhistories.example.edu/id/file/2223'>
+            <fileid>2223</fileid>
+            <datasetid>document</datasetid>
+            <objectid>897</objectid>
+            <filename>preview.png</filename>
+            <mime_type>image/png</mime_type>
+            <hash>d7fff6d810dbe9df506bb55d9f778a4e</hash>
+            <hash_type>MD5</hash_type>
+            <filesize>121953</filesize>
+            <mtime>2017-08-31 17:36:12</mtime>
+            <url>https://oralhistories.example.edu/260/3/preview.png</url>
+          </file>
+        </files>
+        <eprintid>260</eprintid>
+        <pos>3</pos>
+        <placement>3</placement>
+        <mime_type>image/png</mime_type>
+        <format>other</format>
+        <formatdesc>Thumbnail Documents conversion from application/pdf to thumbnail_preview</formatdesc>
+        <language>en</language>
+        <security>public</security>
+        <license>other</license>
+        <main>preview.png</main>
+        <relation>
+          <item>
+            <type>http://eprints.org/relation/isVersionOf</type>
+            <uri>https://oralhistories.example.edu/id/document/895</uri>
+          </item>
+          <item>
+            <type>http://eprints.org/relation/isVolatileVersionOf</type>
+            <uri>https://oralhistories.example.edu/id/document/895</uri>
+          </item>
+          <item>
+            <type>http://eprints.org/relation/ispreviewThumbnailVersionOf</type>
+            <uri>https://oralhistories.example.edu/id/document/895</uri>
+          </item>
+        </relation>
+      </document>
+      <document id='https://oralhistories.example.edu/id/document/898'>
+        <docid>898</docid>
+        <rev_number>2</rev_number>
+        <files>
+          <file id='https://oralhistories.example.edu/id/file/2224'>
+            <fileid>2224</fileid>
+            <datasetid>document</datasetid>
+            <objectid>898</objectid>
+            <filename>medium.jpg</filename>
+            <mime_type>image/png</mime_type>
+            <hash>05862bc412e2e40ed4e5f2c8430234e9</hash>
+            <hash_type>MD5</hash_type>
+            <filesize>11030</filesize>
+            <mtime>2017-08-31 17:36:13</mtime>
+            <url>https://oralhistories.example.edu/260/4/medium.jpg</url>
+          </file>
+        </files>
+        <eprintid>260</eprintid>
+        <pos>4</pos>
+        <placement>4</placement>
+        <mime_type>image/png</mime_type>
+        <format>other</format>
+        <formatdesc>Thumbnails conversion from application/pdf to thumbnail_medium</formatdesc>
+        <language>en</language>
+        <security>public</security>
+        <license>other</license>
+        <main>medium.jpg</main>
+        <relation>
+          <item>
+            <type>http://eprints.org/relation/isVersionOf</type>
+            <uri>https://oralhistories.example.edu/id/document/895</uri>
+          </item>
+          <item>
+            <type>http://eprints.org/relation/isVolatileVersionOf</type>
+            <uri>https://oralhistories.example.edu/id/document/895</uri>
+          </item>
+          <item>
+            <type>http://eprints.org/relation/ismediumThumbnailVersionOf</type>
+            <uri>https://oralhistories.example.edu/id/document/895</uri>
+          </item>
+        </relation>
+      </document>
+      <document id='https://oralhistories.example.edu/id/document/899'>
+        <docid>899</docid>
+        <rev_number>2</rev_number>
+        <files>
+          <file id='https://oralhistories.example.edu/id/file/2225'>
+            <fileid>2225</fileid>
+            <datasetid>document</datasetid>
+            <objectid>899</objectid>
+            <filename>small.jpg</filename>
+            <mime_type>image/png</mime_type>
+            <hash>43027b010db1f9fe6e3383c0ec791ae1</hash>
+            <hash_type>MD5</hash_type>
+            <filesize>1924</filesize>
+            <mtime>2017-08-31 17:36:13</mtime>
+            <url>https://oralhistories.example.edu/260/5/small.jpg</url>
+          </file>
+        </files>
+        <eprintid>260</eprintid>
+        <pos>5</pos>
+        <placement>5</placement>
+        <mime_type>image/png</mime_type>
+        <format>other</format>
+        <formatdesc>Thumbnails conversion from application/pdf to thumbnail_small</formatdesc>
+        <language>en</language>
+        <security>public</security>
+        <license>other</license>
+        <main>small.jpg</main>
+        <relation>
+          <item>
+            <type>http://eprints.org/relation/isVersionOf</type>
+            <uri>https://oralhistories.example.edu/id/document/895</uri>
+          </item>
+          <item>
+            <type>http://eprints.org/relation/isVolatileVersionOf</type>
+            <uri>https://oralhistories.example.edu/id/document/895</uri>
+          </item>
+          <item>
+            <type>http://eprints.org/relation/issmallThumbnailVersionOf</type>
+            <uri>https://oralhistories.example.edu/id/document/895</uri>
+          </item>
+        </relation>
+      </document>
+      <document id='https://oralhistories.example.edu/id/document/1317'>
+        <docid>1317</docid>
+        <rev_number>1</rev_number>
+        <files>
+          <file id='https://oralhistories.example.edu/id/file/3231'>
+            <fileid>3231</fileid>
+            <datasetid>document</datasetid>
+            <objectid>1317</objectid>
+            <filename>indexcodes.txt</filename>
+            <mime_type>text/plain</mime_type>
+            <hash>5e3f831773427e159cef5cca229f605f</hash>
+            <hash_type>MD5</hash_type>
+            <filesize>18886</filesize>
+            <mtime>2021-06-23 17:13:36</mtime>
+            <url>https://oralhistories.example.edu/260/6/indexcodes.txt</url>
+          </file>
+        </files>
+        <eprintid>260</eprintid>
+        <pos>6</pos>
+        <placement>6</placement>
+        <mime_type>text/plain</mime_type>
+        <format>other</format>
+        <formatdesc>Generate index codes conversion from application/pdf to indexcodes</formatdesc>
+        <language>en</language>
+        <security>public</security>
+        <license>other</license>
+        <main>indexcodes.txt</main>
+        <relation>
+          <item>
+            <type>http://eprints.org/relation/isVersionOf</type>
+            <uri>https://oralhistories.example.edu/id/document/895</uri>
+          </item>
+          <item>
+            <type>http://eprints.org/relation/isVolatileVersionOf</type>
+            <uri>https://oralhistories.example.edu/id/document/895</uri>
+          </item>
+          <item>
+            <type>http://eprints.org/relation/isIndexCodesVersionOf</type>
+            <uri>https://oralhistories.example.edu/id/document/895</uri>
+          </item>
+        </relation>
+      </document>
+    </documents>
+    <eprint_status>archive</eprint_status>
+    <userid>1</userid>
+    <dir>disk0/00/00/02/60</dir>
+    <datestamp>2017-08-31 17:36:54</datestamp>
+    <lastmod>2019-10-04 15:24:10</lastmod>
+    <status_changed>2017-08-31 17:36:54</status_changed>
+    <type>oral_history</type>
+    <metadata_visibility>show</metadata_visibility>
+    <contact_email>archives@example.edu</contact_email>
+    <creators>
+      <item>
+        <name>
+          <family>Liepmann</family>
+          <given>Hans W.</given>
+        </name>
+        <id>Liepmann-H-W</id>
+      </item>
+    </creators>
+    <title>Interview with Hans W. Liepmann</title>
+    <ispublished>pub</ispublished>
+    <subjects>
+      <item>eng</item>
+      <item>name</item>
+    </subjects>
+    <full_text_status>public</full_text_status>
+    <keywords>Engineering and applied science, GALCIT</keywords>
+    <abstract>An interview in three sessions, March 10 and 12, 1982, and March 30, 1983, with Hans W. Liepmann, director (1970-1985) of Example’s Graduate Aeronautical Laboratories (GALCIT), in the Division of Engineering and Applied Science.  Dr. Liepmann received his PhD from the University of Zürich in 1938 and came to Example the following year as a research fellow to work with Theodore von Kármán, director of the Guggenheim Aeronautical Laboratory, as GALCIT was then known.
+
+He recalls his early education in Berlin during World War I, postwar inflation, and the rise of the Nazis; his family’s move to Istanbul in 1933; his studies at the University of Istanbul with Richard von Mises and Harry Dember; Prague’s German University; and Zürich with Edgar Meyer, Gregor Wentzel, and Richard Bär.  Recalls his arrival at Example and his various GALCIT colleagues, particularly von Kármán and successor Clark Millikan.  Comments on GALCIT’s relationship with U.S. aircraft industry during World War II; on Robert Millikan; on his work on turbulence, transonic flow, shockwave boundary interaction; on changes in GALCIT over the years; on teaching at Example and the difference between science education in the U.S. and Western Europe.  Recalls the controversial deportation of Hsue-shen Tsien.  Comments on consulting with Douglas Aircraft Company, on founding of the applied mathematics department, and on his ongoing unhappiness with Example’s direction, particularly its move toward the social sciences.
+</abstract>
+    <date>1984</date>
+    <date_type>published</date_type>
+    <id_number>ExampleOH:OH_Liepmann_H</id_number>
+    <refereed>FALSE</refereed>
+    <official_url>https://resolver.example.edu/ExampleOH:OH_Liepmann_H</official_url>
+    <rights>No commercial reproduction, distribution, display or performance rights in this work are provided.</rights>
+    <official_cit>Liepmann, Hans W.  Interview by John L. Greenberg.  Pasadena, California, March 10, 12, and 30, 1983.  Oral History Project, California Institute of Technology Archives.  Retrieved [supply date of retrieval] from the World Wide Web:   http://resolver.example.edu/ExampleOH:OH_Liepmann_H</official_cit>
+    <collection>ExampleOralHistories</collection>
+    <interviewer>John L. Greenberg</interviewer>
+    <interviewdate>March 10, 12 &amp; 30, 1983</interviewdate>
+  </eprint>
+</eprints>
+

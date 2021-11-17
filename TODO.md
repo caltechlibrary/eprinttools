@@ -23,14 +23,16 @@ Next
     - [ ] Include all fields and tabels in caltechln
     - [ ] Exported selected records from production, sanitize them and write import test against lemurprints test database
 - [ ] Add create end points to support importing EPrint XML metadata into eprints
-    - [x] Creating a new row in eprint table and getting the eprintid assigne needs to be atomic. Wrap in a transaction.
+    - [x] Implement SQLReadEPrint
+    - [x] Implement SQLCreateEPrint
+    - [ ] Implement ImportEPrint for importing EPrint XML metadata
     - [x] Implement a method that takes a table/column map and EPrint structure then renders a INSERT or REPLACE sequence to create or update an EPrint record
     - [x] Implement a method that takes a table/column map and EPrint structure and update the EPrint structure from a sequnce of SELECT statements
 - [ ] Add update end point to support update EPrints Metadata
-    - [ ] Figure out host historical diffs of EPrints XML are generated in EPrints' History tab
+    - [ ] Figure out how historical diffs of EPrints XML are generated in EPrints' History tab
     - [ ] Implement updates versioning the EPrint Metadata record
     - [ ] Implement file upload and manage document versioning
-- [ ] Split clsrules into separate options to allow for more specific control
+- [x] Split clsrules into separate options to allow for more specific control
 - [ ] Implement Solr index record view for Solr 8.9 ingest
 - [ ] Add Person A-Z list support
 

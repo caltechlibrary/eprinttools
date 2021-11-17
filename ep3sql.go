@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"log"
 	"strings"
-	//"time"
+	"time"
 
 	// Caltech Packages
 	"github.com/caltechlibrary/pairtree"
@@ -499,10 +499,8 @@ func colExpr(name string, ifNull bool, value string) string {
 //
 // The bool ifNull will control the type of expression of the column.
 func eprintToColumnsAndValues(eprint *EPrint, columnsIn []string, ifNull bool) ([]string, []interface{}) {
-	var (
-		columnsOut []string
-		values     []interface{}
-	)
+	columnsOut := []string{}
+	values := []interface{}{}
 	for i, key := range columnsIn {
 		switch key {
 		case "eprintid":
@@ -1212,34 +1210,76 @@ func makePersonName(given string, family string, honourific string, lineage stri
 // An odd edge case can make the year, month or day off by one.
 
 func makeTimestamp(year int, month int, day int, hour int, minute int, second int) string {
-	if (year > 0) && (month > 0) && (day > 0) {
+	if year > 0 && (hour > 0 || minute > 0 || second > 0) {
 		return fmt.Sprintf("%d-%02d-%02d %02d:%02d:%02d", year, month, day, hour, minute, second)
+	}
+	// Oral Historied repositories has a "datestamp" without hour, minute, second
+	if year > 0 {
+		return fmt.Sprintf("%d-%02d-%02d", year, month, day)
 	}
 	return ""
 }
 
 func makeDatestamp(year int, month int, day int) string {
-	if (year > 0) && (month > 0) && (day > 0) {
-		return fmt.Sprintf("%d-%02d-%02d", year, month, day)
+	parts := []string{}
+	if year > 0 {
+		parts = append(parts, fmt.Sprintf("%d", year))
+	}
+	if month > 0 {
+		parts = append(parts, fmt.Sprintf("%02d", month))
+	}
+	if day > 0 {
+		parts = append(parts, fmt.Sprintf("%02d", day))
+	}
+	if len(parts) == 3 {
+		return strings.Join(parts, "-")
 	}
 	return ""
 }
 
 func makeApproxDate(year int, month int, day int) string {
-	switch {
-	case (year > 0) && (month > 0) && (day > 0):
-		return fmt.Sprintf("%d-%02d-%02d", year, month, day)
-	case (year > 0) && (month > 0) && (day == 0):
-		return fmt.Sprintf("%d-%02d", year, month)
-	case (year > 0) && (month == 0) && (day == 0):
-		return fmt.Sprintf("%d", year)
-	default:
-		return ""
+	parts := []string{}
+	if year > 0 {
+		parts = append(parts, fmt.Sprintf("%d", year))
 	}
+	if month > 0 {
+		parts = append(parts, fmt.Sprintf("%02d", month))
+	}
+	if day > 0 {
+		parts = append(parts, fmt.Sprintf("%02d", day))
+	}
+	if len(parts) > 0 {
+		return strings.Join(parts, "-")
+	}
+	return ""
+}
+
+func approxYMD(src string) (int, int, int) {
+	layout := "2006-01-02"
+	switch len(src) {
+	case 4:
+		layout = "2006"
+	case 7:
+		layout = "2006-01"
+	case 10:
+		layout = "2006-01-02"
+	}
+	dt, err := time.Parse(layout, src)
+	if err == nil {
+		switch len(src) {
+		case 4:
+			return dt.Year(), 0, 0
+		case 7:
+			return dt.Year(), int(dt.Month()), 0
+		case 10:
+			return dt.Year(), int(dt.Month()), dt.Day()
+		}
+	}
+	return 0, 0, 0
 }
 
 func makeDirValue(ID int) string {
-	return fmt.Sprintf(`disk0/%s`, pairtree.Encode(fmt.Sprintf("%08d", ID)))
+	return fmt.Sprintf(`disk0/%s`, strings.TrimSuffix(pairtree.Encode(fmt.Sprintf("%08d", ID)), "/"))
 }
 
 func sizeItemList(pos int, itemList ItemsInterface) {
@@ -1721,7 +1761,10 @@ FROM %s WHERE eprintid = ? ORDER BY eprintid, pos`, columnName, columnName, tabl
 			}
 		}
 	}
-	return itemList
+	if itemList.Length() > 0 {
+		return itemList
+	}
+	return nil
 }
 
 func eprintIDToCorpContributors(repoID string, eprintID int, db *sql.DB, tables map[string][]string) *CorpContributorItemList {
@@ -1796,7 +1839,10 @@ FROM %s WHERE eprintid = ? ORDER BY eprintid, pos`, columnName, columnName, tabl
 			}
 		}
 	}
-	return itemList
+	if itemList.Length() > 0 {
+		return itemList
+	}
+	return nil
 }
 
 func eprintIDToFunders(repoID string, eprintID int, db *sql.DB, tables map[string][]string) *FunderItemList {
@@ -2063,7 +2109,7 @@ FROM %s WHERE eprintid = ? ORDER BY eprintid, pos`, tableName)
 
 // SQLReadEPrint expects a repository map and EPrint ID
 // and will generate a series of SELECT statements populating
-// a new EPrint struct or return an error
+// a new EPrint struct or return an error (e.g. "not found" if eprint id is not in repository)
 func SQLReadEPrint(config *Config, repoID string, baseURL string, eprintID int) (*EPrint, error) {
 	var (
 		tables  map[string][]string
@@ -2093,7 +2139,7 @@ func SQLReadEPrint(config *Config, repoID string, baseURL string, eprintID int) 
 
 	eprint := new(EPrint) // Generate an empty EPrint struct
 
-	//NOTE: The data is littered with NULLs in EPrints. We need to
+	// NOTE: The data is littered with NULLs in EPrints. We need to
 	// generate both a map of values into the EPrint stucture and
 	// aggregated the SQL Column definitions to deal with the NULL
 	// values.
@@ -2106,6 +2152,7 @@ func SQLReadEPrint(config *Config, repoID string, baseURL string, eprintID int) 
 	if err != nil {
 		return nil, fmt.Errorf(`ERROR: query error (%q, %q), %s`, repoID, stmt, err)
 	}
+	cnt := 0
 	for rows.Next() {
 		// NOTE: Because values array holds the addresses into our
 		// EPrint struct the "Scan" does the actual mapping.
@@ -2113,110 +2160,115 @@ func SQLReadEPrint(config *Config, repoID string, baseURL string, eprintID int) 
 		if err := rows.Scan(values...); err != nil {
 			log.Printf(`Could not read eprint table, %s`, err)
 		}
+		cnt++
 	}
 	rows.Close()
 
-	// Normalize fields inferred from MySQL database tables.
-	eprint.ID = fmt.Sprintf(`%s/id/eprint/%d`, baseURL, eprint.EPrintID)
-	eprint.LastModified = makeTimestamp(eprint.LastModifiedYear, eprint.LastModifiedMonth, eprint.LastModifiedDay, eprint.LastModifiedHour, eprint.LastModifiedMinute, eprint.LastModifiedSecond)
-	// NOTE: EPrint XML uses a datestamp for output but tracks a timestamp.
-	//eprint.Datestamp = makeTimestamp(eprint.DatestampYear, eprint.DatestampMonth, eprint.DatestampDay, eprint.DatestampHour, eprint.DatestampMinute, eprint.DatestampSecond)
-	eprint.Datestamp = makeTimestamp(eprint.DatestampYear, eprint.DatestampMonth, eprint.DatestampDay, eprint.DatestampHour, eprint.DatestampMinute, eprint.DatestampSecond)
-	eprint.StatusChanged = makeTimestamp(eprint.StatusChangedYear, eprint.StatusChangedMonth, eprint.StatusChangedDay, eprint.StatusChangedHour, eprint.StatusChangedMinute, eprint.StatusChangedSecond)
-	eprint.Date = makeApproxDate(eprint.DateYear, eprint.DateMonth, eprint.DateDay)
+	// NOTE: need to handle zero rows returned!
+	if cnt > 0 {
+		// Normalize fields inferred from MySQL database tables.
+		eprint.ID = fmt.Sprintf(`%s/id/eprint/%d`, baseURL, eprint.EPrintID)
+		eprint.LastModified = makeTimestamp(eprint.LastModifiedYear, eprint.LastModifiedMonth, eprint.LastModifiedDay, eprint.LastModifiedHour, eprint.LastModifiedMinute, eprint.LastModifiedSecond)
+		// NOTE: EPrint XML uses a datestamp for output but tracks a timestamp.
+		eprint.Datestamp = makeTimestamp(eprint.DatestampYear, eprint.DatestampMonth, eprint.DatestampDay, eprint.DatestampHour, eprint.DatestampMinute, eprint.DatestampSecond)
+		eprint.StatusChanged = makeTimestamp(eprint.StatusChangedYear, eprint.StatusChangedMonth, eprint.StatusChangedDay, eprint.StatusChangedHour, eprint.StatusChangedMinute, eprint.StatusChangedSecond)
+		eprint.Date = makeApproxDate(eprint.DateYear, eprint.DateMonth, eprint.DateDay)
 
-	// Used in CaltechTHESIS
-	eprint.ThesisSubmittedDate = makeDatestamp(eprint.ThesisSubmittedDateYear, eprint.ThesisSubmittedDateMonth, eprint.ThesisSubmittedDateDay)
-	eprint.ThesisDefenseDate = makeDatestamp(eprint.ThesisDefenseDateYear, eprint.ThesisDefenseDateMonth, eprint.ThesisDefenseDateDay)
-	eprint.ThesisApprovedDate = makeDatestamp(eprint.ThesisApprovedDateYear, eprint.ThesisApprovedDateMonth, eprint.ThesisApprovedDateDay)
-	eprint.ThesisPublicDate = makeDatestamp(eprint.ThesisPublicDateYear, eprint.ThesisPublicDateMonth, eprint.ThesisPublicDateDay)
-	eprint.ThesisDegreeDate = makeDatestamp(eprint.ThesisDegreeDateYear, eprint.ThesisDegreeDateMonth, eprint.ThesisDegreeDateDay)
-	eprint.GradOfficeApprovalDate = makeDatestamp(eprint.GradOfficeApprovalDateYear, eprint.GradOfficeApprovalDateMonth, eprint.GradOfficeApprovalDateDay)
+		// Used in CaltechTHESIS
+		eprint.ThesisSubmittedDate = makeDatestamp(eprint.ThesisSubmittedDateYear, eprint.ThesisSubmittedDateMonth, eprint.ThesisSubmittedDateDay)
+		eprint.ThesisDefenseDate = makeDatestamp(eprint.ThesisDefenseDateYear, eprint.ThesisDefenseDateMonth, eprint.ThesisDefenseDateDay)
+		eprint.ThesisApprovedDate = makeDatestamp(eprint.ThesisApprovedDateYear, eprint.ThesisApprovedDateMonth, eprint.ThesisApprovedDateDay)
+		eprint.ThesisPublicDate = makeDatestamp(eprint.ThesisPublicDateYear, eprint.ThesisPublicDateMonth, eprint.ThesisPublicDateDay)
+		eprint.ThesisDegreeDate = makeDatestamp(eprint.ThesisDegreeDateYear, eprint.ThesisDegreeDateMonth, eprint.ThesisDegreeDateDay)
+		eprint.GradOfficeApprovalDate = makeDatestamp(eprint.GradOfficeApprovalDateYear, eprint.GradOfficeApprovalDateMonth, eprint.GradOfficeApprovalDateDay)
 
-	// CreatorsItemList
-	eprint.Creators = eprintIDToCreators(repoID, eprintID, db, tables)
-	// EditorsItemList
-	eprint.Editors = eprintIDToEditors(repoID, eprintID, db, tables)
-	// ContributorsItemList
-	eprint.Contributors = eprintIDToContributors(repoID, eprintID, db, tables)
+		// CreatorsItemList
+		eprint.Creators = eprintIDToCreators(repoID, eprintID, db, tables)
+		// EditorsItemList
+		eprint.Editors = eprintIDToEditors(repoID, eprintID, db, tables)
+		// ContributorsItemList
+		eprint.Contributors = eprintIDToContributors(repoID, eprintID, db, tables)
 
-	// CorpCreators
-	eprint.CorpCreators = eprintIDToCorpCreators(repoID, eprintID, db, tables)
-	// CorpContributors
-	eprint.CorpContributors = eprintIDToCorpContributors(repoID, eprintID, db, tables)
+		// CorpCreators
+		eprint.CorpCreators = eprintIDToCorpCreators(repoID, eprintID, db, tables)
+		// CorpContributors
+		eprint.CorpContributors = eprintIDToCorpContributors(repoID, eprintID, db, tables)
 
-	// LocalGroupItemList (SimpleItemList)
-	eprint.LocalGroup = eprintIDToLocalGroup(repoID, eprintID, db, tables)
-	// FundersItemList (custom)
-	eprint.Funders = eprintIDToFunders(repoID, eprintID, db, tables)
-	// Documents (*DocumentList)
-	eprint.Documents = eprintIDToDocumentList(repoID, baseURL, eprintID, db, tables)
-	// RelatedURLs List
-	eprint.RelatedURL = eprintIDToRelatedURL(repoID, baseURL, eprintID, db, tables)
-	// ReferenceText (item list)
-	eprint.ReferenceText = eprintIDToReferenceText(repoID, eprintID, db, tables)
-	// Projects
-	eprint.Projects = eprintIDToProjects(repoID, eprintID, db, tables)
-	// OtherNumberingSystem (item list)
-	eprint.OtherNumberingSystem = eprintIDToOtherNumberingSystem(repoID, eprintID, db, tables)
-	// Subjects List
-	eprint.Subjects = eprintIDToSubjects(repoID, eprintID, db, tables)
-	// ItemIssues
-	eprint.ItemIssues = eprintIDToItemIssues(repoID, eprintID, db, tables)
+		// LocalGroupItemList (SimpleItemList)
+		eprint.LocalGroup = eprintIDToLocalGroup(repoID, eprintID, db, tables)
+		// FundersItemList (custom)
+		eprint.Funders = eprintIDToFunders(repoID, eprintID, db, tables)
+		// Documents (*DocumentList)
+		eprint.Documents = eprintIDToDocumentList(repoID, baseURL, eprintID, db, tables)
+		// RelatedURLs List
+		eprint.RelatedURL = eprintIDToRelatedURL(repoID, baseURL, eprintID, db, tables)
+		// ReferenceText (item list)
+		eprint.ReferenceText = eprintIDToReferenceText(repoID, eprintID, db, tables)
+		// Projects
+		eprint.Projects = eprintIDToProjects(repoID, eprintID, db, tables)
+		// OtherNumberingSystem (item list)
+		eprint.OtherNumberingSystem = eprintIDToOtherNumberingSystem(repoID, eprintID, db, tables)
+		// Subjects List
+		eprint.Subjects = eprintIDToSubjects(repoID, eprintID, db, tables)
+		// ItemIssues
+		eprint.ItemIssues = eprintIDToItemIssues(repoID, eprintID, db, tables)
 
-	// Exhibitors
-	eprint.Exhibitors = eprintIDToExhibitors(repoID, eprintID, db, tables)
-	// Producers
-	eprint.Producers = eprintIDToProducers(repoID, eprintID, db, tables)
-	// Conductors
-	eprint.Conductors = eprintIDToConductors(repoID, eprintID, db, tables)
+		// Exhibitors
+		eprint.Exhibitors = eprintIDToExhibitors(repoID, eprintID, db, tables)
+		// Producers
+		eprint.Producers = eprintIDToProducers(repoID, eprintID, db, tables)
+		// Conductors
+		eprint.Conductors = eprintIDToConductors(repoID, eprintID, db, tables)
 
-	// Lyricists
-	eprint.Lyricists = eprintIDToLyricists(repoID, eprintID, db, tables)
+		// Lyricists
+		eprint.Lyricists = eprintIDToLyricists(repoID, eprintID, db, tables)
 
-	// Accompaniment
-	eprint.Accompaniment = eprintIDToAccompaniment(repoID, eprintID, db, tables)
-	// SkillAreas
-	eprint.SkillAreas = eprintIDToSkillAreas(repoID, eprintID, db, tables)
-	// CopyrightHolders
-	eprint.CopyrightHolders = eprintIDToCopyrightHolders(repoID, eprintID, db, tables)
-	// Reference
-	eprint.Reference = eprintIDToReference(repoID, eprintID, db, tables)
+		// Accompaniment
+		eprint.Accompaniment = eprintIDToAccompaniment(repoID, eprintID, db, tables)
+		// SkillAreas
+		eprint.SkillAreas = eprintIDToSkillAreas(repoID, eprintID, db, tables)
+		// CopyrightHolders
+		eprint.CopyrightHolders = eprintIDToCopyrightHolders(repoID, eprintID, db, tables)
+		// Reference
+		eprint.Reference = eprintIDToReference(repoID, eprintID, db, tables)
 
-	// ConfCreators
-	eprint.ConfCreators = eprintIDToConfCreators(repoID, eprintID, db, tables)
-	// AltTitle
-	eprint.AltTitle = eprintIDToAltTitle(repoID, eprintID, db, tables)
-	// PatentAssignee
-	eprint.PatentAssignee = eprintIDToPatentAssignee(repoID, eprintID, db, tables)
-	// RelatedPatents
-	eprint.RelatedPatents = eprintIDToRelatedPatents(repoID, eprintID, db, tables)
-	// Divisions
-	eprint.Divisions = eprintIDToDivisions(repoID, eprintID, db, tables)
-	// ThesisAdvisor
-	eprint.ThesisAdvisor = eprintIDToThesisAdvisors(repoID, eprintID, db, tables)
-	// ThesisCommittee
-	eprint.ThesisCommittee = eprintIDToThesisCommittee(repoID, eprintID, db, tables)
+		// ConfCreators
+		eprint.ConfCreators = eprintIDToConfCreators(repoID, eprintID, db, tables)
+		// AltTitle
+		eprint.AltTitle = eprintIDToAltTitle(repoID, eprintID, db, tables)
+		// PatentAssignee
+		eprint.PatentAssignee = eprintIDToPatentAssignee(repoID, eprintID, db, tables)
+		// RelatedPatents
+		eprint.RelatedPatents = eprintIDToRelatedPatents(repoID, eprintID, db, tables)
+		// Divisions
+		eprint.Divisions = eprintIDToDivisions(repoID, eprintID, db, tables)
+		// ThesisAdvisor
+		eprint.ThesisAdvisor = eprintIDToThesisAdvisors(repoID, eprintID, db, tables)
+		// ThesisCommittee
+		eprint.ThesisCommittee = eprintIDToThesisCommittee(repoID, eprintID, db, tables)
 
-	// OptionMajor
-	eprint.OptionMajor = eprintIDToOptionMajor(repoID, eprintID, db, tables)
-	// OptionMinor
-	eprint.OptionMinor = eprintIDToOptionMinor(repoID, eprintID, db, tables)
+		// OptionMajor
+		eprint.OptionMajor = eprintIDToOptionMajor(repoID, eprintID, db, tables)
+		// OptionMinor
+		eprint.OptionMinor = eprintIDToOptionMinor(repoID, eprintID, db, tables)
 
-	/*************************************************************
-	    NOTE: These are notes about possible original implementation
-	    errors or elements that did not survive the upgrade to
-	    EPrints 3.3.16
+		/*************************************************************
+		    NOTE: These are notes about possible original implementation
+		    errors or elements that did not survive the upgrade to
+		    EPrints 3.3.16
 
-	    eprint.LearningLevels (not an item list in EPrints) using LearningLevelText
-	    GScholar, skipping not an item list, a 2010 plugin for EPRints 3.2.
-	    eprint.GScholar = eprintIDToGScholar(repoID, eprintID, db, tables)
-	    Shelves, a plugin, not replicating, not an item list
-	    eprint.Shelves = eprintIDToSchelves(repoID, eprintID, db, tables)
-	    eprint.PatentClassification is not not an item list, using eprint.PatentClassificationText
-	    eprint.OtherURL appears to be an extraneous
-	    eprint.CorpContributors apears to be an extraneous
-	*************************************************************/
+		    eprint.LearningLevels (not an item list in EPrints) using LearningLevelText
+		    GScholar, skipping not an item list, a 2010 plugin for EPRints 3.2.
+		    eprint.GScholar = eprintIDToGScholar(repoID, eprintID, db, tables)
+		    Shelves, a plugin, not replicating, not an item list
+		    eprint.Shelves = eprintIDToSchelves(repoID, eprintID, db, tables)
+		    eprint.PatentClassification is not not an item list, using eprint.PatentClassificationText
+		    eprint.OtherURL appears to be an extraneous
+		    eprint.CorpContributors apears to be an extraneous
+		*************************************************************/
+	} else {
+		return nil, fmt.Errorf("not found")
+	}
 
 	return eprint, nil
 }
@@ -2310,13 +2362,13 @@ func insertItemList(db *sql.DB, repoID string, tableName string, columns []strin
 	case strings.HasPrefix(tableName, `eprint_skill`):
 		itemList = eprint.SkillAreas
 	case strings.HasPrefix(tableName, `eprint_relation`):
-		// This is not the same as document_relation_*, it is a separate item list item list
+		// NOTE: This is not the same as document_relation_*, it is a separate item list item list
 		// it has the same structure with a uri and type. Our eprint implementations use a Relation
 		itemList = eprint.Relation
 	case strings.HasPrefix(tableName, `eprint_keyword`):
-		// FIXME this we appear to use the longtext of key in our eprint table. Not sure if this
+		// NOTE: this we appear to use the longtext of key in our eprint table. Not sure if this
 		// is new or old structure. It is posssible that our longtext for keywords is a legacy structure.
-		//itemList = eprint.Keyword
+		// itemList = eprint.Keyword
 	default:
 		return fmt.Errorf(`do not understand %q, %s`, tableName, strings.Join(columns, `, `))
 	}
@@ -2360,11 +2412,13 @@ func insertItemList(db *sql.DB, repoID string, tableName string, columns []strin
 			case strings.HasSuffix(col, `_name`):
 				values = append(values, item.Name.Value)
 				columnsSQL = append(columnsSQL, col)
-			case strings.HasSuffix(col, `_email`):
-				values = append(values, item.EMail)
-				columnsSQL = append(columnsSQL, col)
 			case strings.HasSuffix(col, `_show_email`):
+				// NOTE: _show_email needs to be tested before _email
 				values = append(values, item.ShowEMail)
+				columnsSQL = append(columnsSQL, col)
+			case strings.HasSuffix(col, `_email`):
+				// NOTE: _show_email needs to be tested before _email
+				values = append(values, item.EMail)
 				columnsSQL = append(columnsSQL, col)
 			case strings.HasSuffix(col, `_role`):
 				values = append(values, item.Role)
@@ -2441,6 +2495,9 @@ func insertItemList(db *sql.DB, repoID string, tableName string, columns []strin
 			case strings.HasSuffix(col, `skill_areas`):
 				values = append(values, item.Value)
 				columnsSQL = append(columnsSQL, col)
+			case strings.HasSuffix(col, `alt_title`):
+				values = append(values, item.Value)
+				columnsSQL = append(columnsSQL, col)
 			default:
 				return fmt.Errorf("do not understand column %s.%s\n", tableName, col)
 			}
@@ -2495,24 +2552,65 @@ func SQLCreateEPrint(config *Config, repoID string, ds *DataSource, eprint *EPri
 		}
 		eprint.EPrintID = id
 		eprint.Dir = makeDirValue(eprint.EPrintID)
-		//FIXME: decide if the is automatic or if this should be
+		// FIXME: decide if the is automatic or if this should be
 		// passed in with the data structure.
 		// Generate minimal date and time stamps
-		/*
-			now := time.Now()
+		now := time.Now()
+		if eprint.Datestamp == "" {
 			eprint.Datestamp = now.Format(timestamp)
 			eprint.DatestampYear = now.Year()
 			eprint.DatestampMonth = int(now.Month())
 			eprint.DatestampDay = now.Day()
 			eprint.DatestampHour = now.Hour()
 			eprint.DatestampMinute = now.Minute()
-			eprint.LastModified = now.Format(timestamp)
-			eprint.LastModifiedYear = now.Year()
-			eprint.LastModifiedMonth = int(now.Month())
-			eprint.LastModifiedDay = now.Day()
-			eprint.LastModifiedHour = now.Hour()
-			eprint.LastModifiedMinute = now.Minute()
-		*/
+			eprint.DatestampSecond = now.Second()
+		} else if dt, err := time.Parse(datestamp, eprint.Datestamp); err == nil {
+			eprint.DatestampYear = dt.Year()
+			eprint.DatestampMonth = int(dt.Month())
+			eprint.DatestampDay = dt.Day()
+		} else if dt, err := time.Parse(timestamp, eprint.Datestamp); err == nil {
+			eprint.DatestampYear = dt.Year()
+			eprint.DatestampMonth = int(dt.Month())
+			eprint.DatestampDay = dt.Day()
+			eprint.DatestampHour = dt.Hour()
+			eprint.DatestampMinute = dt.Minute()
+			eprint.DatestampSecond = dt.Second()
+		}
+
+		eprint.LastModified = now.Format(timestamp)
+		eprint.LastModifiedYear = now.Year()
+		eprint.LastModifiedMonth = int(now.Month())
+		eprint.LastModifiedDay = now.Day()
+		eprint.LastModifiedHour = now.Hour()
+		eprint.LastModifiedMinute = now.Minute()
+		eprint.LastModifiedSecond = now.Second()
+
+		eprint.StatusChanged = now.Format(timestamp)
+		eprint.StatusChangedYear = now.Year()
+		eprint.StatusChangedMonth = int(now.Month())
+		eprint.StatusChangedDay = now.Day()
+		eprint.StatusChangedHour = now.Hour()
+		eprint.StatusChangedMinute = now.Minute()
+		eprint.StatusChangedSecond = now.Second()
+
+		if eprint.Date != "" {
+			eprint.DateYear, eprint.DateMonth, eprint.DateDay = approxYMD(eprint.Date)
+		}
+		if eprint.ThesisSubmittedDate != "" {
+			eprint.ThesisSubmittedDateYear, eprint.ThesisSubmittedDateMonth, eprint.ThesisSubmittedDateDay = approxYMD(eprint.ThesisSubmittedDate)
+		}
+		if eprint.ThesisDefenseDate != "" {
+			eprint.ThesisDefenseDateYear, eprint.ThesisDefenseDateMonth, eprint.ThesisDefenseDateDay = approxYMD(eprint.ThesisDefenseDate)
+		}
+		if eprint.ThesisApprovedDate != "" {
+			eprint.ThesisApprovedDateYear, eprint.ThesisApprovedDateMonth, eprint.ThesisApprovedDateDay = approxYMD(eprint.ThesisApprovedDate)
+		}
+		if eprint.ThesisPublicDate != "" {
+			eprint.ThesisPublicDateYear, eprint.ThesisPublicDateMonth, eprint.ThesisPublicDateDay = approxYMD(eprint.ThesisPublicDate)
+		}
+		if eprint.GradOfficeApprovalDate != "" {
+			eprint.GradOfficeApprovalDateYear, eprint.GradOfficeApprovalDateMonth, eprint.GradOfficeApprovalDateDay = approxYMD(eprint.GradOfficeApprovalDate)
+		}
 
 		// Step two, write the rest of the date into the main table.
 		columnsSQL, values := eprintToColumnsAndValues(eprint, columns, false)

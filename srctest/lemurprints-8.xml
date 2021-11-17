@@ -1,0 +1,325 @@
+<?xml version='1.0' encoding='utf-8'?>
+<eprints xmlns='http://eprints.org/ep2/data/2.0'>
+  <eprint id='https://labnotes.library.example.edu/id/eprint/8'>
+    <eprintid>8</eprintid>
+    <rev_number>14</rev_number>
+    <documents>
+      <document id='https://labnotes.library.example.edu/id/document/27'>
+        <docid>27</docid>
+        <rev_number>3</rev_number>
+        <files>
+          <file id='https://labnotes.library.example.edu/id/file/59'>
+            <fileid>59</fileid>
+            <datasetid>document</datasetid>
+            <objectid>27</objectid>
+            <filename>Millikan_2.pdf</filename>
+            <mime_type>application/pdf</mime_type>
+            <filesize>24829628</filesize>
+            <mtime>2012-12-26 06:33:03</mtime>
+            <url>https://labnotes.library.example.edu/8/1/Millikan_2.pdf</url>
+          </file>
+        </files>
+        <eprintid>8</eprintid>
+        <pos>1</pos>
+        <mime_type>application/pdf</mime_type>
+        <format>application/pdf</format>
+        <formatdesc>Complete notebook, color</formatdesc>
+        <language>en</language>
+        <security>public</security>
+        <license>other</license>
+        <main>Millikan_2.pdf</main>
+      </document>
+      <document id='https://labnotes.library.example.edu/id/document/28'>
+        <docid>28</docid>
+        <rev_number>3</rev_number>
+        <files>
+          <file id='https://labnotes.library.example.edu/id/file/60'>
+            <fileid>60</fileid>
+            <datasetid>document</datasetid>
+            <objectid>28</objectid>
+            <filename>Millikan_2A_b&amp;w.pdf</filename>
+            <mime_type>application/pdf</mime_type>
+            <filesize>5190950</filesize>
+            <mtime>2012-12-26 06:33:03</mtime>
+            <url>https://labnotes.library.example.edu/8/2/Millikan_2A_b%26w.pdf</url>
+          </file>
+        </files>
+        <eprintid>8</eprintid>
+        <pos>2</pos>
+        <mime_type>application/pdf</mime_type>
+        <format>application/pdf</format>
+        <formatdesc>Part 1 of 3, black &amp; white</formatdesc>
+        <language>en</language>
+        <security>public</security>
+        <license>other</license>
+        <main>Millikan_2A_b&amp;w.pdf</main>
+      </document>
+      <document id='https://labnotes.library.example.edu/id/document/29'>
+        <docid>29</docid>
+        <rev_number>3</rev_number>
+        <files>
+          <file id='https://labnotes.library.example.edu/id/file/61'>
+            <fileid>61</fileid>
+            <datasetid>document</datasetid>
+            <objectid>29</objectid>
+            <filename>Millikan_2B_b&amp;w.pdf</filename>
+            <mime_type>application/pdf</mime_type>
+            <filesize>5337658</filesize>
+            <mtime>2012-12-26 06:33:03</mtime>
+            <url>https://labnotes.library.example.edu/8/3/Millikan_2B_b%26w.pdf</url>
+          </file>
+        </files>
+        <eprintid>8</eprintid>
+        <pos>3</pos>
+        <mime_type>application/pdf</mime_type>
+        <format>application/pdf</format>
+        <formatdesc>Part 2 of 3, black &amp; white</formatdesc>
+        <language>en</language>
+        <security>public</security>
+        <license>other</license>
+        <main>Millikan_2B_b&amp;w.pdf</main>
+      </document>
+      <document id='https://labnotes.library.example.edu/id/document/30'>
+        <docid>30</docid>
+        <rev_number>3</rev_number>
+        <files>
+          <file id='https://labnotes.library.example.edu/id/file/62'>
+            <fileid>62</fileid>
+            <datasetid>document</datasetid>
+            <objectid>30</objectid>
+            <filename>Millikan_2C_b&amp;w.pdf</filename>
+            <mime_type>application/pdf</mime_type>
+            <filesize>5230388</filesize>
+            <mtime>2012-12-26 06:33:03</mtime>
+            <url>https://labnotes.library.example.edu/8/4/Millikan_2C_b%26w.pdf</url>
+          </file>
+        </files>
+        <eprintid>8</eprintid>
+        <pos>4</pos>
+        <mime_type>application/pdf</mime_type>
+        <format>application/pdf</format>
+        <formatdesc>Part 3 of 3, black &amp; white</formatdesc>
+        <language>en</language>
+        <security>public</security>
+        <license>other</license>
+        <main>Millikan_2C_b&amp;w.pdf</main>
+      </document>
+      <document id='https://labnotes.library.example.edu/id/document/53'>
+        <docid>53</docid>
+        <rev_number>1</rev_number>
+        <files>
+          <file id='https://labnotes.library.example.edu/id/file/92'>
+            <fileid>92</fileid>
+            <datasetid>document</datasetid>
+            <objectid>53</objectid>
+            <filename>indexcodes.txt</filename>
+            <mime_type>text/plain</mime_type>
+            <hash>8a65db844400edf223592e8af6e716b6</hash>
+            <hash_type>MD5</hash_type>
+            <filesize>1955</filesize>
+            <mtime>2021-06-23 17:08:09</mtime>
+            <url>https://labnotes.library.example.edu/8/5/indexcodes.txt</url>
+          </file>
+        </files>
+        <eprintid>8</eprintid>
+        <pos>5</pos>
+        <placement>5</placement>
+        <mime_type>text/plain</mime_type>
+        <format>other</format>
+        <formatdesc>Generate index codes conversion from application/pdf to indexcodes</formatdesc>
+        <language>en</language>
+        <security>public</security>
+        <license>other</license>
+        <main>indexcodes.txt</main>
+        <relation>
+          <item>
+            <type>http://eprints.org/relation/isVersionOf</type>
+            <uri>https://labnotes.library.example.edu/id/document/27</uri>
+          </item>
+          <item>
+            <type>http://eprints.org/relation/isVolatileVersionOf</type>
+            <uri>https://labnotes.library.example.edu/id/document/27</uri>
+          </item>
+          <item>
+            <type>http://eprints.org/relation/isIndexCodesVersionOf</type>
+            <uri>https://labnotes.library.example.edu/id/document/27</uri>
+          </item>
+        </relation>
+      </document>
+      <document id='https://labnotes.library.example.edu/id/document/54'>
+        <docid>54</docid>
+        <rev_number>1</rev_number>
+        <files>
+          <file id='https://labnotes.library.example.edu/id/file/93'>
+            <fileid>93</fileid>
+            <datasetid>document</datasetid>
+            <objectid>54</objectid>
+            <filename>indexcodes.txt</filename>
+            <mime_type>text/plain</mime_type>
+            <hash>b54d3d6d7f44803b3efa54a4c1de5da4</hash>
+            <hash_type>MD5</hash_type>
+            <filesize>1965</filesize>
+            <mtime>2021-06-23 17:08:09</mtime>
+            <url>https://labnotes.library.example.edu/8/6/indexcodes.txt</url>
+          </file>
+        </files>
+        <eprintid>8</eprintid>
+        <pos>6</pos>
+        <placement>6</placement>
+        <mime_type>text/plain</mime_type>
+        <format>other</format>
+        <formatdesc>Generate index codes conversion from application/pdf to indexcodes</formatdesc>
+        <language>en</language>
+        <security>public</security>
+        <license>other</license>
+        <main>indexcodes.txt</main>
+        <relation>
+          <item>
+            <type>http://eprints.org/relation/isVersionOf</type>
+            <uri>https://labnotes.library.example.edu/id/document/28</uri>
+          </item>
+          <item>
+            <type>http://eprints.org/relation/isVolatileVersionOf</type>
+            <uri>https://labnotes.library.example.edu/id/document/28</uri>
+          </item>
+          <item>
+            <type>http://eprints.org/relation/isIndexCodesVersionOf</type>
+            <uri>https://labnotes.library.example.edu/id/document/28</uri>
+          </item>
+        </relation>
+      </document>
+      <document id='https://labnotes.library.example.edu/id/document/55'>
+        <docid>55</docid>
+        <rev_number>1</rev_number>
+        <files>
+          <file id='https://labnotes.library.example.edu/id/file/94'>
+            <fileid>94</fileid>
+            <datasetid>document</datasetid>
+            <objectid>55</objectid>
+            <filename>indexcodes.txt</filename>
+            <mime_type>text/plain</mime_type>
+            <hash>02bd8cfe60c897a2f4dd935ef61ea40a</hash>
+            <hash_type>MD5</hash_type>
+            <filesize>1965</filesize>
+            <mtime>2021-06-23 17:08:10</mtime>
+            <url>https://labnotes.library.example.edu/8/7/indexcodes.txt</url>
+          </file>
+        </files>
+        <eprintid>8</eprintid>
+        <pos>7</pos>
+        <placement>7</placement>
+        <mime_type>text/plain</mime_type>
+        <format>other</format>
+        <formatdesc>Generate index codes conversion from application/pdf to indexcodes</formatdesc>
+        <language>en</language>
+        <security>public</security>
+        <license>other</license>
+        <main>indexcodes.txt</main>
+        <relation>
+          <item>
+            <type>http://eprints.org/relation/isVersionOf</type>
+            <uri>https://labnotes.library.example.edu/id/document/29</uri>
+          </item>
+          <item>
+            <type>http://eprints.org/relation/isVolatileVersionOf</type>
+            <uri>https://labnotes.library.example.edu/id/document/29</uri>
+          </item>
+          <item>
+            <type>http://eprints.org/relation/isIndexCodesVersionOf</type>
+            <uri>https://labnotes.library.example.edu/id/document/29</uri>
+          </item>
+        </relation>
+      </document>
+      <document id='https://labnotes.library.example.edu/id/document/56'>
+        <docid>56</docid>
+        <rev_number>1</rev_number>
+        <files>
+          <file id='https://labnotes.library.example.edu/id/file/95'>
+            <fileid>95</fileid>
+            <datasetid>document</datasetid>
+            <objectid>56</objectid>
+            <filename>indexcodes.txt</filename>
+            <mime_type>text/plain</mime_type>
+            <hash>4e05b437f2f6bb643a941915e86064dc</hash>
+            <hash_type>MD5</hash_type>
+            <filesize>1965</filesize>
+            <mtime>2021-06-23 17:08:12</mtime>
+            <url>https://labnotes.library.example.edu/8/8/indexcodes.txt</url>
+          </file>
+        </files>
+        <eprintid>8</eprintid>
+        <pos>8</pos>
+        <placement>8</placement>
+        <mime_type>text/plain</mime_type>
+        <format>other</format>
+        <formatdesc>Generate index codes conversion from application/pdf to indexcodes</formatdesc>
+        <language>en</language>
+        <security>public</security>
+        <license>other</license>
+        <main>indexcodes.txt</main>
+        <relation>
+          <item>
+            <type>http://eprints.org/relation/isVersionOf</type>
+            <uri>https://labnotes.library.example.edu/id/document/30</uri>
+          </item>
+          <item>
+            <type>http://eprints.org/relation/isVolatileVersionOf</type>
+            <uri>https://labnotes.library.example.edu/id/document/30</uri>
+          </item>
+          <item>
+            <type>http://eprints.org/relation/isIndexCodesVersionOf</type>
+            <uri>https://labnotes.library.example.edu/id/document/30</uri>
+          </item>
+        </relation>
+      </document>
+    </documents>
+    <eprint_status>archive</eprint_status>
+    <userid>1</userid>
+    <dir>disk0/00/00/00/08</dir>
+    <datestamp>2009-01-13 19:20:02</datestamp>
+    <lastmod>2019-10-04 15:22:44</lastmod>
+    <status_changed>2009-01-13 19:20:01</status_changed>
+    <type>lab_notes</type>
+    <metadata_visibility>show</metadata_visibility>
+    <item_issues_count>0</item_issues_count>
+    <creators>
+      <item>
+        <name>
+          <family>Millikan</family>
+          <given>Robert A.</given>
+        </name>
+        <id>Millikan-R-A</id>
+      </item>
+    </creators>
+    <title>Robert A. Millikan Oil Drop Experiment Notebooks, Notebook Two
+</title>
+    <ispublished>unpub</ispublished>
+    <subjects>
+      <item>name</item>
+      <item>phys</item>
+    </subjects>
+    <full_text_status>public</full_text_status>
+    <keywords>electron charge; experiment; physics; laboratory notebook</keywords>
+    <abstract>Robert A. Millikan (1868-1953) began his experiments to measure the charge on the electron, e, in 1907.  The experiments were performed in Ryerson Laboratory at the University of Chicago, where Millikan was professor of physics.  For this work, and for work on the photoelectric effect, Millikan was awarded the Nobel Prize in physics in 1923.
+
+Millikan gives his own account of the electron charge determination in his published autobiography in the chapter titled “My Oil-Drop Venture (e)” (Robert A. Millikan, The Autobiography of Robert A. Millikan, New York, 1950).  With the aid of graduate students Louis Begeman, Harvey Fletcher, and J. Y. Lee, Millikan devised the method of measuring the rate of fall of a single electrically charged oil drop under the forces of gravity and electricity.  From 1909 until the spring of 1912, Millikan reports, he spent every available moment in the laboratory on his oil-drop experiment.   His first comprehensive, though to some extent preliminary, results were published in September 1910 in the journal Science as “The Isolation of an Ion, a Precision Measurement of Its Charge, and the Correction of Stokes’ Law,” Science 32: 436-448.  He soon became embroiled in a controversy with the Viennese physicist Felix Ehrenhaft, who claimed to have found much smaller electric charges.  Millikan went back to work on a new set of experiments.  By the spring of 1912 he had collected the data for what he termed “the final, absolute determination of the numerical value of the electron” (Autobiography, p. 84).  Results were published in August 1913 in “On the Elementary Electrical Charge and the Avogadro Constant,” Physical Review 2: 109-43.  This last, definitive set of experiments were recorded in the only two lab notebooks which Millikan preserved among his papers.  These two notebooks are presented here in facsimile.  They cover the period from October 1911 through April 1912 and contain what Millikan himself considered his conclusive, historic work on this problem.
+
+For an analysis of Millikan’s notebooks and a defense of his experimental method, see the article by David Goodstein, “In Defense of Robert Andrews Millikan,” published in American Scientist 89/1 (Jan-Feb. 2001): 54.  
+http://www.americanscientist.org/issues/num2/2001/1/in-defense-of-robert-andrews-millikan/1
+</abstract>
+    <id_number>ExampleLabNotes:LN_Millikan_R_2</id_number>
+    <refereed>FALSE</refereed>
+    <official_url>https://resolver.example.edu/ExampleLabNotes:LN_Millikan_R_2</official_url>
+    <related_url>
+      <item>
+        <url>http://www.americanscientist.org/issues/num2/2001/1/in-defense-of-robert-andrews-millikan/1</url>
+        <type>pub</type>
+      </item>
+    </related_url>
+    <rights>Copyright may not have been assigned to the California Institute of Technology Archives. All requests for permission to publish or quote from digital archives must be submitted in writing to the Example Archivist. Permission for publication is given on behalf of the California Institute of Technology Archives as the owner of the physical items and, unless explicity stated otherwise, is not intended to include or imply permission of the copyright holder, if separate from Example. Obtaining copyright permissions is the responsibility of the user.</rights>
+    <official_cit>Robert A. Millikan Oil Drop Experiment Notebooks.  Lab Notes Online. California Institute of Technology Archives.  Retrieved [supply date of retrieval] from the World Wide Web:   http://resolver.example.edu/ExampleLN:LN_Millikan_R_2</official_cit>
+    <collection>ExampleLabNotes</collection>
+    <coverage_dates>March–April 1912</coverage_dates>
+  </eprint>
+</eprints>
+

@@ -1,0 +1,344 @@
+<?xml version='1.0' encoding='utf-8'?>
+<eprints xmlns='http://eprints.org/ep2/data/2.0'>
+  <eprint id='https://lemurprints.example.edu/id/eprint/8599'>
+    <eprintid>8599</eprintid>
+    <rev_number>24</rev_number>
+    <documents>
+      <document id='https://lemurprints.example.edu/id/document/129274'>
+        <docid>129274</docid>
+        <rev_number>1</rev_number>
+        <files>
+          <file id='https://lemurprints.example.edu/id/file/374710'>
+            <fileid>374710</fileid>
+            <datasetid>document</datasetid>
+            <objectid>129274</objectid>
+            <filename>indexcodes.txt</filename>
+            <mime_type>text/plain</mime_type>
+            <hash>facff3e48cd2c02c7d412ad9df10ca13</hash>
+            <hash_type>MD5</hash_type>
+            <filesize>18216</filesize>
+            <mtime>2021-06-24 03:39:28</mtime>
+            <url>https://lemurprints.example.edu/8599/7/indexcodes.txt</url>
+          </file>
+        </files>
+        <eprintid>8599</eprintid>
+        <pos>7</pos>
+        <placement>7</placement>
+        <mime_type>text/plain</mime_type>
+        <format>other</format>
+        <formatdesc>Generate index codes conversion from application/pdf to indexcodes</formatdesc>
+        <language>en</language>
+        <security>public</security>
+        <license>other</license>
+        <main>indexcodes.txt</main>
+        <relation>
+          <item>
+            <type>http://eprints.org/relation/isVersionOf</type>
+            <uri>https://lemurprints.example.edu/id/document/51222</uri>
+          </item>
+          <item>
+            <type>http://eprints.org/relation/isVolatileVersionOf</type>
+            <uri>https://lemurprints.example.edu/id/document/51222</uri>
+          </item>
+          <item>
+            <type>http://eprints.org/relation/isIndexCodesVersionOf</type>
+            <uri>https://lemurprints.example.edu/id/document/51222</uri>
+          </item>
+        </relation>
+      </document>
+      <document id='https://lemurprints.example.edu/id/document/51221'>
+        <docid>51221</docid>
+        <rev_number>3</rev_number>
+        <files>
+          <file id='https://lemurprints.example.edu/id/file/148313'>
+            <fileid>148313</fileid>
+            <datasetid>document</datasetid>
+            <objectid>51221</objectid>
+            <filename>Call 1915.zip</filename>
+            <mime_type>application/x-zip</mime_type>
+            <hash>0580f81fe2707a65a825d9d63cbf701e</hash>
+            <hash_type>MD5</hash_type>
+            <filesize>85645145</filesize>
+            <mtime>2014-07-24 18:00:29</mtime>
+            <url>https://lemurprints.example.edu/8599/1/Call%201915.zip</url>
+          </file>
+        </files>
+        <eprintid>8599</eprintid>
+        <pos>1</pos>
+        <placement>1</placement>
+        <mime_type>application/x-zip</mime_type>
+        <format>application/zip</format>
+        <formatdesc>TIF</formatdesc>
+        <language>en</language>
+        <security>internal</security>
+        <license>other</license>
+        <main>Call 1915.zip</main>
+        <content>final</content>
+      </document>
+      <document id='https://lemurprints.example.edu/id/document/51222'>
+        <docid>51222</docid>
+        <rev_number>2</rev_number>
+        <files>
+          <file id='https://lemurprints.example.edu/id/file/148315'>
+            <fileid>148315</fileid>
+            <datasetid>document</datasetid>
+            <objectid>51222</objectid>
+            <filename>Call 1915.pdf</filename>
+            <mime_type>application/pdf</mime_type>
+            <hash>873d9b50ff3c4e06e2b30dfc86640e3f</hash>
+            <hash_type>MD5</hash_type>
+            <filesize>11558728</filesize>
+            <mtime>2014-07-24 18:11:02</mtime>
+            <url>https://lemurprints.example.edu/8599/2/Call%201915.pdf</url>
+          </file>
+        </files>
+        <eprintid>8599</eprintid>
+        <pos>2</pos>
+        <placement>2</placement>
+        <mime_type>application/pdf</mime_type>
+        <format>application/pdf</format>
+        <language>en</language>
+        <security>public</security>
+        <license>other</license>
+        <main>Call 1915.pdf</main>
+        <content>final</content>
+      </document>
+      <document id='https://lemurprints.example.edu/id/document/51223'>
+        <docid>51223</docid>
+        <rev_number>2</rev_number>
+        <files>
+          <file id='https://lemurprints.example.edu/id/file/148319'>
+            <fileid>148319</fileid>
+            <datasetid>document</datasetid>
+            <objectid>51223</objectid>
+            <filename>lightbox.jpg</filename>
+            <mime_type>image/png</mime_type>
+            <hash>ccfbece7f4efc86dbfcdf34669944a3b</hash>
+            <hash_type>MD5</hash_type>
+            <filesize>17464</filesize>
+            <mtime>2014-07-24 18:11:14</mtime>
+            <url>https://lemurprints.example.edu/8599/3/lightbox.jpg</url>
+          </file>
+        </files>
+        <eprintid>8599</eprintid>
+        <pos>3</pos>
+        <placement>3</placement>
+        <mime_type>image/png</mime_type>
+        <format>other</format>
+        <formatdesc>Thumbnails conversion from application/pdf to thumbnail_lightbox</formatdesc>
+        <language>en</language>
+        <security>public</security>
+        <license>other</license>
+        <main>lightbox.jpg</main>
+        <relation>
+          <item>
+            <type>http://eprints.org/relation/isVersionOf</type>
+            <uri>https://lemurprints.example.edu/id/document/51222</uri>
+          </item>
+          <item>
+            <type>http://eprints.org/relation/isVolatileVersionOf</type>
+            <uri>https://lemurprints.example.edu/id/document/51222</uri>
+          </item>
+          <item>
+            <type>http://eprints.org/relation/islightboxThumbnailVersionOf</type>
+            <uri>https://lemurprints.example.edu/id/document/51222</uri>
+          </item>
+        </relation>
+      </document>
+      <document id='https://lemurprints.example.edu/id/document/51224'>
+        <docid>51224</docid>
+        <rev_number>2</rev_number>
+        <files>
+          <file id='https://lemurprints.example.edu/id/file/148320'>
+            <fileid>148320</fileid>
+            <datasetid>document</datasetid>
+            <objectid>51224</objectid>
+            <filename>preview.png</filename>
+            <mime_type>image/png</mime_type>
+            <hash>ba0803a7827e1d4cb1707129cbe8e7af</hash>
+            <hash_type>MD5</hash_type>
+            <filesize>21192</filesize>
+            <mtime>2014-07-24 18:11:15</mtime>
+            <url>https://lemurprints.example.edu/8599/4/preview.png</url>
+          </file>
+        </files>
+        <eprintid>8599</eprintid>
+        <pos>4</pos>
+        <placement>4</placement>
+        <mime_type>image/png</mime_type>
+        <format>other</format>
+        <formatdesc>Thumbnail Documents conversion from application/pdf to thumbnail_preview</formatdesc>
+        <language>en</language>
+        <security>public</security>
+        <license>other</license>
+        <main>preview.png</main>
+        <relation>
+          <item>
+            <type>http://eprints.org/relation/isVersionOf</type>
+            <uri>https://lemurprints.example.edu/id/document/51222</uri>
+          </item>
+          <item>
+            <type>http://eprints.org/relation/isVolatileVersionOf</type>
+            <uri>https://lemurprints.example.edu/id/document/51222</uri>
+          </item>
+          <item>
+            <type>http://eprints.org/relation/ispreviewThumbnailVersionOf</type>
+            <uri>https://lemurprints.example.edu/id/document/51222</uri>
+          </item>
+        </relation>
+      </document>
+      <document id='https://lemurprints.example.edu/id/document/51225'>
+        <docid>51225</docid>
+        <rev_number>2</rev_number>
+        <files>
+          <file id='https://lemurprints.example.edu/id/file/148321'>
+            <fileid>148321</fileid>
+            <datasetid>document</datasetid>
+            <objectid>51225</objectid>
+            <filename>medium.jpg</filename>
+            <mime_type>image/png</mime_type>
+            <hash>b032d7e38f669ed4dc35b328ec43353f</hash>
+            <hash_type>MD5</hash_type>
+            <filesize>4295</filesize>
+            <mtime>2014-07-24 18:11:16</mtime>
+            <url>https://lemurprints.example.edu/8599/5/medium.jpg</url>
+          </file>
+        </files>
+        <eprintid>8599</eprintid>
+        <pos>5</pos>
+        <placement>5</placement>
+        <mime_type>image/png</mime_type>
+        <format>other</format>
+        <formatdesc>Thumbnails conversion from application/pdf to thumbnail_medium</formatdesc>
+        <language>en</language>
+        <security>public</security>
+        <license>other</license>
+        <main>medium.jpg</main>
+        <relation>
+          <item>
+            <type>http://eprints.org/relation/isVersionOf</type>
+            <uri>https://lemurprints.example.edu/id/document/51222</uri>
+          </item>
+          <item>
+            <type>http://eprints.org/relation/isVolatileVersionOf</type>
+            <uri>https://lemurprints.example.edu/id/document/51222</uri>
+          </item>
+          <item>
+            <type>http://eprints.org/relation/ismediumThumbnailVersionOf</type>
+            <uri>https://lemurprints.example.edu/id/document/51222</uri>
+          </item>
+        </relation>
+      </document>
+      <document id='https://lemurprints.example.edu/id/document/51226'>
+        <docid>51226</docid>
+        <rev_number>2</rev_number>
+        <files>
+          <file id='https://lemurprints.example.edu/id/file/148322'>
+            <fileid>148322</fileid>
+            <datasetid>document</datasetid>
+            <objectid>51226</objectid>
+            <filename>small.jpg</filename>
+            <mime_type>image/png</mime_type>
+            <hash>a0acccf240b91e7f6af01d268f0eda27</hash>
+            <hash_type>MD5</hash_type>
+            <filesize>1094</filesize>
+            <mtime>2014-07-24 18:11:17</mtime>
+            <url>https://lemurprints.example.edu/8599/6/small.jpg</url>
+          </file>
+        </files>
+        <eprintid>8599</eprintid>
+        <pos>6</pos>
+        <placement>6</placement>
+        <mime_type>image/png</mime_type>
+        <format>other</format>
+        <formatdesc>Thumbnails conversion from application/pdf to thumbnail_small</formatdesc>
+        <language>en</language>
+        <security>public</security>
+        <license>other</license>
+        <main>small.jpg</main>
+        <relation>
+          <item>
+            <type>http://eprints.org/relation/isVersionOf</type>
+            <uri>https://lemurprints.example.edu/id/document/51222</uri>
+          </item>
+          <item>
+            <type>http://eprints.org/relation/isVolatileVersionOf</type>
+            <uri>https://lemurprints.example.edu/id/document/51222</uri>
+          </item>
+          <item>
+            <type>http://eprints.org/relation/issmallThumbnailVersionOf</type>
+            <uri>https://lemurprints.example.edu/id/document/51222</uri>
+          </item>
+        </relation>
+      </document>
+    </documents>
+    <eprint_status>archive</eprint_status>
+    <userid>50</userid>
+    <dir>disk0/00/00/85/99</dir>
+    <datestamp>2014-07-25 16:44:04</datestamp>
+    <lastmod>2021-04-28 22:02:01</lastmod>
+    <status_changed>2014-07-25 16:44:04</status_changed>
+    <type>thesis</type>
+    <metadata_visibility>show</metadata_visibility>
+    <creators>
+      <item>
+        <name>
+          <family>Call</family>
+          <given>Raymond Fuller</given>
+        </name>
+        <id>Call-Raymond-Fuller</id>
+        <show_email>NO</show_email>
+      </item>
+    </creators>
+    <title>A. An Investigation of the Relation Between the Tensile Strength and (Brinell) Hardness of Non-Ferrous Alloys. B. A Design of a Fatigue Testing Machine for a College Laboratory</title>
+    <ispublished>unpub</ispublished>
+    <divisions>
+      <item>div_eng</item>
+    </divisions>
+    <full_text_status>public</full_text_status>
+    <keywords>Engineering</keywords>
+    <note>The legal name of the Throop Polytechnic Institute  became Throop College of Technology in 1913.  The Throop College of Technology was then officially renamed the California Institute of Technology on Feb. 10, 1920.</note>
+    <abstract>No abstract.</abstract>
+    <date>1915</date>
+    <date_type>degree</date_type>
+    <id_number>CaltechTHESIS:07242014-103006697</id_number>
+    <institution>California Institute of Technology</institution>
+    <thesis_type>bachelors</thesis_type>
+    <refereed>FALSE</refereed>
+    <official_url>https://resolver.caltech.edu/CaltechTHESIS:07242014-103006697</official_url>
+    <rights>No commercial reproduction, distribution, display or performance rights in this work are provided.</rights>
+    <doi>10.7907/hqr4-6h98</doi>
+    <collection>Test-THESIS</collection>
+    <thesis_advisor>
+      <item>
+        <name>
+          <family>Unknown</family>
+          <given>Unknown</given>
+        </name>
+      </item>
+    </thesis_advisor>
+    <thesis_committee>
+      <item>
+        <name>
+          <family>None</family>
+          <given>None</given>
+        </name>
+      </item>
+    </thesis_committee>
+    <thesis_degree>BS</thesis_degree>
+    <thesis_degree_grantor>California Institute of Technology</thesis_degree_grantor>
+    <thesis_defense_date>1915-01-01</thesis_defense_date>
+    <reviewer>Kathy Johnson</reviewer>
+    <review_status>approved</review_status>
+    <option_major>
+      <item>mecheng</item>
+    </option_major>
+    <copyright_statement>Author&apos;s Rights Authorization: I hereby certify that, if appropriate, I have obtained a written permission statement from the owner(s) of each third party copyrighted matter to be included in my thesis, dissertation, or project report, allowing distribution as specified below. I certify that the version I submitted here is the same as that approved by my advisory committee.
+
+I hereby grant to California Institute of Technology or its agents the non-exclusive license to archive and make accessible, under the conditions specified under &quot;Thesis Availability&quot; in this submission, my thesis, dissertation, or project report in whole or in part in all forms of media, now or hereafter known. I retain all other ownership rights to the copyright of the thesis, dissertation, or project report. I also retain the right to use in future works (such as articles or books) all or part of this thesis, dissertation, or project report.</copyright_statement>
+    <alt_title>
+      <item>Design of a Fatigue Testing Machine for a College Laboratory</item>
+    </alt_title>
+  </eprint>
+</eprints>
+

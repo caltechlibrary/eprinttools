@@ -725,7 +725,7 @@ func (api *EP3API) recordEndPoint(w http.ResponseWriter, r *http.Request, repoID
 	eprint, err := SQLReadEPrint(api.Config, repoID, ds.BaseURL, eprintID)
 	if err != nil {
 		api.Log.Printf("SQLReadEPrint Error: %s\n", err)
-		return 500, fmt.Errorf("internal server error")
+		return 404, fmt.Errorf("not found")
 	}
 	//FIXME: this should just be a simple JSON from SQL ...
 	simple, err := CrosswalkEPrintToRecord(eprint)
@@ -766,7 +766,7 @@ func (api *EP3API) eprintEndPoint(w http.ResponseWriter, r *http.Request, repoID
 	}
 	eprint, err := SQLReadEPrint(api.Config, repoID, ds.BaseURL, eprintID)
 	if err != nil {
-		return 404, fmt.Errorf("not found, %s", err)
+		return 404, fmt.Errorf("%s", err)
 
 	}
 	switch contentType {

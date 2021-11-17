@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path"
+	"strings"
 	"testing"
 	"time"
 )
@@ -102,8 +103,8 @@ func assertNameSame(t *testing.T, expected *Name, name *Name) {
 	if expected.Lineage != name.Lineage {
 		t.Errorf(`expected name lineage %s, got %s`, expected.Lineage, name.Lineage)
 	}
-	if expected.Value != name.Value {
-		t.Errorf(`expected name value %s, got %s`, expected.Value, name.Value)
+	if strings.TrimSpace(expected.Value) != strings.TrimSpace(name.Value) {
+		t.Errorf(`expected name value %q, got %q`, expected.Value, name.Value)
 	}
 }
 
@@ -155,7 +156,7 @@ item (pos: %d) -> %s
 	assertStringSame(t, fmt.Sprintf(`(%s, %d, %d) item.ReportedBy`, label, eprintid, pos), expected.ReportedBy, item.ReportedBy)
 	assertStringSame(t, fmt.Sprintf(`(%s, %d, %d) item.ResolvedBy`, label, eprintid, pos), expected.ResolvedBy, item.ResolvedBy)
 	assertStringSame(t, fmt.Sprintf(`(%s, %d, %d) item.Comment`, label, eprintid, pos), expected.Comment, item.Comment)
-	assertStringSame(t, fmt.Sprintf(`(%s, %d, %d) item.Value`, label, eprintid, pos), expected.Value, item.Value)
+	assertStringSame(t, fmt.Sprintf(`(%s, %d, %d) item.Value`, label, eprintid, pos), strings.TrimSpace(expected.Value), strings.TrimSpace(item.Value))
 }
 
 func assertEPrintSame(t *testing.T, expected *EPrint, eprint *EPrint) {
@@ -1216,9 +1217,23 @@ func TestImports(t *testing.T) {
 		clearTable(t, config, repoID, tableName)
 	}
 
-	// FIXME: Cleanup any data associated with the test repository
-
-	for _, fName := range []string{"lemurprints-0.xml"} {
+	testEPrintXML := []string{
+		"lemurprints-1.xml",
+		"lemurprints-7.xml",
+		"lemurprints-8.xml",
+		"lemurprints-34.xml",
+		"lemurprints-97.xml",
+		"lemurprints-105.xml",
+		"lemurprints-132.xml",
+		"lemurprints-209.xml",
+		"lemurprints-260.xml",
+		"lemurprints-21235.xml",
+		"lemurprints-8599.xml",
+		"lemurprints-92759.xml",
+	}
+	reviewIds := []int{}
+	reviewEPrints := new(EPrints)
+	for _, fName := range testEPrintXML {
 		fName := path.Join("srctest", fName)
 		src, err := ioutil.ReadFile(fName)
 		if err != nil {
@@ -1230,27 +1245,62 @@ func TestImports(t *testing.T) {
 			t.Errorf("Can't unmarshal XML for %q, %s", fName, err)
 			t.FailNow()
 		}
+		// Modify the import ID before testing import
+		for i := 0; i < eprints.Length(); i++ {
+			eprints.EPrint[i].ImportID, eprints.EPrint[i].EPrintID = eprints.EPrint[i].EPrintID, 0
+			reviewEPrints.Append(eprints.EPrint[i])
+		}
 		ids, err := ImportEPrints(config, repoID, ds, eprints)
 		if err != nil {
 			t.Errorf("Failed to create eprint for %q, %s", fName, err)
+			t.FailNow()
 		}
 		if len(ids) == 0 {
 			t.Errorf("Failed to generate new eprint id for %q", fName)
+			t.FailNow()
 		}
-		for i, id := range ids {
-			eprint := eprints.IndexOf(i)
-			fmt.Printf(`DEBUG %d
-    Datestamp: %s
- LastModified: %s
-StatusChanged: %s
-         Date: %s
-`, id, eprint.Datestamp, eprint.LastModified, eprint.StatusChanged, eprint.Date)
-			eprintCopy, err := SQLReadEPrint(config, repoID, baseURL, id)
-			if err != nil {
-				t.Errorf("%s, %s", repoID, err)
-				t.FailNow()
-			}
-			assertEPrintSame(t, eprint, eprintCopy)
+		reviewIds = append(reviewIds, ids...)
+	}
+
+	// Make sure we can read out the records that were imported.
+	for i, id := range reviewIds {
+		eprint := reviewEPrints.IndexOf(i)
+		eprintCopy, err := SQLReadEPrint(config, repoID, baseURL, id)
+		if err != nil {
+			t.Errorf("%s, %s", repoID, err)
+			t.FailNow()
 		}
+		assertEPrintSame(t, eprint, eprintCopy)
+	}
+}
+
+//
+// TestSQLReacEPrint tests read behaviors.
+//
+func TestSQLRead(t *testing.T) {
+	var err error
+	fName := `test-settings.json`
+	repoID := `lemurprints`
+	config, err := LoadConfig(fName)
+	if err != nil {
+		t.Errorf("Cailed to reload %q, %s", fName, err)
+	}
+	ds, ok := config.Repositories[repoID]
+	if ds == nil || ok == false || ds.Write == false {
+		t.Skipf(`%s not available for testing`, repoID)
+		t.SkipNow()
+	}
+	baseURL := ds.BaseURL
+	assertOpenConnection(t, config, repoID)
+	defer assertCloseConnection(t, config, repoID)
+
+	// Read an impossible test record.
+	eprintID := 123456790
+	eprint, err := SQLReadEPrint(config, repoID, baseURL, eprintID)
+	if err == nil {
+		t.Errorf("Should have gotten an err for EPrint ID %d", eprintID)
+	}
+	if eprint != nil {
+		t.Errorf("Expected a no eprint record for ID %d, got %+v", eprintID, eprint)
 	}
 }

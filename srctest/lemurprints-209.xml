@@ -1,0 +1,371 @@
+<?xml version='1.0' encoding='utf-8'?>
+<eprints xmlns='http://eprints.org/ep2/data/2.0'>
+  <eprint id='https://calteches.example.edu/id/eprint/209'>
+    <eprintid>209</eprintid>
+    <rev_number>5</rev_number>
+    <documents>
+      <document id='https://calteches.example.edu/id/document/339'>
+        <docid>339</docid>
+        <rev_number>1</rev_number>
+        <files>
+          <file id='https://calteches.example.edu/id/file/2467'>
+            <fileid>2467</fileid>
+            <datasetid>document</datasetid>
+            <objectid>339</objectid>
+            <filename>themonth.pdf</filename>
+            <mime_type>application/pdf</mime_type>
+            <filesize>169072</filesize>
+            <mtime>2012-12-26 05:08:23</mtime>
+            <url>https://calteches.example.edu/209/1/themonth.pdf</url>
+          </file>
+          <file id='https://calteches.example.edu/id/file/2468'>
+            <fileid>2468</fileid>
+            <datasetid>document</datasetid>
+            <objectid>339</objectid>
+            <filename>personals.pdf</filename>
+            <mime_type>application/pdf</mime_type>
+            <filesize>133430</filesize>
+            <mtime>2012-12-26 05:08:23</mtime>
+            <url>https://calteches.example.edu/209/1/personals.pdf</url>
+          </file>
+          <file id='https://calteches.example.edu/id/file/2469'>
+            <fileid>2469</fileid>
+            <datasetid>document</datasetid>
+            <objectid>339</objectid>
+            <filename>news.pdf</filename>
+            <mime_type>application/pdf</mime_type>
+            <filesize>97661</filesize>
+            <mtime>2012-12-26 05:08:23</mtime>
+            <url>https://calteches.example.edu/209/1/news.pdf</url>
+          </file>
+          <file id='https://calteches.example.edu/id/file/2470'>
+            <fileid>2470</fileid>
+            <datasetid>document</datasetid>
+            <objectid>339</objectid>
+            <filename>oliver.pdf</filename>
+            <mime_type>application/pdf</mime_type>
+            <filesize>133677</filesize>
+            <mtime>2012-12-26 05:08:23</mtime>
+            <url>https://calteches.example.edu/209/1/oliver.pdf</url>
+          </file>
+          <file id='https://calteches.example.edu/id/file/2471'>
+            <fileid>2471</fileid>
+            <datasetid>document</datasetid>
+            <objectid>339</objectid>
+            <filename>british.pdf</filename>
+            <mime_type>application/pdf</mime_type>
+            <filesize>259823</filesize>
+            <mtime>2012-12-26 05:08:23</mtime>
+            <url>https://calteches.example.edu/209/1/british.pdf</url>
+          </file>
+          <file id='https://calteches.example.edu/id/file/2472'>
+            <fileid>2472</fileid>
+            <datasetid>document</datasetid>
+            <objectid>339</objectid>
+            <filename>harvey.pdf</filename>
+            <mime_type>application/pdf</mime_type>
+            <filesize>5564513</filesize>
+            <mtime>2012-12-26 05:08:23</mtime>
+            <url>https://calteches.example.edu/209/1/harvey.pdf</url>
+          </file>
+          <file id='https://calteches.example.edu/id/file/2473'>
+            <fileid>2473</fileid>
+            <datasetid>document</datasetid>
+            <objectid>339</objectid>
+            <filename>letters.pdf</filename>
+            <mime_type>application/pdf</mime_type>
+            <filesize>146056</filesize>
+            <mtime>2012-12-26 05:08:23</mtime>
+            <url>https://calteches.example.edu/209/1/letters.pdf</url>
+          </file>
+          <file id='https://calteches.example.edu/id/file/2474'>
+            <fileid>2474</fileid>
+            <datasetid>document</datasetid>
+            <objectid>339</objectid>
+            <filename>Contents.html</filename>
+            <mime_type>text/html</mime_type>
+            <filesize>1503</filesize>
+            <mtime>2012-12-26 05:08:23</mtime>
+            <url>https://calteches.example.edu/209/1/Contents.html</url>
+          </file>
+          <file id='https://calteches.example.edu/id/file/2475'>
+            <fileid>2475</fileid>
+            <datasetid>document</datasetid>
+            <objectid>339</objectid>
+            <filename>books.pdf</filename>
+            <mime_type>application/pdf</mime_type>
+            <filesize>83970</filesize>
+            <mtime>2012-12-26 05:08:23</mtime>
+            <url>https://calteches.example.edu/209/1/books.pdf</url>
+          </file>
+        </files>
+        <eprintid>209</eprintid>
+        <pos>1</pos>
+        <mime_type>application/pdf</mime_type>
+        <format>text/html</format>
+        <language>en</language>
+        <security>public</security>
+        <license>other</license>
+        <main>Contents.html</main>
+      </document>
+      <document id='https://calteches.example.edu/id/document/340'>
+        <docid>340</docid>
+        <rev_number>2</rev_number>
+        <files>
+          <file id='https://calteches.example.edu/id/file/2479'>
+            <fileid>2479</fileid>
+            <datasetid>document</datasetid>
+            <objectid>340</objectid>
+            <filename>ES24.5.1961.pdf</filename>
+            <mime_type>application/pdf</mime_type>
+            <filesize>29764014</filesize>
+            <mtime>2012-12-26 05:08:23</mtime>
+            <url>https://calteches.example.edu/209/2/ES24.5.1961.pdf</url>
+          </file>
+        </files>
+        <eprintid>209</eprintid>
+        <pos>2</pos>
+        <mime_type>application/pdf</mime_type>
+        <format>application/pdf</format>
+        <language>en</language>
+        <security>public</security>
+        <license>other</license>
+        <main>ES24.5.1961.pdf</main>
+        <relation>
+          <item>
+            <type>http://eprints.org/relation/hasVolatileVersion</type>
+            <uri>https://calteches.example.edu/id/document/5218</uri>
+          </item>
+          <item>
+            <type>http://eprints.org/relation/haspreviewThumbnailVersion</type>
+            <uri>https://calteches.example.edu/id/document/5218</uri>
+          </item>
+          <item>
+            <type>http://eprints.org/relation/hasVersion</type>
+            <uri>https://calteches.example.edu/id/document/5218</uri>
+          </item>
+        </relation>
+      </document>
+      <document id='https://calteches.example.edu/id/document/5218'>
+        <docid>5218</docid>
+        <rev_number>2</rev_number>
+        <files>
+          <file id='https://calteches.example.edu/id/file/2477'>
+            <fileid>2477</fileid>
+            <datasetid>document</datasetid>
+            <objectid>5218</objectid>
+            <filename>preview.png</filename>
+            <mime_type>image/png</mime_type>
+            <hash>a8ed2e94e4f07ca0ae4f0e6babc14bdc</hash>
+            <hash_type>MD5</hash_type>
+            <filesize>135371</filesize>
+            <mtime>2012-12-26 05:08:23</mtime>
+            <url>https://calteches.example.edu/209/3/preview.png</url>
+          </file>
+        </files>
+        <eprintid>209</eprintid>
+        <pos>3</pos>
+        <placement>3</placement>
+        <mime_type>image/png</mime_type>
+        <format>image/png</format>
+        <language>en</language>
+        <security>public</security>
+        <license>other</license>
+        <main>preview.png</main>
+        <relation>
+          <item>
+            <type>http://eprints.org/relation/isVolatileVersionOf</type>
+            <uri>https://calteches.example.edu/id/document/340</uri>
+          </item>
+          <item>
+            <type>http://eprints.org/relation/ispreviewThumbnailVersionOf</type>
+            <uri>https://calteches.example.edu/id/document/340</uri>
+          </item>
+          <item>
+            <type>http://eprints.org/relation/isVersionOf</type>
+            <uri>https://calteches.example.edu/id/document/340</uri>
+          </item>
+        </relation>
+      </document>
+      <document id='https://calteches.example.edu/id/document/16445'>
+        <docid>16445</docid>
+        <rev_number>1</rev_number>
+        <files>
+          <file id='https://calteches.example.edu/id/file/47792'>
+            <fileid>47792</fileid>
+            <datasetid>document</datasetid>
+            <objectid>16445</objectid>
+            <filename>indexcodes.txt</filename>
+            <mime_type>text/plain</mime_type>
+            <hash>aca7b09962cb67bf31ae2ea88d0ac8e7</hash>
+            <hash_type>MD5</hash_type>
+            <filesize>629</filesize>
+            <mtime>2021-06-23 17:30:52</mtime>
+            <url>https://calteches.example.edu/209/4/indexcodes.txt</url>
+          </file>
+        </files>
+        <eprintid>209</eprintid>
+        <pos>4</pos>
+        <placement>4</placement>
+        <mime_type>text/plain</mime_type>
+        <format>other</format>
+        <formatdesc>Generate index codes conversion from text/html to indexcodes</formatdesc>
+        <language>en</language>
+        <security>public</security>
+        <license>other</license>
+        <main>indexcodes.txt</main>
+        <relation>
+          <item>
+            <type>http://eprints.org/relation/isVersionOf</type>
+            <uri>https://calteches.example.edu/id/document/339</uri>
+          </item>
+          <item>
+            <type>http://eprints.org/relation/isVolatileVersionOf</type>
+            <uri>https://calteches.example.edu/id/document/339</uri>
+          </item>
+          <item>
+            <type>http://eprints.org/relation/isIndexCodesVersionOf</type>
+            <uri>https://calteches.example.edu/id/document/339</uri>
+          </item>
+        </relation>
+      </document>
+      <document id='https://calteches.example.edu/id/document/16446'>
+        <docid>16446</docid>
+        <rev_number>1</rev_number>
+        <files>
+          <file id='https://calteches.example.edu/id/file/47793'>
+            <fileid>47793</fileid>
+            <datasetid>document</datasetid>
+            <objectid>16446</objectid>
+            <filename>indexcodes.txt</filename>
+            <mime_type>text/plain</mime_type>
+            <hash>c8fe703c1be84f2159666003e01af1b7</hash>
+            <hash_type>MD5</hash_type>
+            <filesize>34197</filesize>
+            <mtime>2021-06-23 17:30:53</mtime>
+            <url>https://calteches.example.edu/209/5/indexcodes.txt</url>
+          </file>
+        </files>
+        <eprintid>209</eprintid>
+        <pos>5</pos>
+        <placement>5</placement>
+        <mime_type>text/plain</mime_type>
+        <format>other</format>
+        <formatdesc>Generate index codes conversion from application/pdf to indexcodes</formatdesc>
+        <language>en</language>
+        <security>public</security>
+        <license>other</license>
+        <main>indexcodes.txt</main>
+        <relation>
+          <item>
+            <type>http://eprints.org/relation/isVersionOf</type>
+            <uri>https://calteches.example.edu/id/document/340</uri>
+          </item>
+          <item>
+            <type>http://eprints.org/relation/isVolatileVersionOf</type>
+            <uri>https://calteches.example.edu/id/document/340</uri>
+          </item>
+          <item>
+            <type>http://eprints.org/relation/isIndexCodesVersionOf</type>
+            <uri>https://calteches.example.edu/id/document/340</uri>
+          </item>
+        </relation>
+      </document>
+    </documents>
+    <eprint_status>archive</eprint_status>
+    <userid>22</userid>
+    <dir>disk0/00/00/02/09</dir>
+    <datestamp>2005-08-31</datestamp>
+    <lastmod>2019-10-03 22:51:32</lastmod>
+    <status_changed>2009-03-16 21:55:20</status_changed>
+    <type>journal_issue</type>
+    <metadata_visibility>show</metadata_visibility>
+    <item_issues_count>0</item_issues_count>
+    <title>Engineering and Science, Volume 24:5, February 1961</title>
+    <ispublished>pub</ispublished>
+    <subjects>
+      <item>journal_issue</item>
+    </subjects>
+    <full_text_status>public</full_text_status>
+    <date>1961-02</date>
+    <date_type>published</date_type>
+    <publication>Engineering and Science</publication>
+    <volume>24</volume>
+    <number>5</number>
+    <publisher>California Institute of Technology</publisher>
+    <place_of_pub>Pasadena, CA</place_of_pub>
+    <id_number>ExampleES:24.5.0</id_number>
+    <refereed>TRUE</refereed>
+    <issn>0013-7812</issn>
+    <editors>
+      <item>
+        <name>
+          <family>Hutchings, Jr.</family>
+          <given>Edward</given>
+        </name>
+        <id>Hutchings-E-Jr</id>
+      </item>
+    </editors>
+    <official_url>https://resolver.example.edu/ExampleES:24.5.0</official_url>
+    <rights>You are granted permission for individual, educational, research and non-commercial reproduction, distribution, display and performance of this work in any format.</rights>
+    <collection>ExampleES</collection>
+    <toc>&lt;h2&gt;Table of Contents&lt;/h2&gt;
+
+&lt;p&gt;&lt;b&gt;&lt;a href=&quot;01/letters.pdf&quot;&gt;Letters&lt;/a&gt;&lt;/b&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;b&gt;&lt;a href=&quot;01/books.pdf&quot;&gt;Books&lt;/a&gt;&lt;/b&gt; 
+
+  &lt;br /&gt;
+
+  &lt;em&gt;Telescopes (Stars and Stellar Systems, Vol. I) &lt;/em&gt;edited by Gerald P. 
+
+  Kuiper and Barbara M. Middlehurst&lt;br /&gt;
+
+  &lt;em&gt;Stellar Atmospheres (Stars and Stellar Systems, Vol. VI) &lt;/em&gt;edited by 
+
+  Jesse L. Greenstein&lt;br /&gt;
+
+  &lt;em&gt;Principles of Meteorites &lt;/em&gt;by E. L. Krinov&lt;br /&gt;
+
+  &lt;em&gt;Cerebral Systems and Computer Logic &lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;Features:&lt;/p&gt;
+
+&lt;p&gt;&lt;b&gt;&lt;a href=&quot;01/british.pdf&quot;&gt;The British 
+
+  Attitude to Deterrence&lt;/a&gt;&lt;/b&gt;&lt;br /&gt;
+
+  &amp;#034;Many who have thought about this problem have come to the conclusion that 
+
+  reliable stability can only come through an international agency with an effective 
+
+  monopoly of force.&amp;#034;&lt;br /&gt;
+
+  by the Rt. Hon. John Strachey, M. P. &lt;/p&gt;
+
+&lt;p&gt;&lt;b&gt;&lt;a href=&quot;01/harvey.pdf&quot;&gt;Faculty Portraits...VII&lt;/a&gt;&lt;/b&gt;&lt;br /&gt;
+
+  by Harvey&lt;/p&gt;
+
+&lt;p&gt;&lt;b&gt;&lt;a href=&quot;01/oliver.pdf&quot;&gt;Our Changing 
+
+  Cities&lt;/a&gt;&lt;/b&gt;&lt;br /&gt;
+
+  Cities still have considerable vitality but they will require increasing attention 
+
+  if they are to be maintained.&lt;br /&gt;
+
+  by Robert W. Oliver&lt;/p&gt;
+
+&lt;p&gt;Campus News:&lt;/p&gt;
+
+&lt;p&gt;&lt;b&gt;&lt;a href=&quot;01/themonth.pdf&quot;&gt;The Month at 
+
+  Example &lt;/a&gt;&lt;/b&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;b&gt;&lt;a href=&quot;01/news.pdf&quot;&gt;Alumni News&lt;/a&gt;&lt;/b&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;b&gt;&lt;a href=&quot;01/personals.pdf&quot;&gt;Personals&lt;/a&gt;&lt;/b&gt;&lt;/p&gt;</toc>
+  </eprint>
+</eprints>
+

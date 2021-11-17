@@ -139,7 +139,7 @@ type EPrint struct {
 	Latitude          float64                  `xml:"latitude,omitempty" json:"latitude,omitempty"`
 	Longitude         float64                  `xml:"longitude,omitempty" json:"longitude,omitempty"`
 	ItemIssues        *ItemIssueItemList       `xml:"item_issues,omitempty" json:"item_issues,omitempty"`
-	ItemIssuesCount   int                      `xml:"item_issues_count" json:"item_issues_count,omitempty"`
+	ItemIssuesCount   int                      `xml:"item_issues_count,omitempty" json:"item_issues_count,omitempty"`
 	CorpCreators      *CorpCreatorItemList     `xml:"corp_creators,omitempty" json:"corp_creators,omitempty"`
 	CorpContributors  *CorpContributorItemList `xml:"corp_contributors,omitempty" json:"corp_contributors,omitempty"`
 	Department        string                   `xml:"department,omitempty" json:"department,omitempty"`
@@ -282,6 +282,10 @@ type Item struct {
 // SetAttribute takes a lower case string and value and sets
 // the attribute of the related item.
 func (item *Item) SetAttribute(key string, value interface{}) bool {
+	switch value.(type) {
+	case string:
+		value = strings.TrimSpace(value.(string))
+	}
 	switch strings.ToLower(key) {
 	case "name":
 		item.Name = value.(*Name)
@@ -1000,7 +1004,7 @@ func (itemList *ItemIssueItemList) SetAttributeOf(i int, key string, value inter
 
 // CorpCreatorItemList
 type CorpCreatorItemList struct {
-	XMLName xml.Name `json:"-"` //`xml:"corp_creators" json:"-"`
+	XMLName xml.Name `xml:"corp_creators" json:"-"`
 	Items   []*Item  `xml:"item,omitempty" json:"items,omitempty"`
 }
 
@@ -1036,7 +1040,7 @@ func (itemList *CorpCreatorItemList) SetAttributeOf(i int, key string, value int
 
 // CorpContributorItemList (not used in EPrints, but used in Invenio)
 type CorpContributorItemList struct {
-	XMLName xml.Name `json:"-"` //`xml:"corp_contributors" json:"-"`
+	XMLName xml.Name `xml:"corp_contributors" json:"-"`
 	Items   []*Item  `xml:"item,omitempty" json:"items,omitempty"`
 }
 
