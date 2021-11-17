@@ -12,6 +12,8 @@ Bugs
 Next
 ----
 
+- [ ] Create an example service file for running ep3apid as a service under SystemD (Linux)
+- [ ] Create an example service file for running ep3apid as a service under LaunchD (macOS)
 - [ ] Add update end point to support update EPrints Metadata
     - [ ] Figure out how historical diffs of EPrints XML are generated in EPrints' History tab
     - [ ] Implement updates versioning the EPrint Metadata record
