@@ -1,0 +1,2826 @@
+{
+    "message": {
+        "DOI": "10.1093/mnras/stab2505",
+        "ISSN": [
+            "0035-8711",
+            "1365-2966"
+        ],
+        "URL": "http://dx.doi.org/10.1093/mnras/stab2505",
+        "abstract": "\u003cjats:title\u003eABSTRACT\u003c/jats:title\u003e\n               \u003cjats:p\u003eWe present measurements of the radial profiles of the mass and galaxy number density around Sunyaev–Zel’dovich (SZ)-selected clusters using both weak lensing and galaxy counts. The clusters are selected from the Atacama Cosmology Telescope Data Release 5 and the galaxies from the Dark Energy Survey Year 3 data set. With signal-to-noise ratio of 62 (45) for galaxy (weak lensing) profiles over scales of about 0.2–20 h−1 Mpc, these are the highest precision measurements for SZ-selected clusters to date. Because SZ selection closely approximates mass selection, these measurements enable several tests of theoretical models of the mass and light distribution around clusters. Our main findings are: (1) The splashback feature is detected at a consistent location in both the mass and galaxy profiles and its location is consistent with predictions of cold dark matter N-body simulations. (2) The full mass profile is also consistent with the simulations. (3) The shapes of the galaxy and lensing profiles are remarkably similar for our sample over the entire range of scales, from well inside the cluster halo to the quasilinear regime. We measure the dependence of the profile shapes on the galaxy sample, redshift, and cluster mass. We extend the Diemer \u0026amp; Kravtsov model for the cluster profiles to the linear regime using perturbation theory and show that it provides a good match to the measured profiles. We also compare the measured profiles to predictions of the standard halo model and simulations that include hydrodynamics. Applications of these results to cluster mass estimation, cosmology, and astrophysics are discussed.\u003c/jats:p\u003e",
+        "author": [
+            {
+                "ORCID": "http://orcid.org/0000-0002-6389-5409",
+                "affiliation": [
+                    {
+                        "name": "Department of Physics and Astronomy, University of Pennsylvania, Philadelphia, PA 19104, USA"
+                    }
+                ],
+                "authenticated-orcid": false,
+                "family": "Shin",
+                "given": "T",
+                "sequence": "first"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Department of Physics and Astronomy, University of Pennsylvania, Philadelphia, PA 19104, USA"
+                    }
+                ],
+                "family": "Jain",
+                "given": "B",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Kavli Institute for Cosmological Physics, University of Chicago, Chicago, IL 60637, USA"
+                    },
+                    {
+                        "name": "Department of Astronomy and Astrophysics, University of Chicago, Chicago, IL 60637, USA"
+                    }
+                ],
+                "family": "Adhikari",
+                "given": "S",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Institute for Astronomy, University of Hawaii, Honolulu, HI 96822, USA"
+                    }
+                ],
+                "family": "Baxter",
+                "given": "E J",
+                "sequence": "additional"
+            },
+            {
+                "ORCID": "http://orcid.org/0000-0002-7887-0896",
+                "affiliation": [
+                    {
+                        "name": "Kavli Institute for Cosmological Physics, University of Chicago, Chicago, IL 60637, USA"
+                    },
+                    {
+                        "name": "Department of Astronomy and Astrophysics, University of Chicago, Chicago, IL 60637, USA"
+                    }
+                ],
+                "authenticated-orcid": false,
+                "family": "Chang",
+                "given": "C",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Department of Physics and Astronomy, University of Pennsylvania, Philadelphia, PA 19104, USA"
+                    }
+                ],
+                "family": "Pandey",
+                "given": "S",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Department of Astronomy and Center for Cosmology and AstroParticle Physics, The Ohio State University, Columbus, OH 43210, USA"
+                    }
+                ],
+                "family": "Salcedo",
+                "given": "A",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Department of Astronomy and Center for Cosmology and AstroParticle Physics, The Ohio State University, Columbus, OH 43210, USA"
+                    }
+                ],
+                "family": "Weinberg",
+                "given": "D H",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Kavli Institute for Cosmological Physics, University of Chicago, Chicago, IL 60637, USA"
+                    }
+                ],
+                "family": "Amsellem",
+                "given": "A",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Department of Astronomy, Cornell University, Ithaca, NY 14853, USA"
+                    }
+                ],
+                "family": "Battaglia",
+                "given": "N",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Department of Physics and Astronomy, University of Pennsylvania, Philadelphia, PA 19104, USA"
+                    }
+                ],
+                "family": "Belyakov",
+                "given": "M",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Department of Physics and Astronomy, University of Pennsylvania, Philadelphia, PA 19104, USA"
+                    }
+                ],
+                "family": "Dacunha",
+                "given": "T",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Department of Physics and Astronomy, University of Pennsylvania, Philadelphia, PA 19104, USA"
+                    }
+                ],
+                "family": "Goldstein",
+                "given": "S",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Kavli Institute for Cosmological Physics, University of Chicago, Chicago, IL 60637, USA"
+                    },
+                    {
+                        "name": "Department of Astronomy and Astrophysics, University of Chicago, Chicago, IL 60637, USA"
+                    },
+                    {
+                        "name": "Enrico Fermi Institute, University of Chicago, Chicago, IL 60637, USA"
+                    }
+                ],
+                "family": "Kravtsov",
+                "given": "A V",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Max Planck Institute for Extraterrestrial Physics, Giessenbach-strasse, D-85748 Garching, Germany"
+                    },
+                    {
+                        "name": "Faculty of Physics, Ludwig-Maximilians-Universität, Scheinerstr. 1, D-81679 Munich, Germany"
+                    }
+                ],
+                "family": "Varga",
+                "given": "T N",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Cerro Tololo Inter-American Observatory, NSF’s National Optical-Infrared Astronomy Research Laboratory, Casilla 603, La Serena, Chile"
+                    }
+                ],
+                "family": "Abbott",
+                "given": "T M C",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Departamento de Física Matemática, Instituto de Física, Universidade de São Paulo, CP 66318, São Paulo, SP, 05314-970, Brazil"
+                    },
+                    {
+                        "name": "Laboratório Interinstitucional de e-Astronomia – LIneA, Rua Gal. José Cristino 77, Rio de Janeiro, RJ-20921-400, Brazil"
+                    }
+                ],
+                "family": "Aguena",
+                "given": "M",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Argonne National Laboratory, Lemont, IL 60439, USA"
+                    }
+                ],
+                "family": "Alarcon",
+                "given": "A",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Fermi National Accelerator Laboratory, P.O. Box 500, Batavia, IL 60510, USA"
+                    }
+                ],
+                "family": "Allam",
+                "given": "S",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Kavli Institute for Particle Astrophysics \u0026 Cosmology, P.O. Box 2450, Stanford University, Stanford, CA 94305, USA"
+                    }
+                ],
+                "family": "Amon",
+                "given": "A",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Laboratório Interinstitucional de e-Astronomia – LIneA, Rua Gal. José Cristino 77, Rio de Janeiro, RJ-20921-400, Brazil"
+                    },
+                    {
+                        "name": "Instituto de Física Teórica, Universidade Estadual Paulista, São Paulo, 01140-070, Brazil"
+                    }
+                ],
+                "family": "Andrade-Oliveira",
+                "given": "F",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Fermi National Accelerator Laboratory, P.O. Box 500, Batavia, IL 60510, USA"
+                    }
+                ],
+                "family": "Annis",
+                "given": "J",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Institute of Cosmology and Gravitation, University of Portsmouth, Portsmouth, PO1 3FX, UK"
+                    }
+                ],
+                "family": "Bacon",
+                "given": "D",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Physics Department, University of Wisconsin-Madison, Madison, WI 53706-1390, USA"
+                    }
+                ],
+                "family": "Bechtol",
+                "given": "K",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Argonne National Laboratory, Lemont, IL 60439, USA"
+                    }
+                ],
+                "family": "Becker",
+                "given": "M R",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Department of Physics and Astronomy, University of Pennsylvania, Philadelphia, PA 19104, USA"
+                    }
+                ],
+                "family": "Bernstein",
+                "given": "G M",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "CNRS, UMR 7095, Institut d’Astrophysique de Paris, F-75014, Paris, France"
+                    },
+                    {
+                        "name": "Sorbonne Universités, UPMC Univ Paris 06, UMR 7095, Institut d’Astrophysique de Paris, F-75014, Paris, France"
+                    }
+                ],
+                "family": "Bertin",
+                "given": "E",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Faculty of Physics, Ludwig-Maximilians-Universität, Scheinerstr. 1, D-81679 Munich, Germany"
+                    }
+                ],
+                "family": "Bocquet",
+                "given": "S",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Canadian Institute for Theoretical Astrophysics, University of Toronto, Toronto, ON M5S 3H4, Canada"
+                    }
+                ],
+                "family": "Bond",
+                "given": "J R",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Department of Physics \u0026 Astronomy, University College London, Gower Street, London, WC1E 6BT, UK"
+                    }
+                ],
+                "family": "Brooks",
+                "given": "D",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Department of Astronomy and Astrophysics, University of Chicago, Chicago, IL 60637, USA"
+                    },
+                    {
+                        "name": "Fermi National Accelerator Laboratory, P.O. Box 500, Batavia, IL 60510, USA"
+                    }
+                ],
+                "family": "Buckley-Geer",
+                "given": "E",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Kavli Institute for Particle Astrophysics \u0026 Cosmology, P.O. Box 2450, Stanford University, Stanford, CA 94305, USA"
+                    },
+                    {
+                        "name": "Department of Physics, Carnegie Mellon University, Pittsburgh, PA 15312, USA"
+                    }
+                ],
+                "family": "Burke",
+                "given": "D L",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Department of Physics, Duke University Durham, NC 27708, USA"
+                    }
+                ],
+                "family": "Campos",
+                "given": "A",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Laboratório Interinstitucional de e-Astronomia – LIneA, Rua Gal. José Cristino 77, Rio de Janeiro, RJ-20921-400, Brazil"
+                    },
+                    {
+                        "name": "Instituto de Astrofisica de Canarias, E-38205 La Laguna, Tenerife, Spain"
+                    },
+                    {
+                        "name": "Universidad de La Laguna, Dpto. Astrofísica, E-38206 La Laguna, Tenerife, Spain"
+                    }
+                ],
+                "family": "Rosell",
+                "given": "A Carnero",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Center for Astrophysical Surveys, National Center for Supercomputing Applications, Urbana, IL 61801, USA"
+                    },
+                    {
+                        "name": "Department of Astronomy, University of Illinois at Urbana-Champaign, Urbana, IL 61801, USA"
+                    }
+                ],
+                "family": "Kind",
+                "given": "M Carrasco",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Institut de Física d’Altes Energies (IFAE), The Barcelona Institute of Science and Technology, Campus UAB, E-08193 Bellaterra (Barcelona), Spain"
+                    }
+                ],
+                "family": "Carretero",
+                "given": "J",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Lawrence Berkeley National Laboratory, Berkeley, CA 94720, USA"
+                    }
+                ],
+                "family": "Chen",
+                "given": "R",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Department of Astronomy and Center for Cosmology and AstroParticle Physics, The Ohio State University, Columbus, OH 43210, USA"
+                    }
+                ],
+                "family": "Choi",
+                "given": "A",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Astronomy Unit, Department of Physics, University of Trieste, via Tiepolo 11, I-34131 Trieste, Italy"
+                    },
+                    {
+                        "name": "INAF-Osservatorio Astronomico di Trieste, via G. B. Tiepolo 11, I-34143 Trieste, Italy"
+                    },
+                    {
+                        "name": "Institute for Fundamental Physics of the Universe, Via Beirut 2, I-34014 Trieste, Italy"
+                    }
+                ],
+                "family": "Costanzi",
+                "given": "M",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Laboratório Interinstitucional de e-Astronomia – LIneA, Rua Gal. José Cristino 77, Rio de Janeiro, RJ-20921-400, Brazil"
+                    },
+                    {
+                        "name": "Observatório Nacional, Rua Gal. José Cristino 77, Rio de Janeiro, RJ-20921-400, Brazil"
+                    }
+                ],
+                "family": "da Costa",
+                "given": "L N",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Department of Physics, The Ohio State University, Columbus, OH 43210, USA"
+                    }
+                ],
+                "family": "DeRose",
+                "given": "J",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Department of Physics, IIT Hyderabad, Kandi, Telangana 502285, India"
+                    }
+                ],
+                "family": "Desai",
+                "given": "S",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Centro de Investigaciones Energéticas, Medioambientales y Tecnológicas (CIEMAT), 28040 Madrid, Spain"
+                    }
+                ],
+                "family": "De Vicente",
+                "given": "J",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Department of Physics and Astronomy, University of Pennsylvania, Philadelphia, PA 19104, USA"
+                    }
+                ],
+                "family": "Devlin",
+                "given": "M J",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Fermi National Accelerator Laboratory, P.O. Box 500, Batavia, IL 60510, USA"
+                    }
+                ],
+                "family": "Diehl",
+                "given": "H T",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Faculty of Physics, Ludwig-Maximilians-Universität, Scheinerstr. 1, D-81679 Munich, Germany"
+                    }
+                ],
+                "family": "Dietrich",
+                "given": "J P",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Department of Physics, Duke University Durham, NC 27708, USA"
+                    }
+                ],
+                "family": "Dodelson",
+                "given": "S",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Department of Physics \u0026 Astronomy, University College London, Gower Street, London, WC1E 6BT, UK"
+                    }
+                ],
+                "family": "Doel",
+                "given": "P",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Department of Physics and Astronomy, University of Pennsylvania, Philadelphia, PA 19104, USA"
+                    }
+                ],
+                "family": "Doux",
+                "given": "C",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Kavli Institute for Cosmological Physics, University of Chicago, Chicago, IL 60637, USA"
+                    },
+                    {
+                        "name": "Department of Astronomy and Astrophysics, University of Chicago, Chicago, IL 60637, USA"
+                    },
+                    {
+                        "name": "Fermi National Accelerator Laboratory, P.O. Box 500, Batavia, IL 60510, USA"
+                    }
+                ],
+                "family": "Drlica-Wagner",
+                "given": "A",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Department of Physics and Astronomy, University of Pennsylvania, Philadelphia, PA 19104, USA"
+                    }
+                ],
+                "family": "Eckert",
+                "given": "K",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Department of Astronomy and Center for Cosmology and AstroParticle Physics, The Ohio State University, Columbus, OH 43210, USA"
+                    },
+                    {
+                        "name": "Physics Department, Stanford University, Stanford, CA 94305, USA"
+                    }
+                ],
+                "family": "Elvin-Poole",
+                "given": "J",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Santa Cruz Institute for Particle Physics, Santa Cruz, CA 95064, USA"
+                    }
+                ],
+                "family": "Everett",
+                "given": "S",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Lawrence Berkeley National Laboratory, Berkeley, CA 94720, USA"
+                    }
+                ],
+                "family": "Ferraro",
+                "given": "S",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Institute of Theoretical Astrophysics, University of Oslo, P.O. Box 1029 Blindern, NO-0315 Oslo, Norway"
+                    }
+                ],
+                "family": "Ferrero",
+                "given": "I",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Jet Propulsion Laboratory, California Institute of Technology, Pasadena, CA 91109, USA"
+                    }
+                ],
+                "family": "Ferté",
+                "given": "A",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Fermi National Accelerator Laboratory, P.O. Box 500, Batavia, IL 60510, USA"
+                    }
+                ],
+                "family": "Flaugher",
+                "given": "B",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Kavli Institute for Cosmological Physics, University of Chicago, Chicago, IL 60637, USA"
+                    },
+                    {
+                        "name": "Fermi National Accelerator Laboratory, P.O. Box 500, Batavia, IL 60510, USA"
+                    }
+                ],
+                "family": "Frieman",
+                "given": "J",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Department of Physics, Cornell University, Ithaca, NY 14853, USA"
+                    }
+                ],
+                "family": "Gallardo",
+                "given": "P A",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Department of Physics and Astronomy, University of Pennsylvania, Philadelphia, PA 19104, USA"
+                    }
+                ],
+                "family": "Gatti",
+                "given": "M",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Institut d’Estudis Espacials de Catalunya (IEEC), E-08034 Barcelona, Spain"
+                    },
+                    {
+                        "name": "Institute of Space Sciences (ICE, CSIC), Campus UAB, Carrer de Can Magrans, s/n, E-08193 Barcelona, Spain"
+                    }
+                ],
+                "family": "Gaztanaga",
+                "given": "E",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Department of Astronomy, University of Michigan, Ann Arbor, MI 48109, USA"
+                    },
+                    {
+                        "name": "Department of Physics, University of Michigan, Ann Arbor, MI 48109, USA"
+                    }
+                ],
+                "family": "Gerdes",
+                "given": "D W",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Kavli Institute for Particle Astrophysics \u0026 Cosmology, P.O. Box 2450, Stanford University, Stanford, CA 94305, USA"
+                    },
+                    {
+                        "name": "Department of Physics, Carnegie Mellon University, Pittsburgh, PA 15312, USA"
+                    },
+                    {
+                        "name": "SLAC National Accelerator Laboratory, Menlo Park, CA 94025, USA"
+                    }
+                ],
+                "family": "Gruen",
+                "given": "D",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Center for Astrophysical Surveys, National Center for Supercomputing Applications, Urbana, IL 61801, USA"
+                    },
+                    {
+                        "name": "Department of Astronomy, University of Illinois at Urbana-Champaign, Urbana, IL 61801, USA"
+                    }
+                ],
+                "family": "Gruendl",
+                "given": "R A",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Fermi National Accelerator Laboratory, P.O. Box 500, Batavia, IL 60510, USA"
+                    }
+                ],
+                "family": "Gutierrez",
+                "given": "G",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Department of Physics, University of Oxford, Denys Wilkinson Building, Keble Road, Oxford OX1 3RH, UK"
+                    },
+                    {
+                        "name": "Jodrell Bank Center for Astrophysics, School of Physics and Astronomy, University of Manchester, Oxford Road, Manchester M13 9PL, UK"
+                    }
+                ],
+                "family": "Harrison",
+                "given": "I",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Department of Astronomy, University of Geneva, ch. d’Écogia 16, CH-1290 Versoix, Switzerland"
+                    }
+                ],
+                "family": "Hartley",
+                "given": "W G",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Department of Physics, Columbia University, New York, NY 10027, USA"
+                    },
+                    {
+                        "name": "Center for Computational Astrophysics, Flatiron Institute, New York, NY 10010, USA"
+                    }
+                ],
+                "family": "Hill",
+                "given": "J C",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Astrophysics Research Centre, University of KwaZulu-Natal, Westville Campus, Durban 4041, South Africa"
+                    },
+                    {
+                        "name": "School of Mathematics, Statistics \u0026 Computer Science, University of KwaZulu-Natal, Westville Campus, Durban 4041, South Africa"
+                    }
+                ],
+                "family": "Hilton",
+                "given": "M",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "School of Mathematics and Physics, University of Queensland, Brisbane, QLD 4072, Australia"
+                    }
+                ],
+                "family": "Hinton",
+                "given": "S R",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Santa Cruz Institute for Particle Physics, Santa Cruz, CA 95064, USA"
+                    }
+                ],
+                "family": "Hollowood",
+                "given": "D L",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Department of Physics and Astronomy, Rutgers, the State University of New Jersey, Piscataway, NJ 08854, USA"
+                    }
+                ],
+                "family": "Hughes",
+                "given": "J P",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Center for Astrophysics | Harvard \u0026 Smithsonian, Cambridge, MA 02138, USA"
+                    }
+                ],
+                "family": "James",
+                "given": "D J",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Department of Physics and Astronomy, University of Pennsylvania, Philadelphia, PA 19104, USA"
+                    }
+                ],
+                "family": "Jarvis",
+                "given": "M",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Santa Cruz Institute for Particle Physics, Santa Cruz, CA 95064, USA"
+                    }
+                ],
+                "family": "Jeltema",
+                "given": "T",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Department of Physics, Yale University, New Haven, CT 06520, USA"
+                    }
+                ],
+                "family": "Koopman",
+                "given": "B J",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Department of Astronomy/Steward Observatory, University of Arizona, Tucson, AZ 85721, USA"
+                    }
+                ],
+                "family": "Krause",
+                "given": "E",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Australian Astronomical Optics, Macquarie University, North Ryde, NSW 2113, Australia"
+                    },
+                    {
+                        "name": "Lowell Observatory, Flagstaff, AZ 86001, USA"
+                    }
+                ],
+                "family": "Kuehn",
+                "given": "K",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Fermi National Accelerator Laboratory, P.O. Box 500, Batavia, IL 60510, USA"
+                    }
+                ],
+                "family": "Kuropatkin",
+                "given": "N",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Department of Physics \u0026 Astronomy, University College London, Gower Street, London, WC1E 6BT, UK"
+                    }
+                ],
+                "family": "Lahav",
+                "given": "O",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Departamento de Física Matemática, Instituto de Física, Universidade de São Paulo, CP 66318, São Paulo, SP, 05314-970, Brazil"
+                    },
+                    {
+                        "name": "Laboratório Interinstitucional de e-Astronomia – LIneA, Rua Gal. José Cristino 77, Rio de Janeiro, RJ-20921-400, Brazil"
+                    }
+                ],
+                "family": "Lima",
+                "given": "M",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Canadian Institute for Theoretical Astrophysics, University of Toronto, Toronto, ON M5S 3H4, Canada"
+                    },
+                    {
+                        "name": "David A. Dunlap Department of Astronomy \u0026 Astrophysics, University of Toronto, Toronto, ON M5S 3H4, Canada"
+                    },
+                    {
+                        "name": "Dunlap Institute of Astronomy \u0026 Astrophysics, Toronto, ON M5S 3H4, Canada"
+                    }
+                ],
+                "family": "Lokken",
+                "given": "M",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Department of Applied Mathematics and Theoretical Physics, University of Cambridge, Cambridge CB3 0WA, UK"
+                    }
+                ],
+                "family": "MacCrann",
+                "given": "N",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Perimeter Institute for Theoretical Physics, Waterloo ON N2L 2Y5, Canada"
+                    }
+                ],
+                "family": "Madhavacheril",
+                "given": "M S",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Laboratório Interinstitucional de e-Astronomia – LIneA, Rua Gal. José Cristino 77, Rio de Janeiro, RJ-20921-400, Brazil"
+                    },
+                    {
+                        "name": "Observatório Nacional, Rua Gal. José Cristino 77, Rio de Janeiro, RJ-20921-400, Brazil"
+                    }
+                ],
+                "family": "Maia",
+                "given": "M A G",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Kavli Institute for Particle Astrophysics \u0026 Cosmology, P.O. Box 2450, Stanford University, Stanford, CA 94305, USA"
+                    }
+                ],
+                "family": "McCullough",
+                "given": "J",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Kavli Institute for Cosmological Physics, University of Chicago, Chicago, IL 60637, USA"
+                    },
+                    {
+                        "name": "Department of Astronomy and Astrophysics, University of Chicago, Chicago, IL 60637, USA"
+                    },
+                    {
+                        "name": "Enrico Fermi Institute, University of Chicago, Chicago, IL 60637, USA"
+                    },
+                    {
+                        "name": "Department of Physics, University of Chicago, Chicago, IL 60637, USA"
+                    }
+                ],
+                "family": "McMahon",
+                "given": "J",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Department of Astrophysical Sciences, Princeton University, Peyton Hall, Princeton, NJ 08544, USA"
+                    }
+                ],
+                "family": "Melchior",
+                "given": "P",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Center for Astrophysical Surveys, National Center for Supercomputing Applications, Urbana, IL 61801, USA"
+                    },
+                    {
+                        "name": "Department of Astronomy, University of Illinois at Urbana-Champaign, Urbana, IL 61801, USA"
+                    }
+                ],
+                "family": "Menanteau",
+                "given": "F",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Institut de Física d’Altes Energies (IFAE), The Barcelona Institute of Science and Technology, Campus UAB, E-08193 Bellaterra (Barcelona), Spain"
+                    },
+                    {
+                        "name": "Institució Catalana de Recerca i Estudis Avançats, E-08010 Barcelona, Spain"
+                    }
+                ],
+                "family": "Miquel",
+                "given": "R",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Max Planck Institute for Extraterrestrial Physics, Giessenbach-strasse, D-85748 Garching, Germany"
+                    },
+                    {
+                        "name": "Faculty of Physics, Ludwig-Maximilians-Universität, Scheinerstr. 1, D-81679 Munich, Germany"
+                    }
+                ],
+                "family": "Mohr",
+                "given": "J J",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Astrophysics Research Centre, University of KwaZulu-Natal, Westville Campus, Durban 4041, South Africa"
+                    },
+                    {
+                        "name": "School of Mathematics, Statistics \u0026 Computer Science, University of KwaZulu-Natal, Westville Campus, Durban 4041, South Africa"
+                    }
+                ],
+                "family": "Moodley",
+                "given": "K",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Physics Department, University of Wisconsin-Madison, Madison, WI 53706-1390, USA"
+                    }
+                ],
+                "family": "Morgan",
+                "given": "R",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Kavli Institute for Particle Astrophysics \u0026 Cosmology, P.O. Box 2450, Stanford University, Stanford, CA 94305, USA"
+                    },
+                    {
+                        "name": "Department of Physics, Carnegie Mellon University, Pittsburgh, PA 15312, USA"
+                    },
+                    {
+                        "name": "SLAC National Accelerator Laboratory, Menlo Park, CA 94025, USA"
+                    }
+                ],
+                "family": "Myles",
+                "given": "J",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Department of Physics, University of Milano-Bicocca, I-20126 Milano, Italy"
+                    }
+                ],
+                "family": "Nati",
+                "given": "F",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Instituto de Física Gleb Wataghin, Universidade Estadual de Campinas, 13083-859, Campinas, SP, Brazil"
+                    }
+                ],
+                "family": "Navarro-Alsina",
+                "given": "A",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Department of Astronomy, Cornell University, Ithaca, NY 14853, USA"
+                    },
+                    {
+                        "name": "Department of Physics, Cornell University, Ithaca, NY 14853, USA"
+                    },
+                    {
+                        "name": "Kavli Institute at Cornell for Nanoscale Science, Cornell University, Ithaca, NY 14853, USA"
+                    }
+                ],
+                "family": "Niemack",
+                "given": "M D",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Laboratório Interinstitucional de e-Astronomia – LIneA, Rua Gal. José Cristino 77, Rio de Janeiro, RJ-20921-400, Brazil"
+                    },
+                    {
+                        "name": "Observatório Nacional, Rua Gal. José Cristino 77, Rio de Janeiro, RJ-20921-400, Brazil"
+                    }
+                ],
+                "family": "Ogando",
+                "given": "R L C",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Joseph Henry Laboratories of Physics, Jadwin Hall, Princeton University, Princeton, NJ 08544, USA"
+                    }
+                ],
+                "family": "Page",
+                "given": "L A",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Kavli Institute for Cosmological Physics, University of Chicago, Chicago, IL 60637, USA"
+                    },
+                    {
+                        "name": "Fermi National Accelerator Laboratory, P.O. Box 500, Batavia, IL 60510, USA"
+                    }
+                ],
+                "family": "Palmese",
+                "given": "A",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Department of Physics and Astronomy, Haverford College, Haverford, PA 19041, USA"
+                    }
+                ],
+                "family": "Partridge",
+                "given": "B",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Center for Astrophysical Surveys, National Center for Supercomputing Applications, Urbana, IL 61801, USA"
+                    },
+                    {
+                        "name": "Institute of Astronomy, University of Cambridge, Madingley Road, Cambridge CB3 0HA, UK"
+                    }
+                ],
+                "family": "Paz-Chinchón",
+                "given": "F",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Department of Physics, University of Michigan, Ann Arbor, MI 48109, USA"
+                    }
+                ],
+                "family": "Pereira",
+                "given": "M E S",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Laboratório Interinstitucional de e-Astronomia – LIneA, Rua Gal. José Cristino 77, Rio de Janeiro, RJ-20921-400, Brazil"
+                    },
+                    {
+                        "name": "Observatório Nacional, Rua Gal. José Cristino 77, Rio de Janeiro, RJ-20921-400, Brazil"
+                    }
+                ],
+                "family": "Pieres",
+                "given": "A",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Department of Astrophysical Sciences, Princeton University, Peyton Hall, Princeton, NJ 08544, USA"
+                    }
+                ],
+                "family": "Malagón",
+                "given": "A A Plazas",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Kavli Institute for Cosmological Physics, University of Chicago, Chicago, IL 60637, USA"
+                    },
+                    {
+                        "name": "Department of Astronomy and Astrophysics, University of Chicago, Chicago, IL 60637, USA"
+                    }
+                ],
+                "family": "Prat",
+                "given": "J",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Department of Physics and Astronomy, University of Pennsylvania, Philadelphia, PA 19104, USA"
+                    }
+                ],
+                "family": "Raveri",
+                "given": "M",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Centro de Investigaciones Energéticas, Medioambientales y Tecnológicas (CIEMAT), 28040 Madrid, Spain"
+                    }
+                ],
+                "family": "Rodriguez-Monroy",
+                "given": "M",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Jodrell Bank Center for Astrophysics, School of Physics and Astronomy, University of Manchester, Oxford Road, Manchester M13 9PL, UK"
+                    }
+                ],
+                "family": "Rollins",
+                "given": "R P",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Department of Physics and Astronomy, Pevensey Building, University of Sussex, Brighton BN1 9QH, UK"
+                    }
+                ],
+                "family": "Romer",
+                "given": "A K",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Kavli Institute for Particle Astrophysics \u0026 Cosmology, P.O. Box 2450, Stanford University, Stanford, CA 94305, USA"
+                    },
+                    {
+                        "name": "Department of Physics, Carnegie Mellon University, Pittsburgh, PA 15312, USA"
+                    }
+                ],
+                "family": "Rykoff",
+                "given": "E S",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Kavli Institute for Particle Astrophysics \u0026 Cosmology, P.O. Box 2450, Stanford University, Stanford, CA 94305, USA"
+                    },
+                    {
+                        "name": "SLAC National Accelerator Laboratory, Menlo Park, CA 94025, USA"
+                    }
+                ],
+                "family": "Salatino",
+                "given": "M",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Department of Physics and Astronomy, University of Pennsylvania, Philadelphia, PA 19104, USA"
+                    }
+                ],
+                "family": "Sánchez",
+                "given": "C",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Centro de Investigaciones Energéticas, Medioambientales y Tecnológicas (CIEMAT), 28040 Madrid, Spain"
+                    }
+                ],
+                "family": "Sanchez",
+                "given": "E",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Laboratório Interinstitucional de e-Astronomia – LIneA, Rua Gal. José Cristino 77, Rio de Janeiro, RJ-20921-400, Brazil"
+                    },
+                    {
+                        "name": "Instituto de Física, UFRGS, Caixa Postal 15051, Porto Alegre, RS-91501-970, Brazil"
+                    }
+                ],
+                "family": "Santiago",
+                "given": "B",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Fermi National Accelerator Laboratory, P.O. Box 500, Batavia, IL 60510, USA"
+                    }
+                ],
+                "family": "Scarpine",
+                "given": "V",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Department of Physics, California Institute of Technology, Pasadena, CA 91125, USA"
+                    }
+                ],
+                "family": "Schillaci",
+                "given": "A",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Kavli Institute for Cosmological Physics, University of Chicago, Chicago, IL 60637, USA"
+                    }
+                ],
+                "family": "Secco",
+                "given": "L F",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Institut d’Estudis Espacials de Catalunya (IEEC), E-08034 Barcelona, Spain"
+                    },
+                    {
+                        "name": "Institute of Space Sciences (ICE, CSIC), Campus UAB, Carrer de Can Magrans, s/n, E-08193 Barcelona, Spain"
+                    }
+                ],
+                "family": "Serrano",
+                "given": "S",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Centro de Investigaciones Energéticas, Medioambientales y Tecnológicas (CIEMAT), 28040 Madrid, Spain"
+                    }
+                ],
+                "family": "Sevilla-Noarbe",
+                "given": "I",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Brookhaven National Laboratory, Bldg 510, Upton, NY 11973, USA"
+                    }
+                ],
+                "family": "Sheldon",
+                "given": "E",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Department of Applied Mathematics and Theoretical Physics, University of Cambridge, Cambridge CB3 0WA, UK"
+                    }
+                ],
+                "family": "Sherwin",
+                "given": "B D",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Instituto de Física, Pontificia Universidad Católica de Valparaíso, Casilla 4059, Valparaíso, Chile"
+                    }
+                ],
+                "family": "Sifón",
+                "given": "C",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "School of Physics and Astronomy, University of Southampton, Southampton, SO17 1BJ, UK"
+                    }
+                ],
+                "family": "Smith",
+                "given": "M",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Department of Physics, University of Michigan, Ann Arbor, MI 48109, USA"
+                    }
+                ],
+                "family": "Soares-Santos",
+                "given": "M",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Joseph Henry Laboratories of Physics, Jadwin Hall, Princeton University, Princeton, NJ 08544, USA"
+                    }
+                ],
+                "family": "Staggs",
+                "given": "S T",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Computer Science and Mathematics Division, Oak Ridge National Laboratory, Oak Ridge, TN 37831, USA"
+                    }
+                ],
+                "family": "Suchyta",
+                "given": "E",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Center for Astrophysical Surveys, National Center for Supercomputing Applications, Urbana, IL 61801, USA"
+                    }
+                ],
+                "family": "Swanson",
+                "given": "M E C",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Department of Physics, University of Michigan, Ann Arbor, MI 48109, USA"
+                    }
+                ],
+                "family": "Tarle",
+                "given": "G",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Institute of Cosmology and Gravitation, University of Portsmouth, Portsmouth, PO1 3FX, UK"
+                    }
+                ],
+                "family": "Thomas",
+                "given": "D",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "SLAC National Accelerator Laboratory, Menlo Park, CA 94025, USA"
+                    },
+                    {
+                        "name": "Kavli Institute for Particle Astrophysics \u0026 Cosmology, P.O. Box 2450, Stanford University, Stanford, CA 94305, USA"
+                    },
+                    {
+                        "name": "Department of Physics, Carnegie Mellon University, Pittsburgh, PA 15312, USA"
+                    }
+                ],
+                "family": "To",
+                "given": "C",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Lawrence Berkeley National Laboratory, Berkeley, CA 94720, USA"
+                    }
+                ],
+                "family": "Troxel",
+                "given": "M A",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Institut d’Estudis Espacials de Catalunya (IEEC), E-08034 Barcelona, Spain"
+                    },
+                    {
+                        "name": "Institute of Space Sciences (ICE, CSIC), Campus UAB, Carrer de Can Magrans, s/n, E-08193 Barcelona, Spain"
+                    }
+                ],
+                "family": "Tutusaus",
+                "given": "I",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Department of Physics, Cornell University, Ithaca, NY 14853, USA"
+                    }
+                ],
+                "family": "Vavagiakis",
+                "given": "E M",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Max Planck Institute for Extraterrestrial Physics, Giessenbach-strasse, D-85748 Garching, Germany"
+                    },
+                    {
+                        "name": "Faculty of Physics, Ludwig-Maximilians-Universität, Scheinerstr. 1, D-81679 Munich, Germany"
+                    }
+                ],
+                "family": "Weller",
+                "given": "J",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "NASA/Goddard Space Flight Center, Greenbelt, MD 20771, USA"
+                    }
+                ],
+                "family": "Wollack",
+                "given": "E J",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Fermi National Accelerator Laboratory, P.O. Box 500, Batavia, IL 60510, USA"
+                    }
+                ],
+                "family": "Yanny",
+                "given": "B",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Department of Physics, Duke University Durham, NC 27708, USA"
+                    }
+                ],
+                "family": "Yin",
+                "given": "B",
+                "sequence": "additional"
+            },
+            {
+                "affiliation": [
+                    {
+                        "name": "Fermi National Accelerator Laboratory, P.O. Box 500, Batavia, IL 60510, USA"
+                    }
+                ],
+                "family": "Zhang",
+                "given": "Y",
+                "sequence": "additional"
+            }
+        ],
+        "container-title": [
+            "Monthly Notices of the Royal Astronomical Society"
+        ],
+        "content-domain": {
+            "crossmark-restriction": false,
+            "domain": []
+        },
+        "created": {
+            "date-parts": [
+                [
+                    2021,
+                    9,
+                    8
+                ]
+            ],
+            "date-time": "2021-09-08T02:36:11Z",
+            "timestamp": 1631068571000
+        },
+        "deposited": {
+            "date-parts": [
+                [
+                    2021,
+                    9,
+                    20
+                ]
+            ],
+            "date-time": "2021-09-20T08:33:53Z",
+            "timestamp": 1632126833000
+        },
+        "funder": [
+            {
+                "DOI": "10.13039/100000104",
+                "award": [
+                    "NNX13AE56G",
+                    "NNX14AB58G"
+                ],
+                "doi-asserted-by": "publisher",
+                "name": "NASA"
+            },
+            {
+                "DOI": "10.13039/100000015",
+                "doi-asserted-by": "publisher",
+                "name": "U.S. Department of Energy"
+            },
+            {
+                "DOI": "10.13039/100011722",
+                "doi-asserted-by": "publisher",
+                "name": "Higher Education Funding Council for England"
+            },
+            {
+                "DOI": "10.13039/100007234",
+                "doi-asserted-by": "publisher",
+                "name": "University of Chicago"
+            },
+            {
+                "DOI": "10.13039/100006928",
+                "doi-asserted-by": "publisher",
+                "name": "Ohio State University"
+            },
+            {
+                "DOI": "10.13039/501100004809",
+                "doi-asserted-by": "publisher",
+                "name": "Financiadora de Estudos e Projetos"
+            },
+            {
+                "DOI": "10.13039/501100004586",
+                "doi-asserted-by": "publisher",
+                "name": "Fundação Carlos Chagas Filho de Amparo à Pesquisa do Estado do Rio de Janeiro"
+            },
+            {
+                "DOI": "10.13039/501100003545",
+                "doi-asserted-by": "publisher",
+                "name": "Ministério da Ciência, Tecnologia e Inovação"
+            },
+            {
+                "DOI": "10.13039/100006224",
+                "doi-asserted-by": "publisher",
+                "name": "Argonne National Laboratory"
+            },
+            {
+                "DOI": "10.13039/501100000765",
+                "doi-asserted-by": "publisher",
+                "name": "University College London"
+            },
+            {
+                "DOI": "10.13039/501100000848",
+                "doi-asserted-by": "publisher",
+                "name": "University of Edinburgh"
+            },
+            {
+                "DOI": "10.13039/100005302",
+                "doi-asserted-by": "publisher",
+                "name": "University of Illinois at Urbana-Champaign"
+            },
+            {
+                "DOI": "10.13039/100006235",
+                "doi-asserted-by": "publisher",
+                "name": "Lawrence Berkeley National Laboratory"
+            },
+            {
+                "DOI": "10.13039/501100000837",
+                "doi-asserted-by": "publisher",
+                "name": "University of Nottingham"
+            },
+            {
+                "DOI": "10.13039/100006920",
+                "doi-asserted-by": "publisher",
+                "name": "University of Pennsylvania"
+            },
+            {
+                "DOI": "10.13039/100009153",
+                "doi-asserted-by": "publisher",
+                "name": "University of Portsmouth"
+            },
+            {
+                "DOI": "10.13039/100005492",
+                "doi-asserted-by": "publisher",
+                "name": "Stanford University"
+            },
+            {
+                "DOI": "10.13039/501100000838",
+                "doi-asserted-by": "publisher",
+                "name": "University of Sussex"
+            },
+            {
+                "DOI": "10.13039/100000001",
+                "award": [
+                    "AST-1138766",
+                    "AST-1536171"
+                ],
+                "doi-asserted-by": "publisher",
+                "name": "National Science Foundation"
+            }
+        ],
+        "indexed": {
+            "date-parts": [
+                [
+                    2021,
+                    9,
+                    21
+                ]
+            ],
+            "date-time": "2021-09-21T09:42:55Z",
+            "timestamp": 1632217375908
+        },
+        "is-referenced-by-count": 0,
+        "issn-type": [
+            {
+                "type": "print",
+                "value": "0035-8711"
+            },
+            {
+                "type": "electronic",
+                "value": "1365-2966"
+            }
+        ],
+        "issue": "4",
+        "issued": {
+            "date-parts": [
+                [
+                    2021,
+                    9,
+                    7
+                ]
+            ]
+        },
+        "journal-issue": {
+            "issue": "4",
+            "published-print": {
+                "date-parts": [
+                    [
+                        2021,
+                        9,
+                        20
+                    ]
+                ]
+            }
+        },
+        "language": "en",
+        "license": [
+            {
+                "URL": "https://academic.oup.com/journals/pages/open_access/funder_policies/chorus/standard_publication_model",
+                "content-version": "vor",
+                "delay-in-days": 0,
+                "start": {
+                    "date-parts": [
+                        [
+                            2021,
+                            9,
+                            7
+                        ]
+                    ],
+                    "date-time": "2021-09-07T00:00:00Z",
+                    "timestamp": 1630972800000
+                }
+            }
+        ],
+        "link": [
+            {
+                "URL": "http://academic.oup.com/mnras/advance-article-pdf/doi/10.1093/mnras/stab2505/40326867/stab2505.pdf",
+                "content-type": "application/pdf",
+                "content-version": "am",
+                "intended-application": "syndication"
+            },
+            {
+                "URL": "http://academic.oup.com/mnras/article-pdf/507/4/5758/40413861/stab2505.pdf",
+                "content-type": "application/pdf",
+                "content-version": "vor",
+                "intended-application": "syndication"
+            },
+            {
+                "URL": "http://academic.oup.com/mnras/article-pdf/507/4/5758/40413861/stab2505.pdf",
+                "content-type": "unspecified",
+                "content-version": "vor",
+                "intended-application": "similarity-checking"
+            }
+        ],
+        "member": "286",
+        "original-title": [],
+        "page": "5758-5779",
+        "prefix": "10.1093",
+        "published": {
+            "date-parts": [
+                [
+                    2021,
+                    9,
+                    7
+                ]
+            ]
+        },
+        "published-online": {
+            "date-parts": [
+                [
+                    2021,
+                    9,
+                    7
+                ]
+            ]
+        },
+        "published-other": {
+            "date-parts": [
+                [
+                    2021,
+                    11
+                ]
+            ]
+        },
+        "published-print": {
+            "date-parts": [
+                [
+                    2021,
+                    9,
+                    20
+                ]
+            ]
+        },
+        "publisher": "Oxford University Press (OUP)",
+        "reference": [
+            {
+                "author": "Adhikari",
+                "key": "2021092008321908100_bib2",
+                "year": "2020"
+            },
+            {
+                "DOI": "10.1088/1475-7516/2014/11/019",
+                "author": "Adhikari",
+                "doi-asserted-by": "publisher",
+                "first-page": "019",
+                "journal-title": "J. Cosmol. Astropart. Phys.",
+                "key": "2021092008321908100_bib3",
+                "volume": "2014",
+                "year": "2014"
+            },
+            {
+                "DOI": "10.1088/1475-7516/2018/11/033",
+                "author": "Adhikari",
+                "doi-asserted-by": "publisher",
+                "first-page": "033",
+                "journal-title": "J. Cosmol. Astropart. Phys.",
+                "key": "2021092008321908100_bib4",
+                "volume": "2018",
+                "year": "2018"
+            },
+            {
+                "DOI": "10.1088/0067-0049/193/2/29",
+                "author": "Aihara",
+                "doi-asserted-by": "publisher",
+                "first-page": "29",
+                "journal-title": "ApJS",
+                "key": "2021092008321908100_bib5",
+                "volume": "193",
+                "year": "2011"
+            },
+            {
+                "DOI": "10.1093/pasj/psx081",
+                "author": "Aihara",
+                "doi-asserted-by": "publisher",
+                "first-page": "S8",
+                "journal-title": "PASJ",
+                "key": "2021092008321908100_bib6",
+                "volume": "70",
+                "year": "2018"
+            },
+            {
+                "DOI": "10.1088/1475-7516/2020/02/024",
+                "author": "Banerjee",
+                "doi-asserted-by": "publisher",
+                "first-page": "024",
+                "journal-title": "J. Cosmol. Astropart. Phys.",
+                "key": "2021092008321908100_bib7",
+                "volume": "2020",
+                "year": "2020"
+            },
+            {
+                "DOI": "10.1088/0004-637X/806/2/247",
+                "author": "Baxter",
+                "doi-asserted-by": "publisher",
+                "first-page": "247",
+                "journal-title": "ApJ",
+                "key": "2021092008321908100_bib8",
+                "volume": "806",
+                "year": "2015"
+            },
+            {
+                "DOI": "10.3847/1538-4357/aa6ff0",
+                "author": "Baxter",
+                "doi-asserted-by": "publisher",
+                "first-page": "18",
+                "journal-title": "ApJ",
+                "key": "2021092008321908100_bib9",
+                "volume": "841",
+                "year": "2017"
+            },
+            {
+                "DOI": "10.1088/0004-637X/762/2/109",
+                "author": "Behroozi",
+                "doi-asserted-by": "publisher",
+                "first-page": "109",
+                "journal-title": "ApJ",
+                "key": "2021092008321908100_bib10",
+                "volume": "762",
+                "year": "2013"
+            },
+            {
+                "DOI": "10.1088/0004-637X/763/1/18",
+                "author": "Behroozi",
+                "doi-asserted-by": "publisher",
+                "first-page": "18",
+                "journal-title": "ApJ",
+                "key": "2021092008321908100_bib11",
+                "volume": "763",
+                "year": "2013"
+            },
+            {
+                "DOI": "10.1086/308947",
+                "author": "Benítez",
+                "doi-asserted-by": "publisher",
+                "first-page": "571",
+                "journal-title": "ApJ",
+                "key": "2021092008321908100_bib12",
+                "volume": "536",
+                "year": "2000"
+            },
+            {
+                "DOI": "10.3847/1538-4357/abebd7",
+                "author": "Bianconi",
+                "doi-asserted-by": "publisher",
+                "first-page": "136",
+                "journal-title": "ApJ",
+                "key": "2021092008321908100_bib13",
+                "volume": "911",
+                "year": "2021"
+            },
+            {
+                "DOI": "10.1086/510127",
+                "author": "Blanton",
+                "doi-asserted-by": "publisher",
+                "first-page": "734",
+                "journal-title": "AJ",
+                "key": "2021092008321908100_bib14",
+                "volume": "133",
+                "year": "2007"
+            },
+            {
+                "DOI": "10.1016/j.physrep.2018.07.003",
+                "author": "Buckley",
+                "doi-asserted-by": "publisher",
+                "first-page": "1",
+                "journal-title": "Phys. Rep.",
+                "key": "2021092008321908100_bib15",
+                "volume": "761",
+                "year": "2018"
+            },
+            {
+                "DOI": "10.1111/j.1365-2966.2012.20663.x",
+                "author": "Budzynski",
+                "doi-asserted-by": "publisher",
+                "first-page": "104",
+                "journal-title": "MNRAS",
+                "key": "2021092008321908100_bib16",
+                "volume": "423",
+                "year": "2012"
+            },
+            {
+                "DOI": "10.1093/mnras/stx1584",
+                "author": "Busch",
+                "doi-asserted-by": "publisher",
+                "first-page": "4767",
+                "journal-title": "MNRAS",
+                "key": "2021092008321908100_bib17",
+                "volume": "470",
+                "year": "2017"
+            },
+            {
+                "DOI": "10.3847/1538-4357/aad5e7",
+                "author": "Chang",
+                "doi-asserted-by": "publisher",
+                "first-page": "83",
+                "journal-title": "ApJ",
+                "key": "2021092008321908100_bib18",
+                "volume": "864",
+                "year": "2018"
+            },
+            {
+                "DOI": "10.1103/PhysRevD.99.064030",
+                "author": "Contigiani",
+                "doi-asserted-by": "publisher",
+                "first-page": "064030",
+                "journal-title": "Phys. Rev. D",
+                "key": "2021092008321908100_bib19",
+                "volume": "99",
+                "year": "2019"
+            },
+            {
+                "DOI": "10.1093/mnras/stz404",
+                "author": "Contigiani",
+                "doi-asserted-by": "publisher",
+                "first-page": "408",
+                "journal-title": "MNRAS",
+                "key": "2021092008321908100_bib20",
+                "volume": "485",
+                "year": "2019"
+            },
+            {
+                "DOI": "10.1016/S0370-1573(02)00276-4",
+                "author": "Cooray",
+                "doi-asserted-by": "publisher",
+                "first-page": "1",
+                "journal-title": "Phys. Rep.",
+                "key": "2021092008321908100_bib21",
+                "volume": "372",
+                "year": "2002"
+            },
+            {
+                "DOI": "10.1093/mnras/sty2522",
+                "author": "Crocce",
+                "doi-asserted-by": "publisher",
+                "first-page": "2807",
+                "journal-title": "MNRAS",
+                "key": "2021092008321908100_bib22",
+                "volume": "482",
+                "year": "2018"
+            },
+            {
+                "DOI": "10.3847/1538-4365/aaee8c",
+                "author": "Diemer",
+                "doi-asserted-by": "publisher",
+                "first-page": "35",
+                "journal-title": "ApJS",
+                "key": "2021092008321908100_bib23",
+                "volume": "239",
+                "year": "2018"
+            },
+            {
+                "DOI": "10.3847/1538-4357/abbf52",
+                "author": "Diemer",
+                "doi-asserted-by": "publisher",
+                "first-page": "87",
+                "journal-title": "ApJ",
+                "key": "2021092008321908100_bib24",
+                "volume": "903",
+                "year": "2020"
+            },
+            {
+                "DOI": "10.3847/1538-4357/aafad6",
+                "author": "Diemer",
+                "doi-asserted-by": "publisher",
+                "first-page": "168",
+                "journal-title": "ApJ",
+                "key": "2021092008321908100_bib25",
+                "volume": "871",
+                "year": "2019"
+            },
+            {
+                "DOI": "10.1088/0004-637X/789/1/1",
+                "author": "Diemer",
+                "doi-asserted-by": "publisher",
+                "first-page": "1",
+                "journal-title": "ApJ",
+                "key": "2021092008321908100_bib26",
+                "volume": "789",
+                "year": "2014"
+            },
+            {
+                "DOI": "10.3847/1538-4357/aa79ab",
+                "author": "Diemer",
+                "doi-asserted-by": "publisher",
+                "first-page": "140",
+                "journal-title": "ApJ",
+                "key": "2021092008321908100_bib27",
+                "volume": "843",
+                "year": "2017"
+            },
+            {
+                "author": "Einasto",
+                "first-page": "87",
+                "journal-title": "Trudy Astrofizicheskogo Instituta Alma-Ata",
+                "key": "2021092008321908100_bib28",
+                "volume": "5",
+                "year": "1965"
+            },
+            {
+                "DOI": "10.1086/305424",
+                "author": "Eisenstein",
+                "doi-asserted-by": "publisher",
+                "first-page": "605",
+                "journal-title": "ApJ",
+                "key": "2021092008321908100_bib29",
+                "volume": "496",
+                "year": "1998"
+            },
+            {
+                "DOI": "10.1103/PhysRevD.98.042006",
+                "author": "Elvin-Poole",
+                "doi-asserted-by": "publisher",
+                "first-page": "042006",
+                "journal-title": "Phys. Rev. D",
+                "key": "2021092008321908100_bib30",
+                "volume": "98",
+                "year": "2018"
+            },
+            {
+                "DOI": "10.1088/0004-6256/150/5/150",
+                "author": "Flaugher",
+                "doi-asserted-by": "publisher",
+                "first-page": "150",
+                "journal-title": "AJ",
+                "key": "2021092008321908100_bib31",
+                "volume": "150",
+                "year": "2015"
+            },
+            {
+                "author": "Foreman-Mackey",
+                "key": "2021092008321908100_bib32",
+                "volume-title": "Astrophysics Source Code Library",
+                "year": "2013"
+            },
+            {
+                "DOI": "10.1364/AO.46.003444",
+                "author": "Fowler",
+                "doi-asserted-by": "publisher",
+                "first-page": "3444",
+                "journal-title": "Applied Optics",
+                "key": "2021092008321908100_bib33",
+                "volume": "46",
+                "year": "2007"
+            },
+            {
+                "DOI": "10.1093/mnras/stab918",
+                "author": "Gatti",
+                "doi-asserted-by": "publisher",
+                "first-page": "4312",
+                "journal-title": "MNRAS",
+                "key": "2021092008321908100_bib34",
+                "volume": "504",
+                "year": "2021"
+            },
+            {
+                "DOI": "10.1111/j.1365-2966.2004.08562.x",
+                "author": "Gill",
+                "doi-asserted-by": "publisher",
+                "first-page": "1327",
+                "journal-title": "MNRAS",
+                "key": "2021092008321908100_bib35",
+                "volume": "356",
+                "year": "2005"
+            },
+            {
+                "DOI": "10.2140/camcos.2010.5.65",
+                "author": "Goodman",
+                "doi-asserted-by": "publisher",
+                "first-page": "65",
+                "journal-title": "Commun. Appl. Math. Comput. Sci.",
+                "key": "2021092008321908100_bib36",
+                "volume": "5",
+                "year": "2010"
+            },
+            {
+                "DOI": "10.1093/mnras/stab696",
+                "author": "Green",
+                "doi-asserted-by": "publisher",
+                "first-page": "4075",
+                "journal-title": "MNRAS",
+                "key": "2021092008321908100_bib37",
+                "volume": "503",
+                "year": "2021"
+            },
+            {
+                "DOI": "10.1111/j.1365-2966.2008.13371.x",
+                "author": "Hayashi",
+                "doi-asserted-by": "publisher",
+                "first-page": "2",
+                "journal-title": "MNRAS",
+                "key": "2021092008321908100_bib38",
+                "volume": "388",
+                "year": "2008"
+            },
+            {
+                "DOI": "10.3847/1538-4365/abd023",
+                "author": "Hilton",
+                "doi-asserted-by": "publisher",
+                "first-page": "3",
+                "journal-title": "ApJS",
+                "key": "2021092008321908100_bib39",
+                "volume": "253",
+                "year": "2021"
+            },
+            {
+                "DOI": "10.1093/mnras/sty957",
+                "author": "Hoyle",
+                "doi-asserted-by": "publisher",
+                "first-page": "592",
+                "journal-title": "MNRAS",
+                "key": "2021092008321908100_bib40",
+                "volume": "478",
+                "year": "2018"
+            },
+            {
+                "DOI": "10.1093/mnras/stz1714",
+                "author": "Huang",
+                "doi-asserted-by": "publisher",
+                "first-page": "1652",
+                "journal-title": "MNRAS",
+                "key": "2021092008321908100_bib41",
+                "volume": "488",
+                "year": "2019"
+            },
+            {
+                "author": "Huff",
+                "key": "2021092008321908100_bib42",
+                "year": "2017"
+            },
+            {
+                "DOI": "10.1111/j.1365-2966.2004.07926.x",
+                "author": "Jarvis",
+                "doi-asserted-by": "publisher",
+                "first-page": "338",
+                "journal-title": "MNRAS",
+                "key": "2021092008321908100_bib43",
+                "volume": "352",
+                "year": "2004"
+            },
+            {
+                "DOI": "10.1093/mnras/stw248",
+                "author": "Klypin",
+                "doi-asserted-by": "publisher",
+                "first-page": "4340",
+                "journal-title": "MNRAS",
+                "key": "2021092008321908100_bib44",
+                "volume": "457",
+                "year": "2016"
+            },
+            {
+                "DOI": "10.1086/420959",
+                "author": "Kravtsov",
+                "doi-asserted-by": "publisher",
+                "first-page": "35",
+                "journal-title": "ApJ",
+                "key": "2021092008321908100_bib45",
+                "volume": "609",
+                "year": "2004"
+            },
+            {
+                "DOI": "10.1086/172900",
+                "author": "Landy",
+                "doi-asserted-by": "publisher",
+                "first-page": "64",
+                "journal-title": "ApJ",
+                "key": "2021092008321908100_bib46",
+                "volume": "412",
+                "year": "1993"
+            },
+            {
+                "DOI": "10.1088/1475-7516/2016/02/018",
+                "author": "Lazeyras",
+                "doi-asserted-by": "publisher",
+                "first-page": "018",
+                "journal-title": "J. Cosmol. Astropart. Phys.",
+                "key": "2021092008321908100_bib47",
+                "volume": "2016",
+                "year": "2016"
+            },
+            {
+                "author": "MacCrann",
+                "key": "2021092008321908100_bib48",
+                "year": "2020"
+            },
+            {
+                "DOI": "10.1103/PhysRevLett.114.151302",
+                "author": "Madhavacheril",
+                "doi-asserted-by": "publisher",
+                "first-page": "151302",
+                "journal-title": "Phys. Rev. Lett.",
+                "key": "2021092008321908100_bib49",
+                "volume": "114",
+                "year": "2015"
+            },
+            {
+                "DOI": "10.1111/j.1365-2966.2011.19236.x",
+                "author": "Mahajan",
+                "doi-asserted-by": "publisher",
+                "first-page": "2882",
+                "journal-title": "MNRAS",
+                "key": "2021092008321908100_bib50",
+                "volume": "416",
+                "year": "2011"
+            },
+            {
+                "DOI": "10.1088/1475-7516/2008/08/006",
+                "author": "Mandelbaum",
+                "doi-asserted-by": "publisher",
+                "first-page": "006",
+                "journal-title": "J. Cosmol. Astropart. Phys.",
+                "key": "2021092008321908100_bib51",
+                "volume": "2008",
+                "year": "2008"
+            },
+            {
+                "DOI": "10.3847/1538-4357/aa7047",
+                "author": "Mansfield",
+                "doi-asserted-by": "publisher",
+                "first-page": "34",
+                "journal-title": "ApJ",
+                "key": "2021092008321908100_bib52",
+                "volume": "841",
+                "year": "2017"
+            },
+            {
+                "DOI": "10.1093/mnras/sty2711",
+                "author": "McClintock",
+                "doi-asserted-by": "publisher",
+                "first-page": "1352",
+                "journal-title": "MNRAS",
+                "key": "2021092008321908100_bib53",
+                "volume": "482",
+                "year": "2019"
+            },
+            {
+                "DOI": "10.1088/1475-7516/2009/08/020",
+                "author": "McDonald",
+                "doi-asserted-by": "publisher",
+                "first-page": "020",
+                "journal-title": "J. Cosmol. Astropart. Phys.",
+                "key": "2021092008321908100_bib54",
+                "volume": "2009",
+                "year": "2009"
+            },
+            {
+                "DOI": "10.3847/0004-637X/825/1/39",
+                "author": "More",
+                "doi-asserted-by": "publisher",
+                "first-page": "39",
+                "journal-title": "ApJ",
+                "key": "2021092008321908100_bib55",
+                "volume": "825",
+                "year": "2016"
+            },
+            {
+                "DOI": "10.1088/0004-637X/810/1/36",
+                "author": "More",
+                "doi-asserted-by": "publisher",
+                "first-page": "36",
+                "journal-title": "ApJ",
+                "key": "2021092008321908100_bib56",
+                "volume": "810",
+                "year": "2015"
+            },
+            {
+                "DOI": "10.1088/1538-3873/aab4ef",
+                "author": "Morganson",
+                "doi-asserted-by": "publisher",
+                "first-page": "074501",
+                "journal-title": "PASP",
+                "key": "2021092008321908100_bib57",
+                "volume": "130",
+                "year": "2018"
+            },
+            {
+                "DOI": "10.1093/pasj/psaa041",
+                "author": "Murata",
+                "doi-asserted-by": "publisher",
+                "first-page": "64",
+                "journal-title": "PASJ",
+                "key": "2021092008321908100_bib58",
+                "volume": "72",
+                "year": "2020"
+            },
+            {
+                "DOI": "10.1088/1475-7516/2020/12/046",
+                "author": "Naess",
+                "doi-asserted-by": "publisher",
+                "first-page": "046",
+                "journal-title": "J. Cosmol. Astropart. Phys.",
+                "key": "2021092008321908100_bib59",
+                "volume": "2020",
+                "year": "2020"
+            },
+            {
+                "DOI": "10.1086/426016",
+                "author": "Nagai",
+                "doi-asserted-by": "publisher",
+                "first-page": "557",
+                "journal-title": "ApJ",
+                "key": "2021092008321908100_bib60",
+                "volume": "618",
+                "year": "2005"
+            },
+            {
+                "DOI": "10.1016/j.ascom.2015.09.003",
+                "author": "Nelson",
+                "doi-asserted-by": "publisher",
+                "first-page": "12",
+                "journal-title": "Astron. Comput.",
+                "key": "2021092008321908100_bib61",
+                "volume": "13",
+                "year": "2015"
+            },
+            {
+                "DOI": "10.1186/s40668-019-0028-x",
+                "author": "Nelson",
+                "doi-asserted-by": "publisher",
+                "first-page": "2",
+                "journal-title": "Comput. Astrophys. Cosmol.",
+                "key": "2021092008321908100_bib62",
+                "volume": "6",
+                "year": "2019"
+            },
+            {
+                "DOI": "10.1111/j.1365-2966.2009.14389.x",
+                "author": "Norberg",
+                "doi-asserted-by": "publisher",
+                "first-page": "19",
+                "journal-title": "MNRAS",
+                "key": "2021092008321908100_bib63",
+                "volume": "396",
+                "year": "2009"
+            },
+            {
+                "DOI": "10.1093/mnras/stab1221",
+                "author": "O’Neil",
+                "doi-asserted-by": "publisher",
+                "first-page": "4649",
+                "journal-title": "MNRAS",
+                "key": "2021092008321908100_bib64",
+                "volume": "504",
+                "year": "2021"
+            },
+            {
+                "DOI": "10.1103/PhysRevD.102.123522",
+                "author": "Pandey",
+                "doi-asserted-by": "publisher",
+                "first-page": "123522",
+                "journal-title": "Phys. Rev. D",
+                "key": "2021092008321908100_bib65",
+                "volume": "102",
+                "year": "2020"
+            },
+            {
+                "DOI": "10.1088/2041-8205/798/1/L20",
+                "author": "Patej",
+                "doi-asserted-by": "publisher",
+                "first-page": "L20",
+                "journal-title": "ApJ",
+                "key": "2021092008321908100_bib66",
+                "volume": "798",
+                "year": "2015"
+            },
+            {
+                "DOI": "10.1093/mnras/stx3112",
+                "author": "Pillepich",
+                "doi-asserted-by": "publisher",
+                "first-page": "648",
+                "journal-title": "MNRAS",
+                "key": "2021092008321908100_bib67",
+                "volume": "475",
+                "year": "2018"
+            },
+            {
+                "DOI": "10.1051/0004-6361/201833910",
+                "author": "Planck Collaboration",
+                "doi-asserted-by": "publisher",
+                "first-page": "A6",
+                "journal-title": "A\u0026A",
+                "key": "2021092008321908100_bib68",
+                "volume": "641",
+                "year": "2020"
+            },
+            {
+                "DOI": "10.1103/PhysRevD.98.042005",
+                "author": "Prat",
+                "doi-asserted-by": "publisher",
+                "first-page": "042005",
+                "journal-title": "Phys. Rev. D",
+                "key": "2021092008321908100_bib69",
+                "volume": "98",
+                "year": "2018"
+            },
+            {
+                "DOI": "10.1088/0004-637X/767/1/15",
+                "author": "Rines",
+                "doi-asserted-by": "publisher",
+                "first-page": "15",
+                "journal-title": "ApJ",
+                "key": "2021092008321908100_bib70",
+                "volume": "767",
+                "year": "2013"
+            },
+            {
+                "DOI": "10.1093/mnras/stw1281",
+                "author": "Rozo",
+                "doi-asserted-by": "publisher",
+                "first-page": "1431",
+                "journal-title": "MNRAS",
+                "key": "2021092008321908100_bib71",
+                "volume": "461",
+                "year": "2016"
+            },
+            {
+                "DOI": "10.1088/0004-637X/785/2/104",
+                "author": "Rykoff",
+                "doi-asserted-by": "publisher",
+                "first-page": "104",
+                "journal-title": "ApJ",
+                "key": "2021092008321908100_bib72",
+                "volume": "785",
+                "year": "2014"
+            },
+            {
+                "DOI": "10.3847/0067-0049/224/1/1",
+                "author": "Rykoff",
+                "doi-asserted-by": "publisher",
+                "first-page": "1",
+                "journal-title": "ApJS",
+                "key": "2021092008321908100_bib73",
+                "volume": "224",
+                "year": "2016"
+            },
+            {
+                "DOI": "10.1103/PhysRevD.90.123522",
+                "author": "Saito",
+                "doi-asserted-by": "publisher",
+                "first-page": "123522",
+                "journal-title": "Phys. Rev. D",
+                "key": "2021092008321908100_bib74",
+                "volume": "90",
+                "year": "2014"
+            },
+            {
+                "DOI": "10.1093/mnras/stz2963",
+                "author": "Salcedo",
+                "doi-asserted-by": "publisher",
+                "first-page": "3061",
+                "journal-title": "MNRAS",
+                "key": "2021092008321908100_bib75",
+                "volume": "491",
+                "year": "2020"
+            },
+            {
+                "DOI": "10.1103/PhysRevD.81.103002",
+                "author": "Schmidt",
+                "doi-asserted-by": "publisher",
+                "first-page": "103002",
+                "journal-title": "Phys. Rev. D",
+                "key": "2021092008321908100_bib76",
+                "volume": "81",
+                "year": "2010"
+            },
+            {
+                "author": "Schneider",
+                "key": "2021092008321908100_bib77",
+                "year": "2005"
+            },
+            {
+                "DOI": "10.1088/1475-7516/2019/03/020",
+                "author": "Schneider",
+                "doi-asserted-by": "publisher",
+                "first-page": "020",
+                "journal-title": "J. Cosmol. Astropart. Phys.",
+                "key": "2021092008321908100_bib78",
+                "volume": "2019",
+                "year": "2019"
+            },
+            {
+                "author": "Sevilla",
+                "key": "2021092008321908100_bib79",
+                "year": "2011"
+            },
+            {
+                "DOI": "10.3847/1538-4365/abeb66",
+                "author": "Sevilla-Noarbe",
+                "doi-asserted-by": "publisher",
+                "first-page": "24",
+                "key": "2021092008321908100_bib80",
+                "volume-title": "ApJS",
+                "year": "2021"
+            },
+            {
+                "DOI": "10.1086/383293",
+                "author": "Sheldon",
+                "doi-asserted-by": "publisher",
+                "first-page": "2544",
+                "journal-title": "AJ",
+                "key": "2021092008321908100_bib81",
+                "volume": "127",
+                "year": "2004"
+            },
+            {
+                "DOI": "10.3847/1538-4357/aa704b",
+                "author": "Sheldon",
+                "doi-asserted-by": "publisher",
+                "first-page": "24",
+                "journal-title": "ApJ",
+                "key": "2021092008321908100_bib82",
+                "volume": "841",
+                "year": "2017"
+            },
+            {
+                "DOI": "10.1093/mnras/stw925",
+                "author": "Shi",
+                "doi-asserted-by": "publisher",
+                "first-page": "3711",
+                "journal-title": "MNRAS",
+                "key": "2021092008321908100_bib83",
+                "volume": "459",
+                "year": "2016"
+            },
+            {
+                "DOI": "10.1093/mnras/stz1434",
+                "author": "Shin",
+                "doi-asserted-by": "publisher",
+                "first-page": "2900",
+                "journal-title": "MNRAS",
+                "key": "2021092008321908100_bib84",
+                "volume": "487",
+                "year": "2019"
+            },
+            {
+                "DOI": "10.1093/mnras/stx1828",
+                "author": "Singh",
+                "doi-asserted-by": "publisher",
+                "first-page": "3827",
+                "journal-title": "MNRAS",
+                "key": "2021092008321908100_bib85",
+                "volume": "471",
+                "year": "2017"
+            },
+            {
+                "author": "Sinha",
+                "key": "2021092008321908100_bib86",
+                "volume-title": "Astrophysics Source Code Library",
+                "year": "2017"
+            },
+            {
+                "DOI": "10.1111/j.1365-2966.2009.15715.x",
+                "author": "Springel",
+                "doi-asserted-by": "publisher",
+                "first-page": "791",
+                "journal-title": "MNRAS",
+                "key": "2021092008321908100_bib87",
+                "volume": "401",
+                "year": "2010"
+            },
+            {
+                "DOI": "10.1088/0004-637X/761/2/152",
+                "author": "Takahashi",
+                "doi-asserted-by": "publisher",
+                "first-page": "152",
+                "journal-title": "ApJ",
+                "key": "2021092008321908100_bib88",
+                "volume": "761",
+                "year": "2012"
+            },
+            {
+                "author": "The Dark Energy Survey Collaboration",
+                "key": "2021092008321908100_bib89",
+                "year": "2005"
+            },
+            {
+                "DOI": "10.3847/1538-4365/227/2/21",
+                "author": "Thornton",
+                "doi-asserted-by": "publisher",
+                "first-page": "21",
+                "journal-title": "ApJS",
+                "key": "2021092008321908100_bib90",
+                "volume": "227",
+                "year": "2016"
+            },
+            {
+                "DOI": "10.1086/591439",
+                "author": "Tinker",
+                "doi-asserted-by": "publisher",
+                "first-page": "709",
+                "journal-title": "ApJ",
+                "key": "2021092008321908100_bib91",
+                "volume": "688",
+                "year": "2008"
+            },
+            {
+                "DOI": "10.1088/0004-637X/724/2/878",
+                "author": "Tinker",
+                "doi-asserted-by": "publisher",
+                "first-page": "878",
+                "journal-title": "ApJ",
+                "key": "2021092008321908100_bib92",
+                "volume": "724",
+                "year": "2010"
+            },
+            {
+                "DOI": "10.1093/mnras/staa2841",
+                "author": "Tomooka",
+                "doi-asserted-by": "publisher",
+                "first-page": "1291",
+                "journal-title": "MNRAS",
+                "key": "2021092008321908100_bib93",
+                "volume": "499",
+                "year": "2020"
+            },
+            {
+                "DOI": "10.1088/0004-6256/149/2/54",
+                "author": "Tully",
+                "doi-asserted-by": "publisher",
+                "first-page": "54",
+                "journal-title": "AJ",
+                "key": "2021092008321908100_bib94",
+                "volume": "149",
+                "year": "2015"
+            },
+            {
+                "DOI": "10.3847/1538-4357/aa5c90",
+                "author": "Umetsu",
+                "doi-asserted-by": "publisher",
+                "first-page": "231",
+                "journal-title": "ApJ",
+                "key": "2021092008321908100_bib95",
+                "volume": "836",
+                "year": "2017"
+            },
+            {
+                "DOI": "10.1093/mnras/stz2185",
+                "author": "Varga",
+                "doi-asserted-by": "publisher",
+                "first-page": "2511",
+                "journal-title": "MNRAS",
+                "key": "2021092008321908100_bib96",
+                "volume": "489",
+                "year": "2019"
+            },
+            {
+                "DOI": "10.1093/mnras/stz2617",
+                "author": "Wu",
+                "doi-asserted-by": "publisher",
+                "first-page": "2606",
+                "journal-title": "MNRAS",
+                "key": "2021092008321908100_bib97",
+                "volume": "490",
+                "year": "2019"
+            },
+            {
+                "DOI": "10.1093/mnras/staa3046",
+                "author": "Xhakaj",
+                "doi-asserted-by": "publisher",
+                "first-page": "3534",
+                "journal-title": "MNRAS",
+                "key": "2021092008321908100_bib98",
+                "volume": "499",
+                "year": "2020"
+            },
+            {
+                "DOI": "10.1088/0004-637X/736/1/59",
+                "author": "Zehavi",
+                "doi-asserted-by": "publisher",
+                "first-page": "59",
+                "journal-title": "ApJ",
+                "key": "2021092008321908100_bib99",
+                "volume": "736",
+                "year": "2011"
+            },
+            {
+                "DOI": "10.1086/466510",
+                "author": "Zheng",
+                "doi-asserted-by": "publisher",
+                "first-page": "791",
+                "journal-title": "ApJ",
+                "key": "2021092008321908100_bib100",
+                "volume": "633",
+                "year": "2005"
+            },
+            {
+                "DOI": "10.1093/mnras/stx1264",
+                "author": "Zu",
+                "doi-asserted-by": "publisher",
+                "first-page": "551",
+                "journal-title": "MNRAS",
+                "key": "2021092008321908100_bib101",
+                "volume": "470",
+                "year": "2017"
+            },
+            {
+                "DOI": "10.3847/1538-4357/ab08e8",
+                "author": "Zürcher",
+                "doi-asserted-by": "publisher",
+                "first-page": "184",
+                "journal-title": "ApJ",
+                "key": "2021092008321908100_bib102",
+                "volume": "874",
+                "year": "2019"
+            }
+        ],
+        "reference-count": 101,
+        "references-count": 101,
+        "relation": {},
+        "score": 1,
+        "short-container-title": [],
+        "short-title": [],
+        "source": "Crossref",
+        "subject": [
+            "Space and Planetary Science",
+            "Astronomy and Astrophysics"
+        ],
+        "subtitle": [],
+        "title": [
+            "The mass and galaxy distribution around SZ-selected clusters"
+        ],
+        "type": "journal-article",
+        "volume": "507"
+    },
+    "message-type": "work",
+    "message-version": "1.0.0",
+    "status": "ok"
+}

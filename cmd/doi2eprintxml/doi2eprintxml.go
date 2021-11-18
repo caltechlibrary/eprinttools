@@ -121,6 +121,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 	normalizeRelatedUrlRule        bool
 	normalizePublisherRule         bool
 	normalizePublicationRule       bool
+	dotInitials                    bool
 )
 
 func main() {
@@ -152,6 +153,7 @@ func main() {
 	flagSet.BoolVar(&normalizeRelatedUrlRule, "normalize-related-url", false, "Use normlize related url rule")
 	flagSet.BoolVar(&normalizePublisherRule, "normalize-publisher", false, "Use normalize publisher rule")
 	flagSet.BoolVar(&normalizePublicationRule, "normlize-publication", false, "Use normalize publication rule")
+	flagSet.BoolVar(&dotInitials, "dot-initials", false, "Add period to initials in given name")
 	flagSet.BoolVar(&asJSON, "json", false, "output EPrint structure as JSON")
 	flagSet.BoolVar(&asSimplified, "simple", false, "output EPrint structure as Simplified JSON")
 	flagSet.BoolVar(&attemptDownload, "D", false, "attempt to download the digital object if object URL provided")
@@ -346,14 +348,32 @@ func main() {
 	ruleSet := clsrules.ClearRuleSet()
 	if useCaltechLibrarySpecificRules {
 		ruleSet = clsrules.UseCLSRules()
-	} else {
+	}
+	if dotInitials {
+		ruleSet["dot_initials"] = dotInitials
+	}
+	if trimTitleRule {
 		ruleSet["trim_title"] = trimTitleRule
+	}
+	if trimVolumeRule {
 		ruleSet["trim_volume"] = trimVolumeRule
+	}
+	if trimNumberRule {
 		ruleSet["trim_number"] = trimNumberRule
+	}
+	if pruneCreatorsRule {
 		ruleSet["prune_creators"] = pruneCreatorsRule
+	}
+	if pruneSeriesRule {
 		ruleSet["prune_series"] = pruneSeriesRule
+	}
+	if normalizeRelatedUrlRule {
 		ruleSet["normalize_related_url"] = normalizeRelatedUrlRule
+	}
+	if normalizePublisherRule {
 		ruleSet["normalize_publisher"] = normalizePublisherRule
+	}
+	if normalizePublicationRule {
 		ruleSet["normalize_publication"] = normalizePublicationRule
 	}
 	eprintsList, err = clsrules.Apply(eprintsList, ruleSet)
