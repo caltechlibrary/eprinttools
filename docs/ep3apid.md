@@ -7,7 +7,7 @@ USAGE
 SYNOPSIS
 --------
 
-Run an extended EPrints 3.x web API based on direct manipulation
+Implementes an extended EPrints 3.3.x API based on direct manipulation
 of EPrint's MySQL database(s).
 
 
