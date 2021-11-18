@@ -166,6 +166,10 @@ func unpackageEPrintsPOST(r *http.Request) (*EPrints, error) {
 // EP3API End Points
 //
 
+func (api *EP3API) versionEndPoint(w http.ResponseWriter, r *http.Request) (int, error) {
+	return api.packageDocument(w, fmt.Sprintf("EPrint 3.3 extended API, %s", Version))
+}
+
 //
 // Expose the repositories available
 //
@@ -900,6 +904,11 @@ func (api *EP3API) routeHandler(w http.ResponseWriter, r *http.Request) {
 		handleError(w, statusCode, err)
 	} else {
 		switch {
+		case r.URL.Path == "/version":
+			statusCode, err = api.versionEndPoint(w, r)
+			if err != nil {
+				handleError(w, statusCode, err)
+			}
 		case r.URL.Path == "/favicon.ico":
 			statusCode, err = 200, nil
 			fmt.Fprintf(w, "")
