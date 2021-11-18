@@ -434,7 +434,7 @@ func (item *Item) UnmarshalJSON(src []byte) error {
 		return nil
 	}
 	m := make(map[string]interface{})
-	err := json.Unmarshal(src, &m)
+	err := jsonDecode(src, &m)
 	if err != nil {
 		return err
 	}
@@ -658,7 +658,7 @@ func (itemList *ReferenceTextItemList) UnmarshalJSON(src []byte) error {
 	var values []string
 
 	m := make(map[string][]interface{})
-	err := json.Unmarshal(src, &m)
+	err := jsonDecode(src, &m)
 	if err != nil {
 		return err
 	}

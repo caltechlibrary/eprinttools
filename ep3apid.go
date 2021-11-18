@@ -150,7 +150,7 @@ func unpackageEPrintsPOST(r *http.Request) (*EPrints, error) {
 		if src, err = ioutil.ReadAll(r.Body); err != nil {
 			return nil, fmt.Errorf("failed to read, %s", err)
 		}
-		err = json.Unmarshal(src, &eprints)
+		err = jsonDecode(src, &eprints)
 	case "application/xml":
 		if src, err = ioutil.ReadAll(r.Body); err != nil {
 			return nil, fmt.Errorf("failed to read, %s", err)
