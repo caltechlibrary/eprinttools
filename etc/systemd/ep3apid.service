@@ -1,0 +1,9 @@
+[Unit]
+Description=An extended EPrints 3.3.16 web service
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/ep3apid /usr/local/etc/eprinttools/settings.json
+
+[Install]
+WantedBy=multi-user.target

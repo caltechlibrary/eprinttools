@@ -7,11 +7,14 @@ This is for the simplified eprinttools codebase.
 Bugs
 ----
 
++ [ ] Fix lemurprints-import-api-16 through 21 examples, re-import with ./bin/doi2eprintxml tool
 + (branch next) the various related tables that represent item lists don't have the same row count so I need to explicitly query for eprintid, pos or do JOIN and handle the NULL column cases.
 
 Next
 ----
 
+- [ ] Create an example service file for running ep3apid as a service under SystemD (Linux)
+- [ ] Create an example service file for running ep3apid as a service under LaunchD (macOS)
 - [ ] Add update end point to support update EPrints Metadata
     - [ ] Figure out how historical diffs of EPrints XML are generated in EPrints' History tab
     - [ ] Implement updates versioning the EPrint Metadata record

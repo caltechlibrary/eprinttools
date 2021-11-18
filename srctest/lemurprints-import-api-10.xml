@@ -1,25 +1,47 @@
 <eprints xmlns="http://eprints.org/ep2/data/2.0">
    <eprint>
-      <type>Conference Item</type>
+      <type>article</type>
       <creators>
          <item>
             <name>
-               <family>Johnson</family>
-               <given>Katherine</given>
+               <family>Glockler</family>
+               <given>George</given>
             </name>
          </item>
          <item>
             <name>
-               <family>Morrell</family>
-               <given>Thomas</given>
+               <family>Baxter</family>
+               <given>Warren P.</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Dalton</family>
+               <given>Robert H.</given>
             </name>
          </item>
       </creators>
-      <title>DOIs and Your Theses : Breakout 8 - USETDA Conference&#xA;September 22, 2021</title>
+      <title>ACTIVATION OF MOLECULAR HYDROGEN BY ELECTRON IMPACT</title>
       <ispublished>pub</ispublished>
-      <abstract>[Introduction] Why Use DOIs? Open sharing initiatives are spreading: open data, open science, open access, open source. DOIs provide a great way to promote open sharing, because it allows the content creator to establish a permanent link to the object.</abstract>
-      <date>2021</date>
+      <date>1927-01</date>
       <date_type>published</date_type>
-      <publication>California Institute of Technology</publication>
+      <publication>Journal of the American Chemical Society</publication>
+      <volume>49</volume>
+      <number>1</number>
+      <publisher>American Chemical Society</publisher>
+      <pagerange>58-65</pagerange>
+      <issn>0002-7863</issn>
+      <related_url>
+         <item>
+            <url>https://pubs.acs.org/doi/pdf/10.1021/ja01400a009</url>
+         </item>
+      </related_url>
+      <subjects>
+         <item>Colloid and Surface Chemistry</item>
+         <item>Biochemistry</item>
+         <item>General Chemistry</item>
+         <item>Catalysis</item>
+      </subjects>
+      <doi>10.1021/ja01400a009</doi>
    </eprint>
 </eprints>

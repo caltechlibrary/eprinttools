@@ -106,12 +106,12 @@ func CrossRefWorksToEPrint(obj crossrefapi.Object) (*EPrint, error) {
 
 	// PlaceOfPub taken from publisher-location in CrossRef
 	if s, ok := indexInto(obj, "message", "publisher-location"); ok == true {
-		eprint.PlaceOfPub = fmt.Sprintf("%s", s)
+		eprint.PlaceOfPub = s.(string)
 	}
 
 	// PageRange
 	if s, ok := indexInto(obj, "message", "page"); ok == true {
-		eprint.PageRange = fmt.Sprintf("%s", s)
+		eprint.PageRange = s.(string)
 
 	}
 
@@ -119,14 +119,15 @@ func CrossRefWorksToEPrint(obj crossrefapi.Object) (*EPrint, error) {
 	if a, ok := indexInto(obj, "message", "ISBN"); ok == true {
 		if len(a.([]interface{})) > 0 {
 			s := a.([]interface{})[0]
-			eprint.ISBN = fmt.Sprintf("%s", s)
+			eprint.ISBN = s.(string)
 		}
 	}
 
 	// ISSN
 	if a, ok := indexInto(obj, "message", "ISSN"); ok == true {
 		if len(a.([]interface{})) > 0 {
-			eprint.ISSN = fmt.Sprintf("%s", a.([]interface{})[0])
+			s := a.([]interface{})[0]
+			eprint.ISSN = s.(string)
 		}
 	}
 
@@ -139,19 +140,25 @@ func CrossRefWorksToEPrint(obj crossrefapi.Object) (*EPrint, error) {
 	// Funders
 	if a, ok := indexInto(obj, "message", "funder"); ok == true {
 		eprint.Funders = new(FunderItemList)
-		for _, item := range a.([]interface{}) {
-			entry := new(Item)
-			m := item.(map[string]interface{})
+		for _, entry := range a.([]interface{}) {
+			var agency string
+			m := entry.(map[string]interface{})
 			if name, ok := indexInto(m, "name"); ok == true && name != "N/A" {
-				entry.Agency = fmt.Sprintf("%s", name)
+				agency = name.(string)
 			}
 			if a2, ok := indexInto(m, "award"); ok == true && a2 != "N/A" {
-				if len(a2.([]interface{})) > 0 {
-					entry.GrantNumber = fmt.Sprintf("%s", a2.([]interface{})[0])
+				for _, number := range a2.([]interface{}) {
+					item := new(Item)
+					item.Agency = agency
+					item.GrantNumber = number.(string)
+					eprint.Funders.Append(item)
 				}
-			}
-			if entry.Agency != "" || entry.GrantNumber != "" {
-				eprint.Funders.Append(entry)
+			} else {
+				item := new(Item)
+				item.Agency = agency
+				if item.Agency != "" || item.GrantNumber != "" {
+					eprint.Funders.Append(item)
+				}
 			}
 		}
 	}
@@ -250,7 +257,7 @@ func CrossRefWorksToEPrint(obj crossrefapi.Object) (*EPrint, error) {
 					item.ORCID = strings.TrimPrefix(orcid.(string), "http://orcid.org/")
 				}
 				if strings.HasPrefix(orcid.(string), "https://orcid.org/") {
-					item.ORCID = strings.TrimPrefix(orcid.(string), "http://orcid.org/")
+					item.ORCID = strings.TrimPrefix(orcid.(string), "https://orcid.org/")
 				}
 			}
 			if family, ok := author["family"]; ok == true {
@@ -282,25 +289,81 @@ func CrossRefWorksToEPrint(obj crossrefapi.Object) (*EPrint, error) {
 		}
 	}
 
-	// Edition
-	//FIXME: Need to find value in CrossRef works metadata for this
+	// Editors (*EditorItemList)
+	if l, ok := indexInto(obj, "message", "editor"); ok == true {
+		editors := new(EditorItemList)
+		for _, entry := range l.([]interface{}) {
+			editor := entry.(map[string]interface{})
+			item := new(Item)
+			item.Name = new(Name)
+			if orcid, ok := editor["ORCID"]; ok {
+				item.ORCID = orcid.(string)
+				if strings.HasPrefix(orcid.(string), "http://orcid.org/") {
+					item.ORCID = strings.TrimPrefix(orcid.(string), "http://orcid.org/")
+				}
+				if strings.HasPrefix(orcid.(string), "https://orcid.org/") {
+					item.ORCID = strings.TrimPrefix(orcid.(string), "https://orcid.org/")
+				}
+				if family, ok := editor["family"]; ok == true {
+					item.Name.Family = family.(string)
+				}
+				if given, ok := editor["given"]; ok == true {
+					item.Name.Given = given.(string)
+				}
+				//NOTE: if as have a 'name' then we'll add it to
+				// as a corp_creators
+				if name, ok := editor["name"]; ok == true {
+					item.Name.Value = strings.TrimSpace(name.(string))
+					if strings.HasPrefix(item.Name.Value, "(") && strings.HasSuffix(item.Name.Value, ")") {
+						item.Name.Value = strings.TrimSuffix(strings.TrimPrefix(item.Name.Value, "("), ")")
+					}
+				}
+				if item.Name.Given != "" && item.Name.Family != "" {
+					editors.Append(item)
+				}
+			}
+		}
+		if len(editors.Items) > 0 {
+			eprint.Editors = editors
+		}
+	}
 
-	// FullTextStatus
+	// Abstract
+	if abstract, ok := indexInto(obj, "message", "abstract"); ok {
+		eprint.Abstract = fmt.Sprintf("%s", abstract)
+	}
+
+	// Edition
+	if edition, ok := indexInto(obj, "message", "edition-number"); ok {
+		eprint.Abstract = fmt.Sprintf("%s", edition)
+	}
+
+	// Subjects
+	if l, ok := indexInto(obj, "message", "subject"); ok {
+		subjects := new(SubjectItemList)
+		for _, entry := range l.([]interface{}) {
+			item := new(Item)
+			item.SetAttribute("value", entry.(string))
+			subjects.Append(item)
+		}
+		if subjects.Length() > 0 {
+			eprint.Subjects = subjects
+		}
+	}
 	//FIXME: Need to find value in CrossRef works metadata for this
 
 	// Keywords
 	//FIXME: Need to find value in CrossRef works metadata for this
 
+	// FullTextStatus
+	//FIXME: Need to find value in CrossRef works metadata for this
+
 	// Note
 	//FIXME: Need to find value in CrossRef works metadata for this
 
-	// Abstract
 	//FIXME: Need to find value in CrossRef works metadata for this
 
 	// Refereed
-	//FIXME: Need to find value in CrossRef works metadata for this
-
-	// Editors (*EditorItemList)
 	//FIXME: Need to find value in CrossRef works metadata for this
 
 	// Projects
@@ -310,9 +373,6 @@ func CrossRefWorksToEPrint(obj crossrefapi.Object) (*EPrint, error) {
 	//FIXME: Need to find value in CrossRef works metadata for this
 
 	// MonographType
-	//FIXME: Need to find value in CrossRef works metadata for this
-
-	// Subjects
 	//FIXME: Need to find value in CrossRef works metadata for this
 
 	// PresType (presentation type)

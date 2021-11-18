@@ -1,25 +1,133 @@
 <eprints xmlns="http://eprints.org/ep2/data/2.0">
    <eprint>
-      <type>Teaching Resource</type>
+      <type>book_section</type>
       <creators>
          <item>
             <name>
-               <family>Briney</family>
-               <given>Kristin A.</given>
+               <family>Roberts</family>
+               <given>Jennifer E.</given>
             </name>
          </item>
          <item>
             <name>
-               <family>Morrell</family>
-               <given>Thomas</given>
+               <family>Bouchez</family>
+               <given>Antonin H.</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Angione</family>
+               <given>John</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Burruss</family>
+               <given>Rick S.</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Cromer</family>
+               <given>John L.</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Dekany</family>
+               <given>Richard G.</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Guiwits</family>
+               <given>Stephen R.</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Henning</family>
+               <given>John R.</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Hickey</family>
+               <given>Jeff</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Kibblewhite</family>
+               <given>Edward</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>McKenna</family>
+               <given>Daniel L.</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Moore</family>
+               <given>Anna M.</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Petrie</family>
+               <given>Harold L.</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Shelton</family>
+               <given>J. C.</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Thicksten</family>
+               <given>Robert P.</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Trinh</family>
+               <given>Thang</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Tripathi</family>
+               <given>Renu</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Troy</family>
+               <given>Mitchell</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Truong</family>
+               <given>Tuan</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Velur</family>
+               <given>Viswa</given>
             </name>
          </item>
       </creators>
-      <title>Caltech Example Data Management Plan</title>
+      <title>Facilitizing the Palomar AO laser guide star system</title>
       <ispublished>pub</ispublished>
-      <abstract>The example data management plan describes data management for a microscopy project and uses general NSF template. Always refer to the specific guidance for your grant proposal when writing a data management plan, as requirements differ.</abstract>
-      <date>2020</date>
+      <date>2008-07-12</date>
       <date_type>published</date_type>
-      <publication>California Institute of Technology</publication>
+      <publisher>SPIE</publisher>
+      <doi>10.1117/12.790042</doi>
    </eprint>
 </eprints>

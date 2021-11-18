@@ -35,6 +35,88 @@ import (
 	"github.com/caltechlibrary/eprinttools"
 )
 
+func handleInitials(s string) (string, bool) {
+	if len(s) == 1 {
+		return fmt.Sprintf(`%s.`, s), true
+	} else if strings.Contains(s, ` `) {
+		parts := strings.Split(s, ` `)
+		for j := 0; j < len(parts); j++ {
+			if len(parts[j]) == 1 {
+				parts[j] = fmt.Sprintf(`%s.`, parts[j])
+			}
+		}
+		return strings.Join(parts, ` `), true
+	}
+	return s, false
+}
+
+// dotInitials - Caltech Library uses a period after each initial. This rule looks for single character
+// name given name elements is to append a period to them.
+func dotInitials(eprint *eprinttools.EPrint) bool {
+	changed, updated := false, false
+	// Authors
+	if eprint.Creators.Length() > 0 {
+		for i := 0; i < eprint.Creators.Length(); i++ {
+			item := eprint.Creators.IndexOf(i)
+			if item.Name != nil {
+				item.Name.Given, updated = handleInitials(item.Name.Given)
+				if updated {
+					changed = true
+				}
+			}
+		}
+	}
+	// Editors
+	if eprint.Editors.Length() > 0 {
+		for i := 0; i < eprint.Editors.Length(); i++ {
+			item := eprint.Editors.IndexOf(i)
+			if item.Name != nil {
+				item.Name.Given, updated = handleInitials(item.Name.Given)
+				if updated {
+					changed = true
+				}
+			}
+		}
+	}
+	// Contributors
+	if eprint.Contributors.Length() > 0 {
+		for i := 0; i < eprint.Contributors.Length(); i++ {
+			item := eprint.Contributors.IndexOf(i)
+			if item.Name != nil {
+				item.Name.Given, updated = handleInitials(item.Name.Given)
+				if updated {
+					changed = true
+				}
+			}
+		}
+	}
+	// ThesisAdvisors
+	if eprint.ThesisAdvisor.Length() > 0 {
+		for i := 0; i < eprint.ThesisAdvisor.Length(); i++ {
+			item := eprint.ThesisAdvisor.IndexOf(i)
+			if item.Name != nil {
+				item.Name.Given, updated = handleInitials(item.Name.Given)
+				if updated {
+					changed = true
+				}
+			}
+		}
+	}
+	// ThesisCommittee
+	if eprint.ThesisCommittee.Length() > 0 {
+		for i := 0; i < eprint.ThesisCommittee.Length(); i++ {
+			item := eprint.ThesisCommittee.IndexOf(i)
+			if item.Name != nil {
+				item.Name.Given, updated = handleInitials(item.Name.Given)
+				if updated {
+					changed = true
+				}
+			}
+		}
+	}
+	return changed
+}
+
 // doiAsRelatedURL - Caltech Library stores the EPrint's DOI in the related URL for historical reasons
 // If a DOI is in EPrint.DOI then it needs to migrate to EPrint.RelatedURLItemList as the initial item.
 // Returns a revised URL list and boolean true if list was modified to include doi
@@ -116,6 +198,7 @@ func normalizeCreators(creators *eprinttools.CreatorItemList) (*eprinttools.Crea
 
 func ClearRuleSet() map[string]bool {
 	return map[string]bool{
+		"dot_initials":          false,
 		"trim_title":            false,
 		"trim_volume":           false,
 		"trim_number":           false,
@@ -130,8 +213,11 @@ func ClearRuleSet() map[string]bool {
 
 func UseCLSRules() map[string]bool {
 	return map[string]bool{
+		// Conform given names to use periods with initials
+		"dot_initials": true,
 		// Conform titles to Caltech's practices, e.g. Trim "The" from titles
-		"trim_title": true,
+		// NOTE: Issue-34, default this to off, per Tom
+		"trim_title": false,
 		// Conform Volume value per George and DR-46
 		"trim_volume": true,
 		// Conform Number value per George and DR-46
@@ -164,6 +250,10 @@ func Apply(eprintsList *eprinttools.EPrints, ruleSet map[string]bool) (*eprintto
 		for name, enabled := range ruleSet {
 			if enabled {
 				switch name {
+				case "dot_initials":
+					if dotInitials(eprint) {
+						changed = true
+					}
 				case "trim_title":
 					if title := trimTitle(eprint.Title); title != eprint.Title {
 						eprint.Title = title
