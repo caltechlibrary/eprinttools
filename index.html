@@ -40,16 +40,13 @@
 eprinttools
 </h1>
 <p>
-This is a collection of command line tools written in Go, a Go for working with EPrints 3.3.x EPrint XML and with the EPrint REST API.
-</p>
-<p>
-This project also hosts demonstration code to replicate a public facing version of an EPrints repository outside of EPrints. Think of it as the public views and landing pages.
+This is a collection of command line tools and web service written in Go for working with EPrints 3.3.x EPrint XML, the EPrint REST API and directly with the respository database(s).
 </p>
 <h2>
 Go base code
 </h2>
 <p>
-The command line programs.
+The programs:
 </p>
 <ul>
 <li>
@@ -71,20 +68,35 @@ minimal configuration (because it does so much less!)
 </li>
 </ul>
 <p>
-Configuration is via a JSON “settings.json” file. The settings includes a repository id with “dsn” (Data Source Name) attribute for accessing EPrint’s MySQL database(s) and “rest” attribute holding the base URL used to access the REST API. You can define more than one repository in “settings.json”. Below is a simple example for “example.edu”’s authors repository.
+The <code>ep3apid</code> web service is configured via a JSON “settings.json” file. The settings includes a repository id with “dsn” (Data Source Name) attribute for accessing EPrint’s MySQL database(s) and “rest” attribute holding the base URL used to access the REST API. You can define more than one repository in “settings.json”. Below is a simple example for “example.edu”’s authors repository.
 </p>
 <div id="cb1" class="sourceCode">
 <pre class="sourceCode json"><code class="sourceCode json"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>    <span class="fu">{</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&quot;authors&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;dsn&quot;</span><span class="fu">:</span> <span class="st">&quot;USERNAME:SECRET@/authors&quot;</span><span class="fu">,</span></span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;base_url&quot;</span><span class="fu">:</span> <span class="st">&quot;https://authors.example.edu&quot;</span><span class="fu">,</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;write&quot;</span><span class="fu">:</span> <span class="kw">true</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span></span></code></pre>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;rest&quot;</span><span class="fu">:</span> <span class="st">&quot;https://USERNAME:SECRET@authors.example.edu&quot;</span><span class="fu">,</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;write&quot;</span><span class="fu">:</span> <span class="kw">true</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span></span></code></pre>
 </div>
 <p>
 In the “dsn” attribute <strong>USERNAME:SECRET</strong> are the username/password for accessing the database. In the “rest” attribute the <strong>USERNAME:SECRET</strong> are the username/password for accessing the REST API.
 </p>
+<h2>
+Use case
+</h2>
+<p>
+Two primary use cases have driven development of EPrinttools
+</p>
+<ol type="1">
+<li>
+Reusing the metadata and content in our EPrints 3.3.16 repositories (see <a href="https://feeds.library.caltech.edu">Caltech Library Feeds</a>
+</li>
+<li>
+Populating our EPrints repository from standardize data sources (see <a href="https://github.com/caltechlibrary/Acacia">Acacia Project</a>).
+</li>
+</ol>
 <h2>
 Related GitHub projects
 </h2>
