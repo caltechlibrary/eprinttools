@@ -4,64 +4,124 @@
       <creators>
          <item>
             <name>
-               <family>Girard</family>
-               <given>Julian</given>
+               <family>Ellerbroek</family>
+               <given>Brent</given>
             </name>
          </item>
          <item>
             <name>
-               <family>Finch</family>
-               <given>Peter M.</given>
+               <family>Adkins</family>
+               <given>Sean</given>
             </name>
          </item>
          <item>
             <name>
-               <family>Schwartz</family>
-               <given>Tal</given>
+               <family>Andersen</family>
+               <given>David</given>
             </name>
          </item>
          <item>
             <name>
-               <family>Yu</family>
-               <given>Wesley</given>
+               <family>Atwood</family>
+               <given>Jenny</given>
             </name>
          </item>
          <item>
             <name>
-               <family>Strand</family>
-               <given>Christopher L.</given>
+               <family>Boyer</family>
+               <given>Corinne</given>
             </name>
          </item>
          <item>
             <name>
-               <family>Austin</family>
-               <given>Joanna M.</given>
+               <family>Byrnes</family>
+               <given>Peter</given>
             </name>
          </item>
          <item>
             <name>
-               <family>Hornung</family>
-               <given>Hans G.</given>
+               <family>Conan</family>
+               <given>Rodolphe</given>
             </name>
          </item>
          <item>
             <name>
-               <family>Hanson</family>
-               <given>Ronald K.</given>
+               <family>Gilles</family>
+               <given>Luc</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Herriot</family>
+               <given>Glen</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Hickson</family>
+               <given>Paul</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Hileman</family>
+               <given>Ed</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Joyce</family>
+               <given>Dick</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Leckie</family>
+               <given>Brian</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Liang</family>
+               <given>Ming</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Pfrommer</family>
+               <given>Thomas</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Sinquin</family>
+               <given>Jean-Christophe</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Veran</family>
+               <given>Jean-Pierre</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Wang</family>
+               <given>Lianqi</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Welle</family>
+               <given>Paul</given>
             </name>
          </item>
       </creators>
-      <title>Characterization of the T5 Reflected Shock Tunnel Freestream Temperature, Velocity, and Composition using Laser Absorption Spectroscopy</title>
+      <title>Progress toward developing the TMT adaptive optical systems and their components</title>
       <ispublished>pub</ispublished>
-      <date>2021-08-09</date>
+      <date>2008-07-12</date>
       <date_type>published</date_type>
-      <publisher>American Institute of Aeronautics and Astronautics</publisher>
-      <place_of_pub>Reston, Virginia</place_of_pub>
-      <related_url>
-         <item>
-            <url>https://arc.aiaa.org/doi/pdf/10.2514/6.2021-3525</url>
-         </item>
-      </related_url>
-      <doi>10.2514/6.2021-3525</doi>
+      <publisher>SPIE</publisher>
+      <doi>10.1117/12.788057</doi>
    </eprint>
 </eprints>

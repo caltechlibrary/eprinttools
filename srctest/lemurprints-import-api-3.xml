@@ -1,19 +1,61 @@
 <eprints xmlns="http://eprints.org/ep2/data/2.0">
    <eprint>
-      <type>other</type>
+      <type>book_section</type>
       <creators>
          <item>
             <name>
-               <family>Rossman</family>
-               <given>George R.</given>
+               <family>Brès</family>
+               <given>Guillaume A.</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Yeung</family>
+               <given>Brandon</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Schmidt</family>
+               <given>Oliver T.</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Ghassemi Isfahani</family>
+               <given>Ata</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Webb</family>
+               <given>Nathan J.</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Samimy</family>
+               <given>Mo</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Colonius</family>
+               <given>Tim</given>
             </name>
          </item>
       </creators>
-      <title>Mineral Spectroscopy Server</title>
+      <title>Towards large-eddy simulations of supersonic jets from twin rectangular nozzle with plasma actuation</title>
       <ispublished>pub</ispublished>
-      <abstract>This server provides information about mineralogy and is primarily dedicated to providing information about color in minerals and access to data on Mineral Absorption Spectra in the visible and infrared regions of the spectrum and Raman spectra of minerals. Most data on the server were obtained in the Caltech mineral spectroscopy labs. Other types of spectroscopic data on minerals are also available. Visible, near-infrared and infrared absorption spectra are available for a number of minerals. Examples include common rock-forming minerals, gem minerals, and other minerals of particular interest.</abstract>
-      <date>2010</date>
+      <date>2021-08-02</date>
       <date_type>published</date_type>
-      <publication>Caltech</publication>
+      <publisher>American Institute of Aeronautics and Astronautics</publisher>
+      <place_of_pub>Reston, Virginia</place_of_pub>
+      <related_url>
+         <item>
+            <url>https://arc.aiaa.org/doi/pdf/10.2514/6.2021-2154</url>
+         </item>
+      </related_url>
+      <doi>10.2514/6.2021-2154</doi>
    </eprint>
 </eprints>

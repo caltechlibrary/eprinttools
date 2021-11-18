@@ -1,88 +1,37 @@
 <eprints xmlns="http://eprints.org/ep2/data/2.0">
    <eprint>
-      <type>posted-content</type>
+      <type>book_section</type>
       <creators>
          <item>
             <name>
-               <family>Mannam</family>
-               <given>Varun</given>
-            </name>
-            <orcid>0000-0002-1866-6092</orcid>
-         </item>
-         <item>
-            <name>
-               <family>Zhang</family>
-               <given>Yide</given>
-            </name>
-            <orcid>0000-0002-9463-3970</orcid>
-         </item>
-         <item>
-            <name>
-               <family>Zhu</family>
-               <given>Yinhao</given>
-            </name>
-            <orcid>0000-0002-9435-4576</orcid>
-         </item>
-         <item>
-            <name>
-               <family>Nichols</family>
-               <given>Evan</given>
-            </name>
-            <orcid>0000-0001-9835-9107</orcid>
-         </item>
-         <item>
-            <name>
                <family>Wang</family>
-               <given>Qingfei</given>
+               <given>Lianqi</given>
             </name>
-            <orcid>0000-0003-2503-0639</orcid>
          </item>
          <item>
             <name>
-               <family>Sundaresan</family>
-               <given>Vignesh</given>
+               <family>Ellerbroek</family>
+               <given>Brent</given>
             </name>
-            <orcid>0000-0001-9390-1681</orcid>
          </item>
          <item>
             <name>
-               <family>Zhang</family>
-               <given>Siyuan</given>
+               <family>Véran</family>
+               <given>Jean-Pierre</given>
             </name>
-            <orcid>0000-0003-0910-3666</orcid>
          </item>
          <item>
             <name>
-               <family>Smith</family>
-               <given>Cody</given>
+               <family>Sinquin</family>
+               <given>Jean-Christophe</given>
             </name>
-            <orcid>0000-0002-9831-1514</orcid>
-         </item>
-         <item>
-            <name>
-               <family>Bohn</family>
-               <given>Paul W</given>
-            </name>
-            <orcid>0000-0001-9052-0349</orcid>
-         </item>
-         <item>
-            <name>
-               <family>Howard</family>
-               <given>Scott</given>
-            </name>
-            <orcid>0000-0003-3246-6799</orcid>
          </item>
       </creators>
-      <title>Real-time Image Denoising of Mixed Poisson-Gaussian Noise in Fluorescence Microscopy Images using ImageJ</title>
+      <title>Evaluating sky coverage for the NFIRAOS tip/tilt control architecture</title>
       <ispublished>pub</ispublished>
-      <date>2021-11-13</date>
+      <date>2008-07-12</date>
       <date_type>published</date_type>
-      <publisher>Cold Spring Harbor Laboratory</publisher>
-      <related_url>
-         <item>
-            <url>https://syndication.highwire.org/content/doi/10.1101/2021.11.10.468102</url>
-         </item>
-      </related_url>
-      <doi>10.1101/2021.11.10.468102</doi>
+      <publisher>SPIE</publisher>
+      <doi>10.1117/12.787975</doi>
    </eprint>
 </eprints>

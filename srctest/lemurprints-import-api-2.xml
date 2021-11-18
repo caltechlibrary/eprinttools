@@ -4,44 +4,75 @@
       <creators>
          <item>
             <name>
-               <family>Ouimet</family>
-               <given>Frédéric</given>
+               <family>Jiao</family>
+               <given>Hanwei</given>
             </name>
-            <orcid>0000-0001-7933-5265</orcid>
          </item>
          <item>
             <name>
-               <family>Tolosana-Delgado</family>
-               <given>Raimon</given>
+               <family>Zhang</family>
+               <given>Chaojie</given>
             </name>
-            <orcid>0000-0001-9847-0462</orcid>
+            <orcid>0000-0003-3108-8271</orcid>
+         </item>
+         <item>
+            <name>
+               <family>Yang</family>
+               <given>Mo</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Wu</family>
+               <given>Yanhui</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Zhou</family>
+               <given>Qi</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Hoffmann</family>
+               <given>Michael R.</given>
+            </name>
          </item>
       </creators>
-      <title>Asymptotic properties of Dirichlet kernel density estimators</title>
+      <title>Photoreductive defluorination of trifluoroacetic acid (TFA) in the aqueous phase by hydrated electrons</title>
       <ispublished>pub</ispublished>
-      <date>2022-01</date>
+      <date>2022-02</date>
       <date_type>published</date_type>
-      <publication>Journal of Multivariate Analysis</publication>
-      <volume>187</volume>
-      <publisher>Elsevier BV</publisher>
-      <pagerange>104832</pagerange>
-      <issn>0047-259X</issn>
+      <publication>Chemical Engineering Journal</publication>
+      <volume>430</volume>
+      <publisher>Elsevier B.V.</publisher>
+      <pagerange>132724</pagerange>
+      <issn>1385-8947</issn>
       <related_url>
          <item>
-            <url>https://api.elsevier.com/content/article/PII:S0047259X2100110X?httpAccept=text/xml</url>
+            <url>https://api.elsevier.com/content/article/PII:S1385894721043023?httpAccept=text/xml</url>
          </item>
          <item>
-            <url>https://api.elsevier.com/content/article/PII:S0047259X2100110X?httpAccept=text/plain</url>
+            <url>https://api.elsevier.com/content/article/PII:S1385894721043023?httpAccept=text/plain</url>
          </item>
       </related_url>
       <funders>
          <item>
-            <agency>Natural Sciences and Engineering Research Council of Canada</agency>
+            <agency>National Natural Science Foundation of China</agency>
+            <grant_number>21976135</grant_number>
          </item>
          <item>
-            <agency>Fonds de recherche du Québec – Nature et technologies</agency>
+            <agency>National Natural Science Foundation of China</agency>
+            <grant_number>22078249</grant_number>
          </item>
       </funders>
-      <doi>10.1016/j.jmva.2021.104832</doi>
+      <subjects>
+         <item>Industrial and Manufacturing Engineering</item>
+         <item>General Chemical Engineering</item>
+         <item>Environmental Chemistry</item>
+         <item>General Chemistry</item>
+      </subjects>
+      <doi>10.1016/j.cej.2021.132724</doi>
    </eprint>
 </eprints>
