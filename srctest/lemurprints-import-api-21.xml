@@ -864,11 +864,7 @@
       <funders>
          <item>
             <agency>NASA</agency>
-            <grant_number>NNX13AE56G</grant_number>
-         </item>
-         <item>
-            <agency>NASA</agency>
-            <grant_number>NNX14AB58G</grant_number>
+            <grant_number>NNX13AE56G; NNX14AB58G</grant_number>
          </item>
          <item>
             <agency>U.S. Department of Energy</agency>
@@ -923,11 +919,7 @@
          </item>
          <item>
             <agency>National Science Foundation</agency>
-            <grant_number>AST-1138766</grant_number>
-         </item>
-         <item>
-            <agency>National Science Foundation</agency>
-            <grant_number>AST-1536171</grant_number>
+            <grant_number>AST-1138766; AST-1536171</grant_number>
          </item>
       </funders>
       <subjects>

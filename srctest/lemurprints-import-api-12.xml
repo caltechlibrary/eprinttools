@@ -1,18 +1,49 @@
 <eprints xmlns="http://eprints.org/ep2/data/2.0">
    <eprint>
-      <type>Text</type>
+      <type>book_section</type>
       <creators>
          <item>
             <name>
-               <family>Conlon</family>
-               <given>David</given>
+               <family>Law</family>
+               <given>N. M.</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Dekany</family>
+               <given>R. G.</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Mackay</family>
+               <given>C. D.</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Moore</family>
+               <given>A. M.</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Britton</family>
+               <given>M. C.</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Velur</family>
+               <given>V.</given>
             </name>
          </item>
       </creators>
-      <title>Rational exponents in extremal graph theory</title>
+      <title>Getting lucky with adaptive optics: diffraction-limited resolution in the visible with current AO systems on large and small telescopes</title>
       <ispublished>pub</ispublished>
-      <date>2015</date>
+      <date>2008-07-12</date>
       <date_type>published</date_type>
-      <publication>Banff International Research Station for Mathematical Innovation and Discovery</publication>
+      <publisher>SPIE</publisher>
+      <doi>10.1117/12.788621</doi>
    </eprint>
 </eprints>

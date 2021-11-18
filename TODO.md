@@ -7,6 +7,7 @@ This is for the simplified eprinttools codebase.
 Bugs
 ----
 
++ [ ] Fix lemurprints-import-api-16 through 21 examples, re-import with ./bin/doi2eprintxml tool
 + (branch next) the various related tables that represent item lists don't have the same row count so I need to explicitly query for eprintid, pos or do JOIN and handle the NULL column cases.
 
 Next
