@@ -1,47 +1,25 @@
 <eprints xmlns="http://eprints.org/ep2/data/2.0">
    <eprint>
-      <type>article</type>
+      <type>book_section</type>
       <creators>
          <item>
             <name>
-               <family>Glockler</family>
-               <given>George</given>
+               <family>Ellerbroek</family>
+               <given>B.</given>
             </name>
          </item>
          <item>
             <name>
-               <family>Baxter</family>
-               <given>Warren P.</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Dalton</family>
-               <given>Robert H.</given>
+               <family>Andersen</family>
+               <given>David</given>
             </name>
          </item>
       </creators>
-      <title>ACTIVATION OF MOLECULAR HYDROGEN BY ELECTRON IMPACT</title>
+      <title>Sky coverage estimates for the natural guide star mode of the TMT facility AO system NFIRAOS</title>
       <ispublished>pub</ispublished>
-      <date>1927-01</date>
+      <date>2008-07-12</date>
       <date_type>published</date_type>
-      <publication>Journal of the American Chemical Society</publication>
-      <volume>49</volume>
-      <number>1</number>
-      <publisher>American Chemical Society</publisher>
-      <pagerange>58-65</pagerange>
-      <issn>0002-7863</issn>
-      <related_url>
-         <item>
-            <url>https://pubs.acs.org/doi/pdf/10.1021/ja01400a009</url>
-         </item>
-      </related_url>
-      <subjects>
-         <item>Colloid and Surface Chemistry</item>
-         <item>Biochemistry</item>
-         <item>General Chemistry</item>
-         <item>Catalysis</item>
-      </subjects>
-      <doi>10.1021/ja01400a009</doi>
+      <publisher>SPIE</publisher>
+      <doi>10.1117/12.788053</doi>
    </eprint>
 </eprints>

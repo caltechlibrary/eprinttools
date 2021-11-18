@@ -16,11 +16,11 @@ echo 'Testing ep3apid'
 if [[ -f "test-settings.json" && -f "bin/ep3apid" ]]; then
    echo 'Resetting lemurprints database'
    mysql lemurprints < srctest/lemurprints-setup-schema.sql
-   echo 'Starting epi3apid and waiting 30 seconds'
+   echo 'Starting epi3apid and waiting 20 seconds'
    ./bin/ep3apid test-settings.json &
    PID=$!
    # Add content to empty repository database
-   sleep 30
+   sleep 20
    echo 'Adding content'
    let err_count=0
    for FNAME in $(ls -1 srctest/lemurprints-import-api-*.xml); do

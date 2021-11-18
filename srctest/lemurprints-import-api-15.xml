@@ -4,130 +4,27 @@
       <creators>
          <item>
             <name>
-               <family>Roberts</family>
-               <given>Jennifer E.</given>
+               <family>Ellerbroek</family>
+               <given>Brent L.</given>
             </name>
          </item>
          <item>
             <name>
-               <family>Bouchez</family>
-               <given>Antonin H.</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Angione</family>
-               <given>John</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Burruss</family>
-               <given>Rick S.</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Cromer</family>
-               <given>John L.</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Dekany</family>
-               <given>Richard G.</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Guiwits</family>
-               <given>Stephen R.</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Henning</family>
-               <given>John R.</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Hickey</family>
-               <given>Jeff</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Kibblewhite</family>
-               <given>Edward</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>McKenna</family>
-               <given>Daniel L.</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Moore</family>
-               <given>Anna M.</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Petrie</family>
-               <given>Harold L.</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Shelton</family>
-               <given>J. C.</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Thicksten</family>
-               <given>Robert P.</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Trinh</family>
-               <given>Thang</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Tripathi</family>
-               <given>Renu</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Troy</family>
-               <given>Mitchell</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Truong</family>
-               <given>Tuan</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Velur</family>
-               <given>Viswa</given>
+               <family>Vogel</family>
+               <given>Curtis R.</given>
             </name>
          </item>
       </creators>
-      <title>Facilitizing the Palomar AO laser guide star system</title>
+      <title>Simulations of closed-loop wavefront reconstruction for multiconjugate adaptive optics on giant telescopes</title>
       <ispublished>pub</ispublished>
-      <date>2008-07-12</date>
+      <date>2003-12-31</date>
       <date_type>published</date_type>
       <publisher>SPIE</publisher>
-      <doi>10.1117/12.790042</doi>
+      <related_url>
+         <item>
+            <url>http://proceedings.spiedigitallibrary.org/proceeding.aspx?doi=10.1117/12.506580</url>
+         </item>
+      </related_url>
+      <doi>10.1117/12.506580</doi>
    </eprint>
 </eprints>

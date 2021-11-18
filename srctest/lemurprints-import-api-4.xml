@@ -1,120 +1,61 @@
 <eprints xmlns="http://eprints.org/ep2/data/2.0">
    <eprint>
-      <type>article</type>
+      <type>book_section</type>
       <creators>
          <item>
             <name>
-               <family>Newman</family>
-               <given>M. G.</given>
-            </name>
-            <orcid>0000-0003-2752-0121</orcid>
-         </item>
-         <item>
-            <name>
-               <family>Kraus</family>
-               <given>R. G.</given>
-            </name>
-            <orcid>0000-0003-3088-1892</orcid>
-         </item>
-         <item>
-            <name>
-               <family>Akin</family>
-               <given>M. C.</given>
-            </name>
-            <orcid>0000-0001-5742-8663</orcid>
-         </item>
-         <item>
-            <name>
-               <family>Bernier</family>
-               <given>J. V.</given>
+               <family>Brès</family>
+               <given>Guillaume A.</given>
             </name>
          </item>
          <item>
             <name>
-               <family>Dillman</family>
-               <given>A. M.</given>
+               <family>Yeung</family>
+               <given>Brandon</given>
             </name>
          </item>
          <item>
             <name>
-               <family>Homel</family>
-               <given>M. A.</given>
-            </name>
-            <orcid>0000-0002-0399-0092</orcid>
-         </item>
-         <item>
-            <name>
-               <family>Lee</family>
-               <given>S.</given>
+               <family>Schmidt</family>
+               <given>Oliver T.</given>
             </name>
          </item>
          <item>
             <name>
-               <family>Lind</family>
-               <given>J.</given>
+               <family>Ghassemi Isfahani</family>
+               <given>Ata</given>
             </name>
          </item>
          <item>
             <name>
-               <family>Mosenfelder</family>
-               <given>J. L.</given>
+               <family>Webb</family>
+               <given>Nathan J.</given>
             </name>
          </item>
          <item>
             <name>
-               <family>Pagan</family>
-               <given>D. C.</given>
+               <family>Samimy</family>
+               <given>Mo</given>
             </name>
          </item>
          <item>
             <name>
-               <family>Sinclair</family>
-               <given>N. W.</given>
+               <family>Colonius</family>
+               <given>Tim</given>
             </name>
-            <orcid>0000-0001-9689-8983</orcid>
-         </item>
-         <item>
-            <name>
-               <family>Asimow</family>
-               <given>P. D.</given>
-            </name>
-            <orcid>0000-0001-6025-8925</orcid>
          </item>
       </creators>
-      <title>In Situ Observations of Phase Changes in Shock Compressed Forsterite</title>
+      <title>Towards large-eddy simulations of supersonic jets from twin rectangular nozzle with plasma actuation</title>
       <ispublished>pub</ispublished>
-      <date>2018-08-28</date>
+      <date>2021-08-02</date>
       <date_type>published</date_type>
-      <publication>Geophysical Research Letters</publication>
-      <volume>45</volume>
-      <number>16</number>
-      <publisher>American Geophysical Union</publisher>
-      <pagerange>8129-8135</pagerange>
-      <issn>0094-8276</issn>
+      <publisher>American Institute of Aeronautics and Astronautics</publisher>
+      <place_of_pub>Reston, Virginia</place_of_pub>
       <related_url>
          <item>
-            <url>https://api.wiley.com/onlinelibrary/tdm/v1/articles/10.1029%2F2018GL077996</url>
-         </item>
-         <item>
-            <url>https://onlinelibrary.wiley.com/doi/pdf/10.1029/2018GL077996</url>
-         </item>
-         <item>
-            <url>https://onlinelibrary.wiley.com/doi/full-xml/10.1029/2018GL077996</url>
-         </item>
-         <item>
-            <url>https://onlinelibrary.wiley.com/doi/pdf/10.1029/2018GL077996</url>
+            <url>https://arc.aiaa.org/doi/pdf/10.2514/6.2021-2154</url>
          </item>
       </related_url>
-      <funders>
-         <item>
-            <agency>Center for Hierarchical Manufacturing, National Science Foundation</agency>
-            <grant_number>EAR1161023</grant_number>
-         </item>
-      </funders>
-      <subjects>
-         <item>General Earth and Planetary Sciences</item>
-         <item>Geophysics</item>
-      </subjects>
-      <doi>10.1029/2018gl077996</doi>
+      <doi>10.2514/6.2021-2154</doi>
    </eprint>
 </eprints>
