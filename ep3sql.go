@@ -226,9 +226,9 @@ func GetUserBy(config *Config, repoID string, queryField string, queryValue inte
 			user.HideEMail = false
 		}
 		/*
-			if src, err := jsonEncode(user); err == nil { // DEBUG
-				fmt.Printf("DEBUG user %s\n", src)
-			} // DEBUG
+			if user.HideEMail {
+				user.EMail = ``
+			}
 		*/
 		return user, nil
 	}

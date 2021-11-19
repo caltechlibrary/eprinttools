@@ -251,9 +251,15 @@ func (api *EP3API) userEndPoint(w http.ResponseWriter, r *http.Request, repoID s
 	userid, err := strconv.Atoi(args[0])
 	if err == nil {
 		user, err := GetUserBy(api.Config, repoID, `userid`, userid)
+		if user.HideEMail {
+			user.EMail = ``
+		}
 		return api.packageObject(w, repoID, user, err)
 	}
 	user, err := GetUserBy(api.Config, repoID, `username`, args[0])
+	if user.HideEMail {
+		user.EMail = ``
+	}
 	return api.packageObject(w, repoID, user, err)
 }
 
