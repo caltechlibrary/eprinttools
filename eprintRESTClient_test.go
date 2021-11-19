@@ -19,7 +19,6 @@
 package eprinttools
 
 import (
-	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"math/rand"
@@ -38,7 +37,7 @@ func configRestClient() (*Config, error) {
 		return nil, err
 	}
 	config := new(Config)
-	err = json.Unmarshal(src, &config)
+	err = jsonDecode(src, &config)
 	if err != nil {
 		return nil, err
 	}

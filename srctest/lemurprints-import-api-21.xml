@@ -1,931 +1,133 @@
 <eprints xmlns="http://eprints.org/ep2/data/2.0">
    <eprint>
-      <type>article</type>
+      <type>book_section</type>
       <creators>
          <item>
             <name>
-               <family>Shin</family>
-               <given>T</given>
+               <family>Roberts</family>
+               <given>Jennifer E.</given>
             </name>
-            <orcid>0000-0002-6389-5409</orcid>
          </item>
          <item>
             <name>
-               <family>Jain</family>
-               <given>B</given>
+               <family>Bouchez</family>
+               <given>Antonin H.</given>
             </name>
          </item>
          <item>
             <name>
-               <family>Adhikari</family>
-               <given>S</given>
+               <family>Angione</family>
+               <given>John</given>
             </name>
          </item>
          <item>
             <name>
-               <family>Baxter</family>
-               <given>E J</given>
+               <family>Burruss</family>
+               <given>Rick S.</given>
             </name>
          </item>
          <item>
             <name>
-               <family>Chang</family>
-               <given>C</given>
+               <family>Cromer</family>
+               <given>John L.</given>
             </name>
-            <orcid>0000-0002-7887-0896</orcid>
          </item>
          <item>
             <name>
-               <family>Pandey</family>
-               <given>S</given>
+               <family>Dekany</family>
+               <given>Richard G.</given>
             </name>
          </item>
          <item>
             <name>
-               <family>Salcedo</family>
-               <given>A</given>
+               <family>Guiwits</family>
+               <given>Stephen R.</given>
             </name>
          </item>
          <item>
             <name>
-               <family>Weinberg</family>
-               <given>D H</given>
+               <family>Henning</family>
+               <given>John R.</given>
             </name>
          </item>
          <item>
             <name>
-               <family>Amsellem</family>
-               <given>A</given>
+               <family>Hickey</family>
+               <given>Jeff</given>
             </name>
          </item>
          <item>
             <name>
-               <family>Battaglia</family>
-               <given>N</given>
+               <family>Kibblewhite</family>
+               <given>Edward</given>
             </name>
          </item>
          <item>
             <name>
-               <family>Belyakov</family>
-               <given>M</given>
+               <family>McKenna</family>
+               <given>Daniel L.</given>
             </name>
          </item>
          <item>
             <name>
-               <family>Dacunha</family>
-               <given>T</given>
+               <family>Moore</family>
+               <given>Anna M.</given>
             </name>
          </item>
          <item>
             <name>
-               <family>Goldstein</family>
-               <given>S</given>
+               <family>Petrie</family>
+               <given>Harold L.</given>
             </name>
          </item>
          <item>
             <name>
-               <family>Kravtsov</family>
-               <given>A V</given>
+               <family>Shelton</family>
+               <given>J. C.</given>
             </name>
          </item>
          <item>
             <name>
-               <family>Varga</family>
-               <given>T N</given>
+               <family>Thicksten</family>
+               <given>Robert P.</given>
             </name>
          </item>
          <item>
             <name>
-               <family>Abbott</family>
-               <given>T M C</given>
+               <family>Trinh</family>
+               <given>Thang</given>
             </name>
          </item>
          <item>
             <name>
-               <family>Aguena</family>
-               <given>M</given>
+               <family>Tripathi</family>
+               <given>Renu</given>
             </name>
          </item>
          <item>
             <name>
-               <family>Alarcon</family>
-               <given>A</given>
+               <family>Troy</family>
+               <given>Mitchell</given>
             </name>
          </item>
          <item>
             <name>
-               <family>Allam</family>
-               <given>S</given>
+               <family>Truong</family>
+               <given>Tuan</given>
             </name>
          </item>
          <item>
             <name>
-               <family>Amon</family>
-               <given>A</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Andrade-Oliveira</family>
-               <given>F</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Annis</family>
-               <given>J</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Bacon</family>
-               <given>D</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Bechtol</family>
-               <given>K</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Becker</family>
-               <given>M R</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Bernstein</family>
-               <given>G M</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Bertin</family>
-               <given>E</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Bocquet</family>
-               <given>S</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Bond</family>
-               <given>J R</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Brooks</family>
-               <given>D</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Buckley-Geer</family>
-               <given>E</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Burke</family>
-               <given>D L</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Campos</family>
-               <given>A</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Rosell</family>
-               <given>A Carnero</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Kind</family>
-               <given>M Carrasco</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Carretero</family>
-               <given>J</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Chen</family>
-               <given>R</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Choi</family>
-               <given>A</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Costanzi</family>
-               <given>M</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>da Costa</family>
-               <given>L N</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>DeRose</family>
-               <given>J</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Desai</family>
-               <given>S</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>De Vicente</family>
-               <given>J</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Devlin</family>
-               <given>M J</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Diehl</family>
-               <given>H T</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Dietrich</family>
-               <given>J P</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Dodelson</family>
-               <given>S</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Doel</family>
-               <given>P</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Doux</family>
-               <given>C</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Drlica-Wagner</family>
-               <given>A</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Eckert</family>
-               <given>K</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Elvin-Poole</family>
-               <given>J</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Everett</family>
-               <given>S</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Ferraro</family>
-               <given>S</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Ferrero</family>
-               <given>I</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Ferté</family>
-               <given>A</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Flaugher</family>
-               <given>B</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Frieman</family>
-               <given>J</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Gallardo</family>
-               <given>P A</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Gatti</family>
-               <given>M</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Gaztanaga</family>
-               <given>E</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Gerdes</family>
-               <given>D W</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Gruen</family>
-               <given>D</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Gruendl</family>
-               <given>R A</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Gutierrez</family>
-               <given>G</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Harrison</family>
-               <given>I</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Hartley</family>
-               <given>W G</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Hill</family>
-               <given>J C</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Hilton</family>
-               <given>M</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Hinton</family>
-               <given>S R</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Hollowood</family>
-               <given>D L</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Hughes</family>
-               <given>J P</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>James</family>
-               <given>D J</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Jarvis</family>
-               <given>M</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Jeltema</family>
-               <given>T</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Koopman</family>
-               <given>B J</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Krause</family>
-               <given>E</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Kuehn</family>
-               <given>K</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Kuropatkin</family>
-               <given>N</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Lahav</family>
-               <given>O</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Lima</family>
-               <given>M</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Lokken</family>
-               <given>M</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>MacCrann</family>
-               <given>N</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Madhavacheril</family>
-               <given>M S</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Maia</family>
-               <given>M A G</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>McCullough</family>
-               <given>J</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>McMahon</family>
-               <given>J</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Melchior</family>
-               <given>P</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Menanteau</family>
-               <given>F</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Miquel</family>
-               <given>R</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Mohr</family>
-               <given>J J</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Moodley</family>
-               <given>K</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Morgan</family>
-               <given>R</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Myles</family>
-               <given>J</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Nati</family>
-               <given>F</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Navarro-Alsina</family>
-               <given>A</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Niemack</family>
-               <given>M D</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Ogando</family>
-               <given>R L C</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Page</family>
-               <given>L A</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Palmese</family>
-               <given>A</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Partridge</family>
-               <given>B</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Paz-Chinchón</family>
-               <given>F</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Pereira</family>
-               <given>M E S</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Pieres</family>
-               <given>A</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Malagón</family>
-               <given>A A Plazas</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Prat</family>
-               <given>J</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Raveri</family>
-               <given>M</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Rodriguez-Monroy</family>
-               <given>M</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Rollins</family>
-               <given>R P</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Romer</family>
-               <given>A K</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Rykoff</family>
-               <given>E S</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Salatino</family>
-               <given>M</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Sánchez</family>
-               <given>C</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Sanchez</family>
-               <given>E</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Santiago</family>
-               <given>B</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Scarpine</family>
-               <given>V</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Schillaci</family>
-               <given>A</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Secco</family>
-               <given>L F</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Serrano</family>
-               <given>S</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Sevilla-Noarbe</family>
-               <given>I</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Sheldon</family>
-               <given>E</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Sherwin</family>
-               <given>B D</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Sifón</family>
-               <given>C</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Smith</family>
-               <given>M</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Soares-Santos</family>
-               <given>M</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Staggs</family>
-               <given>S T</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Suchyta</family>
-               <given>E</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Swanson</family>
-               <given>M E C</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Tarle</family>
-               <given>G</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Thomas</family>
-               <given>D</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>To</family>
-               <given>C</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Troxel</family>
-               <given>M A</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Tutusaus</family>
-               <given>I</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Vavagiakis</family>
-               <given>E M</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Weller</family>
-               <given>J</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Wollack</family>
-               <given>E J</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Yanny</family>
-               <given>B</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Yin</family>
-               <given>B</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Zhang</family>
-               <given>Y</given>
+               <family>Velur</family>
+               <given>Viswa</given>
             </name>
          </item>
       </creators>
-      <title>mass and galaxy distribution around SZ-selected clusters</title>
+      <title>Facilitizing the Palomar AO laser guide star system</title>
       <ispublished>pub</ispublished>
-      <abstract>&lt;jats:title&gt;ABSTRACT&lt;/jats:title&gt;&#xA;               &lt;jats:p&gt;We present measurements of the radial profiles of the mass and galaxy number density around Sunyaev–Zel’dovich (SZ)-selected clusters using both weak lensing and galaxy counts. The clusters are selected from the Atacama Cosmology Telescope Data Release 5 and the galaxies from the Dark Energy Survey Year 3 data set. With signal-to-noise ratio of 62 (45) for galaxy (weak lensing) profiles over scales of about 0.2–20 h−1 Mpc, these are the highest precision measurements for SZ-selected clusters to date. Because SZ selection closely approximates mass selection, these measurements enable several tests of theoretical models of the mass and light distribution around clusters. Our main findings are: (1) The splashback feature is detected at a consistent location in both the mass and galaxy profiles and its location is consistent with predictions of cold dark matter N-body simulations. (2) The full mass profile is also consistent with the simulations. (3) The shapes of the galaxy and lensing profiles are remarkably similar for our sample over the entire range of scales, from well inside the cluster halo to the quasilinear regime. We measure the dependence of the profile shapes on the galaxy sample, redshift, and cluster mass. We extend the Diemer &amp;amp; Kravtsov model for the cluster profiles to the linear regime using perturbation theory and show that it provides a good match to the measured profiles. We also compare the measured profiles to predictions of the standard halo model and simulations that include hydrodynamics. Applications of these results to cluster mass estimation, cosmology, and astrophysics are discussed.&lt;/jats:p&gt;</abstract>
-      <date>2021-09-20</date>
+      <date>2008-07-12</date>
       <date_type>published</date_type>
-      <publication>Monthly Notices of the Royal Astronomical Society</publication>
-      <volume>507</volume>
-      <number>4</number>
-      <publisher>Royal Astronomical Society</publisher>
-      <pagerange>5758-5779</pagerange>
-      <issn>0035-8711</issn>
-      <related_url>
-         <item>
-            <url>http://academic.oup.com/mnras/advance-article-pdf/doi/10.1093/mnras/stab2505/40326867/stab2505.pdf</url>
-         </item>
-         <item>
-            <url>http://academic.oup.com/mnras/article-pdf/507/4/5758/40413861/stab2505.pdf</url>
-         </item>
-         <item>
-            <url>http://academic.oup.com/mnras/article-pdf/507/4/5758/40413861/stab2505.pdf</url>
-         </item>
-      </related_url>
-      <funders>
-         <item>
-            <agency>NASA</agency>
-            <grant_number>NNX13AE56G; NNX14AB58G</grant_number>
-         </item>
-         <item>
-            <agency>U.S. Department of Energy</agency>
-         </item>
-         <item>
-            <agency>Higher Education Funding Council for England</agency>
-         </item>
-         <item>
-            <agency>University of Chicago</agency>
-         </item>
-         <item>
-            <agency>Ohio State University</agency>
-         </item>
-         <item>
-            <agency>Financiadora de Estudos e Projetos</agency>
-         </item>
-         <item>
-            <agency>Fundação Carlos Chagas Filho de Amparo à Pesquisa do Estado do Rio de Janeiro</agency>
-         </item>
-         <item>
-            <agency>Ministério da Ciência, Tecnologia e Inovação</agency>
-         </item>
-         <item>
-            <agency>Argonne National Laboratory</agency>
-         </item>
-         <item>
-            <agency>University College London</agency>
-         </item>
-         <item>
-            <agency>University of Edinburgh</agency>
-         </item>
-         <item>
-            <agency>University of Illinois at Urbana-Champaign</agency>
-         </item>
-         <item>
-            <agency>Lawrence Berkeley National Laboratory</agency>
-         </item>
-         <item>
-            <agency>University of Nottingham</agency>
-         </item>
-         <item>
-            <agency>University of Pennsylvania</agency>
-         </item>
-         <item>
-            <agency>University of Portsmouth</agency>
-         </item>
-         <item>
-            <agency>Stanford University</agency>
-         </item>
-         <item>
-            <agency>University of Sussex</agency>
-         </item>
-         <item>
-            <agency>National Science Foundation</agency>
-            <grant_number>AST-1138766; AST-1536171</grant_number>
-         </item>
-      </funders>
-      <subjects>
-         <item>Space and Planetary Science</item>
-         <item>Astronomy and Astrophysics</item>
-      </subjects>
-      <doi>10.1093/mnras/stab2505</doi>
+      <publisher>SPIE</publisher>
+      <doi>10.1117/12.790042</doi>
    </eprint>
 </eprints>

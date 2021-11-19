@@ -13,6 +13,7 @@ Bugs
 Next
 ----
 
+- [ ] Need a Users end point to get a list of users in the system and retrieve their numeric user id
 - [ ] Create an example service file for running ep3apid as a service under SystemD (Linux)
 - [ ] Create an example service file for running ep3apid as a service under LaunchD (macOS)
 - [ ] Add update end point to support update EPrints Metadata

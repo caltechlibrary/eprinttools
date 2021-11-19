@@ -4,22 +4,34 @@
       <creators>
          <item>
             <name>
-               <family>Ellerbroek</family>
-               <given>B.</given>
+               <family>Wang</family>
+               <given>Lianqi</given>
             </name>
          </item>
          <item>
             <name>
-               <family>Andersen</family>
-               <given>David</given>
+               <family>Ellerbroek</family>
+               <given>Brent</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Véran</family>
+               <given>Jean-Pierre</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Sinquin</family>
+               <given>Jean-Christophe</given>
             </name>
          </item>
       </creators>
-      <title>Sky coverage estimates for the natural guide star mode of the TMT facility AO system NFIRAOS</title>
+      <title>Evaluating sky coverage for the NFIRAOS tip/tilt control architecture</title>
       <ispublished>pub</ispublished>
       <date>2008-07-12</date>
       <date_type>published</date_type>
       <publisher>SPIE</publisher>
-      <doi>10.1117/12.788053</doi>
+      <doi>10.1117/12.787975</doi>
    </eprint>
 </eprints>

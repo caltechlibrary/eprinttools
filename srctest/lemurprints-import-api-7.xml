@@ -4,124 +4,28 @@
       <creators>
          <item>
             <name>
-               <family>Ellerbroek</family>
-               <given>Brent</given>
+               <family>Cameron</family>
+               <given>P. B.</given>
             </name>
          </item>
          <item>
             <name>
-               <family>Adkins</family>
-               <given>Sean</given>
+               <family>Britton</family>
+               <given>M. C.</given>
             </name>
          </item>
          <item>
             <name>
-               <family>Andersen</family>
-               <given>David</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Atwood</family>
-               <given>Jenny</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Boyer</family>
-               <given>Corinne</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Byrnes</family>
-               <given>Peter</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Conan</family>
-               <given>Rodolphe</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Gilles</family>
-               <given>Luc</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Herriot</family>
-               <given>Glen</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Hickson</family>
-               <given>Paul</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Hileman</family>
-               <given>Ed</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Joyce</family>
-               <given>Dick</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Leckie</family>
-               <given>Brian</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Liang</family>
-               <given>Ming</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Pfrommer</family>
-               <given>Thomas</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Sinquin</family>
-               <given>Jean-Christophe</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Veran</family>
-               <given>Jean-Pierre</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Wang</family>
-               <given>Lianqi</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Welle</family>
-               <given>Paul</given>
+               <family>Kulkarni</family>
+               <given>S. R.</given>
             </name>
          </item>
       </creators>
-      <title>Progress toward developing the TMT adaptive optical systems and their components</title>
+      <title>Precision astrometry with adaptive optics</title>
       <ispublished>pub</ispublished>
       <date>2008-07-12</date>
       <date_type>published</date_type>
       <publisher>SPIE</publisher>
-      <doi>10.1117/12.788057</doi>
+      <doi>10.1117/12.789811</doi>
    </eprint>
 </eprints>

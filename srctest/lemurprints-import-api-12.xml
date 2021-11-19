@@ -1,49 +1,41 @@
 <eprints xmlns="http://eprints.org/ep2/data/2.0">
    <eprint>
-      <type>book_section</type>
+      <type>article</type>
       <creators>
          <item>
             <name>
-               <family>Law</family>
-               <given>N. M.</given>
+               <family>Dickinson</family>
+               <given>Roscoe G.</given>
             </name>
          </item>
          <item>
             <name>
-               <family>Dekany</family>
-               <given>R. G.</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Mackay</family>
-               <given>C. D.</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Moore</family>
-               <given>A. M.</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Britton</family>
-               <given>M. C.</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Velur</family>
-               <given>V.</given>
+               <family>Baxter</family>
+               <given>Warren P.</given>
             </name>
          </item>
       </creators>
-      <title>Getting lucky with adaptive optics: diffraction-limited resolution in the visible with current AO systems on large and small telescopes</title>
+      <title>THE QUANTUM YIELD IN THE PHOTOCHEMICAL DECOMPOSITION OF NITROGEN DIOXIDE</title>
       <ispublished>pub</ispublished>
-      <date>2008-07-12</date>
+      <date>1928-03</date>
       <date_type>published</date_type>
-      <publisher>SPIE</publisher>
-      <doi>10.1117/12.788621</doi>
+      <publication>Journal of the American Chemical Society</publication>
+      <volume>50</volume>
+      <number>3</number>
+      <publisher>American Chemical Society</publisher>
+      <pagerange>774-782</pagerange>
+      <issn>0002-7863</issn>
+      <related_url>
+         <item>
+            <url>https://pubs.acs.org/doi/pdf/10.1021/ja01390a022</url>
+         </item>
+      </related_url>
+      <subjects>
+         <item>Colloid and Surface Chemistry</item>
+         <item>Biochemistry</item>
+         <item>General Chemistry</item>
+         <item>Catalysis</item>
+      </subjects>
+      <doi>10.1021/ja01390a022</doi>
    </eprint>
 </eprints>

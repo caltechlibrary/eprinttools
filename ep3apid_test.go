@@ -2,7 +2,6 @@ package eprinttools
 
 import (
 	"bytes"
-	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -81,7 +80,7 @@ func runWriteTest(t *testing.T, api *EP3API, repoID string, repo *DataSource, ro
 	}
 	// Test writes to a Authors like database, e.g lemurAuthors
 	// NOTE: I used doi2eprintxml to create two new EPrint XML files for import testing.
-	for i := 1; i <= 21; i++ {
+	for i := 1; i <= 25; i++ {
 		testFile := path.Join(`srctest`, fmt.Sprintf(`%s-import-api-%d.xml`, repoID, i))
 		if _, err := os.Stat(testFile); os.IsNotExist(err) {
 			t.Errorf(`Could not find %q, %s`, testFile, err)
@@ -102,7 +101,7 @@ func runWriteTest(t *testing.T, api *EP3API, repoID string, repo *DataSource, ro
 		}
 		t.Logf(`Post returned: %s`, src)
 		ids := []int{}
-		if err := json.Unmarshal(src, &ids); err != nil {
+		if err := jsonDecode(src, &ids); err != nil {
 			t.Errorf(`Failed to unmarshal post results fo %q, %s`, u, err)
 			t.FailNow()
 		}
@@ -123,7 +122,7 @@ func runReadTests(t *testing.T, api *EP3API, repoID string, route string) {
 			t.FailNow()
 		}
 		repository := map[string][]string{}
-		if err := json.Unmarshal(src, &repository); err != nil {
+		if err := jsonDecode(src, &repository); err != nil {
 			t.Errorf(`Failed unmarshal %s, %s`, u, err)
 			t.FailNow()
 		}
@@ -134,7 +133,7 @@ func runReadTests(t *testing.T, api *EP3API, repoID string, route string) {
 			t.FailNow()
 		}
 		keys := []int{}
-		if err := json.Unmarshal(src, &keys); err != nil {
+		if err := jsonDecode(src, &keys); err != nil {
 			t.Errorf(`Failed %s, %s`, u, err)
 			t.FailNow()
 		}

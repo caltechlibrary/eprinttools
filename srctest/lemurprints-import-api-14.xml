@@ -4,27 +4,46 @@
       <creators>
          <item>
             <name>
-               <family>Ellerbroek</family>
-               <given>Brent L.</given>
+               <family>Boyer</family>
+               <given>Corinne</given>
             </name>
          </item>
          <item>
             <name>
-               <family>Vogel</family>
-               <given>Curtis R.</given>
+               <family>Ellerbroek</family>
+               <given>Brent</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Gedig</family>
+               <given>Mike</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Hileman</family>
+               <given>Edward</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Joyce</family>
+               <given>Richard</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Liang</family>
+               <given>Ming</given>
             </name>
          </item>
       </creators>
-      <title>Simulations of closed-loop wavefront reconstruction for multiconjugate adaptive optics on giant telescopes</title>
+      <title>Update on the TMT laser guide star facility design</title>
       <ispublished>pub</ispublished>
-      <date>2003-12-31</date>
+      <date>2008-07-12</date>
       <date_type>published</date_type>
       <publisher>SPIE</publisher>
-      <related_url>
-         <item>
-            <url>http://proceedings.spiedigitallibrary.org/proceeding.aspx?doi=10.1117/12.506580</url>
-         </item>
-      </related_url>
-      <doi>10.1117/12.506580</doi>
+      <doi>10.1117/12.787603</doi>
    </eprint>
 </eprints>

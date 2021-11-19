@@ -67,10 +67,10 @@ Unique ids maybe standards based (e.g. ORCID, DOI, ISSN, ISBN) or internal (e.g.
 - '/{REPO_ID}/committee-id/{COMMITTEE_ID}' scans the committee id field associated with committee members and returns a list of EPrint ID
 - '/{REPO_ID}/committee-name' returns a list of committee members names (family, given) in repository
 - '/{REPO_ID}/committee-name/{FAMILY}/{GIVEN}' returns a list of EPrint ID for the given committee member using their family and given names
-- '/{REPO_ID}/corp-ceator-id' returns a list of corp creator ids in the eprints repository
-- '/{REPO_ID}/corp-create-id/{CORP_CREATOR_ID}' returns the list of eprint id for the corporate creator id
-- '/{REPO_ID}/corp-ceator-uri' returns a list of corp creator uri in the eprints repository
-- '/{REPO_ID}/corp-create-uri/{CORP_CREATOR_URI}' returns the list of eprint id for the corporate creator's URI
+- '/{REPO_ID}/corp-creator-id' returns a list of corp creator ids in the eprints repository
+- '/{REPO_ID}/corp-creator-id/{CORP_CREATOR_ID}' returns the list of eprint id for the corporate creator id
+- '/{REPO_ID}/corp-creator-uri' returns a list of corp creator uri in the eprints repository
+- '/{REPO_ID}/corp-creator-uri/{CORP_CREATOR_URI}' returns the list of eprint id for the corporate creator's URI
 - '/{REPO_ID}/group-id' returns a list of group ids in EPrints repository
 - '/{REPO_ID}/group-id/{GROUP_ID}' this scans group ID and returns a list of EPrint IDs associated with the group
 - '/{REPO_ID}/funder-id' returns a list of funders in the EPrints repository
@@ -330,10 +330,10 @@ func committeeDocument(repoID string) string {
 
 func corpCreatorDocument(repoID string) string {
 	return fmt.Sprintf(`
-- '/%s/corp-ceator-id' returns a list of corp creator ids in the eprints repository
-- '/%s/corp-create-id/{CORP_CREATOR_ID}' returns the list of eprint id for the corporate creator id
+- '/%s/corp-creator-id' returns a list of corp creator ids in the eprints repository
+- '/%s/corp-creator-id/{CORP_CREATOR_ID}' returns the list of eprint id for the corporate creator id
 - '/%s/corp-ceator-uri' returns a list of corp creator uri in the eprints repository
-- '/%s/corp-create-uri/{CORP_CREATOR_URI}' returns the list of eprint id for the corporate creator's URI
+- '/%s/corp-creator-uri/{CORP_CREATOR_URI}' returns the list of eprint id for the corporate creator's URI
 `, repoID, repoID, repoID, repoID)
 }
 func groupDocument(repoID string) string {
@@ -449,4 +449,12 @@ POST:
 EPrints XML can contiain more than one EPrint record so multiple EPrint metadata records can be created with one post.
 
 `, repoID, repoID)
+}
+
+func userDocument(repoID string) string {
+	return fmt.Sprintf(`
+- '/%s/usernames' - return a list of usernames associated with repository
+- '/%s/lookup-userid/{username}' - return a list of user id associated with usersname in repository
+- '/%s/user/{userid|username}' - get a user object for user id or username in repository
+`, repoID, repoID, repoID)
 }

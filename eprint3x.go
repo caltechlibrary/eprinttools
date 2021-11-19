@@ -434,7 +434,7 @@ func (item *Item) UnmarshalJSON(src []byte) error {
 		return nil
 	}
 	m := make(map[string]interface{})
-	err := json.Unmarshal(src, &m)
+	err := jsonDecode(src, &m)
 	if err != nil {
 		return err
 	}
@@ -658,7 +658,7 @@ func (itemList *ReferenceTextItemList) UnmarshalJSON(src []byte) error {
 	var values []string
 
 	m := make(map[string][]interface{})
-	err := json.Unmarshal(src, &m)
+	err := jsonDecode(src, &m)
 	if err != nil {
 		return err
 	}
@@ -2086,4 +2086,21 @@ func (e *EPrint) SyntheticFields() {
 			}
 		}
 	}
+}
+
+// EPrintUser is a struct for representing a user in a EPrint repository.
+// NOTE: it does not represent all user fields and attributes.
+type EPrintUser struct {
+	XMLName   xml.Name `xml:"user" json:"-"`
+	UserID    int      `xml:"userid" json:"userid"`
+	Username  string   `xml:"username" json:"username"`
+	Type      string   `xml:"type" json:"type"`
+	Name      *Name    `xml:"name,omitempty" json:"name,omitempty"`
+	EMail     string   `xml:"email,omitempty" json:"email,omitempty"`
+	HideEMail bool     `xml:"hideemail,omitempty" json:"hideemail,omitempty"`
+	Joined    string   `xml:"joined,omitempty" json:"joined,omitempty"`
+	Dept      string   `xml:"dept,omitempty" json:"dept,omitempty"`
+	Org       string   `xml:"org,omitempty" json:"org,omitempty"`
+	Address   string   `xml:"address,omitempty" json:"address,omitempty"`
+	Country   string   `xml:"country,omitempty" json:"country,omitempty"`
 }

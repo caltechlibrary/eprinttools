@@ -136,6 +136,8 @@ func main() {
 	flagSet.BoolVar(&showVersion, "version", false, "display app version")
 	flagSet.StringVar(&inputFName, "i", "", "set input filename")
 	flagSet.StringVar(&inputFName, "input", "", "set input filename")
+	flagSet.StringVar(&outputFName, "o", "", "set output filename")
+	flagSet.StringVar(&outputFName, "output", "", "set output filename")
 	flagSet.BoolVar(&quiet, "quiet", false, "set quiet output")
 
 	// Application Options
@@ -381,24 +383,31 @@ func main() {
 		fmt.Fprintf(os.Stderr, "%s\n", err)
 		os.Exit(1)
 	}
+	if outputFName != `` {
+		out, err = os.Create(outputFName)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, `Can't write %q, %s`, outputFName, err)
+			os.Exit(1)
+		}
+	}
 	if asSimplified {
-		fmt.Fprintln(os.Stdout, "[")
+		fmt.Fprintln(out, "[")
 		if eprintsList != nil && eprintsList.EPrint != nil {
 			//for i, item := range eprintsList.EPrint {
 			for i := 0; i < len(eprintsList.EPrint); i++ {
 				item := eprintsList.EPrint[i]
 				if i > 0 {
-					fmt.Fprintf(os.Stdout, ",\n")
+					fmt.Fprintf(out, ",\n")
 				}
 				rec, err := eprinttools.CrosswalkEPrintToRecord(item)
 				if err != nil {
 					fmt.Fprintf(os.Stderr, "%s\n", err)
 					os.Exit(1)
 				}
-				fmt.Fprintf(os.Stdout, "%s", rec.ToString())
+				fmt.Fprintf(out, "%s", rec.ToString())
 			}
 		}
-		fmt.Fprintln(os.Stdout, "\n]")
+		fmt.Fprintln(out, "\n]")
 		os.Exit(0)
 	}
 	if asJSON {
@@ -407,7 +416,7 @@ func main() {
 			fmt.Fprintf(os.Stderr, "%s\n", err)
 			os.Exit(1)
 		}
-		fmt.Fprintf(os.Stdout, "%s\n", src)
+		fmt.Fprintf(out, "%s\n", src)
 		os.Exit(0)
 	}
 	src, err := xml.MarshalIndent(eprintsList, "", "   ")
@@ -415,5 +424,5 @@ func main() {
 		fmt.Fprintf(os.Stderr, "%s\n", err)
 		os.Exit(1)
 	}
-	fmt.Fprintf(os.Stdout, "%s\n", src)
+	fmt.Fprintf(out, "%s\n", src)
 }
