@@ -126,6 +126,12 @@ func assertStringSame(t *testing.T, label string, expected string, got string) {
 	}
 }
 
+func assertBoolSame(t *testing.T, label string, expected bool, got bool) {
+	if expected != got {
+		t.Errorf(`expected %s %t, got %t`, label, expected, got)
+	}
+}
+
 func assertItemSame(t *testing.T, label string, eprintid int, pos int, expected *Item, item *Item) {
 	if expected.Name != nil {
 		assertNameSame(t, expected.Name, item.Name)
@@ -1275,9 +1281,9 @@ func TestImports(t *testing.T) {
 }
 
 //
-// TestSQLReacEPrint tests read behaviors.
+// TestSQLReadEPrint tests read behaviors.
 //
-func TestSQLRead(t *testing.T) {
+func TestSQLReadEPrint(t *testing.T) {
 	var err error
 	fName := `test-settings.json`
 	repoID := `lemurprints`
@@ -1302,5 +1308,132 @@ func TestSQLRead(t *testing.T) {
 	}
 	if eprint != nil {
 		t.Errorf("Expected a no eprint record for ID %d, got %+v", eprintID, eprint)
+	}
+}
+
+//
+// TestSQLUserFuncs tests the user related functions from ep3sql.go
+//
+
+func assertUserSame(t *testing.T, expected *EPrintUser, got *EPrintUser) {
+	if expected == nil && got != nil {
+		t.Errorf(`Expected nil user, got %+v`, got)
+		t.FailNow()
+	}
+	if expected != nil && got == nil {
+		t.Errorf(`Expected user, got nil`)
+		t.FailNow()
+	}
+	if expected != nil && got != nil {
+		assertIntSame(t, `UserID`, expected.UserID, got.UserID)
+		assertStringSame(t, `Username`, expected.Username, got.Username)
+		assertStringSame(t, `Username`, expected.Username, got.Username)
+		assertStringSame(t, `Type`, expected.Type, got.Type)
+		assertStringSame(t, `Joined`, expected.Joined, got.Joined)
+		assertNameSame(t, expected.Name, got.Name)
+		assertStringSame(t, `EMail`, expected.EMail, got.EMail)
+		assertBoolSame(t, `HideEMail`, expected.HideEMail, got.HideEMail)
+		assertStringSame(t, `Dept`, expected.Dept, got.Dept)
+		assertStringSame(t, `Org`, expected.Org, got.Org)
+		assertStringSame(t, `Address`, expected.Address, got.Address)
+		assertStringSame(t, `Country`, expected.Country, got.Country)
+	}
+}
+
+func TestSQLUser(t *testing.T) {
+	var err error
+	fName := `test-settings.json`
+	repoID := `lemurprints`
+	config, err := LoadConfig(fName)
+	if err != nil {
+		t.Errorf("Cailed to reload %q, %s", fName, err)
+	}
+	ds, ok := config.Repositories[repoID]
+	if ds == nil || ok == false || ds.Write == false {
+		t.Skipf(`%s not available for testing`, repoID)
+		t.SkipNow()
+	}
+	//baseURL := ds.BaseURL
+	assertOpenConnection(t, config, repoID)
+	defer assertCloseConnection(t, config, repoID)
+
+	tableName := `user`
+	clearTable(t, config, repoID, tableName)
+
+	now := time.Now()
+	user := new(EPrintUser)
+	user.Name = new(Name)
+	user.Name.Honourific = `Dr.`
+	user.Name.Given = `Jane`
+	user.Name.Family = `Doe`
+	user.Name.Lineage = `III`
+	user.UserID = 1
+	user.Username = `jane.doe`
+	user.EMail = `jane.doe@example.edu`
+	user.HideEMail = false
+	user.Joined = now.Format(timestamp)
+	user.Dept = `Library`
+	user.Org = `Caltech`
+	user.Address = `1 East C Boulevard Anytown, Anywhere 00000`
+	user.Country = `Republic of Utopia`
+
+	user.UserID, err = SQLCreateUser(config, repoID, user)
+	if err != nil {
+		t.Errorf(`Failed to create user, %s`, err)
+		t.FailNow()
+	}
+
+	user.EMail = `jane.doe@library.example.edu`
+	err = SQLUpdateUser(config, repoID, user)
+	if err != nil {
+		t.Errorf(`Failed to update user, %s`, err)
+		t.FailNow()
+	}
+
+	got, err := SQLReadUser(config, repoID, user.UserID)
+	if err != nil {
+		t.Errorf(`failed to get user by userid. %s`, err)
+		t.FailNow()
+	}
+	if got == nil {
+		t.Errorf(`expected a EPrintUser got nil`)
+		t.FailNow()
+	}
+	assertUserSame(t, user, got)
+
+	userList := []*EPrintUser{}
+	fName = path.Join(`srctest`, `lemurprints-users.json`)
+	src, err := ioutil.ReadFile(fName)
+	if err != nil {
+		t.Errorf(`Can't work with user list, %s`, err)
+		t.FailNow()
+	}
+	if err := jsonDecode(src, &userList); err != nil {
+		t.Errorf(`Failed to decode user list, %s`, err)
+		t.FailNow()
+	}
+	for i, user := range userList {
+		src, _ := jsonEncode(user)
+		userid, err := SQLCreateUser(config, repoID, user)
+		if err != nil {
+			t.Errorf(`Failed to create user (%d) %s`, i, src)
+			t.FailNow()
+		}
+		assertIntSame(t, `UserID`, user.UserID, userid)
+		got, err := SQLReadUser(config, repoID, userid)
+		if err != nil {
+			t.Errorf(`Failed to read user (%d) %s`, i, err)
+		}
+		assertUserSame(t, user, got)
+		user.Country = `Utopia, Republic of`
+		err = SQLUpdateUser(config, repoID, user)
+		if err != nil {
+			t.Errorf(`Failed to update user (%d) %s`, i, err)
+		}
+		got, err = SQLReadUser(config, repoID, userid)
+		if err != nil {
+			t.Errorf(`Failed to read user (%d) %s`, i, err)
+		}
+		assertUserSame(t, user, got)
 	}
 }

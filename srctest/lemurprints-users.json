@@ -1,0 +1,16 @@
+[
+    {
+        "userid": 2,
+        "username": "jill.doe",
+        "name": {
+            "given": "Jill",
+            "family": "Doe"
+        },
+        "email": "jill.doe@example.edu",
+        "hideemail": true,
+        "dept": "Library",
+        "org": "Example Tech",
+        "address": "1200 East C Blvd, Anytown, Anywhere 00000",
+        "country": "Republic of Utopia"
+    }
+]

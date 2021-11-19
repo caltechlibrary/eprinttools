@@ -109,6 +109,21 @@ func (api *EP3API) packageStringIDs(w http.ResponseWriter, repoID string, values
 	return 200, nil
 }
 
+func (api *EP3API) packageObject(w http.ResponseWriter, repoID string, obj interface{}, err error) (int, error) {
+	if err != nil {
+		api.Log.Printf("ERROR: (%s) query error, %s", repoID, err)
+		return 500, fmt.Errorf("internal server error")
+	}
+	src, err := json.MarshalIndent(obj, "", "  ")
+	if err != nil {
+		api.Log.Printf("ERROR: marshal error (%q), %s", repoID, err)
+		return 500, fmt.Errorf("internal server error")
+	}
+	w.Header().Set("Content-Type", "application/json")
+	fmt.Fprintf(w, "%s", src)
+	return 200, nil
+}
+
 func (api *EP3API) packageDocument(w http.ResponseWriter, src string) (int, error) {
 	w.Header().Set("Content-Type", "text/plain")
 	fmt.Fprint(w, src)
@@ -208,6 +223,38 @@ func (api *EP3API) repositoryEndPoint(w http.ResponseWriter, r *http.Request, re
 	}
 	src, err := json.MarshalIndent(data, "", "    ")
 	return api.packageJSON(w, repoID, src, err)
+}
+
+//
+// End Point for user information
+//
+func (api *EP3API) usernamesEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
+	if strings.HasSuffix(r.URL.Path, "/help") {
+		return api.packageDocument(w, userDocument(repoID))
+	}
+	usernames, err := GetUsernames(api.Config, repoID)
+	return api.packageStringIDs(w, repoID, usernames, err)
+}
+
+func (api *EP3API) lookupUserIDEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
+	if len(args) != 1 || strings.HasSuffix(r.URL.Path, "/help") {
+		return api.packageDocument(w, userDocument(repoID))
+	}
+	ids, err := GetUserID(api.Config, repoID, args[0])
+	return api.packageIntIDs(w, repoID, ids, err)
+}
+
+func (api *EP3API) userEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
+	if len(args) != 1 || strings.HasSuffix(r.URL.Path, "/help") {
+		return api.packageDocument(w, userDocument(repoID))
+	}
+	userid, err := strconv.Atoi(args[0])
+	if err == nil {
+		user, err := GetUserBy(api.Config, repoID, `userid`, userid)
+		return api.packageObject(w, repoID, user, err)
+	}
+	user, err := GetUserBy(api.Config, repoID, `username`, args[0])
+	return api.packageObject(w, repoID, user, err)
 }
 
 //
@@ -1041,6 +1088,9 @@ func (api *EP3API) InitExtendedAPI(settings string) error {
 		"issn":              api.issnEndPoint,
 		"isbn":              api.isbnEndPoint,
 		"year":              api.yearEndPoint,
+		"usernames":         api.usernamesEndPoint,
+		"lookup-userid":     api.lookupUserIDEndPoint,
+		"user":              api.userEndPoint,
 	}
 
 	/* NOTE: We need a DB connection to MySQL for each

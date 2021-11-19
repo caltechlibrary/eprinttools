@@ -169,6 +169,173 @@ func GetTablesAndColumns(config *Config, repoID string) (map[string][]string, er
 }
 
 //
+// EPrint User Info
+//
+
+// GetUsernames returns a list of all usernames in a repository
+func GetUsernames(config *Config, repoID string, userids ...int) ([]string, error) {
+	stmt := `SELECT username FROM user ORDER BY userid`
+	return sqlQueryStringIDs(config, repoID, stmt)
+}
+
+// GetUserID takes a username and returns a list of userid
+func GetUserID(config *Config, repoID string, username string) ([]int, error) {
+	stmt := `SELECT userid FROM user WHERE username = ?`
+	return sqlQueryIntIDs(config, repoID, stmt, username)
+}
+
+// GetUserBy takes a field name (e.g. userid, username) and value
+// and returns an EPrintUser object.
+func GetUserBy(config *Config, repoID string, queryField string, queryValue interface{}) (*EPrintUser, error) {
+	var (
+		year, month, day, hour, minute, second int
+		hideEMail                              string
+	)
+	if db, ok := config.Connections[repoID]; ok {
+		stmt := fmt.Sprintf(`SELECT userid, username, usertype, IFNULL(name_honourific, '') AS honourific, IFNULL(name_family, '') AS family, IFNULL(name_given, '') AS given, IFNULL(name_lineage, '') AS lineage, IFNULL(email, '') AS email, IFNULL(hideemail, '') AS hideemail, IFNULL(dept, '') AS dept, IFNULL(org, '') AS org, IFNULL(address, '') AS address, IFNULL(country, '') AS country, IFNULL(joined_year, 0) AS joined_year, IFNULL(joined_month, 0) AS joined_month, IFNULL(joined_day, 0) AS joined_day, IFNULL(joined_hour, 0) AS joined_hour, IFNULL(joined_minute, 0) AS joined_minute, IFNULL(joined_second, 0) AS joined_second FROM user WHERE %s = ? LIMIT 1`, queryField)
+		rows, err := db.Query(stmt, queryValue)
+		if err != nil {
+			return nil, fmt.Errorf("ERROR: query error (%q), %s", repoID, err)
+		}
+		defer rows.Close()
+		// Map values back into our object.
+		user := new(EPrintUser)
+		user.Name = new(Name)
+		for rows.Next() {
+			err := rows.Scan(&user.UserID, &user.Username, &user.Type,
+				&user.Name.Honourific, &user.Name.Family,
+				&user.Name.Given, &user.Name.Lineage,
+				&user.EMail, &hideEMail,
+				&user.Dept, &user.Org,
+				&user.Address, &user.Country,
+				&year, &month, &day, &hour, &minute, &second)
+			if err != nil {
+				return nil, fmt.Errorf("ERROR: scan error (%q), %q, %s", repoID, stmt, err)
+			}
+		}
+		if err := rows.Err(); err != nil {
+			return nil, fmt.Errorf("ERROR: rows error (%q), %s", repoID, err)
+		}
+		if err != nil {
+			return nil, fmt.Errorf("ERROR: query error (%q), %s", repoID, err)
+		}
+		user.Joined = fmt.Sprintf(`%04d-%02d-%02d %02d:%02d:%02d`, year, month, day, hour, minute, second)
+		if strings.ToLower(hideEMail) == "true" {
+			user.HideEMail = true
+		} else {
+			user.HideEMail = false
+		}
+		/*
+			if src, err := jsonEncode(user); err == nil { // DEBUG
+				fmt.Printf("DEBUG user %s\n", src)
+			} // DEBUG
+		*/
+		return user, nil
+	}
+	return nil, fmt.Errorf(`bad request`)
+}
+
+func SQLCreateUser(config *Config, repoID string, user *EPrintUser) (int, error) {
+	var (
+		year, month, day, hour, minute, second int
+	)
+	now := time.Now()
+	if user.Name == nil {
+		user.Name = &Name{
+			Honourific: ``,
+			Family:     ``,
+			Given:      ``,
+			Lineage:    ``,
+		}
+	}
+	if user.Joined == "" {
+		user.Joined = now.Format(timestamp)
+		year = now.Year()
+		month = int(now.Month())
+		day = now.Day()
+		hour = now.Hour()
+		minute = now.Minute()
+		second = now.Second()
+	} else {
+		if dt, err := time.Parse(timestamp, user.Joined); err == nil {
+			year = dt.Year()
+			month = int(dt.Month())
+			day = dt.Day()
+			hour = dt.Hour()
+			minute = dt.Minute()
+			second = dt.Second()
+		}
+	}
+	hideEMail := "FALSE"
+	if user.HideEMail {
+		hideEMail = "TRUE"
+	}
+	if db, ok := config.Connections[repoID]; ok {
+		// First generate new row for user.
+		stmt := `INSERT INTO user (userid) (SELECT (IFNULL((SELECT userid FROM user ORDER BY userid DESC LIMIT 1), 0) + 1) AS userid)`
+		/*
+			// Last ID doesn't work because userid is not AUTOINCREMENT
+			res, err := db.Exec(stmt)
+			if err != nil {
+				return 0, fmt.Errorf(`SQL error, %q, %s`, stmt, err)
+			}
+			id, err := res.LastInsertId()
+			if err != nil {
+				return 0, fmt.Errorf(`SQL lastInsertID() failed, %s`, err)
+			}
+		*/
+		_, err := db.Exec(stmt)
+		if err != nil {
+			return 0, fmt.Errorf(`SQL error, %q, %s`, stmt, err)
+		}
+		stmt = `SELECT userid FROM user ORDER BY userid DESC LIMIT 1`
+		rows, err := db.Query(stmt)
+		if err != nil {
+			return 0, fmt.Errorf(`SQL error, %q, %s`, stmt, err)
+		}
+		id := 0
+		for rows.Next() {
+			if err := rows.Scan(&id); err != nil {
+				return 0, fmt.Errorf(`could not calculate the new userid value, %s`, err)
+			}
+		}
+		rows.Close()
+		if err != nil {
+			return 0, fmt.Errorf(`SQL failed to get insert id, %s`, err)
+		}
+		// Update user
+		user.UserID = id
+		stmt = `REPLACE INTO user (userid, username, usertype, name_honourific, name_family, name_given, name_lineage, email, hideemail, dept, org, address, country, joined_year, joined_month, joined_day, joined_hour, joined_minute, joined_second) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+		_, err = db.Exec(stmt, user.UserID, user.Username, user.Type, user.Name.Honourific, user.Name.Family, user.Name.Given, user.Name.Lineage, user.EMail, hideEMail, user.Dept, user.Org, user.Address, user.Country, year, month, day, hour, minute, second)
+		if err != nil {
+			return 0, fmt.Errorf(`SQL error, %q, %s`, stmt, err)
+		}
+		return user.UserID, nil
+	}
+	return 0, fmt.Errorf(`bad request`)
+}
+
+func SQLUpdateUser(config *Config, repoID string, user *EPrintUser) error {
+	if db, ok := config.Connections[repoID]; ok {
+		hideEMail := "FALSE"
+		if user.HideEMail {
+			hideEMail = "TRUE"
+		}
+		stmt := `UPDATE user SET username = ?, usertype = ?, name_honourific = ?, name_family = ?, name_given = ?, name_lineage = ?, email = ?, hideemail = ?, dept = ?, org = ?, address = ?, country = ? WHERE userid = ?`
+		_, err := db.Exec(stmt, user.Username, user.Type, user.Name.Honourific, user.Name.Family, user.Name.Given, user.Name.Lineage, user.EMail, hideEMail, user.Dept, user.Org, user.Address, user.Country, user.UserID)
+		if err != nil {
+			return fmt.Errorf(`SQL error, %q, %s`, stmt, err)
+		}
+		return nil
+	}
+	return fmt.Errorf(`bad request`)
+}
+
+func SQLReadUser(config *Config, repoID string, userid int) (*EPrintUser, error) {
+	return GetUserBy(config, repoID, `userid`, userid)
+}
+
+//
 // EPrint ID Lists
 //
 
@@ -2528,9 +2695,19 @@ func SQLCreateEPrint(config *Config, repoID string, ds *DataSource, eprint *EPri
 	tableName := `eprint`
 
 	if columns, ok := ds.TableMap[tableName]; ok {
-		// Step one, as a transaction get the highest eprintid, add one and
-		// generate an empty eprint row.
-		stmt := `INSERT INTO eprint (eprintid) SELECT IFNULL((SELECT (eprintid + 1) FROM eprint ORDER BY eprintid DESC LIMIT 1), 1)`
+		// Generate an empty row and capture the id created.
+		stmt := `INSERT INTO eprint (eprintid) (SELECT (IFNULL((SELECT eprintid FROM eprint ORDER BY eprintid DESC LIMIT 1), 0) + 1) AS eprintid)`
+		/*
+			// eprintid are not auto increment so the LastInsertId() may not be set
+			res, err := db.Exec(stmt)
+			if err != nil {
+				return 0, fmt.Errorf(`SQL error, %q, %s`, stmt, err)
+			}
+			id, err := res.LastInsertId()
+			if err != nil {
+				return 0, fmt.Errorf(`SQL failed to get inserted id, %s`, err)
+			}
+		*/
 		_, err := db.Exec(stmt)
 		if err != nil {
 			return 0, fmt.Errorf(`SQL error, %q, %s`, stmt, err)
@@ -2550,7 +2727,7 @@ func SQLCreateEPrint(config *Config, repoID string, ds *DataSource, eprint *EPri
 		if err != nil {
 			return 0, fmt.Errorf(`SQL failed to get insert id, %s`, err)
 		}
-		eprint.EPrintID = id
+		eprint.EPrintID = int(id)
 		eprint.Dir = makeDirValue(eprint.EPrintID)
 		// FIXME: decide if the is automatic or if this should be
 		// passed in with the data structure.

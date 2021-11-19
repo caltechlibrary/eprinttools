@@ -450,3 +450,11 @@ EPrints XML can contiain more than one EPrint record so multiple EPrint metadata
 
 `, repoID, repoID)
 }
+
+func userDocument(repoID string) string {
+	return fmt.Sprintf(`
+- '/%s/usernames' - return a list of usernames associated with repository
+- '/%s/lookup-userid/{username}' - return a list of user id associated with usersname in repository
+- '/%s/user/{userid|username}' - get a user object for user id or username in repository
+`, repoID, repoID, repoID)
+}
