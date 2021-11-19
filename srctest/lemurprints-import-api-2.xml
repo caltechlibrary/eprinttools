@@ -4,75 +4,122 @@
       <creators>
          <item>
             <name>
-               <family>Jiao</family>
-               <given>Hanwei</given>
+               <family>Choi</family>
+               <given>Youngjoon</given>
             </name>
+         </item>
+         <item>
+            <name>
+               <family>Kim</family>
+               <given>Hyunjin</given>
+            </name>
+            <orcid>0000-0001-9886-0487</orcid>
+         </item>
+         <item>
+            <name>
+               <family>Lewandowski</family>
+               <given>Cyprian</given>
+            </name>
+            <orcid>0000-0002-6944-9805</orcid>
+         </item>
+         <item>
+            <name>
+               <family>Peng</family>
+               <given>Yang</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Thomson</family>
+               <given>Alex</given>
+            </name>
+            <orcid>0000-0002-9938-5048</orcid>
+         </item>
+         <item>
+            <name>
+               <family>Polski</family>
+               <given>Robert</given>
+            </name>
+            <orcid>0000-0003-0887-8099</orcid>
          </item>
          <item>
             <name>
                <family>Zhang</family>
-               <given>Chaojie</given>
+               <given>Yiran</given>
             </name>
-            <orcid>0000-0003-3108-8271</orcid>
+            <orcid>0000-0002-8477-0074</orcid>
          </item>
          <item>
             <name>
-               <family>Yang</family>
-               <given>Mo</given>
+               <family>Watanabe</family>
+               <given>Kenji</given>
+            </name>
+            <orcid>0000-0003-3701-8119</orcid>
+         </item>
+         <item>
+            <name>
+               <family>Taniguchi</family>
+               <given>Takashi</given>
+            </name>
+            <orcid>0000-0002-1467-3105</orcid>
+         </item>
+         <item>
+            <name>
+               <family>Alicea</family>
+               <given>Jason</given>
             </name>
          </item>
          <item>
             <name>
-               <family>Wu</family>
-               <given>Yanhui</given>
+               <family>Nadj-Perge</family>
+               <given>Stevan</given>
             </name>
-         </item>
-         <item>
-            <name>
-               <family>Zhou</family>
-               <given>Qi</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Hoffmann</family>
-               <given>Michael R.</given>
-            </name>
+            <orcid>0000-0002-2394-9070</orcid>
          </item>
       </creators>
-      <title>Photoreductive defluorination of trifluoroacetic acid (TFA) in the aqueous phase by hydrated electrons</title>
+      <title>Interaction-driven band flattening and correlated phases in twisted bilayer graphene</title>
       <ispublished>pub</ispublished>
-      <date>2022-02</date>
+      <date>2021-11-04</date>
       <date_type>published</date_type>
-      <publication>Chemical Engineering Journal</publication>
-      <volume>430</volume>
-      <publisher>Elsevier B.V.</publisher>
-      <pagerange>132724</pagerange>
-      <issn>1385-8947</issn>
+      <publication>Nature Physics</publication>
+      <publisher>Nature Publishing Group</publisher>
+      <issn>1745-2473</issn>
       <related_url>
          <item>
-            <url>https://api.elsevier.com/content/article/PII:S1385894721043023?httpAccept=text/xml</url>
+            <url>https://www.nature.com/articles/s41567-021-01359-0.pdf</url>
          </item>
          <item>
-            <url>https://api.elsevier.com/content/article/PII:S1385894721043023?httpAccept=text/plain</url>
+            <url>https://www.nature.com/articles/s41567-021-01359-0</url>
+         </item>
+         <item>
+            <url>https://www.nature.com/articles/s41567-021-01359-0.pdf</url>
          </item>
       </related_url>
       <funders>
          <item>
-            <agency>National Natural Science Foundation of China</agency>
-            <grant_number>21976135</grant_number>
+            <agency>National Science Foundation</agency>
+            <grant_number>DMR-2005129</grant_number>
          </item>
          <item>
-            <agency>National Natural Science Foundation of China</agency>
-            <grant_number>22078249</grant_number>
+            <agency>National Science Foundation</agency>
+            <grant_number>DMR-1753306</grant_number>
+         </item>
+         <item>
+            <agency>National Science Foundation</agency>
+            <grant_number>DMR-172336</grant_number>
+         </item>
+         <item>
+            <agency>U.S. Department of Energy</agency>
+            <grant_number>DE-SC0019166</grant_number>
+         </item>
+         <item>
+            <agency>United States Department of Defense | United States Army | U.S. Army Research, Development and Engineering Command | Army Research Office</agency>
+            <grant_number>W911NF17-1-0323</grant_number>
          </item>
       </funders>
       <subjects>
-         <item>Industrial and Manufacturing Engineering</item>
-         <item>General Chemical Engineering</item>
-         <item>Environmental Chemistry</item>
-         <item>General Chemistry</item>
+         <item>General Physics and Astronomy</item>
       </subjects>
-      <doi>10.1016/j.cej.2021.132724</doi>
+      <doi>10.1038/s41567-021-01359-0</doi>
    </eprint>
 </eprints>

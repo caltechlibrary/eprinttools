@@ -1,0 +1,1062 @@
+<eprints xmlns="http://eprints.org/ep2/data/2.0">
+   <eprint>
+      <type>article</type>
+      <creators>
+         <item>
+            <name>
+               <family>Soliman</family>
+               <given>Yousuf</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Chern</family>
+               <given>Albert</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Diamanti</family>
+               <given>Olga</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Knöppel</family>
+               <given>Felix</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Pinkall</family>
+               <given>Ulrich</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Schröder</family>
+               <given>Peter</given>
+            </name>
+         </item>
+      </creators>
+      <title>Constrained willmore surfaces</title>
+      <ispublished>pub</ispublished>
+      <abstract>&lt;jats:p&gt;Smooth curves and surfaces can be characterized as minimizers of squared curvature bending energies subject to constraints. In the univariate case with an isometry (length) constraint this leads to classic non-linear splines. For surfaces, isometry is too rigid a constraint and instead one asks for minimizers of the Willmore (squared mean curvature) energy subject to a conformality constraint. We present an efficient algorithm for (conformally) constrained Willmore surfaces using triangle meshes of arbitrary topology with or without boundary. Our conformal class constraint is based on the discrete notion of conformal equivalence of triangle meshes. The resulting non-linear constrained optimization problem can be solved efficiently using the competitive gradient descent method together with appropriate Sobolev metrics. The surfaces can be represented either through point positions or differential coordinates. The latter enable the realization of abstract metric surfaces without an initial immersion. A versatile toolkit for extrinsic conformal geometry processing, suitable for the construction and manipulation of smooth surfaces, results through the inclusion of additional point, area, and volume constraints.&lt;/jats:p&gt;</abstract>
+      <date>2021-08</date>
+      <date_type>published</date_type>
+      <publication>ACM Transactions on Graphics</publication>
+      <volume>40</volume>
+      <number>4</number>
+      <publisher>ACM</publisher>
+      <pagerange>1-17</pagerange>
+      <issn>0730-0301</issn>
+      <related_url>
+         <item>
+            <url>https://dl.acm.org/doi/pdf/10.1145/3450626.3459759</url>
+         </item>
+      </related_url>
+      <funders>
+         <item>
+            <agency>University of California, San Diego</agency>
+         </item>
+         <item>
+            <agency>Einstein Stiftung Berlin</agency>
+         </item>
+         <item>
+            <agency>National Center for Theoretical Sciences</agency>
+         </item>
+         <item>
+            <agency>California Institute of Technology</agency>
+         </item>
+         <item>
+            <agency>Deutsche Forschungsgemeinschaft</agency>
+            <grant_number>SFB 109</grant_number>
+         </item>
+      </funders>
+      <subjects>
+         <item>Computer Graphics and Computer-Aided Design</item>
+      </subjects>
+      <doi>10.1145/3450626.3459759</doi>
+   </eprint>
+   <eprint>
+      <type>article</type>
+      <creators>
+         <item>
+            <name>
+               <family>Yu</family>
+               <given>Hang</given>
+            </name>
+            <orcid>0000-0002-6011-6190</orcid>
+         </item>
+         <item>
+            <name>
+               <family>Adhikari</family>
+               <given>Rana X.</given>
+            </name>
+            <orcid>0000-0002-5731-5076</orcid>
+         </item>
+         <item>
+            <name>
+               <family>Magee</family>
+               <given>Ryan</given>
+            </name>
+            <orcid>0000-0001-9769-531X</orcid>
+         </item>
+         <item>
+            <name>
+               <family>Sachdev</family>
+               <given>Surabhi</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Chen</family>
+               <given>Yanbei</given>
+            </name>
+         </item>
+      </creators>
+      <title>Early warning of coalescing neutron-star and neutron-star-black-hole binaries from the nonstationary noise background using neural networks</title>
+      <ispublished>pub</ispublished>
+      <date>2021-09-07</date>
+      <date_type>published</date_type>
+      <publication>Physical Review D</publication>
+      <volume>104</volume>
+      <number>6</number>
+      <publisher>American Physical Society</publisher>
+      <issn>2470-0010</issn>
+      <related_url>
+         <item>
+            <url>https://link.aps.org/article/10.1103/PhysRevD.104.062004</url>
+         </item>
+         <item>
+            <url>http://harvest.aps.org/v2/journals/articles/10.1103/PhysRevD.104.062004/fulltext</url>
+         </item>
+      </related_url>
+      <funders>
+         <item>
+            <agency>Sherman Fairchild Foundation</agency>
+         </item>
+         <item>
+            <agency>National Science Foundation</agency>
+            <grant_number>PHY-1764464</grant_number>
+         </item>
+         <item>
+            <agency>National Science Foundation</agency>
+            <grant_number>PHY-0757058</grant_number>
+         </item>
+         <item>
+            <agency>National Science Foundation</agency>
+            <grant_number>PHY-0823459</grant_number>
+         </item>
+         <item>
+            <agency>National Science Foundation</agency>
+            <grant_number>PHY-1764464</grant_number>
+         </item>
+         <item>
+            <agency>Pennsylvania State University</agency>
+         </item>
+      </funders>
+      <doi>10.1103/physrevd.104.062004</doi>
+   </eprint>
+   <eprint>
+      <type>article</type>
+      <creators>
+         <item>
+            <name>
+               <family>Hubert</family>
+               <given>Mario</given>
+            </name>
+            <orcid>0000-0002-1170-6020</orcid>
+         </item>
+      </creators>
+      <title>Understanding physics: ‘What?’, ‘Why?’, and ‘How?’</title>
+      <ispublished>pub</ispublished>
+      <date>2021-09</date>
+      <date_type>published</date_type>
+      <publication>European Journal for Philosophy of Science</publication>
+      <volume>11</volume>
+      <number>3</number>
+      <publisher>Springer Verlag</publisher>
+      <issn>1879-4912</issn>
+      <related_url>
+         <item>
+            <url>https://link.springer.com/content/pdf/10.1007/s13194-021-00399-w.pdf</url>
+         </item>
+         <item>
+            <url>https://link.springer.com/article/10.1007/s13194-021-00399-w/fulltext.html</url>
+         </item>
+         <item>
+            <url>https://link.springer.com/content/pdf/10.1007/s13194-021-00399-w.pdf</url>
+         </item>
+      </related_url>
+      <subjects>
+         <item>History and Philosophy of Science</item>
+         <item>Philosophy</item>
+      </subjects>
+      <doi>10.1007/s13194-021-00399-w</doi>
+   </eprint>
+   <eprint>
+      <type>article</type>
+      <creators>
+         <item>
+            <name>
+               <family>Meixnerová</family>
+               <given>Jana</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Blum</family>
+               <given>Joel D.</given>
+            </name>
+            <orcid>0000-0001-5389-8633</orcid>
+         </item>
+         <item>
+            <name>
+               <family>Johnson</family>
+               <given>Marcus W.</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Stüeken</family>
+               <given>Eva E.</given>
+            </name>
+            <orcid>0000-0001-6861-2490</orcid>
+         </item>
+         <item>
+            <name>
+               <family>Kipp</family>
+               <given>Michael A.</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Anbar</family>
+               <given>Ariel D.</given>
+            </name>
+            <orcid>0000-0002-6015-7750</orcid>
+         </item>
+         <item>
+            <name>
+               <family>Buick</family>
+               <given>Roger</given>
+            </name>
+         </item>
+      </creators>
+      <title>Mercury abundance and isotopic composition indicate subaerial volcanism prior to the end-Archean “whiff” of oxygen</title>
+      <ispublished>pub</ispublished>
+      <abstract>&lt;jats:p&gt;Earth’s early atmosphere witnessed multiple transient episodes of oxygenation before the Great Oxidation Event 2.4 billion years ago (Ga) [e.g., A. D. Anbar et al., &lt;jats:italic&gt;Science&lt;/jats:italic&gt; 317, 1903–1906 (2007); M. C. Koehler, R. Buick, M. E. Barley, &lt;jats:italic&gt;Precambrian Res.&lt;/jats:italic&gt; 320, 281–290 (2019)], but the triggers for these short-lived events are so far unknown. Here, we use mercury (Hg) abundance and stable isotope composition to investigate atmospheric evolution and its driving mechanisms across the well-studied “whiff” of O&lt;jats:sub&gt;2&lt;/jats:sub&gt; recorded in the ∼2.5-Ga Mt. McRae Shale from the Pilbara Craton in Western Australia [A. D. Anbar et al., &lt;jats:italic&gt;Science&lt;/jats:italic&gt; 317, 1903–1906 (2007)]. Our data from the oxygenated interval show strong Hg enrichment paired with slightly negative ∆&lt;jats:sup&gt;199&lt;/jats:sup&gt;Hg and near-zero ∆&lt;jats:sup&gt;200&lt;/jats:sup&gt;Hg, suggestive of increased oxidative weathering. In contrast, slightly older beds, which were evidently deposited under an anoxic atmosphere in ferruginous waters [C. T. Reinhard, R. Raiswell, C. Scott, A. D. Anbar, T. W. Lyons, &lt;jats:italic&gt;Science&lt;/jats:italic&gt; 326, 713–716 (2009)], show Hg enrichment coupled with positive ∆&lt;jats:sup&gt;199&lt;/jats:sup&gt;Hg and slightly negative ∆&lt;jats:sup&gt;200&lt;/jats:sup&gt;Hg values. This pattern is consistent with photochemical reactions associated with subaerial volcanism under intense UV radiation. Our results therefore suggest that the whiff of O&lt;jats:sub&gt;2&lt;/jats:sub&gt; was preceded by subaerial volcanism. The transient interval of O&lt;jats:sub&gt;2&lt;/jats:sub&gt; accumulation may thus have been triggered by diminished volcanic O&lt;jats:sub&gt;2&lt;/jats:sub&gt; sinks, followed by enhanced nutrient supply to the ocean from weathering of volcanic rocks causing increased biological productivity.&lt;/jats:p&gt;</abstract>
+      <date>2021-08-17</date>
+      <date_type>published</date_type>
+      <publication>Proceedings of the National Academy of Sciences of the United States of America</publication>
+      <volume>118</volume>
+      <number>33</number>
+      <publisher>National Academy of Sciences</publisher>
+      <pagerange>e2107511118</pagerange>
+      <issn>0027-8424</issn>
+      <related_url>
+         <item>
+            <url>http://www.pnas.org/syndication/doi/10.1073/pnas.2107511118</url>
+         </item>
+         <item>
+            <url>https://syndication.highwire.org/content/doi/10.1073/pnas.2107511118</url>
+         </item>
+      </related_url>
+      <funders>
+         <item>
+            <agency>University of Michigan</agency>
+            <grant_number>0001</grant_number>
+         </item>
+         <item>
+            <agency>National Aeronautics and Space Administration</agency>
+            <grant_number>NNX16AI37G</grant_number>
+         </item>
+      </funders>
+      <subjects>
+         <item>Multidisciplinary</item>
+      </subjects>
+      <doi>10.1073/pnas.2107511118</doi>
+   </eprint>
+   <eprint>
+      <type>article</type>
+      <creators>
+         <item>
+            <name>
+               <family>Lee</family>
+               <given>Vincent S.H.</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Taylor</family>
+               <given>Stephen R.</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Trickle</family>
+               <given>Tanner</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Zurek</family>
+               <given>Kathryn M.</given>
+            </name>
+         </item>
+      </creators>
+      <title>Bayesian forecasts for dark matter substructure searches with mock pulsar timing data</title>
+      <ispublished>pub</ispublished>
+      <date>2021-08-01</date>
+      <date_type>published</date_type>
+      <publication>Journal of Cosmology and Astroparticle Physics</publication>
+      <volume>2021</volume>
+      <number>8</number>
+      <publisher>IOP</publisher>
+      <pagerange>025</pagerange>
+      <issn>1475-7516</issn>
+      <related_url>
+         <item>
+            <url>https://iopscience.iop.org/article/10.1088/1475-7516/2021/08/025</url>
+         </item>
+         <item>
+            <url>https://iopscience.iop.org/article/10.1088/1475-7516/2021/08/025/pdf</url>
+         </item>
+         <item>
+            <url>https://iopscience.iop.org/article/10.1088/1475-7516/2021/08/025/pdf</url>
+         </item>
+         <item>
+            <url>https://iopscience.iop.org/article/10.1088/1475-7516/2021/08/025/pdf</url>
+         </item>
+      </related_url>
+      <subjects>
+         <item>Astronomy and Astrophysics</item>
+      </subjects>
+      <doi>10.1088/1475-7516/2021/08/025</doi>
+   </eprint>
+   <eprint>
+      <type>article</type>
+      <creators>
+         <item>
+            <name>
+               <family>GIBSON</family>
+               <given>R.</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>JENKS</family>
+               <given>W. F.</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>CAMPBELL</family>
+               <given>I.</given>
+            </name>
+         </item>
+      </creators>
+      <title>Stratigraphy of the Belt series in Libby and Trout Creek quadrangles, northwestern Montana and northern Idaho</title>
+      <ispublished>pub</ispublished>
+      <date>1941-03-01</date>
+      <date_type>published</date_type>
+      <publication>Geological Society of America Bulletin</publication>
+      <volume>52</volume>
+      <number>3</number>
+      <publisher>Geological Society of America</publisher>
+      <pagerange>363-379</pagerange>
+      <issn>0016-7606</issn>
+      <subjects>
+         <item>Geology</item>
+      </subjects>
+      <doi>10.1130/gsab-52-363</doi>
+   </eprint>
+   <eprint>
+      <type>posted-content</type>
+      <creators>
+         <item>
+            <name>
+               <family>Le</family>
+               <given>Steven Q.</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Kan</family>
+               <given>Shih-hsin</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Nuñez</family>
+               <given>Marie</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Dearborn</family>
+               <given>Joshua T.</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Wang</family>
+               <given>Feng</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Li</family>
+               <given>Shan</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Snella</family>
+               <given>Liz</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Jens</family>
+               <given>Jackie K.</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Valentine</family>
+               <given>Bethann N.</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Nelvagal</family>
+               <given>Hemanth R.</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Sorensen</family>
+               <given>Alexander</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Cooper</family>
+               <given>Jonathan D.</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Chou</family>
+               <given>Tsui-Fen</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Ellinwood</family>
+               <given>N. Matthew</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Smith</family>
+               <given>Jodi D.</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Sands</family>
+               <given>Mark S.</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Dickson</family>
+               <given>Patricia I.</given>
+            </name>
+         </item>
+      </creators>
+      <title>Recombinant NAGLU-IGF2 prevents physical and neurological disease and improves survival in Sanfilippo B syndrome</title>
+      <ispublished>pub</ispublished>
+      <abstract>&lt;jats:title&gt;Abstract&lt;/jats:title&gt;&lt;jats:p&gt;Recombinant human alpha-&lt;jats:italic&gt;N&lt;/jats:italic&gt;-acetylglucosaminidase-insulin-like growth factor-2 (rhNAGLU-IGF2) is an investigational enzyme replacement therapy for Sanfilippo B, a lysosomal storage disease. Because recombinant human NAGLU (rhNAGLU) is poorly mannose 6-phosphorylated, we generated a fusion protein of NAGLU with IGF2 to permit its binding to the cation-independent mannose 6-phosphate receptor. We previously administered rhNAGLU-IGF2 intracerebroventricularly to Sanfilippo B mice, and demonstrated therapeutic restoration of NAGLU, normalization of lysosomal storage, and improvement in markers of neurodegeneration and inflammation. Here, we studied intracerebroventricular rhNAGLU-IGF2 delivery in both murine and canine Sanfilippo B to determine potential effects on their behavioral phenotypes and survival. Treated mice showed improvement in disease markers such as heparan sulfate glycosaminoglycans, beta-hexosaminidase, microglial activation, and lysosomal-associated membrane protein-1. Sanfilippo B mice treated with rhNAGLU-IGF2 displayed partial normalization of their stretch attend postures, a defined fear pose in mice (p&amp;lt;0.001). We found a more normal dark/light activity pattern in Sanfilippo B mice treated with rhNAGLU-IGF2 compared to vehicle-treated Sanfilippo B mice (p=0.025). We also found a 61% increase in survival in Sanfilippo B mice treated with rhNAGLU-IGF2 (mean 53w, median 48w) compared to vehicle-treated Sanfilippo B mice (mean 33w, median 37w; p&amp;lt;0.001). In canine Sanfilippo B, we found that rhNAGLU-IGF2 administered into cerebrospinal fluid normalized HS and beta-hexosaminidase activity in gray and white matter brain regions. Proteomic analysis of cerebral cortex showed restoration of protein expression levels in pathways relevant to cognitive function, synapse, and the lysosome. These data suggest that treatment with rhNAGLU-IGF2 may improve the phenotype of Sanfilippo B disease.&lt;/jats:p&gt;</abstract>
+      <date>2021-08-08</date>
+      <date_type>published</date_type>
+      <publisher>Cold Spring Harbor Laboratory</publisher>
+      <related_url>
+         <item>
+            <url>https://syndication.highwire.org/content/doi/10.1101/2021.08.06.455469</url>
+         </item>
+      </related_url>
+      <doi>10.1101/2021.08.06.455469</doi>
+   </eprint>
+   <eprint>
+      <type>posted-content</type>
+      <creators>
+         <item>
+            <name>
+               <family>Williams</family>
+               <given>Ruth</given>
+            </name>
+            <orcid>0000-0002-2628-7834</orcid>
+         </item>
+         <item>
+            <name>
+               <family>Lukoseviciute</family>
+               <given>Martyna</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Sauka-Spengler</family>
+               <given>Tatjana</given>
+            </name>
+            <orcid>0000-0001-9289-0263</orcid>
+         </item>
+         <item>
+            <name>
+               <family>Bronner</family>
+               <given>Marianne E.</given>
+            </name>
+            <orcid>0000-0003-4274-1862</orcid>
+         </item>
+      </creators>
+      <title>Segregation of neural crest specific lineage trajectories from a heterogeneous neural plate border territory only emerges at neurulation</title>
+      <ispublished>pub</ispublished>
+      <abstract>&lt;jats:p&gt;The epiblast of vertebrate embryos is comprised of neural and non-neural ectoderm, with the border territory at their intersection harbouring neural crest and cranial placode progenitors. Here we profile avian epiblast cells as a function of time using single-cell RNA-seq to define transcriptional changes in the emerging ‘neural plate border’. The results reveal gradual establishment of heterogeneous neural plate border signatures, including novel genes that we validate by fluorescent &lt;jats:italic&gt;in situ&lt;/jats:italic&gt; hybridisation. Developmental trajectory analysis shows that segregation of neural plate border lineages only commences at early neurulation, rather than at gastrulation as previously predicted. We find that cells expressing the prospective neural crest marker &lt;jats:italic&gt;Pax7&lt;/jats:italic&gt; contribute to multiple lineages, and a subset of premigratory neural crest cells shares a transcriptional signature with their border precursors. Together, our results suggest that cells at the neural plate border remain heterogeneous until early neurulation, at which time progenitors become progressively allocated toward defined lineages.&lt;/jats:p&gt;</abstract>
+      <date>2021-08-09</date>
+      <date_type>published</date_type>
+      <publisher>Cold Spring Harbor Laboratory</publisher>
+      <related_url>
+         <item>
+            <url>https://syndication.highwire.org/content/doi/10.1101/2021.08.08.455573</url>
+         </item>
+      </related_url>
+      <doi>10.1101/2021.08.08.455573</doi>
+   </eprint>
+   <eprint>
+      <type>book_section</type>
+      <creators>
+         <item>
+            <name>
+               <family>Bowden</family>
+               <given>Melanie</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Taylor</family>
+               <given>Andy N.</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Ganga</family>
+               <given>Ken M.</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Ade</family>
+               <given>Peter A.</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Bock</family>
+               <given>James J.</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Cahill</family>
+               <given>Gary A.</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Carlstrom</family>
+               <given>John E.</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Church</family>
+               <given>Sarah E.</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Gear</family>
+               <given>Walter K.</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Hinderks</family>
+               <given>James R.</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Hu</family>
+               <given>Wayne</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Keating</family>
+               <given>Brian G.</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Kovac</family>
+               <given>John</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Lange</family>
+               <given>Andrew E.</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Leitch</family>
+               <given>Erik M.</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Maffei</family>
+               <given>Bruno</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Mallie</family>
+               <given>Olivier</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Melhuish</family>
+               <given>Simon J.</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Murphy</family>
+               <given>John Anthony</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Pisano</family>
+               <given>Giampaolo</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Piccirillo</family>
+               <given>Lucio</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Pryke</family>
+               <given>Clem</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Rusholme</family>
+               <given>Ben A.</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>O&#39;Sullivan</family>
+               <given>Creidhe M.</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Thompson</family>
+               <given>Keith L.</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Zemcov</family>
+               <given>Michael</given>
+            </name>
+         </item>
+      </creators>
+      <title>Measuring the cosmic microwave background polarization with the QUaD experiment</title>
+      <ispublished>pub</ispublished>
+      <date>2004-09-28</date>
+      <date_type>published</date_type>
+      <publisher>SPIE</publisher>
+      <related_url>
+         <item>
+            <url>http://proceedings.spiedigitallibrary.org/proceeding.aspx?doi=10.1117/12.551110</url>
+         </item>
+      </related_url>
+      <doi>10.1117/12.551110</doi>
+   </eprint>
+   <eprint>
+      <type>book_section</type>
+      <creators>
+         <item>
+            <name>
+               <family>Skidmore</family>
+               <given>Warren</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Schock</family>
+               <given>Matthias</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Tokovinin</family>
+               <given>Andrei A.</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Djorgovski</family>
+               <given>George</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Walker</family>
+               <given>Alistair R.</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Blum</family>
+               <given>Robert D.</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Travouillon</family>
+               <given>Tony</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Seguel</family>
+               <given>Juan</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Bustos</family>
+               <given>Edison E.</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Walker</family>
+               <given>David</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Vasquez</family>
+               <given>Joselina</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Gillett</family>
+               <given>Paul E.</given>
+            </name>
+         </item>
+      </creators>
+      <title>The Thirty Meter Telescope site testing system</title>
+      <ispublished>pub</ispublished>
+      <date>2004-09-28</date>
+      <date_type>published</date_type>
+      <publisher>SPIE</publisher>
+      <related_url>
+         <item>
+            <url>http://proceedings.spiedigitallibrary.org/proceeding.aspx?doi=10.1117/12.549384</url>
+         </item>
+      </related_url>
+      <doi>10.1117/12.549384</doi>
+   </eprint>
+   <eprint>
+      <type>book_section</type>
+      <creators>
+         <item>
+            <name>
+               <family>Yeh</family>
+               <given>Nai-Chang</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Chen</family>
+               <given>Ching-Tzu</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Vasquez</family>
+               <given>Richard P.</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Jung</family>
+               <given>Chang Uk</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Kim</family>
+               <given>J. Y.</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Park</family>
+               <given>Min-Seok</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Kim</family>
+               <given>Heon-Jung</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Lee</family>
+               <given>Sung-Ik</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Yoshida</family>
+               <given>K.</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Tajima</family>
+               <given>Setsuko</given>
+            </name>
+         </item>
+      </creators>
+      <title>Local and global effects of quantum impurities on the quasi-particle tunneling spectra of p-type and n-type cuprate superconductors</title>
+      <ispublished>pub</ispublished>
+      <date>2002-11-01</date>
+      <date_type>published</date_type>
+      <publisher>SPIE</publisher>
+      <related_url>
+         <item>
+            <url>http://proceedings.spiedigitallibrary.org/proceeding.aspx?doi=10.1117/12.452324</url>
+         </item>
+      </related_url>
+      <doi>10.1117/12.452324</doi>
+   </eprint>
+   <eprint>
+      <type>book_section</type>
+      <creators>
+         <item>
+            <name>
+               <family>Mese</family>
+               <given>Murat</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Vaidyanathan</family>
+               <given>Palghat P.</given>
+            </name>
+         </item>
+      </creators>
+      <title>&lt;title&gt;New methods for digital halftoning and inverse halftoning&lt;/title&gt;</title>
+      <ispublished>pub</ispublished>
+      <date>2001-12-28</date>
+      <date_type>published</date_type>
+      <publisher>SPIE</publisher>
+      <doi>10.1117/12.452998</doi>
+   </eprint>
+   <eprint>
+      <type>book_section</type>
+      <creators>
+         <item>
+            <name>
+               <family>Oreb</family>
+               <given>Bozenko F.</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Leistner</family>
+               <given>Achim J.</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Billingsley</family>
+               <given>GariLynn</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Kells</family>
+               <given>William P.</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Camp</family>
+               <given>Jordan</given>
+            </name>
+         </item>
+      </creators>
+      <title>&lt;title&gt;Interferometric measurement of refractive index inhomogeneity on polished sapphire substrates: application to LIGO-II&lt;/title&gt;</title>
+      <ispublished>pub</ispublished>
+      <date>2001-12-27</date>
+      <date_type>published</date_type>
+      <publisher>SPIE</publisher>
+      <doi>10.1117/12.453639</doi>
+   </eprint>
+   <eprint>
+      <type>book_section</type>
+      <creators>
+         <item>
+            <name>
+               <family>Liu</family>
+               <given>Zhiwen</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Liu</family>
+               <given>Wenhai</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Moser</family>
+               <given>Christophe</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Zhang</family>
+               <given>David</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Solomatine</family>
+               <given>Iouri V.</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Psaltis</family>
+               <given>Demetri</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Gorokhovsky</family>
+               <given>Anshel A.</given>
+            </name>
+         </item>
+      </creators>
+      <title>Derivation and measurement of the M/# in spectral hole burning media</title>
+      <ispublished>pub</ispublished>
+      <date>2002-01-29</date>
+      <date_type>published</date_type>
+      <publisher>SPIE</publisher>
+      <doi>10.1117/12.454034</doi>
+   </eprint>
+   <eprint>
+      <type>article</type>
+      <creators>
+         <item>
+            <name>
+               <family>Tan</family>
+               <given>Zhihong</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Schneider</family>
+               <given>Tapio</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Teixeira</family>
+               <given>João</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Pressel</family>
+               <given>Kyle G.</given>
+            </name>
+         </item>
+      </creators>
+      <title>Large‐eddy simulation of subtropical cloud‐topped boundary layers: 1. A forcing framework with closed surface energy balance</title>
+      <ispublished>pub</ispublished>
+      <date>2016-12</date>
+      <date_type>published</date_type>
+      <publication>Journal of Advances in Modeling Earth Systems</publication>
+      <volume>8</volume>
+      <number>4</number>
+      <publisher>American Geophysical Union</publisher>
+      <pagerange>1565-1585</pagerange>
+      <issn>1942-2466</issn>
+      <related_url>
+         <item>
+            <url>https://api.wiley.com/onlinelibrary/tdm/v1/articles/10.1002%2F2016MS000655</url>
+         </item>
+         <item>
+            <url>https://api.wiley.com/onlinelibrary/tdm/v1/articles/10.1002%2F2016MS000655</url>
+         </item>
+         <item>
+            <url>https://onlinelibrary.wiley.com/doi/pdf/10.1002/2016MS000655</url>
+         </item>
+         <item>
+            <url>https://onlinelibrary.wiley.com/doi/full-xml/10.1002/2016MS000655</url>
+         </item>
+         <item>
+            <url>https://onlinelibrary.wiley.com/doi/pdf/10.1002/2016MS000655</url>
+         </item>
+      </related_url>
+      <funders>
+         <item>
+            <agency>the U.S. National Science Foundation</agency>
+            <grant_number>(CCF-1048575)</grant_number>
+         </item>
+         <item>
+            <agency>the Swiss National Science Foundation</agency>
+         </item>
+      </funders>
+      <subjects>
+         <item>General Earth and Planetary Sciences</item>
+         <item>Environmental Chemistry</item>
+         <item>Global and Planetary Change</item>
+      </subjects>
+      <doi>10.1002/2016ms000655</doi>
+   </eprint>
+</eprints>

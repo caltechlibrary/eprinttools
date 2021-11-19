@@ -352,7 +352,7 @@ func (rec *Record) pidFromEPrint(eprint *EPrint) error {
 "id": %d,
 "pid": { "eprint": "eprintid"}
 }`, eprint.EPrintID)
-	err := json.Unmarshal([]byte(src), &data)
+	err := jsonDecode([]byte(src), &data)
 	if err != nil {
 		return fmt.Errorf("Cannot generate PID from EPrint %d", eprint.EPrintID)
 	}

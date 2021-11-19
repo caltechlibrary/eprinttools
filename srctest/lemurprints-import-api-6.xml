@@ -4,28 +4,70 @@
       <creators>
          <item>
             <name>
-               <family>Cameron</family>
-               <given>P. B.</given>
+               <family>Truong</family>
+               <given>Tuan N.</given>
             </name>
          </item>
          <item>
             <name>
-               <family>Britton</family>
-               <given>M. C.</given>
+               <family>Bouchez</family>
+               <given>Antonin H.</given>
             </name>
          </item>
          <item>
             <name>
-               <family>Kulkarni</family>
-               <given>S. R.</given>
+               <family>Dekany</family>
+               <given>Richard G.</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Shelton</family>
+               <given>Jean C.</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Troy</family>
+               <given>Mitchell</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Angione</family>
+               <given>John R.</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Burruss</family>
+               <given>Rick S.</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Cromer</family>
+               <given>John L.</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Guiwits</family>
+               <given>Stephen R.</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Roberts</family>
+               <given>Jennifer E.</given>
             </name>
          </item>
       </creators>
-      <title>Precision astrometry with adaptive optics</title>
+      <title>Real-time wavefront control for the PALM-3000 high order adaptive optics system</title>
       <ispublished>pub</ispublished>
       <date>2008-07-12</date>
       <date_type>published</date_type>
       <publisher>SPIE</publisher>
-      <doi>10.1117/12.789811</doi>
+      <doi>10.1117/12.790457</doi>
    </eprint>
 </eprints>

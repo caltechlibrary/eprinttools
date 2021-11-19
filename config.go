@@ -6,7 +6,6 @@ package eprinttools
 
 import (
 	"database/sql"
-	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -66,7 +65,7 @@ func LoadConfig(fname string) (*Config, error) {
 		return nil, err
 	} else {
 		// Since we should be OK, unmarshal in into active config
-		if err = json.Unmarshal(src, &config); err != nil {
+		if err = jsonDecode(src, &config); err != nil {
 			return nil, fmt.Errorf("Unmarshaling %q failed, %s", fname, err)
 		}
 		if config.Hostname == "" {

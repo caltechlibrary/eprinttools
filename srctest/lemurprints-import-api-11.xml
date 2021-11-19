@@ -4,8 +4,8 @@
       <creators>
          <item>
             <name>
-               <family>Dickinson</family>
-               <given>Roscoe G.</given>
+               <family>Glockler</family>
+               <given>George</given>
             </name>
          </item>
          <item>
@@ -14,20 +14,26 @@
                <given>Warren P.</given>
             </name>
          </item>
+         <item>
+            <name>
+               <family>Dalton</family>
+               <given>Robert H.</given>
+            </name>
+         </item>
       </creators>
-      <title>QUANTUM YIELD IN THE PHOTOCHEMICAL DECOMPOSITION OF NITROGEN DIOXIDE</title>
+      <title>THE ACTIVATION OF MOLECULAR HYDROGEN BY ELECTRON IMPACT</title>
       <ispublished>pub</ispublished>
-      <date>1928-03</date>
+      <date>1927-01</date>
       <date_type>published</date_type>
       <publication>Journal of the American Chemical Society</publication>
-      <volume>50</volume>
-      <number>3</number>
+      <volume>49</volume>
+      <number>1</number>
       <publisher>American Chemical Society</publisher>
-      <pagerange>774-782</pagerange>
+      <pagerange>58-65</pagerange>
       <issn>0002-7863</issn>
       <related_url>
          <item>
-            <url>https://pubs.acs.org/doi/pdf/10.1021/ja01390a022</url>
+            <url>https://pubs.acs.org/doi/pdf/10.1021/ja01400a009</url>
          </item>
       </related_url>
       <subjects>
@@ -36,6 +42,6 @@
          <item>General Chemistry</item>
          <item>Catalysis</item>
       </subjects>
-      <doi>10.1021/ja01390a022</doi>
+      <doi>10.1021/ja01400a009</doi>
    </eprint>
 </eprints>

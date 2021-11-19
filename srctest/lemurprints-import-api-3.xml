@@ -1,61 +1,78 @@
 <eprints xmlns="http://eprints.org/ep2/data/2.0">
    <eprint>
-      <type>book_section</type>
+      <type>article</type>
       <creators>
          <item>
             <name>
-               <family>Brès</family>
-               <given>Guillaume A.</given>
+               <family>Jiao</family>
+               <given>Hanwei</given>
             </name>
          </item>
          <item>
             <name>
-               <family>Yeung</family>
-               <given>Brandon</given>
+               <family>Zhang</family>
+               <given>Chaojie</given>
             </name>
+            <orcid>0000-0003-3108-8271</orcid>
          </item>
          <item>
             <name>
-               <family>Schmidt</family>
-               <given>Oliver T.</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Ghassemi Isfahani</family>
-               <given>Ata</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Webb</family>
-               <given>Nathan J.</given>
-            </name>
-         </item>
-         <item>
-            <name>
-               <family>Samimy</family>
+               <family>Yang</family>
                <given>Mo</given>
             </name>
          </item>
          <item>
             <name>
-               <family>Colonius</family>
-               <given>Tim</given>
+               <family>Wu</family>
+               <given>Yanhui</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Zhou</family>
+               <given>Qi</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Hoffmann</family>
+               <given>Michael R.</given>
             </name>
          </item>
       </creators>
-      <title>Towards large-eddy simulations of supersonic jets from twin rectangular nozzle with plasma actuation</title>
+      <title>Photoreductive defluorination of trifluoroacetic acid (TFA) in the aqueous phase by hydrated electrons</title>
       <ispublished>pub</ispublished>
-      <date>2021-08-02</date>
+      <date>2022-02</date>
       <date_type>published</date_type>
-      <publisher>American Institute of Aeronautics and Astronautics</publisher>
-      <place_of_pub>Reston, Virginia</place_of_pub>
+      <publication>Chemical Engineering Journal</publication>
+      <volume>430</volume>
+      <publisher>Elsevier B.V.</publisher>
+      <pagerange>132724</pagerange>
+      <issn>1385-8947</issn>
       <related_url>
          <item>
-            <url>https://arc.aiaa.org/doi/pdf/10.2514/6.2021-2154</url>
+            <url>https://api.elsevier.com/content/article/PII:S1385894721043023?httpAccept=text/xml</url>
+         </item>
+         <item>
+            <url>https://api.elsevier.com/content/article/PII:S1385894721043023?httpAccept=text/plain</url>
          </item>
       </related_url>
-      <doi>10.2514/6.2021-2154</doi>
+      <funders>
+         <item>
+            <agency>National Natural Science Foundation of China</agency>
+            <grant_number>21976135</grant_number>
+         </item>
+         <item>
+            <agency>National Natural Science Foundation of China</agency>
+            <grant_number>22078249</grant_number>
+         </item>
+      </funders>
+      <subjects>
+         <item>Industrial and Manufacturing Engineering</item>
+         <item>General Chemical Engineering</item>
+         <item>Environmental Chemistry</item>
+         <item>General Chemistry</item>
+      </subjects>
+      <doi>10.1016/j.cej.2021.132724</doi>
    </eprint>
 </eprints>

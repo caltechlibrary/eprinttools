@@ -32,35 +32,35 @@ Unique ID to EPrint ID
 
 Unique ids maybe standards based (e.g. ORCID, DOI, ISSN, ISBN) or internal (e.g. group ids, funder ids)
 
-- '/{REPO_ID}/doi/{DOI}' with the adoption of EPrints "doi" field in the EPrint table it makes sense to have a quick translation of DOI to EPrint id for a given EPrints repository.
+- '/{REPO_ID}/doi/{DOI}' with the adoption of EPrints "doi" field in the EPrint table it makes sense to have a quick translation of DOI to EPrint id for a given EPrints repository. 
 - '/{REPO_ID}/pmid/{PMID}' with the "pmid" field in the EPrint table, it refers to PubMed is an index of the biomedical literature.
 - '/{REPO_ID}/pmcid/{PMCID}' with the "pmcid" field in the EPrint table, PMCID an Identifier to each full-text paper in PubMed Central Archive
 - '/{REPO_ID}/creator-id' returns a list of creaator-id available in the eprints repository
-- '/{REPO_ID}/creator-id/{CREATOR_ID}' scans the name creator id field associated with creators and returns a list of EPrint ID
+- '/{REPO_ID}/creator-id/{CREATOR_ID}' scans the name creator id field associated with creators and returns a list of EPrint ID 
 - '/{REPO_ID}/creator-name' returns a list of creator names (family, given) in repository
 - '/{REPO_ID}/creator-name/{FAMILY}/{GIVEN}' returns a list of EPrint ID for the given creator using their family and given names
-- '/{REPO_ID}/creator-orcid' return a list of "orcid" associated with creators in repository
-- '/{REPO_ID}/creator-orcid/{ORCID}' scans the "orcid" field associated with creators and returns a list of EPrint ID
+- '/{REPO_ID}/creator-orcid' return a list of "orcid" associated with creators in repository 
+- '/{REPO_ID}/creator-orcid/{ORCID}' scans the "orcid" field associated with creators and returns a list of EPrint ID 
 - '/{REPO_ID}/editor-id' returns a list of editor ids available in the EPrints repository
-- '/{REPO_ID}/editor-id/{CREATOR_ID}' scans the name creator id field associated with editors and returns a list of EPrint ID
+- '/{REPO_ID}/editor-id/{CREATOR_ID}' scans the name creator id field associated with editors and returns a list of EPrint ID 
 - '/{REPO_ID}/editor-name' returns a list of editor names (family, given) in repository
 - '/{REPO_ID}/editor-name/{FAMILY}/{GIVEN}' returns a list of EPrint ID for the given editor using their family and given names
 - '/{REPO_ID}/contributor-id' returns a list of contributor ids available in the eprints repository
-- '/{REPO_ID}/contributor-id/{CONTRIBUTOR_ID}' scans the "id" field associated with a contributors and returns a list of EPrint ID
+- '/{REPO_ID}/contributor-id/{CONTRIBUTOR_ID}' scans the "id" field associated with a contributors and returns a list of EPrint ID 
 - '/{REPO_ID}/contributor-name' returns a list of contributor names (family, given) in repository
 - '/{REPO_ID}/contributor-name/{FAMILY}/{GIVEN}' returns a list of EPrint ID for the given contributor using their family and given names
 - '/{REPO_ID}/advisor-id' returns a list of advisor ids in the eprints repository
-- '/{REPO_ID}/advisor-id/{ADVISOR_ID}' scans the name advisor id field associated with advisors and returns a list of EPrint ID
+- '/{REPO_ID}/advisor-id/{ADVISOR_ID}' scans the name advisor id field associated with advisors and returns a list of EPrint ID 
 - '/{REPO_ID}/advisor-name' returns a list of advisor names (family, given) in repository
 - '/{REPO_ID}/advisor-name/{FAMILY}/{GIVEN}' returns a list of EPrint ID for the given advisor using their family and given names
 - '/{REPO_ID}/committee-id' returns a list of committee id in EPrints repository
 - '/{REPO_ID}/committee-id/{COMMITTEE_ID}' scans the committee id field associated with committee members and returns a list of EPrint ID
 - '/{REPO_ID}/committee-name' returns a list of committee members names (family, given) in repository
 - '/{REPO_ID}/committee-name/{FAMILY}/{GIVEN}' returns a list of EPrint ID for the given committee member using their family and given names
-- '/{REPO_ID}/corp-ceator-id' returns a list of corp creator ids in the eprints repository
-- '/{REPO_ID}/corp-create-id/{CORP_CREATOR_ID}' returns the list of eprint id for the corporate creator id
-- '/{REPO_ID}/corp-ceator-uri' returns a list of corp creator uri in the eprints repository
-- '/{REPO_ID}/corp-create-uri/{CORP_CREATOR_URI}' returns the list of eprint id for the corporate creator's URI
+- '/{REPO_ID}/corp-creator-id' returns a list of corp creator ids in the eprints repository
+- '/{REPO_ID}/corp-creator-id/{CORP_CREATOR_ID}' returns the list of eprint id for the corporate creator id
+- '/{REPO_ID}/corp-creator-uri' returns a list of corp creator uri in the eprints repository
+- '/{REPO_ID}/corp-creator-uri/{CORP_CREATOR_URI}' returns the list of eprint id for the corporate creator's URI
 - '/{REPO_ID}/group-id' returns a list of group ids in EPrints repository
 - '/{REPO_ID}/group-id/{GROUP_ID}' this scans group ID and returns a list of EPrint IDs associated with the group
 - '/{REPO_ID}/funder-id' returns a list of funders in the EPrints repository
@@ -79,6 +79,8 @@ Unique ids maybe standards based (e.g. ORCID, DOI, ISSN, ISBN) or internal (e.g.
 - '/{REPO_ID}/patent-classification/{PATENT_CLASSIFICATION}' - return a list eprint ids for patent classification in repository
 - '/{REPO_ID}/patent-assignee' - return a list of patent assignee in repository
 - '/{REPO_ID}/patent-assignee/{PATENT_ASSIGNEE}' - return a list eprint ids for patent assignee in repository
+- '/{REPO_ID}/year' - return a descending list of years containing record with a date type of "published".
+- '/{REPO_ID}/year/{YEAR}' - return a list of eprintid for a given year contaning date type of "published".
 
 
 Change Events
@@ -147,6 +149,5 @@ Options
   -version
     	Display software version
 ```
-
 
 
