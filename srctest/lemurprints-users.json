@@ -1,5 +1,21 @@
 [
     {
+        "userid": 1,
+        "username": "jane.doe",
+        "name": {
+            "given": "Jane",
+            "family": "Doe",
+            "honourific": "Dr.",
+            "lineage": "III"
+        },
+        "email": "jane.doe@example.edu",
+        "hideemail": true,
+        "dept": "Library",
+        "org": "Example Tech",
+        "address": "1200 East C Blvd, Anytown, Anywhere 00000",
+        "country": "Republic of Utopia"
+    },
+    {
         "userid": 2,
         "username": "jill.doe",
         "name": {

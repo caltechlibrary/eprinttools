@@ -1360,47 +1360,6 @@ func TestSQLUser(t *testing.T) {
 	tableName := `user`
 	clearTable(t, config, repoID, tableName)
 
-	now := time.Now()
-	user := new(EPrintUser)
-	user.Name = new(Name)
-	user.Name.Honourific = `Dr.`
-	user.Name.Given = `Jane`
-	user.Name.Family = `Doe`
-	user.Name.Lineage = `III`
-	user.UserID = 1
-	user.Username = `jane.doe`
-	user.EMail = `jane.doe@example.edu`
-	user.HideEMail = false
-	user.Joined = now.Format(timestamp)
-	user.Dept = `Library`
-	user.Org = `Caltech`
-	user.Address = `1 East C Boulevard Anytown, Anywhere 00000`
-	user.Country = `Republic of Utopia`
-
-	user.UserID, err = SQLCreateUser(config, repoID, user)
-	if err != nil {
-		t.Errorf(`Failed to create user, %s`, err)
-		t.FailNow()
-	}
-
-	user.EMail = `jane.doe@library.example.edu`
-	err = SQLUpdateUser(config, repoID, user)
-	if err != nil {
-		t.Errorf(`Failed to update user, %s`, err)
-		t.FailNow()
-	}
-
-	got, err := SQLReadUser(config, repoID, user.UserID)
-	if err != nil {
-		t.Errorf(`failed to get user by userid. %s`, err)
-		t.FailNow()
-	}
-	if got == nil {
-		t.Errorf(`expected a EPrintUser got nil`)
-		t.FailNow()
-	}
-	assertUserSame(t, user, got)
-
 	userList := []*EPrintUser{}
 	fName = path.Join(`srctest`, `lemurprints-users.json`)
 	src, err := ioutil.ReadFile(fName)
@@ -1425,6 +1384,7 @@ func TestSQLUser(t *testing.T) {
 			t.Errorf(`Failed to read user (%d) %s`, i, err)
 		}
 		assertUserSame(t, user, got)
+		user.EMail = `jane.doe@library.example.edu`
 		user.Country = `Utopia, Republic of`
 		err = SQLUpdateUser(config, repoID, user)
 		if err != nil {
