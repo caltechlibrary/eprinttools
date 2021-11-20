@@ -1267,7 +1267,7 @@ func documentIDToRelation(repoID string, baseURL string, documentID int, pos int
 
 	if okTypeTable && okUriTable {
 		itemList := new(RelationItemList)
-		stmt := fmt.Sprintf(`SELECT pos, document_relation_type.relation_type, document_relation_uri.relation_uri FROM %s JOIN %s ON ((%s.docid = %s.docid) AND (%s.pos = %s.pos)) WHERE (%s.docid = ?)`, typeTable, uriTable, typeTable, uriTable, typeTable, uriTable, typeTable)
+		stmt := fmt.Sprintf(`SELECT document_relation_type.pos AS pos, document_relation_type.relation_type, document_relation_uri.relation_uri FROM %s JOIN %s ON ((%s.docid = %s.docid) AND (%s.pos = %s.pos)) WHERE (%s.docid = ?)`, typeTable, uriTable, typeTable, uriTable, typeTable, uriTable, typeTable)
 		rows, err := db.Query(stmt, documentID)
 		if err != nil {
 			log.Printf("Query failed %q, doc id %d, pos %d, %s", stmt, documentID, pos, err)
