@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>edu.caltech.library.ep3apid</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/usr/local/bin/ep3apid</string>
+        <string>/usr/local/etc/eprinttools/settings.json</string>
+    </array>
+    <key>GroupName</key>
+    <string>staff</string>
+    <key>KeepAlive</key>
+    <true/>
+    <key>StandardOutPath</key>
+    <string>/usr/local/var/log/ep3apid/access.log</string>
+    <key>StandardErrorPath</key>
+    <string>/usr/local/var/log/ep3apid/errors.log</string>
+    <key>Debug</key>
+    <true/>
+</dict>
+</plist>

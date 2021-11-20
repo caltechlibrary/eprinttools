@@ -72,3 +72,4 @@ htdocs/*
 *.bak
 sql-dumps/*
 *.log
+tmp/*
