@@ -3,7 +3,7 @@
 ep3api_test.py tests the ep3api.py python library used in acacia object.
 '''
 from cltests import TestSet, T, IsSuccessful
-from ep3apid import Ep3API
+from ep3apid import Ep3API, User
 
 api = Ep3API('http://localhost:8484', 'lemurprints')
 
@@ -20,6 +20,17 @@ def test_user():
     t.Expected(None, err, f"Did not expect an error for usernames, {err}")
     t.Expected(True, usernames != None, "Should have some usernames")
     t.Expected(True, isinstance(usernames, list), "Expected a list of usernames")
+    for i, name in enumerate(usernames):
+        u = User()
+        m, err = api.user(name)
+        if err:
+            t.Expected(True, False, f'Did not expect error ({i}, {name}) {err}')
+        else:
+            u.from_dict(m)
+            #print(f'DEBUG u: {u.to_string()}')
+            t.Expected(True, u.uname != '', f'Expected u.uname to be populated ({i}, {name})')
+            t.Expected(True, u.userid != 0, f'Expected non-zero u.userid ({i}, {name})')
+            #t.Expected(True, u.display_name != '', f'Expected u.display_name to be populated ({i}, {name})')
     return t.Results()
 
 
