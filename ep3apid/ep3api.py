@@ -10,6 +10,7 @@ import sys
 import json
 from urllib.request import Request, urlopen
 from urllib.error import URLError, HTTPError
+from urllib.parse import quote_plus
 
 def dquote(s):
     return '"' + s + '"'
@@ -63,14 +64,31 @@ def post_xml(u, xml_src):
     return json.loads(src), None
     
 class Ep3API:
-    '''Ep3API provides data access to the ep3apid web service'''
+    '''Ep3API provides data access to the ep3apid web service for a specific repository'''
     url = 'http://localhost:8484'
     repo_id = None
 
-    def __init__(self, url = 'http://localhost:8484', repo_id = 'caltechauthors'):
+    def __init__(self, url = 'http://localhost:8484', repo_id = None):
         '''Initialize with the URL to ep3apid and repository ID'''
         self.url = url
         self.repo_id = repo_id
+
+    def use(self, repo_id):
+        '''Set the repository name Ep3API uses. Returns True if repository found False if not'''
+        repositories, err = self.repositories()
+        if (not err) and (repo_id in repositories):
+            self.repo_id = repo_id
+            return True
+        return False
+
+    def repositories(self):
+        '''Return a list of repositories available'''
+        return get_json_data(f'{self.url}/repositories')
+
+    def repository(self):
+        '''Return a list of tables in repository'''
+        return get_json_data(f'{self.url}/repository/{self.repo_id}')
+
 
     #
     # The following methods returns list of eprint ids and error tuples
@@ -249,7 +267,8 @@ class Ep3API:
         return post_xml(f'{self.url}/{self.repo_id}/eprint-import', eprint_xml)
 
     def user(self, username_or_id):
-        return get_json_data(f'{self.url}/{self.repo_id}/user/{username_or_id}')
+        s = quote_plus(username_or_id)
+        return get_json_data(f'{self.url}/{self.repo_id}/user/{s}')
 
     def usernames(self):
         return get_json_data(f'{self.url}/{self.repo_id}/usernames')
