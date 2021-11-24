@@ -953,7 +953,7 @@ func (api *EP3API) routeHandler(w http.ResponseWriter, r *http.Request) {
 		statusCode int
 	)
 	if r.Method != "GET" && r.Method != "POST" {
-		statusCode, err = 405, fmt.Errorf("Method Not Allowed")
+		statusCode, err = 405, fmt.Errorf("method not allowed, %q", r.Method)
 		handleError(w, statusCode, err)
 	} else {
 		switch {
