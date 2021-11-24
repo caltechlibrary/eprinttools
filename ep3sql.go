@@ -538,7 +538,9 @@ func eprintTablesAndColumns(db *sql.DB, repoID string) (map[string][]string, err
 	for rows.Next() {
 		tableName := ""
 		if err := rows.Scan(&tableName); err == nil {
-			tables = append(tables, tableName)
+			if !strings.Contains(tableName, "__") {
+				tables = append(tables, tableName)
+			}
 		}
 	}
 	rows.Close()
@@ -576,7 +578,9 @@ func eprintTablesAndColumns(db *sql.DB, repoID string) (map[string][]string, err
 	for rows.Next() {
 		tableName := ""
 		if err := rows.Scan(&tableName); err == nil {
-			tables = append(tables, tableName)
+			if !strings.Contains(tableName, "__") {
+				tables = append(tables, tableName)
+			}
 		}
 	}
 	rows.Close()
@@ -614,7 +618,9 @@ func eprintTablesAndColumns(db *sql.DB, repoID string) (map[string][]string, err
 	for rows.Next() {
 		tableName := ""
 		if err := rows.Scan(&tableName); err == nil {
-			tables = append(tables, tableName)
+			if !strings.Contains(tableName, "__") {
+				tables = append(tables, tableName)
+			}
 		}
 	}
 	rows.Close()
