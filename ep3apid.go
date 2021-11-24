@@ -863,8 +863,12 @@ func (api *EP3API) eprintImportEndPoint(w http.ResponseWriter, r *http.Request, 
 		repoID = `{REPO_ID}`
 		return api.packageDocument(w, eprintReadWriteDocument(repoID))
 	}
-	if r.Method == "GET" || strings.HasSuffix(r.URL.Path, "/help") {
+	if (r.Method == "GET") || (len(args) == 0) || strings.HasSuffix(r.URL.Path, "/help") {
 		return api.packageDocument(w, eprintReadWriteDocument(repoID))
+	}
+	userID, err := strconv.Atoi(args[0])
+	if err != nil {
+		return 400, fmt.Errorf("bad request, (%s, missing buffer id), %s", repoID, err)
 	}
 	writeAccess := false
 	dataSource, ok := api.Config.Repositories[repoID]
@@ -884,6 +888,7 @@ func (api *EP3API) eprintImportEndPoint(w http.ResponseWriter, r *http.Request, 
 		return 400, fmt.Errorf("bad request, POST failed (%s), %s", repoID, err)
 	}
 	for _, eprint := range eprints.EPrint {
+		eprint.UserID = userID
 		eprint.EPrintStatus = `buffer`
 	}
 

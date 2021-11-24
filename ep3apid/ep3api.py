@@ -261,10 +261,10 @@ class Ep3API:
     def eprint(self, eprint_id):
         return get_json_data(f'{self.url}/{self.repo_id}/eprint/{eprint_id}')
 
-    def eprint_import(self, eprint_xml = None):
+    def eprint_import(self, userid, eprint_xml = None):
         if eprint_xml == None:
             return [], 'missing eprint xml'
-        return post_xml(f'{self.url}/{self.repo_id}/eprint-import', eprint_xml)
+        return post_xml(f'{self.url}/{self.repo_id}/eprint-import/{user_id}', eprint_xml)
 
     def user(self, username_or_id):
         s = quote_plus(username_or_id)
