@@ -92,7 +92,8 @@ func runWriteTest(t *testing.T, api *EP3API, repoID string, repo *DataSource, ro
 			t.FailNow()
 		}
 		//t.Logf(`Read eprint XML %q: %s`, testFile, src)
-		u := fmt.Sprintf(`%s/%s/eprint-import`, baseURL, repoID)
+		userID := 1
+		u := fmt.Sprintf(`%s/%s/eprint-import/%d`, baseURL, repoID, userID)
 		src, err = httpPost(u, `application/xml`, src)
 		if err != nil {
 			t.Logf(`%s`, src)
