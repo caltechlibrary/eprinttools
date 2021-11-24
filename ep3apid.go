@@ -875,7 +875,7 @@ func (api *EP3API) eprintImportEndPoint(w http.ResponseWriter, r *http.Request, 
 		return 404, fmt.Errorf("not found")
 	}
 	if r.Method != "POST" || writeAccess == false {
-		return 405, fmt.Errorf("method not allowed")
+		return 405, fmt.Errorf("method not allowed %q", r.Method)
 	}
 	// Check to see if we have application/xml or application/json
 	// Get data from post
@@ -883,6 +883,10 @@ func (api *EP3API) eprintImportEndPoint(w http.ResponseWriter, r *http.Request, 
 	if err != nil {
 		return 400, fmt.Errorf("bad request, POST failed (%s), %s", repoID, err)
 	}
+	for _, eprint := range eprints.EPrint {
+		eprint.EPrintStatus = `buffer`
+	}
+
 	ids := []int{}
 	ids, err = ImportEPrints(api.Config, repoID, dataSource, eprints)
 	if err != nil {
