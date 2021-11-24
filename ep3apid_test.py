@@ -13,6 +13,12 @@ def test_eprint_lists():
     keys, err = api.keys()
     t.Expected(None, err, f"Did not expect an error for keys, {err}")
     t.Expected(True, keys != None, "Should have a list of keys")
+    for key in keys:
+        obj, err = api.eprint(key)
+        if err:
+            t.Expected(False, True, f"api.eprint({key}), did not expect err {err}")
+        if obj == None:
+            t.Expected(True, False, f"api.eprint({key}) should have returned an object")
     return t.Results()
 
 def test_user():
@@ -41,7 +47,7 @@ def test_caltechauthors():
     t = T()
     old_repo_id = api.repo_id
     repo_id = 'caltechauthors'
-    print(f'Switching repositories from {old_repo_id} to {repo_id}')
+    #print(f'Switching repositories from {old_repo_id} to {repo_id}')
     t.Expected(True, api.use(repo_id), f'Expected API repo change to {repo_id}')
     usernames, err = api.usernames()
     for i, name in enumerate(usernames):
