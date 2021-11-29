@@ -1046,6 +1046,7 @@ func (api *EP3API) InitExtendedAPI(settings string) error {
 	if api.Config == nil {
 		return fmt.Errorf("Missing configuration")
 	}
+
 	/* Setup logging */
 	if api.Config.Logfile == `` {
 		api.Log = log.Default()

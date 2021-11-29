@@ -208,10 +208,16 @@ func ClearRuleSet() map[string]bool {
 		"normalize_related_url": false,
 		"normalize_publisher":   false,
 		"normalize_publication": false,
+		"assume_refereed":       false,
+		"default_rights":        false,
+		"default_collection":    false,
+		"generate_id_number":    false,
+		"generate_official_url": false,
 	}
 }
 
 func UseCLSRules() map[string]bool {
+	eprinttools.SetDefaults("CaltechAUTHORS", "No commercial reproduction, distribution, display or performance rights in this work are provided.", "https://resolver.caltech.edu")
 	return map[string]bool{
 		// Conform given names to use periods with initials
 		"dot_initials": true,
@@ -239,6 +245,18 @@ func UseCLSRules() map[string]bool {
 		"normalize_publisher": true,
 		// Normalize Publication from ISSN
 		"normalize_publication": true,
+		// Default refereed to "TRUE" for type "article"
+		"assume_refereed": true,
+		// Use DefaultRights value for "usage" statement
+		"default_rights": true,
+		// Use DefaultCollection value for eprint.Collection
+		// and generating eprint.IDNumber
+		"default_collection": true,
+		// Generate an ID number based on time and Collection/DefaultCollection values
+		"generate_id_number": true,
+		// Generate an Official URL from
+		// ID number, collection and DefaultOfficialURLPrefix
+		"generate_official_url": true,
 	}
 }
 
@@ -311,6 +329,29 @@ func Apply(eprintsList *eprinttools.EPrints, ruleSet map[string]bool) (*eprintto
 							changed = true
 						}
 					}
+				case "assume_refereed":
+					if eprint.Type == `article` {
+						eprint.Refereed = `TRUE`
+						changed = true
+					}
+				case "default_rights":
+					// NOTE: "Usage" is what our EPrint repository calls
+					// "Rights" in the database.
+					if eprinttools.DefaultRights != "" {
+						eprint.Rights = eprinttools.DefaultRights
+						changed = true
+					}
+				case "default_collection":
+					if eprinttools.DefaultCollection != "" {
+						eprint.Collection = eprinttools.DefaultCollection
+						changed = true
+					}
+				case "generate_id_number":
+					eprint.IDNumber = eprinttools.GenerateIDNumber(eprint)
+					changed = true
+				case "generate_official_url":
+					eprint.OfficialURL = eprinttools.GenerateOfficialURL(eprint)
+					changed = true
 				}
 			}
 		}

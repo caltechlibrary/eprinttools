@@ -25,6 +25,21 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"time"
+)
+
+//
+// These default values are used when apply clsrules set
+//
+var (
+	// DefaultCollection holds the default collection to use on deposit
+	DefaultCollection string
+	// DefaultRights sets the eprint.Rights to a default value on deposit
+	DefaultRights string
+	// DefaultOfficialURL holds a URL prefix for the persistent URL,
+	// an ID Number will get added when generating per record
+	// official_url values.
+	DefaultOfficialURL string
 )
 
 //
@@ -2103,4 +2118,36 @@ type EPrintUser struct {
 	Org       string   `xml:"org,omitempty" json:"org,omitempty"`
 	Address   string   `xml:"address,omitempty" json:"address,omitempty"`
 	Country   string   `xml:"country,omitempty" json:"country,omitempty"`
+}
+
+// SetDefaults sets the default values for DefaultCollection, DefaultRights, Default
+func SetDefaults(collection string, rights string, officialURL string) {
+	DefaultCollection = collection
+	DefaultRights = rights
+	DefaultOfficialURL = officialURL
+}
+
+// GenerateIDNumber generates a unique ID number based on the
+// instance of generation and the default collection name.
+// I.e. COLLECTION_NAME:DATESTAMP-NANOSECOND
+//
+// NOTE: You need to have set the values for DefaultCollection and
+// DefaultOfficialURL before calling this function.
+func GenerateIDNumber(eprint *EPrint) string {
+	collection := DefaultCollection
+	if eprint.Collection != "" {
+		collection = eprint.Collection
+	}
+	now := time.Now()
+	return fmt.Sprintf(`%s:%s-%d`, collection, now.Format("20060102"), now.Nanosecond())
+}
+
+// GenerateOfficialURL generates an OfficalURL (i.e.
+//   idNumber string appended to OfficialURLPrefix)
+func GenerateOfficialURL(eprint *EPrint) string {
+	idNumber := eprint.IDNumber
+	if idNumber == "" {
+		idNumber = GenerateIDNumber(eprint)
+	}
+	return fmt.Sprintf(`%s/%s`, DefaultOfficialURL, idNumber)
 }
