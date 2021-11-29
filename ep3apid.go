@@ -182,7 +182,7 @@ func unpackageEPrintsPOST(r *http.Request) (*EPrints, error) {
 //
 
 func (api *EP3API) versionEndPoint(w http.ResponseWriter, r *http.Request) (int, error) {
-	return api.packageDocument(w, fmt.Sprintf("EPrint 3.3 extended API, %s", Version))
+	return api.packageDocument(w, fmt.Sprintf("EPrint 3.3 extended API, %s\n", Version))
 }
 
 //

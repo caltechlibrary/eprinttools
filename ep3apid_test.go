@@ -72,6 +72,7 @@ func checkForHelpPages(api *EP3API, hostname string, repoID string, route string
 }
 
 func runWriteTest(t *testing.T, api *EP3API, repoID string, repo *DataSource, route string) {
+	userID := 1 // use Admin account, userid 1, for test databases.
 	baseURL := fmt.Sprintf(`http://%s`, api.Config.Hostname)
 	repo, ok := api.Config.Repositories[repoID]
 	if ok == false || repo.Write == false {
@@ -92,7 +93,7 @@ func runWriteTest(t *testing.T, api *EP3API, repoID string, repo *DataSource, ro
 			t.FailNow()
 		}
 		//t.Logf(`Read eprint XML %q: %s`, testFile, src)
-		u := fmt.Sprintf(`%s/%s/eprint-import`, baseURL, repoID)
+		u := fmt.Sprintf(`%s/%s/eprint-import/%d`, baseURL, repoID, userID)
 		src, err = httpPost(u, `application/xml`, src)
 		if err != nil {
 			t.Logf(`%s`, src)
