@@ -72,10 +72,11 @@ fi
 #
 
 function post_file () {
+    USERID="1" # Using Admin userid 1 for tests.
     FNAME="${1}"
     echo "POSTing ${FNAME}"
     curl -X POST -H 'Content-Type: application/xml' \
-         http://localhost:8484/lemurprints/eprint-import \
+         "http://localhost:8484/lemurprints/eprint-import/$USERID" \
          --data-binary "@${FNAME}" >/dev/null
 }
 
