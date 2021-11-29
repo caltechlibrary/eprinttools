@@ -7,16 +7,24 @@ This is for the simplified eprinttools codebase.
 Bugs
 ----
 
-+ [ ] Issue 40, SQL reference document_relation_type table issues
++ [x] Issue 40, SQL reference document_relation_type table issues
++ [ ] Issue 41, Add related URL as DOI value (really make eprints show this as a linked field in the display, don't do that in the data structure)
++ [ ] Issue 44, Funders are coming up as "UNSPECIFIED"
++ [ ] Issue 45, Related URLs are coming in as "UNSPECIFIED"
++ [ ] Issue 47, Need to strip HTML from Abstract field
++ [ ] Issue 48, Imported EPrint doesn't show up in review buffer
++ [ ] Issue 49, Field defaults on import including resolver URL and collection
++ [ ] Issue 50, Verify why imported and published EPrints don't show in recent additions (is the an issue with generated views or with a datestamp not getting set correctly?).
+
 
 Next
 ----
 
+- [ ] Implement Solr index record view for Solr 8.9 ingest
 - [ ] Add update end point to support update EPrints Metadata
     - [ ] Figure out how historical diffs of EPrints XML are generated in EPrints' History tab
     - [ ] Implement updates versioning the EPrint Metadata record
     - [ ] Implement file upload and manage document versioning
-- [ ] Implement Solr index record view for Solr 8.9 ingest
 
 Completed
 ---------
