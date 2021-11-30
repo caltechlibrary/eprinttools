@@ -23,20 +23,11 @@ package main
 //
 
 import (
-	"bytes"
-	"encoding/json"
-	"encoding/xml"
 	"flag"
 	"fmt"
-	"io/ioutil"
-	"net/http"
-	"net/url"
 	"os"
 	"path"
 	"strings"
-
-	// Golang optional libraries
-	"golang.org/x/crypto/ssh/terminal"
 
 	// Caltech Library Packages
 	"github.com/caltechlibrary/eprinttools"
@@ -50,10 +41,33 @@ USAGE
 SYNOPSIS
 
 {app_name} is a command line program for exploring 
-EPrint REST API and EPrint XML document structure
-in XML as well as JSON.
+the EPrints Extended API (provided by ep3apid) or EPrint's
+own REST API.  Records are returned in either JSON or EPrints XML.
+Lists of eprint ids are returned in JSON.
 
-DETAIL
+DETAIL FOR EPrints Extended API
+
+The extended API is expected to be present on the local machine
+at http://localhost:8484.  {app_name} will convert the command line
+parameters into the appropriate URL encoding the command line as
+necessary and return the values from the Extended API end points.
+
+The format of the command working with the EPrints extended API
+is ` + "`" + `{app_name} REPO_ID END_POINT_NAME [PARAMETER ...]` + "`" + `
+You must specify the repository id in the command. E.g.
+
+    {app_name} caltechauthors keys
+	{app_name} caltechauthors doi
+	{app_name} caltechauthors doi "10.5062/F4NP22DV"
+	{app_name} caltechauthors creator-name "Morrell" "Thomas"
+	{app_name} caltechauthors grant-number 
+	{app_name} caltechauthors grant-number "kzcx3-sw-147"
+
+See website for a full list of available end points.
+
+    https://caltechlibrary.github.io/eprinttools/docs/ep3apid.html
+
+DETAIL FOR EPrints REST API
 
 {app_name} parses XML content retrieved from 
 EPrints 3.x. REST API. It will render 
@@ -158,7 +172,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 func main() {
 	var (
-		src []byte
 		err error
 	)
 	appName := path.Base(os.Args[0])
@@ -170,6 +183,7 @@ func main() {
 	flagSet.BoolVar(&showHelp, "help", false, "display help")
 	flagSet.BoolVar(&showLicense, "license", false, "display license")
 	flagSet.BoolVar(&showVersion, "version", false, "display version")
+	flagSet.BoolVar(&verbose, "verbose", false, "verbose output")
 	flagSet.StringVar(&inputFName, "i", "", "input file name (read the URL connection string from the input file")
 	flagSet.StringVar(&inputFName, "input", "", "input file name (read the URL connection string from the input file")
 	flagSet.StringVar(&outputFName, "o", "", "output file name")
@@ -195,7 +209,7 @@ func main() {
 	flagSet.Parse(os.Args[1:])
 	args := flagSet.Args()
 
-	if len(args) > 0 {
+	if len(args) > 0 && strings.Contains(args[0], "://") {
 		getURL = args[0]
 	}
 
@@ -218,17 +232,6 @@ func main() {
 		defer out.Close()
 	}
 
-	/*
-		if getURL == "" {
-			in, err = cli.Open(inputFName, os.Stdin)
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "%s\n", err)
-				os.Exit(1)
-			}
-			defer in.Close()
-		}
-	*/
-
 	// Handle options
 	if showHelp {
 		eprinttools.DisplayUsage(out, appName, flagSet, description, examples, license)
@@ -243,130 +246,17 @@ func main() {
 		os.Exit(0)
 	}
 
+	options := map[string]bool{
+		"newLine":        newLine,
+		"passwordPrompt": passwordPrompt,
+		"getDocument":    getDocument,
+		"asJSON":         asJSON,
+		"asSimplified":   asSimplified,
+		"verbose":        verbose,
+	}
 	if getURL == "" {
-		eprinttools.DisplayUsage(os.Stderr, appName, flagSet, description, examples, license)
-		os.Exit(1)
-	}
-
-	u, err := url.Parse(getURL)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "%s\n", err)
-		os.Exit(1)
-	}
-	if passwordPrompt {
-		fmt.Fprintf(out, "Please type the password for accessing\n%s\n", getURL)
-		if src, err := terminal.ReadPassword(0); err == nil {
-			password = fmt.Sprintf("%s", src)
-		}
-	}
-	if userinfo := u.User; userinfo != nil {
-		username = userinfo.Username()
-		if secret, isSet := userinfo.Password(); isSet {
-			password = secret
-		}
-		if auth == "" {
-			auth = "basic"
-		}
-	}
-
-	// NOTE: We build our client request object so we can
-	// set authentication if necessary.
-	req, err := http.NewRequest("GET", getURL, nil)
-	switch strings.ToLower(auth) {
-	case "basic":
-		req.SetBasicAuth(username, password)
-	case "basic_auth":
-		req.SetBasicAuth(username, password)
-	}
-	req.Header.Set("User-Agent", eprinttools.Version)
-	client := &http.Client{}
-	res, err := client.Do(req)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "%s\n", err)
-		os.Exit(1)
-	}
-	defer res.Body.Close()
-	if res.StatusCode == 200 {
-		src, err = ioutil.ReadAll(res.Body)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "%s\n", err)
-			os.Exit(1)
-		}
+		os.Exit(eprinttools.RunExtendedAPIClient(out, args, verbose))
 	} else {
-		fmt.Fprintf(os.Stderr, "%s for %s", res.Status, getURL)
-		os.Exit(1)
+		os.Exit(eprinttools.RunEPrintsRESTClient(out, getURL, auth, username, password, options))
 	}
-	if len(bytes.TrimSpace(src)) == 0 {
-		os.Exit(0)
-	}
-	if raw {
-		if newLine {
-			fmt.Fprintf(out, "%s\n", src)
-		} else {
-			fmt.Fprintf(out, "%s", src)
-		}
-		os.Exit(0)
-	}
-
-	switch {
-	case getDocument:
-		docName := path.Base(u.Path)
-		err = ioutil.WriteFile(docName, src, 0644)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "%s\n", err)
-			os.Exit(1)
-		}
-		fmt.Fprintf(out, "retrieved %s\n", docName)
-		os.Exit(0)
-	case u.Path == "/rest/eprint/":
-		data := eprinttools.EPrintsDataSet{}
-		err = xml.Unmarshal(src, &data)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "%s\n", err)
-			os.Exit(1)
-		}
-		if asJSON || asSimplified {
-			src, err = json.MarshalIndent(data, "", "   ")
-		} else {
-			fmt.Fprintf(out, "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n")
-			src, err = xml.MarshalIndent(data, "", "  ")
-		}
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "%s\n", err)
-			os.Exit(1)
-		}
-	default:
-		data := eprinttools.EPrints{}
-		err = xml.Unmarshal(src, &data)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "%s\n", err)
-			os.Exit(1)
-		}
-		for _, e := range data.EPrint {
-			e.SyntheticFields()
-		}
-		if asSimplified {
-			if sObj, err := eprinttools.CrosswalkEPrintToRecord(data.EPrint[0]); err != nil {
-				fmt.Fprintf(os.Stderr, "%s\n", err)
-			} else {
-				src, err = json.MarshalIndent(sObj, "", "   ")
-			}
-		} else if asJSON {
-			src, err = json.MarshalIndent(data, "", "   ")
-		} else {
-			fmt.Fprintf(out, "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n")
-			src, err = xml.MarshalIndent(data, "", "  ")
-		}
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "%s\n", err)
-			os.Exit(1)
-		}
-	}
-
-	if newLine {
-		fmt.Fprintf(out, "%s\n", src)
-	} else {
-		fmt.Fprintf(out, "%s", src)
-	}
-	os.Exit(0)
 }

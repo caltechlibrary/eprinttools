@@ -13,6 +13,7 @@ Bugs
 + [ ] Issue 45, Related URLs are coming in as "UNSPECIFIED"
 + [ ] Issue 47, Need to strip HTML from Abstract field
 + [ ] Issue 48, Imported EPrint doesn't show up in review buffer
+    - [ ] in release 1.1.1-next datestamp isn't set, example eprintid 111912
 + [ ] Issue 49, Field defaults on import including resolver URL and collection
 + [ ] Issue 50, Verify why imported and published EPrints don't show in recent additions (is the an issue with generated views or with a datestamp not getting set correctly?).
 
@@ -20,6 +21,7 @@ Bugs
 Next
 ----
 
+- [ ] Add Extended API support to eputil command
 - [ ] Implement Solr index record view for Solr 8.9 ingest
 - [ ] Add update end point to support update EPrints Metadata
     - [ ] Figure out how historical diffs of EPrints XML are generated in EPrints' History tab
