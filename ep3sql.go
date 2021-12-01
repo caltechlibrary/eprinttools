@@ -2856,6 +2856,15 @@ func ImportEPrints(config *Config, repoID string, ds *DataSource, eprints *EPrin
 		if eprint.EPrintID != 0 {
 			return nil, fmt.Errorf("create failed eprint id %d in %s", eprint.EPrintID, repoID)
 		}
+		if eprint.Collection == "" && config.DefaultCollection != "" {
+			eprint.Collection = DefaultCollection
+		}
+		if eprint.IDNumber == "" && config.DefaultOfficialURL != "" {
+			eprint.IDNumber = GenerateIDNumber(eprint)
+		}
+		if eprint.OfficialURL == "" && config.DefaultOfficialURL != "" {
+			eprint.OfficialURL = GenerateOfficialURL(eprint)
+		}
 	}
 	for _, eprint := range eprints.EPrint {
 		id, err := SQLCreateEPrint(config, repoID, ds, eprint)
