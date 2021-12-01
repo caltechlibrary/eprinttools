@@ -5,6 +5,6 @@ authors:
    - family-names: Doiel
      given-names: R. S.
      orcid: https://orcid.org/0000-0003-0900-6903
-version: 1.1.0
+version: 1.1.1-rc2
 title: eprinttools
-date-released: 2021-11-19
+date-released: 2021-11-30

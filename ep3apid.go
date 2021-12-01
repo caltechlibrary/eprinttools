@@ -182,7 +182,7 @@ func unpackageEPrintsPOST(r *http.Request) (*EPrints, error) {
 //
 
 func (api *EP3API) versionEndPoint(w http.ResponseWriter, r *http.Request) (int, error) {
-	return api.packageDocument(w, fmt.Sprintf("EPrint 3.3 extended API, %s", Version))
+	return api.packageDocument(w, fmt.Sprintf("EPrint 3.3 extended API, %s\n", Version))
 }
 
 //
@@ -863,8 +863,12 @@ func (api *EP3API) eprintImportEndPoint(w http.ResponseWriter, r *http.Request, 
 		repoID = `{REPO_ID}`
 		return api.packageDocument(w, eprintReadWriteDocument(repoID))
 	}
-	if r.Method == "GET" || strings.HasSuffix(r.URL.Path, "/help") {
+	if (r.Method == "GET") || (len(args) == 0) || strings.HasSuffix(r.URL.Path, "/help") {
 		return api.packageDocument(w, eprintReadWriteDocument(repoID))
+	}
+	userID, err := strconv.Atoi(args[0])
+	if err != nil {
+		return 400, fmt.Errorf("bad request, (%s, missing buffer id), %s", repoID, err)
 	}
 	writeAccess := false
 	dataSource, ok := api.Config.Repositories[repoID]
@@ -875,7 +879,7 @@ func (api *EP3API) eprintImportEndPoint(w http.ResponseWriter, r *http.Request, 
 		return 404, fmt.Errorf("not found")
 	}
 	if r.Method != "POST" || writeAccess == false {
-		return 405, fmt.Errorf("method not allowed")
+		return 405, fmt.Errorf("method not allowed %q", r.Method)
 	}
 	// Check to see if we have application/xml or application/json
 	// Get data from post
@@ -883,6 +887,11 @@ func (api *EP3API) eprintImportEndPoint(w http.ResponseWriter, r *http.Request, 
 	if err != nil {
 		return 400, fmt.Errorf("bad request, POST failed (%s), %s", repoID, err)
 	}
+	for _, eprint := range eprints.EPrint {
+		eprint.UserID = userID
+		eprint.EPrintStatus = `buffer`
+	}
+
 	ids := []int{}
 	ids, err = ImportEPrints(api.Config, repoID, dataSource, eprints)
 	if err != nil {
@@ -953,7 +962,7 @@ func (api *EP3API) routeHandler(w http.ResponseWriter, r *http.Request) {
 		statusCode int
 	)
 	if r.Method != "GET" && r.Method != "POST" {
-		statusCode, err = 405, fmt.Errorf("Method Not Allowed")
+		statusCode, err = 405, fmt.Errorf("method not allowed, %q", r.Method)
 		handleError(w, statusCode, err)
 	} else {
 		switch {
@@ -1037,6 +1046,7 @@ func (api *EP3API) InitExtendedAPI(settings string) error {
 	if api.Config == nil {
 		return fmt.Errorf("Missing configuration")
 	}
+
 	/* Setup logging */
 	if api.Config.Logfile == `` {
 		api.Log = log.Default()

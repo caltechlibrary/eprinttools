@@ -5,8 +5,9 @@ Roadmap
 2. [x] Implement a simple JSON model for crosswalking EPrints to Invenion 3
 3. [x] Remove dependencies on cli package
 4. [x] Implement rule sets for apply Caltech Library practice selectively
-5. [ ] Implement an extended EPrints API including support for metadata import
+5. [x] Implement an extended EPrints API including support for metadata import
 6. [ ] Implement a index export JSON model for integration with Solr/OpenSearch/LunrJS
-7. [ ] Implement complete crosswalk for EPrint XML records ot Invenio 3 records for all Caltech Library EPrints repositories
+7. [ ] Implement eprint update of metadata for existing records
+8. [ ] Implement complete crosswalk for EPrint XML records ot Invenio 3 records for all Caltech Library EPrints repositories
 
 

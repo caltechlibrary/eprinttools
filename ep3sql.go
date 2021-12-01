@@ -538,7 +538,9 @@ func eprintTablesAndColumns(db *sql.DB, repoID string) (map[string][]string, err
 	for rows.Next() {
 		tableName := ""
 		if err := rows.Scan(&tableName); err == nil {
-			tables = append(tables, tableName)
+			if !strings.Contains(tableName, "__") {
+				tables = append(tables, tableName)
+			}
 		}
 	}
 	rows.Close()
@@ -576,7 +578,9 @@ func eprintTablesAndColumns(db *sql.DB, repoID string) (map[string][]string, err
 	for rows.Next() {
 		tableName := ""
 		if err := rows.Scan(&tableName); err == nil {
-			tables = append(tables, tableName)
+			if !strings.Contains(tableName, "__") {
+				tables = append(tables, tableName)
+			}
 		}
 	}
 	rows.Close()
@@ -614,7 +618,9 @@ func eprintTablesAndColumns(db *sql.DB, repoID string) (map[string][]string, err
 	for rows.Next() {
 		tableName := ""
 		if err := rows.Scan(&tableName); err == nil {
-			tables = append(tables, tableName)
+			if !strings.Contains(tableName, "__") {
+				tables = append(tables, tableName)
+			}
 		}
 	}
 	rows.Close()
@@ -1267,7 +1273,7 @@ func documentIDToRelation(repoID string, baseURL string, documentID int, pos int
 
 	if okTypeTable && okUriTable {
 		itemList := new(RelationItemList)
-		stmt := fmt.Sprintf(`SELECT pos, document_relation_type.relation_type, document_relation_uri.relation_uri FROM %s JOIN %s ON ((%s.docid = %s.docid) AND (%s.pos = %s.pos)) WHERE (%s.docid = ?)`, typeTable, uriTable, typeTable, uriTable, typeTable, uriTable, typeTable)
+		stmt := fmt.Sprintf(`SELECT document_relation_type.pos AS pos, document_relation_type.relation_type, document_relation_uri.relation_uri FROM %s JOIN %s ON ((%s.docid = %s.docid) AND (%s.pos = %s.pos)) WHERE (%s.docid = ?)`, typeTable, uriTable, typeTable, uriTable, typeTable, uriTable, typeTable)
 		rows, err := db.Query(stmt, documentID)
 		if err != nil {
 			log.Printf("Query failed %q, doc id %d, pos %d, %s", stmt, documentID, pos, err)
@@ -2849,6 +2855,15 @@ func ImportEPrints(config *Config, repoID string, ds *DataSource, eprints *EPrin
 	for _, eprint := range eprints.EPrint {
 		if eprint.EPrintID != 0 {
 			return nil, fmt.Errorf("create failed eprint id %d in %s", eprint.EPrintID, repoID)
+		}
+		if eprint.Collection == "" && config.DefaultCollection != "" {
+			eprint.Collection = DefaultCollection
+		}
+		if eprint.IDNumber == "" && config.DefaultOfficialURL != "" {
+			eprint.IDNumber = GenerateIDNumber(eprint)
+		}
+		if eprint.OfficialURL == "" && config.DefaultOfficialURL != "" {
+			eprint.OfficialURL = GenerateOfficialURL(eprint)
 		}
 	}
 	for _, eprint := range eprints.EPrint {

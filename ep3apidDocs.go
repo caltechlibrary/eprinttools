@@ -111,7 +111,7 @@ As of __ep3apid__ version 1.0.3 a new set of end points exists for reading (retr
 The metadata import functionality is enabled per repository. It only supports importing records at this time.  Importing an EPrint XML document, which could containing multiple EPrint metadata records, is implemented purely using SQL statements and not the EPrints Perl API. This allows you (with the right MySQL configuration) to run the extended API on a different server without resorting to Perl.
 
 - '/{REPO_ID}/eprint/{EPRINT_ID}' method GET with a content type of "application/json" (JSON of EPrint XML) or "application/xml" for EPrint XML
-- '/{REPO_ID}/eprint-import' POST accepts EPrints XML with content type of "application/xml" or JSON of EPrints XML with content type "application/json". To enable this feature add the attribute '"write": true' to the repositories setting in settins.json.
+- '/{REPO_ID}/eprint-import/{USER_ID}' POST accepts EPrints XML with content type of "application/xml" or JSON of EPrints XML with content type "application/json". To enable this feature add the attribute '"write": true' to the repositories setting in settins.json. The {USER_ID} is required and this is used to assign the imported eprint to a specific buffer.
 
 
 settings.json (configuration)
@@ -444,7 +444,7 @@ GET:
 
 POST:
 
-- '/%s/eprint-import' will create new EPrint record(s). The POST must be valid EPrint XML with a content type of "application/xml".
+- '/%s/eprint-import/{USER_ID}' POST accepts EPrints XML with content type of "application/xml" or JSON of EPrints XML with content type "application/json". To enable this feature add the attribute '"write": true' to the repositories setting in settins.json. The {USER_ID} is required and this is used to assign the imported eprint to a specific buffer.
 
 EPrints XML can contiain more than one EPrint record so multiple EPrint metadata records can be created with one post.
 

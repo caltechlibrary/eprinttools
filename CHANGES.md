@@ -1,3 +1,12 @@
+Release 1.1.0:
+
+Significant revisition of the internal data structures in the
+EPrinttools package.  Improvements in doi2eprintxml file handling,
+ruleset are implemented with individual rule selection possible.
+A implementation of ep3apid (an EPrints 3.3.16 extended API) includes
+support for importing metadata into EPrints repositories. An increase
+in the end points supported.
+
 Release 1.0.3-next:
 
 Added `/<REPO_ID>/keys` to list all keys in a repository directly from the MySQL tables

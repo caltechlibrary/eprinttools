@@ -19,10 +19,21 @@
 package eprinttools
 
 import (
+	"bytes"
+	"encoding/json"
+	"encoding/xml"
 	"flag"
 	"fmt"
 	"io"
+	"io/ioutil"
+	"net/http"
+	"net/url"
+	"os"
+	"path"
 	"strings"
+
+	// Golang optional libraries
+	"golang.org/x/crypto/ssh/terminal"
 )
 
 func DisplayLicense(out io.Writer, appName string, license string) {
@@ -47,4 +58,189 @@ func DisplayUsage(out io.Writer, appName string, flagSet *flag.FlagSet, descript
 	if license != "" {
 		DisplayLicense(out, appName, license)
 	}
+}
+
+func RunEPrintsRESTClient(out io.Writer, getURL string, auth string, username string, secret string, options map[string]bool) int {
+	var (
+		password                                                        string
+		src                                                             []byte
+		raw, passwordPrompt, getDocument, asSimplified, asJSON, newLine bool
+	)
+	for k, v := range options {
+		switch k {
+		case "raw":
+			raw = v
+		case "passwordPrompt":
+			passwordPrompt = v
+		case "getDocument":
+			getDocument = v
+		case "asSimplified":
+			asSimplified = v
+		case "asJSON":
+			asJSON = v
+		case "newLine":
+			newLine = v
+		}
+	}
+	u, err := url.Parse(getURL)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "%s\n", err)
+		return 1
+	}
+	if passwordPrompt {
+		fmt.Fprintf(out, "Please type the password for accessing\n%s\n", getURL)
+		if src, err := terminal.ReadPassword(0); err == nil {
+			password = fmt.Sprintf("%s", src)
+		}
+	}
+	if userinfo := u.User; userinfo != nil {
+		username = userinfo.Username()
+		if secret, isSet := userinfo.Password(); isSet {
+			password = secret
+		}
+		if auth == "" {
+			auth = "basic"
+		}
+	}
+
+	// NOTE: We build our client request object so we can
+	// set authentication if necessary.
+	req, err := http.NewRequest("GET", getURL, nil)
+	switch strings.ToLower(auth) {
+	case "basic":
+		req.SetBasicAuth(username, password)
+	case "basic_auth":
+		req.SetBasicAuth(username, password)
+	}
+	req.Header.Set("User-Agent", fmt.Sprintf("eprinttools %s", Version))
+	client := &http.Client{}
+	res, err := client.Do(req)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "%s\n", err)
+		return 1
+	}
+	defer res.Body.Close()
+	if res.StatusCode == 200 {
+		src, err = ioutil.ReadAll(res.Body)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "%s\n", err)
+			return 1
+		}
+	} else {
+		fmt.Fprintf(os.Stderr, "%s for %s", res.Status, getURL)
+		return 1
+	}
+	if len(bytes.TrimSpace(src)) == 0 {
+		return 0
+	}
+	if raw {
+		if newLine {
+			fmt.Fprintf(out, "%s\n", src)
+		} else {
+			fmt.Fprintf(out, "%s", src)
+		}
+		return 0
+	}
+
+	switch {
+	case getDocument:
+		docName := path.Base(u.Path)
+		err = ioutil.WriteFile(docName, src, 0644)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "%s\n", err)
+			return 1
+		}
+		fmt.Fprintf(out, "retrieved %s\n", docName)
+		return 0
+	case u.Path == "/rest/eprint/":
+		data := EPrintsDataSet{}
+		err = xml.Unmarshal(src, &data)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "%s\n", err)
+			return 1
+		}
+		if asJSON || asSimplified {
+			src, err = json.MarshalIndent(data, "", "   ")
+		} else {
+			fmt.Fprintf(out, "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n")
+			src, err = xml.MarshalIndent(data, "", "  ")
+		}
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "%s\n", err)
+			return 1
+		}
+	default:
+		data := EPrints{}
+		err = xml.Unmarshal(src, &data)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "%s\n", err)
+			return 1
+		}
+		for _, e := range data.EPrint {
+			e.SyntheticFields()
+		}
+		if asSimplified {
+			if sObj, err := CrosswalkEPrintToRecord(data.EPrint[0]); err != nil {
+				fmt.Fprintf(os.Stderr, "%s\n", err)
+			} else {
+				src, err = json.MarshalIndent(sObj, "", "   ")
+			}
+		} else if asJSON {
+			src, err = json.MarshalIndent(data, "", "   ")
+		} else {
+			fmt.Fprintf(out, "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n")
+			src, err = xml.MarshalIndent(data, "", "  ")
+		}
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "%s\n", err)
+			return 1
+		}
+	}
+
+	if newLine {
+		fmt.Fprintf(out, "%s\n", src)
+	} else {
+		fmt.Fprintf(out, "%s", src)
+	}
+	return 0
+}
+
+func RunExtendedAPIClient(out io.Writer, args []string, verbose bool) int {
+	var (
+		parts  []string
+		src    []byte
+		getURL string
+	)
+	parts = append(parts, `http://localhost:8484`)
+	for _, arg := range args {
+		parts = append(parts, url.PathEscape(arg))
+	}
+	getURL = strings.Join(parts, "/")
+	if verbose {
+		fmt.Fprintf(os.Stderr, "Extended API URL: %s\n", getURL)
+	}
+	req, err := http.NewRequest(`GET`, getURL, nil)
+	req.Header.Set("User-Agent", fmt.Sprintf("eprinttools %s", Version))
+	client := &http.Client{}
+	res, err := client.Do(req)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "%s\n", err)
+		return 1
+	}
+	defer res.Body.Close()
+	if res.StatusCode == 200 {
+		src, err = ioutil.ReadAll(res.Body)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "%s\n", err)
+			return 1
+		}
+	} else {
+		fmt.Fprintf(os.Stderr, "%s for %s\n", res.Status, getURL)
+		return 1
+	}
+	if len(bytes.TrimSpace(src)) == 0 {
+		return 0
+	}
+	fmt.Fprintf(out, "%s\n", src)
+	return 0
 }

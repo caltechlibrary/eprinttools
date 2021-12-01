@@ -7,24 +7,37 @@ This is for the simplified eprinttools codebase.
 Bugs
 ----
 
-+ [ ] Fix lemurprints-import-api-16 through 21 examples, re-import with ./bin/doi2eprintxml tool
-+ (branch next) the various related tables that represent item lists don't have the same row count so I need to explicitly query for eprintid, pos or do JOIN and handle the NULL column cases.
++ [x] Issue 40, SQL reference document_relation_type table issues
++ [ ] Issue 41, Add related URL as DOI value (really make eprints show this as a linked field in the display, don't do that in the data structure)
++ [x] Issue 44, Funders are coming up as "UNSPECIFIED"
++ [ ] Issue 45, Related URLs are coming in as "UNSPECIFIED"
++ [ ] Issue 47, Need to strip HTML from Abstract field
++ [ ] Issue 48, Imported EPrint doesn't show up in review buffer
+    - [ ] in release 1.1.1-next datestamp isn't set, example eprintid 111912
++ [x] Issue 49, Field defaults on import including resolver URL and collection
++ [ ] Issue 50, Verify why imported and published EPrints don't show in recent additions (is the an issue with generated views or with a datestamp not getting set correctly?).
+
 
 Next
 ----
 
-- [ ] Need a Users end point to get a list of users in the system and retrieve their numeric user id
-- [ ] Create an example service file for running ep3apid as a service under SystemD (Linux)
-- [ ] Create an example service file for running ep3apid as a service under LaunchD (macOS)
+- [x] Add Extended API support to eputil command
+- [ ] Implement Solr index record view for Solr 8.9 ingest
 - [ ] Add update end point to support update EPrints Metadata
     - [ ] Figure out how historical diffs of EPrints XML are generated in EPrints' History tab
     - [ ] Implement updates versioning the EPrint Metadata record
     - [ ] Implement file upload and manage document versioning
-- [ ] Implement Solr index record view for Solr 8.9 ingest
 
 Completed
 ---------
 
+- [x] Implement an example ep3apid Python API
+- [x] Implement a /version end point displaying ep3apid version number
+- [x] Create an example service file for running ep3apid as a service under SystemD (Linux)
+- [x] Create an example service file for running ep3apid as a service under LaunchD (macOS)
+- [x] Need a Users end point to get a list of users in the system and retrieve their numeric user id
++ [x] the various related tables that represent item lists don't have the same row count so I need to explicitly query for eprintid, pos or do JOIN and handle the NULL column cases.
++ [x] Fix lemurprints-import-api-16 through 21 examples, re-import with ./bin/doi2eprintxml tool
 - [x] Add script to generate "lemurprints" database with support for all fields present across our repositories so I can do robust testing and generate appropriate testdata
     - [x] Include all fields and tables in caltechauthors
     - [x] Include all fields and tables in caltechthesis

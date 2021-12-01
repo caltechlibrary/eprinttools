@@ -30,6 +30,15 @@ type Config struct {
 	// Routes holds the mapping of end points to repository id
 	// instances.
 	Routes map[string]map[string]func(http.ResponseWriter, *http.Request, string, []string) (int, error) `json:"-"`
+
+	// DefaultCollection
+	DefaultCollection string `json:"default_collection,omitempty"`
+
+	// DefaultOfficialURL
+	DefaultOfficialURL string `json:"default_official_url,omitempty"`
+
+	// DefaultRights (i.e. usage statement)
+	DefaultRights string `json:"default_rights,omitempty"`
 }
 
 // DataSource can contain one or more types of datasources. E.g.
@@ -71,6 +80,9 @@ func LoadConfig(fname string) (*Config, error) {
 		if config.Hostname == "" {
 			config.Hostname = "localhost:8484"
 		}
+	}
+	if config.DefaultCollection != "" || config.DefaultRights != "" || config.DefaultOfficialURL != "" {
+		SetDefaults(config.DefaultCollection, config.DefaultRights, config.DefaultOfficialURL)
 	}
 	return config, nil
 }
