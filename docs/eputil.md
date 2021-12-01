@@ -1,23 +1,48 @@
 
+
 USAGE
 =====
 
-	eputil [OPTIONS]
-
+```
+	eputil [OPTIONS] EPRINT_REST_URL
+```
+	
 SYNOPSIS
 --------
 
+eputil is a command line program for exploring 
+the EPrints Extended API (provided by ep3apid) or EPrint's
+own REST API.  Records are returned in either JSON or EPrints XML.
+Lists of eprint ids are returned in JSON.
 
-_eputil_ is a command line program for exploring 
-EPrint REST API and EPrint XML document structure
-in XML as well as JSON.
+DETAIL FOR EPrints Extended API
+-------------------------------
 
+The extended API is expected to be present on the local machine
+at http://localhost:8484.  eputil will convert the command line
+parameters into the appropriate URL encoding the command line as
+necessary and return the values from the Extended API end points.
 
-DESCRIPTION
------------
+The format of the command working with the EPrints extended API
+is `eputil REPO_ID END_POINT_NAME [PARAMETER ...]`
+You must specify the repository id in the command. E.g.
 
+```
+    eputil caltechauthors keys
+	eputil caltechauthors doi
+	eputil caltechauthors doi "10.5062/F4NP22DV"
+	eputil caltechauthors creator-name "Morrell" "Thomas"
+	eputil caltechauthors grant-number 
+	eputil caltechauthors grant-number "kzcx3-sw-147"
+```
 
-_eputil_ parses XML content retrieved from 
+See website for a full list of available end points.
+[ep3apid](ep3apid.html)
+
+DETAIL FOR EPrints REST API
+---------------------------
+
+eputil parses XML content retrieved from 
 EPrints 3.x. REST API. It will render 
 results in JSON or XML.  With the `-raw`
 option you can get the unmodified EPrintXML from the 
@@ -30,34 +55,52 @@ appears indepent of the primary website authentication
 setup of the installed EPrints (at least at Caltech
 Library). See the examples to start exploring the API.
 
-
-OPTIONS
--------
-
-Below are a set of options available.
-
 ```
-    -auth                       set the authentication type for access
-    -document                   Retrieve a document from the provided url
-    -e, -examples               display examples
-    -generate-manpage           generate man page
-    -generate-markdown          generate Markdown documentation
-    -h, -help                   display help
-    -json                       attempt to parse XML into generaic JSON structure
-    -l, -license                display license
-    -nl, -newline               if true add a trailing newline
-    -o, -output                 output file name
-    -password                   Prompt for the password for authenticated access
-    -quiet                      suppress error messages
-    -raw                        get the raw EPrint REST API response
-    -u, -un, -user, -username   set the username for authenticated access
-    -v, -version                display version
+  -auth string
+    	set the authentication type for access, default is basic (default "basic")
+  -document
+    	Retrieve a document from the provided url
+  -h	display help
+  -help
+    	display help
+  -i string
+    	input file name (read the URL connection string from the input file
+  -input string
+    	input file name (read the URL connection string from the input file
+  -json
+    	attempt to parse XML into generaic JSON structure
+  -license
+    	display license
+  -newline
+    	if true add a trailing newline
+  -nl
+    	if true add a trailing newline
+  -o string
+    	output file name
+  -output string
+    	output file name
+  -password
+    	Prompt for the password for authenticated access
+  -quiet
+    	suppress error messages
+  -raw
+    	get the raw EPrint REST API response
+  -s	Return the object in a simplified JSON data structure.
+  -simple
+    	Return the object in a simplified JSON data structure.
+  -u string
+    	set the username for authenticated access
+  -un string
+    	set the username for authenticated access
+  -user string
+    	set the username for authenticated access
+  -username string
+    	set the username for authenticated access
+  -verbose
+    	verbose output
+  -version
+    	display version
 ```
-
-
-EXAMPLES
---------
-
 
 Fetch the raw unmarshaled EPrint XML via the 
 EPrint REST API for id 123.
@@ -117,6 +160,5 @@ shared machine!
 Getting IDs doesn't typically require authentication but seeing
 specific records may depending on the roles and security
 setup implemented in the EPrint instance.
-
 
 
