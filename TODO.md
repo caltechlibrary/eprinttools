@@ -21,6 +21,7 @@ Bugs
 Next
 ----
 
+- [ ] Need a means of filtering for public EPrint records only
 - [x] Add Extended API support to eputil command
 - [ ] Implement Solr index record view for Solr 8.9 ingest
 - [ ] Add update end point to support update EPrints Metadata

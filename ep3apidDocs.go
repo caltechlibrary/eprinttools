@@ -258,6 +258,10 @@ Each table is relatated by the "eprintid" column ("..." in the object below mean
 `
 }
 
+func isPublicDocument(repoID string) string {
+	return fmt.Sprintf(`'/%s/is-public/{EPRINT_ID}' returns returns true of the eprint id points at a public record or false otherwise`, repoID)
+}
+
 func keysDocument(repoID string) string {
 	return fmt.Sprintf(`'/%s/keys' returns a list of EPrint ID in the repository`, repoID)
 }

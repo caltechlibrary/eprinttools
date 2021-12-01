@@ -151,7 +151,39 @@ func sqlQueryStringIDs(config *Config, repoID string, stmt string, args ...inter
 		}
 		return values, nil
 	}
-	return nil, fmt.Errorf("Bad Request")
+	return nil, fmt.Errorf("bad request")
+}
+
+// IsPublic takes an EPrintID and returns true if public, false otherwise
+//
+// Check if an EPrint record "is public"
+//
+func IsPublic(config *Config, repoID string, eprintid int) (bool, error) {
+	if db, ok := config.Connections[repoID]; ok {
+		stmt := `SELECT IFNULL(eprint_status, '') AS status, IFNULL(metadata_visibility, '') AS visibility FROM eprint WHERE eprintid = ? LIMIT 1`
+		rows, err := db.Query(stmt, eprintid)
+		if err != nil {
+			return false, fmt.Errorf("ERROR: query error (%q), %s", repoID, err)
+		}
+		defer rows.Close()
+		var (
+			status, visibility string
+		)
+		for rows.Next() {
+			err := rows.Scan(&status, &visibility)
+			if err != nil {
+				return false, fmt.Errorf("ERROR: scan error (%q), %q, %s", repoID, stmt, err)
+			}
+		}
+		if err := rows.Err(); err != nil {
+			return false, fmt.Errorf("ERROR: rows error (%q), %s", repoID, err)
+		}
+		if err != nil {
+			return false, fmt.Errorf("ERROR: query error (%q), %s", repoID, err)
+		}
+		return ((status == "archive") && (visibility == "show")), nil
+	}
+	return false, fmt.Errorf("bad request")
 }
 
 //
@@ -345,6 +377,11 @@ func GetAllEPrintIDs(config *Config, repoID string) ([]int, error) {
 ORDER BY date_year DESC, date_month DESC, date_day DESC`)
 }
 
+// GetAllEPrintIDsWithStatus return a list of all eprint ids in a repository with a given status or return error
+func GetAllEPrintIDsWithStatus(config *Config, repoID string, status string) ([]int, error) {
+	return sqlQueryIntIDs(config, repoID, `SELECT eprintid FROM eprint WHERE (eprint_status = ?) ORDER BY date_year DESC, date_month DESC, date_day DESC`, status)
+}
+
 // GetEPrintIDsInTimestampRange return a list of EPrintIDs in created timestamp range
 // or return error. field maybe either "datestamp" (for created date), "lastmod" (for last modified date)
 func GetEPrintIDsInTimestampRange(config *Config, repoID string, field string, start string, end string) ([]int, error) {
@@ -365,6 +402,30 @@ ORDER BY %s DESC, %s DESC, %s DESC, %s DESC, %s DESC, %s DESC`,
 		field, field, field, field, field, field, field, field, field, field, field, field,
 		field, field, field, field, field, field)
 	return sqlQueryIntIDs(config, repoID, stmt, start, end)
+}
+
+// GetEPrintIDsWithStatusInTimestampRange return a list of EPrintIDs with eprint_status in field timestamp range
+// or return error. field maybe either "datestamp" (for created date), "lastmod" (for last modified date)
+func GetEPrintIDsWithStatusInTimestampRange(config *Config, repoID string, status string, field string, start string, end string) ([]int, error) {
+	stmt := fmt.Sprintf(`SELECT eprintid FROM eprint WHERE 
+(eprint_status = ?) AND
+(CONCAT(%s_year, "-", 
+LPAD(IFNULL(%s_month, 1), 2, "0"), "-", 
+LPAD(IFNULL(%s_day, 1), 2, "0"), " ", 
+LPAD(IFNULL(%s_hour, 0), 2, "0"), ":", 
+LPAD(IFNULL(%s_minute, 0), 2, "0"), ":", 
+LPAD(IFNULL(%s_second, 0), 2, "0")) >= ?) AND 
+(CONCAT(%s_year, "-", 
+LPAD(IFNULL(%s_month, 12), 2, "0"), "-", 
+LPAD(IFNULL(%s_day, 28), 2, "0"), " ", 
+LPAD(IFNULL(%s_hour, 23), 2, "0"), ":", 
+LPAD(IFNULL(%s_minute, 59), 2, "0"), ":", 
+LPAD(IFNULL(%s_second, 59), 2, "0")) <= ?)
+ORDER BY %s DESC, %s DESC, %s DESC, %s DESC, %s DESC, %s DESC`,
+		field, field, field, field, field, field,
+		field, field, field, field, field, field,
+		field, field, field, field, field, field)
+	return sqlQueryIntIDs(config, repoID, stmt, status, start, end)
 }
 
 // GetEPrintIDsWithStatus returns a list of eprints in a timestmap range for
@@ -388,8 +449,8 @@ ORDER BY lastmod_year DESC, lastmod_month DESC, lastmod_day DESC,
 	return sqlQueryIntIDs(config, repoID, stmt, status, start, end)
 }
 
-// GetEPrintIDsForDateType returns list of eprints in date range for
-// a given status or returns an error
+// GetEPrintIDsForDateType returns list of eprints in date range
+// or returns an error
 func GetEPrintIDsForDateType(config *Config, repoID string, dateType string, start string, end string) ([]int, error) {
 	stmt := fmt.Sprintf(`SELECT eprintid FROM eprint
 WHERE ((date_type) = ?) AND 
@@ -402,6 +463,22 @@ LPAD(IFNULL(date_day, 28), 2, "0")) <= ?)
 ORDER BY date_year DESC, date_month DESC, date_day DESC
 `)
 	return sqlQueryIntIDs(config, repoID, stmt, dateType, start, end)
+}
+
+// GetEPrintIDsWithStatusForDateType returns list of eprints in
+// date range for a given status or returns an error
+func GetEPrintIDsWithStatusForDateType(config *Config, repoID string, status string, dateType string, start string, end string) ([]int, error) {
+	stmt := fmt.Sprintf(`SELECT eprintid FROM eprint
+WHERE (eprint_status = ? ) AND (date_type = ?) AND 
+(CONCAT(date_year, "-", 
+LPAD(IFNULL(date_month, 1), 2, "0"), "-", 
+LPAD(IFNULL(date_day, 1), 2, "0")) >= ?) AND 
+(CONCAT(date_year, "-", 
+LPAD(IFNULL(date_month, 12), 2, "0"), "-", 
+LPAD(IFNULL(date_day, 28), 2, "0")) <= ?)
+ORDER BY date_year DESC, date_month DESC, date_day DESC
+`)
+	return sqlQueryIntIDs(config, repoID, stmt, status, dateType, start, end)
 }
 
 // GetAllUniqueID return a list of unique id values in repository
