@@ -925,7 +925,6 @@ func (api *EP3API) eprintImportEndPoint(w http.ResponseWriter, r *http.Request, 
 	}
 	for _, eprint := range eprints.EPrint {
 		eprint.UserID = userID
-		eprint.EPrintStatus = `buffer`
 	}
 
 	ids := []int{}

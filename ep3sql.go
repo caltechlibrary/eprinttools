@@ -2413,7 +2413,6 @@ func SQLReadEPrint(config *Config, repoID string, baseURL string, eprintID int) 
 		cnt++
 	}
 	rows.Close()
-
 	// NOTE: need to handle zero rows returned!
 	if cnt > 0 {
 		// Normalize fields inferred from MySQL database tables.
@@ -2911,7 +2910,9 @@ func SQLCreateEPrint(config *Config, repoID string, ds *DataSource, eprint *EPri
 // It is a re-implementation of EPrints Perl Import EPrint XML.
 //
 // ImportEPrints will create EPrint records using
-// SQLCreateEPRint function.
+// SQLCreateEPrint function. ImportEPrint is responsible for
+// applly any rule sets and eprint status, SQLCreateEPRint is
+// responsible for datestamps and timestamps.
 //
 // ImportEPrints returns a list of EPrint IDs created
 // if successful and an error if something goes wrong.
@@ -2933,14 +2934,24 @@ func ImportEPrints(config *Config, repoID string, ds *DataSource, eprints *EPrin
 		if eprint.EPrintID != 0 {
 			return nil, fmt.Errorf("create failed eprint id %d in %s", eprint.EPrintID, repoID)
 		}
-		if eprint.Collection == "" && config.DefaultCollection != "" {
+		if eprint.Collection == "" && ds.DefaultCollection != "" {
 			eprint.Collection = DefaultCollection
 		}
-		if eprint.IDNumber == "" && config.DefaultOfficialURL != "" {
+		if eprint.IDNumber == "" && ds.DefaultOfficialURL != "" {
 			eprint.IDNumber = GenerateIDNumber(eprint)
 		}
-		if eprint.OfficialURL == "" && config.DefaultOfficialURL != "" {
+		if eprint.OfficialURL == "" && ds.DefaultOfficialURL != "" {
 			eprint.OfficialURL = GenerateOfficialURL(eprint)
+		}
+		if eprint.Rights == "" && ds.DefaultRights != "" {
+			eprint.Rights = ds.DefaultRights
+		}
+		if eprint.Refereed == "" && eprint.Type == "article" &&
+			ds.DefaultRefereed != "" {
+			eprint.Refereed = ds.DefaultRefereed
+		}
+		if eprint.EPrintStatus == "" && ds.DefaultStatus != "" {
+			eprint.EPrintStatus = ds.DefaultStatus
 		}
 	}
 	for _, eprint := range eprints.EPrint {

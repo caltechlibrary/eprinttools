@@ -30,15 +30,6 @@ type Config struct {
 	// Routes holds the mapping of end points to repository id
 	// instances.
 	Routes map[string]map[string]func(http.ResponseWriter, *http.Request, string, []string) (int, error) `json:"-"`
-
-	// DefaultCollection
-	DefaultCollection string `json:"default_collection,omitempty"`
-
-	// DefaultOfficialURL
-	DefaultOfficialURL string `json:"default_official_url,omitempty"`
-
-	// DefaultRights (i.e. usage statement)
-	DefaultRights string `json:"default_rights,omitempty"`
 }
 
 // DataSource can contain one or more types of datasources. E.g.
@@ -60,6 +51,23 @@ type DataSource struct {
 	// The default value is false.
 	Write bool `json:"write" default:"false"`
 
+	// DefaultCollection
+	DefaultCollection string `json:"default_collection,omitempty"`
+
+	// DefaultOfficialURL
+	DefaultOfficialURL string `json:"default_official_url,omitempty"`
+
+	// DefaultRights (i.e. usage statement)
+	DefaultRights string `json:"default_rights,omitempty"`
+
+	// DefaultIsRefereed (i.e. refereed field applied for "article" types.
+	// Caltech Library defaults this to "TRUE" for type "article".
+	DefaultRefereed string `json:"default_refereed,omitempty"`
+
+	// DefaultStatus is the eprint.eprint_status value to set by default
+	// on creating new eprint records. Normally this is "inbox" or "buffer"
+	DefaultStatus string `json:"default_status,omitempty"`
+
 	// TableMap holds the mapping of tables and columns for
 	// the repository presented.
 	TableMap map[string][]string `json:"tables,omitempty"`
@@ -80,9 +88,6 @@ func LoadConfig(fname string) (*Config, error) {
 		if config.Hostname == "" {
 			config.Hostname = "localhost:8484"
 		}
-	}
-	if config.DefaultCollection != "" || config.DefaultRights != "" || config.DefaultOfficialURL != "" {
-		SetDefaults(config.DefaultCollection, config.DefaultRights, config.DefaultOfficialURL)
 	}
 	return config, nil
 }

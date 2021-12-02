@@ -211,13 +211,15 @@ func ClearRuleSet() map[string]bool {
 		"assume_refereed":       false,
 		"default_rights":        false,
 		"default_collection":    false,
+		"default_refereed":      false,
+		"default_status":        false,
 		"generate_id_number":    false,
 		"generate_official_url": false,
 	}
 }
 
 func UseCLSRules() map[string]bool {
-	eprinttools.SetDefaults("CaltechAUTHORS", "No commercial reproduction, distribution, display or performance rights in this work are provided.", "https://resolver.caltech.edu")
+	eprinttools.SetDefaults("CaltechAUTHORS", "No commercial reproduction, distribution, display or performance rights in this work are provided.", "https://resolver.caltech.edu", "TRUE", "inbox")
 	return map[string]bool{
 		// Conform given names to use periods with initials
 		"dot_initials": true,
@@ -252,6 +254,10 @@ func UseCLSRules() map[string]bool {
 		// Use DefaultCollection value for eprint.Collection
 		// and generating eprint.IDNumber
 		"default_collection": true,
+		// DefaultRefereed
+		"default_refereed": true,
+		// DefaultStatus
+		"default_status": true,
 		// Generate an ID number based on time and Collection/DefaultCollection values
 		"generate_id_number": true,
 		// Generate an Official URL from
@@ -344,6 +350,16 @@ func Apply(eprintsList *eprinttools.EPrints, ruleSet map[string]bool) (*eprintto
 				case "default_collection":
 					if eprinttools.DefaultCollection != "" {
 						eprint.Collection = eprinttools.DefaultCollection
+						changed = true
+					}
+				case "default_refereed":
+					if eprinttools.DefaultRefereed != "" {
+						eprint.Refereed = eprinttools.DefaultRefereed
+						changed = true
+					}
+				case "default_status":
+					if eprinttools.DefaultRefereed != "" {
+						eprint.EPrintStatus = eprinttools.DefaultStatus
 						changed = true
 					}
 				case "generate_id_number":

@@ -156,14 +156,15 @@ access the MySQL database for the repository you're supporting. You can have man
                 "write": false,
                 "default_collection": "REPO_ID",
                 "default_official_url": "PERMA_LINK_URL",
-                "default_rights": "RIGHTS_STATEMENT_GOES_HERE"
+                "default_rights": "RIGHTS_STATEMENT_GOES_HERE",
+				"default_refereed": "TRUE",
+				"default_status": "inbox"
             },
             ... /* Additional repositories configured here */ ...
         }
     }
 
-NOTE: The "default_collection", "default_official_url", "default_rights" are
-option configurations in the 'settings.json' file.
+NOTE: The "default_collection", "default_official_url", "default_rights", "default_refereed", "default_status" are option configurations in the 'settings.json' file.
 
 
 Options

@@ -3,7 +3,12 @@
         "lemurprints": {
             "dsn": "USERNAME:PASSWORD@/DATABASE",
             "base_url": "http://library.example.edu",
-            "write": true
+            "write": true,
+            "default_collection": "lemur-stuff",
+            "default_offical_url": "https://resolving-lemurs.example.edu",
+            "default_rights": "You are not allowed to use anything!",
+            "default_refereed": "TRUE",
+            "default_status": "inbox"
         }
     }
 }

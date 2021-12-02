@@ -14,6 +14,8 @@ Bugs
 + [ ] Issue 47, Need to strip HTML from Abstract field
 + [ ] Issue 48, Imported EPrint doesn't show up in review buffer
     - [ ] in release 1.1.1-next datestamp isn't set, example eprintid 111912
+    - [x] I might be setting the wrong event_status (e.g. buffer or inbox)
+    - [x] I need to confirm all timestamp fields and datestamp field is being set correctly
 + [x] Issue 49, Field defaults on import including resolver URL and collection
 + [ ] Issue 50, Verify why imported and published EPrints don't show in recent additions (is the an issue with generated views or with a datestamp not getting set correctly?).
 
@@ -21,7 +23,9 @@ Bugs
 Next
 ----
 
-- [ ] Need a means of filtering for public EPrint records only
+- [x] Need a means of filtering for public EPrint records only
+    - `is-public` end point added to ep3apid
+    - `?eprint_status=...` added for keys and keys by timestamp ranges
 - [x] Add Extended API support to eputil command
 - [ ] Implement Solr index record view for Solr 8.9 ingest
 - [ ] Add update end point to support update EPrints Metadata
