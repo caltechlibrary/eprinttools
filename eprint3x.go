@@ -40,6 +40,10 @@ var (
 	// an ID Number will get added when generating per record
 	// official_url values.
 	DefaultOfficialURL string
+	// DefaultRefereed
+	DefaultRefereed string
+	// DefaultStatus
+	DefaultStatus string
 )
 
 //
@@ -2121,10 +2125,12 @@ type EPrintUser struct {
 }
 
 // SetDefaults sets the default values for DefaultCollection, DefaultRights, Default
-func SetDefaults(collection string, rights string, officialURL string) {
+func SetDefaults(collection string, rights string, officialURL string, refereed string, status string) {
 	DefaultCollection = collection
 	DefaultRights = rights
 	DefaultOfficialURL = officialURL
+	DefaultRefereed = refereed
+	DefaultStatus = status
 }
 
 // GenerateIDNumber generates a unique ID number based on the
@@ -2140,6 +2146,17 @@ func GenerateIDNumber(eprint *EPrint) string {
 	}
 	now := time.Now()
 	return fmt.Sprintf(`%s:%s-%d`, collection, now.Format("20060102"), now.Nanosecond())
+}
+
+// GenerateImportID generates a unique ID number based on the
+// instance of generation and the default collection name.
+// I.e. PREFIX:DATESTAMP-NANOSECOND.USER_ID
+//
+// NOTE: You need to have set the values for DefaultCollection and
+// DefaultOfficialURL before calling this function.
+func GenerateImportID(prefix string, eprint *EPrint) string {
+	now := time.Now()
+	return fmt.Sprintf(`%s:%s-%d.%d`, prefix, now.Format("20060102"), now.Nanosecond(), eprint.UserID)
 }
 
 // GenerateOfficialURL generates an OfficalURL (i.e.

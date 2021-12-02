@@ -119,10 +119,7 @@ or to load "settings.json" from the current work directory.
     ep3apid settings.json
 ```
 
-The JSON settings.json file should look something like "REPO_ID" would
-be the name used in the __ep3apid__ to access a specific repsitory. The
-"dsn" value should be replaced with an appropriate data source name to
-access the MySQL database for the repository you're supporting. You can have many repositories configured in a single __ep3apid__ instance.
+The JSON settings.json file should look something like "REPO_ID" would be the name used in the __ep3apid__ to access a specific repsitory. The "dsn" value should be replaced with an appropriate data source name to access the MySQL database for the repository you're supporting. You can have many repositories configured in a single __ep3apid__ instance.
 
 ```
     {
@@ -133,15 +130,16 @@ access the MySQL database for the repository you're supporting. You can have man
                 "write": false,
                 "default_collection": "REPO_ID",
                 "default_official_url": "PERMA_LINK_URL",
-                "default_rights": "RIGHTS_STATEMENT_GOES_HERE"
+                "default_rights": "RIGHTS_STATEMENT_GOES_HERE",
+                "default_refereed": "TRUE",
+                "default_status": "inbox"
             },
             ... /* Additional repositories configured here */ ...
         }
     }
 ```
 
-NOTE: The "default_collection", "default_official_url", "default_rights" are
-option configurations in the `settings.json` file.
+NOTE: The "default_collection", "default_official_url", "default_rights", "default_rights", "default_refereed", "default_status" are option configurations in the `settings.json` file.
 
 
 Options

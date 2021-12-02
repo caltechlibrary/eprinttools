@@ -140,6 +140,12 @@ func (api *EP3API) packageJSON(w http.ResponseWriter, repoID string, src []byte,
 	return 200, nil
 }
 
+func (api *EP3API) packageBool(w http.ResponseWriter, repoID string, value bool, err error) (int, error) {
+	w.Header().Set("Content-Type", "application/json")
+	fmt.Fprintf(w, "%t", value)
+	return 200, nil
+}
+
 func (api *EP3API) packageXML(w http.ResponseWriter, repoID string, src []byte, err error) (int, error) {
 	if err != nil {
 		api.Log.Printf("ERROR: (%s) package JSON error, %s", repoID, err)
@@ -267,9 +273,27 @@ func (api *EP3API) userEndPoint(w http.ResponseWriter, r *http.Request, repoID s
 // End Point handles (route as defined `/{REPO_ID}/{END-POINT}/{ARGS}`)
 //
 
+func (api *EP3API) isPublicEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
+	if len(args) == 0 || strings.HasSuffix(r.URL.Path, "/help") {
+		return api.packageDocument(w, isPublicDocument(repoID))
+	}
+	eprintid, err := strconv.Atoi(args[0])
+	if err != nil {
+		return api.packageBool(w, repoID, false, err)
+	}
+	value, err := IsPublic(api.Config, repoID, eprintid)
+	return api.packageBool(w, repoID, value, err)
+}
+
 func (api *EP3API) keysEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
 	if len(args) != 0 || strings.HasSuffix(r.URL.Path, "/help") {
 		return api.packageDocument(w, keysDocument(repoID))
+	}
+	options := r.URL.Query()
+	eprintStatus := options.Get("eprint_status")
+	if eprintStatus != "" {
+		eprintIDs, err := GetAllEPrintIDsWithStatus(api.Config, repoID, eprintStatus)
+		return api.packageIntIDs(w, repoID, eprintIDs, err)
 	}
 	eprintIDs, err := GetAllEPrintIDs(api.Config, repoID)
 	return api.packageIntIDs(w, repoID, eprintIDs, err)
@@ -308,6 +332,8 @@ func (api *EP3API) updatedEndPoint(w http.ResponseWriter, r *http.Request, repoI
 	if (len(args) < 1) || (len(args) > 2) {
 		return 400, fmt.Errorf("bad request")
 	}
+	options := r.URL.Query()
+	eprintStatus := options.Get("eprint_status")
 	var err error
 	end := time.Now()
 	start := time.Now()
@@ -322,6 +348,10 @@ func (api *EP3API) updatedEndPoint(w http.ResponseWriter, r *http.Request, repoI
 		if err != nil {
 			return 400, fmt.Errorf("bad request, (end) %s", err)
 		}
+	}
+	if eprintStatus != `` {
+		eprintIDs, err := GetEPrintIDsWithStatusInTimestampRange(api.Config, repoID, eprintStatus, "lastmod", start.Format(timestamp), end.Format(timestamp))
+		return api.packageIntIDs(w, repoID, eprintIDs, err)
 	}
 	eprintIDs, err := GetEPrintIDsInTimestampRange(api.Config, repoID, "lastmod", start.Format(timestamp), end.Format(timestamp))
 	return api.packageIntIDs(w, repoID, eprintIDs, err)
@@ -360,6 +390,8 @@ func (api *EP3API) pubdateEndPoint(w http.ResponseWriter, r *http.Request, repoI
 	if (len(args) < 1) || (len(args) > 2) {
 		return 400, fmt.Errorf("bad request")
 	}
+	options := r.URL.Query()
+	eprintStatus := options.Get("eprint_status")
 	var (
 		err error
 		dt  string
@@ -379,6 +411,10 @@ func (api *EP3API) pubdateEndPoint(w http.ResponseWriter, r *http.Request, repoI
 		if err != nil {
 			return 400, fmt.Errorf("bad request, (end date) %s", err)
 		}
+	}
+	if eprintStatus != `` {
+		eprintIDs, err := GetEPrintIDsWithStatusForDateType(api.Config, repoID, eprintStatus, "published", start.Format(datestamp), end.Format(datestamp))
+		return api.packageIntIDs(w, repoID, eprintIDs, err)
 	}
 	eprintIDs, err := GetEPrintIDsForDateType(api.Config, repoID, "published", start.Format(datestamp), end.Format(datestamp))
 	return api.packageIntIDs(w, repoID, eprintIDs, err)
@@ -889,7 +925,6 @@ func (api *EP3API) eprintImportEndPoint(w http.ResponseWriter, r *http.Request, 
 	}
 	for _, eprint := range eprints.EPrint {
 		eprint.UserID = userID
-		eprint.EPrintStatus = `buffer`
 	}
 
 	ids := []int{}
@@ -1107,6 +1142,7 @@ func (api *EP3API) InitExtendedAPI(settings string) error {
 		"usernames":         api.usernamesEndPoint,
 		"lookup-userid":     api.lookupUserIDEndPoint,
 		"user":              api.userEndPoint,
+		"is-public":         api.isPublicEndPoint,
 	}
 
 	/* NOTE: We need a DB connection to MySQL for each

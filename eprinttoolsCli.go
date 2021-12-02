@@ -213,7 +213,11 @@ func RunExtendedAPIClient(out io.Writer, args []string, verbose bool) int {
 	)
 	parts = append(parts, `http://localhost:8484`)
 	for _, arg := range args {
-		parts = append(parts, url.PathEscape(arg))
+		if strings.Contains(arg, `?`) {
+			parts = append(parts, arg)
+		} else {
+			parts = append(parts, url.PathEscape(arg))
+		}
 	}
 	getURL = strings.Join(parts, "/")
 	if verbose {
