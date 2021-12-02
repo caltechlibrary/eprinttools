@@ -97,12 +97,18 @@ class Ep3API:
     #
     # Methods working with retreiving key lists for Change events
     
-    def keys(self):
+    def keys(self, eprint_status = None):
         '''Return a list of eprint ids'''
+        if eprint_status != None:
+            return get_json_data(f'{self.url}/{self.repo_id}/keys?eprint_status={eprint_status}')
         return get_json_data(f'{self.url}/{self.repo_id}/keys')
 
     def updated(self, starttime, endtime, eprint_status = None):
         '''Return a list of keys based on start/end times for last mod date, optionally filter by eprint_status'''
+        if isinstance(starttime, datetime.datetime):
+            starttime = starttime.strftime('%Y-%m-%d %H:%I:%S')
+        if isinstance(endtime, datetime.datetime):
+            endtime = endtime.strftime('%Y-%m-%d %H:%I:%S')
         if eprint_status != None:
             return get_json_data(f'{self.url}/updated/{starttime}/{endtime}?eprint_status={eprint_status}')
         return get_json_data(f'{self.url}/updated/{starttime}/{endtime}')
@@ -111,7 +117,7 @@ class Ep3API:
         '''Return a list of keys for records deleted based on start/end times'''
         return get_json_data(f'{self.url}/deleted/{starttime}/{endtime}')
 
-    def pubdate(self, aprox_start, aprox_end):
+    def pubdate(self, aprox_start, aprox_end, eprint_status = None):
         '''Return a list of keys based on aproximate start/end publication dates, optionally filter by eprint_status'''
         if eprint_status != None:
             return get_json_data(f'{self.url}/pubdate/{aprox_start}/{approx_end}?eprint_status={eprint_status}')
