@@ -29,6 +29,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 	"os/signal"
 	"strconv"
@@ -338,15 +339,23 @@ func (api *EP3API) updatedEndPoint(w http.ResponseWriter, r *http.Request, repoI
 	end := time.Now()
 	start := time.Now()
 	if (len(args) > 0) && (args[0] != "now") {
-		start, err = time.Parse(timestamp, args[0])
+		s, err := url.QueryUnescape(args[0])
 		if err != nil {
-			return 400, fmt.Errorf("bad request, (start) %s", err)
+			return 400, fmt.Errorf("bad request, (start %q) %s", args[0], err)
+		}
+		start, err = time.Parse(timestamp, s)
+		if err != nil {
+			return 400, fmt.Errorf("bad request, (start %q) %s", s, err)
 		}
 	}
 	if (len(args) > 1) && (args[1] != "now") {
-		end, err = time.Parse(timestamp, args[1])
+		s, err := url.QueryUnescape(args[1])
 		if err != nil {
-			return 400, fmt.Errorf("bad request, (end) %s", err)
+			return 400, fmt.Errorf("bad request, (end %q) %s", args[1], err)
+		}
+		end, err = time.Parse(timestamp, s)
+		if err != nil {
+			return 400, fmt.Errorf("bad request, (end %q) %s", s, err)
 		}
 	}
 	if eprintStatus != `` {

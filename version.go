@@ -1,4 +1,4 @@
 package eprinttools
 
-const Version = "1.1.1-rc4"
+const Version = "1.1.1-rc5"
 

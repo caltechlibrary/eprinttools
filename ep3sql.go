@@ -399,7 +399,7 @@ LPAD(IFNULL(%s_day, 28), 2, "0"), " ",
 LPAD(IFNULL(%s_hour, 23), 2, "0"), ":", 
 LPAD(IFNULL(%s_minute, 59), 2, "0"), ":", 
 LPAD(IFNULL(%s_second, 59), 2, "0")) <= ?)
-ORDER BY %s DESC, %s DESC, %s DESC, %s DESC, %s DESC, %s DESC`,
+ORDER BY %s_year DESC, %s_month DESC, %s_day DESC, %s_hour DESC, %s_minute DESC, %s_second DESC`,
 		field, field, field, field, field, field, field, field, field, field, field, field,
 		field, field, field, field, field, field)
 	return sqlQueryIntIDs(config, repoID, stmt, start, end)
@@ -422,7 +422,7 @@ LPAD(IFNULL(%s_day, 28), 2, "0"), " ",
 LPAD(IFNULL(%s_hour, 23), 2, "0"), ":", 
 LPAD(IFNULL(%s_minute, 59), 2, "0"), ":", 
 LPAD(IFNULL(%s_second, 59), 2, "0")) <= ?)
-ORDER BY %s DESC, %s DESC, %s DESC, %s DESC, %s DESC, %s DESC`,
+ORDER BY %s_year DESC, %s_month DESC, %s_day DESC, %s_hour DESC, %s_minute DESC, %s_second DESC`,
 		field, field, field, field, field, field,
 		field, field, field, field, field, field,
 		field, field, field, field, field, field)
