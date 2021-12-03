@@ -1534,7 +1534,7 @@ func makeDirValue(ID int) string {
 
 func sizeItemList(pos int, itemList ItemsInterface) {
 	for pos >= itemList.Length() {
-		for j := itemList.Length(); j <= pos; j++ {
+		for j := itemList.Length(); j < (pos + 1); j++ {
 			item := new(Item)
 			itemList.Append(item)
 		}
@@ -1703,7 +1703,7 @@ func eprintIDToSimpleItemList(db *sql.DB, tables map[string][]string, repoID str
 	)
 	_, ok := tables[tableName]
 	if ok {
-		stmt := fmt.Sprintf(`SELECT pos, IFNULL(%s, '') AS %s FROM %s WHERE eprintid = ? ORDER BY eprintid, pos`, columnName, columnName, tableName)
+		stmt := fmt.Sprintf(`SELECT pos, TRIM(IFNULL(%s, '')) AS %s FROM %s WHERE eprintid = ? ORDER BY eprintid, pos`, columnName, columnName, tableName)
 		rows, err := db.Query(stmt, eprintID)
 		if err != nil {
 			log.Printf("Could not query %s for %d in %q, %s", tableName, eprintID, repoID, err)
@@ -1713,11 +1713,15 @@ func eprintIDToSimpleItemList(db *sql.DB, tables map[string][]string, repoID str
 				if err := rows.Scan(&pos, &value); err != nil {
 					log.Printf("Could not scan %s for %d in %q, %s", tableName, eprintID, repoID, err)
 				} else {
-					sizeItemList(pos, itemList)
-					item := itemList.IndexOf(pos)
-					item.Pos = pos
 					if value != "" {
-						item.Value = strings.TrimSpace(value)
+						sizeItemList(pos, itemList)
+						item := itemList.IndexOf(pos)
+						if item != nil {
+							item.Pos = pos
+							item.Value = value
+						} else {
+							log.Printf("Failed to update item (table: %s, eprintID: %d) scanned pos: %d, value: %q\n", tableName, eprintID, pos, value)
+						}
 					}
 				}
 				i++

@@ -33,6 +33,7 @@ import (
 
 	// Caltech Library Packages
 	"github.com/caltechlibrary/eprinttools"
+	"github.com/caltechlibrary/eprinttools/cleaner"
 )
 
 func handleInitials(s string) (string, bool) {
@@ -215,6 +216,7 @@ func ClearRuleSet() map[string]bool {
 		"default_status":        false,
 		"generate_id_number":    false,
 		"generate_official_url": false,
+		"strip_tags":            false,
 	}
 }
 
@@ -263,6 +265,8 @@ func UseCLSRules() map[string]bool {
 		// Generate an Official URL from
 		// ID number, collection and DefaultOfficialURLPrefix
 		"generate_official_url": true,
+		// Strip HTML/XML tags from abstract
+		"strip_tags": true,
 	}
 }
 
@@ -368,6 +372,10 @@ func Apply(eprintsList *eprinttools.EPrints, ruleSet map[string]bool) (*eprintto
 				case "generate_official_url":
 					eprint.OfficialURL = eprinttools.GenerateOfficialURL(eprint)
 					changed = true
+				case "strip_tags":
+					if cleaner.HasEncodedElements([]byte(eprint.Abstract)) {
+						eprint.Abstract = string(cleaner.StripTags([]byte(eprint.Abstract)))
+					}
 				}
 			}
 		}
