@@ -11,6 +11,7 @@ import (
 	"time"
 
 	// Caltech Packages
+	"github.com/caltechlibrary/eprinttools/cleaner"
 	"github.com/caltechlibrary/pairtree"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -2956,6 +2957,11 @@ func ImportEPrints(config *Config, repoID string, ds *DataSource, eprints *EPrin
 		}
 		if eprint.EPrintStatus == "" && ds.DefaultStatus != "" {
 			eprint.EPrintStatus = ds.DefaultStatus
+		}
+		if eprint.Abstract != "" && ds.StripTags {
+			if cleaner.HasEncodedElements([]byte(eprint.Abstract)) {
+				eprint.Abstract = string(cleaner.StripTags([]byte(eprint.Abstract)))
+			}
 		}
 	}
 	for _, eprint := range eprints.EPrint {

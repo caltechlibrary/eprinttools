@@ -68,6 +68,10 @@ type DataSource struct {
 	// on creating new eprint records. Normally this is "inbox" or "buffer"
 	DefaultStatus string `json:"default_status,omitempty"`
 
+	// StripTags bool is true then an EPrint Abstract will have XML/HTML tags
+	// stripped on import.
+	StripTags bool `json:"strip_tags,omitempty"`
+
 	// TableMap holds the mapping of tables and columns for
 	// the repository presented.
 	TableMap map[string][]string `json:"tables,omitempty"`
