@@ -76,9 +76,15 @@ The <code>ep3apid</code> web service is configured via a JSON “settings.json�
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;dsn&quot;</span><span class="fu">:</span> <span class="st">&quot;USERNAME:SECRET@/authors&quot;</span><span class="fu">,</span></span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;base_url&quot;</span><span class="fu">:</span> <span class="st">&quot;https://authors.example.edu&quot;</span><span class="fu">,</span></span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;rest&quot;</span><span class="fu">:</span> <span class="st">&quot;https://USERNAME:SECRET@authors.example.edu&quot;</span><span class="fu">,</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;write&quot;</span><span class="fu">:</span> <span class="kw">true</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span></span></code></pre>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;write&quot;</span><span class="fu">:</span> <span class="kw">true</span><span class="fu">,</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;default_rights&quot;</span><span class="fu">:</span> <span class="st">&quot;SOME RIGHTS STATEMENT HERE&quot;</span><span class="fu">,</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;default_official_url&quot;</span><span class="fu">:</span> <span class="st">&quot;SOME PERMA LINK URL PREFIX HERE&quot;</span><span class="fu">,</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;default_collection&quot;</span><span class="fu">:</span> <span class="st">&quot;COLLECTION_NAME_HERE&quot;</span><span class="fu">,</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;default_refereed&quot;</span><span class="fu">:</span> <span class="st">&quot;DEFAULT_VALUE_IN_REFEREED_FIELD_FOR_ARTICLES&quot;</span><span class="fu">,</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;default_status&quot;</span><span class="fu">:</span> <span class="st">&quot;EVENT_STATUS_E_G_INBOX_OR_BUFFER_OR_ARCHIVE&quot;</span><span class="fu">,</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;strip_tags&quot;</span><span class="fu">:</span> <span class="er">BOOLEAN_TRUE_STRIP_HTML_XML_TAGS_FROM_ABSTRACT</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span></span></code></pre>
 </div>
 <p>
 In the “dsn” attribute <strong>USERNAME:SECRET</strong> are the username/password for accessing the database. In the “rest” attribute the <strong>USERNAME:SECRET</strong> are the username/password for accessing the REST API.

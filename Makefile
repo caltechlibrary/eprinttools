@@ -66,6 +66,8 @@ website: page.tmpl README.md nav.md INSTALL.md LICENSE css/site.css docs/index.m
 
 
 test: eputil epfmt doi2eprintxml ep3apid
+	cd cleaner && go test -test.v
+	cd clsrules && go test -test.v
 	go test -timeout 45m -test.v
 	./test_cmds.bash
 

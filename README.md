@@ -22,7 +22,13 @@ The `ep3apid` web service is configured via a JSON "settings.json" file. The set
             "dsn": "USERNAME:SECRET@/authors",
             "base_url": "https://authors.example.edu",
             "rest": "https://USERNAME:SECRET@authors.example.edu",
-            "write": true
+            "write": true,
+            "default_rights": "SOME RIGHTS STATEMENT HERE",
+            "default_official_url": "SOME PERMA LINK URL PREFIX HERE",
+            "default_collection": "COLLECTION_NAME_HERE",
+            "default_refereed": "DEFAULT_VALUE_IN_REFEREED_FIELD_FOR_ARTICLES",
+            "default_status": "EVENT_STATUS_E_G_INBOX_OR_BUFFER_OR_ARCHIVE",
+            "strip_tags": BOOLEAN_TRUE_STRIP_HTML_XML_TAGS_FROM_ABSTRACT
         }
     }
 ```

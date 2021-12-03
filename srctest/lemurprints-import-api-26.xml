@@ -1,0 +1,128 @@
+<eprints xmlns="http://eprints.org/ep2/data/2.0">
+   <eprint>
+      <eprint_status>inbox</eprint_status>
+      <type>article</type>
+      <creators>
+         <item>
+            <name>
+               <family>Sonn</family>
+               <given>Seong Keun</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Seo</family>
+               <given>Seungwoon</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Yang</family>
+               <given>Jaemoon</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Oh</family>
+               <given>Ki Sook</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Chen</family>
+               <given>Hsiuchen</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Chan</family>
+               <given>David C.</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Rhee</family>
+               <given>Kunsoo</given>
+            </name>
+            <orcid>0000-0002-5051-876X</orcid>
+         </item>
+         <item>
+            <name>
+               <family>Lee</family>
+               <given>Kyung S.</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Yang</family>
+               <given>Young</given>
+            </name>
+         </item>
+         <item>
+            <name>
+               <family>Oh</family>
+               <given>Goo Taeg</given>
+            </name>
+            <orcid>0000-0002-1104-1698</orcid>
+         </item>
+      </creators>
+      <title>ER-associated CTRP1 regulates mitochondrial fission via interaction with DRP1</title>
+      <ispublished>pub</ispublished>
+      <abstract>AbstractC1q/TNF-related protein 1 (CTRP1) is a CTRP family member that has collagenous and globular C1q-like domains. The secreted form of CTRP1 is known to be associated with cardiovascular and metabolic diseases, but its cellular roles have not yet been elucidated. Here, we showed that cytosolic CTRP1 localizes to the endoplasmic reticulum (ER) membrane and that knockout or depletion of CTRP1 leads to mitochondrial fission defects, as demonstrated by mitochondrial elongation. Mitochondrial fission events are known to occur through an interaction between mitochondria and the ER, but we do not know whether the ER and/or its associated proteins participate directly in the entire mitochondrial fission event. Interestingly, we herein showed that ablation of CTRP1 suppresses the recruitment of DRP1 to mitochondria and provided evidence suggesting that the ER–mitochondrion interaction is required for the proper regulation of mitochondrial morphology. We further report that CTRP1 inactivation-induced mitochondrial fission defects induce apoptotic resistance and neuronal degeneration, which are also associated with ablation of DRP1. These results demonstrate for the first time that cytosolic CTRP1 is an ER transmembrane protein that acts as a key regulator of mitochondrial fission, providing new insight into the etiology of metabolic and neurodegenerative disorders.</abstract>
+      <date>2021-11-26</date>
+      <date_type>published</date_type>
+      <publication>Experimental and Molecular Medicine</publication>
+      <publisher>Korean Society of Medical Biochemistry and Molecular Biology</publisher>
+      <id_number>CaltechAUTHORS:20211202-337743000</id_number>
+      <refereed>TRUE</refereed>
+      <issn>1226-3613</issn>
+      <official_url>https://resolver.caltech.edu/CaltechAUTHORS:20211202-337743000</official_url>
+      <related_url>
+         <item>
+            <url>https://www.nature.com/articles/s12276-021-00701-z.pdf</url>
+         </item>
+         <item>
+            <url>https://www.nature.com/articles/s12276-021-00701-z</url>
+         </item>
+         <item>
+            <url>https://www.nature.com/articles/s12276-021-00701-z.pdf</url>
+         </item>
+      </related_url>
+      <rights>No commercial reproduction, distribution, display or performance rights in this work are provided.</rights>
+      <funders>
+         <item>
+            <agency>MSIP | Institute for Information and communications Technology Promotion</agency>
+            <grant_number>No.2020R1A3B2079811</grant_number>
+         </item>
+         <item>
+            <agency>MSIP | Institute for Information and communications Technology Promotion</agency>
+            <grant_number>No.2018R1D1A1B07050561</grant_number>
+         </item>
+         <item>
+            <agency>MSIP | Institute for Information and communications Technology Promotion</agency>
+            <grant_number>No.2020R1A3B2079811</grant_number>
+         </item>
+         <item>
+            <agency>MSIP | Institute for Information and communications Technology Promotion</agency>
+            <grant_number>No.2018R1D1A1B07050561</grant_number>
+         </item>
+         <item>
+            <agency>MSIP | Institute for Information and communications Technology Promotion</agency>
+         </item>
+         <item>
+            <agency>MSIP | Institute for Information and communications Technology Promotion</agency>
+         </item>
+         <item>
+            <agency>MSIP | Institute for Information and communications Technology Promotion</agency>
+         </item>
+      </funders>
+      <collection>CaltechAUTHORS</collection>
+      <subjects>
+         <item>Clinical Biochemistry</item>
+         <item>Molecular Biology</item>
+         <item>Molecular Medicine</item>
+         <item>Biochemistry</item>
+      </subjects>
+      <doi>10.1038/s12276-021-00701-z</doi>
+   </eprint>
+</eprints>

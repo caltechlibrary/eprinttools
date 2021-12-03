@@ -81,7 +81,7 @@ func runWriteTest(t *testing.T, api *EP3API, repoID string, repo *DataSource, ro
 	}
 	// Test writes to a Authors like database, e.g lemurAuthors
 	// NOTE: I used doi2eprintxml to create two new EPrint XML files for import testing.
-	for i := 1; i <= 25; i++ {
+	for i := 1; i <= 26; i++ {
 		testFile := path.Join(`srctest`, fmt.Sprintf(`%s-import-api-%d.xml`, repoID, i))
 		if _, err := os.Stat(testFile); os.IsNotExist(err) {
 			t.Errorf(`Could not find %q, %s`, testFile, err)

@@ -11,6 +11,7 @@ import json
 from urllib.request import Request, urlopen
 from urllib.error import URLError, HTTPError
 from urllib.parse import quote_plus
+from datetime import datetime, timedelta
 
 def dquote(s):
     return '"' + s + '"'
@@ -93,11 +94,39 @@ class Ep3API:
     #
     # The following methods returns list of eprint ids and error tuples
     #
-    def keys(self):
+
+    #
+    # Methods working with retreiving key lists for Change events
+    
+    def keys(self, eprint_status = None):
         '''Return a list of eprint ids'''
+        if eprint_status != None:
+            return get_json_data(f'{self.url}/{self.repo_id}/keys?eprint_status={eprint_status}')
         return get_json_data(f'{self.url}/{self.repo_id}/keys')
 
+    def updated(self, starttime, endtime, eprint_status = None):
+        '''Return a list of keys based on start/end times for last mod date, optionally filter by eprint_status'''
+        if isinstance(starttime, datetime):
+            starttime = starttime.strftime('%Y-%m-%d %H:%I:%S')
+        if isinstance(endtime, datetime):
+            endtime = endtime.strftime('%Y-%m-%d %H:%I:%S')
+        if eprint_status != None:
+            return get_json_data(f'{self.url}/updated/{starttime}/{endtime}?eprint_status={eprint_status}')
+        return get_json_data(f'{self.url}/updated/{starttime}/{endtime}')
+        
+    def deleted(self, starttime, endtime):
+        '''Return a list of keys for records deleted based on start/end times'''
+        return get_json_data(f'{self.url}/deleted/{starttime}/{endtime}')
 
+    def pubdate(self, aprox_start, aprox_end, eprint_status = None):
+        '''Return a list of keys based on aproximate start/end publication dates, optionally filter by eprint_status'''
+        if eprint_status != None:
+            return get_json_data(f'{self.url}/pubdate/{aprox_start}/{approx_end}?eprint_status={eprint_status}')
+        return get_json_data(f'{self.url}/pubdate/{aprox_start}/{aprox_end}')
+
+    #
+    # Methods working with Unique IDS
+    #
     def doi(self, doi = None):
         if doi == None:
             return get_json_data(f'{self.url}/{self.repo_id}/doi')
