@@ -82,7 +82,7 @@ header a, header a:link, header a:visited, header a:active, header a:hover, head
 
 
 a, a:link, a:visited {
-     color: #76777B;
+     color: #666666;
      background-color: inherit;
      text-decoration: none;
 }
@@ -119,7 +119,7 @@ nav {
      font-size: 0.78em;
      vertical-align: middle;
      color: black;
-     background-color: #AAA99F; /* #76777B;*/
+     background-color: #76776B;
      text-align: left;
 }
 
@@ -268,7 +268,7 @@ footer {
      width: 100%;
      height: 2em;
      color: white;
-     background-color: #616265;
+     background-color: #333333;
 
      font-size: 80%;
      text-align: left;
