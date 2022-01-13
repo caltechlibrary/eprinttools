@@ -10,7 +10,7 @@ import sys
 import json
 from urllib.request import Request, urlopen
 from urllib.error import URLError, HTTPError
-from urllib.parse import quote_plus
+from urllib.parse import quote, quote_plus
 from datetime import datetime, timedelta
 
 def dquote(s):
@@ -110,19 +110,29 @@ class Ep3API:
             starttime = starttime.strftime('%Y-%m-%d %H:%I:%S')
         if isinstance(endtime, datetime):
             endtime = endtime.strftime('%Y-%m-%d %H:%I:%S')
+        starttime = quote(starttime)
+        endtime = quote(endtime)
         if eprint_status != None:
-            return get_json_data(f'{self.url}/updated/{starttime}/{endtime}?eprint_status={eprint_status}')
-        return get_json_data(f'{self.url}/updated/{starttime}/{endtime}')
+            return get_json_data(f'{self.url}/{self.repo_id}/updated/{starttime}/{endtime}?eprint_status={eprint_status}')
+        return get_json_data(f'{self.url}/{self.repo_id}/updated/{starttime}/{endtime}')
         
     def deleted(self, starttime, endtime):
         '''Return a list of keys for records deleted based on start/end times'''
-        return get_json_data(f'{self.url}/deleted/{starttime}/{endtime}')
+        if isinstance(starttime, datetime):
+            starttime = starttime.strftime('%Y-%m-%d %H:%I:%S')
+        if isinstance(endtime, datetime):
+            endtime = endtime.strftime('%Y-%m-%d %H:%I:%S')
+        starttime = quote(starttime)
+        endtime = quote(endtime)
+        return get_json_data(f'{self.url}/{self.repo_id}/deleted/{starttime}/{endtime}')
 
     def pubdate(self, aprox_start, aprox_end, eprint_status = None):
         '''Return a list of keys based on aproximate start/end publication dates, optionally filter by eprint_status'''
+        aprox_start = quote(aprox_start)
+        aprox_end = quote(aprox_end)
         if eprint_status != None:
-            return get_json_data(f'{self.url}/pubdate/{aprox_start}/{approx_end}?eprint_status={eprint_status}')
-        return get_json_data(f'{self.url}/pubdate/{aprox_start}/{aprox_end}')
+            return get_json_data(f'{self.url}/{self.repo_id}/pubdate/{aprox_start}/{approx_end}?eprint_status={eprint_status}')
+        return get_json_data(f'{self.url}/{self.repo_id}/pubdate/{aprox_start}/{aprox_end}')
 
     #
     # Methods working with Unique IDS
@@ -154,15 +164,15 @@ class Ep3API:
 
     def creator_name(self, creator_name = None):
         if creator_name == None:
-            return get_json_data(f'{self.url}/{self.repo_name}/creator-name')
+            return get_json_data(f'{self.url}/{self.repo_id}/creator-name')
         else:
-            return get_json_data(f'{self.url}/{self.repo_name}/creator-name/{creator_name}')
+            return get_json_data(f'{self.url}/{self.repo_id}/creator-name/{creator_name}')
         
     def creator_orcid(self, creator_orcid = None):
         if creator_orcid == None:
-            return get_json_data(f'{self.url}/{self.repo_orcid}/creator-orcid')
+            return get_json_data(f'{self.url}/{self.repo_id}/creator-orcid')
         else:
-            return get_json_data(f'{self.url}/{self.repo_orcid}/creator-orcid/{creator_orcid}')
+            return get_json_data(f'{self.url}/{self.repo_id}/creator-orcid/{creator_orcid}')
         
 
     def editor_id(self, editor_id = None):
@@ -173,9 +183,9 @@ class Ep3API:
     
     def editor_name(self, editor_name = None):
         if editor_name == None:
-            return get_json_data(f'{self.url}/{self.repo_name}/editor-name')
+            return get_json_data(f'{self.url}/{self.repo_id}/editor-name')
         else:
-            return get_json_data(f'{self.url}/{self.repo_name}/editor-name/{editor_name}')
+            return get_json_data(f'{self.url}/{self.repo_id}/editor-name/{editor_name}')
         
 
     def contributor_id(self, contributor_id = None):
@@ -186,9 +196,9 @@ class Ep3API:
     
     def contributor_name(self, contributor_name = None):
         if contributor_name == None:
-            return get_json_data(f'{self.url}/{self.repo_name}/contributor-name')
+            return get_json_data(f'{self.url}/{self.repo_id}/contributor-name')
         else:
-            return get_json_data(f'{self.url}/{self.repo_name}/contributor-name/{contributor_name}')
+            return get_json_data(f'{self.url}/{self.repo_id}/contributor-name/{contributor_name}')
         
     def advisor_id(self, advisor_id = None):
         if advisor_id == None:
@@ -198,9 +208,9 @@ class Ep3API:
     
     def advisor_name(self, advisor_name = None):
         if advisor_name == None:
-            return get_json_data(f'{self.url}/{self.repo_name}/advisor-name')
+            return get_json_data(f'{self.url}/{self.repo_id}/advisor-name')
         else:
-            return get_json_data(f'{self.url}/{self.repo_name}/advisor-name/{advisor_name}')
+            return get_json_data(f'{self.url}/{self.repo_id}/advisor-name/{advisor_name}')
         
     def committee_id(self, committee_id = None):
         if committee_id == None:
@@ -210,9 +220,9 @@ class Ep3API:
     
     def committee_name(self, committee_name = None):
         if committee_name == None:
-            return get_json_data(f'{self.url}/{self.repo_name}/committee-name')
+            return get_json_data(f'{self.url}/{self.repo_id}/committee-name')
         else:
-            return get_json_data(f'{self.url}/{self.repo_name}/committee-name/{committee_name}')
+            return get_json_data(f'{self.url}/{self.repo_id}/committee-name/{committee_name}')
         
     def corp_creator_id(self, corp_creator_id = None):
         if corp_creator_id == None:
@@ -222,9 +232,9 @@ class Ep3API:
     
     def corp_creator_name(self, corp_creator_name = None):
         if corp_creator_name == None:
-            return get_json_data(f'{self.url}/{self.repo_name}/corp-creator-name')
+            return get_json_data(f'{self.url}/{self.repo_id}/corp-creator-name')
         else:
-            return get_json_data(f'{self.url}/{self.repo_name}/corp-creator-name/{corp_creator_name}')
+            return get_json_data(f'{self.url}/{self.repo_id}/corp-creator-name/{corp_creator_name}')
         
 
     def group_id(self, group_id = None):
