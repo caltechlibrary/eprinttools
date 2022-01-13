@@ -2145,7 +2145,7 @@ func GenerateIDNumber(eprint *EPrint) string {
 		collection = eprint.Collection
 	}
 	now := time.Now()
-	return fmt.Sprintf(`%s:%s-%d`, collection, now.Format("20060102"), now.Nanosecond())
+	return fmt.Sprintf(`%s/%s:%s-%d`, DefaultOfficialURL, collection, now.Format("20060102"), now.Nanosecond())
 }
 
 // GenerateImportID generates a unique ID number based on the
@@ -2162,9 +2162,10 @@ func GenerateImportID(prefix string, eprint *EPrint) string {
 // GenerateOfficialURL generates an OfficalURL (i.e.
 //   idNumber string appended to OfficialURLPrefix)
 func GenerateOfficialURL(eprint *EPrint) string {
+	/* IDNumber and OfficialURL (resolver URL) are the same value. */
 	idNumber := eprint.IDNumber
 	if idNumber == "" {
 		idNumber = GenerateIDNumber(eprint)
 	}
-	return fmt.Sprintf(`%s/%s`, DefaultOfficialURL, idNumber)
+	return fmt.Sprintf(`%s`, idNumber)
 }
