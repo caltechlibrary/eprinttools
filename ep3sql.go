@@ -2551,7 +2551,7 @@ func insertItemList(db *sql.DB, repoID string, tableName string, columns []strin
 		itemList = eprint.Editors
 	case strings.HasPrefix(tableName, `eprint_contributors_`):
 		itemList = eprint.Contributors
-	case strings.HasPrefix(tableName, `eprint_corp_creators_`):
+	case strings.HasPrefix(tableName, `eprint_corp_creators`):
 		itemList = eprint.CorpCreators
 	case strings.HasPrefix(tableName, `eprint_corp_contributors_`):
 		itemList = eprint.CorpContributors
@@ -2587,6 +2587,9 @@ func insertItemList(db *sql.DB, repoID string, tableName string, columns []strin
 		itemList = eprint.OptionMinor
 	case strings.HasPrefix(tableName, `eprint_funders_`):
 		itemList = eprint.Funders
+	case strings.HasPrefix(tableName, `eprint_funders`):
+		// Ignore, eprint_funders is empty in CaltechAUTHORS ...
+		itemList = new(FunderItemList)
 	case strings.HasPrefix(tableName, `eprint_other_numbering_system`):
 		itemList = eprint.OtherNumberingSystem
 	case strings.HasPrefix(tableName, `eprint_projects`):
@@ -2624,7 +2627,7 @@ func insertItemList(db *sql.DB, repoID string, tableName string, columns []strin
 		// is new or old structure. It is posssible that our longtext for keywords is a legacy structure.
 		// itemList = eprint.Keyword
 	default:
-		return fmt.Errorf(`do not understand %q, %s`, tableName, strings.Join(columns, `, `))
+		return fmt.Errorf(`do not understand table %q, columns %s`, tableName, strings.Join(columns, `, `))
 	}
 	// Clear the list, then insert
 	stmt := fmt.Sprintf(`DELETE FROM %s WHERE eprintid = ?`, tableName)
@@ -2902,7 +2905,7 @@ func SQLCreateEPrint(config *Config, repoID string, ds *DataSource, eprint *EPri
 			default:
 				// Insert new rows in associated table
 				if err := insertItemList(db, repoID, tableName, columns, eprint); err != nil {
-					return eprint.EPrintID, fmt.Errorf(`failed to insert eprintid %d in %s for %s, %s`, eprint.EPrintID, tableName, repoID, err)
+					return eprint.EPrintID, fmt.Errorf(`failed to insert eprintid %d in table %s for %s, %s`, eprint.EPrintID, tableName, repoID, err)
 				}
 			}
 		}

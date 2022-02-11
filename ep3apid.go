@@ -160,7 +160,7 @@ func (api *EP3API) packageXML(w http.ResponseWriter, repoID string, src []byte, 
 
 // Given a POST Request, read the Request body and
 // populate an EPrints structure or return an error.
-func unpackageEPrintsPOST(r *http.Request) (*EPrints, error) {
+func (api *EP3API) unpackageEPrintsPOST(r *http.Request) (*EPrints, error) {
 	var (
 		eprints *EPrints
 		err     error
@@ -170,14 +170,22 @@ func unpackageEPrintsPOST(r *http.Request) (*EPrints, error) {
 	switch contentType {
 	case "application/json":
 		if src, err = ioutil.ReadAll(r.Body); err != nil {
+			api.Log.Printf("Failed to read from r.Body, %s", err)
 			return nil, fmt.Errorf("failed to read, %s", err)
 		}
 		err = jsonDecode(src, &eprints)
+		if err != nil {
+			api.Log.Printf("jsonDecode error %s", err)
+		}
 	case "application/xml":
 		if src, err = ioutil.ReadAll(r.Body); err != nil {
+			api.Log.Printf("Failed to read from r.Body, %s", err)
 			return nil, fmt.Errorf("failed to read, %s", err)
 		}
 		err = xml.Unmarshal(src, &eprints)
+		if err != nil {
+			api.Log.Printf("xml.Unmarshal error %s", err)
+		}
 	default:
 		return nil, fmt.Errorf("%s not supported", contentType)
 	}
@@ -924,12 +932,14 @@ func (api *EP3API) eprintImportEndPoint(w http.ResponseWriter, r *http.Request, 
 		return 404, fmt.Errorf("not found")
 	}
 	if r.Method != "POST" || writeAccess == false {
+		api.Log.Printf("writeAccess not enabled for POST for repoID %q", repoID)
 		return 405, fmt.Errorf("method not allowed %q", r.Method)
 	}
 	// Check to see if we have application/xml or application/json
 	// Get data from post
-	eprints, err := unpackageEPrintsPOST(r)
+	eprints, err := api.unpackageEPrintsPOST(r)
 	if err != nil {
+		api.Log.Printf("unpackageEPrintsPost error %q", err)
 		return 400, fmt.Errorf("bad request, POST failed (%s), %s", repoID, err)
 	}
 	for _, eprint := range eprints.EPrint {
