@@ -27,26 +27,33 @@
 <a href="./">Documentation</a>
 </li>
 <li>
-<a href="https://github.com/caltechlibrary/eprinttools">Github</a>
+<a
+href="https://github.com/caltechlibrary/eprinttools">Github</a>
 </li>
 <li>
-<a href="https://github.com/caltechlibrary/eprinttools/releases/latest">Releases</a>
+<a
+href="https://github.com/caltechlibrary/eprinttools/releases/latest">Releases</a>
 </li>
 </ul>
 </nav>
 
 <section>
-<h1>
+<h1 id="usage">
 USAGE
 </h1>
 <pre><code>doi2eprintxml [OPTIONS] DOI</code></pre>
-<h2>
+<h2 id="description">
 DESCRIPTION
 </h2>
 <p>
-doi2eprintxml is a Caltech Library centric application that takes one or more DOI, queries the CrossRef API and if that fails the DataCite API and returns an EPrints XML document suitable for import into EPrints. The DOI can be in either their canonical form or URL form (e.g. “10.1021/acsami.7b15651” or “https://doi.org/10.1021/acsami.7b15651”).
+doi2eprintxml is a Caltech Library centric application that takes one or
+more DOI, queries the CrossRef API and if that fails the DataCite API
+and returns an EPrints XML document suitable for import into EPrints.
+The DOI can be in either their canonical form or URL form
+(e.g. “10.1021/acsami.7b15651” or
+“https://doi.org/10.1021/acsami.7b15651”).
 </p>
-<h2>
+<h2 id="options">
 OPTIONS
 </h2>
 <p>
@@ -65,7 +72,7 @@ Below are a set of options available.
     -m, -mailto         set the mailto value for CrossRef API access
     -quiet              set quiet output
     -v, -version        display app version</code></pre>
-<h2>
+<h2 id="examples">
 EXAMPLES
 </h2>
 <p>
@@ -77,7 +84,8 @@ Example generating an EPrintsXML for two DOI
 </p>
 <pre><code>doi2eprintxml &quot;10.1021/acsami.7b15651&quot; &quot;10.1093/mnras/stu2495&quot; &gt; articles.xml</code></pre>
 <p>
-Example processing a list of DOIs in a text file into an XML document called “import-articles.xml”.
+Example processing a list of DOIs in a text file into an XML document
+called “import-articles.xml”.
 </p>
 <pre><code>doi2eprintxml -i doi-list.txt -o import-articles.xml</code></pre>
 </section>

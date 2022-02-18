@@ -49,9 +49,10 @@ $(PROGRAMS): $(PACKAGE)
 	go build -o bin/$@$(EXT) cmd/$@/$@.go
 
 
+# NOTE: macOS requires a "mv" command for placing binaries instead of "cp" due to signing process of compile
 install: build
 	@echo "Installing programs in $(PREFIX)/bin"
-	@for FNAME in $(PROGRAMS); do if [ -f ./bin/$$FNAME ]; then cp -v ./bin/$$FNAME $(PREFIX)/bin/$$FNAME; fi; done
+	@for FNAME in $(PROGRAMS); do if [ -f ./bin/$$FNAME ]; then mv ./bin/$$FNAME $(PREFIX)/bin/$$FNAME; fi; done
 	@echo ""
 	@echo "Make sure $(PREFIX)/bin is in your PATH"
 
