@@ -1217,10 +1217,12 @@ Process id: %d
 
 EPrints 3.3.x Extended API
 
-Listening on http://%s
+Listening on %s
+
+BaseURL: %s
 
 Press ctl-c to terminate.
-`, appName, Version, settings, os.Getpid(), api.Config.Hostname)
+`, appName, Version, settings, os.Getpid(), api.Config.Hostname, api.Config.BaseURL)
 
 	/* Listen for Ctr-C */
 	processControl := make(chan os.Signal, 1)
