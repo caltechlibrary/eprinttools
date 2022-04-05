@@ -17,6 +17,9 @@ type Config struct {
 	// Hostname for running service
 	Hostname string `json:"hostname"`
 
+	// BaseURL is the base URL passed to any client configuration
+	BaseURL string `json:"base_url"`
+
 	// Logfile
 	Logfile string `json:"logfile,omitempty"`
 
@@ -91,6 +94,9 @@ func LoadConfig(fname string) (*Config, error) {
 		}
 		if config.Hostname == "" {
 			config.Hostname = "localhost:8484"
+		}
+		if config.BaseURL == "" {
+			config.BaseURL = fmt.Sprintf("http://%s", config.Hostname)
 		}
 	}
 	return config, nil

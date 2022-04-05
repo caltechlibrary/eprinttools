@@ -495,7 +495,7 @@ GROUP BY %s ORDER BY %s`,
 // GetEPrintIDsForUniqueID return list of eprints for DOI
 func GetEPrintIDsForUniqueID(config *Config, repoID string, field string, value string) ([]int, error) {
 	// NOTE: There should only be one eprint per DOI but we have dirty data because the field is not contrained as Unique
-	stmt := fmt.Sprintf(`SELECT eprintid FROM eprint WHERE %s = ?`, field)
+	stmt := fmt.Sprintf(`SELECT eprintid FROM eprint WHERE LOWER(%s) = LOWER(?)`, field)
 	return sqlQueryIntIDs(config, repoID, stmt, value)
 }
 
