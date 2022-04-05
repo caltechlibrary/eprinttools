@@ -950,8 +950,10 @@ func (api *EP3API) eprintImportEndPoint(w http.ResponseWriter, r *http.Request, 
 	for _, eprint := range eprints.EPrint {
 		eprint.UserID = userID
 		eprint.EPrintStatus = `inbox`
-		//NOTE: Need to also set eprint.Reviewer value to get it into the right "review buffer"
-		eprint.Reviewer = fmt.Sprintf("%s %s", user.Name.Given, user.Name.Family)
+		if user.Name != nil {
+			//NOTE: Must set eprint.Reviewer value to get it into the right "review buffer"
+			eprint.Reviewer = fmt.Sprintf("%s %s", user.Name.Given, user.Name.Family)
+		}
 	}
 
 	ids := []int{}
