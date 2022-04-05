@@ -932,7 +932,7 @@ func (api *EP3API) eprintImportEndPoint(w http.ResponseWriter, r *http.Request, 
 		return 404, fmt.Errorf("not found")
 	}
 	if r.Method != "POST" || writeAccess == false {
-		api.Log.Printf("writeAccess not enabled for POST for repoID %q", repoID)
+		api.Log.Printf("writeAccess not enabled for %s for repoID %q", r.Method, repoID)
 		return 405, fmt.Errorf("method not allowed %q", r.Method)
 	}
 	// Check to see if we have application/xml or application/json
@@ -942,9 +942,16 @@ func (api *EP3API) eprintImportEndPoint(w http.ResponseWriter, r *http.Request, 
 		api.Log.Printf("unpackageEPrintsPost error %q", err)
 		return 400, fmt.Errorf("bad request, POST failed (%s), %s", repoID, err)
 	}
+	user, err := GetUserBy(api.Config, repoID, `userid`, userID)
+	if err != nil {
+		api.Log.Printf("Can't find user name from userid %d", userID)
+		return 400, fmt.Errorf("bad request, POST failed (%s), %s", repoID, err)
+	}
 	for _, eprint := range eprints.EPrint {
 		eprint.UserID = userID
 		eprint.EPrintStatus = `inbox`
+		//NOTE: Need to also set eprint.Reviewer value to get it into the right "review buffer"
+		eprint.Reviewer = fmt.Sprintf("%s %s", user.Name.Given, user.Name.Family)
 	}
 
 	ids := []int{}
