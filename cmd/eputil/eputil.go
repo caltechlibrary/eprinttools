@@ -129,6 +129,13 @@ Getting IDs doesn't typically require authentication but seeing
 specific records may depending on the roles and security
 setup implemented in the EPrint instance.
 
+Supported Environment Variables
+
+    EPRINT_USER     sets the default username used by eputil
+	EPRINT_PASSWORD sets the default password used by eputil
+	EPRINT_BASE_URL sets the default base URL to access the
+	                EPrints REST API
+
 `
 
 	license = `
@@ -175,6 +182,13 @@ func main() {
 		err error
 	)
 	appName := path.Base(os.Args[0])
+	username = os.Getenv("EPRINT_USER")
+	password = os.Getenv("EPRINT_PASSWORD")
+	getURL = os.Getenv("EPRINT_BASE_URL")
+	// Make sure our EPRINT_BASE_URL includes the rest path if set.
+	if getURL != "" && strings.HasSuffix(getURL, "/rest/eprint") == false {
+		getURL = fmt.Sprintf("%s/rest/eprint", getURL)
+	}
 
 	flagSet := flag.NewFlagSet(appName, flag.ContinueOnError)
 
@@ -195,10 +209,10 @@ func main() {
 	// App Options
 	flagSet.BoolVar(&raw, "raw", false, "get the raw EPrint REST API response")
 	flagSet.BoolVar(&asJSON, "json", false, "attempt to parse XML into generaic JSON structure")
-	flagSet.StringVar(&username, "u", "", "set the username for authenticated access")
-	flagSet.StringVar(&username, "un", "", "set the username for authenticated access")
-	flagSet.StringVar(&username, "user", "", "set the username for authenticated access")
-	flagSet.StringVar(&username, "username", "", "set the username for authenticated access")
+	flagSet.StringVar(&username, "u", username, "set the username for authenticated access")
+	flagSet.StringVar(&username, "un", username, "set the username for authenticated access")
+	flagSet.StringVar(&username, "user", username, "set the username for authenticated access")
+	flagSet.StringVar(&username, "username", username, "set the username for authenticated access")
 	flagSet.BoolVar(&passwordPrompt, "password", false, "Prompt for the password for authenticated access")
 	flagSet.StringVar(&auth, "auth", "basic", "set the authentication type for access, default is basic")
 	flagSet.BoolVar(&getDocument, "document", false, "Retrieve a document from the provided url")
