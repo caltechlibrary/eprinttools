@@ -1,1 +1,2 @@
 py_dataset >= v0.1.9
+progressbar2 >= v4.0.0
