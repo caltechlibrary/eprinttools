@@ -3,7 +3,7 @@
 #
 # NOTE: This is an example script of how you could use eputil from Python 3.
 #
-# pseudo-bagger.py will retrieve metadata for specific keys in an
+# pseudo-baggit.py will retrieve metadata for specific keys in an
 # eprint repository, then use scp to find and retrieve the materials
 # listed in the metadata putting them into a directory structure suitable
 # for "bagging".  
@@ -20,7 +20,7 @@ import progressbar
 USAGE = '''
 USAGE:
 
-    pseudo-bagger.py JSON_CONFIG_FILE JSON_KEY_LIST_FILE
+    pseudo-baggit.py JSON_CONFIG_FILE JSON_KEY_LIST_FILE
 
 This program takes a JSON configuration and a JSON list of keys
 and will retrieve metadata via EPrints REST API and then retrieve
