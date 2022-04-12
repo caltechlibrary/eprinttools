@@ -148,14 +148,18 @@ def retrieve_files(config, key, meta):
     id_pairtree = pairtree(f'00000000{key}'[-8:])
     errors = []
     for doc in meta["documents"]:
-        pos, filename = doc["pos"], doc["main"]
-        pos_pairtree = pairtree(f'00{pos}'[-2:])
-        scp_source = f'{hostname}:{install_path}/archives/{repo_id}/documents/disk0/{id_pairtree}/{pos_pairtree}/{filename}'
-        scp_dest = f'{repo_id}/{repo_id}-{key}/data/{filename}'
-        cmd = [ "scp", "-p", scp_source, scp_dest ]
-        _, err = run(cmd)
-        if err:
-            errors.append(err)
+        pos, filename = doc["pos"], doc["main"].strip()
+        if filename != "":
+            pos_pairtree = pairtree(f'00{pos}'[-2:])
+            if " " in filename:
+                filename = filename.replace(" ", '?')
+            scp_source = f'{hostname}:{install_path}/archives/{repo_id}/documents/disk0/{id_pairtree}/{pos_pairtree}/{filename}'
+            scp_dest = f'{repo_id}/{repo_id}-{key}/data/{filename}'
+            cmd = [ "scp", "-p", scp_source, scp_dest ]
+            #print(f'DEBUG cmd: {" ".join(cmd)}', file=sys.stderr)
+            _, err = run(cmd)
+            if err:
+                errors.append(err)
     return ("\n".join(errors)).strip()
 
 
@@ -174,8 +178,7 @@ def pseudo_bag(config, keys):
             ' ', progressbar.Counter(), f'/{tot}',
             ' ', progressbar.AdaptiveETA(),
             f' ({repo_id}) (pid:{pid})',
-        ],
-        redirect_stdout = True)
+        ])
     bar.start()
     ok = True
     for i, key in enumerate(keys):
