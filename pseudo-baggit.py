@@ -3,7 +3,7 @@
 #
 # NOTE: This is an example script of how you could use eputil from Python 3.
 #
-# pseudo-baggit.py will retrieve metadata for specific keys in an
+# pseudo-bagger.py will retrieve metadata for specific keys in an
 # eprint repository, then use scp to find and retrieve the materials
 # listed in the metadata putting them into a directory structure suitable
 # for "bagging".  
@@ -20,7 +20,7 @@ import progressbar
 USAGE = '''
 USAGE:
 
-    pseudo-baggit.py JSON_CONFIG_FILE JSON_KEY_LIST_FILE
+    pseudo-bagger.py JSON_CONFIG_FILE JSON_KEY_LIST_FILE
 
 This program takes a JSON configuration and a JSON list of keys
 and will retrieve metadata via EPrints REST API and then retrieve
@@ -96,6 +96,9 @@ def run(cmd):
         err = proc.stderr.read().strip().decode('utf-8')
         if err == '':
             err = None
+        else:
+            print(err)
+            sys.stdout.flush()
         out = proc.stdout.read().strip().decode('utf-8')
         if out == '':
             out = None
@@ -110,14 +113,20 @@ def retrieve_metadata(config, key):
     base_url = config["base_url"]
     username = config["user"]
     password = config["password"]
+    out_name = f'{repo_id}/{repo_id}-{key}/data/{key}.json'
     if not config["base_url"].endswith("/rest/eprint"):
         base_url += "/rest/eprint"
     o = urlparse(base_url)
     u = f'{o.scheme}://{username}:{password}@{o.netloc}/rest/eprint/{key}.xml'
-    cmd = [ "eputil", "-json", u ]
-    obj = {}
-    src, err = run(cmd)
+    obj, src = {}, ''
+    cmd = [ "eputil", "-json", "-o", out_name, u ]
+    _, err = run(cmd)
     if err:
+        return None, err
+    try:
+        with open(out_name) as f:
+            src = f.read()
+    except Exception as err:
         return None, err
     try:
         obj = json.loads(src)
@@ -138,7 +147,7 @@ def pairtree(src):
     parts = [ s[i:i+2] for i in range(0, len(s), 2) ]
     return '/'.join(parts)
 
-def retrieve_files(config, key, meta):
+def retrieve_files(config, key, meta, bar, cnt):
     '''retrieve_files retrieves and saves files indicated via metadata and configuration
        using scp and writing them to a eprint id and pos tree situated in a directory named for the
        repository id.'''
@@ -147,18 +156,27 @@ def retrieve_files(config, key, meta):
     install_path = config["install_path"]
     id_pairtree = pairtree(f'00000000{key}'[-8:])
     errors = []
-    for doc in meta["documents"]:
+    # Setup progress bar
+    tot = len(meta["documents"])
+    pid = os.getpid()
+    for i, doc in enumerate(meta["documents"]):
         pos, filename = doc["pos"], doc["main"].strip()
+        bar.update(cnt, ky = key, pos = pos, fn = filename)
+        dest_filename = filename
         if filename != "":
             pos_pairtree = pairtree(f'00{pos}'[-2:])
             if " " in filename:
                 filename = filename.replace(" ", '?')
+            if "(" in filename:
+                filename = filename.replace("(", '\(')
+            if ")" in filename:
+                filename = filename.replace(")", '\)')
             scp_source = f'{hostname}:{install_path}/archives/{repo_id}/documents/disk0/{id_pairtree}/{pos_pairtree}/{filename}'
-            scp_dest = f'{repo_id}/{repo_id}-{key}/data/{filename}'
+            scp_dest = f'{repo_id}/{repo_id}-{key}/data/{dest_filename}'
             cmd = [ "scp", "-p", scp_source, scp_dest ]
-            #print(f'DEBUG cmd: {" ".join(cmd)}', file=sys.stderr)
             _, err = run(cmd)
             if err:
+                sys.stdout.flush()
                 errors.append(err)
     return ("\n".join(errors)).strip()
 
@@ -169,31 +187,34 @@ def pseudo_bag(config, keys):
     # the eputil command form eprinttools.
     repo_id = config["repo_id"]
     # Setup Progressbar
-    pid = os.getpid()
     tot = len(keys)
+    pid = os.getpid()
     bar = progressbar.ProgressBar(
         max_value = tot,
         widgets = [
             progressbar.Percentage(),
             ' ', progressbar.Counter(), f'/{tot}',
             ' ', progressbar.AdaptiveETA(),
-            f' ({repo_id}) (pid:{pid})',
-        ])
+            f' {repo_id} pid:{pid}',
+            ' ', progressbar.Variable('ky', width = 1),
+            ' ', progressbar.Variable('pos', width = 1),
+            ' ', progressbar.Variable('fn', width = 1),
+        ], redirect_stdout = True)
     bar.start()
     ok = True
     for i, key in enumerate(keys):
+        # Update progress bar
+        bar.update(i, ky = key, pos = 0, fn = '')
         os.makedirs(f'{repo_id}/{repo_id}-{key}/data', 0o777, True)
         meta, err = retrieve_metadata(config, key)
         if err:
             print(err)
             ok = False
         else:
-            err = retrieve_files(config, key, meta)
+            err = retrieve_files(config, key, meta, bar, i)
             if err:
                 print(err)
                 ok = False
-        # Update progress bar
-        bar.update(i)
     # Cleanup from progressbar
     bar.finish()
     return ok
