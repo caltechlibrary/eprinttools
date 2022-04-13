@@ -22,7 +22,7 @@ apps:
         plugs:
                 - home
   ep3apid:
-        command: bin/ep2apid
+        command: bin/ep3apid
         plugs:
                 - home
 parts:
