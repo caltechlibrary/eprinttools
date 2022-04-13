@@ -129,12 +129,19 @@ Getting IDs doesn't typically require authentication but seeing
 specific records may depending on the roles and security
 setup implemented in the EPrint instance.
 
+<<<<<<< HEAD
+Supported Environment settings:
+
+you can set the username and password via the EPRINT_USER and
+EPRINT_PASSWORD environment variables.
+=======
 Supported Environment Variables
 
     EPRINT_USER     sets the default username used by eputil
 	EPRINT_PASSWORD sets the default password used by eputil
 	EPRINT_BASE_URL sets the default base URL to access the
 	                EPrints REST API
+>>>>>>> 9eec888d925d322c067534b7f18eff0a1ca51acf
 
 `
 
@@ -191,6 +198,9 @@ func main() {
 	}
 
 	flagSet := flag.NewFlagSet(appName, flag.ContinueOnError)
+
+	username := os.Getenv("EPRINT_USER")
+	password := os.Getenv("EPRINT_PASSWORD")
 
 	// Standard Options
 	flagSet.BoolVar(&showHelp, "h", false, "display help")
