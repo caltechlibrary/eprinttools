@@ -23,6 +23,7 @@ apps:
                 - home
   ep3apid:
         command: bin/ep3apid
+        daemon: simple
         plugs:
                 - home
 parts:
