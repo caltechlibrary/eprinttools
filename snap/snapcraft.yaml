@@ -1,6 +1,6 @@
 name: eprinttools # Caltech Library EPrint Tools
 base: core20 # the base snap is the execution environment for this snap
-version: '1.1.7-dev' # Development semver
+version: '1.1.7' # Development semver
 summary: Command line tools and service for working with an EPrints repository
 description: |
         eprinttools provides a epfmt, eputil and ep3apid. The first are
@@ -9,8 +9,8 @@ description: |
         MySQL.
         connections.
 license: BSD-3-Clause
-grade: devel # must be 'stable' to release into candidate/stable channels
-confinement: devmode # use 'strict' once you have the right plugs and slots
+grade: stable # must be 'stable' to release into candidate/stable channels
+confinement: strict # use 'strict' once you have the right plugs and slots
 
 apps:
   epfmt:
