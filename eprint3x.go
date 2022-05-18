@@ -259,6 +259,10 @@ type EPrint struct {
 	EditLockSince int `xml:"-" json:"-"`
 	EditLockUntil int `xml:"-" json:"-"`
 
+	// Fields identified throw harvesting.
+	ReferenceTextString string `xml:referencetext,omitempty" json:"referencetext,omitempty"`
+	Language            string `xml:"language,omitempty" json:"language,omitempty"`
+
 	// Synthetic fields are created to help in eventual migration of
 	// EPrints field data to other JSON formats.
 	PrimaryObject  map[string]interface{}   `xml:"-" json:"primary_object,omitempty"`
@@ -2001,6 +2005,21 @@ type File struct {
 	MTimeMinute int      `xml:"-" json:"-"`
 	MTimeSecond int      `xml:"-" json:"-"`
 	URL         string   `xml:"url" json:"url"`
+
+	// Additional fields found with working with our smaller repositories
+	PronomID                string `xml:"pronomid,omitempty" json:"pronomID,omitempty"`
+	ClassificationDateYear  int    `xml:"classification_date_year,omitempty" json:"classification_date_year,omitempty"`
+	ClassificationDateMonth int    `xml:"classification_date_month,omitempty" json:"classification_date_month,omitempty"`
+	ClassificationDateDay   int    `xml:"classification_date_day,omitempty" json:"classification_date_day,omitempty"`
+
+	ClassificationDateHour int `xml:"classification_date_hour,omitempty" json:"
+classification_date_hour,omitempty"`
+
+	ClassificationDateMinute int `xml:"classification_date_minute,omitempty" json:"classification_date_minute,omitempty"`
+
+	ClassificationDateSecond int `xml:"classification_date_second,omitempty" json:"classification_date_second,omitempty"`
+
+	ClassificationQuality string `xml:"classification_quality,omitempty" json:"classification_quality,omitempty"`
 }
 
 // Document structures inside a Record (i.e. <eprint>...<documents><document>...</document>...</documents>...</eprint>)
