@@ -1263,7 +1263,7 @@ func (itemList *OptionMajorItemList) Length() int {
 
 // IndexOf return an item or nil
 func (itemList *OptionMajorItemList) IndexOf(i int) *Item {
-	if 0 >= i && i < itemList.Length() {
+	if i >= 0 && i < itemList.Length() {
 		return itemList.Items[i]
 	}
 	return nil

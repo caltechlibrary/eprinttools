@@ -39,20 +39,26 @@ func CloseJSONStore(config *Config) error {
 
 // SaveJSONDocument takes a configuration, repoName, eprint id as integer and
 // JSON source saving it to the appropriate JSON table.
-func SaveJSONDocument(cfg *Config, repoName string, id int, src []byte) error {
+func SaveJSONDocument(cfg *Config, repoName string, id int, src []byte, action string, lastmod string, status string) error {
 	type Doc struct {
-		ID  int    `json:"id"`
-		Src []byte `json:"src"`
+		ID           int    `json:"id"`
+		Src          []byte `json:"src"`
+		Action       string `json:"action,omitempty"`
+		LastModified string `json:"lastmod,omitempty"`
+		Status       string `json:"status,omitempty"`
 	}
 
-	stmt := fmt.Sprintf(`REPLACE INTO %s (id, src) VALUES (?, ?)`, repoName)
+	stmt := fmt.Sprintf(`REPLACE INTO %s (id, src, action, lastmod, status) VALUES (?, ?, ?, ?, ?)`, repoName)
 	doc := new(Doc)
 	doc.ID = id
 	doc.Src = src
+	doc.Action = action
+	doc.LastModified = lastmod
+	doc.Status = status
 	if cfg.Jdb == nil {
 		OpenJSONStore(cfg)
 	}
-	_, err := cfg.Jdb.Exec(stmt, doc.ID, doc.Src)
+	_, err := cfg.Jdb.Exec(stmt, doc.ID, doc.Src, doc.Action, doc.LastModified, doc.Status)
 	if err != nil {
 		return fmt.Errorf("sql failed for %d in %s, %s", id, repoName, err)
 	}
@@ -65,7 +71,7 @@ func GetJSONDocument(cfg *Config, repoName string, id int) ([]byte, error) {
 	if cfg.Jdb == nil {
 		OpenJSONStore(cfg)
 	}
-	stmt := fmt.Sprintf("SELECT id, src FROM %s WHERE id = ?", repoName)
+	stmt := fmt.Sprintf("SELECT id, src, action, created, updated FROM %s WHERE id = ?", repoName)
 	rows, err := cfg.Jdb.Query(stmt, id)
 	if err != nil {
 		return nil, fmt.Errorf("Failed to get %s id %d, %s", repoName, id, err)

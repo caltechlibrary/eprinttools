@@ -24,6 +24,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log"
 	"os"
 	"path"
@@ -35,7 +36,9 @@ import (
 var (
 	description = `
 USAGE
-	{app_name} JSON_SETTINGS_FILENAME [START_TIMESTAMP] [END_TIMESTAMP]
+
+	{app_name} [OPTION] JSON_SETTINGS_FILENAME \
+	           [START_TIMESTAMP] [END_TIMESTAMP]
 
 {app_name} is a command line program for metadata harvester
 for EPrints repositories.
@@ -49,9 +52,24 @@ MySQL 8 table.
 
 Each MySQL 8 table has two columns id, src (holding the JSON
 document as a JSON column).
+
+CONFIGURING YOUR JSON STORE
+
+{app_name} uses a MySQL 8 database for a JSON document store.
+It will generate one table for EPrint repository. You can
+generate a SQL program for creating the MySQL database and
+tables from your settings JSON file using the "-sql-schema"
+option. Using the option will require a JSON settings filename
+parameter. E.g.
+
+    {app_name} -sql-schema settings.json
+
+OPTIONS
 `
 
 	examples = `
+EXAMPLES
+
 Harvesting repositories for week month of May, 2022.
 
     {app_name} settings.json "2022-05-01 00:00:00" "2022-05-31 59:59:59"
@@ -79,6 +97,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 	showHelp    bool
 	showLicense bool
 	showVersion bool
+
+	// App Option
+	showSqlSchema bool
 )
 
 func main() {
@@ -90,6 +111,7 @@ func main() {
 	flagSet.BoolVar(&showHelp, "help", false, "display help")
 	flagSet.BoolVar(&showLicense, "license", false, "display license")
 	flagSet.BoolVar(&showVersion, "version", false, "display version")
+	flagSet.BoolVar(&showSqlSchema, "sql-schema", false, "display SQL schema for installing MySQL jsonstore DB")
 
 	// We're ready to process args
 	flagSet.Parse(os.Args[1:])
@@ -119,6 +141,21 @@ func main() {
 	}
 	if len(args) > 2 {
 		end = args[2]
+	}
+
+	// Handle request to show schema.
+	if showSqlSchema {
+		if settings == "" {
+			log.Printf("%s -sql-schema option requires a settings file parameter", appName)
+			os.Exit(1)
+		}
+		src, err := eprinttools.HarvesterInitDB(settings)
+		if err != nil {
+			log.Printf("%s -sql-schema error: %s", appName, err)
+			os.Exit(1)
+		}
+		fmt.Print(src)
+		os.Exit(0)
 	}
 	err := eprinttools.RunHarvester(settings, start, end)
 	if err != nil {

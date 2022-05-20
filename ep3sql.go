@@ -1378,7 +1378,7 @@ func documentIDToRelation(repoID string, baseURL string, documentID int, pos int
 				if err := rows.Scan(&pos, &relationType, &relationURI); err != nil {
 					log.Printf("Could not scan relation type and relation uri (%d), %q join %q, doc id %d and pos %d, %s", pos, typeTable, uriTable, documentID, pos, err)
 				} else {
-					sizeItemList(pos, itemList)
+					resizeItemList(pos, itemList)
 					item := itemList.IndexOf(pos)
 					item.Pos = pos
 					item.Type = relationType
@@ -1547,9 +1547,9 @@ func makeDirValue(ID int) string {
 	return fmt.Sprintf(`disk0/%s`, strings.TrimSuffix(pairtree.Encode(fmt.Sprintf("%08d", ID)), "/"))
 }
 
-func sizeItemList(pos int, itemList ItemsInterface) {
-	for pos >= itemList.Length() {
-		for j := itemList.Length(); j < (pos + 1); j++ {
+func resizeItemList(pos int, itemList ItemsInterface) {
+	if (pos >= 0) && (pos >= itemList.Length()) {
+		for j := itemList.Length(); j <= (pos + 1); j++ {
 			item := new(Item)
 			itemList.Append(item)
 		}
@@ -1578,7 +1578,7 @@ func eprintIDToPersonItemList(db *sql.DB, tables map[string][]string, repoID str
 					log.Printf("Could not scan %s for %d in %q, %s", tableName, eprintID, repoID, err)
 				} else {
 					// Check if we have enough items in our item list.
-					sizeItemList(pos, itemList)
+					resizeItemList(pos, itemList)
 					if item := itemList.IndexOf(pos); item != nil {
 						item.Pos = pos
 						item.Name = makePersonName(given, family, honourific, lineage)
@@ -1729,13 +1729,13 @@ func eprintIDToSimpleItemList(db *sql.DB, tables map[string][]string, repoID str
 					log.Printf("Could not scan %s for %d in %q, %s", tableName, eprintID, repoID, err)
 				} else {
 					if value != "" {
-						sizeItemList(pos, itemList)
-						item := itemList.IndexOf(pos)
-						if item != nil {
+						resizeItemList(pos, itemList)
+						if item := itemList.IndexOf(pos); item != nil {
 							item.Pos = pos
 							item.Value = value
 						} else {
-							log.Printf("Failed to update item (table: %s, eprintID: %d) scanned pos: %d, value: %q\n", tableName, eprintID, pos, value)
+
+							log.Printf("Failed to resize item major/minor list (table: %s, eprintID: %d) scanned pos: %d, value: %q itemList.Length() %d -> %+v\n", tableName, eprintID, pos, value, itemList.Length(), item)
 						}
 					}
 				}
@@ -1898,7 +1898,7 @@ FROM %s WHERE eprintid = ? ORDER BY eprintid, pos`, columnName, columnName, tabl
 				if err := rows.Scan(&pos, &value); err != nil {
 					log.Printf("Could not scan %s for %d in %q, %s", tableName, eprintID, repoID, err)
 				} else {
-					sizeItemList(pos, itemList)
+					resizeItemList(pos, itemList)
 					item := itemList.IndexOf(pos)
 					item.Pos = pos
 					item.Name = new(Name)
@@ -1978,7 +1978,7 @@ FROM %s WHERE eprintid = ? ORDER BY eprintid, pos`, columnName, columnName, tabl
 				if err := rows.Scan(&pos, &value); err != nil {
 					log.Printf("Could not scan %s for %d in %q, %s", tableName, eprintID, repoID, err)
 				} else {
-					sizeItemList(pos, itemList)
+					resizeItemList(pos, itemList)
 					item := itemList.IndexOf(pos)
 					item.Pos = pos
 					item.Name = new(Name)
@@ -2008,7 +2008,7 @@ FROM %s WHERE eprintid = ? ORDER BY eprintid, pos`, columnName, columnName, tabl
 					if err := rows.Scan(&pos, &value); err != nil {
 						log.Printf("Could not scan (%d) %s for %d in %q, %s", i, tableName, eprintID, repoID, err)
 					} else {
-						sizeItemList(pos, itemList)
+						resizeItemList(pos, itemList)
 						item := itemList.IndexOf(pos)
 						item.Pos = pos
 						switch columnName {
@@ -2056,7 +2056,7 @@ FROM %s WHERE eprintid = ? ORDER BY eprintid, pos`, columnName, columnName, tabl
 				if err := rows.Scan(&pos, &value); err != nil {
 					log.Printf("Could not scan %s for %d in %q, %s", tableName, eprintID, repoID, err)
 				} else {
-					sizeItemList(pos, itemList)
+					resizeItemList(pos, itemList)
 					item := itemList.IndexOf(pos)
 					item.Pos = pos
 					item.Name = new(Name)
@@ -2086,7 +2086,7 @@ FROM %s WHERE eprintid = ? ORDER BY eprintid, pos`, columnName, columnName, tabl
 					if err := rows.Scan(&pos, &value); err != nil {
 						log.Printf("Could not scan (%d) %s for %d in %q, %s", i, tableName, eprintID, repoID, err)
 					} else {
-						sizeItemList(pos, itemList)
+						resizeItemList(pos, itemList)
 						item := itemList.IndexOf(pos)
 						item.Pos = pos
 						switch columnName {
@@ -2135,7 +2135,7 @@ func eprintIDToFunders(repoID string, eprintID int, db *sql.DB, tables map[strin
 				if err := rows.Scan(&pos, &value); err != nil {
 					log.Printf("Could not scan %s for %d in %q, %s", tableName, eprintID, repoID, err)
 				} else {
-					sizeItemList(pos, itemList)
+					resizeItemList(pos, itemList)
 					item := itemList.IndexOf(pos)
 					item.Pos = pos
 					if value != "" {
@@ -2163,7 +2163,7 @@ func eprintIDToFunders(repoID string, eprintID int, db *sql.DB, tables map[strin
 							if err := rows.Scan(&pos, &value); err != nil {
 								log.Printf("Could not scan (%d) %s for %d in %q, %s", i, tableName, eprintID, repoID, err)
 							} else {
-								sizeItemList(pos, itemList)
+								resizeItemList(pos, itemList)
 								if value != "" {
 									for _, item := range itemList.Items {
 										if item.Pos == pos {
@@ -2214,7 +2214,7 @@ func eprintIDToRelatedURL(repoID string, baseURL string, eprintID int, db *sql.D
 						log.Printf("Could not scan (%d) %d for %s, %s", i, eprintID, repoID, err)
 					} else {
 						if value != "" {
-							sizeItemList(pos, itemList)
+							resizeItemList(pos, itemList)
 							item := itemList.IndexOf(pos)
 							item.Pos = pos
 							switch columnName {
@@ -2265,7 +2265,7 @@ SELECT %s.pos AS pos, IFNULL(other_numbering_system_name, '') AS name, IFNULL(ot
 				if err := rows.Scan(&pos, &name, &id); err != nil {
 					log.Printf("Could not scan (%d) %d for %s, %s", i, eprintID, repoID, err)
 				} else {
-					sizeItemList(pos, itemList)
+					resizeItemList(pos, itemList)
 					item := itemList.IndexOf(pos)
 					item.Pos = pos
 					item.ID = id
@@ -2311,7 +2311,7 @@ FROM %s WHERE eprintid = ? ORDER BY eprintid, pos`, tableName)
 				if err := rows.Scan(&pos, &year, &month, &day, &hour, &minute, &second); err != nil {
 					log.Printf("Could not scan (%d) %d for %s, %s", i, eprintID, repoID, err)
 				} else {
-					sizeItemList(pos, itemList)
+					resizeItemList(pos, itemList)
 					item := itemList.IndexOf(pos)
 					item.Pos = pos
 					item.Timestamp = makeTimestamp(year, month, day, hour, minute, second)

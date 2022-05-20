@@ -4,13 +4,75 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"os"
 	"sort"
+	"strings"
 	"time"
+
+	// Aliasing mysql driver to get to ParseDSN
+	mysqlDriver "github.com/go-sql-driver/mysql"
 )
 
 const (
 	mysqlTimeFmt = "2006-01-02 15:04:05"
 )
+
+// getDBName uses the ParseDSN function from the MySQL driver to
+// return the DB name.
+func getDBName(dsn string) (string, error) {
+	cfg, err := mysqlDriver.ParseDSN(dsn)
+	if err != nil {
+		return "", err
+	}
+	return cfg.DBName, nil
+}
+
+// HarvesterInitDB returns SQL statements for creating
+// the tables and database for the harvester based on the
+// initialization file provides.
+func HarvesterInitDB(cfgName string) (string, error) {
+	now := time.Now()
+	appName := os.Args[0]
+	database := `--
+--
+-- Database generated for MySQL 8 by %s %s
+-- using %s on %s
+--
+CREATE DATABASE IF NOT EXISTS %s;
+USE %s;
+
+`
+	table := `-- 
+-- Table Schema generated for MySQL 8 by %s %s
+-- for EPrint repository %s on %s
+--
+CREATE TABLE IF NOT EXISTS %s (
+  id INTEGER NOT NULL PRIMARY KEY,
+  src JSON,
+  created DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  action VARCHAR(255) DEFAULT "",
+  lastmod VARCHAR(255) DEFAULT "",
+  status VARCHAR(255) DEFAULT ""
+);
+`
+	cfg, err := LoadConfig(cfgName)
+	if err != nil {
+		return "", err
+	}
+	dbName, err := getDBName(cfg.JSONStore)
+	if err != nil {
+		return "", fmt.Errorf("Cannot parse jsonstore DSN in %s, %s", cfgName, err)
+	}
+	src := []string{}
+	if dbName != "" {
+		src = append(src, fmt.Sprintf(database, appName, Version, cfgName, now.Format(mysqlTimeFmt), dbName, dbName))
+	}
+	for repoName := range cfg.Repositories {
+		src = append(src, fmt.Sprintf(table, appName, Version, repoName, now.Format(mysqlTimeFmt), repoName))
+	}
+	return strings.Join(src, "\n"), nil
+}
 
 // RunHarvester will use the config file names by cfgName and
 // the start and end time strings if set to retrieve all eprint
@@ -41,10 +103,16 @@ func harvest(cfg *Config, start string, end string) error {
 	if err := OpenConnections(cfg); err != nil {
 		return err
 	}
+	repoNames := []string{}
 	for repoName := range cfg.Connections {
+		repoNames = append(repoNames, repoName)
+	}
+	sort.Strings(repoNames)
+	for _, repoName := range repoNames {
 		//FIXME: we could use a go routine to support concurrent harvests.
 		log.Printf("harvesting %s started", repoName)
 		if err := harvestRepository(cfg, repoName, start, end); err != nil {
+			log.Printf("harvesting %s aborted", repoName)
 			return err
 		}
 		log.Printf("harvesting %s completed", repoName)
@@ -105,6 +173,13 @@ func harvestEPrintRecord(cfg *Config, repoName string, eprintID int) error {
 	if err != nil {
 		return err
 	}
+	action := "created"
+	if eprint.Datestamp != eprint.LastModified {
+		action = "updated"
+	}
+	if eprint.EPrintStatus == "deletion" {
+		action = "deleted"
+	}
 	src, err := json.MarshalIndent(eprint, "", "    ")
-	return SaveJSONDocument(cfg, repoName, eprintID, src)
+	return SaveJSONDocument(cfg, repoName, eprintID, src, action, eprint.LastModified, eprint.EPrintStatus)
 }
