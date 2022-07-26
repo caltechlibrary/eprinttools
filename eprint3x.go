@@ -2164,7 +2164,7 @@ func GenerateIDNumber(eprint *EPrint) string {
 		collection = eprint.Collection
 	}
 	now := time.Now()
-	return fmt.Sprintf(`%s/%s:%s-%d`, DefaultOfficialURL, collection, now.Format("20060102"), now.Nanosecond())
+	return fmt.Sprintf(`%s:%s-%d`, collection, now.Format("20060102"), now.Nanosecond())
 }
 
 // GenerateImportID generates a unique ID number based on the
@@ -2186,5 +2186,5 @@ func GenerateOfficialURL(eprint *EPrint) string {
 	if idNumber == "" {
 		idNumber = GenerateIDNumber(eprint)
 	}
-	return fmt.Sprintf(`%s`, idNumber)
+	return fmt.Sprintf(`%s/%s`, DefaultOfficialURL, idNumber)
 }
