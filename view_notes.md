@@ -59,6 +59,9 @@ CaltechAUTHORS
 + Type -> types
 + Person -> person-az
 + Collection -> collection
++ Latests Additions
++ Recently published
+
 
 CaltechTHESIS
 -------------

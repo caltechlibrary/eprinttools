@@ -258,11 +258,6 @@ func GetUserBy(config *Config, repoID string, queryField string, queryValue inte
 		} else {
 			user.HideEMail = false
 		}
-		/*
-			if user.HideEMail {
-				user.EMail = ``
-			}
-		*/
 		return user, nil
 	}
 	return nil, fmt.Errorf(`bad request`)
@@ -306,17 +301,6 @@ func SQLCreateUser(config *Config, repoID string, user *EPrintUser) (int, error)
 	if db, ok := config.Connections[repoID]; ok {
 		// First generate new row for user.
 		stmt := `INSERT INTO user (userid) (SELECT (IFNULL((SELECT userid FROM user ORDER BY userid DESC LIMIT 1), 0) + 1) AS userid)`
-		/*
-			// Last ID doesn't work because userid is not AUTOINCREMENT
-			res, err := db.Exec(stmt)
-			if err != nil {
-				return 0, fmt.Errorf(`SQL error, %q, %s`, stmt, err)
-			}
-			id, err := res.LastInsertId()
-			if err != nil {
-				return 0, fmt.Errorf(`SQL lastInsertID() failed, %s`, err)
-			}
-		*/
 		_, err := db.Exec(stmt)
 		if err != nil {
 			return 0, fmt.Errorf(`SQL error, %q, %s`, stmt, err)
@@ -771,7 +755,7 @@ func eprintToColumnsAndValues(eprint *EPrint, columnsIn []string, ifNull bool) (
 			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "datestamp_year":
 			values = append(values, &eprint.DatestampYear)
-			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
 		case "datestamp_month":
 			values = append(values, &eprint.DatestampMonth)
 			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
@@ -1148,16 +1132,22 @@ func eprintToColumnsAndValues(eprint *EPrint, columnsIn []string, ifNull bool) (
 		case "patent_classification":
 			values = append(values, &eprint.PatentClassificationText)
 			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
+		case "language":
+			values = append(values, &eprint.Language)
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
+		case "referencetext":
+			values = append(values, &eprint.ReferenceTextString)
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		default:
 			// Handle case where we have value that is unmapped or not available in EPrint struct
-			log.Printf("could not map %q (%d) into EPrint struct", key, i)
+			log.Printf("could not map %q (col. %d, eprintid %d) into EPrint struct", key, i, eprint.EPrintID)
 		}
 
 	}
 	return columnsOut, values
 }
 
-func documentToColumnsAndValues(document *Document, columns []string, ifNull bool) ([]string, []interface{}) {
+func documentToColumnsAndValues(eprintID int, document *Document, columns []string, ifNull bool) ([]string, []interface{}) {
 	columnsOut := []string{}
 	values := []interface{}{}
 	for i, key := range columns {
@@ -1235,13 +1225,13 @@ func documentToColumnsAndValues(document *Document, columns []string, ifNull boo
 			values = append(values, &document.MediaSampleStop)
 			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
 		default:
-			log.Printf("%q (%d) not found in document table", key, i)
+			log.Printf("%q (col. %d, eprintid %d) not found in document table", key, i, eprintID)
 		}
 	}
 	return columnsOut, values
 }
 
-func fileToColumnsAndValues(file *File, columns []string, ifNull bool) ([]string, []interface{}) {
+func fileToColumnsAndValues(eprintID int, file *File, columns []string, ifNull bool) ([]string, []interface{}) {
 	columnsOut := []string{}
 	values := []interface{}{}
 	for i, key := range columns {
@@ -1288,8 +1278,32 @@ func fileToColumnsAndValues(file *File, columns []string, ifNull bool) ([]string
 		case "mtime_second":
 			values = append(values, &file.MTimeSecond)
 			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
+		case "pronomid":
+			values = append(values, &file.PronomID)
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
+		case "classification_date_year":
+			values = append(values, &file.ClassificationDateYear)
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
+		case "classification_date_month":
+			values = append(values, &file.ClassificationDateMonth)
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
+		case "classification_date_day":
+			values = append(values, &file.ClassificationDateDay)
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
+		case "classification_date_hour":
+			values = append(values, &file.ClassificationDateHour)
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
+		case "classification_date_minute":
+			values = append(values, &file.ClassificationDateMinute)
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
+		case "classification_date_second":
+			values = append(values, &file.ClassificationDateSecond)
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
+		case "classification_quality":
+			values = append(values, &file.ClassificationQuality)
+			columnsOut = append(columnsOut, colExpr(key, ifNull, `0`))
 		default:
-			log.Printf("%q (%d) not found in file table", key, i)
+			log.Printf("(col. %d, eprintid %d) field %q not found in file table", i, eprintID, key)
 		}
 	}
 	return columnsOut, values
@@ -1314,7 +1328,7 @@ func documentIDToFiles(repoID string, baseURL string, eprintID int, documentID i
 	if ok {
 		files := []*File{}
 		file := new(File)
-		columnSQL, _ := fileToColumnsAndValues(file, columns, true)
+		columnSQL, _ := fileToColumnsAndValues(eprintID, file, columns, true)
 		//FIXME: This needs to be an ordered list.
 		stmt := fmt.Sprintf(`SELECT %s FROM %s WHERE datasetid = 'document' AND objectid = ?`, strings.Join(columnSQL, ", "), tableName)
 		rows, err := db.Query(stmt, documentID)
@@ -1324,7 +1338,7 @@ func documentIDToFiles(repoID string, baseURL string, eprintID int, documentID i
 			i := 0
 			for rows.Next() {
 				file = new(File)
-				_, values := fileToColumnsAndValues(file, columns, true)
+				_, values := fileToColumnsAndValues(eprintID, file, columns, true)
 				if err := rows.Scan(values...); err != nil {
 					log.Printf("Could not scan %q for %d in %q, doc ID %d, %s", tableName, eprintID, repoID, documentID, err)
 				} else {
@@ -1364,7 +1378,7 @@ func documentIDToRelation(repoID string, baseURL string, documentID int, pos int
 				if err := rows.Scan(&pos, &relationType, &relationURI); err != nil {
 					log.Printf("Could not scan relation type and relation uri (%d), %q join %q, doc id %d and pos %d, %s", pos, typeTable, uriTable, documentID, pos, err)
 				} else {
-					sizeItemList(pos, itemList)
+					resizeItemList(pos, itemList)
 					item := itemList.IndexOf(pos)
 					item.Pos = pos
 					item.Type = relationType
@@ -1388,7 +1402,7 @@ func eprintIDToDocumentList(repoID string, baseURL string, eprintID int, db *sql
 		document := new(Document)
 		// NOTE: Bind the values in document to the values array used by
 		// rows.Scan().
-		columnSQL, _ := documentToColumnsAndValues(document, columns, true)
+		columnSQL, _ := documentToColumnsAndValues(eprintID, document, columns, true)
 		stmt := fmt.Sprintf(`SELECT %s FROM %s WHERE eprintid = ? ORDER BY eprintid ASC, pos ASC, rev_number DESC`, strings.Join(columnSQL, ", "), tableName)
 		rows, err := db.Query(stmt, eprintID)
 		if err != nil {
@@ -1397,7 +1411,7 @@ func eprintIDToDocumentList(repoID string, baseURL string, eprintID int, db *sql
 			i := 0
 			for rows.Next() {
 				document = new(Document)
-				_, values := documentToColumnsAndValues(document, columns, true)
+				_, values := documentToColumnsAndValues(eprintID, document, columns, true)
 				if err := rows.Scan(values...); err != nil {
 					log.Printf("Could not scan %q for %d in %q, %s", tableName, eprintID, repoID, err)
 				} else {
@@ -1533,9 +1547,9 @@ func makeDirValue(ID int) string {
 	return fmt.Sprintf(`disk0/%s`, strings.TrimSuffix(pairtree.Encode(fmt.Sprintf("%08d", ID)), "/"))
 }
 
-func sizeItemList(pos int, itemList ItemsInterface) {
-	for pos >= itemList.Length() {
-		for j := itemList.Length(); j < (pos + 1); j++ {
+func resizeItemList(pos int, itemList ItemsInterface) {
+	if (pos >= 0) && (pos >= itemList.Length()) {
+		for j := itemList.Length(); j <= (pos + 1); j++ {
 			item := new(Item)
 			itemList.Append(item)
 		}
@@ -1564,7 +1578,7 @@ func eprintIDToPersonItemList(db *sql.DB, tables map[string][]string, repoID str
 					log.Printf("Could not scan %s for %d in %q, %s", tableName, eprintID, repoID, err)
 				} else {
 					// Check if we have enough items in our item list.
-					sizeItemList(pos, itemList)
+					resizeItemList(pos, itemList)
 					if item := itemList.IndexOf(pos); item != nil {
 						item.Pos = pos
 						item.Name = makePersonName(given, family, honourific, lineage)
@@ -1715,13 +1729,13 @@ func eprintIDToSimpleItemList(db *sql.DB, tables map[string][]string, repoID str
 					log.Printf("Could not scan %s for %d in %q, %s", tableName, eprintID, repoID, err)
 				} else {
 					if value != "" {
-						sizeItemList(pos, itemList)
-						item := itemList.IndexOf(pos)
-						if item != nil {
+						resizeItemList(pos, itemList)
+						if item := itemList.IndexOf(pos); item != nil {
 							item.Pos = pos
 							item.Value = value
 						} else {
-							log.Printf("Failed to update item (table: %s, eprintID: %d) scanned pos: %d, value: %q\n", tableName, eprintID, pos, value)
+
+							log.Printf("Failed to resize item major/minor list (table: %s, eprintID: %d) scanned pos: %d, value: %q itemList.Length() %d -> %+v\n", tableName, eprintID, pos, value, itemList.Length(), item)
 						}
 					}
 				}
@@ -1884,7 +1898,7 @@ FROM %s WHERE eprintid = ? ORDER BY eprintid, pos`, columnName, columnName, tabl
 				if err := rows.Scan(&pos, &value); err != nil {
 					log.Printf("Could not scan %s for %d in %q, %s", tableName, eprintID, repoID, err)
 				} else {
-					sizeItemList(pos, itemList)
+					resizeItemList(pos, itemList)
 					item := itemList.IndexOf(pos)
 					item.Pos = pos
 					item.Name = new(Name)
@@ -1964,7 +1978,7 @@ FROM %s WHERE eprintid = ? ORDER BY eprintid, pos`, columnName, columnName, tabl
 				if err := rows.Scan(&pos, &value); err != nil {
 					log.Printf("Could not scan %s for %d in %q, %s", tableName, eprintID, repoID, err)
 				} else {
-					sizeItemList(pos, itemList)
+					resizeItemList(pos, itemList)
 					item := itemList.IndexOf(pos)
 					item.Pos = pos
 					item.Name = new(Name)
@@ -1994,7 +2008,7 @@ FROM %s WHERE eprintid = ? ORDER BY eprintid, pos`, columnName, columnName, tabl
 					if err := rows.Scan(&pos, &value); err != nil {
 						log.Printf("Could not scan (%d) %s for %d in %q, %s", i, tableName, eprintID, repoID, err)
 					} else {
-						sizeItemList(pos, itemList)
+						resizeItemList(pos, itemList)
 						item := itemList.IndexOf(pos)
 						item.Pos = pos
 						switch columnName {
@@ -2042,7 +2056,7 @@ FROM %s WHERE eprintid = ? ORDER BY eprintid, pos`, columnName, columnName, tabl
 				if err := rows.Scan(&pos, &value); err != nil {
 					log.Printf("Could not scan %s for %d in %q, %s", tableName, eprintID, repoID, err)
 				} else {
-					sizeItemList(pos, itemList)
+					resizeItemList(pos, itemList)
 					item := itemList.IndexOf(pos)
 					item.Pos = pos
 					item.Name = new(Name)
@@ -2072,7 +2086,7 @@ FROM %s WHERE eprintid = ? ORDER BY eprintid, pos`, columnName, columnName, tabl
 					if err := rows.Scan(&pos, &value); err != nil {
 						log.Printf("Could not scan (%d) %s for %d in %q, %s", i, tableName, eprintID, repoID, err)
 					} else {
-						sizeItemList(pos, itemList)
+						resizeItemList(pos, itemList)
 						item := itemList.IndexOf(pos)
 						item.Pos = pos
 						switch columnName {
@@ -2121,7 +2135,7 @@ func eprintIDToFunders(repoID string, eprintID int, db *sql.DB, tables map[strin
 				if err := rows.Scan(&pos, &value); err != nil {
 					log.Printf("Could not scan %s for %d in %q, %s", tableName, eprintID, repoID, err)
 				} else {
-					sizeItemList(pos, itemList)
+					resizeItemList(pos, itemList)
 					item := itemList.IndexOf(pos)
 					item.Pos = pos
 					if value != "" {
@@ -2149,7 +2163,7 @@ func eprintIDToFunders(repoID string, eprintID int, db *sql.DB, tables map[strin
 							if err := rows.Scan(&pos, &value); err != nil {
 								log.Printf("Could not scan (%d) %s for %d in %q, %s", i, tableName, eprintID, repoID, err)
 							} else {
-								sizeItemList(pos, itemList)
+								resizeItemList(pos, itemList)
 								if value != "" {
 									for _, item := range itemList.Items {
 										if item.Pos == pos {
@@ -2200,7 +2214,7 @@ func eprintIDToRelatedURL(repoID string, baseURL string, eprintID int, db *sql.D
 						log.Printf("Could not scan (%d) %d for %s, %s", i, eprintID, repoID, err)
 					} else {
 						if value != "" {
-							sizeItemList(pos, itemList)
+							resizeItemList(pos, itemList)
 							item := itemList.IndexOf(pos)
 							item.Pos = pos
 							switch columnName {
@@ -2251,7 +2265,7 @@ SELECT %s.pos AS pos, IFNULL(other_numbering_system_name, '') AS name, IFNULL(ot
 				if err := rows.Scan(&pos, &name, &id); err != nil {
 					log.Printf("Could not scan (%d) %d for %s, %s", i, eprintID, repoID, err)
 				} else {
-					sizeItemList(pos, itemList)
+					resizeItemList(pos, itemList)
 					item := itemList.IndexOf(pos)
 					item.Pos = pos
 					item.ID = id
@@ -2297,7 +2311,7 @@ FROM %s WHERE eprintid = ? ORDER BY eprintid, pos`, tableName)
 				if err := rows.Scan(&pos, &year, &month, &day, &hour, &minute, &second); err != nil {
 					log.Printf("Could not scan (%d) %d for %s, %s", i, eprintID, repoID, err)
 				} else {
-					sizeItemList(pos, itemList)
+					resizeItemList(pos, itemList)
 					item := itemList.IndexOf(pos)
 					item.Pos = pos
 					item.Timestamp = makeTimestamp(year, month, day, hour, minute, second)
@@ -2393,6 +2407,7 @@ func SQLReadEPrint(config *Config, repoID string, baseURL string, eprintID int) 
 	// EPrint struct.
 
 	eprint := new(EPrint) // Generate an empty EPrint struct
+	eprint.EPrintID = eprintID
 
 	// NOTE: The data is littered with NULLs in EPrints. We need to
 	// generate both a map of values into the EPrint stucture and
@@ -2413,7 +2428,7 @@ func SQLReadEPrint(config *Config, repoID string, baseURL string, eprintID int) 
 		// EPrint struct the "Scan" does the actual mapping.
 		// This makes it sorta "auto-magical"
 		if err := rows.Scan(values...); err != nil {
-			log.Printf(`Could not read eprint table, %s`, err)
+			log.Printf(`%s.eprint eprintid = %d, %s`, repoID, eprintID, err)
 		}
 		cnt++
 	}
@@ -2787,17 +2802,6 @@ func SQLCreateEPrint(config *Config, repoID string, ds *DataSource, eprint *EPri
 	if columns, ok := ds.TableMap[tableName]; ok {
 		// Generate an empty row and capture the id created.
 		stmt := `INSERT INTO eprint (eprintid) (SELECT (IFNULL((SELECT eprintid FROM eprint ORDER BY eprintid DESC LIMIT 1), 0) + 1) AS eprintid)`
-		/*
-			// eprintid are not auto increment so the LastInsertId() may not be set
-			res, err := db.Exec(stmt)
-			if err != nil {
-				return 0, fmt.Errorf(`SQL error, %q, %s`, stmt, err)
-			}
-			id, err := res.LastInsertId()
-			if err != nil {
-				return 0, fmt.Errorf(`SQL failed to get inserted id, %s`, err)
-			}
-		*/
 		_, err := db.Exec(stmt)
 		if err != nil {
 			return 0, fmt.Errorf(`SQL error, %q, %s`, stmt, err)
