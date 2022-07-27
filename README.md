@@ -1,7 +1,7 @@
 eprinttools
 ===========
 
-This is a collection of command line tools and web service written in Go for working with EPrints 3.3.x EPrint XML, the EPrint REST API and directly with the respository database(s).
+This is a collection of command line tools and a web service written in Go for working with EPrints 3.3.x EPrint XML, the EPrint REST API and directly with the EPrints MySQL repository database(s).
 
 Go base code
 ------------

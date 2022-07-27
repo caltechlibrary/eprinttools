@@ -27,27 +27,32 @@
 <a href="./">Documentation</a>
 </li>
 <li>
-<a href="https://github.com/caltechlibrary/eprinttools">Github</a>
+<a
+href="https://github.com/caltechlibrary/eprinttools">Github</a>
 </li>
 <li>
-<a href="https://github.com/caltechlibrary/eprinttools/releases/latest">Releases</a>
+<a
+href="https://github.com/caltechlibrary/eprinttools/releases/latest">Releases</a>
 </li>
 </ul>
 </nav>
 
 <section>
-<h1>
+<h1 id="notes-on-using-doi2eprintxml-on-mac-os-x">
 Notes on using doi2eprintxml on Mac OS X
 </h1>
-<h2>
+<h2 id="installation-and-setup">
 Installation and setup
 </h2>
 <ol type="1">
 <li>
-With your web browser goto https://github.com/caltechlibrary/eprinttools/releases/
+With your web browser goto
+https://github.com/caltechlibrary/eprinttools/releases/
 </li>
 <li>
-Download the file called “eprinttools-v1.0.3-macos-amd64.zip” (for older Intel based Macs) or “eprinttools-v1.0.3-macos-arm64.zip” (for newer M1 based Macs).
+Download the file called “eprinttools-v1.0.3-macos-amd64.zip” (for older
+Intel based Macs) or “eprinttools-v1.0.3-macos-arm64.zip” (for newer M1
+based Macs).
 <ul>
 <li>
 if there is a newer version (e.g. v1.0.4) download that instead
@@ -58,10 +63,14 @@ if there is a newer version (e.g. v1.0.4) download that instead
 Unzip the downloaded zip file
 </li>
 <li>
-Copy “bin/doi2eprintxml” to your local <strong>bin</strong> folder (e.g. /Users/rsdoiel/bin)
+Copy “bin/doi2eprintxml” to your local <strong>bin</strong> folder
+(e.g. /Users/rsdoiel/bin)
 </li>
 <li>
-Make sure your <strong>bin</strong> directory is in your path (e.g. <code>export PATH=“<span class="math inline"><em>H</em><em>O</em><em>M</em><em>E</em>/<em>b</em><em>i</em><em>n</em>:</span>PATH”</code> in your <strong>.bashrc</strong> file)
+Make sure your <strong>bin</strong> directory is in your path
+(e.g. <code>export PATH=“<span
+class="math inline"><em>H</em><em>O</em><em>M</em><em>E</em>/<em>b</em><em>i</em><em>n</em>:</span>PATH”</code>
+in your <strong>.bashrc</strong> file)
 </li>
 <li>
 Open the your “Terminal” application
@@ -70,19 +79,30 @@ Open the your “Terminal” application
 Run <code>doi2printxml -h</code> to see the help page
 </li>
 </ol>
-<h2>
+<h2 id="getting-started">
 Getting started
 </h2>
 <p>
-The tool <code>doi2eprintxml</code> is a command line program, it is normally run from the terminal’s command prompt. The purpose of the program is to take a list of DOI contact CrossRef or DataCite and generate what is called an EPrint XML document. The EPrint XML document is used to import records into EPrints (e.g. CaltechAUTHORS) via the “import” button under “Manage Deposits” page.
+The tool <code>doi2eprintxml</code> is a command line program, it is
+normally run from the terminal’s command prompt. The purpose of the
+program is to take a list of DOI contact CrossRef or DataCite and
+generate what is called an EPrint XML document. The EPrint XML document
+is used to import records into EPrints (e.g. CaltechAUTHORS) via the
+“import” button under “Manage Deposits” page.
 </p>
-<h3>
+<h3 id="workflow">
 Workflow
 </h3>
 <p>
-The typical workflow is to create a plain text file (UTF-8 encoded) using a text editor such as <a href="https://atom.io">Atom</a> with one DOI per line. The <code>doi2eprintxml</code> program can then read the list and generate an EPrint XML document for importing into EPrints. Follow the following steps to generate a file called <strong>eprint.xml</strong> based on a list of of DOI in a file called <strong>doi.txt</strong>.
+The typical workflow is to create a plain text file (UTF-8 encoded)
+using a text editor such as <a href="https://atom.io">Atom</a> with one
+DOI per line. The <code>doi2eprintxml</code> program can then read the
+list and generate an EPrint XML document for importing into EPrints.
+Follow the following steps to generate a file called
+<strong>eprint.xml</strong> based on a list of of DOI in a file called
+<strong>doi.txt</strong>.
 </p>
-<h4>
+<h4 id="general-recipe">
 General recipe
 </h4>
 <ol type="1">
@@ -93,22 +113,28 @@ Open your text editor (e.g Atom)
 With your text editor create a list of DOI on per line
 </li>
 <li>
-Save this list to your desktop as <strong>doi.txt</strong> NOTE: <strong>doi.txt</strong> is the name of your file you saved on your desktop.
+Save this list to your desktop as <strong>doi.txt</strong> NOTE:
+<strong>doi.txt</strong> is the name of your file you saved on your
+desktop.
 </li>
 <li>
-Open the Terminal app and change directory to your desktop <code>cd ~/Desktop</code>
+Open the Terminal app and change directory to your desktop <code>cd
+~/Desktop</code>
 </li>
 <li>
-Generate <strong>eprint.xml</strong> with the following command <code>doi2eprintxml -i doi.txt &gt; eprint.xml</code>
+Generate <strong>eprint.xml</strong> with the following command
+<code>doi2eprintxml -i doi.txt &gt; eprint.xml</code>
 </li>
 <li>
-From the file manager open <strong>eprint.xml</strong> and review the XML document (e.g. in your web browser or other text editor)
+From the file manager open <strong>eprint.xml</strong> and review the
+XML document (e.g. in your web browser or other text editor)
 </li>
 <li>
 With your web browser go to CaltechAUTHORS and log in
 </li>
 <li>
-Change to the “manage deposits” page and select “EPrints XML” from the pull down menu next to the “import” button
+Change to the “manage deposits” page and select “EPrints XML” from the
+pull down menu next to the “import” button
 </li>
 <li>
 Press the “import” button
@@ -117,22 +143,26 @@ Press the “import” button
 Click on “Upload from file”
 </li>
 <li>
-Click the “browse” button and find <strong>eprint.xml</strong> on the desktop
+Click the “browse” button and find <strong>eprint.xml</strong> on the
+desktop
 </li>
 <li>
 From the pull down list next to the filename select “UTF-8”
 </li>
 <li>
-Click “Test without importing”, proceed to the next step if everything is OK
+Click “Test without importing”, proceed to the next step if everything
+is OK
 </li>
 <li>
-Click the “browse” button and find <strong>eprint.xml</strong> on the desktop
+Click the “browse” button and find <strong>eprint.xml</strong> on the
+desktop
 </li>
 <li>
 From the pulldown list next to the filename select “UTF-8”
 </li>
 <li>
-Click on “import items” buttons, this should import the items into your buffer to review
+Click on “import items” buttons, this should import the items into your
+buffer to review
 </li>
 </ol>
 </section>

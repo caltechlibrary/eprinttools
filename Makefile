@@ -49,9 +49,10 @@ $(PROGRAMS): $(PACKAGE)
 	go build -o bin/$@$(EXT) cmd/$@/$@.go
 
 
+# NOTE: macOS requires a "mv" command for placing binaries instead of "cp" due to signing process of compile
 install: build
 	@echo "Installing programs in $(PREFIX)/bin"
-	@for FNAME in $(PROGRAMS); do if [ -f ./bin/$$FNAME ]; then cp -v ./bin/$$FNAME $(PREFIX)/bin/$$FNAME; fi; done
+	@for FNAME in $(PROGRAMS); do if [ -f ./bin/$$FNAME ]; then mv ./bin/$$FNAME $(PREFIX)/bin/$$FNAME; fi; done
 	@echo ""
 	@echo "Make sure $(PREFIX)/bin is in your PATH"
 
@@ -66,9 +67,9 @@ website: page.tmpl README.md nav.md INSTALL.md LICENSE css/site.css docs/index.m
 
 
 test: version.go eputil epfmt doi2eprintxml ep3apid
-	cd cleaner && go test -test.v
-	cd clsrules && go test -test.v
-	go test -timeout 45m -test.v
+	- cd cleaner && go test -test.v
+	- cd clsrules && go test -test.v
+	- go test -timeout 45m -test.v
 	./test_cmds.bash
 
 
@@ -123,7 +124,7 @@ status:
 	git status
 
 save:
-	if [ "$(msg)" != "" ]; then git commit -am "$(msg)"; else git commit -am "Quick Save"; fi
+	@if [ "$(msg)" != "" ]; then git commit -am "$(msg)"; else git commit -am "Quick Save"; fi
 	git push origin $(BRANCH)
 
 publish: website

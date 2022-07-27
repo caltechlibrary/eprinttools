@@ -259,6 +259,10 @@ type EPrint struct {
 	EditLockSince int `xml:"-" json:"-"`
 	EditLockUntil int `xml:"-" json:"-"`
 
+	// Fields identified through harvesting.
+	//ReferenceTextString string `xml:referencetext,omitempty" json:"referencetext,omitempty"`
+	Language string `xml:"language,omitempty" json:"language,omitempty"`
+
 	// Synthetic fields are created to help in eventual migration of
 	// EPrints field data to other JSON formats.
 	PrimaryObject  map[string]interface{}   `xml:"-" json:"primary_object,omitempty"`
@@ -1259,7 +1263,7 @@ func (itemList *OptionMajorItemList) Length() int {
 
 // IndexOf return an item or nil
 func (itemList *OptionMajorItemList) IndexOf(i int) *Item {
-	if 0 >= i && i < itemList.Length() {
+	if i >= 0 && i < itemList.Length() {
 		return itemList.Items[i]
 	}
 	return nil
@@ -2001,6 +2005,21 @@ type File struct {
 	MTimeMinute int      `xml:"-" json:"-"`
 	MTimeSecond int      `xml:"-" json:"-"`
 	URL         string   `xml:"url" json:"url"`
+
+	// Additional fields found with working with our smaller repositories
+	PronomID                string `xml:"pronomid,omitempty" json:"pronomID,omitempty"`
+	ClassificationDateYear  int    `xml:"classification_date_year,omitempty" json:"classification_date_year,omitempty"`
+	ClassificationDateMonth int    `xml:"classification_date_month,omitempty" json:"classification_date_month,omitempty"`
+	ClassificationDateDay   int    `xml:"classification_date_day,omitempty" json:"classification_date_day,omitempty"`
+
+	ClassificationDateHour int `xml:"classification_date_hour,omitempty" json:"
+classification_date_hour,omitempty"`
+
+	ClassificationDateMinute int `xml:"classification_date_minute,omitempty" json:"classification_date_minute,omitempty"`
+
+	ClassificationDateSecond int `xml:"classification_date_second,omitempty" json:"classification_date_second,omitempty"`
+
+	ClassificationQuality string `xml:"classification_quality,omitempty" json:"classification_quality,omitempty"`
 }
 
 // Document structures inside a Record (i.e. <eprint>...<documents><document>...</document>...</documents>...</eprint>)
@@ -2145,7 +2164,7 @@ func GenerateIDNumber(eprint *EPrint) string {
 		collection = eprint.Collection
 	}
 	now := time.Now()
-	return fmt.Sprintf(`%s/%s:%s-%d`, DefaultOfficialURL, collection, now.Format("20060102"), now.Nanosecond())
+	return fmt.Sprintf(`%s:%s-%d`, collection, now.Format("20060102"), now.Nanosecond())
 }
 
 // GenerateImportID generates a unique ID number based on the
@@ -2166,6 +2185,7 @@ func GenerateOfficialURL(eprint *EPrint) string {
 	idNumber := eprint.IDNumber
 	if idNumber == "" {
 		idNumber = GenerateIDNumber(eprint)
+		eprint.IDNumber = idNumber
 	}
-	return fmt.Sprintf(`%s`, idNumber)
+	return fmt.Sprintf(`%s/%s`, DefaultOfficialURL, idNumber)
 }

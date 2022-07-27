@@ -17,6 +17,9 @@ type Config struct {
 	// Hostname for running service
 	Hostname string `json:"hostname"`
 
+	// BaseURL is the base URL passed to any client configuration
+	BaseURL string `json:"base_url"`
+
 	// Logfile
 	Logfile string `json:"logfile,omitempty"`
 
@@ -26,6 +29,16 @@ type Config struct {
 
 	// Connections is a map to database connections
 	Connections map[string]*sql.DB `json:"-"`
+
+	// JSONStore is the name of a MySQL 8 database in DNS format
+	// that holds for each repository. The tables have two columns
+	// eprint id (INTEGER) and document (JSON COLUMNS).
+	// The JSONStore is where data is harvested into and where it is
+	// staged for writing out to a published Object store like S3.
+	JSONStore string `json:"jsonstore"`
+
+	// Jdb holds the MySQL connector to the jsonstore
+	Jdb *sql.DB `json:"-"`
 
 	// Routes holds the mapping of end points to repository id
 	// instances.
@@ -91,6 +104,9 @@ func LoadConfig(fname string) (*Config, error) {
 		}
 		if config.Hostname == "" {
 			config.Hostname = "localhost:8484"
+		}
+		if config.BaseURL == "" {
+			config.BaseURL = fmt.Sprintf("http://%s", config.Hostname)
 		}
 	}
 	return config, nil

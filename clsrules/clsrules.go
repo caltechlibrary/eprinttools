@@ -368,6 +368,7 @@ func Apply(eprintsList *eprinttools.EPrints, ruleSet map[string]bool) (*eprintto
 					}
 				case "generate_id_number":
 					eprint.IDNumber = eprinttools.GenerateIDNumber(eprint)
+					eprint.OfficialURL = eprinttools.GenerateOfficialURL(eprint)
 					changed = true
 				case "generate_official_url":
 					eprint.OfficialURL = eprinttools.GenerateOfficialURL(eprint)

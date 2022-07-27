@@ -6,13 +6,16 @@
     "codeRepository": "https://github.com/caltechlibrary/eprinttools",
     "issueTracker": "https://github.com/caltechlibrary/eprinttools/issues",
     "license": "https://caltechlibrary.github.io/eprinttools/license.html",
-    "version": "1.1.2",
+    "version": "1.1.8",
     "author": [
         {
             "@type": "Person",
             "givenName": "R. S.",
             "familyName": "Doiel",
-            "affiliation": "Caltech Library",
+            "affiliation": {
+                "@type": "Organization",
+                "name": "Caltech Library"
+            },
             "email": "rsdoiel@caltech.edu",
             "@id": "https://orcid.org/0000-0003-0900-6903"
         }
@@ -22,7 +25,10 @@
             "@type": "Person",
             "givenName": "George",
             "familyName": "Porter",
-            "affiliation": "Caltech Library",
+            "affiliation": {
+                "@type": "Organization",
+                "name": "Caltech Library"
+            },
             "email": "george@library.caltech.edu",
             "@id": "https://orcid.org/0000-0002-6539-638X"
         }

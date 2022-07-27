@@ -164,7 +164,8 @@ func main() {
 	//FIXME: Need to come up with a better way of setting this,
 	// perhaps a config mode and save the setting in
 	// $HOME/etc/${AppName}.json
-	flagSet.StringVar(&mailto, "m,mailto", "helpdesk@library.caltech.edu", "set the mailto value for CrossRef API access")
+	flagSet.StringVar(&mailto, "mailto", "helpdesk@library.caltech.edu", "set the mailto value for CrossRef API access")
+	flagSet.StringVar(&mailto, "m", "helpdesk@library.caltech.edu", "set the mailto value for CrossRef API access")
 
 	flagSet.Parse(os.Args[1:])
 	args := flagSet.Args()

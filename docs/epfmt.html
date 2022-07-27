@@ -27,32 +27,40 @@
 <a href="./">Documentation</a>
 </li>
 <li>
-<a href="https://github.com/caltechlibrary/eprinttools">Github</a>
+<a
+href="https://github.com/caltechlibrary/eprinttools">Github</a>
 </li>
 <li>
-<a href="https://github.com/caltechlibrary/eprinttools/releases/latest">Releases</a>
+<a
+href="https://github.com/caltechlibrary/eprinttools/releases/latest">Releases</a>
 </li>
 </ul>
 </nav>
 
 <section>
-<h1>
+<h1 id="usage">
 USAGE
 </h1>
 <pre><code>epfmt [OPTIONS]</code></pre>
-<h2>
+<h2 id="synopsis">
 SYNOPSIS
 </h2>
 <p>
-<em>epfmt</em> is a command line program for pretty printing EPrint XML. It can also convert EPrint XML to and from JSON.
+<em>epfmt</em> is a command line program for pretty printing EPrint XML.
+It can also convert EPrint XML to and from JSON.
 </p>
-<h2>
+<h2 id="description">
 DESCRIPTION
 </h2>
 <p>
-<em>epfmt</em> parses EPrint XML (or JSON version) from standard input and pretty prints the result to standard out. You can change output format XML and JSON by using either the ‘-xml’ or ‘-json’ option. The XML representation is based on EPrints 3.x. <em>epfmt</em> does NOT interact with the EPrints API only the the document presented via standard input.
+<em>epfmt</em> parses EPrint XML (or JSON version) from standard input
+and pretty prints the result to standard out. You can change output
+format XML and JSON by using either the ‘-xml’ or ‘-json’ option. The
+XML representation is based on EPrints 3.x. <em>epfmt</em> does NOT
+interact with the EPrints API only the the document presented via
+standard input.
 </p>
-<h2>
+<h2 id="options">
 OPTIONS
 </h2>
 <p>
@@ -70,7 +78,7 @@ Below are a set of options available.
     -quiet               suppress error messages
     -v, -version         display version
     -xml                 output EPrint XML</code></pre>
-<h2>
+<h2 id="examples">
 EXAMPLES
 </h2>
 <p>
@@ -90,7 +98,9 @@ Render EPrint simplified JSON from EPrint XML.
 </p>
 <pre><code>    epfmt -simplified &lt; 123.xml</code></pre>
 <p>
-<em>epfmt</em> will first parse the XML or JSON presented to it and pretty print the output in the desired format requested. If no format option chosen it will pretty print in the same format as input.
+<em>epfmt</em> will first parse the XML or JSON presented to it and
+pretty print the output in the desired format requested. If no format
+option chosen it will pretty print in the same format as input.
 </p>
 </section>
 
