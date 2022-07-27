@@ -2185,6 +2185,7 @@ func GenerateOfficialURL(eprint *EPrint) string {
 	idNumber := eprint.IDNumber
 	if idNumber == "" {
 		idNumber = GenerateIDNumber(eprint)
+		eprint.IDNumber = idNumber
 	}
 	return fmt.Sprintf(`%s/%s`, DefaultOfficialURL, idNumber)
 }
