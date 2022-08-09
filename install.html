@@ -57,8 +57,8 @@ Compiled version
 <p>
 Compiled versions are available for Mac OS X (amd64 and M1 processor,
 macos-amd64, macos-arm64), Linux (amd64 process, linux-amd64), Windows
-(amd64 processor, windows-amd64) and Rapsberry Pi (arm7 processor,
-raspbian-arm7)
+(amd64 and arm64 processor, windows-amd64 and windows-arm64) and
+Rapsberry Pi (arm7 processor, raspbian-arm7)
 </p>
 <p>
 VERSION_NUMBER is a <a href="http://semver.org/">symantic version
@@ -97,13 +97,21 @@ eprinttools-VERSION_NUMBER-windows-amd64.zip
 </tr>
 <tr class="even">
 <td>
+Windows
+</td>
+<td>
+eprinttools-VERSION_NUMBER-windows-arm64.zip
+</td>
+</tr>
+<tr class="odd">
+<td>
 macOS
 </td>
 <td>
 eprinttools-VERSION_NUMBER-macos-amd64.zip
 </td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>
 macOS
 </td>
@@ -111,7 +119,7 @@ macOS
 eprinttools-VERSION_NUMBER-macos-arm64.zip
 </td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>
 Linux/Intel
 </td>
@@ -119,7 +127,7 @@ Linux/Intel
 eprinttools-VERSION_NUMBER-linux-amd64.zip
 </td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>
 Raspbery Pi
 </td>
@@ -178,8 +186,20 @@ Test
 Here’s an example of the commands run in the Terminal App after
 downloading the zip file.
 </p>
+<h4 id="intel-hardware">
+Intel Hardware
+</h4>
 <pre class="shell"><code>    cd Downloads/
     unzip eprinttools-*-macos-amd64.zip
+    mkdir -p $HOME/bin
+    cp -v bin/* $HOME/bin/
+    export PATH=$HOME/bin:$PATH
+    eputil -version</code></pre>
+<h4 id="m1-arm64-hardware">
+M1 (ARM64) Hardware
+</h4>
+<pre class="shell"><code>    cd Downloads/
+    unzip eprinttools-*-macos-arm64.zip
     mkdir -p $HOME/bin
     cp -v bin/* $HOME/bin/
     export PATH=$HOME/bin:$PATH
@@ -205,8 +225,20 @@ Test
 Here’s an example of the commands run in from the Bash shell on Windows
 10 after downloading the zip file.
 </p>
+<h4 id="intel-amd64-hardware">
+Intel (amd64) Hardware
+</h4>
 <pre class="shell"><code>    cd Downloads/
     unzip eprinttools-*-windows-amd64.zip
+    mkdir -p $HOME/bin
+    cp -v bin/* $HOME/bin/
+    export PATH=$HOME/bin:$PATH
+    eputil -version</code></pre>
+<h4 id="arm64-hardware">
+ARM64 Hardware
+</h4>
+<pre class="shell"><code>    cd Downloads/
+    unzip eprinttools-*-windows-arm64.zip
     mkdir -p $HOME/bin
     cp -v bin/* $HOME/bin/
     export PATH=$HOME/bin:$PATH

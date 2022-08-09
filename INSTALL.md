@@ -10,7 +10,7 @@ Below are generalized instructions for installation of a release.
 Compiled version
 ----------------
 
-Compiled versions are available for Mac OS X (amd64 and M1 processor, macos-amd64, macos-arm64), Linux (amd64 process, linux-amd64), Windows (amd64 processor, windows-amd64) and Rapsberry Pi (arm7 processor, raspbian-arm7)
+Compiled versions are available for Mac OS X (amd64 and M1 processor, macos-amd64, macos-arm64), Linux (amd64 process, linux-amd64), Windows (amd64 and arm64 processor, windows-amd64 and windows-arm64) and Rapsberry Pi (arm7 processor, raspbian-arm7)
 
 VERSION\_NUMBER is a [symantic version number](http://semver.org/) (e.g.
 `v1.0.3`)
@@ -22,6 +22,7 @@ For all the released version go to the project page on Github and click latest r
 | Platform    | Zip Filename                                 |
 |-------------|----------------------------------------------|
 | Windows     | eprinttools-VERSION_NUMBER-windows-amd64.zip |
+| Windows     | eprinttools-VERSION_NUMBER-windows-arm64.zip |
 | macOS       | eprinttools-VERSION_NUMBER-macos-amd64.zip  |
 | macOS       | eprinttools-VERSION_NUMBER-macos-arm64.zip  |
 | Linux/Intel | eprinttools-VERSION_NUMBER-linux-amd64.zip   |
@@ -53,6 +54,8 @@ The basic recipe
 
 Here's an example of the commands run in the Terminal App after downloading the zip file.
 
+#### Intel Hardware
+
 ``` shell
     cd Downloads/
     unzip eprinttools-*-macos-amd64.zip
@@ -61,6 +64,18 @@ Here's an example of the commands run in the Terminal App after downloading the 
     export PATH=$HOME/bin:$PATH
     eputil -version
 ```
+
+#### M1 (ARM64) Hardware
+
+``` shell
+    cd Downloads/
+    unzip eprinttools-*-macos-arm64.zip
+    mkdir -p $HOME/bin
+    cp -v bin/* $HOME/bin/
+    export PATH=$HOME/bin:$PATH
+    eputil -version
+```
+
 
 ### Windows
 
@@ -71,6 +86,8 @@ Here's an example of the commands run in the Terminal App after downloading the 
 
 Here's an example of the commands run in from the Bash shell on Windows 10 after downloading the zip file.
 
+#### Intel (amd64) Hardware
+
 ``` shell
     cd Downloads/
     unzip eprinttools-*-windows-amd64.zip
@@ -79,6 +96,19 @@ Here's an example of the commands run in from the Bash shell on Windows 10 after
     export PATH=$HOME/bin:$PATH
     eputil -version
 ```
+
+
+#### ARM64 Hardware
+
+``` shell
+    cd Downloads/
+    unzip eprinttools-*-windows-arm64.zip
+    mkdir -p $HOME/bin
+    cp -v bin/* $HOME/bin/
+    export PATH=$HOME/bin:$PATH
+    eputil -version
+```
+
 
 ### Linux
 
@@ -118,6 +148,7 @@ Here's an example of the commands run in from the Bash shell after downloading t
     export PATH=$HOME/bin:$PATH
     eputil -version
 ```
+
 
 Compiling from source
 ---------------------

@@ -102,6 +102,12 @@ dist/windows-amd64:
 	@cd dist && zip -r $(PROJECT)-v$(VERSION)-windows-amd64.zip LICENSE codemeta.json CITATION.cff *.md bin/* docs/*
 	@rm -fR dist/bin
 
+dist/windows-arm64:
+	@mkdir -p dist/bin
+	@for FNAME in $(PROGRAMS); do env GOOS=windows GOARCH=arm64 go build -o dist/bin/$$FNAME.exe cmd/$$FNAME/$$FNAME.go; done
+	@cd dist && zip -r $(PROJECT)-v$(VERSION)-windows-arm64.zip LICENSE codemeta.json CITATION.cff *.md bin/* docs/*
+	@rm -fR dist/bin
+
 
 dist/raspbian-arm7:
 	@mkdir -p dist/bin
@@ -118,7 +124,7 @@ distribute_docs:
 	cp -v INSTALL.md dist/
 	cp -vR docs dist/
 
-release: distribute_docs dist/linux-amd64 dist/windows-amd64 dist/macos-amd64 dist/macos-arm64 dist/raspbian-arm7
+release: distribute_docs dist/linux-amd64 dist/windows-amd64 dist/windows-arm64 dist/macos-amd64 dist/macos-arm64 dist/raspbian-arm7
 
 status:
 	git status
