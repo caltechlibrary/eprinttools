@@ -8,7 +8,7 @@ authors:
 abstract: Command line tools, Golang package and Python module for working with the EPrints 3.x REST API
 repository-code: "https://github.com/caltechlibrary/eprinttools"
 type: software
-version: 1.1.8
+version: 1.1.9
 license-url: "https://caltechlibrary.github.io/eprinttools/license.html"
 keywords:
   - metadata
