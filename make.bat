@@ -25,7 +25,7 @@ go build -o bin\eputil.exe "cmd\eputil\eputil.go"
 echo Checking compile should see version number of dataset
 .\bin\epfmt.exe -version
 
-echo If OK, you can now copy the dataset.exe to %USERPROFILE%\go\bin
+echo If OK, you can now copy the doi2eprintxml.exe to %USERPROFILE%\go\bin
 echo.
-echo       copy bin\dataset.exe %USERPROFILE%\go\bin
+echo       copy bin\doi2eprintxml.exe %USERPROFILE%\go\bin
 echo.
