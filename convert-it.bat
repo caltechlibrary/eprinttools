@@ -1,1 +1,1 @@
-doi2eprintxml.exe -i doi.txt > doi.xml –clsrules
+doi2eprintxml.exe -i doi.txt -clsrules > doi.xml
