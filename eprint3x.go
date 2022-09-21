@@ -2176,7 +2176,8 @@ func GenerateIDNumber(eprint *EPrint) string {
 // DefaultOfficialURL before calling this function.
 func GenerateImportID(prefix string, eprint *EPrint) string {
 	now := time.Now()
-	return fmt.Sprintf(`%s:%s-%d.%d`, prefix, now.Format("20060102"), now.Nanosecond(), eprint.UserID)
+	counter += 1
+	return fmt.Sprintf(`%s:%s-%d.%d.%d`, prefix, now.Format("20060102"), now.Nanosecond(), counter, eprint.UserID)
 }
 
 // GenerateOfficialURL generates an OfficalURL (i.e.
