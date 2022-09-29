@@ -1,4 +1,3 @@
-//
 // Package eprinttools is a collection of structures and functions for working with the EPrints XML and EPrints REST API
 //
 // @author R. S. Doiel, <rsdoiel@caltech.edu>
@@ -15,7 +14,6 @@
 // 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
 //
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
 package main
 
 //
@@ -37,10 +35,10 @@ var (
 	description = `
 USAGE
 	{app_name} [OPTIONS] EPRINT_REST_URL
-	
+
 SYNOPSIS
 
-{app_name} is a command line program for exploring 
+{app_name} is a command line program for exploring
 the EPrints Extended API (provided by ep3apid) or EPrint's
 own REST API.  Records are returned in either JSON or EPrints XML.
 Lists of eprint ids are returned in JSON.
@@ -60,7 +58,7 @@ You must specify the repository id in the command. E.g.
 	{app_name} caltechauthors doi
 	{app_name} caltechauthors doi "10.5062/F4NP22DV"
 	{app_name} caltechauthors creator-name "Morrell" "Thomas"
-	{app_name} caltechauthors grant-number 
+	{app_name} caltechauthors grant-number
 	{app_name} caltechauthors grant-number "kzcx3-sw-147"
 
 See website for a full list of available end points.
@@ -69,30 +67,30 @@ See website for a full list of available end points.
 
 DETAIL FOR EPrints REST API
 
-{app_name} parses XML content retrieved from 
-EPrints 3.x. REST API. It will render 
+{app_name} parses XML content retrieved from
+EPrints 3.x. REST API. It will render
 results in JSON or XML.  With the ` + "`" + `-raw` + "`" + `
-option you can get the unmodified EPrintXML from the 
-REST API otherwise the XML is parsed before final 
+option you can get the unmodified EPrintXML from the
+REST API otherwise the XML is parsed before final
 rendering as JSON or XML. It requires a basic knowledge
 of the layout of EPrint 3.x's REST API. It supports
 both unauthenticated and basic authentication access
-to the API. The REST API authentication mechanism 
+to the API. The REST API authentication mechanism
 appears indepent of the primary website authentication
 setup of the installed EPrints (at least at Caltech
 Library). See the examples to start exploring the API.
 `
 
 	examples = `
-Fetch the raw unmarshaled EPrint XML via the 
+Fetch the raw unmarshaled EPrint XML via the
 EPrint REST API for id 123.
 
     {app_name} -raw https://example.org/rest/eprint/123.xml
 
-Fetch the EPrint XML marshaled as XML using the 
+Fetch the EPrint XML marshaled as XML using the
 EPrints REST API for id 123.
 
-    {app_name} https://example.org/rest/eprint/123.xml 
+    {app_name} https://example.org/rest/eprint/123.xml
 
 Fetch the EPrint XML marshaled as JSON using the
 EPrints REST API for id 123.
@@ -101,16 +99,16 @@ EPrints REST API for id 123.
 
 Get a JSON array of eprint ids from the REST API
 
-    {app_name} -json https://example.org/rest/eprint/ 
+    {app_name} -json https://example.org/rest/eprint/
 
 Get the last modified date for id 123 from REST API
 
-    {app_name} -raw https://example.org/rest/eprint/123/lastmod.txt 
+    {app_name} -raw https://example.org/rest/eprint/123/lastmod.txt
 
 If the EPrint REST API is protected by basic authentication
 you can pass the username and password via command line
 options. You will be prompted for the password value.
-or via the URL.  In this example the username is 
+or via the URL.  In this example the username is
 "user" and password is "secret". In this example you will
 be prompted to enter your secret.
 
@@ -129,19 +127,12 @@ Getting IDs doesn't typically require authentication but seeing
 specific records may depending on the roles and security
 setup implemented in the EPrint instance.
 
-<<<<<<< HEAD
-Supported Environment settings:
-
-you can set the username and password via the EPRINT_USER and
-EPRINT_PASSWORD environment variables.
-=======
 Supported Environment Variables
 
     EPRINT_USER     sets the default username used by eputil
 	EPRINT_PASSWORD sets the default password used by eputil
 	EPRINT_BASE_URL sets the default base URL to access the
 	                EPrints REST API
->>>>>>> 9eec888d925d322c067534b7f18eff0a1ca51acf
 
 `
 
