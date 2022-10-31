@@ -23,6 +23,7 @@ Bugs
 Next
 ----
 
+- [ ] ioutil is depreciated, need to update the code that uses it
 - [x] Need a means of filtering for public EPrint records only
     - `is-public` end point added to ep3apid
     - `?eprint_status=...` added for keys and keys by timestamp ranges
