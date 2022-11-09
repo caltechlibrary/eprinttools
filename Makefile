@@ -68,7 +68,7 @@ uninstall: .FORCE
 	@for FNAME in $(PROGRAMS); do if [ -f $(PREFIX)/bin/$$FNAME ]; then rm -v $(PREFIX)/bin/$$FNAME; fi; done
 
 
-website: page.tmpl README.md nav.md INSTALL.md LICENSE css/site.css docs/index.md docs/eputil.md
+website: version.go page.tmpl README.md nav.md INSTALL.md LICENSE css/site.css docs/index.md docs/eputil.md
 	./mk-website.bash
 
 
