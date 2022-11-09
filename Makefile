@@ -47,7 +47,8 @@ version.go: .FORCE
 	@echo ')' >>version.go
 	@echo '' >>version.go
 	@if [ -f bin/codemeta ]; then ./bin/codemeta; fi
-	$(CODEMETA2CFF)
+	-$(CODEMETA2CFF)
+	-git add version.go
 
 
 $(PROGRAMS): $(PACKAGE)
