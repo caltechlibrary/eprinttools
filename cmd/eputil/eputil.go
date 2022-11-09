@@ -60,6 +60,8 @@ You must specify the repository id in the command. E.g.
 	{app_name} caltechauthors creator-name "Morrell" "Thomas"
 	{app_name} caltechauthors grant-number
 	{app_name} caltechauthors grant-number "kzcx3-sw-147"
+	{app_name} caltechauthors eprint 18339
+	{app_name} -json caltechauthors eprint 18339
 
 See website for a full list of available end points.
 
@@ -134,23 +136,6 @@ Supported Environment Variables
 	EPRINT_BASE_URL sets the default base URL to access the
 	                EPrints REST API
 
-`
-
-	license = `
-{app_name} {version}
-
-Copyright (c) 2021, Caltech
-All rights not granted herein are expressly reserved by Caltech.
-
-Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
-
-1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
-
-2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
-
-3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 `
 
 	// Standard Options
@@ -248,11 +233,11 @@ func main() {
 
 	// Handle options
 	if showHelp {
-		eprinttools.DisplayUsage(out, appName, flagSet, description, examples, license)
+		eprinttools.DisplayUsage(out, appName, flagSet, description, examples)
 		os.Exit(0)
 	}
 	if showLicense {
-		eprinttools.DisplayLicense(out, appName, license)
+		eprinttools.DisplayLicense(out, appName)
 		os.Exit(0)
 	}
 	if showVersion {

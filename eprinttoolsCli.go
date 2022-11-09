@@ -34,15 +34,16 @@ import (
 	"golang.org/x/crypto/ssh/terminal"
 )
 
-func DisplayLicense(out io.Writer, appName string, license string) {
-	fmt.Fprintf(out, strings.ReplaceAll(strings.ReplaceAll(license, "{app_name}", appName), "{version}", Version))
+func DisplayLicense(out io.Writer, appName string) {
+	fmt.Fprintf(out, "%s\n", LicenseText)
+	fmt.Fprintf(out, "%s %s\n", appName, Version)
 }
 
 func DisplayVersion(out io.Writer, appName string) {
 	fmt.Fprintf(out, "%s %s\n", appName, Version)
 }
 
-func DisplayUsage(out io.Writer, appName string, flagSet *flag.FlagSet, description string, examples string, license string) {
+func DisplayUsage(out io.Writer, appName string, flagSet *flag.FlagSet, description string, examples string) {
 	// Convert {app_name} and {version} in description
 	if description != "" {
 		fmt.Fprintf(out, strings.ReplaceAll(description, "{app_name}", appName))
@@ -53,9 +54,7 @@ func DisplayUsage(out io.Writer, appName string, flagSet *flag.FlagSet, descript
 	if examples != "" {
 		fmt.Fprintf(out, strings.ReplaceAll(examples, "{app_name}", appName))
 	}
-	if license != "" {
-		DisplayLicense(out, appName, license)
-	}
+	DisplayLicense(out, appName)
 }
 
 func RunEPrintsRESTClient(out io.Writer, getURL string, auth string, username string, secret string, options map[string]bool) int {
