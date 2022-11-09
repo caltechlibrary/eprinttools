@@ -130,7 +130,7 @@ distribute_docs:
 	cp -v INSTALL.md dist/
 	cp -vR docs dist/
 
-release: distribute_docs dist/linux-amd64 dist/windows-amd64 dist/windows-arm64 dist/macos-amd64 dist/macos-arm64 dist/raspbian-arm7
+release: build distribute_docs dist/linux-amd64 dist/windows-amd64 dist/windows-arm64 dist/macos-amd64 dist/macos-arm64 dist/raspbian-arm7
 
 status:
 	git status
