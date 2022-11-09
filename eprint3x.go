@@ -143,6 +143,10 @@ type EPrint struct {
 
 	// Caltech Library uses suggestions as an internal note field (RSD, 2018-02-15)
 	Suggestions string `xml:"suggestions,omitempty" json:"suggestions,omitempty"`
+	// Deposited By from user table, assemble a name string (E.g. Ruth Sustaita)
+	DepositedBy string `xml:"-" json:"deposited_by,omitempty"`
+	// Deposited On is from the datestamp_* fields brining together as a sngle timetstamp string that includes hour, minute as well as date.
+	DepositedOn string `xml:"-" json:"deposited_on,omitempty"`
 
 	// CaletchLN has a "coverage_dates" field in the eprint table.
 	CoverageDates string `xml:"coverage_dates,omitempty" json:"coverage_dates,omitempty"`

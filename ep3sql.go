@@ -158,7 +158,6 @@ func sqlQueryStringIDs(config *Config, repoID string, stmt string, args ...inter
 // IsPublic takes an EPrintID and returns true if public, false otherwise
 //
 // Check if an EPrint record "is public"
-//
 func IsPublic(config *Config, repoID string, eprintid int) (bool, error) {
 	if db, ok := config.Connections[repoID]; ok {
 		stmt := `SELECT IFNULL(eprint_status, '') AS status, IFNULL(metadata_visibility, '') AS visibility FROM eprint WHERE eprintid = ? LIMIT 1`
@@ -1394,6 +1393,25 @@ func documentIDToRelation(repoID string, baseURL string, documentID int, pos int
 	return nil
 }
 
+func userIDToName(repoID string, userID int, db *sql.DB) string {
+	name := ""
+	if userID > 0 {
+		stmt := `SELECT TRIM(CONCAT_WS(' ', IFNULL(name_honourific, ''), IFNULL(name_given, ''), IFNULL(name_family, ''), IFNULL(name_lineage, ''))) AS name FROM user WHERE userid = ?`
+
+		rows, err := db.Query(stmt, userID)
+		if err != nil {
+			log.Printf(`Query failed "user" for %d in %q, %q,  %s`, userID, repoID, stmt, err)
+		}
+		defer rows.Close()
+		for rows.Next() {
+			if err := rows.Scan(&name); err == nil {
+				return name
+			}
+		}
+	}
+	return ""
+}
+
 func eprintIDToDocumentList(repoID string, baseURL string, eprintID int, db *sql.DB, tables map[string][]string) *DocumentList {
 	tableName := "document"
 	columns, ok := tables[tableName]
@@ -2442,6 +2460,13 @@ func SQLReadEPrint(config *Config, repoID string, baseURL string, eprintID int) 
 		eprint.Datestamp = makeTimestamp(eprint.DatestampYear, eprint.DatestampMonth, eprint.DatestampDay, eprint.DatestampHour, eprint.DatestampMinute, eprint.DatestampSecond)
 		eprint.StatusChanged = makeTimestamp(eprint.StatusChangedYear, eprint.StatusChangedMonth, eprint.StatusChangedDay, eprint.StatusChangedHour, eprint.StatusChangedMinute, eprint.StatusChangedSecond)
 		eprint.Date = makeApproxDate(eprint.DateYear, eprint.DateMonth, eprint.DateDay)
+
+		// FIXME: Add Depository info (eprint.userid -> user* tables)
+		//   deposited on, deposited by
+		if eprint.UserID > 0 {
+			eprint.DepositedBy = userIDToName(repoID, eprint.UserID, db)
+			eprint.DepositedOn = makeTimestamp(eprint.DatestampYear, eprint.DatestampMonth, eprint.DatestampDay, eprint.DatestampHour, eprint.DatestampMinute, eprint.DatestampSecond)
+		}
 
 		// Used in CaltechTHESIS
 		eprint.ThesisSubmittedDate = makeDatestamp(eprint.ThesisSubmittedDateYear, eprint.ThesisSubmittedDateMonth, eprint.ThesisSubmittedDateDay)

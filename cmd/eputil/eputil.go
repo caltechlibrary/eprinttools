@@ -190,9 +190,6 @@ func main() {
 
 	flagSet := flag.NewFlagSet(appName, flag.ContinueOnError)
 
-	username := os.Getenv("EPRINT_USER")
-	password := os.Getenv("EPRINT_PASSWORD")
-
 	// Standard Options
 	flagSet.BoolVar(&showHelp, "h", false, "display help")
 	flagSet.BoolVar(&showHelp, "help", false, "display help")
@@ -226,6 +223,8 @@ func main() {
 
 	if len(args) > 0 && strings.Contains(args[0], "://") {
 		getURL = args[0]
+	} else {
+		getURL = ""
 	}
 
 	// Setup IO
@@ -270,7 +269,7 @@ func main() {
 		"verbose":        verbose,
 	}
 	if getURL == "" {
-		os.Exit(eprinttools.RunExtendedAPIClient(out, args, verbose))
+		os.Exit(eprinttools.RunExtendedAPIClient(out, args, asJSON, verbose))
 	} else {
 		os.Exit(eprinttools.RunEPrintsRESTClient(out, getURL, auth, username, password, options))
 	}
