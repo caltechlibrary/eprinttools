@@ -1,25 +1,25 @@
+% ep3apid(1) user manual
+% R. S. Doiel
+% 2022-11-28
 
-USAGE
-=====
+# NAME
 
-    ep3apid [OPTIONS] [SETTINGS_FILENAME]
+ep2apid
 
-SYNOPSIS
---------
+# SYNOPSIS
+
+ep3apid [OPTIONS] [SETTINGS_FILENAME]
+
+# DESCRIPTION
 
 Run an extended EPrints 3.x web API based on direct manipulation
 of EPrint's MySQL database(s).
-
-
-DETAIL
-------
 
 __ep3apid__ can be run from the command line and the will create an http web service. The web service provides a limitted number of end points providing eprint ids for content matched in EPrints's MySQL databases. You can configure it to provide read/write support to and from the MySQL databases used by EPrints.
 
 The following URL end points are intended to take one unique identifier and map that to one or more EPrint IDs. This can be done because each unique ID  targeted can be identified by querying a single table in EPrints.  In addition the scan can return the complete results since all EPrint IDs are integers and returning all EPrint IDs in any of our repositories is sufficiently small to be returned in a single HTTP request.
 
-Configuration information
--------------------------
+## Configuration information
 
 There are two end points that give you information about what repositories are configured in for __ep3apid__ and what the database structure (tables and column names) for each configure repository.
 
@@ -27,8 +27,7 @@ There are two end points that give you information about what repositories are c
 - '/repository/{REPO_ID}' returns the databases and columns of the repository indicated by "{REPO_ID}".
 
 
-Unique ID to EPrint ID
-----------------------
+## Unique ID to EPrint ID
 
 Unique ids maybe standards based (e.g. ORCID, DOI, ISSN, ISBN) or internal (e.g. group ids, funder ids)
 
@@ -83,8 +82,7 @@ Unique ids maybe standards based (e.g. ORCID, DOI, ISSN, ISBN) or internal (e.g.
 - '/{REPO_ID}/year/{YEAR}' - return a list of eprintid for a given year contaning date type of "published".
 
 
-Change Events
--------------
+## Change Events
 
 The follow API end points would facilitate faster updates to our feeds platform as well as allow us to create a separate public view of our EPrint repository content.
 
@@ -93,8 +91,7 @@ The follow API end points would facilitate faster updates to our feeds platform 
 - '/{REPO_ID}/deleted/{TIMESTAMP}/{TIMESTAMP}' through the returns a list of EPrint IDs deleted starting at first timestamp through inclusive of the second timestamp, if the second timestamp is omitted it is assumed to be "now"
 - '/{REPO_ID}/pubdate/{APROX_DATESTAMP}/{APPOX_DATESTMP}' this query scans the EPrint table for records with publication starts starting with the first approximate date through inclusive of the second approximate date. If the second date is omitted it is assumed to be "today". Approximate dates my be expressed just the year (starting with Jan 1, ending with Dec 31), just the year and month (starting with first day of month ending with the last day) or year, month and day. The end returns zero or more EPrint IDs.
 
-Read/Write API
---------------
+## Read/Write API
 
 As of __ep3apid__ version 1.0.3 a new set of end points exists for reading (retreiving EPrints XML) and writing (metadata import) of EPrints XML.  The extended API only supports working with EPrints metadata not directly with the documents or files associated with individual records.
 
@@ -104,8 +101,7 @@ The metadata import functionality is enabled per repository. It only supports im
 - '/{REPO_ID}/eprint-import' POST accepts EPrints XML with content type of "application/xml" or JSON of EPrints XML with content type "application/json". To enable this feature add the attribute '"write": true' to the repositories setting in settins.json.
 
 
-settings.json (configuration)
------------------------------
+## settings.json (configuration)
 
 To run the web service create a JSON file named settings.ini in the current directory where you're invoking __ep3apid__ from. The web service can be started with running
 
@@ -142,19 +138,16 @@ The JSON settings.json file should look something like "REPO_ID" would be the na
 NOTE: The "default_collection", "default_official_url", "default_rights", "default_rights", "default_refereed", "default_status" are option configurations in the `settings.json` file.
 
 
-Options
--------
-
-```
-  -h	Display this help message
-  -help
-    	Display this help message
-  -license
-    	Display software license
-  -version
-    	Display software version
-```
+# OPTIONS
 
 
+-h,	-help
+: Display this help message
+
+-license
+: Display software license
+
+-version
+: Display software version
 
 

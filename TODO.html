@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>eprinttools - TODO.html</title>
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="/css/site.css">
+</head>
+<body>
+<header>
+<a href="http://library.caltech.edu" title="link to Caltech Library Homepage"><img src="/assets/liblogo.gif" alt="Caltech Library logo"></a>
+</header>
+<nav>
+<ul>
+    <li><a href="/">Home</a></li>
+    <li><a href="README.html">README</a></li>
+    <li><a href="LICENSE">LICENSE</a></li>
+    <li><a href="install.html">INSTALL</a></li>
+    <li><a href="user-manual.html">User Manual</a></li>
+    <li><a href="about.html">About</a></li>
+    <li><a href="https://github.com/caltechlibrary/eprinttools">GitHub</a></li>
+</ul>
+</nav>
+
+<section>
+<h1 id="action-items">Action items</h1>
+<p>This is for the simplified eprinttools codebase.</p>
+<h2 id="bugs">Bugs</h2>
+<ul class="task-list">
+<li><input type="checkbox" disabled="" checked="" />Issue 40, SQL
+reference document_relation_type table issues</li>
+<li><input type="checkbox" disabled="" />Issue 41, Add related URL as
+DOI value (really make eprints show this as a linked field in the
+display, don’t do that in the data structure)</li>
+<li><input type="checkbox" disabled="" checked="" />Issue 44, Funders
+are coming up as “UNSPECIFIED”</li>
+<li><input type="checkbox" disabled="" />Issue 45, Related URLs are
+coming in as “UNSPECIFIED”</li>
+<li><input type="checkbox" disabled="" />Issue 47, Need to strip HTML
+from Abstract field</li>
+<li><input type="checkbox" disabled="" />Issue 48, Imported EPrint
+doesn’t show up in review buffer<ul class="task-list">
+<li><input type="checkbox" disabled="" />in release 1.1.1-next datestamp
+isn’t set, example eprintid 111912</li>
+<li><input type="checkbox" disabled="" checked="" />I might be setting
+the wrong event_status (e.g. buffer or inbox)</li>
+<li><input type="checkbox" disabled="" checked="" />I need to confirm
+all timestamp fields and datestamp field is being set correctly</li>
+</ul></li>
+<li><input type="checkbox" disabled="" checked="" />Issue 49, Field
+defaults on import including resolver URL and collection</li>
+<li><input type="checkbox" disabled="" />Issue 50, Verify why imported
+and published EPrints don’t show in recent additions (is the an issue
+with generated views or with a datestamp not getting set
+correctly?).</li>
+</ul>
+<h2 id="next">Next</h2>
+<ul class="task-list">
+<li><input type="checkbox" disabled="" />Add deposit info to EPrintXML
+output</li>
+<li><input type="checkbox" disabled="" />ioutil is depreciated, need to
+update the code that uses it</li>
+<li><input type="checkbox" disabled="" checked="" />Need a means of
+filtering for public EPrint records only<ul>
+<li><code>is-public</code> end point added to ep3apid</li>
+<li><code>?eprint_status=...</code> added for keys and keys by timestamp
+ranges</li>
+</ul></li>
+<li><input type="checkbox" disabled="" checked="" />Add Extended API
+support to eputil command</li>
+<li><input type="checkbox" disabled="" />Implement Solr index record
+view for Solr 8.9 ingest</li>
+<li><input type="checkbox" disabled="" />Add update end point to support
+update EPrints Metadata<ul class="task-list">
+<li><input type="checkbox" disabled="" />Figure out how historical diffs
+of EPrints XML are generated in EPrints’ History tab</li>
+<li><input type="checkbox" disabled="" />Implement updates versioning
+the EPrint Metadata record</li>
+<li><input type="checkbox" disabled="" />Implement file upload and
+manage document versioning</li>
+</ul></li>
+</ul>
+<h2 id="completed">Completed</h2>
+<ul class="task-list">
+<li><input type="checkbox" disabled="" checked="" />Implement an example
+ep3apid Python API</li>
+<li><input type="checkbox" disabled="" checked="" />Implement a /version
+end point displaying ep3apid version number</li>
+<li><input type="checkbox" disabled="" checked="" />Create an example
+service file for running ep3apid as a service under SystemD (Linux)</li>
+<li><input type="checkbox" disabled="" checked="" />Create an example
+service file for running ep3apid as a service under LaunchD (macOS)</li>
+<li><input type="checkbox" disabled="" checked="" />Need a Users end
+point to get a list of users in the system and retrieve their numeric
+user id</li>
+<li><input type="checkbox" disabled="" checked="" />the various related
+tables that represent item lists don’t have the same row count so I need
+to explicitly query for eprintid, pos or do JOIN and handle the NULL
+column cases.</li>
+<li><input type="checkbox" disabled="" checked="" />Fix
+lemurprints-import-api-16 through 21 examples, re-import with
+./bin/doi2eprintxml tool</li>
+<li><input type="checkbox" disabled="" checked="" />Add script to
+generate “lemurprints” database with support for all fields present
+across our repositories so I can do robust testing and generate
+appropriate testdata<ul class="task-list">
+<li><input type="checkbox" disabled="" checked="" />Include all fields
+and tables in caltechauthors</li>
+<li><input type="checkbox" disabled="" checked="" />Include all fields
+and tables in caltechthesis</li>
+<li><input type="checkbox" disabled="" checked="" />Include all fields
+and tables in caltechconf</li>
+<li><input type="checkbox" disabled="" checked="" />Include all fields
+and tables in caltechcampuspubs</li>
+<li><input type="checkbox" disabled="" checked="" />Include all fields
+and tables in calteches</li>
+<li><input type="checkbox" disabled="" checked="" />Include all fields
+and tabels in caltechoh</li>
+<li><input type="checkbox" disabled="" checked="" />Include all fields
+and tabels in caltechln</li>
+<li><input type="checkbox" disabled="" checked="" />Exported selected
+records from production, sanitize them and write import test against
+lemurprints test database</li>
+<li><input type="checkbox" disabled="" checked="" />Fetch DOI of records
+found in EPrints use them to test in lemurprints</li>
+</ul></li>
+<li><input type="checkbox" disabled="" checked="" />Add create end
+points to support importing EPrint XML metadata into eprints<ul
+class="task-list">
+<li><input type="checkbox" disabled="" checked="" />Implement
+SQLReadEPrint</li>
+<li><input type="checkbox" disabled="" checked="" />Implement
+SQLCreateEPrint</li>
+<li><input type="checkbox" disabled="" checked="" />Implement
+ImportEPrint for importing EPrint XML metadata</li>
+<li><input type="checkbox" disabled="" checked="" />Implement a method
+that takes a table/column map and EPrint structure then renders a INSERT
+or REPLACE sequence to create or update an EPrint record</li>
+<li><input type="checkbox" disabled="" checked="" />Implement a method
+that takes a table/column map and EPrint structure and update the EPrint
+structure from a sequnce of SELECT statements</li>
+</ul></li>
+<li><input type="checkbox" disabled="" checked="" />Split clsrules into
+separate options to allow for more specific control</li>
+<li><input type="checkbox" disabled="" checked="" />Add end point for
+<code>/{REPO_ID}/year</code> (list years that have eprint records with a
+“published” date type)</li>
+<li><input type="checkbox" disabled="" checked="" />Add end point for
+<code>/{REPO_ID}/year/{YEAR}</code> lists eprint records published in
+that year</li>
+<li><input type="checkbox" disabled="" checked="" />Implement a method
+to show which tables a repository instance has and the column names in
+each table<ul class="task-list">
+<li><input type="checkbox" disabled="" checked="" />Implement a startup
+data structure that captures the <code>/repository/</code> end point
+data so that table/column map can be used to build the SQL queries need
+to read, create, and update an EPrint record</li>
+<li><input type="checkbox" disabled="" checked="" />Implement
+<code>/repository/&lt;REPO_ID&gt;</code> end point with
+<code>map[string][]string{}</code> output</li>
+</ul></li>
+<li><input type="checkbox" disabled="" checked="" />doi2eprintxml list
+of DOI should allow for pipe separator and URL to object and handle it
+like Acacia does</li>
+<li><input type="checkbox" disabled="" checked="" />doi2eprintxml needs
+to fetch the object URL and save results along side the generated
+EPrints XML<ul>
+<li>added with a -D,-download option in doi2eprintxml.</li>
+</ul></li>
+<li><input type="checkbox" disabled="" checked="" />Added created
+(datestamp) end point for feeds</li>
+<li><input type="checkbox" disabled="" checked="" />Implement Simplified
+JSON record based on<ul>
+<li>https://inveniordm.docs.cern.ch/reference/metadata/</li>
+<li>https://github.com/caltechlibrary/caltechdata_api/blob/ce16c6856eb7f6424db65c1b06de741bbcaee2c8/tests/conftest.py#L147</li>
+</ul></li>
+<li><input type="checkbox" disabled="" checked="" />Add simplified JSON
+output option to<ul class="task-list">
+<li><input type="checkbox" disabled="" checked="" />eputil</li>
+<li><input type="checkbox" disabled="" checked="" />epfmt</li>
+<li><input type="checkbox" disabled="" checked="" />doi2eprintxml</li>
+</ul></li>
+</ul>
+<h2 id="someday-maybe">Someday, Maybe</h2>
+<ul class="task-list">
+<li><input type="checkbox" disabled="" />Add end point to recreate
+Person A-Z list</li>
+<li><input type="checkbox" disabled="" />Add end point for subjects</li>
+<li><input type="checkbox" disabled="" />Add end point for events
+(Conferences)</li>
+<li><input type="checkbox" disabled="" />Add end point for
+collection</li>
+<li><input type="checkbox" disabled="" />Add end point for
+publication</li>
+<li><input type="checkbox" disabled="" />Add end point for
+place_of_pub</li>
+<li><input type="checkbox" disabled="" />Add end point for issn</li>
+<li><input type="checkbox" disabled="" />Add end point for Person
+(Person IDs)</li>
+<li><input type="checkbox" disabled="" />Add end point for Authors
+(creators)</li>
+<li><input type="checkbox" disabled="" />Add end point for Editors</li>
+<li><input type="checkbox" disabled="" />Add end point for
+contributors</li>
+<li><input type="checkbox" disabled="" />Add end point for types</li>
+<li><input type="checkbox" disabled="" />Add end point for
+corp_creators</li>
+<li><input type="checkbox" disabled="" />Add end point ofr
+issuing_body</li>
+</ul>
+</section>
+
+<footer>
+<span>&copy; 2021 <a href="https://www.library.caltech.edu/copyright">Caltech Library</a></span>
+<address>1200 E California Blvd, Mail Code 1-32, Pasadena, CA 91125-3200</address>
+<span><a href="mailto:library@caltech.edu">Email Us</a></span> 
+<span>Phone: <a href="tel:+1-626-395-3405">(626)395-3405</a></span>
+</footer>
+<!-- START: PrettyFi from https://github.com/google/code-prettify -->
+<script>
+/* We want to add the class "prettyprint" to all the pre elements */
+var pre_list = document.querySelectorAll("pre");
+
+pre_list.forEach(function(elem) {
+    elem.classList.add("prettyprint");
+    elem.classList.add("linenums");/**/
+    elem.classList.add("json"); /**/
+});
+</script>
+<style>
+li.L0, li.L1, li.L2, li.L3, li.L4, li.L5, li.L6, li.L7, li.L8, li.L9
+{
+    color: #555;
+    list-style-type: decimal;
+}
+</style>
+<link rel="stylesheet" type="text/css" href="/css/prettify.css">
+<script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_
+prettify.js"></script>
+<!--  END: PrettyFi from https://github.com/google/code-prettify -->
+</body>
+</html>

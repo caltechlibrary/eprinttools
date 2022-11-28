@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>eprinttools - EPrints-extended-API.html</title>
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="/css/site.css">
+</head>
+<body>
+<header>
+<a href="http://library.caltech.edu" title="link to Caltech Library Homepage"><img src="/assets/liblogo.gif" alt="Caltech Library logo"></a>
+</header>
+<nav>
+<ul>
+    <li><a href="/">Home</a></li>
+    <li><a href="README.html">README</a></li>
+    <li><a href="LICENSE">LICENSE</a></li>
+    <li><a href="install.html">INSTALL</a></li>
+    <li><a href="user-manual.html">User Manual</a></li>
+    <li><a href="about.html">About</a></li>
+    <li><a href="https://github.com/caltechlibrary/eprinttools">GitHub</a></li>
+</ul>
+</nav>
+
+<section>
+<h1 id="eprints-extended-api">EPrints extended API</h1>
+<p>The EPrints software package from University of Southampton provides
+a rich internal Perl API along with a RESTful web API. The latter has
+been used extensively by Caltech Library to facilitate content reuse
+across campus for our various EPrints repositories. The challenge now is
+to move beyond the present limitations. (See priorities two and three of
+the <a
+href="https://caltechlibrary.atlassian.net/wiki/spaces/ADMIN/pages/2500493313/AY22+Library-Wide+Strategic+Plan+Objectives">AY
+22 Caltech Library’s strategic plan</a>)</p>
+<p>Extending EPrints directly is error prone and cumbersome.
+Implementing features in Perl safely is only the start of trouble if we
+modify EPrints directly. In contrast EPrints’ MySQL database structure
+has proven to be durable and predictable. MySQL can be leverage directly
+to extended API seeks to beyond our current constraints.</p>
+<p>What should an extended web API look like?</p>
+<h2 id="design-considerations">Design considerations</h2>
+<ul>
+<li>The extended API should be web accessible to support data platforms
+such as feeds.library.caltech.edu as well as our growing cast of
+application hosted on apps.library.caltech.edu</li>
+<li>It needs to interact with MySQL’s EPrints database safely, e.g. be
+read only</li>
+<li>Minimize the load on EPrints’ MySQL database, e.g. favor simple SQL
+queries perhaps limiting them to single table scans</li>
+<li>Be near zero management, it should run as a service that doesn’t
+require on going interventions and easily integrate into DLD’s
+monitoring infrastructure</li>
+</ul>
+<p>An extended API should provide a limited web service that maps URL
+end points to simple MySQL queries run against the various EPrints
+databases. The service should be easy to implement require minimal
+resources, e.g. one prepared SQL statement per end point.</p>
+<p>Security and privacy should be front and center when implementing any
+web service. By returning EPrint ID only we limit the risk of exposing
+in appropriate metadata (e.g. author information). The EPrint ID is an
+integer without specific meaning. It does not give you access to
+sensitive information.</p>
+<h2 id="unique-ids-to-eprint-ids">Unique IDs to EPrint IDs</h2>
+<p>The following URL end points are intended to take one unique
+identifier and map that to one or more EPrint IDs. This can be done
+because each unique ID targeted can be identified by querying a single
+table in EPrints. In addition the scan can return the complete results
+since all EPrint IDs are integers and returning all EPrint IDs in any of
+our repositories is sufficiently small to be returned in a single HTTP
+request.</p>
+<ul>
+<li><code>/&lt;REPO_ID&gt;/doi/&lt;DOI&gt;</code> with the adoption of
+EPrints “doi” field in the EPrint table it makes sense to have a quick
+translation of DOI to EPrint id for a given EPrints repository.</li>
+<li><code>/&lt;REPO_ID&gt;/creator-id/&lt;CREATOR_ID&gt;</code> scans
+the name creator id field associated with creators and returns a list of
+EPrint ID</li>
+<li><code>/&lt;REPO_ID&gt;/creator-orcid/&lt;ORCID&gt;</code> scans the
+“orcid” field associated with creators and returns a list of EPrint
+ID</li>
+<li><code>/&lt;REPO_ID&gt;/editor-id/&lt;CREATOR_ID&gt;</code> scans the
+name creator id field associated with editors and returns a list of
+EPrint ID</li>
+<li><code>/&lt;REPO_ID&gt;/contributor-id/&lt;CONTRIBUTOR_ID&gt;</code>
+scans the “id” field associated with a contributors and returns a list
+of EPrint ID</li>
+<li><code>/&lt;REPO_ID&gt;/advisor-id/&lt;ADVISOR_ID&gt;</code> scans
+the name advisor id field associated with advisors and returns a list of
+EPrint ID</li>
+<li><code>/&lt;REPO_ID&gt;/committee-id/&lt;COMMITTEE_ID&gt;</code>
+scans the committee id field associated with committee members and
+returns a list of EPrint ID</li>
+<li><code>/&lt;REPO_ID&gt;/group-id/&lt;GROUP_ID&gt;</code> this scans
+group ID and returns a list of EPrint IDs associated with the group</li>
+<li><code>/&lt;REPO_ID&gt;/grant-number/&lt;GRANT_NUMBER&gt;</code>
+returns a list of EPrint IDs associated with the grant number</li>
+<li><code>/&lt;REPO_ID&gt;/creator-name/&lt;FAMILY_NAME&gt;/&lt;GIVEN_NAME&gt;</code>
+scans the name fields associated with creators and returns a list of
+EPrint ID</li>
+<li><code>/&lt;REPO_ID&gt;/editor-name/&lt;FAMILY_NAME&gt;/&lt;GIVEN_NAME&gt;</code>
+scans the family and given name field associated with a editors and
+returns a list of EPrint ID</li>
+<li><code>/&lt;REPO_ID&gt;/contributor-name/&lt;FAMILY_NAME&gt;/&lt;GIVEN_NAME&gt;</code>
+scans the family and given name field associated with a contributors and
+returns a list of EPrint ID</li>
+<li><code>/&lt;REPO_ID&gt;/advisor-name/&lt;FAMILY_NAME&gt;/&lt;GIVEN_NAME&gt;</code>
+scans the name fields associated with advisors returns a list of EPrint
+ID</li>
+<li><code>/&lt;REPO_ID&gt;/committee-name/&lt;FAMILY_NAME&gt;/&lt;GIVEN_NAME&gt;</code>
+scans the family and given name fields associated with committee members
+and returns a list of EPrint ID</li>
+<li><code>/&lt;REPO_ID&gt;/pubmed/&lt;PUBMED_ID&gt;</code> returns a
+list of EPrint IDs associated with the PubMed ID</li>
+<li><code>/&lt;REPO_ID&gt;/issn/&lt;ISSN&gt;</code> returns a list of
+EPrint IDs associated with the ISSN</li>
+<li><code>/&lt;REPO_ID&gt;/isbn/&lt;ISSN&gt;</code> returns a list of
+EPrint IDs associated with the ISSN</li>
+<li><code>/&lt;REPO_ID&gt;/patent-number/&lt;PATENT_NUMBER</code>
+returns a list of EPrint IDs associated with the patent number</li>
+</ul>
+<h2 id="change-events">Change Events</h2>
+<p>The follow API end points would facilitate faster updates to our
+feeds platform as well as allow us to create a separate public view of
+our EPrint repository content.</p>
+<ul>
+<li><code>/&lt;REPO_ID&gt;/updated/&lt;TIMESTAMP&gt;/&lt;TIMESTAMP&gt;</code>
+returns a list of EPrint IDs updated starting at the first timestamp
+(timestamps should have a resolution to the minute, e.g. “YYYY-MM-DD
+HH:MM:SS”) through inclusive of the second timestmap (if the second is
+omitted the timestamp is assumed to be “now”)</li>
+<li><code>/&lt;REPO_ID&gt;/deleted/&lt;TIMESTAMP&gt;/&lt;TIMESTAMP&gt;</code>
+through the returns a list of EPrint IDs deleted starting at first
+timestamp through inclusive of the second timestamp, if the second
+timestamp is omitted it is assumed to be “now”</li>
+<li><code>/&lt;REPO_ID&gt;/pubdate/&lt;APROX_DATESTAMP&gt;/&lt;APPOX_DATESTAMP&gt;</code>
+this query scans the EPrint table for records with publication starts
+starting with the first approximate date through inclusive of the second
+approximate date. If the second date is omitted it is assumed to be
+“today”. Approximate dates my be expressed just the year (starting with
+Jan 1, ending with Dec 31), just the year and month (starting with first
+day of month ending with the last day) or year, month and day. The end
+returns zero or more EPrint IDs.</li>
+</ul>
+<h2 id="nice-to-have-end-points">Nice to have end points</h2>
+<p>The following end points would be nice to have but they would either
+requirecustomization of our existing EPrints deployments or require
+significant work on part of our Library staff to populate.</p>
+<ul>
+<li><code>/&lt;REPO_ID&gt;/editor-orcid/&lt;ORCID&gt;</code> scans the
+“orcid” field associated with a editors and returns a list of EPrint
+ID</li>
+<li><code>/&lt;REPO_ID&gt;/contributor-orcid/&lt;ORCID&gt;</code> scans
+the “orcid” field associated with a contributors and returns a list of
+EPrint ID</li>
+<li><code>/&lt;REPO_ID&gt;/advisor-orcid/&lt;ORCID&gt;</code> scans the
+“orcid” field associated with advisors and returns a list of EPrint
+ID</li>
+<li><code>/&lt;REPO_ID&gt;/committee-orcid/&lt;ORCID&gt;</code> scans
+the “orcid” field associated with committee members and returns a list
+of EPrint ID</li>
+<li><code>/&lt;REPO_ID&gt;/group-ror/&lt;ROR&gt;</code> this scans the
+local group ROR related fields and returns a list of EPrint ids.</li>
+<li><code>/&lt;REPO_ID&gt;/funder-ror/&lt;FUNDER_ROR&gt;</code> returns
+a list of EPrint IDs associated with the funder’s ROR</li>
+</ul>
+<p>EPrints XML is complex and hard to work with. A simplified data
+structure could make working with our repository data much easier. If
+user/role restrictions were enforced in an extended EPrints API it could
+provide a clean JSON expression of a more general bibliographic record.
+Additionally would couple provide JSON documents suitable for direct
+ingest into Solr/Lunr search engines. At that stage it might also be
+desirable to allow updates to existing EPrints records via the extended
+API.</p>
+</section>
+
+<footer>
+<span>&copy; 2021 <a href="https://www.library.caltech.edu/copyright">Caltech Library</a></span>
+<address>1200 E California Blvd, Mail Code 1-32, Pasadena, CA 91125-3200</address>
+<span><a href="mailto:library@caltech.edu">Email Us</a></span> 
+<span>Phone: <a href="tel:+1-626-395-3405">(626)395-3405</a></span>
+</footer>
+<!-- START: PrettyFi from https://github.com/google/code-prettify -->
+<script>
+/* We want to add the class "prettyprint" to all the pre elements */
+var pre_list = document.querySelectorAll("pre");
+
+pre_list.forEach(function(elem) {
+    elem.classList.add("prettyprint");
+    elem.classList.add("linenums");/**/
+    elem.classList.add("json"); /**/
+});
+</script>
+<style>
+li.L0, li.L1, li.L2, li.L3, li.L4, li.L5, li.L6, li.L7, li.L8, li.L9
+{
+    color: #555;
+    list-style-type: decimal;
+}
+</style>
+<link rel="stylesheet" type="text/css" href="/css/prettify.css">
+<script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_
+prettify.js"></script>
+<!--  END: PrettyFi from https://github.com/google/code-prettify -->
+</body>
+</html>

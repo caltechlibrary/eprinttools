@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>eprinttools - replicating_an_eprints_repo.html</title>
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="/css/site.css">
+</head>
+<body>
+<header>
+<a href="http://library.caltech.edu" title="link to Caltech Library Homepage"><img src="/assets/liblogo.gif" alt="Caltech Library logo"></a>
+</header>
+<nav>
+<ul>
+    <li><a href="/">Home</a></li>
+    <li><a href="README.html">README</a></li>
+    <li><a href="LICENSE">LICENSE</a></li>
+    <li><a href="install.html">INSTALL</a></li>
+    <li><a href="user-manual.html">User Manual</a></li>
+    <li><a href="about.html">About</a></li>
+    <li><a href="https://github.com/caltechlibrary/eprinttools">GitHub</a></li>
+</ul>
+</nav>
+
+<section>
+<h1 id="replicating-an-eprints-repository">Replicating an EPrints
+repository</h1>
+<p>This article is about using two Python modules that are part of
+eprinttools to replicate the public facing content of an EPrints
+repository into an S3 bucket hosing a static website version of the
+content.</p>
+<p>Taking this approach the EPrints software becomes primarily a
+curration platform while the public view can function indenpent of the
+EPrints collection (e.g. it can be up when you have EPrints down for
+maintenance).</p>
+<p>This approach combines several Caltech Library tools projects</p>
+<ul>
+<li><a
+href="https://github.com/caltechlibrary/eprinttools/releases">eprinttools</a></li>
+<li><a
+href="https://github.com/caltechlibrary/dataset/releases">dataset</a></li>
+<li><a
+href="https://github.com/caltechlibrary/py_dataset/releases">py_dataset</a></li>
+<li><a
+href="https://github.com/caltechlibrary/mkpage/releases">mkpage</a></li>
+</ul>
+<h2 id="setting-up-a-staging-service">Setting up a staging service</h2>
+<p>There are several steps to setup a staging service to populate your
+S3 bucket (or compatible object store).</p>
+<ol type="1">
+<li>Make sure you have access to the EPrints REST API by a service
+account</li>
+<li>Setup a S3 bucket (or other compatible object store) to be your
+website</li>
+<li>Install the following command line utilities
+<strong>dataset</strong>, <strong>eprinttools</strong> (cli) and
+<strong>mkpage</strong> into your a directory in your PATH
+(e.g. /usr/local/bin)</li>
+<li>Install <strong>py_dataset</strong> (e.g. pip install
+py_dataset)</li>
+<li>copy <strong>eprints3x</strong> and <strong>eprintviews</strong>
+modules to the staging location</li>
+<li>copy harvester_full.py, harvester_recent.py, genviews.py,
+indexer.py, mk_website.py and publisher.py to the staging location
+<ul>
+<li>these use <strong>eprints3x</strong> and
+<strong>eprintviews</strong> modules.</li>
+</ul></li>
+<li>Create, update the necessary configuration files</li>
+<li>Follow the instruction to run the build and deploy process</li>
+<li>Initialize the dataset collection if needed</li>
+</ol>
+<h2 id="configuration-and-initialization">Configuration and
+initialization</h2>
+<h3 id="json-configuration-file">JSON configuration file</h3>
+<p>A JSON file is used to run the example Python3 programs for
+replicating your public EPrints content. Here’s an example which I’ve
+named <code>config.json</code> in the examples below.</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>    <span class="fu">{</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;eprint_url&quot;</span><span class="fu">:</span> <span class="st">&quot;https://USER:SECERT@eprints.example.edu&quot;</span><span class="fu">,</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;dataset&quot;</span><span class="fu">:</span> <span class="st">&quot;DATASET_COLLECTION&quot;</span><span class="fu">,</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;number_of_days&quot;</span><span class="fu">:</span> <span class="dv">-7</span><span class="fu">,</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;control_item&quot;</span><span class="fu">:</span> <span class="st">&quot;https://eprints.example.edu/cgi/users/home?screen=EPrint::View&amp;eprintid=&quot;</span><span class="fu">,</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;users&quot;</span><span class="fu">:</span> <span class="st">&quot;users.json&quot;</span><span class="fu">,</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;subjects&quot;</span><span class="fu">:</span> <span class="st">&quot;subjects.txt&quot;</span><span class="fu">,</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;views&quot;</span><span class="fu">:</span> <span class="st">&quot;views.json&quot;</span><span class="fu">,</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;organization&quot;</span><span class="fu">:</span> <span class="st">&quot;Example Library IR&quot;</span><span class="fu">,</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;site_title&quot;</span><span class="fu">:</span> <span class="st">&quot;A EPrints Repository&quot;</span><span class="fu">,</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;site_welcome&quot;</span><span class="fu">:</span> <span class="st">&quot;Welcome to an EPrints Repository&quot;</span><span class="fu">,</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;distribution_id&quot;</span><span class="fu">:</span> <span class="st">&quot;&quot;</span><span class="fu">,</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;bucket&quot;</span><span class="fu">:</span> <span class="st">&quot;&quot;</span><span class="fu">,</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;htdocs&quot;</span><span class="fu">:</span> <span class="st">&quot;htdocs&quot;</span><span class="fu">,</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;templates&quot;</span><span class="fu">:</span> <span class="st">&quot;templates&quot;</span><span class="fu">,</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;static&quot;</span><span class="fu">:</span> <span class="st">&quot;static&quot;</span><span class="fu">,</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;base_url&quot;</span><span class="fu">:</span> <span class="st">&quot;http://localhost:8000&quot;</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span></span></code></pre></div>
+<p>Field explanations</p>
+<dl>
+<dt>eprint_url</dt>
+<dd>
+(required) is a URL with login credentials authorized to access the
+EPrints REST API
+</dd>
+<dt>dataset</dt>
+<dd>
+(required) name of your dataset collection you’ve initialized with the
+dataset command
+</dd>
+<dt>number_of_days</dt>
+<dd>
+Is an integer used to calculate the “recent” number of days to harvest
+</dd>
+<dt>control_item</dt>
+<dd>
+(used in templates) This is a link (minus the EPrints ID) to use to
+access the EPrint page needed to edit/manage the item
+</dd>
+<dt>users</dt>
+<dd>
+(required) Points at the JSON export of the users in the EPrint
+repository, it is needed to get the names of depositors
+</dd>
+<dt>subjects</dt>
+<dd>
+(required) Points at a copy of a plain text file found in your EPrint
+under <code>/archives/REPO_ID/cfg/subject</code>, it is used to map
+subject views to paths and names
+</dd>
+<dt>views</dt>
+<dd>
+(required) Points at a JSON file that shows a path part (e.g. ids) and
+label to use for that view (e.g. “Eprint ID”).
+</dd>
+<dt>organization</dt>
+<dd>
+(used in templates) The name of your organization (used by the Pandoc
+templates)
+</dd>
+<dt>site_title</dt>
+<dd>
+(used in templates) The website title (used by the Pandoc templates)
+</dd>
+<dt>site_welcome</dt>
+<dd>
+(used in templates) The website welcome statement (used by the Pandoc
+templates)
+</dd>
+<dt>htdocs</dt>
+<dd>
+(has default value) This is the directory to host the website (or
+replicate from), it functions as your document root
+</dd>
+<dt>templates</dt>
+<dd>
+(has default value) This is the directory that holds your website
+templates
+</dd>
+<dt>static</dt>
+<dd>
+(has default value) This is the directory that holds your static files
+and assets (e.g. css, favicon, non-content images like logos)
+</dd>
+<dt>bucket</dt>
+<dd>
+(optional) This is a URI To the S3 (or S3 like) bucket to host the
+public static website if you are using <strong>publisher.py</strong> and
+<strong>invalidate_cloudfront.py</strong> programs
+</dd>
+<dt>distribution_id</dt>
+<dd>
+(optional) This is the ID number used by Cloudfront for invalidating CDN
+cache. It is only used by <strong>includate_cloudfront.py</strong>. It
+is only used by <strong>includate_cloudfront.py</strong>
+</dd>
+<dt>base_url</dt>
+<dd>
+If this is set to a non-empty string then this will be passed to the
+templates used by mk_website.py to build HTML pages. It is also used in
+generating an Elasticsearch JSON document for ingest and linking back to
+the targetted resource.
+</dd>
+<dt>elastic_documents</dt>
+<dd>
+This is the filename to use when creating JSON documents for ingest into
+Elasticsearch, if not set then no JSON document is created. E.g.
+elastic-documents.json
+</dd>
+<dt>elastic_documents_max_no</dt>
+<dd>
+This is the maximum number of records to include in the Elasticsearch
+ingest document file(s). If there are more records to ingest than this
+number the filename indicated by elastic_documents will contain a
+numeric index, e.g. elastic-documents-1.json, elastic-documents-2.json.
+This defaults to 2500 dobjects in the elastic search document array.
+</dd>
+<dt>elastic_base_endpoint</dt>
+<dd>
+Used to configure the Elasticsearch elastic-app-search Client
+</dd>
+<dt>elastic_api_key</dt>
+<dd>
+Used to configure the Elasticsearch elastic-app-search Client
+</dd>
+<dt>elastic_use_https</dt>
+<dd>
+used to configure the Elasticsearch elastic-app-search Client
+</dd>
+</dl>
+<h3 id="views-json-file-content">views JSON file content</h3>
+<p>This file controls what views get built built by the
+<code>genviews.py</code> command. It is a key value of path and label.
+The path corresponds the to view aggregation supported in
+<code>eprintviews/aggregator.py</code>.</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>    <span class="fu">{</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&quot;ids&quot;</span><span class="fu">:</span> <span class="st">&quot;Eprint ID&quot;</span><span class="fu">,</span> </span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&quot;year&quot;</span><span class="fu">:</span> <span class="st">&quot;Year&quot;</span><span class="fu">,</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&quot;person-az&quot;</span><span class="fu">:</span> <span class="st">&quot;Person&quot;</span><span class="fu">,</span> </span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&quot;event&quot;</span><span class="fu">:</span> <span class="st">&quot;Conference&quot;</span><span class="fu">,</span> </span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&quot;collection&quot;</span><span class="fu">:</span> <span class="st">&quot;Collection&quot;</span><span class="fu">,</span> </span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&quot;latest&quot;</span><span class="fu">:</span> <span class="st">&quot;Latest Additions&quot;</span><span class="fu">,</span> </span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&quot;publication&quot;</span><span class="fu">:</span> <span class="st">&quot;Publication&quot;</span><span class="fu">,</span> </span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&quot;issn&quot;</span><span class="fu">:</span> <span class="st">&quot;ISSN&quot;</span><span class="fu">,</span> </span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&quot;person&quot;</span><span class="fu">:</span> <span class="st">&quot;Person&quot;</span><span class="fu">,</span> </span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&quot;types&quot;</span><span class="fu">:</span> <span class="st">&quot;Type&quot;</span><span class="fu">,</span> </span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&quot;subjects&quot;</span><span class="fu">:</span> <span class="st">&quot;Subjects&quot;</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span></span></code></pre></div>
+<h3 id="subjects-text-file">subjects text file</h3>
+<p>This is a copy of the subjects file used in your EPrints 3.3.x
+installation. It is used to gather the table values that map to the
+display names of the subjects.</p>
+<p>This file is found by looking in the repository’s configuration
+(e.g. if the repository is called “instrepo” the path is probably
+<code>archives/instrepo/cfg/subjects</code>).</p>
+<h3 id="users-json-file">users JSON file</h3>
+<p>The users JSON file is created by exporting your current users via
+the Admin user search found in your EPrints repository. The search for
+select all users then export as JSON.</p>
+<p><strong>IMPORTANT: This file should not be in a publicly readable
+location</strong></p>
+<h2 id="build-process">Build Process</h2>
+<p>“config.json” is the name of the configuraiton file used for example
+purposes. It can be have any name, the JSON content is what is
+important.</p>
+<ol type="1">
+<li>harvest EPrints into a dataset collection
+<ol type="a">
+<li><code>harvester_full.py config.json</code></li>
+<li><code>harvester_recent.py config.json</code></li>
+</ol></li>
+<li>generate the views and landing pages directory and metadata
+<ol type="a">
+<li><code>genviews.py config.json</code></li>
+</ol></li>
+<li>index the metadata for search
+<ol type="a">
+<li><code>indexer.py config.json</code></li>
+</ol></li>
+<li>make the website pages
+<ol type="a">
+<li><code>mk_website.py config.json</code></li>
+</ol></li>
+<li>publisher your htdocs to your S3 bucket
+<ol type="a">
+<li><code>publisher.py config.json</code></li>
+<li>(if needed) <code>invalidate_cloudfront.py config.json</code></li>
+</ol></li>
+</ol>
+</section>
+
+<footer>
+<span>&copy; 2021 <a href="https://www.library.caltech.edu/copyright">Caltech Library</a></span>
+<address>1200 E California Blvd, Mail Code 1-32, Pasadena, CA 91125-3200</address>
+<span><a href="mailto:library@caltech.edu">Email Us</a></span> 
+<span>Phone: <a href="tel:+1-626-395-3405">(626)395-3405</a></span>
+</footer>
+<!-- START: PrettyFi from https://github.com/google/code-prettify -->
+<script>
+/* We want to add the class "prettyprint" to all the pre elements */
+var pre_list = document.querySelectorAll("pre");
+
+pre_list.forEach(function(elem) {
+    elem.classList.add("prettyprint");
+    elem.classList.add("linenums");/**/
+    elem.classList.add("json"); /**/
+});
+</script>
+<style>
+li.L0, li.L1, li.L2, li.L3, li.L4, li.L5, li.L6, li.L7, li.L8, li.L9
+{
+    color: #555;
+    list-style-type: decimal;
+}
+</style>
+<link rel="stylesheet" type="text/css" href="/css/prettify.css">
+<script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_
+prettify.js"></script>
+<!--  END: PrettyFi from https://github.com/google/code-prettify -->
+</body>
+</html>

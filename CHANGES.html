@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>eprinttools - CHANGES.html</title>
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="/css/site.css">
+</head>
+<body>
+<header>
+<a href="http://library.caltech.edu" title="link to Caltech Library Homepage"><img src="/assets/liblogo.gif" alt="Caltech Library logo"></a>
+</header>
+<nav>
+<ul>
+    <li><a href="/">Home</a></li>
+    <li><a href="README.html">README</a></li>
+    <li><a href="LICENSE">LICENSE</a></li>
+    <li><a href="install.html">INSTALL</a></li>
+    <li><a href="user-manual.html">User Manual</a></li>
+    <li><a href="about.html">About</a></li>
+    <li><a href="https://github.com/caltechlibrary/eprinttools">GitHub</a></li>
+</ul>
+</nav>
+
+<section>
+<p>Release 1.1.0:</p>
+<p>Significant revisition of the internal data structures in the
+EPrinttools package. Improvements in doi2eprintxml file handling,
+ruleset are implemented with individual rule selection possible. A
+implementation of ep3apid (an EPrints 3.3.16 extended API) includes
+support for importing metadata into EPrints repositories. An increase in
+the end points supported.</p>
+<p>Release 1.0.3-next:</p>
+<p>Added <code>/&lt;REPO_ID&gt;/keys</code> to list all keys in a
+repository directly from the MySQL tables Added
+<code>/&lt;REPO_ID&gt;/eprint/&lt;EPRINT_ID</code> (GET) for generating
+EPrint XML directly form the MySQL tables</p>
+<p>The eprint3x.go has been heavely updated. Included are corrections,
+deletions and additions in the various struct definitions. Added an
+<code>ItemsInterface</code> type so I can consolidate the SQL handling
+around common item list types.</p>
+<p>The ep3sql.go file contains all the SQL interaction mapping
+relational models to our structs.</p>
+<p>The ep3apid now only uses MySQL connection for returning results (not
+the EPrints REST API).</p>
+<p>Release 1.0.2-simplified:</p>
+<p>Added
+<code>/&lt;REPO_ID&gt;/created/&lt;TIMESTAMP&gt;/&lt;TIMESTAMP&gt;</code>
+end point based on eprint table’s “datestamp” fields.</p>
+<p>Release 1.0.2:</p>
+<p>Introduced a web service called <code>ep3apid</code> which can be run
+from the command line or setup to run from systemd (Debian Linux) or
+launchd (macOS). It provides a local host web service for quick key list
+retrieval by talking directly to the EPrints MySQL database(s).</p>
+<p>Introduced a “simplified” JSON model based on DataCite and Invenio 3.
+This is supported in <code>eputil</code>, <code>epfmt</code> using
+command line options and is the default JSON record output for
+<code>ep3apid</code>.</p>
+<p>Depreciated <code>eprintxml2json</code>, superceded by
+<code>epfmt</code>.</p>
+<p>By default clsrules now require the command line option to be
+applied.</p>
+<p>Removed Python experiments from this repository</p>
+<p>Removed dependencies on “github.com/caltechlibrary/cli” and
+“github.com/caltechlibrary/rc”.</p>
+<p>Release 1.0.1:</p>
+<ul>
+<li>Depreciating the <code>-clsrules=true</code> option. when using
+<code>doi2eprintxml</code>. Before release 1.0.1 the DOI was included by
+default in the related url field. This was an artifact of Caltech
+Library support DOI before EPrints did. This practice ended in 2021.
+Additional haviors like limiting the number of authors ended in 2020. To
+reflect these changes in practive the <code>-clsrules</code> option now
+defaults to “false” and these rules are not applied unless you
+explicitly add <code>-clsrules</code> on the command line.
+<ul>
+<li>See clsrules/README.md for details</li>
+</ul></li>
+<li>Added in release 1.0.1 is an option to map ISSN to publisher names
+overriding what is provided by CrossRef and DataCite. To include include
+this option choose <code>-issn-to-publisher</code> option. This option
+will do two things, it will create an <code>issn-to-publisher.csv</code>
+if none existed and if one does exist it will read it in using that
+mapping. In this way we can control how publishers are named.</li>
+</ul>
+</section>
+
+<footer>
+<span>&copy; 2021 <a href="https://www.library.caltech.edu/copyright">Caltech Library</a></span>
+<address>1200 E California Blvd, Mail Code 1-32, Pasadena, CA 91125-3200</address>
+<span><a href="mailto:library@caltech.edu">Email Us</a></span> 
+<span>Phone: <a href="tel:+1-626-395-3405">(626)395-3405</a></span>
+</footer>
+<!-- START: PrettyFi from https://github.com/google/code-prettify -->
+<script>
+/* We want to add the class "prettyprint" to all the pre elements */
+var pre_list = document.querySelectorAll("pre");
+
+pre_list.forEach(function(elem) {
+    elem.classList.add("prettyprint");
+    elem.classList.add("linenums");/**/
+    elem.classList.add("json"); /**/
+});
+</script>
+<style>
+li.L0, li.L1, li.L2, li.L3, li.L4, li.L5, li.L6, li.L7, li.L8, li.L9
+{
+    color: #555;
+    list-style-type: decimal;
+}
+</style>
+<link rel="stylesheet" type="text/css" href="/css/prettify.css">
+<script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_
+prettify.js"></script>
+<!--  END: PrettyFi from https://github.com/google/code-prettify -->
+</body>
+</html>

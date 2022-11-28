@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>${title}</title>
+    <title>eprinttools - sql-table-notes.html</title>
     <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" href="/css/site.css">
 </head>
@@ -22,7 +22,37 @@
 </nav>
 
 <section>
-${body}
+<h1 id="table-notes">Table Notes</h1>
+<p>This documents holds some notes related to how EPrint’s SQL table
+structure is organized.</p>
+<dl>
+<dt>eprint</dt>
+<dd>
+Primary eprint record table. This table provides the core single values
+produced in the EPrint XML
+</dd>
+<dt>eprint_*_*</dt>
+<dd>
+These tables handle “item” content in the EPrint XML. A good example is
+“eprint_creators_name” which holds name information about a creator.
+</dd>
+<dt>file</dt>
+<dd>
+This table describes the files that make up a document attached to an
+EPrint record
+</dd>
+<dt>document and document_*</dt>
+<dd>
+These tables describes the documents associatd with a specific eprint
+record. In our repositories only document and document_relation_type
+have any rows
+</dd>
+<dt>history</dt>
+<dd>
+Holds change descriptions for files and document, also used to generate
+email back to patrons when their deposits fail
+</dd>
+</dl>
 </section>
 
 <footer>

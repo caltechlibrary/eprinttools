@@ -1,20 +1,20 @@
+% epfmt(1) user manual
+% R. S. Doiel
+% 2022-11-28
 
-USAGE
-=====
+# NAME
 
-	epfmt [OPTIONS]
+epfmt
 
-SYNOPSIS
---------
+# SYNOPSIS
 
+epfmt [OPTIONS]
+
+# DESCRIPTION
 
 _epfmt_ is a command line program for 
 pretty printing EPrint XML. It can also convert
 EPrint XML to and from JSON.
-
-
-DESCRIPTION
------------
 
 
 _epfmt_ parses EPrint XML (or JSON version) from
@@ -27,30 +27,46 @@ only the the document presented via standard
 input.
 
 
-OPTIONS
--------
+# OPTIONS
 
-Below are a set of options available.
+-e, -examples
+: display examples
 
-```
-    -e, -examples        display examples
-    -generate-manpage    generate man page
-    -generate-markdown   generate Markdown documentation
-    -h, -help            display help
-    -i, -input           input file name (read the URL connection string from the input file
-    -json                output JSON version of EPrint XML
-    -l, -license         display license
-    -nl, -newline        if true add a trailing newline
-    -o, -output          output file name
-    -quiet               suppress error messages
-    -v, -version         display version
-    -xml                 output EPrint XML
-```
+-generate-manpage
+: generate man page
+
+-generate-markdown
+: generate Markdown documentation
+
+-h, -help
+: display help
+
+-i, -input
+: input file name (read the URL connection string from the input file
+
+-json
+: output JSON version of EPrint XML
+
+-l, -license
+: display license
+
+-nl, -newline
+: if true add a trailing newline
+
+-o, -output
+: output file name
+
+-quiet
+: suppress error messages
+
+-v, -version
+: display version
+
+-xml
+: output EPrint XML
 
 
-EXAMPLES
---------
-
+# EXAMPLES
 
 Pretty print EPrint XML as XML.
 

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>${title}</title>
+    <title>eprinttools - NOTES.html</title>
     <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" href="/css/site.css">
 </head>
@@ -22,7 +22,29 @@
 </nav>
 
 <section>
-${body}
+<h1 id="overview">Overview</h1>
+<p>Caltech Library uses EPrints heavily for several different
+repositories (e.g. CaltechAUTHORS, CaltechTHESIS). We wished to use the
+metadata from our repositories in ways that were not convient inside
+EPrints as well as aggregate our metadata with other systems. This lead
+us to create the <em>eputil</em> and <em>ep</em> command line programs
+making it easy get JSON representations of EPrint records output via
+EPrints’ REST API.</p>
+<h2 id="reference-materials">Reference materials</h2>
+<ul>
+<li><a href="http://wiki.eprints.org/w/API:EPrints/Apache/CRUD">Web API
+Docs</a>
+<ul>
+<li>includes example curl interactions</li>
+</ul></li>
+<li><a
+href="https://elithrar.github.io/article/approximating-html-template-inheritance/">Golang
+Template Tutorial</a>
+<ul>
+<li>page.html and page.include are the two templates needed to produce
+the publications feed pages</li>
+</ul></li>
+</ul>
 </section>
 
 <footer>

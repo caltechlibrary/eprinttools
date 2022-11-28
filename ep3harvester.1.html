@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>${title}</title>
+    <title>eprinttools - ep3harvester.1.html</title>
     <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" href="/css/site.css">
 </head>
@@ -22,7 +22,49 @@
 </nav>
 
 <section>
-${body}
+<h1 id="name">NAME</h1>
+<p>ep3harvester</p>
+<h1 id="synopsis">SYNOPSIS</h1>
+<p>ep3harvester [OPTION] JSON_SETTINGS_FILENAME<br />
+[START_TIMESTAMP] [END_TIMESTAMP]</p>
+<h1 id="description">DESCRIPTION</h1>
+<p>ep3harvester is a command line program for metadata harvesting of
+EPrints repositories.</p>
+<p>ep3harvester takes a JSON settings file and harvests all the EPrint
+repositories defined in the settings file into a JSON store implemented
+in MySQL 8. One repository per MySQL 8 table.</p>
+<p>Each MySQL 8 table has several columns id, src (holding the JSON
+document as a JSON column) and an updated (holding the timestamp of when
+the metadata was harvested).</p>
+<h2 id="configuring-your-json-store">CONFIGURING YOUR JSON STORE</h2>
+<p>ep3harvester uses a MySQL 8 database for a JSON document store. It
+will generate one table for EPrint repository. You can generate a SQL
+program for creating the MySQL database and tables from your settings
+JSON file using the “-sql-schema” option. Using the option will require
+a JSON settings filename parameter. E.g.</p>
+<pre><code>    ep3harvester -sql-schema settings.json</code></pre>
+<h1 id="options">OPTIONS</h1>
+<dl>
+<dt>-h, help</dt>
+<dd>
+display help
+</dd>
+<dt>-license</dt>
+<dd>
+display license
+</dd>
+<dt>-sql-schema</dt>
+<dd>
+display SQL schema for installing MySQL jsonstore DB
+</dd>
+<dt>-version</dt>
+<dd>
+display version
+</dd>
+</dl>
+<h1 id="examples">EXAMPLES</h1>
+<p>Harvesting repositories for week month of May, 2022.</p>
+<pre><code>    ep3harvester settings.json &quot;2022-05-01 00:00:00&quot; &quot;2022-05-31 59:59:59&quot;</code></pre>
 </section>
 
 <footer>

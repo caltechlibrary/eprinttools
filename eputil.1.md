@@ -1,22 +1,23 @@
+% eputil(1) user manual
+% R. S. Doiel
+% 2022-11-28
 
+# NAME
 
-USAGE
-=====
+eputil
 
-```
-	eputil [OPTIONS] EPRINT_REST_URL
-```
+# SYNOPSIS
+
+eputil [OPTIONS] EPRINT_REST_URL
 	
-SYNOPSIS
---------
+# DESCRIPTION
 
 eputil is a command line program for exploring 
 the EPrints Extended API (provided by ep3apid) or EPrint's
 own REST API.  Records are returned in either JSON or EPrints XML.
 Lists of eprint ids are returned in JSON.
 
-DETAIL FOR EPrints Extended API
--------------------------------
+## DETAIL FOR EPrints Extended API
 
 The extended API is expected to be present on the local machine
 at http://localhost:8484.  eputil will convert the command line
@@ -39,8 +40,7 @@ You must specify the repository id in the command. E.g.
 See website for a full list of available end points.
 [ep3apid](ep3apid.html)
 
-DETAIL FOR EPrints REST API
----------------------------
+## DETAIL FOR EPrints REST API
 
 eputil parses XML content retrieved from 
 EPrints 3.x. REST API. It will render 
@@ -55,52 +55,57 @@ appears indepent of the primary website authentication
 setup of the installed EPrints (at least at Caltech
 Library). See the examples to start exploring the API.
 
-```
-  -auth string
-    	set the authentication type for access, default is basic (default "basic")
-  -document
-    	Retrieve a document from the provided url
-  -h	display help
-  -help
-    	display help
-  -i string
-    	input file name (read the URL connection string from the input file
-  -input string
-    	input file name (read the URL connection string from the input file
-  -json
-    	attempt to parse XML into generaic JSON structure
-  -license
-    	display license
-  -newline
-    	if true add a trailing newline
-  -nl
-    	if true add a trailing newline
-  -o string
-    	output file name
-  -output string
-    	output file name
-  -password
-    	Prompt for the password for authenticated access
-  -quiet
-    	suppress error messages
-  -raw
-    	get the raw EPrint REST API response
-  -s	Return the object in a simplified JSON data structure.
-  -simple
-    	Return the object in a simplified JSON data structure.
-  -u string
-    	set the username for authenticated access
-  -un string
-    	set the username for authenticated access
-  -user string
-    	set the username for authenticated access
-  -username string
-    	set the username for authenticated access
-  -verbose
-    	verbose output
-  -version
-    	display version
-```
+# OPTIONS
+
+-auth STRING
+: set the authentication type for access, default is basic (default "basic")
+
+-document
+: Retrieve a document from the provided url
+
+-h, -help
+: display help
+
+-i STRING
+: input file name (read the URL connection string from the input file
+
+-input STRING
+: input file name (read the URL connection string from the input file
+
+-json
+: attempt to parse XML into generaic JSON structure
+
+-license
+: display license
+
+-nl, -newline
+: if true add a trailing newline
+
+-o, -output STRING
+: output file name
+
+-password
+: Prompt for the password for authenticated access
+
+-quiet
+: suppress error messages
+
+-raw
+: get the raw EPrint REST API response
+
+-s,-simple
+: Return the object in a simplified JSON data structure.
+
+-u, -un, -user, -username STRING
+: set the username for authenticated access
+
+-verbose
+: verbose output
+
+-version
+: display version
+
+# EXAMPLES
 
 Fetch the raw unmarshaled EPrint XML via the 
 EPrint REST API for id 123.
@@ -160,5 +165,4 @@ shared machine!
 Getting IDs doesn't typically require authentication but seeing
 specific records may depending on the roles and security
 setup implemented in the EPrint instance.
-
 

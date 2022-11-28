@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>eprinttools - epfmt.1.html</title>
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="/css/site.css">
+</head>
+<body>
+<header>
+<a href="http://library.caltech.edu" title="link to Caltech Library Homepage"><img src="/assets/liblogo.gif" alt="Caltech Library logo"></a>
+</header>
+<nav>
+<ul>
+    <li><a href="/">Home</a></li>
+    <li><a href="README.html">README</a></li>
+    <li><a href="LICENSE">LICENSE</a></li>
+    <li><a href="install.html">INSTALL</a></li>
+    <li><a href="user-manual.html">User Manual</a></li>
+    <li><a href="about.html">About</a></li>
+    <li><a href="https://github.com/caltechlibrary/eprinttools">GitHub</a></li>
+</ul>
+</nav>
+
+<section>
+<h1 id="name">NAME</h1>
+<p>epfmt</p>
+<h1 id="synopsis">SYNOPSIS</h1>
+<p>epfmt <a href="#options">OPTIONS</a></p>
+<h1 id="description">DESCRIPTION</h1>
+<p><em>epfmt</em> is a command line program for pretty printing EPrint
+XML. It can also convert EPrint XML to and from JSON.</p>
+<p><em>epfmt</em> parses EPrint XML (or JSON version) from standard
+input and pretty prints the result to standard out. You can change
+output format XML and JSON by using either the ‘-xml’ or ‘-json’ option.
+The XML representation is based on EPrints 3.x. <em>epfmt</em> does NOT
+interact with the EPrints API only the the document presented via
+standard input.</p>
+<h1 id="options">OPTIONS</h1>
+<dl>
+<dt>-e, -examples</dt>
+<dd>
+display examples
+</dd>
+<dt>-generate-manpage</dt>
+<dd>
+generate man page
+</dd>
+<dt>-generate-markdown</dt>
+<dd>
+generate Markdown documentation
+</dd>
+<dt>-h, -help</dt>
+<dd>
+display help
+</dd>
+<dt>-i, -input</dt>
+<dd>
+input file name (read the URL connection string from the input file
+</dd>
+<dt>-json</dt>
+<dd>
+output JSON version of EPrint XML
+</dd>
+<dt>-l, -license</dt>
+<dd>
+display license
+</dd>
+<dt>-nl, -newline</dt>
+<dd>
+if true add a trailing newline
+</dd>
+<dt>-o, -output</dt>
+<dd>
+output file name
+</dd>
+<dt>-quiet</dt>
+<dd>
+suppress error messages
+</dd>
+<dt>-v, -version</dt>
+<dd>
+display version
+</dd>
+<dt>-xml</dt>
+<dd>
+output EPrint XML
+</dd>
+</dl>
+<h1 id="examples">EXAMPLES</h1>
+<p>Pretty print EPrint XML as XML.</p>
+<pre><code>    epfmt &lt; 123.xml</code></pre>
+<p>Pretty print from EPrint XML as JSON</p>
+<pre><code>    epfmt -json &lt; 123.xml</code></pre>
+<p>Render EPrint JSON as EPrint XML.</p>
+<pre><code>    epfmt -xml &lt; 123.json</code></pre>
+<p>Render EPrint simplified JSON from EPrint XML.</p>
+<pre><code>    epfmt -simplified &lt; 123.xml</code></pre>
+<p><em>epfmt</em> will first parse the XML or JSON presented to it and
+pretty print the output in the desired format requested. If no format
+option chosen it will pretty print in the same format as input.</p>
+</section>
+
+<footer>
+<span>&copy; 2021 <a href="https://www.library.caltech.edu/copyright">Caltech Library</a></span>
+<address>1200 E California Blvd, Mail Code 1-32, Pasadena, CA 91125-3200</address>
+<span><a href="mailto:library@caltech.edu">Email Us</a></span> 
+<span>Phone: <a href="tel:+1-626-395-3405">(626)395-3405</a></span>
+</footer>
+<!-- START: PrettyFi from https://github.com/google/code-prettify -->
+<script>
+/* We want to add the class "prettyprint" to all the pre elements */
+var pre_list = document.querySelectorAll("pre");
+
+pre_list.forEach(function(elem) {
+    elem.classList.add("prettyprint");
+    elem.classList.add("linenums");/**/
+    elem.classList.add("json"); /**/
+});
+</script>
+<style>
+li.L0, li.L1, li.L2, li.L3, li.L4, li.L5, li.L6, li.L7, li.L8, li.L9
+{
+    color: #555;
+    list-style-type: decimal;
+}
+</style>
+<link rel="stylesheet" type="text/css" href="/css/prettify.css">
+<script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_
+prettify.js"></script>
+<!--  END: PrettyFi from https://github.com/google/code-prettify -->
+</body>
+</html>

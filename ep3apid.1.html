@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>eprinttools - ep3apid.1.html</title>
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="/css/site.css">
+</head>
+<body>
+<header>
+<a href="http://library.caltech.edu" title="link to Caltech Library Homepage"><img src="/assets/liblogo.gif" alt="Caltech Library logo"></a>
+</header>
+<nav>
+<ul>
+    <li><a href="/">Home</a></li>
+    <li><a href="README.html">README</a></li>
+    <li><a href="LICENSE">LICENSE</a></li>
+    <li><a href="install.html">INSTALL</a></li>
+    <li><a href="user-manual.html">User Manual</a></li>
+    <li><a href="about.html">About</a></li>
+    <li><a href="https://github.com/caltechlibrary/eprinttools">GitHub</a></li>
+</ul>
+</nav>
+
+<section>
+<h1 id="name">NAME</h1>
+<p>ep2apid</p>
+<h1 id="synopsis">SYNOPSIS</h1>
+<p>ep3apid <a href="#options">OPTIONS</a> [SETTINGS_FILENAME]</p>
+<h1 id="description">DESCRIPTION</h1>
+<p>Run an extended EPrints 3.x web API based on direct manipulation of
+EPrint’s MySQL database(s).</p>
+<p><strong>ep3apid</strong> can be run from the command line and the
+will create an http web service. The web service provides a limitted
+number of end points providing eprint ids for content matched in
+EPrints’s MySQL databases. You can configure it to provide read/write
+support to and from the MySQL databases used by EPrints.</p>
+<p>The following URL end points are intended to take one unique
+identifier and map that to one or more EPrint IDs. This can be done
+because each unique ID targeted can be identified by querying a single
+table in EPrints. In addition the scan can return the complete results
+since all EPrint IDs are integers and returning all EPrint IDs in any of
+our repositories is sufficiently small to be returned in a single HTTP
+request.</p>
+<h2 id="configuration-information">Configuration information</h2>
+<p>There are two end points that give you information about what
+repositories are configured in for <strong>ep3apid</strong> and what the
+database structure (tables and column names) for each configure
+repository.</p>
+<ul>
+<li>‘/repositores’ - returns a list of repositories configured for
+access by <strong>ep3apid</strong></li>
+<li>‘/repository/{REPO_ID}’ returns the databases and columns of the
+repository indicated by “{REPO_ID}”.</li>
+</ul>
+<h2 id="unique-id-to-eprint-id">Unique ID to EPrint ID</h2>
+<p>Unique ids maybe standards based (e.g. ORCID, DOI, ISSN, ISBN) or
+internal (e.g. group ids, funder ids)</p>
+<ul>
+<li>‘/{REPO_ID}/doi/{DOI}’ with the adoption of EPrints “doi” field in
+the EPrint table it makes sense to have a quick translation of DOI to
+EPrint id for a given EPrints repository.</li>
+<li>‘/{REPO_ID}/pmid/{PMID}’ with the “pmid” field in the EPrint table,
+it refers to PubMed is an index of the biomedical literature.</li>
+<li>‘/{REPO_ID}/pmcid/{PMCID}’ with the “pmcid” field in the EPrint
+table, PMCID an Identifier to each full-text paper in PubMed Central
+Archive</li>
+<li>‘/{REPO_ID}/creator-id’ returns a list of creaator-id available in
+the eprints repository</li>
+<li>‘/{REPO_ID}/creator-id/{CREATOR_ID}’ scans the name creator id field
+associated with creators and returns a list of EPrint ID</li>
+<li>‘/{REPO_ID}/creator-name’ returns a list of creator names (family,
+given) in repository</li>
+<li>‘/{REPO_ID}/creator-name/{FAMILY}/{GIVEN}’ returns a list of EPrint
+ID for the given creator using their family and given names</li>
+<li>‘/{REPO_ID}/creator-orcid’ return a list of “orcid” associated with
+creators in repository</li>
+<li>‘/{REPO_ID}/creator-orcid/{ORCID}’ scans the “orcid” field
+associated with creators and returns a list of EPrint ID</li>
+<li>‘/{REPO_ID}/editor-id’ returns a list of editor ids available in the
+EPrints repository</li>
+<li>‘/{REPO_ID}/editor-id/{CREATOR_ID}’ scans the name creator id field
+associated with editors and returns a list of EPrint ID</li>
+<li>‘/{REPO_ID}/editor-name’ returns a list of editor names (family,
+given) in repository</li>
+<li>‘/{REPO_ID}/editor-name/{FAMILY}/{GIVEN}’ returns a list of EPrint
+ID for the given editor using their family and given names</li>
+<li>‘/{REPO_ID}/contributor-id’ returns a list of contributor ids
+available in the eprints repository</li>
+<li>‘/{REPO_ID}/contributor-id/{CONTRIBUTOR_ID}’ scans the “id” field
+associated with a contributors and returns a list of EPrint ID</li>
+<li>‘/{REPO_ID}/contributor-name’ returns a list of contributor names
+(family, given) in repository</li>
+<li>‘/{REPO_ID}/contributor-name/{FAMILY}/{GIVEN}’ returns a list of
+EPrint ID for the given contributor using their family and given
+names</li>
+<li>‘/{REPO_ID}/advisor-id’ returns a list of advisor ids in the eprints
+repository</li>
+<li>‘/{REPO_ID}/advisor-id/{ADVISOR_ID}’ scans the name advisor id field
+associated with advisors and returns a list of EPrint ID</li>
+<li>‘/{REPO_ID}/advisor-name’ returns a list of advisor names (family,
+given) in repository</li>
+<li>‘/{REPO_ID}/advisor-name/{FAMILY}/{GIVEN}’ returns a list of EPrint
+ID for the given advisor using their family and given names</li>
+<li>‘/{REPO_ID}/committee-id’ returns a list of committee id in EPrints
+repository</li>
+<li>‘/{REPO_ID}/committee-id/{COMMITTEE_ID}’ scans the committee id
+field associated with committee members and returns a list of EPrint
+ID</li>
+<li>‘/{REPO_ID}/committee-name’ returns a list of committee members
+names (family, given) in repository</li>
+<li>‘/{REPO_ID}/committee-name/{FAMILY}/{GIVEN}’ returns a list of
+EPrint ID for the given committee member using their family and given
+names</li>
+<li>‘/{REPO_ID}/corp-creator-id’ returns a list of corp creator ids in
+the eprints repository</li>
+<li>‘/{REPO_ID}/corp-creator-id/{CORP_CREATOR_ID}’ returns the list of
+eprint id for the corporate creator id</li>
+<li>‘/{REPO_ID}/corp-creator-uri’ returns a list of corp creator uri in
+the eprints repository</li>
+<li>‘/{REPO_ID}/corp-creator-uri/{CORP_CREATOR_URI}’ returns the list of
+eprint id for the corporate creator’s URI</li>
+<li>‘/{REPO_ID}/group-id’ returns a list of group ids in EPrints
+repository</li>
+<li>‘/{REPO_ID}/group-id/{GROUP_ID}’ this scans group ID and returns a
+list of EPrint IDs associated with the group</li>
+<li>‘/{REPO_ID}/funder-id’ returns a list of funders in the EPrints
+repository</li>
+<li>‘/{REPO_ID}/funder-id/{FUNDER_ID}’ returns a list of EPrint IDs
+associated with the funder</li>
+<li>‘/{REPO_ID}/grant-number’ returns a list of grant numbers in EPrints
+repository</li>
+<li>‘/{REPO_ID}/grant-number/{GRANT_NUMBER}’ returns a list of EPrint
+IDs associated with the grant number</li>
+<li>‘/{REPO_ID}/issn’ - returns a list of ISSN in repository</li>
+<li>‘/{REPO_ID}/issn/{ISSN}’ - returns a list eprint id for ISSN in
+repository</li>
+<li>‘/{REPO_ID}/isbn’ - returns a list of ISBN in repository</li>
+<li>‘/{REPO_ID}/isbn/{ISBN}’ - returns a list eprint id for ISBN in
+repository</li>
+<li>‘/{REPO_ID}/patent-number’ - return a list of patent numbers in
+repository</li>
+<li>‘/{REPO_ID}/patent-number/{PATENT_NUMBER}’ - return a list eprint
+ids for patent number in repository</li>
+<li>‘/{REPO_ID}/patent-applicant’ - return a list of patent applicants
+in repository</li>
+<li>‘/{REPO_ID}/patent-applicant/{PATENT_APPLICANT}’ - return a list
+eprint ids for patent applicant in repository</li>
+<li>‘/{REPO_ID}/patent-classification’ - return a list of patent
+classificatins in repository</li>
+<li>‘/{REPO_ID}/patent-classification/{PATENT_CLASSIFICATION}’ - return
+a list eprint ids for patent classification in repository</li>
+<li>‘/{REPO_ID}/patent-assignee’ - return a list of patent assignee in
+repository</li>
+<li>‘/{REPO_ID}/patent-assignee/{PATENT_ASSIGNEE}’ - return a list
+eprint ids for patent assignee in repository</li>
+<li>‘/{REPO_ID}/year’ - return a descending list of years containing
+record with a date type of “published”.</li>
+<li>‘/{REPO_ID}/year/{YEAR}’ - return a list of eprintid for a given
+year contaning date type of “published”.</li>
+</ul>
+<h2 id="change-events">Change Events</h2>
+<p>The follow API end points would facilitate faster updates to our
+feeds platform as well as allow us to create a separate public view of
+our EPrint repository content.</p>
+<ul>
+<li>‘/{REPO_ID}/keys’ returns complete list of EPrint ID in the
+repository</li>
+<li>‘/{REPO_ID}/updated/{TIMESTAMP}/{TIMESTAMP}’ returns a list of
+EPrint IDs updated starting at the first timestamp (timestamps should
+have a resolution to the minute, e.g. “YYYY-MM-DD HH:MM:SS”) through
+inclusive of the second timestmap (if the second is omitted the
+timestamp is assumed to be “now”)</li>
+<li>‘/{REPO_ID}/deleted/{TIMESTAMP}/{TIMESTAMP}’ through the returns a
+list of EPrint IDs deleted starting at first timestamp through inclusive
+of the second timestamp, if the second timestamp is omitted it is
+assumed to be “now”</li>
+<li>‘/{REPO_ID}/pubdate/{APROX_DATESTAMP}/{APPOX_DATESTMP}’ this query
+scans the EPrint table for records with publication starts starting with
+the first approximate date through inclusive of the second approximate
+date. If the second date is omitted it is assumed to be “today”.
+Approximate dates my be expressed just the year (starting with Jan 1,
+ending with Dec 31), just the year and month (starting with first day of
+month ending with the last day) or year, month and day. The end returns
+zero or more EPrint IDs.</li>
+</ul>
+<h2 id="readwrite-api">Read/Write API</h2>
+<p>As of <strong>ep3apid</strong> version 1.0.3 a new set of end points
+exists for reading (retreiving EPrints XML) and writing (metadata
+import) of EPrints XML. The extended API only supports working with
+EPrints metadata not directly with the documents or files associated
+with individual records.</p>
+<p>The metadata import functionality is enabled per repository. It only
+supports importing records at this time. Importing an EPrint XML
+document, which could containing multiple EPrint metadata records, is
+implemented purely using SQL statements and not the EPrints Perl API.
+This allows you (with the right MySQL configuration) to run the extended
+API on a different server without resorting to Perl.</p>
+<ul>
+<li>‘/{REPO_ID}/eprint/{EPRINT_ID}’ method GET with a content type of
+“application/json” (JSON of EPrint XML) or “application/xml” for EPrint
+XML</li>
+<li>‘/{REPO_ID}/eprint-import’ POST accepts EPrints XML with content
+type of “application/xml” or JSON of EPrints XML with content type
+“application/json”. To enable this feature add the attribute ‘“write”:
+true’ to the repositories setting in settins.json.</li>
+</ul>
+<h2 id="settings.json-configuration">settings.json (configuration)</h2>
+<p>To run the web service create a JSON file named settings.ini in the
+current directory where you’re invoking <strong>ep3apid</strong> from.
+The web service can be started with running</p>
+<pre><code>    ep3apid</code></pre>
+<p>or to load “settings.json” from the current work directory.</p>
+<pre><code>    ep3apid settings.json</code></pre>
+<p>The JSON settings.json file should look something like “REPO_ID”
+would be the name used in the <strong>ep3apid</strong> to access a
+specific repsitory. The “dsn” value should be replaced with an
+appropriate data source name to access the MySQL database for the
+repository you’re supporting. You can have many repositories configured
+in a single <strong>ep3apid</strong> instance.</p>
+<pre><code>    {
+        &quot;repositories&quot;: {
+            &quot;REPO_ID&quot;: {
+                &quot;dsn&quot;: &quot;DB_USER:SECRET@/DB_NAME&quot;,
+                &quot;base_url&quot;: &quot;URL_TO_EPRINT_REPOSITORY&quot;,
+                &quot;write&quot;: false,
+                &quot;default_collection&quot;: &quot;REPO_ID&quot;,
+                &quot;default_official_url&quot;: &quot;PERMA_LINK_URL&quot;,
+                &quot;default_rights&quot;: &quot;RIGHTS_STATEMENT_GOES_HERE&quot;,
+                &quot;default_refereed&quot;: &quot;TRUE&quot;,
+                &quot;default_status&quot;: &quot;inbox&quot;
+            },
+            ... /* Additional repositories configured here */ ...
+        }
+    }</code></pre>
+<p>NOTE: The “default_collection”, “default_official_url”,
+“default_rights”, “default_rights”, “default_refereed”, “default_status”
+are option configurations in the <code>settings.json</code> file.</p>
+<h1 id="options">OPTIONS</h1>
+<dl>
+<dt>-h, -help</dt>
+<dd>
+Display this help message
+</dd>
+<dt>-license</dt>
+<dd>
+Display software license
+</dd>
+<dt>-version</dt>
+<dd>
+Display software version
+</dd>
+</dl>
+</section>
+
+<footer>
+<span>&copy; 2021 <a href="https://www.library.caltech.edu/copyright">Caltech Library</a></span>
+<address>1200 E California Blvd, Mail Code 1-32, Pasadena, CA 91125-3200</address>
+<span><a href="mailto:library@caltech.edu">Email Us</a></span> 
+<span>Phone: <a href="tel:+1-626-395-3405">(626)395-3405</a></span>
+</footer>
+<!-- START: PrettyFi from https://github.com/google/code-prettify -->
+<script>
+/* We want to add the class "prettyprint" to all the pre elements */
+var pre_list = document.querySelectorAll("pre");
+
+pre_list.forEach(function(elem) {
+    elem.classList.add("prettyprint");
+    elem.classList.add("linenums");/**/
+    elem.classList.add("json"); /**/
+});
+</script>
+<style>
+li.L0, li.L1, li.L2, li.L3, li.L4, li.L5, li.L6, li.L7, li.L8, li.L9
+{
+    color: #555;
+    list-style-type: decimal;
+}
+</style>
+<link rel="stylesheet" type="text/css" href="/css/prettify.css">
+<script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_
+prettify.js"></script>
+<!--  END: PrettyFi from https://github.com/google/code-prettify -->
+</body>
+</html>

@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>eprinttools - view_notes.html</title>
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="/css/site.css">
+</head>
+<body>
+<header>
+<a href="http://library.caltech.edu" title="link to Caltech Library Homepage"><img src="/assets/liblogo.gif" alt="Caltech Library logo"></a>
+</header>
+<nav>
+<ul>
+    <li><a href="/">Home</a></li>
+    <li><a href="README.html">README</a></li>
+    <li><a href="LICENSE">LICENSE</a></li>
+    <li><a href="install.html">INSTALL</a></li>
+    <li><a href="user-manual.html">User Manual</a></li>
+    <li><a href="about.html">About</a></li>
+    <li><a href="https://github.com/caltechlibrary/eprinttools">GitHub</a></li>
+</ul>
+</nav>
+
+<section>
+<h1 id="views-in-our-various-eprints-repositories">Views in our various
+EPrints repositories</h1>
+<h2 id="notes-from-google-scholar">Notes from Google Scholar</h2>
+<p>It looks likes /view/ids/ and /view/year/ maybe used by the GoogleBot
+as Google Scholar understands EPrints’ directory layout even though
+those aren’t usually linked from the homepage. We also want to generate
+a “latest additions” link so that larger repositories can have their
+additions and updates picked up quicker. Google Scholar docs are at
+https://scholar.google.com/intl/en/scholar/inclusion.html#indexing.</p>
+<h2 id="questions">Questions</h2>
+<ul>
+<li>People, person, persion-az include the creators.item values and
+sometimes include contributors or editors values, should this be
+consistent?</li>
+<li>We have lots of pays to describe an EPrints item type, should be
+standardize? (e.g. Type vs. Document Types)</li>
+</ul>
+<h2 id="common-views">Common views</h2>
+<dl>
+<dt>ids</dt>
+<dd>
+is based on the eprint id, appears to be a default view but not usually
+included in browseviews.html (results is a list of list of one item)
+</dd>
+<dt>publication</dt>
+<dd>
+is based on publication simple field, many repositories have this,
+labeling of view varies but path is consistent
+</dd>
+<dt>issn</dt>
+<dd>
+is base on issn simple field, many repositories have this, labeling is
+uppercase of field name
+</dd>
+<dt>group</dt>
+<dd>
+is based on local_group.item, many repostiroes, labeling is usually
+Group
+</dd>
+<dt>person</dt>
+<dd>
+is based on creators, is in many repositories but not often in
+browseview.html, seems to be the same as people view, in some cases
+(Campus Pubs) it appears to include people with other affilations such
+as editor and contributors
+</dd>
+<dt>person-az</dt>
+<dd>
+is based on creators, is in most repositories, often in browseview labed
+Person
+</dd>
+<dt>collection</dt>
+<dd>
+is based on collection simple field, should probably be in all
+repositories but isn’t listed often in browseview.html
+</dd>
+</dl>
+<h2 id="caltechauthors">CaltechAUTHORS</h2>
+<h3 id="browseview.html">browseview.html</h3>
+<ul>
+<li>Person -&gt; person-az</li>
+<li>Year -&gt; year</li>
+<li>Document Type -&gt; types</li>
+<li>Research Group -&gt; group</li>
+<li>Collection -&gt; collection</li>
+<li>Latest Additions -&gt; cgi/latest (not sure that this is a standard
+view, it may do a live SQL query each time it is hit given it’s slow
+response time)</li>
+</ul>
+<h3 id="view">/view/</h3>
+<ul>
+<li>Eprint ID -&gt; ids</li>
+<li>Journal or Publication Title -&gt; publication</li>
+<li>ISSN -&gt; issn</li>
+<li>Year -&gt; year</li>
+<li>Group -&gt; group</li>
+<li>Person -&gt; person</li>
+<li>Type -&gt; types</li>
+<li>Person -&gt; person-az</li>
+<li>Collection -&gt; collection</li>
+<li>Latests Additions</li>
+<li>Recently published</li>
+</ul>
+<h2 id="caltechthesis">CaltechTHESIS</h2>
+<h3 id="browseview.html-1">browseview.html</h3>
+<ul>
+<li>Author -&gt; author (this appears to be the same as person-az in
+other repositories)</li>
+<li>Committee Members -&gt; committee</li>
+<li>Research Advisor -&gt; advisor</li>
+<li>Option (Field of Study) -&gt; option</li>
+<li>Degree/Thesis Type -&gt; degree</li>
+<li>Year -&gt; year</li>
+<li>Latest Additions -&gt; cgi/latest (like CaltechAUTHORS)</li>
+<li>Research Group -&gt; group</li>
+</ul>
+<h3 id="view-1">/view/</h3>
+<ul>
+<li>Eprint ID -&gt; ids</li>
+<li>Year -&gt; year</li>
+<li>Option -&gt; option (this is a custom field in thesis)</li>
+<li>Degree/Thesis Type -&gt; degree (this appears semi-custom)</li>
+<li>Author -&gt; author (this is really based on the creator field and
+is probably the same code as person in the other repositories)</li>
+<li>Advisor -&gt; advisor (this is based on thesis_advisor.item)</li>
+<li>Committee Member -&gt; committee (this is based on
+thesis_committee.item)</li>
+<li>Group -&gt; group (this is based on local_group.item)</li>
+</ul>
+<h2 id="caltechlabnotes">CaltechLabNotes</h2>
+<h3 id="browseview.html-2">browseview.html</h3>
+<ul>
+<li>Project Information -&gt; /information.html (this about page
+link)</li>
+<li>Browse by Name -&gt; person</li>
+<li>Browse by Subject -&gt; subjects</li>
+<li>Search -&gt; /searchoptions.html (MySQL based simple and advanced
+search pages)</li>
+</ul>
+<h3 id="view-2">/view/</h3>
+<ul>
+<li>Eprint ID -&gt; ids</li>
+<li>Subject -&gt; subjects</li>
+<li>Name -&gt; person</li>
+</ul>
+<h2 id="caltech-magazine-calteches">Caltech Magazine (calteches)</h2>
+<h3 id="browseview.html-3">browseview.html</h3>
+<ul>
+<li>Year -&gt; year</li>
+<li>Item Category -&gt; subjects</li>
+<li>Author -&gt; person-az</li>
+<li>Latest Additionas -&gt; /cgi/latest</li>
+</ul>
+<h3 id="view-3">/view/</h3>
+<ul>
+<li>Eprint ID -&gt; ids</li>
+<li>Year -&gt; year</li>
+<li>Item Category -&gt; subjects</li>
+<li>Person -&gt; person</li>
+<li>Author -&gt; person-az</li>
+<li>Type -&gt; types</li>
+</ul>
+<h2 id="caltechconf">CaltechCONF</h2>
+<h3 id="browseview.html-4">browseview.html</h3>
+<ul>
+<li>Person -&gt; person-az</li>
+<li>Year -&gt; year</li>
+<li>Conference -&gt; event</li>
+<li>Collection -&gt; collection</li>
+<li>Latest Additions -&gt; /cgi/latest</li>
+</ul>
+<h3 id="view-4">/view/</h3>
+<ul>
+<li>Eprint ID -&gt; ids</li>
+<li>Journal or Publication Title -&gt; publication</li>
+<li>ISSN -&gt; issn</li>
+<li>Year -&gt; year</li>
+<li>Conference -&gt; event</li>
+<li>Person -&gt; person</li>
+<li>Type -&gt; types</li>
+<li>Person -&gt; person-az</li>
+<li>Collection -&gt; collection</li>
+</ul>
+<h2 id="oral-histories-caltechoh">Oral Histories (caltechoh)</h2>
+<h3 id="browseview.html-5">browseview.html</h3>
+<ul>
+<li>Person -&gt; person-az</li>
+<li>Year -&gt; year</li>
+<li>Subject -&gt; subjects</li>
+</ul>
+<h3 id="view-5">/view/</h3>
+<ul>
+<li>Eprint ID -&gt; ids</li>
+<li>Year -&gt; year</li>
+<li>Subject -&gt; subjects</li>
+<li>Type -&gt; types</li>
+<li>Person -&gt; person-az</li>
+</ul>
+<h2 id="campuspubs">CampusPubs</h2>
+<h3 id="browseview.html-6">browseview.html</h3>
+<ul>
+<li>Publication Title -&gt; publication</li>
+<li>Year -&gt; year</li>
+<li>Issuing Body -&gt; issuing_body</li>
+<li>Author/Contribor -&gt; person-az</li>
+<li>Document Type -&gt; types</li>
+<li>Latest Additions -&gt; /cgi/latest</li>
+</ul>
+<h3 id="view-6">/view/</h3>
+<ul>
+<li>Eprint ID -&gt; ids</li>
+<li>Publication Title -&gt; publication</li>
+<li>Issuing Body -&gt; issuing_body</li>
+<li>Type - types</li>
+<li>Author/Contributor Name -&gt; person-az</li>
+</ul>
+<dl>
+<dt>issuing_body</dt>
+<dd>
+based on corp_creators.item where id is path and name is label
+</dd>
+</dl>
+</section>
+
+<footer>
+<span>&copy; 2021 <a href="https://www.library.caltech.edu/copyright">Caltech Library</a></span>
+<address>1200 E California Blvd, Mail Code 1-32, Pasadena, CA 91125-3200</address>
+<span><a href="mailto:library@caltech.edu">Email Us</a></span> 
+<span>Phone: <a href="tel:+1-626-395-3405">(626)395-3405</a></span>
+</footer>
+<!-- START: PrettyFi from https://github.com/google/code-prettify -->
+<script>
+/* We want to add the class "prettyprint" to all the pre elements */
+var pre_list = document.querySelectorAll("pre");
+
+pre_list.forEach(function(elem) {
+    elem.classList.add("prettyprint");
+    elem.classList.add("linenums");/**/
+    elem.classList.add("json"); /**/
+});
+</script>
+<style>
+li.L0, li.L1, li.L2, li.L3, li.L4, li.L5, li.L6, li.L7, li.L8, li.L9
+{
+    color: #555;
+    list-style-type: decimal;
+}
+</style>
+<link rel="stylesheet" type="text/css" href="/css/prettify.css">
+<script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_
+prettify.js"></script>
+<!--  END: PrettyFi from https://github.com/google/code-prettify -->
+</body>
+</html>

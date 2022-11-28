@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>eprinttools - macos-workflow.html</title>
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="/css/site.css">
+</head>
+<body>
+<header>
+<a href="http://library.caltech.edu" title="link to Caltech Library Homepage"><img src="/assets/liblogo.gif" alt="Caltech Library logo"></a>
+</header>
+<nav>
+<ul>
+    <li><a href="/">Home</a></li>
+    <li><a href="README.html">README</a></li>
+    <li><a href="LICENSE">LICENSE</a></li>
+    <li><a href="install.html">INSTALL</a></li>
+    <li><a href="user-manual.html">User Manual</a></li>
+    <li><a href="about.html">About</a></li>
+    <li><a href="https://github.com/caltechlibrary/eprinttools">GitHub</a></li>
+</ul>
+</nav>
+
+<section>
+<h1 id="notes-on-using-doi2eprintxml-on-mac-os-x">Notes on using
+doi2eprintxml on Mac OS X</h1>
+<h2 id="installation-and-setup">Installation and setup</h2>
+<ol type="1">
+<li>With your web browser goto
+https://github.com/caltechlibrary/eprinttools/releases/</li>
+<li>Download the file called “eprinttools-v1.0.3-macos-amd64.zip” (for
+older Intel based Macs) or “eprinttools-v1.0.3-macos-arm64.zip” (for
+newer M1 based Macs).
+<ul>
+<li>if there is a newer version (e.g. v1.0.4) download that instead</li>
+</ul></li>
+<li>Unzip the downloaded zip file</li>
+<li>Copy “bin/doi2eprintxml” to your local <strong>bin</strong> folder
+(e.g. /Users/rsdoiel/bin)</li>
+<li>Make sure your <strong>bin</strong> directory is in your path
+(e.g. <code>export PATH="$HOME/bin:$PATH"</code> in your
+<strong>.bashrc</strong> file)</li>
+<li>Open the your “Terminal” application</li>
+<li>Run <code>doi2printxml -h</code> to see the help page</li>
+</ol>
+<h2 id="getting-started">Getting started</h2>
+<p>The tool <code>doi2eprintxml</code> is a command line program, it is
+normally run from the terminal’s command prompt. The purpose of the
+program is to take a list of DOI contact CrossRef or DataCite and
+generate what is called an EPrint XML document. The EPrint XML document
+is used to import records into EPrints (e.g. CaltechAUTHORS) via the
+“import” button under “Manage Deposits” page.</p>
+<h3 id="workflow">Workflow</h3>
+<p>The typical workflow is to create a plain text file (UTF-8 encoded)
+using a text editor such as <a href="https://atom.io">Atom</a> with one
+DOI per line. The <code>doi2eprintxml</code> program can then read the
+list and generate an EPrint XML document for importing into EPrints.
+Follow the following steps to generate a file called
+<strong>eprint.xml</strong> based on a list of of DOI in a file called
+<strong>doi.txt</strong>.</p>
+<h4 id="general-recipe">General recipe</h4>
+<ol type="1">
+<li>Open your text editor (e.g Atom)</li>
+<li>With your text editor create a list of DOI on per line</li>
+<li>Save this list to your desktop as <strong>doi.txt</strong> NOTE:
+<strong>doi.txt</strong> is the name of your file you saved on your
+desktop.</li>
+<li>Open the Terminal app and change directory to your desktop
+<code>cd ~/Desktop</code></li>
+<li>Generate <strong>eprint.xml</strong> with the following command
+<code>doi2eprintxml -i doi.txt &gt; eprint.xml</code></li>
+<li>From the file manager open <strong>eprint.xml</strong> and review
+the XML document (e.g. in your web browser or other text editor)</li>
+<li>With your web browser go to CaltechAUTHORS and log in</li>
+<li>Change to the “manage deposits” page and select “EPrints XML” from
+the pull down menu next to the “import” button</li>
+<li>Press the “import” button</li>
+<li>Click on “Upload from file”</li>
+<li>Click the “browse” button and find <strong>eprint.xml</strong> on
+the desktop</li>
+<li>From the pull down list next to the filename select “UTF-8”</li>
+<li>Click “Test without importing”, proceed to the next step if
+everything is OK</li>
+<li>Click the “browse” button and find <strong>eprint.xml</strong> on
+the desktop</li>
+<li>From the pulldown list next to the filename select “UTF-8”</li>
+<li>Click on “import items” buttons, this should import the items into
+your buffer to review</li>
+</ol>
+</section>
+
+<footer>
+<span>&copy; 2021 <a href="https://www.library.caltech.edu/copyright">Caltech Library</a></span>
+<address>1200 E California Blvd, Mail Code 1-32, Pasadena, CA 91125-3200</address>
+<span><a href="mailto:library@caltech.edu">Email Us</a></span> 
+<span>Phone: <a href="tel:+1-626-395-3405">(626)395-3405</a></span>
+</footer>
+<!-- START: PrettyFi from https://github.com/google/code-prettify -->
+<script>
+/* We want to add the class "prettyprint" to all the pre elements */
+var pre_list = document.querySelectorAll("pre");
+
+pre_list.forEach(function(elem) {
+    elem.classList.add("prettyprint");
+    elem.classList.add("linenums");/**/
+    elem.classList.add("json"); /**/
+});
+</script>
+<style>
+li.L0, li.L1, li.L2, li.L3, li.L4, li.L5, li.L6, li.L7, li.L8, li.L9
+{
+    color: #555;
+    list-style-type: decimal;
+}
+</style>
+<link rel="stylesheet" type="text/css" href="/css/prettify.css">
+<script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_
+prettify.js"></script>
+<!--  END: PrettyFi from https://github.com/google/code-prettify -->
+</body>
+</html>

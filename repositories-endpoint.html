@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>${title}</title>
+    <title>eprinttools - repositories-endpoint.html</title>
     <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" href="/css/site.css">
 </head>
@@ -22,7 +22,26 @@
 </nav>
 
 <section>
-${body}
+<h1 id="repositories-end-point">Repositories (end point)</h1>
+<p>This end point lists the repositories known to the
+<strong>ep3apid</strong> service.</p>
+<ul>
+<li>‘/repositories’ returns a JSON array of repository names defined in
+settings.json</li>
+<li>‘/repositories/help’ returns this documentation.</li>
+</ul>
+<h2 id="example">Example</h2>
+<p>In this example we assume the <strong>ep3apid</strong> services is
+running on “localhost:8484” and is configured to support two
+repositories “lemurprints” and “test3”. We are using curl to retrieve
+the data.</p>
+<pre class="shell"><code>    curl -X GET http://localhost:8484/repositories</code></pre>
+<p>This should return a JSON array like</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>    <span class="ot">[</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;lemurprints&quot;</span><span class="ot">,</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;test3&quot;</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span></code></pre></div>
 </section>
 
 <footer>

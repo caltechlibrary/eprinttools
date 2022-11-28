@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>eprinttools</title>
+    <title>eprinttools - INSTALL.html</title>
     <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" href="/css/site.css">
 </head>
@@ -11,308 +11,171 @@
 </header>
 <nav>
 <ul>
-<li>
-<a href="/">Home</a>
-</li>
-<li>
-<a href="./">README</a>
-</li>
-<li>
-<a href="license.html">LICENSE</a>
-</li>
-<li>
-<a href="install.html">INSTALL</a>
-</li>
-<li>
-<a href="docs/">Documentation</a>
-</li>
-<li>
-<a
-href="https://github.com/caltechlibrary/eprinttools">Github</a>
-</li>
-<li>
-<a
-href="https://github.com/caltechlibrary/eprinttools/releases/latest">Releases</a>
-</li>
+    <li><a href="/">Home</a></li>
+    <li><a href="README.html">README</a></li>
+    <li><a href="LICENSE">LICENSE</a></li>
+    <li><a href="install.html">INSTALL</a></li>
+    <li><a href="user-manual.html">User Manual</a></li>
+    <li><a href="about.html">About</a></li>
+    <li><a href="https://github.com/caltechlibrary/eprinttools">GitHub</a></li>
 </ul>
 </nav>
 
 <section>
-<h1 id="installation">
-Installation
-</h1>
-<p>
-<em>eputil</em>, <em>epfmt</em>, <em>doi2eprintxml</em> are command line
-programs run from a shell like Bash. <em>ep2apid</em> is a web service
-that can also be run from the command line or setup as a “daemon” and
-run from systemd. They allow you to harvest, work with EPrint repository
-content, and import content from CrossRef and DataCite.
-</p>
-<p>
-Below are generalized instructions for installation of a release.
-</p>
-<h2 id="compiled-version">
-Compiled version
-</h2>
-<p>
-Compiled versions are available for Mac OS X (amd64 and M1 processor,
+<h1 id="installation">Installation</h1>
+<p><em>eputil</em>, <em>epfmt</em>, <em>doi2eprintxml</em> are command
+line programs run from a shell like Bash. <em>ep2apid</em> is a web
+service that can also be run from the command line or setup as a
+“daemon” and run from systemd. They allow you to harvest, work with
+EPrint repository content, and import content from CrossRef and
+DataCite.</p>
+<p>Below are generalized instructions for installation of a release.</p>
+<h2 id="compiled-version">Compiled version</h2>
+<p>Compiled versions are available for Mac OS X (amd64 and M1 processor,
 macos-amd64, macos-arm64), Linux (amd64 process, linux-amd64), Windows
 (amd64 and arm64 processor, windows-amd64 and windows-arm64) and
-Rapsberry Pi (arm7 processor, raspbian-arm7)
-</p>
-<p>
-VERSION_NUMBER is a <a href="http://semver.org/">symantic version
-number</a> (e.g. <code>v1.0.3</code>)
-</p>
-<p>
-For all the released version go to the project page on Github and click
-latest release
-</p>
+Rapsberry Pi (arm7 processor, raspbian-arm7)</p>
+<p>VERSION_NUMBER is a <a href="http://semver.org/">symantic version
+number</a> (e.g. <code>v1.0.3</code>)</p>
+<p>For all the released version go to the project page on Github and
+click latest release</p>
 <blockquote>
-<p>
-<a
+<p><a
 href="https://github.com/caltechlibrary/eprinttools/releases/latest"
-class="uri">https://github.com/caltechlibrary/eprinttools/releases/latest</a>
-</p>
+class="uri">https://github.com/caltechlibrary/eprinttools/releases/latest</a></p>
 </blockquote>
 <table>
 <thead>
 <tr class="header">
-<th>
-Platform
-</th>
-<th>
-Zip Filename
-</th>
+<th>Platform</th>
+<th>Zip Filename</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td>
-Windows
-</td>
-<td>
-eprinttools-VERSION_NUMBER-windows-amd64.zip
-</td>
+<td>Windows</td>
+<td>eprinttools-VERSION_NUMBER-windows-amd64.zip</td>
 </tr>
 <tr class="even">
-<td>
-Windows
-</td>
-<td>
-eprinttools-VERSION_NUMBER-windows-arm64.zip
-</td>
+<td>Windows</td>
+<td>eprinttools-VERSION_NUMBER-windows-arm64.zip</td>
 </tr>
 <tr class="odd">
-<td>
-macOS
-</td>
-<td>
-eprinttools-VERSION_NUMBER-macos-amd64.zip
-</td>
+<td>macOS</td>
+<td>eprinttools-VERSION_NUMBER-macos-amd64.zip</td>
 </tr>
 <tr class="even">
-<td>
-macOS
-</td>
-<td>
-eprinttools-VERSION_NUMBER-macos-arm64.zip
-</td>
+<td>macOS</td>
+<td>eprinttools-VERSION_NUMBER-macos-arm64.zip</td>
 </tr>
 <tr class="odd">
-<td>
-Linux/Intel
-</td>
-<td>
-eprinttools-VERSION_NUMBER-linux-amd64.zip
-</td>
+<td>Linux/Intel</td>
+<td>eprinttools-VERSION_NUMBER-linux-amd64.zip</td>
 </tr>
 <tr class="even">
-<td>
-Raspbery Pi
-</td>
-<td>
-eprinttools-VERSION_NUMBER-raspbian-os-arm7.zip
-</td>
+<td>Raspbery Pi</td>
+<td>eprinttools-VERSION_NUMBER-raspbian-os-arm7.zip</td>
 </tr>
 </tbody>
 </table>
-<h2 id="the-basic-recipe">
-The basic recipe
-</h2>
+<h2 id="the-basic-recipe">The basic recipe</h2>
 <ul>
-<li>
-Find the Zip file listed matching the architecture you’re running and
-download it - (e.g. if you’re on a Windows 10 laptop/Surface with a
+<li>Find the Zip file listed matching the architecture you’re running
+and download it - (e.g. if you’re on a Windows 10 laptop/Surface with a
 amd64 style CPU you’d choose the Zip file with “windows-amd64” in the
-name).
-</li>
-<li>
-Download the zip file and unzip the file.
-</li>
-<li>
-Copy the contents of the folder named “bin” to a folder that is in your
-path - (e.g. “$HOME/bin” is common).
-</li>
-<li>
-Adjust your PATH if needed - (e.g. <code>export
-PATH=“$HOME/bin:$PATH”</code>)
-</li>
-<li>
-Test
-</li>
+name).</li>
+<li>Download the zip file and unzip the file.</li>
+<li>Copy the contents of the folder named “bin” to a folder that is in
+your path - (e.g. “$HOME/bin” is common).</li>
+<li>Adjust your PATH if needed -
+(e.g. <code>export PATH="\$HOME/bin:\$PATH"</code>)</li>
+<li>Test</li>
 </ul>
-<h3 id="mac-os-x">
-Mac OS X
-</h3>
+<h3 id="mac-os-x">Mac OS X</h3>
 <ol type="1">
-<li>
-Download the zip file
-</li>
-<li>
-Unzip the zip file
-</li>
-<li>
-Copy the executables to $HOME/bin (or a folder in your path)
-</li>
-<li>
-Make sure the new location in in our path
-</li>
-<li>
-Test
-</li>
+<li>Download the zip file</li>
+<li>Unzip the zip file</li>
+<li>Copy the executables to $HOME/bin (or a folder in your path)</li>
+<li>Make sure the new location in in our path</li>
+<li>Test</li>
 </ol>
-<p>
-Here’s an example of the commands run in the Terminal App after
-downloading the zip file.
-</p>
-<h4 id="intel-hardware">
-Intel Hardware
-</h4>
+<p>Here’s an example of the commands run in the Terminal App after
+downloading the zip file.</p>
+<h4 id="intel-hardware">Intel Hardware</h4>
 <pre class="shell"><code>    cd Downloads/
     unzip eprinttools-*-macos-amd64.zip
     mkdir -p $HOME/bin
     cp -v bin/* $HOME/bin/
     export PATH=$HOME/bin:$PATH
     eputil -version</code></pre>
-<h4 id="m1-arm64-hardware">
-M1 (ARM64) Hardware
-</h4>
+<h4 id="m1-arm64-hardware">M1 (ARM64) Hardware</h4>
 <pre class="shell"><code>    cd Downloads/
     unzip eprinttools-*-macos-arm64.zip
     mkdir -p $HOME/bin
     cp -v bin/* $HOME/bin/
     export PATH=$HOME/bin:$PATH
     eputil -version</code></pre>
-<h3 id="windows">
-Windows
-</h3>
+<h3 id="windows">Windows</h3>
 <ol type="1">
-<li>
-Download the zip file
-</li>
-<li>
-Unzip the zip file
-</li>
-<li>
-Copy the executables to $HOME/bin (or a folder in your path)
-</li>
-<li>
-Test
-</li>
+<li>Download the zip file</li>
+<li>Unzip the zip file</li>
+<li>Copy the executables to $HOME/bin (or a folder in your path)</li>
+<li>Test</li>
 </ol>
-<p>
-Here’s an example of the commands run in from the Bash shell on Windows
-10 after downloading the zip file.
-</p>
-<h4 id="intel-amd64-hardware">
-Intel (amd64) Hardware
-</h4>
+<p>Here’s an example of the commands run in from the Bash shell on
+Windows 10 after downloading the zip file.</p>
+<h4 id="intel-amd64-hardware">Intel (amd64) Hardware</h4>
 <pre class="shell"><code>    cd Downloads/
     unzip eprinttools-*-windows-amd64.zip
     mkdir -p $HOME/bin
     cp -v bin/* $HOME/bin/
     export PATH=$HOME/bin:$PATH
     eputil -version</code></pre>
-<h4 id="arm64-hardware">
-ARM64 Hardware
-</h4>
+<h4 id="arm64-hardware">ARM64 Hardware</h4>
 <pre class="shell"><code>    cd Downloads/
     unzip eprinttools-*-windows-arm64.zip
     mkdir -p $HOME/bin
     cp -v bin/* $HOME/bin/
     export PATH=$HOME/bin:$PATH
     eputil -version</code></pre>
-<h3 id="linux">
-Linux
-</h3>
+<h3 id="linux">Linux</h3>
 <ol type="1">
-<li>
-Download the zip file
-</li>
-<li>
-Unzip the zip file
-</li>
-<li>
-Copy the executables to $HOME/bin (or a folder in your path)
-</li>
-<li>
-Test
-</li>
+<li>Download the zip file</li>
+<li>Unzip the zip file</li>
+<li>Copy the executables to $HOME/bin (or a folder in your path)</li>
+<li>Test</li>
 </ol>
-<p>
-Here’s an example of the commands run in from the Bash shell after
-downloading the zip file.
-</p>
+<p>Here’s an example of the commands run in from the Bash shell after
+downloading the zip file.</p>
 <pre class="shell"><code>    cd Downloads/
     unzip eprinttools-*-linux-amd64.zip
     mkdir -p $HOME/bin
     cp -v bin/* $HOME/bin/
     export PATH=$HOME/bin:$PATH
     eputil -version</code></pre>
-<h3 id="raspberry-pi">
-Raspberry Pi
-</h3>
-<p>
-Released version is for a Raspberry Pi 2 or later use (i.e. requires ARM
-7 support).
-</p>
+<h3 id="raspberry-pi">Raspberry Pi</h3>
+<p>Released version is for a Raspberry Pi 2 or later use (i.e. requires
+ARM 7 support).</p>
 <ol type="1">
-<li>
-Download the zip file
-</li>
-<li>
-Unzip the zip file
-</li>
-<li>
-Copy the executables to $HOME/bin (or a folder in your path)
-</li>
-<li>
-Test
-</li>
+<li>Download the zip file</li>
+<li>Unzip the zip file</li>
+<li>Copy the executables to $HOME/bin (or a folder in your path)</li>
+<li>Test</li>
 </ol>
-<p>
-Here’s an example of the commands run in from the Bash shell after
-downloading the zip file.
-</p>
+<p>Here’s an example of the commands run in from the Bash shell after
+downloading the zip file.</p>
 <pre class="shell"><code>    cd Downloads/
     unzip eprinttools-*-raspbian-arm7.zip
     mkdir -p $HOME/bin
     cp -v bin/* $HOME/bin/
     export PATH=$HOME/bin:$PATH
     eputil -version</code></pre>
-<h2 id="compiling-from-source">
-Compiling from source
-</h2>
-<p>
-<em>eprinttools</em> is “go gettable”. Use the “go get” command to
+<h2 id="compiling-from-source">Compiling from source</h2>
+<p><em>eprinttools</em> is “go gettable”. Use the “go get” command to
 download the dependant packages as well as <em>eprinttools</em>’s source
-code.
-</p>
+code.</p>
 <pre class="shell"><code>    go get -u github.com/caltechlibrary/eprinttools/...</code></pre>
-<p>
-Or clone the repstory and then compile
-</p>
+<p>Or clone the repstory and then compile</p>
 <pre class="shell"><code>    cd
     git clone https://github.com/caltechlibrary/eprinttools \
         src/github.com/caltechlibrary/eprinttools

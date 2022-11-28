@@ -32,26 +32,34 @@ import (
 )
 
 var (
-	description = `
-USAGE
+	description = `%% {app_name}(1) user manual
+%% R. S. Doiel
+%% 2022-11-28
 
-	{app_name} [OPTION] JSON_SETTINGS_FILENAME \
-	           [START_TIMESTAMP] [END_TIMESTAMP]
+# NAME
 
-{app_name} is a command line program for metadata harvester
-for EPrints repositories.
+{app_name}
 
-DESCRIPTION
+# SYNOPSIS
+
+{app_name} [OPTION] JSON_SETTINGS_FILENAME \
+          [START_TIMESTAMP] [END_TIMESTAMP]
+
+# DESCRIPTION
+
+{app_name} is a command line program for metadata harvesting
+of EPrints repositories.
 
 {app_name} takes a JSON settings file and harvests
 all the EPrint repositories defined in the settings file
 into a JSON store implemented in MySQL 8. One repository per
 MySQL 8 table.
 
-Each MySQL 8 table has two columns id, src (holding the JSON
-document as a JSON column).
+Each MySQL 8 table has several columns id, src (holding the JSON
+document as a JSON column) and an updated (holding the timestamp
+of when the metadata was harvested).
 
-CONFIGURING YOUR JSON STORE
+## CONFIGURING YOUR JSON STORE
 
 {app_name} uses a MySQL 8 database for a JSON document store.
 It will generate one table for EPrint repository. You can
@@ -60,17 +68,22 @@ tables from your settings JSON file using the "-sql-schema"
 option. Using the option will require a JSON settings filename
 parameter. E.g.
 
+~~~
     {app_name} -sql-schema settings.json
+~~~
 
-OPTIONS
+# OPTIONS
+
 `
 
 	examples = `
-EXAMPLES
+# EXAMPLES
 
 Harvesting repositories for week month of May, 2022.
 
+~~~
     {app_name} settings.json "2022-05-01 00:00:00" "2022-05-31 59:59:59"
+~~~
 
 `
 

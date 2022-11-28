@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>${title}</title>
+    <title>eprinttools - RELEASE-NOTES.html</title>
     <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" href="/css/site.css">
 </head>
@@ -22,7 +22,47 @@
 </nav>
 
 <section>
-${body}
+<h1 id="release-notes">Release Notes</h1>
+<h2 id="release-notes-v0.1.7">Release Notes v0.1.7</h2>
+<ul>
+<li>Improved Aggregators, released via PyPI</li>
+<li>Currently not harvesting digital documents in dataset
+collection</li>
+</ul>
+<h2 id="release-notes-v0.1.4">Release Notes v0.1.4</h2>
+<ul>
+<li>Started eprinttools transition to Python</li>
+<li>Added eprints3x Python module</li>
+<li>Added eprintviews Python module</li>
+<li>Added example programs for replicating EPrints public views as
+static website
+<ul>
+<li>harvester_full.py, harvester_recent.py</li>
+<li>genviews.py</li>
+<li>indexer.py</li>
+<li>mk_website.py</li>
+<li>publisher.py</li>
+<li>invalidate_cloudfront.py</li>
+</ul></li>
+</ul>
+<h2 id="release-notes-v0.1.1">Release Notes v0.1.1</h2>
+<ul>
+<li>Improve detection of primary object</li>
+<li>Added ability to retrieve document if given full URL</li>
+</ul>
+<h2 id="release-notes-v0.1.0">Release Notes v0.1.0</h2>
+<ul>
+<li>Dropped Go lang support for dataset integration
+<ul>
+<li>Removed <code>ep</code> command line tool</li>
+<li>Removed github.com/caltechlibrary/eprinttools/harvest</li>
+<li>Removed dependency and directory support for dataset
+collections</li>
+</ul></li>
+<li>Copied github.com/caltechlibrary/rc into this repository</li>
+<li>Added eprints3x object and harvester.py replacing <code>ep</code>
+tool</li>
+</ul>
 </section>
 
 <footer>

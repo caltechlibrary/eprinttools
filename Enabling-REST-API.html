@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>eprinttools - Enabling-REST-API.html</title>
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="/css/site.css">
+</head>
+<body>
+<header>
+<a href="http://library.caltech.edu" title="link to Caltech Library Homepage"><img src="/assets/liblogo.gif" alt="Caltech Library logo"></a>
+</header>
+<nav>
+<ul>
+    <li><a href="/">Home</a></li>
+    <li><a href="README.html">README</a></li>
+    <li><a href="LICENSE">LICENSE</a></li>
+    <li><a href="install.html">INSTALL</a></li>
+    <li><a href="user-manual.html">User Manual</a></li>
+    <li><a href="about.html">About</a></li>
+    <li><a href="https://github.com/caltechlibrary/eprinttools">GitHub</a></li>
+</ul>
+</nav>
+
+<section>
+<h1 id="enabling-rest-api-for-eprints">Enabling REST API for
+EPrints</h1>
+<p>These are just my quick notes for enabling the REST API for
+EPrints.</p>
+<p>The REST API doesn’t “automatically” become enabled even for Admin
+role users. You can alter this behavior by updating the roles in
+“archives/REPOSITORY_NAME/cfg/cfg.d/user_roles.pl” (where
+REPOSITORY_NAME is the name of the respository you setup with
+<em>epadmin creeate</em>) in your eprints directory.</p>
+<p>Below is I added “rest” role to the admin role.</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode perl"><code class="sourceCode perl"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>    <span class="dt">$c</span>-&gt;{user_roles}-&gt;{admin} = [<span class="ot">qw{</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>        rest</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>        general</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>        edit-own-record</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>        saved-searches</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>        set-password</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>        deposit</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>        change-email</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>        editor</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>        view-status</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>        staff-view</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>        admin</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>        edit-config</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    <span class="ot">}</span>];</span></code></pre></div>
+<h2 id="eputil">eputil</h2>
+<p><strong>eputil</strong> supports POST and PUT into EPrint’s REST API.
+Content sent by the POST or PUT is assumed to be encoded before it is
+read from a file or standard input. In the example below the base we are
+“putting” the value (TRUE) into the lemurprints.local/authors EPrint
+collection for record 1’s referreed field.</p>
+<pre class="shell"><code>    echo -n &quot;TRUE&quot; | eputil -u &quot;$EP_USER&quot; -p &quot;$EP_PASSWORD&quot; \
+        -put http://lemurprints.local/authors/rest/eprint/1/refereed.txt</code></pre>
+<h2 id="reference-links">Reference links</h2>
+<ul>
+<li><p><a
+href="http://wiki.eprints.org/w/New_Features_in_EPrints_3.2">REST API
+Feature Announcement</a></p></li>
+<li><p><a href="https://wiki.eprints.org/w/EPScript">EPrints XML
+Configuration</a> - need to enable REST API access based on
+role</p></li>
+<li><p><a
+href="http://wiki.eprints.org/w/API:EPrints/Apache/CRUD">API:EPrints/Apache/CRUD</a></p></li>
+<li><p><a
+href="https://wiki.eprints.org/w/User_roles.pl">user_roles.pl</a></p></li>
+<li><p>EPrints Tech list archives mention REST API</p>
+<ul>
+<li><a
+href="http://mailman.ecs.soton.ac.uk/pipermail/eprints-tech/2012-October/001176.html">2012
+October</a> - first mention in the archives (Re: AJAX end point)</li>
+<li><a
+href="http://mailman.ecs.soton.ac.uk/pipermail/eprints-tech/2013-April/001809.html">2013
+April</a> - another mention “Edit, Update and delter report from third
+party tool”</li>
+<li><a
+href="http://mailman.ecs.soton.ac.uk/pipermail/eprints-tech/2013-January/">2013
+January</a>
+<ul>
+<li><a
+href="http://mailman.ecs.soton.ac.uk/pipermail/eprints-tech/2013-January/001462.html">EPrints
+REST API documentation</a> – problem of setup</li>
+<li><a
+href="http://mailman.ecs.soton.ac.uk/pipermail/eprints-tech/2013-January/001465.html">Re:
+EPrints REST API documentation</a> – first helpful response indicating
+roles need to be enabled</li>
+</ul></li>
+<li><a
+href="http://mailman.ecs.soton.ac.uk/pipermail/eprints-tech/2017-March/">2017
+March</a>
+<ul>
+<li><a
+href="http://mailman.ecs.soton.ac.uk/pipermail/eprints-tech/2017-March/006346.html">Question
+about REST API, review items under EPrints 3.3</a> - Caltech Libray
+EPrints question</li>
+</ul></li>
+<li><a
+href="http://mailman.ecs.soton.ac.uk/pipermail/eprints-tech/2017-May/">2017
+May</a>
+<ul>
+<li><a
+href="http://mailman.ecs.soton.ac.uk/pipermail/eprints-tech/2017-May/006516.html">Bulk
+updating questions</a></li>
+</ul></li>
+</ul></li>
+</ul>
+</section>
+
+<footer>
+<span>&copy; 2021 <a href="https://www.library.caltech.edu/copyright">Caltech Library</a></span>
+<address>1200 E California Blvd, Mail Code 1-32, Pasadena, CA 91125-3200</address>
+<span><a href="mailto:library@caltech.edu">Email Us</a></span> 
+<span>Phone: <a href="tel:+1-626-395-3405">(626)395-3405</a></span>
+</footer>
+<!-- START: PrettyFi from https://github.com/google/code-prettify -->
+<script>
+/* We want to add the class "prettyprint" to all the pre elements */
+var pre_list = document.querySelectorAll("pre");
+
+pre_list.forEach(function(elem) {
+    elem.classList.add("prettyprint");
+    elem.classList.add("linenums");/**/
+    elem.classList.add("json"); /**/
+});
+</script>
+<style>
+li.L0, li.L1, li.L2, li.L3, li.L4, li.L5, li.L6, li.L7, li.L8, li.L9
+{
+    color: #555;
+    list-style-type: decimal;
+}
+</style>
+<link rel="stylesheet" type="text/css" href="/css/prettify.css">
+<script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_
+prettify.js"></script>
+<!--  END: PrettyFi from https://github.com/google/code-prettify -->
+</body>
+</html>
