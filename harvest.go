@@ -1,5 +1,11 @@
 package eprinttools
 
+//
+// This package implements an EPrints 3.x harvester storing
+// Each harvested EPrints repository's JSON metadata in a 
+// MySQL 8 table using JSON column type.
+//
+
 import (
 	"encoding/json"
 	"fmt"

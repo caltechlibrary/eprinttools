@@ -7,7 +7,7 @@ MD_PAGES = $(shell ls -1 *.md)
 
 HTML_PAGES = $(shell ls -1 *.md | sed -E 's/.md/.html/g')
 
-build: $(HTML_PAGES) $(MD_PAGES)
+build: $(HTML_PAGES) $(MD_PAGES) pagefind
 
 $(HTML_PAGES): $(MD_PAGES) .FORCE
 	pandoc -s --to html5 $(basename $@).md -o $(basename $@).html \
@@ -15,6 +15,10 @@ $(HTML_PAGES): $(MD_PAGES) .FORCE
 	    --lua-filter=links-to-html.lua \
 	    --template=page.tmpl
 	git add $(basename $@).html
+
+pagefind: .FORCE
+	pagefind --verbose --exclude-selectors="nav,header,footer" --bundle-dir ./pagefind --source .
+	git add pagefind
 
 clean:
 	@if [ -f index.html ]; then rm *.html; fi
