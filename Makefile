@@ -11,7 +11,7 @@ PROGRAMS = $(shell ls -1 cmd)
 
 PACKAGE = $(shell ls -1 *.go */*.go)
 
-CODEMETA2CFF = $(shell which codemeta2cff)
+PANDOC = $(shell which pandoc)
 
 OS = $(shell uname)
 
@@ -46,14 +46,17 @@ version.go: .FORCE
 	@echo '`' >>version.go
 	@echo ')' >>version.go
 	@echo '' >>version.go
-	@if [ -f bin/codemeta ]; then ./bin/codemeta; fi
-	-$(CODEMETA2CFF)
 	-git add version.go
-
+	@if [ -f bin/codemeta ]; then ./bin/codemeta; fi
 
 $(PROGRAMS): $(PACKAGE)
 	@mkdir -p bin
 	go build -o bin/$@$(EXT) cmd/$@/$@.go
+
+CITATION.cff: .FORCE
+	cat codemeta.json | sed -E   's/"@context"/"at__context"/g;s/"@type"/"at__type"/g;s/"@id"/"at__id"/g' >_codemeta.json
+	if [ -f $(PANDOC) ]; then echo "" | $(PANDOC) --metadata title="Cite $(PROJECT)" --metadata-file=_codemeta.json --template=codemeta-cff.tmpl >CITATION.cff; fi
+	if [ -f _codemeta.json ]; then rm _codemeta.json; fi
 
 
 # NOTE: macOS requires a "mv" command for placing binaries instead of "cp" due to signing process of compile
@@ -69,7 +72,12 @@ uninstall: .FORCE
 	@for FNAME in $(PROGRAMS); do if [ -f $(PREFIX)/bin/$$FNAME ]; then rm -v $(PREFIX)/bin/$$FNAME; fi; done
 
 
-website: version.go page.tmpl README.md nav.md INSTALL.md LICENSE css/site.css docs/index.md docs/eputil.md
+about.md: .FORCE
+	cat codemeta.json | sed -E 's/"@context"/"at__context"/g;s/"@type"/"at__type"/g;s/"@id"/"at__id"/g' >_codemeta.json
+	if [ -f $(PANDOC) ]; then echo "" | pandoc --metadata title="About $(PROJECT)" --metadata-file=_codemeta.json --template codemeta-md.tmpl >about.md; fi
+	if [ -f _codemeta.json ]; then rm _codemeta.json; fi
+
+website: about.md page.tmpl README.md nav.md INSTALL.md LICENSE css/site.css docs/index.md docs/eputil.md
 	./mk-website.bash
 
 
@@ -131,7 +139,7 @@ distribute_docs:
 	cp -v INSTALL.md dist/
 	cp -vR docs dist/
 
-release: build distribute_docs dist/linux-amd64 dist/windows-amd64 dist/windows-arm64 dist/macos-amd64 dist/macos-arm64 dist/raspbian-arm7
+release: build CITATION.cff distribute_docs dist/linux-amd64 dist/windows-amd64 dist/windows-arm64 dist/macos-amd64 dist/macos-arm64 dist/raspbian-arm7
 
 status:
 	git status

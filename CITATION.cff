@@ -1,20 +1,15 @@
 cff-version: 1.2.0
 message: "If you use this software, please cite it as below."
-title: eprinttools
+type: software
+title: "eprinttools"
+abstract: "Command line tools, Golang package and Python module for
+working with the EPrints 3.x REST API"
 authors:
   - family-names: Doiel
     given-names: R. S.
-    orcid: https://orcid.org/0000-0003-0900-6903
-abstract: Command line tools, Golang package and Python module for working with the EPrints 3.x REST API
+    orcid: "https://orcid.org/0000-0003-0900-6903"
+
 repository-code: "https://github.com/caltechlibrary/eprinttools"
-type: software
-version: 1.2.0
+version: 1.2.1
 license-url: "https://caltechlibrary.github.io/eprinttools/license.html"
-keywords:
-  - metadata
-  - repository
-  - EPrints
-  - CrossRef
-  - DataCite
-  - software
-date-released: 2022-11-08
+keywords: [ "metadata", "repository", "EPrints", "CrossRef", "DataCite", "software" ]
