@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"encoding/json"
 )
 
 // Config holds a configuration file structure used by EPrints Extended API
@@ -88,6 +89,27 @@ type DataSource struct {
 	// TableMap holds the mapping of tables and columns for
 	// the repository presented.
 	TableMap map[string][]string `json:"tables,omitempty"`
+}
+
+func DefaultConfig() []byte {
+	config := new(Config)
+	config.Hostname = "localhost:8484"
+	config.BaseURL = "http//localhost:8484"
+	config.JSONStore = "USERNAME:PASSWORD@/collections"
+	repo := new(DataSource)
+	repo.DSN = `USERNAME:PASSWORD@/authors`
+	repo.BaseURL = `http://authors.example.edu`
+	repo.Write = false
+	repo.DefaultCollection = `authors`
+	repo.DefaultRights = "No commercial reproduction, distribution, display or performance rights in this work are provided."
+	repo.DefaultRefereed = "TRUE"
+	repo.DefaultStatus = "inbox"
+	repo.StripTags = true
+	config.Repositories = map[string]*DataSource{
+		"authors": repo,
+	}
+	src, _ := json.MarshalIndent(config, "", "     ")
+	return src
 }
 
 // LoadConfig reads a JSON file and returns a Config structure

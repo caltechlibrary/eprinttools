@@ -264,7 +264,7 @@ type EPrint struct {
 	EditLockUntil int `xml:"-" json:"-"`
 
 	// Fields identified through harvesting.
-	//ReferenceTextString string `xml:referencetext,omitempty" json:"referencetext,omitempty"`
+	ReferenceTextString string `xml:referencetext,omitempty" json:"referencetext,omitempty"`
 	Language string `xml:"language,omitempty" json:"language,omitempty"`
 
 	// Synthetic fields are created to help in eventual migration of
@@ -2195,4 +2195,12 @@ func GenerateOfficialURL(eprint *EPrint) string {
 		eprint.IDNumber = idNumber
 	}
 	return fmt.Sprintf(`%s/%s`, DefaultOfficialURL, idNumber)
+}
+
+// IsPublic takes an EPrint data strucure and returns true if 
+// the record is public, false otherwise
+//
+// Check if an EPrint record "is public"
+func (eprint *EPrint) IsPublic() bool {
+	return (eprint.EPrintStatus == "archive") && (eprint.MetadataVisibility == "show")
 }

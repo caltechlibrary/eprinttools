@@ -43,7 +43,7 @@ var (
 # SYNOPSIS
 
 {app_name} [OPTION] JSON_SETTINGS_FILENAME \
-          [START_TIMESTAMP] [END_TIMESTAMP]
+           [START_TIMESTAMP] [END_TIMESTAMP]
 
 # DESCRIPTION
 
@@ -61,6 +61,11 @@ of when the metadata was harvested).
 
 ## CONFIGURING YOUR JSON STORE
 
+{app_name} can generate an example settings JSON document. You
+can then edit it with any plain text editor (e.g. nano). Then
+you'll need to setup a MySQL 8 database and tables to store
+havested data in.
+
 {app_name} uses a MySQL 8 database for a JSON document store.
 It will generate one table for EPrint repository. You can
 generate a SQL program for creating the MySQL database and
@@ -69,7 +74,9 @@ option. Using the option will require a JSON settings filename
 parameter. E.g.
 
 ~~~
-    {app_name} -sql-schema settings.json
+    {app_name} -init harvester-settings.json
+    nano harvester-settings.json
+    {app_name} -sql-schema harvester-settings.json >collections.sql
 ~~~
 
 # OPTIONS
@@ -82,7 +89,8 @@ parameter. E.g.
 Harvesting repositories for week month of May, 2022.
 
 ~~~
-    {app_name} settings.json "2022-05-01 00:00:00" "2022-05-31 59:59:59"
+    {app_name} harvester-settings.json \
+        "2022-05-01 00:00:00" "2022-05-31 59:59:59"
 ~~~
 
 `
@@ -94,6 +102,8 @@ Harvesting repositories for week month of May, 2022.
 
 	// App Option
 	showSqlSchema bool
+	initialize bool
+	verbose bool
 )
 
 func main() {
@@ -106,6 +116,8 @@ func main() {
 	flagSet.BoolVar(&showLicense, "license", false, "display license")
 	flagSet.BoolVar(&showVersion, "version", false, "display version")
 	flagSet.BoolVar(&showSqlSchema, "sql-schema", false, "display SQL schema for installing MySQL jsonstore DB")
+	flagSet.BoolVar(&verbose, "verbose", false, "use verbose logging")
+	flagSet.BoolVar(&initialize, "init", false, "generate a settings JSON file")
 
 	// We're ready to process args
 	flagSet.Parse(os.Args[1:])
@@ -127,6 +139,7 @@ func main() {
 		os.Exit(0)
 	}
 	settings, start, end := "", "", ""
+
 	if len(args) > 0 {
 		settings = args[0]
 	}
@@ -135,6 +148,21 @@ func main() {
 	}
 	if len(args) > 2 {
 		end = args[2]
+	}
+
+	if initialize {
+		out := os.Stdout
+		if settings != "" {
+			var err error
+			out, err = os.Create(settings)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "%s\n", err)
+				os.Exit(1)
+			}
+			defer out.Close()
+		}
+		fmt.Fprintf(out, "%s\n", eprinttools.DefaultConfig())
+		os.Exit(0)
 	}
 
 	// Handle request to show schema.
@@ -151,7 +179,7 @@ func main() {
 		fmt.Print(src)
 		os.Exit(0)
 	}
-	err := eprinttools.RunHarvester(settings, start, end)
+	err := eprinttools.RunHarvester(settings, start, end, verbose)
 	if err != nil {
 		log.Print(err)
 		os.Exit(1)

@@ -50,11 +50,10 @@ func DisplayUsage(out io.Writer, appName string, flagSet *flag.FlagSet, descript
 	}
 	flagSet.SetOutput(out)
 	flagSet.PrintDefaults()
-
 	if examples != "" {
 		fmt.Fprintf(out, strings.ReplaceAll(examples, "{app_name}", appName))
 	}
-	DisplayLicense(out, appName)
+	//DisplayLicense(out, appName)
 }
 
 func RunEPrintsRESTClient(out io.Writer, getURL string, auth string, username string, secret string, options map[string]bool) int {

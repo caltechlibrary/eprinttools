@@ -55,10 +55,13 @@ USE %s;
 CREATE TABLE IF NOT EXISTS %s (
   id INTEGER NOT NULL PRIMARY KEY,
   src JSON,
-  created DATETIME DEFAULT CURRENT_TIMESTAMP,
   updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   action VARCHAR(255) DEFAULT "",
+  created VARCHAR(255) DEFAULT "",
   lastmod VARCHAR(255) DEFAULT "",
+  pubdate VARCHAR(255) DEFAULT "",
+  is_public BOOLEAN DEFAULT FALSE,
+  record_type VARCHAR(255) DEFAULT "",
   status VARCHAR(255) DEFAULT ""
 );
 `
@@ -83,7 +86,7 @@ CREATE TABLE IF NOT EXISTS %s (
 // RunHarvester will use the config file names by cfgName and
 // the start and end time strings if set to retrieve all eprint
 // records created or modified during that time sequence.
-func RunHarvester(cfgName string, start string, end string) error {
+func RunHarvester(cfgName string, start string, end string, verbose bool) error {
 	now := time.Now()
 	// Read in the configuration for this harvester instance.
 	cfg, err := LoadConfig(cfgName)
@@ -101,11 +104,11 @@ func RunHarvester(cfgName string, start string, end string) error {
 		// Pick the current date time when harvest is starting
 		end = now.Format(mysqlTimeFmt)
 	}
-	return harvest(cfg, start, end)
+	return harvest(cfg, start, end, verbose)
 }
 
 // harvest implements an harvest instance.
-func harvest(cfg *Config, start string, end string) error {
+func harvest(cfg *Config, start string, end string, verbose bool) error {
 	if err := OpenConnections(cfg); err != nil {
 		return err
 	}
@@ -117,7 +120,7 @@ func harvest(cfg *Config, start string, end string) error {
 	for _, repoName := range repoNames {
 		//FIXME: we could use a go routine to support concurrent harvests.
 		log.Printf("harvesting %s started", repoName)
-		if err := harvestRepository(cfg, repoName, start, end); err != nil {
+		if err := harvestRepository(cfg, repoName, start, end, verbose); err != nil {
 			log.Printf("harvesting %s aborted", repoName)
 			return err
 		}
@@ -146,22 +149,34 @@ func getSortedUniqueIDs(ids []int) []int {
 // a repository name (i.e. eprint database name) along with a start and
 // end timestamp. It harvests records created/modified from the repository
 // in time range.
-func harvestRepository(cfg *Config, repoName string, start string, end string) error {
+func harvestRepository(cfg *Config, repoName string, start string, end string, verbose bool) error {
 	createdIDs, err := GetEPrintIDsInTimestampRange(cfg, repoName, "datestamp", start, end)
 	if err != nil {
 		return err
+	}
+	if verbose {
+		log.Printf("Retrieved %d keys based on creation date", len(createdIDs))
 	}
 	modifiedIDs, err := GetEPrintIDsInTimestampRange(cfg, repoName, "lastmod", start, end)
 	if err != nil {
 		return err
 	}
+	if verbose {
+		log.Printf("Retrieved %d keys based on modified date", len(modifiedIDs))
+	}
 	ids := append(createdIDs, modifiedIDs...)
 	ids = getSortedUniqueIDs(ids)
+	if verbose {
+		log.Printf("Processing %d unique keys", len(ids))
+	}
 	for i, id := range ids {
 		// FIXME: do we want to show a progress bar or just errors?
 		err := harvestEPrintRecord(cfg, repoName, id)
 		if err != nil {
 			log.Printf("Harvesting EPrint %d (%d/%d) failed, %s", id, i, len(ids), err)
+		}
+		if verbose && ((i % 1000) == 0) {
+			log.Printf("Harvested EPrint %d (%d/%d)", id, i, len(ids))
 		}
 	}
 	return nil
@@ -186,6 +201,6 @@ func harvestEPrintRecord(cfg *Config, repoName string, eprintID int) error {
 	if eprint.EPrintStatus == "deletion" {
 		action = "deleted"
 	}
-	src, err := json.MarshalIndent(eprint, "", "    ")
-	return SaveJSONDocument(cfg, repoName, eprintID, src, action, eprint.LastModified, eprint.EPrintStatus)
+	src, _ := json.MarshalIndent(eprint, "", "    ")
+	return SaveJSONDocument(cfg, repoName, eprintID, src, action, eprint.Datestamp, eprint.LastModified, eprint.PubDate(), eprint.EPrintStatus, eprint.IsPublic(), eprint.Type)
 }

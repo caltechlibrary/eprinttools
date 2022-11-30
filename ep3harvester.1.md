@@ -9,7 +9,7 @@ ep3harvester
 # SYNOPSIS
 
 ep3harvester [OPTION] JSON_SETTINGS_FILENAME \
-          [START_TIMESTAMP] [END_TIMESTAMP]
+           [START_TIMESTAMP] [END_TIMESTAMP]
 
 # DESCRIPTION
 
@@ -27,6 +27,11 @@ of when the metadata was harvested).
 
 ## CONFIGURING YOUR JSON STORE
 
+ep3harvester can generate an example settings JSON document. You
+can then edit it with any plain text editor (e.g. nano). Then
+you'll need to setup a MySQL 8 database and tables to store
+havested data in.
+
 ep3harvester uses a MySQL 8 database for a JSON document store.
 It will generate one table for EPrint repository. You can
 generate a SQL program for creating the MySQL database and
@@ -35,28 +40,33 @@ option. Using the option will require a JSON settings filename
 parameter. E.g.
 
 ~~~
-    ep3harvester -sql-schema settings.json
+    ep3harvester -init harvester-settings.json
+    nano harvester-settings.json
+    ep3harvester -sql-schema harvester-settings.json >collections.sql
 ~~~
 
 # OPTIONS
 
--h, help
-: display help
-
--license
-: display license
-
--sql-schema
-: display SQL schema for installing MySQL jsonstore DB
-
--version
-: display version
+  -h	display help
+  -help
+    	display help
+  -init
+    	generate a settings JSON file
+  -license
+    	display license
+  -sql-schema
+    	display SQL schema for installing MySQL jsonstore DB
+  -verbose
+    	use verbose logging
+  -version
+    	display version
 
 # EXAMPLES
 
 Harvesting repositories for week month of May, 2022.
 
 ~~~
-    ep3harvester settings.json "2022-05-01 00:00:00" "2022-05-31 59:59:59"
+    ep3harvester harvester-settings.json \
+        "2022-05-01 00:00:00" "2022-05-31 59:59:59"
 ~~~
 

@@ -1134,9 +1134,11 @@ func eprintToColumnsAndValues(eprint *EPrint, columnsIn []string, ifNull bool) (
 		case "language":
 			values = append(values, &eprint.Language)
 			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
-		//case "referencetext":
-		//		values = append(values, &eprint.ReferenceTextString)
-		//		columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
+		case "referencetext":
+			if eprint.ReferenceTextString != "" {
+				values = append(values, &eprint.ReferenceTextString)
+		        columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
+			}
 		default:
 			// Handle case where we have value that is unmapped or not available in EPrint struct
 			log.Printf("could not map %q (col. %d, eprintid %d) into EPrint struct", key, i, eprint.EPrintID)
