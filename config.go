@@ -41,6 +41,13 @@ type Config struct {
 	// Jdb holds the MySQL connector to the jsonstore
 	Jdb *sql.DB `json:"-"`
 
+	// AggregationStore is the name of the MySQL 8 database in DSN
+	// format that holds he aggregations supported by ep3aggegrator.
+	AggregationStore string `json:"aggregation"`
+
+	// Adb holds the MySQL connector to the aggregation store.
+	Adb *sql.DB `json:"-"`
+
 	// Routes holds the mapping of end points to repository id
 	// instances.
 	Routes map[string]map[string]func(http.ResponseWriter, *http.Request, string, []string) (int, error) `json:"-"`
@@ -96,6 +103,7 @@ func DefaultConfig() []byte {
 	config.Hostname = "localhost:8484"
 	config.BaseURL = "http//localhost:8484"
 	config.JSONStore = "USERNAME:PASSWORD@/collections"
+	config.AggregationStore = "USERNAME:PASSWORD@/aggregations"
 	repo := new(DataSource)
 	repo.DSN = `USERNAME:PASSWORD@/authors`
 	repo.BaseURL = `http://authors.example.edu`
