@@ -13,6 +13,11 @@ import (
 )
 
 func TestTestAggregate(t *testing.T) {
+	// Generate a shrot list of "eprint" structures for testing aggregate function
+	// Setup a test configuration in testout for running aggregate test
+	// Open (with defered close) a test Aggregation instance
+	// Loop through test eprint records, check if row counts make sense in the aggregated data
+	// For each aggregated row check to make sure data makes sense
 	t.Errorf("TestAggregate() not implemented")
 }
 
