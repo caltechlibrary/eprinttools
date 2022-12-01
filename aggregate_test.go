@@ -12,6 +12,10 @@ import (
 	"testing"
 )
 
+func TestTestAggregate(t *testing.T) {
+	t.Errorf("TestAggregate() not implemented")
+}
+
 func TestAggregationByType(t *testing.T) {
 	t.Errorf("TestAggregationByPubDate not implemented")
 }

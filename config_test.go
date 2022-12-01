@@ -1,12 +1,16 @@
 package eprinttools
 
 import (
-	"testing"
-	"strings"
-	"os"
 	"fmt"
+	"os"
 	"path"
+	"strings"
+	"testing"
 )
+
+func TestDefaultConfig(t *testing.T) {
+	t.Errorf("TestDefaultConfig() not implemented")
+}
 
 func TestLoadConfig(t *testing.T) {
 	dbUser := os.Getenv("TEST_DB_USER")
@@ -67,10 +71,10 @@ func TestLoadConfig(t *testing.T) {
 	}
 	expected := fmt.Sprintf("%s:%q@/test_repositories", dbUser, dbPassword)
 	if expected != cfg.JSONStore {
-		t.Errorf("Expected %q, got %q", expected, cfg.JSONStore)	
+		t.Errorf("Expected %q, got %q", expected, cfg.JSONStore)
 	}
 	expected = fmt.Sprintf("%s:%s@/test_aggregations", dbUser, dbPassword)
 	if expected != cfg.AggregationStore {
-		t.Errorf("Expected %q, got %q", expected, cfg.JSONStore)	
+		t.Errorf("Expected %q, got %q", expected, cfg.JSONStore)
 	}
 }

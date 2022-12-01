@@ -5,6 +5,10 @@ import (
 	"testing"
 )
 
+func TestCrossRefWorksToEPrint(t *testing.T) {
+	t.Errorf("TestCrossRefWorksToEPrints() not implemented")
+}
+
 func TestIssue35(t *testing.T) {
 	doi := `10.1093/mnras/stab2505`
 	testFile := `srctest/issue-35.json`
