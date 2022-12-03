@@ -44,6 +44,10 @@ type Config struct {
 	// Routes holds the mapping of end points to repository id
 	// instances.
 	Routes map[string]map[string]func(http.ResponseWriter, *http.Request, string, []string) (int, error) `json:"-"`
+
+	// Htdocs is the directory where aggregated information and
+	// website content is generated to after running the harvester.
+	Htdocs string `json:"htdocs,omitempty"`
 }
 
 // DataSource can contain one or more types of datasources. E.g.
@@ -96,6 +100,7 @@ func DefaultConfig() []byte {
 	config.Hostname = "localhost:8484"
 	config.BaseURL = "http//localhost:8484"
 	config.JSONStore = "USERNAME:PASSWORD@/collections"
+	config.Htdocs = "htdocs"
 	repo := new(DataSource)
 	repo.DSN = `USERNAME:PASSWORD@/authors`
 	repo.BaseURL = `http://authors.example.edu`
@@ -129,6 +134,9 @@ func LoadConfig(fname string) (*Config, error) {
 		}
 		if config.BaseURL == "" {
 			config.BaseURL = fmt.Sprintf("http://%s", config.Hostname)
+		}
+		if config.Htdocs == "" {
+			config.Htdocs = "htdocs"
 		}
 	}
 	return config, nil
