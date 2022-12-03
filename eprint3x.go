@@ -265,7 +265,7 @@ type EPrint struct {
 
 	// Fields identified through harvesting.
 	ReferenceTextString string `xml:referencetext,omitempty" json:"referencetext,omitempty"`
-	Language string `xml:"language,omitempty" json:"language,omitempty"`
+	Language            string `xml:"language,omitempty" json:"language,omitempty"`
 
 	// Synthetic fields are created to help in eventual migration of
 	// EPrints field data to other JSON formats.
@@ -571,6 +571,19 @@ func (itemList *CreatorItemList) SetAttributeOf(i int, key string, value interfa
 	return false
 }
 
+// GetIDs for each item in the list return a slice of strings holding the ids.
+func (itemList *CreatorItemList) GetIDs() []string {
+	ids := []string{}
+	if itemList != nil && itemList.Items != nil {
+		for _, item := range itemList.Items {
+			if item.ID != "" {
+				ids = append(ids, item.ID)
+			}
+		}
+	}
+	return ids
+}
+
 // EditorItemList holds a list of editors
 type EditorItemList struct {
 	XMLName xml.Name `xml:"editors" json:"-"`
@@ -605,6 +618,19 @@ func (itemList *EditorItemList) SetAttributeOf(i int, key string, value interfac
 		return itemList.Items[i].SetAttribute(key, value)
 	}
 	return false
+}
+
+// GetIDs for each item in the list return a slice of strings holding the ids.
+func (itemList *EditorItemList) GetIDs() []string {
+	ids := []string{}
+	if itemList != nil && itemList.Items != nil {
+		for _, item := range itemList.Items {
+			if item.ID != "" {
+				ids = append(ids, item.ID)
+			}
+		}
+	}
+	return ids
 }
 
 // RelatedURLItemList holds the related URLs (e.g. doi, aux material doi)
@@ -813,6 +839,19 @@ func (itemList *LocalGroupItemList) SetAttributeOf(i int, key string, value inte
 	return false
 }
 
+// GetGroups returns a slice of string with local_group values
+func (itemList *LocalGroupItemList) GetGroups() []string {
+	groups := []string{}
+	if itemList != nil && itemList.Items != nil {
+		for _, group := range itemList.Items {
+			if group.Value != "" {
+				groups = append(groups, group.Value)
+			}
+		}
+	}
+	return groups
+}
+
 // OtherNumberingSystemItemList
 type OtherNumberingSystemItemList struct {
 	XMLName xml.Name `xml:"other_numbering_system" json:"-"`
@@ -883,6 +922,19 @@ func (itemList *ContributorItemList) SetAttributeOf(i int, key string, value int
 		return itemList.Items[i].SetAttribute(key, value)
 	}
 	return false
+}
+
+// GetIDs for each item in the list return a slice of strings holding the ids.
+func (itemList *ContributorItemList) GetIDs() []string {
+	ids := []string{}
+	if itemList != nil && itemList.Items != nil {
+		for _, item := range itemList.Items {
+			if item.ID != "" {
+				ids = append(ids, item.ID)
+			}
+		}
+	}
+	return ids
 }
 
 // SubjectItemList
@@ -1093,6 +1145,19 @@ func (itemList *CorpContributorItemList) IndexOf(i int) *Item {
 	return nil
 }
 
+// GetIDs for each item in the list return a slice of strings holding the ids.
+func (itemList *CorpContributorItemList) GetIDs() []string {
+	ids := []string{}
+	if itemList != nil && itemList.Items != nil {
+		for _, item := range itemList.Items {
+			if item.ID != "" {
+				ids = append(ids, item.ID)
+			}
+		}
+	}
+	return ids
+}
+
 // SetAttributeOf at pos set item attribute return success
 func (itemList *CorpContributorItemList) SetAttributeOf(i int, key string, value interface{}) bool {
 	if i >= 0 && i < itemList.Length() {
@@ -1281,6 +1346,19 @@ func (itemList *OptionMajorItemList) SetAttributeOf(i int, key string, value int
 	return false
 }
 
+// GetOptions returns a slice of options
+func (itemList *OptionMajorItemList) GetOptions() []string {
+	options := []string{}
+	if itemList != nil && itemList.Items != nil {
+		for _, option := range itemList.Items {
+			if option.Value != "" {
+				options = append(options, option.Value)
+			}
+		}
+	}
+	return options
+}
+
 // OptionMinorItemList
 type OptionMinorItemList struct {
 	XMLName xml.Name `xml:"option_minor" json:"-"`
@@ -1315,6 +1393,19 @@ func (itemList *OptionMinorItemList) SetAttributeOf(i int, key string, value int
 		return itemList.Items[i].SetAttribute(key, value)
 	}
 	return false
+}
+
+// GetOptions returns a slice of options
+func (itemList *OptionMinorItemList) GetOptions() []string {
+	options := []string{}
+	if itemList != nil && itemList.Items != nil {
+		for _, option := range itemList.Items {
+			if option.Value != "" {
+				options = append(options, option.Value)
+			}
+		}
+	}
+	return options
 }
 
 // ThesisCommitteeItemList
@@ -1353,6 +1444,19 @@ func (itemList *ThesisCommitteeItemList) SetAttributeOf(i int, key string, value
 	return false
 }
 
+// GetIDs for each item in the list return a slice of strings holding the ids.
+func (itemList *ThesisCommitteeItemList) GetIDs() []string {
+	ids := []string{}
+	if itemList != nil && itemList.Items != nil {
+		for _, item := range itemList.Items {
+			if item.ID != "" {
+				ids = append(ids, item.ID)
+			}
+		}
+	}
+	return ids
+}
+
 // ThesisAdvisorItemList
 type ThesisAdvisorItemList struct {
 	XMLName xml.Name `xml:"thesis_advisor" json:"-"`
@@ -1387,6 +1491,19 @@ func (itemList *ThesisAdvisorItemList) SetAttributeOf(i int, key string, value i
 		return itemList.Items[i].SetAttribute(key, value)
 	}
 	return false
+}
+
+// GetIDs for each item in the list return a slice of strings holding the ids.
+func (itemList *ThesisAdvisorItemList) GetIDs() []string {
+	ids := []string{}
+	if itemList != nil && itemList.Items != nil {
+		for _, item := range itemList.Items {
+			if item.ID != "" {
+				ids = append(ids, item.ID)
+			}
+		}
+	}
+	return ids
 }
 
 // DivisionItemList
@@ -2197,7 +2314,7 @@ func GenerateOfficialURL(eprint *EPrint) string {
 	return fmt.Sprintf(`%s/%s`, DefaultOfficialURL, idNumber)
 }
 
-// IsPublic takes an EPrint data strucure and returns true if 
+// IsPublic takes an EPrint data strucure and returns true if
 // the record is public, false otherwise
 //
 // Check if an EPrint record "is public"

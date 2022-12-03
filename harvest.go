@@ -2,7 +2,7 @@ package eprinttools
 
 //
 // This package implements an EPrints 3.x harvester storing
-// Each harvested EPrints repository's JSON metadata in a 
+// Each harvested EPrints repository's JSON metadata in a
 // MySQL 8 table using JSON column type.
 //
 
@@ -44,11 +44,91 @@ func HarvesterInitDB(cfgName string) (string, error) {
 -- Database generated for MySQL 8 by %s %s
 -- using %s on %s
 --
+-- DROP DATABASE IF EXISTS %s;
 CREATE DATABASE IF NOT EXISTS %s;
 USE %s;
 
+-- Table Schema generated for MySQL 8
+-- for all EPrint repositories as _aggregate_creator
+CREATE TABLE IF NOT EXISTS _aggregate_creator (
+	aggregate_id INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
+	repository VARCHAR(255),
+	collection VARCHAR(255),
+	eprintid INT,
+	person_id VARCHAR(255) DEFAULT ""
+);
+
+-- Table Schema generated for MySQL 8
+-- for all EPrint repositories as _aggregate_editor
+CREATE TABLE IF NOT EXISTS _aggregate_editor (
+	aggregate_id INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
+	repository VARCHAR(255),
+	collection VARCHAR(255),
+	eprintid INT,
+	person_id VARCHAR(255) DEFAULT ""
+);
+
+-- Table Schema generated for MySQL 8
+-- for all EPrint repositories as _aggregate_contributor
+CREATE TABLE IF NOT EXISTS _aggregate_contributor (
+	aggregate_id INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
+	repository VARCHAR(255),
+	collection VARCHAR(255),
+	eprintid INTEGER,
+	person_id VARCHAR(255) DEFAULT ""
+);
+
+-- Table Schema generated for MySQL 8
+-- for all EPrint repositories as _aggregate_advisor
+CREATE TABLE IF NOT EXISTS _aggregate_advisor (
+	aggregate_id INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
+	repository VARCHAR(255),
+	collection VARCHAR(255),
+	eprintid INTEGER,
+	person_id VARCHAR(255) DEFAULT ""
+);
+
+-- Table Schema generated for MySQL 8
+-- for all EPrint repositories as _aggregate_committee
+CREATE TABLE IF NOT EXISTS _aggregate_committee (
+	aggregate_id INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
+	repository VARCHAR(255),
+	collection VARCHAR(255),
+	eprintid INTEGER,
+	person_id VARCHAR(255) DEFAULT ""
+);
+
+-- Table Schema generated for MySQL 8
+-- for all EPrint repositories as _aggregate_option_major
+CREATE TABLE IF NOT EXISTS _aggregate_option_major (
+	aggregate_id INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
+	repository VARCHAR(255),
+	collection VARCHAR(255),
+	eprintid INTEGER,
+    local_option VARCHAR(255) DEFAULT ""
+);
+
+-- Table Schema generated for MySQL 8
+-- for all EPrint repositories as _aggregate_option_minor
+CREATE TABLE IF NOT EXISTS _aggregate_option_minor (
+	aggregate_id INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
+	repository VARCHAR(255),
+	collection VARCHAR(255),
+	eprintid INTEGER,
+    local_option VARCHAR(255) DEFAULT ""
+);
+
+-- Table Schema generated for MySQL 8
+-- for all EPrint repositories as _aggregate_group
+CREATE TABLE IF NOT EXISTS _aggregate_group (
+	aggregate_id INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
+	repository VARCHAR(255),
+	collection VARCHAR(255),
+	eprintid INTEGER,
+	local_group VARCHAR(255) DEFAULT ""
+);
 `
-	table := `-- 
+	table := `--
 -- Table Schema generated for MySQL 8 by %s %s
 -- for EPrint repository %s on %s
 --
@@ -71,11 +151,11 @@ CREATE TABLE IF NOT EXISTS %s (
 	}
 	dbName, err := getDBName(cfg.JSONStore)
 	if err != nil {
-		return "", fmt.Errorf("Cannot parse jsonstore DSN in %s, %s", cfgName, err)
+		return "", fmt.Errorf("cannot parse jsonstore DSN in %s, %s", cfgName, err)
 	}
 	src := []string{}
 	if dbName != "" {
-		src = append(src, fmt.Sprintf(database, appName, Version, cfgName, now.Format(mysqlTimeFmt), dbName, dbName))
+		src = append(src, fmt.Sprintf(database, appName, Version, cfgName, now.Format(mysqlTimeFmt), dbName, dbName, dbName))
 	}
 	for repoName := range cfg.Repositories {
 		src = append(src, fmt.Sprintf(table, appName, Version, repoName, now.Format(mysqlTimeFmt), repoName))
@@ -109,9 +189,14 @@ func RunHarvester(cfgName string, start string, end string, verbose bool) error 
 
 // harvest implements an harvest instance.
 func harvest(cfg *Config, start string, end string, verbose bool) error {
+	// Open the repository collections, JSON store with aggregation tables
 	if err := OpenConnections(cfg); err != nil {
 		return err
 	}
+	if err := OpenJSONStore(cfg); err != nil {
+		return err
+	}
+	defer cfg.Jdb.Close()
 	repoNames := []string{}
 	for repoName := range cfg.Connections {
 		repoNames = append(repoNames, repoName)
@@ -202,5 +287,83 @@ func harvestEPrintRecord(cfg *Config, repoName string, eprintID int) error {
 		action = "deleted"
 	}
 	src, _ := json.MarshalIndent(eprint, "", "    ")
-	return SaveJSONDocument(cfg, repoName, eprintID, src, action, eprint.Datestamp, eprint.LastModified, eprint.PubDate(), eprint.EPrintStatus, eprint.IsPublic(), eprint.Type)
+	err = SaveJSONDocument(cfg, repoName, eprintID, src, action, eprint.Datestamp, eprint.LastModified, eprint.PubDate(), eprint.EPrintStatus, eprint.IsPublic(), eprint.Type)
+	if err != nil {
+		return err
+	}
+	// Since we can save the JSON recordd, need to aggregate the contents of it.
+	aggregateEPrintRecord(cfg, repoName, eprintID, eprint)
+	return err
+}
+
+// aggregatePersons aggregates by the person related roles, e.g. creator, editor, contributor, advisor, committee memember
+func aggregatePersons(cfg *Config, repoName string, collection string, tableName string, eprintID int, personIDs []string) {
+	deleteStmt := fmt.Sprintf(`DELETE FROM %s WHERE repository = ? AND collection = ? AND eprintid = ?`, tableName)
+	cfg.Jdb.Exec(deleteStmt)
+	if len(personIDs) > 0 {
+		insertStmt := fmt.Sprintf(`INSERT INTO %s (repository, collection, eprintid, person_id) VALUES (?, ?, ?, ?)`, tableName)
+		for _, personID := range personIDs {
+			if _, err := cfg.Jdb.Exec(insertStmt, repoName, collection, eprintID, personID); err != nil {
+				log.Printf("WARNING: failed aggregreatePersons(cfg, %q, %q, %d, %q): %s", repoName, collection, eprintID, personID, err)
+			}
+		}
+	}
+}
+
+func aggregateOptions(cfg *Config, repoName string, collection string, tableName string, eprintID int, options []string) {
+	deleteStmt := fmt.Sprintf(`DELETE FROM %s WHERE repository = ? AND collection = ? AND eprintid = ?`, tableName)
+	cfg.Jdb.Exec(deleteStmt)
+	if len(options) > 0 {
+		insertStmt := fmt.Sprintf(`INSERT INTO %s (repository, collection, eprintid, local_option) VALUES (?, ?, ?, ?)`, tableName)
+		for _, option := range options {
+			if _, err := cfg.Jdb.Exec(insertStmt, repoName, collection, eprintID, option); err != nil {
+				log.Printf("WARNING: failed aggregateOptions(cfg, %q, %q, %d, %q): %s", repoName, collection, eprintID, option, err)
+			}
+		}
+	}
+}
+
+// aggregateGroup aggregates by the by group
+func aggregateGroup(cfg *Config, repoName string, collection string, tableName string, eprintID int, groups []string) {
+	deleteStmt := fmt.Sprintf(`DELETE FROM %s WHERE repository = ? AND collection = ? AND eprintid = ?`, tableName)
+	cfg.Jdb.Exec(deleteStmt)
+	if len(groups) > 0 {
+		insertStmt := fmt.Sprintf(`INSERT INTO %s (repository, collection, eprintid, local_group) VALUES (?, ?, ?, ?)`, tableName)
+		for _, groupName := range groups {
+			if _, err := cfg.Jdb.Exec(insertStmt, repoName, collection, eprintID, groupName); err != nil {
+				log.Printf("WARNING: failed aggregateGroup(cfg, %q, %q, %d, %q): %s", repoName, collection, eprintID, groupName, err)
+			}
+		}
+	}
+}
+
+// aggregateEPrintRecord takes a configuration, repository name, eprintID and struct
+// then performances an analysis of the record aggregrating it's component parts.
+func aggregateEPrintRecord(cfg *Config, repoName string, eprintID int, eprint *EPrint) {
+	collection := eprint.Collection
+	// Clear the creators aggregation for this eprint record
+	if personIDs := eprint.Creators.GetIDs(); len(personIDs) > 0 {
+		aggregatePersons(cfg, repoName, collection, "_aggregate_creator", eprintID, personIDs)
+	}
+	if personIDs := eprint.Editors.GetIDs(); len(personIDs) > 0 {
+		aggregatePersons(cfg, repoName, collection, "_aggregate_editor", eprintID, personIDs)
+	}
+	if personIDs := eprint.Contributors.GetIDs(); len(personIDs) > 0 {
+		aggregatePersons(cfg, repoName, collection, "_aggregate_contributor", eprintID, personIDs)
+	}
+	if personIDs := eprint.ThesisAdvisor.GetIDs(); len(personIDs) > 0 {
+		aggregatePersons(cfg, repoName, collection, "_aggregate_advisor", eprintID, personIDs)
+	}
+	if personIDs := eprint.ThesisCommittee.GetIDs(); len(personIDs) > 0 {
+		aggregatePersons(cfg, repoName, collection, "_aggregate_committee", eprintID, personIDs)
+	}
+	if options := eprint.OptionMajor.GetOptions(); len(options) > 0 {
+		aggregateOptions(cfg, repoName, collection, "_aggregate_option_major", eprintID, options)
+	}
+	if options := eprint.OptionMinor.GetOptions(); len(options) > 0 {
+		aggregateOptions(cfg, repoName, collection, "_aggregate_option_minor", eprintID, options)
+	}
+	if groups := eprint.LocalGroup.GetGroups(); len(groups) > 0 {
+		aggregateGroup(cfg, repoName, collection, "_aggregate_group", eprintID, groups)
+	}
 }
