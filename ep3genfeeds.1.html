@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>eprinttools - ep3harvester.1.html</title>
+    <title>eprinttools - ep3genfeeds.1.html</title>
     <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" href="/css/site.css">
 </head>
@@ -24,40 +24,22 @@
 
 <section>
 <h1 id="name">NAME</h1>
-<p>ep3harvester</p>
+<p>ep3feeds</p>
 <h1 id="synopsis">SYNOPSIS</h1>
-<p>ep3harvester [OPTION] JSON_SETTINGS_FILENAME<br />
-[START_TIMESTAMP] [END_TIMESTAMP]</p>
+<p>ep3feeds [OPTION] JSON_SETTINGS_FILENAME</p>
 <h1 id="description">DESCRIPTION</h1>
-<p>ep3harvester is a command line program for metadata harvesting of
-EPrints repositories.</p>
-<p>ep3harvester takes a JSON settings file and harvests all the EPrint
-repositories defined in the settings file into a JSON store implemented
-in MySQL 8. One repository per MySQL 8 table.</p>
-<p>Each MySQL 8 table has several columns id, src (holding the JSON
-document as a JSON column) and an updated (holding the timestamp of when
-the metadata was harvested).</p>
-<h2 id="configuring-your-json-store">CONFIGURING YOUR JSON STORE</h2>
-<p>ep3harvester can generate an example settings JSON document. You can
-then edit it with any plain text editor (e.g. nano). Then you’ll need to
-setup a MySQL 8 database and tables to store havested data in.</p>
-<p>ep3harvester uses a MySQL 8 database for a JSON document store. It
-will generate one table for EPrint repository. You can generate a SQL
-program for creating the MySQL database and tables from your settings
-JSON file using the “-sql-schema” option. Using the option will require
-a JSON settings filename parameter. E.g.</p>
-<pre><code>    ep3harvester -init harvester-settings.json
-    nano harvester-settings.json
-    ep3harvester -sql-schema harvester-settings.json &gt;collections.sql</code></pre>
+<p>ep3feeds is a command line program that renders the EPrint harvested
+metadata and aggregation tables to JSON documents, non-templated
+Markdown documents and the necessary directory structures needed for
+representing EPrints repositories as a static site.</p>
+<p>The configuration needs to be previously created using the
+ep3harvester tool.</p>
 <h1 id="options">OPTIONS</h1>
-<p>-h display help -help display help -init generate a settings JSON
-file -license display license -sql-schema display SQL schema for
-installing MySQL jsonstore DB -verbose use verbose logging -version
-display version</p>
+<p>-h display help -help display help -license display license -verbose
+use verbose logging -version display version</p>
 <h1 id="examples">EXAMPLES</h1>
 <p>Harvesting repositories for week month of May, 2022.</p>
-<pre><code>    ep3harvester harvester-settings.json \
-        &quot;2022-05-01 00:00:00&quot; &quot;2022-05-31 59:59:59&quot;</code></pre>
+<pre><code>    ep3feeds harvester-settings.json</code></pre>
 </section>
 
 <footer>

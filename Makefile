@@ -8,11 +8,11 @@ VERSION = $(shell grep '"version":' codemeta.json | cut -d\"  -f 4)
 BRANCH = $(shell git branch | grep '* ' | cut -d\  -f 2)
 
 
-MAN_PAGES = doi2eprintxml.1 eputil.1 ep3apid.1 epfmt.1 ep3harvester.1
+MAN_PAGES = doi2eprintxml.1 eputil.1 ep3apid.1 epfmt.1 ep3harvester.1 ep3genfeeds.1
 
 PROGRAMS = $(shell ls -1 cmd)
 
-PACKAGE = $(shell ls -1 *.go */*.go)
+PACKAGE = $(shell ls -1 *.go cleaner/*.go clsrules/*.go)
 
 PANDOC = $(shell which pandoc)
 

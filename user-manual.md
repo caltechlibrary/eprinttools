@@ -7,6 +7,7 @@
 - [doi2eprintxml](doi2eprintxml.1.md) is a CaltechAUTHORS centric DOI to EPrint XML document generator 
 - [ep3apid](ep3apid.1.md) is a web service that runs on localhost providing an extended EPrints 3 API via interaction with EPrints MySQL database(s)
 - [ep3harvester](ep3harvester.1.md) harvests EPrints 3.x repository into a dataset collection
+- [ep3genfeeds](ep3genfeeds.1.md) generates directory structure, JSON documents and non-templated Markdown content for a feeds site in the htdocs directory specified in the configuration.
 
 ## Tutorials
 

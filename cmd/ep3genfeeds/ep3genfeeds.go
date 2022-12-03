@@ -17,14 +17,13 @@
 package main
 
 //
-// ep3geedfeeds implements feed generator rendering JSON documents and
+// ep3genfeeds implements feed generator rendering JSON documents and
 // non-templated Markdown documents to a directory structure in an 
 // htdoc folder specified in the configuration file.
 //
 
 import (
 	"flag"
-	"fmt"
 	"log"
 	"os"
 	"path"
@@ -110,8 +109,7 @@ func main() {
 		eprinttools.DisplayVersion(out, appName)
 		os.Exit(0)
 	}
-	settings := "", "", ""
-
+	settings := ""
 	if len(args) > 0 {
 		settings = args[0]
 	}
