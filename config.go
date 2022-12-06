@@ -99,10 +99,10 @@ func DefaultConfig() []byte {
 	config := new(Config)
 	config.Hostname = "localhost:8484"
 	config.BaseURL = "http//localhost:8484"
-	config.JSONStore = "USERNAME:PASSWORD@/collections"
+	config.JSONStore = "$DB_USER:$DB_PASSWORD@/collections"
 	config.Htdocs = "htdocs"
 	repo := new(DataSource)
-	repo.DSN = `USERNAME:PASSWORD@/authors`
+	repo.DSN = `$DB_USER:$DB_PASSWORD@/authors`
 	repo.BaseURL = `http://authors.example.edu`
 	repo.Write = false
 	repo.DefaultCollection = `authors`

@@ -14,38 +14,22 @@ import (
 // non-templated Markdown documents in the htdocs directory.
 //
 
-// GenerateRepositorySite renders an EPrint repository static site's
-// directory structure, JSON documents and non-templated Markdown documents.
-func GenerateRepositorySite(cfg *Config, repoName string, verbose bool) error {
-	return fmt.Errorf("GenRepositorySite(cfg, %q, %T) not implemented", repoName, verbose)
+// GenerateGroupIDs returns a JSON document containing an array of 
+// group keys. Group keys are sorted alphabetically. Group keys are
+// formed from the group field slugified.
+func GenerateGroupIDs(cfg *Config, repoName string, verbose bool) ([]byte, error) {
+	return nil, fmt.Errorf("GenerateGroupNames() not implemented")
 }
 
-// GenrateDataset renders a dataset collection holding the metadata
-// from a previusouly harvested repository.
+// GeneratePeopleIDs returns a JSON document contiainer an array
+// of people ids. People keys are sorted alphabetically.
+func GeneratePeopleIDs(cfg *Config, repoName string, verbose bool) ([]byte, error) {
+	return nil, fmt.Errorf("GenerateGroupNames() not implemented")
+}
+
+// GenerateDataset creates a dataset from the harvested repository.
 func GenerateDataset(cfg *Config, repoName string, verbose bool) error {
-	return fmt.Errorf("GenerateDatasets(cfg, %q, %T) not implemented", repoName, verbose)
-}
-
-//
-// Generate Aggregated views
-//
-
-// GeneratePeople generates the directory and JSON documents for
-// aggregation of people related views across all our repositories.
-func GeneratePeople(cfg *Config, verbose bool) error {
-	return fmt.Errorf("GeneratePeople(cfg, %T) not implemented", verbose)
-}
-
-// GeneratePeople generates the directory and JSON documents for
-// aggregation of group related views across all our EPrint repositories.
-func GenerateGroups(cfg *Config, verbose bool) error {
-	return fmt.Errorf("GenerateGroups(cfg, %T) not implemented", verbose)
-}
-
-// GenerateRecent generates the directory and JSON documents for all
-// document types aggregated across all our EPrint repositories
-func GenerateRecent(cfg *Config, verbose bool) error {
-	return fmt.Errorf("GenerateGroups(cfg, %T) not implemented", verbose)
+	return fmt.Errorf("GenerateDataset() not implemented")
 }
 
 // RunGenfeeds will use the config file names by cfgName and
@@ -68,21 +52,7 @@ func RunGenfeeds(cfgName string, verbose bool) error {
 		if err := GenerateDataset(cfg, repoName, verbose); err != nil {
 			return err
 		}
-		if err := GenerateRepositorySite(cfg, repoName, verbose); err != nil {
-			return err
-		}
 	}
-	if err := GenerateRecent(cfg, verbose); err != nil {
-		return err
-	}
-	if err := GenerateGroups(cfg, verbose); err != nil {
-		return err
-	}
-	if err := GeneratePeople(cfg, verbose); err != nil {
-		return err
-	}
-	t1 := time.Now()
-	log.Printf("%s finished %v", appName, t1)
-	log.Printf("%s total run time %v", t1.Sub(t0))
+	log.Printf("total run time %v", time.Now().Sub(t0).Truncate(time.Second))
 	return nil
 }

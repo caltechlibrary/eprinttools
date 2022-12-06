@@ -78,3 +78,4 @@ tmp/*
 *-config.json
 *-keys.json
 *-example
+test_db_setup.bash

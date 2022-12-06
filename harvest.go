@@ -33,10 +33,10 @@ func getDBName(dsn string) (string, error) {
 	return cfg.DBName, nil
 }
 
-// HarvesterInitDB returns SQL statements for creating
+// HarvesterDBSchema returns SQL statements for creating
 // the tables and database for the harvester based on the
 // initialization file provides.
-func HarvesterInitDB(cfgName string) (string, error) {
+func HarvesterDBSchema(cfgName string) (string, error) {
 	now := time.Now()
 	appName := os.Args[0]
 	database := `--
@@ -44,7 +44,7 @@ func HarvesterInitDB(cfgName string) (string, error) {
 -- Database generated for MySQL 8 by %s %s
 -- using %s on %s
 --
--- DROP DATABASE IF EXISTS %s;
+DROP DATABASE IF EXISTS %s;
 CREATE DATABASE IF NOT EXISTS %s;
 USE %s;
 
@@ -251,17 +251,18 @@ func harvestRepository(cfg *Config, repoName string, start string, end string, v
 	}
 	ids := append(createdIDs, modifiedIDs...)
 	ids = getSortedUniqueIDs(ids)
+	tot := len(ids)
+	t0 := time.Now()
 	if verbose {
-		log.Printf("Processing %d unique keys", len(ids))
+		log.Printf("Processing %d unique keys", tot)
 	}
 	for i, id := range ids {
-		// FIXME: do we want to show a progress bar or just errors?
 		err := harvestEPrintRecord(cfg, repoName, id)
 		if err != nil {
-			log.Printf("Harvesting EPrint %d (%d/%d) failed, %s", id, i, len(ids), err)
+			log.Printf("Harvesting EPrint %d (%s) failed, %s", id, progress(t0, i, tot), err)
 		}
-		if verbose && ((i % 1000) == 0) {
-			log.Printf("Harvested EPrint %d (%d/%d)", id, i, len(ids))
+		if verbose && ((i % 2500) == 0) {
+			log.Printf("Harvested EPrint %d (%s)", id, progress(t0, i, tot))
 		}
 	}
 	return nil

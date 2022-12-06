@@ -26,6 +26,7 @@ import (
 	"log"
 	"os"
 	"path"
+	"time"
 
 	// Caltech Library Packages
 	"github.com/caltechlibrary/eprinttools"
@@ -179,9 +180,11 @@ func main() {
 		fmt.Print(src)
 		os.Exit(0)
 	}
+	t0 := time.Now()
 	err := eprinttools.RunHarvester(settings, start, end, verbose)
 	if err != nil {
 		log.Print(err)
 		os.Exit(1)
 	}
+	log.Printf("total run time %v", time.Now().Sub(t0).Truncate(time.Second))
 }
