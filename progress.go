@@ -7,7 +7,7 @@ import (
 
 func progress(t0 time.Time, i int, tot int) string {
 	if i == 0 {
-		return "0.00 ETR Unknown"
+		return "0.00 ETA Unknown"
 	}
 	// percent completed
 	percent := (float64(i) / float64(tot)) * 100.0
@@ -17,5 +17,5 @@ func progress(t0 time.Time, i int, tot int) string {
 	rt := time.Now().Sub(t0)
 	// estimated time remaining
 	etr := time.Duration((float64(rt) / float64(i) * float64(tot)))
-	return fmt.Sprintf("%.2f%% ETR %v", percent, etr.Truncate(time.Millisecond))
+	return fmt.Sprintf("%.2f%% ETA %v", percent, etr.Truncate(time.Millisecond))
 }
