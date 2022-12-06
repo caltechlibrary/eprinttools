@@ -2,7 +2,7 @@
 //
 // @author R. S. Doiel, <rsdoiel@caltech.edu>
 //
-// Copyright (c) 2021, Caltech
+// Copyright (c) 2022, Caltech
 // All rights not granted herein are expressly reserved by Caltech.
 //
 // Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -17,12 +17,12 @@
 package main
 
 //
-// ep3harvester implements an EPrints Metadata to JSON store harvester.
+// ep3datasets renders dataset collections from previously harvested
+// EPrints repositories based on the settings.json configuration file.
 //
 
 import (
 	"flag"
-	"fmt"
 	"log"
 	"os"
 	"path"
@@ -43,42 +43,13 @@ var (
 
 # SYNOPSIS
 
-{app_name} [OPTION] JSON_SETTINGS_FILENAME \
-           [START_TIMESTAMP] [END_TIMESTAMP]
+{app_name} [OPTION] JSON_SETTINGS_FILENAME
 
 # DESCRIPTION
 
-{app_name} is a command line program for metadata harvesting
-of EPrints repositories.
-
-{app_name} takes a JSON settings file and harvests
-all the EPrint repositories defined in the settings file
-into a JSON store implemented in MySQL 8. One repository per
-MySQL 8 table.
-
-Each MySQL 8 table has several columns id, src (holding the JSON
-document as a JSON column) and an updated (holding the timestamp
-of when the metadata was harvested).
-
-## CONFIGURING YOUR JSON STORE
-
-{app_name} can generate an example settings JSON document. You
-can then edit it with any plain text editor (e.g. nano). Then
-you'll need to setup a MySQL 8 database and tables to store
-havested data in.
-
-{app_name} uses a MySQL 8 database for a JSON document store.
-It will generate one table for EPrint repository. You can
-generate a SQL program for creating the MySQL database and
-tables from your settings JSON file using the "-sql-schema"
-option. Using the option will require a JSON settings filename
-parameter. E.g.
-
-~~~
-    {app_name} -init harvester-settings.json
-    nano harvester-settings.json
-    {app_name} -sql-schema harvester-settings.json >collections.sql
-~~~
+{app_name} is a command line program renders dataset collections
+from previously harvested EPrint repositories based on the
+configuration in the JSON_SETTINGS_FILENAME.
 
 # OPTIONS
 
@@ -87,11 +58,10 @@ parameter. E.g.
 	examples = `
 # EXAMPLES
 
-Harvesting repositories for week month of May, 2022.
+Rendering harvested repositories for settings.json.
 
 ~~~
-    {app_name} harvester-settings.json \
-        "2022-05-01 00:00:00" "2022-05-31 59:59:59"
+    {app_name} settings.json
 ~~~
 
 `
@@ -102,8 +72,6 @@ Harvesting repositories for week month of May, 2022.
 	showVersion bool
 
 	// App Option
-	showSqlSchema bool
-	initialize bool
 	verbose bool
 )
 
@@ -116,9 +84,7 @@ func main() {
 	flagSet.BoolVar(&showHelp, "help", false, "display help")
 	flagSet.BoolVar(&showLicense, "license", false, "display license")
 	flagSet.BoolVar(&showVersion, "version", false, "display version")
-	flagSet.BoolVar(&showSqlSchema, "sql-schema", false, "display SQL schema for installing MySQL jsonstore DB")
 	flagSet.BoolVar(&verbose, "verbose", false, "use verbose logging")
-	flagSet.BoolVar(&initialize, "init", false, "generate a settings JSON file")
 
 	// We're ready to process args
 	flagSet.Parse(os.Args[1:])
@@ -139,52 +105,16 @@ func main() {
 		eprinttools.DisplayVersion(out, appName)
 		os.Exit(0)
 	}
-	settings, start, end := "", "", ""
-
+	settings := ""
 	if len(args) > 0 {
 		settings = args[0]
 	}
-	if len(args) > 1 {
-		start = args[1]
-	}
-	if len(args) > 2 {
-		end = args[2]
-	}
 
-	if initialize {
-		out := os.Stdout
-		if settings != "" {
-			var err error
-			out, err = os.Create(settings)
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "%s\n", err)
-				os.Exit(1)
-			}
-			defer out.Close()
-		}
-		fmt.Fprintf(out, "%s\n", eprinttools.DefaultConfig())
-		os.Exit(0)
-	}
-
-	// Handle request to show schema.
-	if showSqlSchema {
-		if settings == "" {
-			log.Printf("%s -sql-schema option requires a settings file parameter", appName)
-			os.Exit(1)
-		}
-		src, err := eprinttools.HarvesterDBSchema(settings)
-		if err != nil {
-			log.Printf("%s -sql-schema error: %s", appName, err)
-			os.Exit(1)
-		}
-		fmt.Print(src)
-		os.Exit(0)
-	}
 	t0 := time.Now()
-	err := eprinttools.RunHarvester(settings, start, end, verbose)
+	err := eprinttools.RunDatasets(settings, verbose)
 	if err != nil {
 		log.Print(err)
 		os.Exit(1)
 	}
-	log.Printf("total run time %v", time.Now().Sub(t0).Truncate(time.Second))
+	log.Printf("Total run time %v", time.Now().Sub(t0).Truncate(time.Second))
 }

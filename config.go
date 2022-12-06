@@ -26,7 +26,7 @@ type Config struct {
 
 	// Repositories are defined by a REPO_ID (string)
 	// that points at a MySQL Db connection string
-	Repositories map[string]*DataSource `json:"repositories"`
+	Repositories map[string]*DataSource `json:"eprint_repositories"`
 
 	// Connections is a map to database connections
 	Connections map[string]*sql.DB `json:"-"`
@@ -45,9 +45,16 @@ type Config struct {
 	// instances.
 	Routes map[string]map[string]func(http.ResponseWriter, *http.Request, string, []string) (int, error) `json:"-"`
 
+	// ProjectDir is the directory where you stage harvested content
+	ProjectDir string `json:"project_dir, omitempty"`
+
 	// Htdocs is the directory where aggregated information and
 	// website content is generated to after running the harvester.
 	Htdocs string `json:"htdocs,omitempty"`
+
+	// PandocServer is the URL to the Pandoc server
+	// E.g. localhost:8080
+	PandocServer string `json:"pandoc_server,omitempty"`
 }
 
 // DataSource can contain one or more types of datasources. E.g.
@@ -93,6 +100,10 @@ type DataSource struct {
 	// TableMap holds the mapping of tables and columns for
 	// the repository presented.
 	TableMap map[string][]string `json:"tables,omitempty"`
+
+	// PublicOnly is a boolean indicating if the "harvested" content
+	// should be restricted to public records.
+	PublicOnly bool `json:"is_public,omitempty"`
 }
 
 func DefaultConfig() []byte {
@@ -101,6 +112,8 @@ func DefaultConfig() []byte {
 	config.BaseURL = "http//localhost:8484"
 	config.JSONStore = "$DB_USER:$DB_PASSWORD@/collections"
 	config.Htdocs = "htdocs"
+	config.ProjectDir = "."
+	config.PandocServer = "localhost:3030"
 	repo := new(DataSource)
 	repo.DSN = `$DB_USER:$DB_PASSWORD@/authors`
 	repo.BaseURL = `http://authors.example.edu`
@@ -110,6 +123,7 @@ func DefaultConfig() []byte {
 	repo.DefaultRefereed = "TRUE"
 	repo.DefaultStatus = "inbox"
 	repo.StripTags = true
+	repo.PublicOnly = true
 	config.Repositories = map[string]*DataSource{
 		"authors": repo,
 	}

@@ -14,23 +14,19 @@ import (
 // non-templated Markdown documents in the htdocs directory.
 //
 
-// GenerateGroupIDs returns a JSON document containing an array of 
+// GenerateGroupIDs returns a JSON document containing an array of
 // group keys. Group keys are sorted alphabetically. Group keys are
 // formed from the group field slugified.
-func GenerateGroupIDs(cfg *Config, repoName string, verbose bool) ([]byte, error) {
-	return nil, fmt.Errorf("GenerateGroupNames() not implemented")
+func GenerateGroupIDs(cfg *Config, repoName string, verbose bool) error {
+	return fmt.Errorf("GenerateGroupIDs() not implemented")
 }
 
 // GeneratePeopleIDs returns a JSON document contiainer an array
 // of people ids. People keys are sorted alphabetically.
-func GeneratePeopleIDs(cfg *Config, repoName string, verbose bool) ([]byte, error) {
-	return nil, fmt.Errorf("GenerateGroupNames() not implemented")
+func GeneratePeopleIDs(cfg *Config, repoName string, verbose bool) error {
+	return fmt.Errorf("GeneratePeopleIDs() not implemented")
 }
 
-// GenerateDataset creates a dataset from the harvested repository.
-func GenerateDataset(cfg *Config, repoName string, verbose bool) error {
-	return fmt.Errorf("GenerateDataset() not implemented")
-}
 
 // RunGenfeeds will use the config file names by cfgName and
 // render all the directorys, JSON documents and non-templated
@@ -45,14 +41,23 @@ func RunGenfeeds(cfgName string, verbose bool) error {
 		return err
 	}
 	if cfg == nil {
-		return fmt.Errorf("Could not create a configuration object")
+		return fmt.Errorf("could not create a configuration object")
 	}
+	if err := OpenJSONStore(cfg); err != nil {
+		return err
+	}
+	defer cfg.Jdb.Close()
 	log.Printf("%s started %v", appName, t0)
 	for repoName := range cfg.Repositories {
-		if err := GenerateDataset(cfg, repoName, verbose); err != nil {
+		if err := GenerateGroupIDs(cfg, repoName, verbose); err != nil {
+			return err
+		}
+		if err := GeneratePeopleIDs(cfg, repoName, verbose); err != nil {
 			return err
 		}
 	}
-	log.Printf("total run time %v", time.Now().Sub(t0).Truncate(time.Second))
+	if verbose {
+		log.Printf("Genfeeds run time %v", time.Since(t0).Truncate(time.Second))
+	}
 	return nil
 }

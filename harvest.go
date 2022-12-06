@@ -265,6 +265,7 @@ func harvestRepository(cfg *Config, repoName string, start string, end string, v
 			log.Printf("Harvested EPrint %d (%s)", id, progress(t0, i, tot))
 		}
 	}
+	log.Printf("Harvested %q in %v", repoName, time.Now().Sub(t0))
 	return nil
 }
 

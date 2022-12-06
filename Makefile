@@ -8,7 +8,7 @@ VERSION = $(shell grep '"version":' codemeta.json | cut -d\"  -f 4)
 BRANCH = $(shell git branch | grep '* ' | cut -d\  -f 2)
 
 
-MAN_PAGES = doi2eprintxml.1 eputil.1 ep3apid.1 epfmt.1 ep3harvester.1 ep3genfeeds.1
+MAN_PAGES = doi2eprintxml.1 eputil.1 ep3apid.1 epfmt.1 ep3harvester.1 ep3genfeeds.1 ep3datasets.1
 
 PROGRAMS = $(shell ls -1 cmd)
 
@@ -99,7 +99,7 @@ website: index.md about.md page.tmpl *.md LICENSE css/site.css
 test: version.go eputil epfmt doi2eprintxml ep3apid
 	- cd cleaner && go test -test.v
 	- cd clsrules && go test -test.v
-	- go test -timeout 45m -test.v
+	- go test -timeout 1h -test.v
 	./test_cmds.bash
 
 
