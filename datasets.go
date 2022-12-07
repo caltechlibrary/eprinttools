@@ -122,6 +122,12 @@ func RunDatasets(cfgName string, verbose bool) error {
 		return err
 	}
 	defer cfg.Jdb.Close()
+	if _, err := os.Stat(cfg.ProjectDir); os.IsNotExist(err) {
+		if err := os.MkdirAll(cfg.ProjectDir, 0775); err != nil {
+			log.Printf("%s", err)
+			os.Exit(1)
+		}
+	}
 	if verbose {
 		log.Printf("%s started %v", appName, t0)
 	}
