@@ -1,7 +1,7 @@
 eprinttools
 ===========
 
-This is a collection of command line tools and a web service written in Go for working with EPrints 3.3.x EPrint XML, the EPrint REST API and directly with the EPrints MySQL repository database(s).
+This is a collection of command line tools and a web service written in Go for working with EPrints 3.3.x EPrint XML, the EPrint REST API and directly with the EPrints MySQL repository database(s). It is used by Caltech Library to render our <https://feeds.library.caltech.edu> website as well as for migrating content into a new repository system. Some of the command line tools maybe of more generatl interest while others are specific to Caltech Library's needs. Much of the test code presumes access to our repositories so is specific to our needs.
 
 Go base code
 ------------
@@ -13,32 +13,12 @@ The programs:
 - [epfmt](epfmt.1.md) is a command line utility to pretty print EPrints XML and convert to/from JSON including a simplified JSON inspired by DataCite and Invenion 3
 - [doi2eprintxml](doi2eprintxml.1.md) is a command line program for turning metadata harvested from CrossRef and DataCite into an EPrint XML document based on one or more supplied DOI
 - [ep3apid](ep3apid.1.md) is a Unix style web service for interacting with an EPrint repository via a localhost proxy. It includes the ability to get restricted key lists as well as retrieve a simplified JSON record representing an EPrints record
-- [ep3harvester](ep3harvester.1.md) is an EPrints 3.x metadata harvesting tool. It harvests the contents into a MySQL 8 database, one table per eprints repository storing the harvested metadata in JSON columns.
+- [ep3harvester](ep3harvester.1.md) is an EPrints 3.x metadata harvesting tool working at the MySQL 8 level for EPrints content. It harvests the contents into a MySQL 8 database, one table per eprints repository storing the harvested metadata in JSON columns. This tool can also harvest CSV files with information for people and groups referenced in the EPrints repositories.
+- [ep3genfeeds](ep3genfeeds.1.md) is used to genate the JSON documents that drive our feeds website.
+- [ep3datasets](ep3datasets.1.md) is a tool to generate [dataset collections](https://github.com/caltechlibrary/dataset) from previously harvested EPrints repositories
 
-
-The `ep3apid` web service is configured via a JSON "settings.json" file. The settings includes a repository id with "dsn" (Data Source Name) attribute for accessing EPrint's MySQL database(s) and "rest" attribute holding the base URL used to access the REST API. You can define more than one repository in "settings.json". Below is a simple example for "example.edu"'s authors repository.
-
-```json
-    {
-        "authors": {
-            "dsn": "USERNAME:SECRET@/authors",
-            "base_url": "https://authors.example.edu",
-            "rest": "https://USERNAME:SECRET@authors.example.edu",
-            "write": true,
-            "default_rights": "SOME RIGHTS STATEMENT HERE",
-            "default_official_url": "SOME PERMA LINK URL PREFIX HERE",
-            "default_collection": "COLLECTION_NAME_HERE",
-            "default_refereed": "DEFAULT_VALUE_IN_REFEREED_FIELD_FOR_ARTICLES",
-            "default_status": "EVENT_STATUS_E_G_INBOX_OR_BUFFER_OR_ARCHIVE",
-            "strip_tags": BOOLEAN_TRUE_STRIP_HTML_XML_TAGS_FROM_ABSTRACT
-        }
-    }
-```
-
-In the "dsn" attribute __USERNAME:SECRET__ are the username/password for accessing the database. In the "rest" attribute the __USERNAME:SECRET__ are the username/password for accessing the REST API.
-
-Use case
---------
+Use cases
+---------
 
 Two primary use cases have driven development of EPrinttools
 

@@ -7,8 +7,10 @@ package eprinttools
 //
 
 import (
+	"encoding/csv"
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"sort"
@@ -52,81 +54,145 @@ USE %s;
 -- for all EPrint repositories as _aggregate_creator
 CREATE TABLE IF NOT EXISTS _aggregate_creator (
 	aggregate_id INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
-	repository VARCHAR(255),
-	collection VARCHAR(255),
+	repository VARCHAR(256),
+	collection VARCHAR(256),
 	eprintid INT,
-	person_id VARCHAR(255) DEFAULT ""
+	person_id VARCHAR(256) DEFAULT ""
 );
 
 -- Table Schema generated for MySQL 8
 -- for all EPrint repositories as _aggregate_editor
 CREATE TABLE IF NOT EXISTS _aggregate_editor (
 	aggregate_id INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
-	repository VARCHAR(255),
-	collection VARCHAR(255),
+	repository VARCHAR(256),
+	collection VARCHAR(256),
 	eprintid INT,
-	person_id VARCHAR(255) DEFAULT ""
+	person_id VARCHAR(256) DEFAULT ""
 );
 
 -- Table Schema generated for MySQL 8
 -- for all EPrint repositories as _aggregate_contributor
 CREATE TABLE IF NOT EXISTS _aggregate_contributor (
 	aggregate_id INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
-	repository VARCHAR(255),
-	collection VARCHAR(255),
+	repository VARCHAR(256),
+	collection VARCHAR(256),
 	eprintid INTEGER,
-	person_id VARCHAR(255) DEFAULT ""
+	person_id VARCHAR(256) DEFAULT ""
 );
 
 -- Table Schema generated for MySQL 8
 -- for all EPrint repositories as _aggregate_advisor
 CREATE TABLE IF NOT EXISTS _aggregate_advisor (
 	aggregate_id INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
-	repository VARCHAR(255),
-	collection VARCHAR(255),
+	repository VARCHAR(256),
+	collection VARCHAR(256),
 	eprintid INTEGER,
-	person_id VARCHAR(255) DEFAULT ""
+	person_id VARCHAR(256) DEFAULT ""
 );
 
 -- Table Schema generated for MySQL 8
 -- for all EPrint repositories as _aggregate_committee
 CREATE TABLE IF NOT EXISTS _aggregate_committee (
 	aggregate_id INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
-	repository VARCHAR(255),
-	collection VARCHAR(255),
+	repository VARCHAR(256),
+	collection VARCHAR(256),
 	eprintid INTEGER,
-	person_id VARCHAR(255) DEFAULT ""
+	person_id VARCHAR(256) DEFAULT ""
 );
 
 -- Table Schema generated for MySQL 8
 -- for all EPrint repositories as _aggregate_option_major
 CREATE TABLE IF NOT EXISTS _aggregate_option_major (
 	aggregate_id INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
-	repository VARCHAR(255),
-	collection VARCHAR(255),
+	repository VARCHAR(256),
+	collection VARCHAR(256),
 	eprintid INTEGER,
-    local_option VARCHAR(255) DEFAULT ""
+    local_option VARCHAR(256) DEFAULT ""
 );
 
 -- Table Schema generated for MySQL 8
 -- for all EPrint repositories as _aggregate_option_minor
 CREATE TABLE IF NOT EXISTS _aggregate_option_minor (
 	aggregate_id INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
-	repository VARCHAR(255),
-	collection VARCHAR(255),
+	repository VARCHAR(256),
+	collection VARCHAR(256),
 	eprintid INTEGER,
-    local_option VARCHAR(255) DEFAULT ""
+    local_option VARCHAR(256) DEFAULT ""
 );
 
 -- Table Schema generated for MySQL 8
 -- for all EPrint repositories as _aggregate_group
 CREATE TABLE IF NOT EXISTS _aggregate_group (
 	aggregate_id INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
-	repository VARCHAR(255),
-	collection VARCHAR(255),
+	repository VARCHAR(256),
+	collection VARCHAR(256),
 	eprintid INTEGER,
-	local_group VARCHAR(255) DEFAULT ""
+	local_group VARCHAR(256) DEFAULT ""
 );
+
+-- Table Schema generate for MySQL 8
+-- for external People list (e.g. from people.csv)
+CREATE TABLE IF NOT EXISTS _people (
+    cl_people_id VARCHAR(256) NOT NULL PRIMARY KEY,
+    family_name VARCHAR(256) DEFAULT "",
+    given_name VARCHAR(256) DEFAULT "",
+    thesis_id VARCHAR(256) DEFAULT "",
+    advisor_id VARCHAR(256) DEFAULT "",
+    authors_id VARCHAR(256) DEFAULT "",
+    editor_id VARCHAR(256) DEFAULT "",
+    contributor_id VARCHAR(256) DEFAULT "",
+    archivesspace_id VARCHAR(256) DEFAULT "",
+    directory_id VARCHAR(256) DEFAULT "",
+    viaf_id VARCHAR(256) DEFAULT "",
+    lcnaf VARCHAR(256) DEFAULT "",
+    isni VARCHAR(256) DEFAULT "",
+    wikidata VARCHAR(256) DEFAULT "",
+    snac VARCHAR(256) DEFAULT "",
+    orcid VARCHAR(256) DEFAULT "",
+    image VARCHAR(1024) DEFAULT "",
+    educated_at TEXT,
+    caltech BOOLEAN DEFAULT FALSE,
+    jpl BOOLEAN DEFAULT FALSE,
+    faculty BOOLEAN DEFAULT FALSE,
+    alumn BOOLEAN DEFAULT FALSE,
+    status VARCHAR(256) DEFAULT "",
+    directory_person_type VARCHAR(1024) DEFAULT "",
+    title VARCHAR(1024) DEFAULT "",
+    bio TEXT,
+    division VARCHAR(256) DEFAULT "",
+    authors_count INTEGER DEFAULT 0,
+    thesis_count INTEGER DEFAULT 0,
+    data_count INTEGER DEFAULT 0,
+    advisor_count INTEGER DEFAULT 0,
+    editor_count INTEGER DEFAULT 0,
+    contributor_count INTEGER DEFAULT 0,
+    updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS _groups (
+    group_id VARCHAR(256) NOT NULL PRIMARY KEY,
+    name VARCHAR(256) DEFAULT "",
+    alternative  VARCHAR(256) DEFAULT "",
+    email VARCHAR(256) DEFAULT "",
+    date VARCHAR(256) DEFAULT "",
+    description TEXT,
+    start VARCHAR(256) DEFAULT "",
+    approx_start VARCHAR(256) DEFAULT "",
+    activity VARCHAR(256) DEFAULT "",
+    end VARCHAR(256) DEFAULT "",
+    approx_end VARCHAR(256) DEFAULT "",
+    website VARCHAR(256) DEFAULT "",
+    pi VARCHAR(256) DEFAULT "",
+    parent VARCHAR(256) DEFAULT "",
+    prefix VARCHAR(256) DEFAULT "",
+    grid VARCHAR(256) DEFAULT "",
+    isni VARCHAR(256) DEFAULT "",
+    ringold VARCHAR(256) DEFAULT "",
+    viaf VARCHAR(256) DEFAULT "",
+    ror VARCHAR(256) DEFAULT "",
+    updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
 `
 	table := `--
 -- Table Schema generated for MySQL 8 by %s %s
@@ -136,13 +202,13 @@ CREATE TABLE IF NOT EXISTS %s (
   id INTEGER NOT NULL PRIMARY KEY,
   src JSON,
   updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  action VARCHAR(255) DEFAULT "",
-  created VARCHAR(255) DEFAULT "",
-  lastmod VARCHAR(255) DEFAULT "",
-  pubdate VARCHAR(255) DEFAULT "",
+  action VARCHAR(256) DEFAULT "",
+  created VARCHAR(256) DEFAULT "",
+  lastmod VARCHAR(256) DEFAULT "",
+  pubdate VARCHAR(256) DEFAULT "",
   is_public BOOLEAN DEFAULT FALSE,
-  record_type VARCHAR(255) DEFAULT "",
-  status VARCHAR(255) DEFAULT ""
+  record_type VARCHAR(256) DEFAULT "",
+  status VARCHAR(256) DEFAULT ""
 );
 `
 	cfg, err := LoadConfig(cfgName)
@@ -368,4 +434,342 @@ func aggregateEPrintRecord(cfg *Config, repoName string, eprintID int, eprint *E
 	if groups := eprint.LocalGroup.GetGroups(); len(groups) > 0 {
 		aggregateGroup(cfg, repoName, collection, "_aggregate_group", eprintID, groups)
 	}
+}
+
+//
+// EPrints does not maintain a "person" or "group" object.
+// This is maintained externally an a CSV file for each.
+// This file can match against various ids fields in EPrints
+// record to create a curated person/group view.
+//
+
+// Person holds the data structure representing the general person
+// information and the crosswalk IDs maintained in the people.csv file.
+type Person struct {
+	CLPeopleID          string    `json:"cl_people_id,required"`
+	FamilyName          string    `json:"family_name,omitempty"`
+	GivenName           string    `json:"given_name,omitempty"`
+	ThesisID            string    `json:"thesis_id,omitempty"`
+	AdvisorID           string    `json:"advisor_id,omitempty"`
+	AuthorsID           string    `json:"authors_id,omitempty"`
+	ArchivesSpaceID     string    `json:"archivesspace_id,omitempty"`
+	DirectoryID         string    `json:"directory_id,omitempty"`
+	VIAF                string    `json:"viaf_id,omitempty"`
+	LCNAF               string    `json:"lcnaf,omitempty"`
+	ISNI                string    `json:"isni,omitempty"`
+	Wikidata            string    `json:"wikidata,omitempty"`
+	SNAC                string    `json:"snac,omitempty"`
+	ORCID               string    `json:"orcid,omitempty"`
+	Image               string    `json:"image,omitempty"`
+	EducatedAt          string    `json:"educated_at,omitempty"`
+	Caltech             bool      `json:"caltech,omitempty"`
+	JPL                 bool      `json:"jpl,omitempty"`
+	Faculty             bool      `json:"faculty,omitempty"`
+	Alumn               bool      `json:"alumn,omitempty"`
+	Status              string    `json:"status,omitempty"`
+	DirectoryPersonType string    `json:"directory_person_type,omitempty"`
+	Title               string    `json:"title,omitempty"`
+	Bio                 string    `json:"bio,omitempty"`
+	Division            string    `json:"division,omitempty"`
+	AuthorsCount        int       `json:"authors_count,omitempty"`
+	ThesisCount         int       `json:"thesis_count,omitempty"`
+	DataCount           int       `json:"data_count,omitempty"`
+	AdvistorCount       int       `json:"advisor_count,omitempty"`
+	EditorCount         int       `json:"editor_count,omitempty"`
+	Updated             time.Time `json:"updated,omitemtpy"`
+}
+
+// Group holds the data structure presenting the group information
+// and the crossswalk IDs maintained in groups.csv
+type Group struct {
+	GroupID     string    `json:"key,required"`
+	Name        string    `json:"name,omitempty"`
+	Alternative string    `json:"alternative"`
+	EMail       string    `json:"email,omitempty"`
+	Date        string    `json:"date,omitempty"`
+	Description string    `json:"description,omitempty"`
+	Start       string    `json:"start,omitempty"`
+	ApproxStart string    `json:"approx_start,omitempty"`
+	Activity    string    `json:"activity,omitempty"`
+	End         string    `json:"end,omitempty"`
+	ApproxEnd   string    `json:"approx_end,omitempty"`
+	Website     string    `json:"website,omitempty"`
+	PI          string    `json:"pi,omitempty"`
+	Parent      string    `json:"parent,omitempty"`
+	Prefix      string    `json:"prefix,omitempty"`
+	GRID        string    `json:"grid,omitempty"`
+	ISNI        string    `json:"isni,omitempty"`
+	RinGold     string    `json:"ringold,omitempty"`
+	VIAF        string    `json:"viaf,omitempty"`
+	ROR         string    `json:"ror,omitempty"`
+	Updated     time.Time `json:"updated,omitempty"`
+}
+
+func aToBool(s string) bool {
+	s = strings.ToLower(s)
+	if strings.HasPrefix(s, "t") || strings.HasPrefix(s, "1") {
+		return true
+	}
+	return false
+}
+
+func columnsToPerson(columns []string, row []string) (*Person, error) {
+	if len(columns) != len(row) {
+		return nil, fmt.Errorf("Mismatched columns in row")
+	}
+	person := new(Person)
+	for i, field := range columns {
+		switch field {
+		case "cl_people_id":
+			person.CLPeopleID = strings.TrimSpace(row[i])
+		case "family_name":
+			person.FamilyName = strings.TrimSpace(row[i])
+		case "given_name":
+			person.GivenName = strings.TrimSpace(row[i])
+		case "thesis_id":
+			person.ThesisID = strings.TrimSpace(row[i])
+		case "advisor_id":
+			person.AdvisorID = strings.TrimSpace(row[i])
+		case "authors_id":
+			person.AuthorsID = strings.TrimSpace(row[i])
+		case "archivesspace_id":
+			person.ArchivesSpaceID = strings.TrimSpace(row[i])
+		case "directory_id":
+			person.DirectoryID = strings.TrimSpace(row[i])
+		case "directory_person_type":
+			person.DirectoryPersonType = strings.TrimSpace(row[i])
+		case "viaf_id":
+			person.VIAF = strings.TrimSpace(row[i])
+		case "lcnaf":
+			person.LCNAF = strings.TrimSpace(row[i])
+		case "isni":
+			person.ISNI = strings.TrimSpace(row[i])
+		case "wikidata":
+			person.Wikidata = strings.TrimSpace(row[i])
+		case "snac":
+			person.SNAC = strings.TrimSpace(row[i])
+		case "orcid":
+			person.ORCID = strings.TrimSpace(row[i])
+		case "image":
+			person.Image = strings.TrimSpace(row[i])
+		case "educated_at":
+			person.EducatedAt = strings.TrimSpace(row[i])
+		case "caltech":
+			person.Caltech = aToBool(row[i])
+		case "jpl":
+			person.JPL = aToBool(row[i])
+		case "faculty":
+			person.Faculty = aToBool(row[i])
+		case "alumn":
+			person.Alumn = aToBool(row[i])
+		case "status":
+			person.Status = strings.TrimSpace(row[i])
+		case "directory_perosn_type":
+			person.DirectoryPersonType = strings.TrimSpace(row[i])
+		case "title":
+			person.Title = strings.TrimSpace(row[i])
+		case "bio":
+			person.Bio = strings.TrimSpace(row[i])
+		case "division":
+			person.Division = strings.TrimSpace(row[i])
+		case "authors_count":
+			// skip, ignore
+		case "thesis_count":
+			// skip, ignore
+		case "data_count":
+			// skip, ignore
+		case "advisor_count":
+			// skip, ignore
+		case "editor_count":
+			// skip, ignore
+		case "contributor_count":
+			// skip, ignore
+		case "updated":
+			person.Updated = time.Now()
+		default:
+			return nil, fmt.Errorf("failed to map column (%d: %q)", i, field)
+		}
+	}
+	return person, nil
+}
+
+func ReadPersonCSV(fName string, verbose bool) ([]*Person, error) {
+	fp, err := os.Open(fName)
+	if err != nil {
+		return nil, err
+	}
+	defer fp.Close()
+	r := csv.NewReader(fp)
+	columns := []string{}
+	people := []*Person{}
+	i := 0
+	for {
+		row, err := r.Read()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			return nil, err
+		}
+		if i == 0 {
+			columns = append(columns, row...)
+		} else {
+			person, err := columnsToPerson(columns, row)
+			if err != nil {
+				log.Printf("could not convert row (%d) %+v, %s", i+1, row, err)
+			} else if people != nil {
+				people = append(people, person)
+			}
+		}
+		i++
+	}
+	if verbose {
+		log.Printf("%d people added from %s", i, fName)
+	}
+	return people, nil
+}
+
+func columnsToGroup(columns []string, row []string) (*Group, error) {
+	if len(columns) != len(row) {
+		return nil, fmt.Errorf("Mismatched columns in row")
+	}
+	group := new(Group)
+	for i, field := range columns {
+		switch field {
+		case "key":
+			group.GroupID = strings.TrimSpace(row[i])
+		case "name":
+			group.Name = strings.TrimSpace(row[i])
+		case "alternative":
+			group.Alternative = strings.TrimSpace(row[i])
+		case "email":
+			group.EMail = strings.TrimSpace(row[i])
+		case "date":
+			group.Date = strings.TrimSpace(row[i])
+		case "description":
+			group.Description = strings.TrimSpace(row[i])
+		case "start":
+			group.Start = strings.TrimSpace(row[i])
+		case "approx_start":
+			group.ApproxStart = strings.TrimSpace(row[i])
+		case "activity":
+			group.Activity = strings.TrimSpace(row[i])
+		case "end":
+			group.End = strings.TrimSpace(row[i])
+		case "approx_end":
+			group.ApproxEnd = strings.TrimSpace(row[i])
+		case "website":
+			group.Website = strings.TrimSpace(row[i])
+		case "pi":
+			group.PI = strings.TrimSpace(row[i])
+		case "parent":
+			group.Parent = strings.TrimSpace(row[i])
+		case "prefix":
+			group.Prefix = strings.TrimSpace(row[i])
+		case "grid":
+			group.GRID = strings.TrimSpace(row[i])
+		case "isni":
+			group.ISNI = strings.TrimSpace(row[i])
+		case "ringold":
+			group.RinGold = strings.TrimSpace(row[i])
+		case "viaf":
+			group.VIAF = strings.TrimSpace(row[i])
+		case "ror":
+			group.ROR = strings.TrimSpace(row[i])
+		case "updated":
+			group.Updated = time.Now()
+		default:
+			return nil, fmt.Errorf("failed to map column (%d: %q)", i, field)
+		}
+	}
+	return group, nil
+}
+
+func ReadGroupsCSV(fName string, verbose bool) ([]*Group, error) {
+	fp, err := os.Open(fName)
+	if err != nil {
+		return nil, err
+	}
+	defer fp.Close()
+	r := csv.NewReader(fp)
+	columns := []string{}
+	groups := []*Group{}
+	i := 0
+	for {
+		row, err := r.Read()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			return nil, err
+		}
+		if i == 0 {
+			columns = append(columns, row...)
+		} else {
+			group, err := columnsToGroup(columns, row)
+			if err != nil {
+				log.Printf("could not convert row (%d) %+v", i+1, row)
+			} else if group != nil {
+				groups = append(groups, group)
+			}
+		}
+		i++
+	}
+	if verbose {
+		log.Printf("%d groups added from %s", i, fName)
+	}
+	return groups, nil
+}
+
+// RunHarvestPeopleGroups loads CSV files containing people and group
+// crosswalk tables. These synthesize Person and Group objects not present
+// in EPrints.
+func RunHarvestPeopleGroups(cfgName string, verbose bool) error {
+	// Read in the configuration for this harvester instance.
+	cfg, err := LoadConfig(cfgName)
+	if err != nil {
+		return err
+	}
+	if cfg == nil {
+		return fmt.Errorf("Could not create a configuration object")
+	}
+	if cfg.PeopleCSV != "" {
+		people, err := ReadPersonCSV(cfg.PeopleCSV, verbose)
+		if err != nil {
+			return err
+		}
+		tot := len(people)
+		t0 := time.Now()
+		for i, person := range people {
+			if err := SavePersonJSON(cfg, person); err != nil {
+				log.Printf("failed to save person record, %s", err)
+			}
+			if verbose && ((i % 1000) == 0) {
+				log.Printf("loaded %d people (%s)", i, progress(t0, i, tot))
+			}
+		}
+		if verbose {
+			log.Printf("loaded %d people in %v", tot, time.Since(t0).Truncate(time.Second))
+		}
+	}
+	if cfg.GroupsCSV != "" {
+		groups, err := ReadGroupsCSV(cfg.GroupsCSV, verbose)
+		if err != nil {
+			return err
+		}
+		tot := len(groups)
+		t0 := time.Now()
+		for i, group := range groups {
+			if err := SaveGroupJSON(cfg, group); err != nil {
+				log.Printf("failed to save group record, %s", err)
+			}
+			if verbose && ((i % 1000) == 0) {
+				log.Printf("loaded %d groups (%s)", i, progress(t0, i, tot))
+			}
+		}
+		if verbose {
+			log.Printf("loaded %d groups in %v", tot, time.Since(t0).Truncate(time.Second))
+		}
+	}
+	return nil
 }

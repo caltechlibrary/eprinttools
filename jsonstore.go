@@ -1,7 +1,5 @@
-//
 // jsonstore.go holds the operations for openning and close a JSON
 // Document Store currently implemented in MySQL 8 using JSON columns.
-//
 package eprinttools
 
 import (
@@ -40,15 +38,15 @@ func CloseJSONStore(config *Config) error {
 
 // Doc holds the data structure of our jsonstore row.
 type Doc struct {
-		ID           int    `json:"id"`
-		Src          []byte `json:"src"`
-		Action       string `json:"action,omitempty"`
-		Created      string `json:"created,omitempty"`
-		LastModified string `json:"lastmod,omitempty"`
-		PubDate      string `json:"pubDate,omitempty"`
-		Status       string `json:"status,omitempty"`
-		IsPublic     bool `json:"is_public,omitempty"`
-		RecordType string `json:"record_type,omitempty"`
+	ID           int    `json:"id"`
+	Src          []byte `json:"src"`
+	Action       string `json:"action,omitempty"`
+	Created      string `json:"created,omitempty"`
+	LastModified string `json:"lastmod,omitempty"`
+	PubDate      string `json:"pubDate,omitempty"`
+	Status       string `json:"status,omitempty"`
+	IsPublic     bool   `json:"is_public,omitempty"`
+	RecordType   string `json:"record_type,omitempty"`
 }
 
 // SaveJSONDocument takes a configuration, repoName, eprint id as integer and
@@ -97,7 +95,6 @@ func GetJSONDocument(cfg *Config, repoName string, id int) ([]byte, error) {
 	return src, nil
 }
 
-
 // GetJSONRow takes a configuration, repoName, eprint id and returns
 // the table row as JSON source.
 func GetJSONRow(cfg *Config, repoName string, id int) ([]byte, error) {
@@ -119,3 +116,85 @@ func GetJSONRow(cfg *Config, repoName string, id int) ([]byte, error) {
 	return json.MarshalIndent(doc, "", "    ")
 }
 
+func SavePersonJSON(cfg *Config, person *Person) error {
+	if cfg.Jdb == nil {
+		OpenJSONStore(cfg)
+	}
+	stmt := `REPLACE INTO _people (cl_people_id,family_name,given_name,thesis_id,advisor_id,authors_id,
+        archivesspace_id,directory_id,viaf_id,lcnaf,
+        isni,wikidata,snac,orcid,image,educated_at,caltech,jpl,faculty,alumn,
+        status,directory_person_type,title,bio,division,
+        authors_count,thesis_count,data_count,advisor_count,editor_count) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`
+	_, err := cfg.Jdb.Exec(stmt, person.CLPeopleID, person.FamilyName, person.GivenName, person.ThesisID, person.AdvisorID, person.AuthorsID,
+		person.ArchivesSpaceID, person.DirectoryID, person.VIAF, person.LCNAF,
+		person.ISNI, person.Wikidata, person.SNAC, person.ORCID, person.Image, person.EducatedAt, person.Caltech, person.JPL, person.Faculty, person.Alumn,
+		person.Status, person.DirectoryPersonType, person.Title, person.Bio, person.Division,
+		person.AuthorsCount, person.ThesisCount, person.DataCount, person.AdvistorCount, person.EditorCount)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func GetPersonJSON(cfg *Config, personID string) (*Person, error) {
+	if cfg.Jdb == nil {
+		OpenJSONStore(cfg)
+	}
+	stmt := `SELECT cl_people_id,family_name,given_name,thesis_id,advisor_id,authors_id,
+    archivesspace_id,directory_id,viaf_id,lcnaf,isni,wikidata,snac,orcid,
+    image,educated_at,caltech,jpl,faculty,alumn,status,directory_person_type,
+    title,bio,division, authors_count,thesis_count,data_count,advisor_count, editor_count, updated FROM _people WHERE cl_people_id = ?`
+	row, err := cfg.Jdb.Query(stmt, personID)
+	if err != nil {
+		return nil, err
+	}
+	person := new(Person)
+	if row.Next() {
+		if err := row.Scan(&person.CLPeopleID, &person.FamilyName, &person.GivenName, &person.ThesisID, &person.AdvisorID, &person.AuthorsID,
+			&person.ArchivesSpaceID, &person.DirectoryID, &person.VIAF, &person.LCNAF, &person.ISNI, &person.Wikidata, &person.SNAC, &person.ORCID,
+			&person.Image, &person.EducatedAt, &person.Caltech, &person.JPL, &person.Faculty, &person.Alumn, &person.Status, &person.DirectoryPersonType,
+			&person.Title, &person.Bio, &person.Division, &person.AuthorsCount, &person.ThesisCount, &person.DataCount, &person.AdvistorCount, &person.EditorCount, &person.Updated); err != nil {
+			return nil, err
+		}
+	}
+	return person, nil
+}
+
+func SaveGroupJSON(cfg *Config, group *Group) error {
+	if cfg.Jdb == nil {
+		OpenJSONStore(cfg)
+	}
+	stmt := `REPLACE INTO _groups (group_id,name,alternative,email,date,description,start,approx_start,activity,end,
+    approx_end,website,pi,parent,prefix,grid,isni,ringold,viaf,ror) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`
+	_, err := cfg.Jdb.Exec(stmt,
+		group.GroupID, group.Name, group.Alternative, group.EMail, group.Date, group.Description, group.Start, group.ApproxStart, group.Activity, group.End,
+		group.ApproxEnd, group.Website, group.PI, group.Parent, group.Prefix, group.GRID, group.ISNI, group.RinGold, group.VIAF, group.ROR)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func GetGroupJSON(cfg *Config, groupID string) (*Group, error) {
+	if cfg.Jdb == nil {
+		OpenJSONStore(cfg)
+	}
+	stmt := `SELECT group_id,name,alternative,email,date,description,start,
+    approx_start,activity,end,approx_end,website,pi,
+    parent,prefix,grid,isni,ringold,viaf,
+    ror,updated FROM _groups WHERE group_id = ?`
+	row, err := cfg.Jdb.Query(stmt, groupID)
+	if err != nil {
+		return nil, err
+	}
+	group := new(Group)
+	if row.Next() {
+		if err := row.Scan(&group.GroupID, &group.Name, &group.Alternative, &group.EMail, &group.Date, &group.Description, &group.Start,
+			&group.ApproxStart, &group.Activity, &group.End, &group.ApproxEnd, &group.Website, &group.PI,
+			&group.Parent, &group.Prefix, &group.GRID, &group.ISNI, &group.RinGold, &group.VIAF,
+			&group.ROR, &group.Updated); err != nil {
+			return nil, err
+		}
+	}
+	return group, nil
+}

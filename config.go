@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
 )
 
 // Config holds a configuration file structure used by EPrints Extended API
@@ -23,6 +24,12 @@ type Config struct {
 
 	// Logfile
 	Logfile string `json:"logfile,omitempty"`
+
+	// PeopleCSV points to a curated people.csv file, this file contains crosswalk ids and general name info
+	PeopleCSV string `json:"people_csv,omitempty"`
+
+	// GroupsCSV points to a curated groups.csv file, this file contains crosswalk ids and general group info
+	GroupsCSV string `json:"groups_csv,omitempty"`
 
 	// Repositories are defined by a REPO_ID (string)
 	// that points at a MySQL Db connection string
@@ -46,7 +53,7 @@ type Config struct {
 	Routes map[string]map[string]func(http.ResponseWriter, *http.Request, string, []string) (int, error) `json:"-"`
 
 	// ProjectDir is the directory where you stage harvested content
-	ProjectDir string `json:"project_dir, omitempty"`
+	ProjectDir string `json:"project_dir,omitempty"`
 
 	// Htdocs is the directory where aggregated information and
 	// website content is generated to after running the harvester.
@@ -108,6 +115,12 @@ type DataSource struct {
 
 func DefaultConfig() []byte {
 	config := new(Config)
+	if _, err := os.Stat("people.csv"); err == nil {
+		config.PeopleCSV = "people.csv"
+	}
+	if _, err := os.Stat("groups.csv"); err == nil {
+		config.GroupsCSV = "groups.csv"
+	}
 	config.Hostname = "localhost:8484"
 	config.BaseURL = "http//localhost:8484"
 	config.JSONStore = "$DB_USER:$DB_PASSWORD@/collections"

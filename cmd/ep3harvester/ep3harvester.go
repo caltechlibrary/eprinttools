@@ -102,9 +102,10 @@ Harvesting repositories for week month of May, 2022.
 	showVersion bool
 
 	// App Option
-	showSqlSchema bool
-	initialize bool
-	verbose bool
+	showSqlSchema   bool
+	initialize      bool
+	peopleAndGroups bool
+	verbose         bool
 )
 
 func main() {
@@ -119,6 +120,7 @@ func main() {
 	flagSet.BoolVar(&showSqlSchema, "sql-schema", false, "display SQL schema for installing MySQL jsonstore DB")
 	flagSet.BoolVar(&verbose, "verbose", false, "use verbose logging")
 	flagSet.BoolVar(&initialize, "init", false, "generate a settings JSON file")
+	flagSet.BoolVar(&peopleAndGroups, "people-groups", false, "Harvest people and groups from CSV files included configuration")
 
 	// We're ready to process args
 	flagSet.Parse(os.Args[1:])
@@ -181,10 +183,17 @@ func main() {
 		os.Exit(0)
 	}
 	t0 := time.Now()
-	err := eprinttools.RunHarvester(settings, start, end, verbose)
-	if err != nil {
-		log.Print(err)
-		os.Exit(1)
+	if peopleAndGroups {
+		if err := eprinttools.RunHarvestPeopleGroups(settings, verbose); err != nil {
+			log.Print(err)
+			os.Exit(1)
+		}
+	} else {
+		err := eprinttools.RunHarvester(settings, start, end, verbose)
+		if err != nil {
+			log.Print(err)
+			os.Exit(1)
+		}
 	}
 	log.Printf("total run time %v", time.Now().Sub(t0).Truncate(time.Second))
 }
