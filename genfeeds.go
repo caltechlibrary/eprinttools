@@ -1,10 +1,12 @@
 package eprinttools
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"os"
 	"path"
+	"strings"
 	"time"
 )
 
@@ -18,15 +20,77 @@ import (
 // group keys. Group keys are sorted alphabetically. Group keys are
 // formed from the group field slugified.
 func GenerateGroupIDs(cfg *Config, repoName string, verbose bool) error {
-	return fmt.Errorf("GenerateGroupIDs() not implemented")
+	if cfg.Jdb == nil {
+		if err := OpenJSONStore(cfg); err != nil {
+			return err
+		}
+	}
+	groupDir := path.Join(cfg.Htdocs, "groups")
+	// NOTE: Is htdocs relative to project? If so handle that case
+	if ! (strings.HasPrefix(cfg.Htdocs, "/") || strings.HasPrefix(groupDir, cfg.ProjectDir)){
+		groupDir = path.Join(cfg.ProjectDir, groupDir)
+	}
+	if _, err := os.Stat(groupDir); os.IsNotExist(err) {
+		if err := os.MkdirAll(groupDir, 0775); err != nil {
+			return err
+		}
+	}
+
+	// generate htdocs/groups/index.json
+	groupIDs, err := GetGroupIDs(cfg)
+	if err != nil {
+		return err
+	}
+	src, err := json.MarshalIndent(groupIDs, "", "    ")
+	if err != nil {
+		return err
+	}
+	if err := os.WriteFile(path.Join(groupDir, "index.json"), src, 0664); err != nil {
+		return err
+	}
+
+	// For each group in _groups, find the records that should be included
+	// with sublists of docuument type, options (major/minor), degree
+	// thesis/disertations.
+	return nil
 }
 
 // GeneratePeopleIDs returns a JSON document contiainer an array
 // of people ids. People keys are sorted alphabetically.
 func GeneratePeopleIDs(cfg *Config, repoName string, verbose bool) error {
-	return fmt.Errorf("GeneratePeopleIDs() not implemented")
-}
+	if cfg.Jdb == nil {
+		if err := OpenJSONStore(cfg); err != nil {
+			return err
+		}
+	}
+	peopleDir := path.Join(cfg.Htdocs, "people")
+	// NOTE: Is htdocs relative to project? If so handle that case
+	if ! (strings.HasPrefix(cfg.Htdocs, "/") || strings.HasPrefix(peopleDir, cfg.ProjectDir)){
+		peopleDir = path.Join(cfg.ProjectDir, peopleDir)
+	}
+	if _, err := os.Stat(peopleDir); os.IsNotExist(err) {
+		if err := os.MkdirAll(peopleDir, 0775); err != nil {
+			return err
+		}
+	}
 
+	// generate htdocs/people/index.json
+	personIDs, err := GetPersonIDs(cfg)
+	if err != nil {
+		return err
+	}
+	src, err := json.MarshalIndent(personIDs, "", "    ")
+	if err != nil {
+		return err
+	}
+	if err := os.WriteFile(path.Join(peopleDir, "index.json"), src, 0664); err != nil {
+		return err
+	}
+
+	// For each person in _people, find the records that should be included
+	// e.g. creator, editor, contributor, advisor, committee member.
+	return nil
+}
 
 // RunGenfeeds will use the config file names by cfgName and
 // render all the directorys, JSON documents and non-templated

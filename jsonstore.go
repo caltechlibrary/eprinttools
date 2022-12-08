@@ -6,6 +6,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"strings"
 
 	// MySQL database support
 	_ "github.com/go-sql-driver/mysql"
@@ -160,6 +161,28 @@ func GetPersonJSON(cfg *Config, personID string) (*Person, error) {
 	return person, nil
 }
 
+func GetPersonIDs(cfg *Config) ([]string, error) {
+	if cfg.Jdb == nil {
+		OpenJSONStore(cfg)
+	}
+	stmt := `SELECT LOWER(cl_people_id) FROM _people ORDER BY family_name,given_name`
+	rows, err := cfg.Jdb.Query(stmt)
+	if err != nil {
+		return nil, err
+	}
+	ids := []string{}
+	var id string
+	for rows.Next() {
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		if strings.TrimSpace(id) != "" {
+			ids = append(ids, id)
+		}
+	}
+	return ids, nil
+}
+
 func SaveGroupJSON(cfg *Config, group *Group) error {
 	if cfg.Jdb == nil {
 		OpenJSONStore(cfg)
@@ -197,4 +220,26 @@ func GetGroupJSON(cfg *Config, groupID string) (*Group, error) {
 		}
 	}
 	return group, nil
+}
+
+func GetGroupIDs(cfg *Config) ([]string, error) {
+	if cfg.Jdb == nil {
+		OpenJSONStore(cfg)
+	}
+	stmt := `SELECT group_id FROM _groups ORDER BY name`
+	rows, err := cfg.Jdb.Query(stmt)
+	if err != nil {
+		return nil, err
+	}
+	ids := []string{}
+	var id string
+	for rows.Next() {
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		if strings.TrimSpace(id) != "" {
+			ids = append(ids, id)
+		}
+	}
+	return ids, nil
 }
