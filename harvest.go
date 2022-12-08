@@ -269,7 +269,6 @@ func harvest(cfg *Config, start string, end string, verbose bool) error {
 	}
 	sort.Strings(repoNames)
 	for _, repoName := range repoNames {
-		//FIXME: we could use a go routine to support concurrent harvests.
 		log.Printf("harvesting %s started", repoName)
 		if err := harvestRepository(cfg, repoName, start, end, verbose); err != nil {
 			log.Printf("harvesting %s aborted", repoName)
@@ -361,6 +360,8 @@ func harvestEPrintRecord(cfg *Config, repoName string, eprintID int) error {
 	}
 	// Since we can save the JSON recordd, need to aggregate the contents of it.
 	aggregateEPrintRecord(cfg, repoName, eprintID, eprint)
+	// FIXME: Do we update the people, group counts here? Or when we've
+	// aggregate the feeds?
 	return err
 }
 
