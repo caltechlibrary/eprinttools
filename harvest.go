@@ -8,7 +8,6 @@ package eprinttools
 
 import (
 	"encoding/csv"
-	"encoding/json"
 	"fmt"
 	"io"
 	"log"
@@ -57,7 +56,10 @@ CREATE TABLE IF NOT EXISTS _aggregate_creator (
 	repository VARCHAR(256),
 	collection VARCHAR(256),
 	eprintid INT,
-	person_id VARCHAR(256) DEFAULT ""
+	person_id VARCHAR(256) DEFAULT "",
+  	pubdate VARCHAR(256) DEFAULT "",
+  	is_public BOOLEAN DEFAULT FALSE,
+  	record_type VARCHAR(256) DEFAULT ""
 );
 
 -- Table Schema generated for MySQL 8
@@ -67,7 +69,10 @@ CREATE TABLE IF NOT EXISTS _aggregate_editor (
 	repository VARCHAR(256),
 	collection VARCHAR(256),
 	eprintid INT,
-	person_id VARCHAR(256) DEFAULT ""
+	person_id VARCHAR(256) DEFAULT "",
+  	pubdate VARCHAR(256) DEFAULT "",
+  	is_public BOOLEAN DEFAULT FALSE,
+  	record_type VARCHAR(256) DEFAULT ""
 );
 
 -- Table Schema generated for MySQL 8
@@ -77,7 +82,10 @@ CREATE TABLE IF NOT EXISTS _aggregate_contributor (
 	repository VARCHAR(256),
 	collection VARCHAR(256),
 	eprintid INTEGER,
-	person_id VARCHAR(256) DEFAULT ""
+	person_id VARCHAR(256) DEFAULT "",
+  	pubdate VARCHAR(256) DEFAULT "",
+  	is_public BOOLEAN DEFAULT FALSE,
+  	record_type VARCHAR(256) DEFAULT ""
 );
 
 -- Table Schema generated for MySQL 8
@@ -87,7 +95,10 @@ CREATE TABLE IF NOT EXISTS _aggregate_advisor (
 	repository VARCHAR(256),
 	collection VARCHAR(256),
 	eprintid INTEGER,
-	person_id VARCHAR(256) DEFAULT ""
+	person_id VARCHAR(256) DEFAULT "",
+  	pubdate VARCHAR(256) DEFAULT "",
+  	is_public BOOLEAN DEFAULT FALSE,
+  	record_type VARCHAR(256) DEFAULT ""
 );
 
 -- Table Schema generated for MySQL 8
@@ -97,7 +108,10 @@ CREATE TABLE IF NOT EXISTS _aggregate_committee (
 	repository VARCHAR(256),
 	collection VARCHAR(256),
 	eprintid INTEGER,
-	person_id VARCHAR(256) DEFAULT ""
+	person_id VARCHAR(256) DEFAULT "",
+  	pubdate VARCHAR(256) DEFAULT "",
+  	is_public BOOLEAN DEFAULT FALSE,
+  	record_type VARCHAR(256) DEFAULT ""
 );
 
 -- Table Schema generated for MySQL 8
@@ -107,7 +121,10 @@ CREATE TABLE IF NOT EXISTS _aggregate_option_major (
 	repository VARCHAR(256),
 	collection VARCHAR(256),
 	eprintid INTEGER,
-    local_option VARCHAR(256) DEFAULT ""
+  	pubdate VARCHAR(256) DEFAULT "",
+  	is_public BOOLEAN DEFAULT FALSE,
+  	record_type VARCHAR(256) DEFAULT "",
+	local_option VARCHAR(256) DEFAULT ""
 );
 
 -- Table Schema generated for MySQL 8
@@ -117,7 +134,10 @@ CREATE TABLE IF NOT EXISTS _aggregate_option_minor (
 	repository VARCHAR(256),
 	collection VARCHAR(256),
 	eprintid INTEGER,
-    local_option VARCHAR(256) DEFAULT ""
+  	pubdate VARCHAR(256) DEFAULT "",
+  	is_public BOOLEAN DEFAULT FALSE,
+  	record_type VARCHAR(256) DEFAULT "",
+	local_option VARCHAR(256) DEFAULT ""
 );
 
 -- Table Schema generated for MySQL 8
@@ -127,15 +147,20 @@ CREATE TABLE IF NOT EXISTS _aggregate_group (
 	repository VARCHAR(256),
 	collection VARCHAR(256),
 	eprintid INTEGER,
+  	pubdate VARCHAR(256) DEFAULT "",
+  	is_public BOOLEAN DEFAULT FALSE,
+  	record_type VARCHAR(256) DEFAULT "",
 	local_group VARCHAR(256) DEFAULT ""
 );
 
 -- Table Schema generate for MySQL 8
 -- for external People list (e.g. from people.csv)
 CREATE TABLE IF NOT EXISTS _people (
-    cl_people_id VARCHAR(256) NOT NULL PRIMARY KEY,
+    person_id VARCHAR(256) NOT NULL PRIMARY KEY,
+    cl_people_id VARCHAR(256) DEFAULT "",
     family_name VARCHAR(256) DEFAULT "",
     given_name VARCHAR(256) DEFAULT "",
+    sort_name VARCHAR(256) DEFAULT "",
     thesis_id VARCHAR(256) DEFAULT "",
     advisor_id VARCHAR(256) DEFAULT "",
     authors_id VARCHAR(256) DEFAULT "",
@@ -160,13 +185,7 @@ CREATE TABLE IF NOT EXISTS _people (
     title VARCHAR(1024) DEFAULT "",
     bio TEXT,
     division VARCHAR(256) DEFAULT "",
-    authors_count INTEGER DEFAULT 0,
-    thesis_count INTEGER DEFAULT 0,
-    data_count INTEGER DEFAULT 0,
-    advisor_count INTEGER DEFAULT 0,
-    editor_count INTEGER DEFAULT 0,
-    contributor_count INTEGER DEFAULT 0,
-    updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS _groups (
@@ -190,7 +209,7 @@ CREATE TABLE IF NOT EXISTS _groups (
     ringold VARCHAR(256) DEFAULT "",
     viaf VARCHAR(256) DEFAULT "",
     ror VARCHAR(256) DEFAULT "",
-    updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 `
@@ -201,7 +220,7 @@ CREATE TABLE IF NOT EXISTS _groups (
 CREATE TABLE IF NOT EXISTS %s (
   id INTEGER NOT NULL PRIMARY KEY,
   src JSON,
-  updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   action VARCHAR(256) DEFAULT "",
   created VARCHAR(256) DEFAULT "",
   lastmod VARCHAR(256) DEFAULT "",
@@ -259,6 +278,7 @@ func harvest(cfg *Config, start string, end string, verbose bool) error {
 	if err := OpenConnections(cfg); err != nil {
 		return err
 	}
+	defer CloseConnections(cfg)
 	if err := OpenJSONStore(cfg); err != nil {
 		return err
 	}
@@ -353,7 +373,7 @@ func harvestEPrintRecord(cfg *Config, repoName string, eprintID int) error {
 	if eprint.EPrintStatus == "deletion" {
 		action = "deleted"
 	}
-	src, _ := json.MarshalIndent(eprint, "", "    ")
+	src, _ := jsonEncode(eprint)
 	err = SaveJSONDocument(cfg, repoName, eprintID, src, action, eprint.Datestamp, eprint.LastModified, eprint.PubDate(), eprint.EPrintStatus, eprint.IsPublic(), eprint.Type)
 	if err != nil {
 		return err
@@ -366,26 +386,26 @@ func harvestEPrintRecord(cfg *Config, repoName string, eprintID int) error {
 }
 
 // aggregatePersons aggregates by the person related roles, e.g. creator, editor, contributor, advisor, committee memember
-func aggregatePersons(cfg *Config, repoName string, collection string, tableName string, eprintID int, personIDs []string) {
+func aggregatePersons(cfg *Config, repoName string, collection string, tableName string, eprintID int, recordType string, isPublic bool, pubDate string, personIDs []string) {
 	deleteStmt := fmt.Sprintf(`DELETE FROM %s WHERE repository = ? AND collection = ? AND eprintid = ?`, tableName)
 	cfg.Jdb.Exec(deleteStmt)
 	if len(personIDs) > 0 {
-		insertStmt := fmt.Sprintf(`INSERT INTO %s (repository, collection, eprintid, person_id) VALUES (?, ?, ?, ?)`, tableName)
+		insertStmt := fmt.Sprintf(`INSERT INTO %s (repository, collection, eprintid, person_id, record_type, is_public, pubdate) VALUES (?, ?, ?, ?, ?, ?, ?)`, tableName)
 		for _, personID := range personIDs {
-			if _, err := cfg.Jdb.Exec(insertStmt, repoName, collection, eprintID, personID); err != nil {
-				log.Printf("WARNING: failed aggregreatePersons(cfg, %q, %q, %d, %q): %s", repoName, collection, eprintID, personID, err)
+			if _, err := cfg.Jdb.Exec(insertStmt, repoName, collection, eprintID, personID, recordType, isPublic, pubDate); err != nil {
+				log.Printf("WARNING: failed aggregreatePersons(cfg, %q, %q, %d, %q, %t, %q, %q): %s", repoName, collection, eprintID, recordType, isPublic, pubDate, personID, err)
 			}
 		}
 	}
 }
 
-func aggregateOptions(cfg *Config, repoName string, collection string, tableName string, eprintID int, options []string) {
+func aggregateOptions(cfg *Config, repoName string, collection string, tableName string, eprintID int, recordType string, isPublic bool, pubDate string, options []string) {
 	deleteStmt := fmt.Sprintf(`DELETE FROM %s WHERE repository = ? AND collection = ? AND eprintid = ?`, tableName)
 	cfg.Jdb.Exec(deleteStmt)
 	if len(options) > 0 {
-		insertStmt := fmt.Sprintf(`INSERT INTO %s (repository, collection, eprintid, local_option) VALUES (?, ?, ?, ?)`, tableName)
+		insertStmt := fmt.Sprintf(`INSERT INTO %s (repository, collection, eprintid, record_type, is_public, pubdate local_option) VALUES (?, ?, ?, ?, ?, ?, ?)`, tableName)
 		for _, option := range options {
-			if _, err := cfg.Jdb.Exec(insertStmt, repoName, collection, eprintID, option); err != nil {
+			if _, err := cfg.Jdb.Exec(insertStmt, repoName, collection, eprintID, recordType, isPublic, pubDate, option); err != nil {
 				log.Printf("WARNING: failed aggregateOptions(cfg, %q, %q, %d, %q): %s", repoName, collection, eprintID, option, err)
 			}
 		}
@@ -393,13 +413,13 @@ func aggregateOptions(cfg *Config, repoName string, collection string, tableName
 }
 
 // aggregateGroup aggregates by the by group
-func aggregateGroup(cfg *Config, repoName string, collection string, tableName string, eprintID int, groups []string) {
+func aggregateGroup(cfg *Config, repoName string, collection string, tableName string, eprintID int, recordType string, isPublic bool, pubDate string, groups []string) {
 	deleteStmt := fmt.Sprintf(`DELETE FROM %s WHERE repository = ? AND collection = ? AND eprintid = ?`, tableName)
 	cfg.Jdb.Exec(deleteStmt)
 	if len(groups) > 0 {
-		insertStmt := fmt.Sprintf(`INSERT INTO %s (repository, collection, eprintid, local_group) VALUES (?, ?, ?, ?)`, tableName)
+		insertStmt := fmt.Sprintf(`INSERT INTO %s (repository, collection, eprintid, record_type, is_public, pubdate, local_group) VALUES (?, ?, ?, ?, ?, ?, ?)`, tableName)
 		for _, groupName := range groups {
-			if _, err := cfg.Jdb.Exec(insertStmt, repoName, collection, eprintID, groupName); err != nil {
+			if _, err := cfg.Jdb.Exec(insertStmt, repoName, collection, eprintID, recordType, isPublic, pubDate, groupName); err != nil {
 				log.Printf("WARNING: failed aggregateGroup(cfg, %q, %q, %d, %q): %s", repoName, collection, eprintID, groupName, err)
 			}
 		}
@@ -410,30 +430,33 @@ func aggregateGroup(cfg *Config, repoName string, collection string, tableName s
 // then performances an analysis of the record aggregrating it's component parts.
 func aggregateEPrintRecord(cfg *Config, repoName string, eprintID int, eprint *EPrint) {
 	collection := eprint.Collection
+	recordType := eprint.Type
+	isPublic := eprint.IsPublic()
+	pubDate := eprint.PubDate()
 	// Clear the creators aggregation for this eprint record
 	if personIDs := eprint.Creators.GetIDs(); len(personIDs) > 0 {
-		aggregatePersons(cfg, repoName, collection, "_aggregate_creator", eprintID, personIDs)
+		aggregatePersons(cfg, repoName, collection, "_aggregate_creator", eprintID, recordType, isPublic, pubDate, personIDs)
 	}
 	if personIDs := eprint.Editors.GetIDs(); len(personIDs) > 0 {
-		aggregatePersons(cfg, repoName, collection, "_aggregate_editor", eprintID, personIDs)
+		aggregatePersons(cfg, repoName, collection, "_aggregate_editor", eprintID, recordType, isPublic, pubDate, personIDs)
 	}
 	if personIDs := eprint.Contributors.GetIDs(); len(personIDs) > 0 {
-		aggregatePersons(cfg, repoName, collection, "_aggregate_contributor", eprintID, personIDs)
+		aggregatePersons(cfg, repoName, collection, "_aggregate_contributor", eprintID, recordType, isPublic, pubDate, personIDs)
 	}
 	if personIDs := eprint.ThesisAdvisor.GetIDs(); len(personIDs) > 0 {
-		aggregatePersons(cfg, repoName, collection, "_aggregate_advisor", eprintID, personIDs)
+		aggregatePersons(cfg, repoName, collection, "_aggregate_advisor", eprintID, recordType, isPublic, pubDate, personIDs)
 	}
 	if personIDs := eprint.ThesisCommittee.GetIDs(); len(personIDs) > 0 {
-		aggregatePersons(cfg, repoName, collection, "_aggregate_committee", eprintID, personIDs)
+		aggregatePersons(cfg, repoName, collection, "_aggregate_committee", eprintID, recordType, isPublic, pubDate, personIDs)
 	}
 	if options := eprint.OptionMajor.GetOptions(); len(options) > 0 {
-		aggregateOptions(cfg, repoName, collection, "_aggregate_option_major", eprintID, options)
+		aggregateOptions(cfg, repoName, collection, "_aggregate_option_major", eprintID, recordType, isPublic, pubDate, options)
 	}
 	if options := eprint.OptionMinor.GetOptions(); len(options) > 0 {
-		aggregateOptions(cfg, repoName, collection, "_aggregate_option_minor", eprintID, options)
+		aggregateOptions(cfg, repoName, collection, "_aggregate_option_minor", eprintID, recordType, isPublic, pubDate, options)
 	}
 	if groups := eprint.LocalGroup.GetGroups(); len(groups) > 0 {
-		aggregateGroup(cfg, repoName, collection, "_aggregate_group", eprintID, groups)
+		aggregateGroup(cfg, repoName, collection, "_aggregate_group", eprintID, recordType, isPublic, pubDate, groups)
 	}
 }
 
@@ -447,9 +470,11 @@ func aggregateEPrintRecord(cfg *Config, repoName string, eprintID int, eprint *E
 // Person holds the data structure representing the general person
 // information and the crosswalk IDs maintained in the people.csv file.
 type Person struct {
-	CLPeopleID          string    `json:"cl_people_id,required"`
+	PersonID            string    `json:"id,required"`
+	CLPeopleID          string    `json:"cl_people_id,omitempty"`
 	FamilyName          string    `json:"family_name,omitempty"`
 	GivenName           string    `json:"given_name,omitempty"`
+	SortName            string    `json:"sort_name,omitempty"`
 	ThesisID            string    `json:"thesis_id,omitempty"`
 	AdvisorID           string    `json:"advisor_id,omitempty"`
 	AuthorsID           string    `json:"authors_id,omitempty"`
@@ -472,11 +497,6 @@ type Person struct {
 	Title               string    `json:"title,omitempty"`
 	Bio                 string    `json:"bio,omitempty"`
 	Division            string    `json:"division,omitempty"`
-	AuthorsCount        int       `json:"authors_count,omitempty"`
-	ThesisCount         int       `json:"thesis_count,omitempty"`
-	DataCount           int       `json:"data_count,omitempty"`
-	AdvistorCount       int       `json:"advisor_count,omitempty"`
-	EditorCount         int       `json:"editor_count,omitempty"`
 	Updated             time.Time `json:"updated,omitemtpy"`
 }
 
@@ -573,24 +593,28 @@ func columnsToPerson(columns []string, row []string) (*Person, error) {
 			person.Bio = strings.TrimSpace(row[i])
 		case "division":
 			person.Division = strings.TrimSpace(row[i])
-		case "authors_count":
-			// skip, ignore
-		case "thesis_count":
-			// skip, ignore
-		case "data_count":
-			// skip, ignore
-		case "advisor_count":
-			// skip, ignore
-		case "editor_count":
-			// skip, ignore
-		case "contributor_count":
-			// skip, ignore
 		case "updated":
 			person.Updated = time.Now()
+		case "authors_count":
+			// Skip, we ignore this column
+		case "editor_count":
+			// Skip, we ignore this column
+		case "thesis_count":
+			// Skip, we ignore this column
+		case "data_count":
+			// Skip, we ignore this column
+		case "advisor_count":
+			// Skip, we ignore this column
+		case "committee_count":
+			// Skip, we ignore this columns
 		default:
 			return nil, fmt.Errorf("failed to map column (%d: %q)", i, field)
 		}
 	}
+	// Handle personID
+	person.PersonID = strings.ToLower(person.CLPeopleID)
+	// Handle creating SortName
+	person.SortName = fmt.Sprintf("%s, %s", person.FamilyName, person.GivenName)
 	return person, nil
 }
 
@@ -734,6 +758,10 @@ func RunHarvestPeopleGroups(cfgName string, verbose bool) error {
 	if cfg == nil {
 		return fmt.Errorf("Could not create a configuration object")
 	}
+	if err := OpenJSONStore(cfg); err != nil {
+		return err
+	}
+	defer cfg.Jdb.Close()
 	if cfg.PeopleCSV != "" {
 		people, err := ReadPersonCSV(cfg.PeopleCSV, verbose)
 		if err != nil {

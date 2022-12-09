@@ -23,11 +23,6 @@ func generateDataset(cfg *Config, repoName string, projectDir string, verbose bo
 	if !ok {
 		return fmt.Errorf("%s not found in configuration", repoName)
 	}
-	if cfg.Jdb == nil {
-		if err := OpenJSONStore(cfg); err != nil {
-			return err
-		}
-	}
 
 	cName := path.Join(projectDir, repoCfg.DefaultCollection) + ".ds"
 	if _, err := os.Stat(cName); err == nil {
