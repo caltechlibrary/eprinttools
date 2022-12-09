@@ -403,10 +403,10 @@ func aggregateOptions(cfg *Config, repoName string, collection string, tableName
 	deleteStmt := fmt.Sprintf(`DELETE FROM %s WHERE repository = ? AND collection = ? AND eprintid = ?`, tableName)
 	cfg.Jdb.Exec(deleteStmt)
 	if len(options) > 0 {
-		insertStmt := fmt.Sprintf(`INSERT INTO %s (repository, collection, eprintid, record_type, is_public, pubdate local_option) VALUES (?, ?, ?, ?, ?, ?, ?)`, tableName)
+		insertStmt := fmt.Sprintf(`INSERT INTO %s (repository, collection, eprintid, record_type, is_public, pubdate, local_option) VALUES (?, ?, ?, ?, ?, ?, ?)`, tableName)
 		for _, option := range options {
 			if _, err := cfg.Jdb.Exec(insertStmt, repoName, collection, eprintID, recordType, isPublic, pubDate, option); err != nil {
-				log.Printf("WARNING: failed aggregateOptions(cfg, %q, %q, %d, %q): %s", repoName, collection, eprintID, option, err)
+				log.Printf("WARNING: failed aggregateOptions(cfg, %q, %q, %d, %q, %t, %q, %q): %s", repoName, collection, eprintID, recordType, isPublic, pubDate, option, err)
 			}
 		}
 	}

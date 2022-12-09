@@ -7,6 +7,7 @@ This is for the simplified eprinttools codebase.
 Bugs
 ----
 
++ [ ] Aggregation group_list.json has empty "combined" mapped when there are no eprintid for the specific group in the respository 
 + [ ] each index.html under people and group should have a corresponding index.json that is used by Pandoc to render index.md that then renders index.html, include.include
 + [x] Issue 40, SQL reference document_relation_type table issues
 + [ ] Issue 41, Add related URL as DOI value (really make eprints show this as a linked field in the display, don't do that in the data structure)

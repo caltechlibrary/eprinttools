@@ -45,9 +45,6 @@ func generateGroupListJSON(cfg *Config, groupIDs []string, verbose bool) ([]map[
 			if aggregations != nil {
 				m[repoName] = aggregations
 			}
-			if verbose {
-				log.Printf("Processed %s", repoName)
-			}
 		}
 		if len(m) > 0 {
 			groupList = append(groupList, m)
@@ -91,6 +88,7 @@ func GenerateGroupIDs(cfg *Config, verbose bool) error {
 	}
 
 	// For each group in _groups, find the records that should be included
+	fName = path.Join(groupDir, "group_list.json")
 	groupList, err := generateGroupListJSON(cfg, groupIDs, verbose)
 	if err != nil {
 		return err

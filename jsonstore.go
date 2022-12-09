@@ -186,10 +186,11 @@ func SaveGroupJSON(cfg *Config, group *Group) error {
 }
 
 func GetGroup(cfg *Config, groupID string) (*Group, error) {
-	stmt := `SELECT group_id, name, alternative, email, date, description, start,
+	var updated int64
+stmt := `SELECT group_id, name, alternative, email, date, description, start,
     approx_start, activity, end, approx_end, website, pi,
     parent, prefix, grid, isni, ringold, viaf,
-    ror, updated FROM _groups WHERE group_id = ?`
+    ror, UNIX_TIMESTAMP(updated) FROM _groups WHERE group_id = ?`
 	row, err := cfg.Jdb.Query(stmt, groupID)
 	if err != nil {
 		return nil, err
@@ -200,11 +201,12 @@ func GetGroup(cfg *Config, groupID string) (*Group, error) {
 		if err := row.Scan(&group.GroupID, &group.Name, &group.Alternative, &group.EMail, &group.Date, &group.Description, &group.Start,
 			&group.ApproxStart, &group.Activity, &group.End, &group.ApproxEnd, &group.Website, &group.PI,
 			&group.Parent, &group.Prefix, &group.GRID, &group.ISNI, &group.RinGold, &group.VIAF,
-			&group.ROR, &group.Updated); err != nil {
+			&group.ROR, &updated); err != nil {
 			return nil, err
 		}
 	}
 	err = row.Err()
+	group.Updated = time.UnixMicro(updated)
 	return group, err
 }
 
@@ -233,7 +235,7 @@ func GetGroupAggregations(cfg *Config, repoName, groupID string) (map[string][]i
 	// Create an emptyp map[string][]int{}
 	m := map[string][]int{}
 	// Read the _aggregate_group to get the eprintid for group by decending publation date
-	stmt := fmt.Sprintf(`SELECT eprintid, record_type, pubDate FROM _aggregation_group WHERE repository = ? AND local_group = ? ORDER BY pubDate DESC`)
+	stmt := fmt.Sprintf(`SELECT eprintid, record_type, pubDate FROM _aggregate_group WHERE repository = ? AND local_group = ? ORDER BY pubDate DESC`)
 	rows, err := cfg.Jdb.Query(stmt, repoName, groupID)
 	if err != nil {
 		return nil, err
