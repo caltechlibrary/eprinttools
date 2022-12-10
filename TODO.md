@@ -7,19 +7,20 @@ This is for the simplified eprinttools codebase.
 Bugs
 ----
 
-+ [ ] Aggregation group_list.json has empty "combined" mapped when there are no eprintid for the specific group in the respository 
-+ [ ] each index.html under people and group should have a corresponding index.json that is used by Pandoc to render index.md that then renders index.html, include.include
-+ [x] Issue 40, SQL reference document_relation_type table issues
-+ [ ] Issue 41, Add related URL as DOI value (really make eprints show this as a linked field in the display, don't do that in the data structure)
-+ [x] Issue 44, Funders are coming up as "UNSPECIFIED"
-+ [ ] Issue 45, Related URLs are coming in as "UNSPECIFIED"
-+ [ ] Issue 47, Need to strip HTML from Abstract field
-+ [ ] Issue 48, Imported EPrint doesn't show up in review buffer
+- [ ] updated value retrieved from database isn't converting correctly into a time.Time object in Go. Need to figure the best way to make this correct
+- [x] Aggregation group_list.json has empty "combined" mapped when there are no eprintid for the specific group in the respository 
+- [ ] each index.html under people and group should have a corresponding index.json that is used by Pandoc to render index.md that then renders index.html, include.include
+- [x] Issue 40, SQL reference document_relation_type table issues
+- [ ] Issue 41, Add related URL as DOI value (really make eprints show this as a linked field in the display, don't do that in the data structure)
+- [x] Issue 44, Funders are coming up as "UNSPECIFIED"
+- [ ] Issue 45, Related URLs are coming in as "UNSPECIFIED"
+- [ ] Issue 47, Need to strip HTML from Abstract field
+- [ ] Issue 48, Imported EPrint doesn't show up in review buffer
     - [ ] in release 1.1.1-next datestamp isn't set, example eprintid 111912
     - [x] I might be setting the wrong event_status (e.g. buffer or inbox)
     - [x] I need to confirm all timestamp fields and datestamp field is being set correctly
-+ [x] Issue 49, Field defaults on import including resolver URL and collection
-+ [ ] Issue 50, Verify why imported and published EPrints don't show in recent additions (is the an issue with generated views or with a datestamp not getting set correctly?).
+- [x] Issue 49, Field defaults on import including resolver URL and collection
+- [ ] Issue 50, Verify why imported and published EPrints don't show in recent additions (is the an issue with generated views or with a datestamp not getting set correctly?).
 
 
 Next
@@ -45,8 +46,8 @@ Completed
 - [x] Create an example service file for running ep3apid as a service under SystemD (Linux)
 - [x] Create an example service file for running ep3apid as a service under LaunchD (macOS)
 - [x] Need a Users end point to get a list of users in the system and retrieve their numeric user id
-+ [x] the various related tables that represent item lists don't have the same row count so I need to explicitly query for eprintid, pos or do JOIN and handle the NULL column cases.
-+ [x] Fix lemurprints-import-api-16 through 21 examples, re-import with ./bin/doi2eprintxml tool
+- [x] the various related tables that represent item lists don't have the same row count so I need to explicitly query for eprintid, pos or do JOIN and handle the NULL column cases.
+- [x] Fix lemurprints-import-api-16 through 21 examples, re-import with ./bin/doi2eprintxml tool
 - [x] Add script to generate "lemurprints" database with support for all fields present across our repositories so I can do robust testing and generate appropriate testdata
     - [x] Include all fields and tables in caltechauthors
     - [x] Include all fields and tables in caltechthesis
