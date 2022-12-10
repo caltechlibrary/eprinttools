@@ -141,8 +141,8 @@ CREATE TABLE IF NOT EXISTS _aggregate_option_minor (
 );
 
 -- Table Schema generated for MySQL 8
--- for all EPrint repositories as _aggregate_group
-CREATE TABLE IF NOT EXISTS _aggregate_group (
+-- for all EPrint repositories as _aggregate_groups
+CREATE TABLE IF NOT EXISTS _aggregate_groups (
 	aggregate_id INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
 	repository VARCHAR(256),
 	collection VARCHAR(256),
@@ -150,7 +150,9 @@ CREATE TABLE IF NOT EXISTS _aggregate_group (
   	pubdate VARCHAR(256) DEFAULT "",
   	is_public BOOLEAN DEFAULT FALSE,
   	record_type VARCHAR(256) DEFAULT "",
-	local_group VARCHAR(256) DEFAULT ""
+	name VARCHAR(1024) DEFAULT "",
+    alternative VARCHAR(1024) DEFAULT "",
+    group_id VARCHAR(256) DEFAULT ""
 );
 
 -- Table Schema generate for MySQL 8
@@ -252,6 +254,9 @@ CREATE TABLE IF NOT EXISTS %s (
 // the start and end time strings if set to retrieve all eprint
 // records created or modified during that time sequence.
 func RunHarvester(cfgName string, start string, end string, verbose bool) error {
+	if cfgName == "" {
+		return fmt.Errorf("Configuration filename missing")
+	}
 	now := time.Now()
 	// Read in the configuration for this harvester instance.
 	cfg, err := LoadConfig(cfgName)
@@ -412,15 +417,33 @@ func aggregateOptions(cfg *Config, repoName string, collection string, tableName
 	}
 }
 
-// aggregateGroup aggregates by the by group
-func aggregateGroup(cfg *Config, repoName string, collection string, tableName string, eprintID int, recordType string, isPublic bool, pubDate string, groups []string) {
-	deleteStmt := fmt.Sprintf(`DELETE FROM %s WHERE repository = ? AND collection = ? AND eprintid = ?`, tableName)
+// aggregateGroup aggregates a single group by group_id
+func aggregateGroup(cfg *Config, repoName string, collection string, eprintID int, groupID string, recordType string, isPublic bool, pubDate string) error {
+	insertStmt := `INSERT INTO _aggregate_groups (repository, collection, eprintid, record_type, is_public, pubdate, group_id) VALUES (?, ?, ?, ?, ?, ?, ?)`
+	if _, err := cfg.Jdb.Exec(insertStmt, repoName, collection, eprintID, recordType, isPublic, pubDate, groupID); err != nil {
+		return err
+	}
+	return nil
+}
+
+// aggregateGroups aggregates a list of groups by group name
+func aggregateGroups(cfg *Config, repoName string, collection string, eprintID int, recordType string, isPublic bool, pubDate string, groups []string) {
+	deleteStmt := `DELETE FROM _aggregate_groups WHERE repository = ? AND collection = ? AND eprintid = ?`
 	cfg.Jdb.Exec(deleteStmt)
 	if len(groups) > 0 {
-		insertStmt := fmt.Sprintf(`INSERT INTO %s (repository, collection, eprintid, record_type, is_public, pubdate, local_group) VALUES (?, ?, ?, ?, ?, ?, ?)`, tableName)
 		for _, groupName := range groups {
-			if _, err := cfg.Jdb.Exec(insertStmt, repoName, collection, eprintID, recordType, isPublic, pubDate, groupName); err != nil {
-				log.Printf("WARNING: failed aggregateGroup(cfg, %q, %q, %d, %q): %s", repoName, collection, eprintID, groupName, err)
+			// We need to check to see if group name is defined in groups.csv (i.e. _groups)
+			groupID, err := GetGroupIDByName(cfg, groupName)
+			if err != nil {
+				log.Printf("Skipping, %q (%s eprintid %d) not found in _groups table, query error %s", groupName, repoName, eprintID, err)
+				continue
+			}
+			if groupID == "" {
+				log.Printf("Skipping, %q (%s eprintid %d) not found in _groups table, returned empty groupID", groupName, repoName, eprintID)
+				continue
+			}
+			if err := aggregateGroup(cfg, repoName, collection, eprintID, groupID, recordType, isPublic, pubDate); err != nil {
+				log.Printf("WARNING: failed aggregateGroup(cfg, %q, %q, %d, %q, %q, %t, %q): %s", repoName, collection, eprintID, groupID, recordType, isPublic, pubDate, err)
 			}
 		}
 	}
@@ -456,7 +479,7 @@ func aggregateEPrintRecord(cfg *Config, repoName string, eprintID int, eprint *E
 		aggregateOptions(cfg, repoName, collection, "_aggregate_option_minor", eprintID, recordType, isPublic, pubDate, options)
 	}
 	if groups := eprint.LocalGroup.GetGroups(); len(groups) > 0 {
-		aggregateGroup(cfg, repoName, collection, "_aggregate_group", eprintID, recordType, isPublic, pubDate, groups)
+		aggregateGroups(cfg, repoName, collection, eprintID, recordType, isPublic, pubDate, groups)
 	}
 }
 
@@ -750,6 +773,9 @@ func ReadGroupsCSV(fName string, verbose bool) ([]*Group, error) {
 // crosswalk tables. These synthesize Person and Group objects not present
 // in EPrints.
 func RunHarvestPeopleGroups(cfgName string, verbose bool) error {
+	if cfgName == "" {
+		return fmt.Errorf("Configuration filename missing")
+	}
 	// Read in the configuration for this harvester instance.
 	cfg, err := LoadConfig(cfgName)
 	if err != nil {

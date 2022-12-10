@@ -33,17 +33,17 @@ func generateGroupListJSON(cfg *Config, groupIDs []string, verbose bool) ([]map[
 		if err != nil {
 			return nil, err
 		}
-		for _, repo := range cfg.Repositories {
-			repoName := repo.DefaultCollection
-			// For each list type and combined retrieve
-			// a sublist of eprint id from the appropriate
-			// aggregated table
-			aggregations, err := GetGroupAggregations(cfg, repoName, groupID)
-			if err != nil {
-				return nil, err
-			}
-			if aggregations != nil {
-				m[repoName] = aggregations
+		// For each list type and combined retrieve
+		// a sublist of eprint id from the appropriate
+		// aggregated table
+		aggregations, err := GetGroupAggregations(cfg, groupID)
+		if err != nil {
+			return nil, err
+		}
+		for k, v := range aggregations {
+			//log.Printf("DEBUG groupID %q -> k (%T) %+v, v (%T) %+v", groupID, k, k, v, v)
+			if combined, ok := v["combined"]; ok && len(combined) > 0 {
+				m[k] = v
 			}
 		}
 		if len(m) > 0 {
@@ -133,15 +133,21 @@ func GeneratePeopleIDs(cfg *Config, verbose bool) error {
 	}
 	fName = path.Join(peopleDir, "people_list.json")
 	peopleList := []*Person{}
-	for _, personID := range personIDs {
+	tot := len(personIDs)
+	t0 := time.Now()
+	for i, personID := range personIDs {
 		person, err := GetPerson(cfg, personID)
 		if err != nil {
 			return fmt.Errorf("failed to find %q in %q, %s", personID, cfg.JSONStore, err)
 		} else if person != nil {
 			peopleList = append(peopleList, person)
 		}
+		if verbose && ((i % 1000) == 0) {
+			log.Printf("added %s add to _people, (%s)", personID, progress(t0, i, tot))
+		}
 	}
 	if verbose {
+		log.Printf("%d people added to _people (%s)", tot, time.Since(t0).Truncate(time.Second))
 		log.Printf("Writing %d people info %s", len(peopleList), fName)
 	}
 	if err := jsonEncodeToFile(path.Join(peopleDir, "people_list.json"), peopleList, 0664); err != nil {
@@ -158,6 +164,9 @@ func GeneratePeopleIDs(cfg *Config, verbose bool) error {
 // markdown content needed for a feeds v1.1 website in the htdocs
 // directory indicated in the configuration file.
 func RunGenfeeds(cfgName string, verbose bool) error {
+	if cfgName == "" {
+		return fmt.Errorf("Configuration filename missing")
+	}
 	t0 := time.Now()
 	appName := path.Base(os.Args[0])
 	// Read in the configuration for this harvester instance.

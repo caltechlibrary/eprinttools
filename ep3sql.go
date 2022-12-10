@@ -369,18 +369,18 @@ func GetAllEPrintIDsWithStatus(config *Config, repoID string, status string) ([]
 // GetEPrintIDsInTimestampRange return a list of EPrintIDs in created timestamp range
 // or return error. field maybe either "datestamp" (for created date), "lastmod" (for last modified date)
 func GetEPrintIDsInTimestampRange(config *Config, repoID string, field string, start string, end string) ([]int, error) {
-	stmt := fmt.Sprintf(`SELECT eprintid FROM eprint WHERE 
-(CONCAT(%s_year, "-", 
-LPAD(IFNULL(%s_month, 1), 2, "0"), "-", 
-LPAD(IFNULL(%s_day, 1), 2, "0"), " ", 
-LPAD(IFNULL(%s_hour, 0), 2, "0"), ":", 
-LPAD(IFNULL(%s_minute, 0), 2, "0"), ":", 
-LPAD(IFNULL(%s_second, 0), 2, "0")) >= ?) AND 
-(CONCAT(%s_year, "-", 
-LPAD(IFNULL(%s_month, 12), 2, "0"), "-", 
-LPAD(IFNULL(%s_day, 28), 2, "0"), " ", 
-LPAD(IFNULL(%s_hour, 23), 2, "0"), ":", 
-LPAD(IFNULL(%s_minute, 59), 2, "0"), ":", 
+	stmt := fmt.Sprintf(`SELECT eprintid FROM eprint WHERE
+(CONCAT(%s_year, "-",
+LPAD(IFNULL(%s_month, 1), 2, "0"), "-",
+LPAD(IFNULL(%s_day, 1), 2, "0"), " ",
+LPAD(IFNULL(%s_hour, 0), 2, "0"), ":",
+LPAD(IFNULL(%s_minute, 0), 2, "0"), ":",
+LPAD(IFNULL(%s_second, 0), 2, "0")) >= ?) AND
+(CONCAT(%s_year, "-",
+LPAD(IFNULL(%s_month, 12), 2, "0"), "-",
+LPAD(IFNULL(%s_day, 28), 2, "0"), " ",
+LPAD(IFNULL(%s_hour, 23), 2, "0"), ":",
+LPAD(IFNULL(%s_minute, 59), 2, "0"), ":",
 LPAD(IFNULL(%s_second, 59), 2, "0")) <= ?)
 ORDER BY %s_year DESC, %s_month DESC, %s_day DESC, %s_hour DESC, %s_minute DESC, %s_second DESC`,
 		field, field, field, field, field, field, field, field, field, field, field, field,
@@ -391,19 +391,19 @@ ORDER BY %s_year DESC, %s_month DESC, %s_day DESC, %s_hour DESC, %s_minute DESC,
 // GetEPrintIDsWithStatusInTimestampRange return a list of EPrintIDs with eprint_status in field timestamp range
 // or return error. field maybe either "datestamp" (for created date), "lastmod" (for last modified date)
 func GetEPrintIDsWithStatusInTimestampRange(config *Config, repoID string, status string, field string, start string, end string) ([]int, error) {
-	stmt := fmt.Sprintf(`SELECT eprintid FROM eprint WHERE 
+	stmt := fmt.Sprintf(`SELECT eprintid FROM eprint WHERE
 (eprint_status = ?) AND
-(CONCAT(%s_year, "-", 
-LPAD(IFNULL(%s_month, 1), 2, "0"), "-", 
-LPAD(IFNULL(%s_day, 1), 2, "0"), " ", 
-LPAD(IFNULL(%s_hour, 0), 2, "0"), ":", 
-LPAD(IFNULL(%s_minute, 0), 2, "0"), ":", 
-LPAD(IFNULL(%s_second, 0), 2, "0")) >= ?) AND 
-(CONCAT(%s_year, "-", 
-LPAD(IFNULL(%s_month, 12), 2, "0"), "-", 
-LPAD(IFNULL(%s_day, 28), 2, "0"), " ", 
-LPAD(IFNULL(%s_hour, 23), 2, "0"), ":", 
-LPAD(IFNULL(%s_minute, 59), 2, "0"), ":", 
+(CONCAT(%s_year, "-",
+LPAD(IFNULL(%s_month, 1), 2, "0"), "-",
+LPAD(IFNULL(%s_day, 1), 2, "0"), " ",
+LPAD(IFNULL(%s_hour, 0), 2, "0"), ":",
+LPAD(IFNULL(%s_minute, 0), 2, "0"), ":",
+LPAD(IFNULL(%s_second, 0), 2, "0")) >= ?) AND
+(CONCAT(%s_year, "-",
+LPAD(IFNULL(%s_month, 12), 2, "0"), "-",
+LPAD(IFNULL(%s_day, 28), 2, "0"), " ",
+LPAD(IFNULL(%s_hour, 23), 2, "0"), ":",
+LPAD(IFNULL(%s_minute, 59), 2, "0"), ":",
 LPAD(IFNULL(%s_second, 59), 2, "0")) <= ?)
 ORDER BY %s_year DESC, %s_month DESC, %s_day DESC, %s_hour DESC, %s_minute DESC, %s_second DESC`,
 		field, field, field, field, field, field,
@@ -415,17 +415,17 @@ ORDER BY %s_year DESC, %s_month DESC, %s_day DESC, %s_hour DESC, %s_minute DESC,
 // GetEPrintIDsWithStatus returns a list of eprints in a timestmap range for
 // a given status or returns an error
 func GetEPrintIDsWithStatus(config *Config, repoID string, status string, start string, end string) ([]int, error) {
-	stmt := `SELECT eprintid FROM eprint WHERE (eprint_status = ?) AND 
-(CONCAT(lastmod_year, "-", 
-LPAD(IFNULL(lastmod_month, 1), 2, "0"), "-", 
-LPAD(IFNULL(lastmod_day, 1), 2, "0"), " ", 
-LPAD(IFNULL(lastmod_hour, 0), 2, "0"), ":", 
-LPAD(IFNULL(lastmod_minute, 0), 2, "0"), ":", 
-LPAD(IFNULL(lastmod_second, 0), 2, "0")) >= ?) AND 
-(CONCAT(lastmod_year, "-", 
-LPAD(IFNULL(lastmod_month, 12), 2, "0"), "-", 
-LPAD(IFNULL(lastmod_day, 28), 2, "0"), " ", 
-LPAD(IFNULL(lastmod_hour, 23), 2, "0"), ":", 
+	stmt := `SELECT eprintid FROM eprint WHERE (eprint_status = ?) AND
+(CONCAT(lastmod_year, "-",
+LPAD(IFNULL(lastmod_month, 1), 2, "0"), "-",
+LPAD(IFNULL(lastmod_day, 1), 2, "0"), " ",
+LPAD(IFNULL(lastmod_hour, 0), 2, "0"), ":",
+LPAD(IFNULL(lastmod_minute, 0), 2, "0"), ":",
+LPAD(IFNULL(lastmod_second, 0), 2, "0")) >= ?) AND
+(CONCAT(lastmod_year, "-",
+LPAD(IFNULL(lastmod_month, 12), 2, "0"), "-",
+LPAD(IFNULL(lastmod_day, 28), 2, "0"), " ",
+LPAD(IFNULL(lastmod_hour, 23), 2, "0"), ":",
 LPAD(IFNULL(lastmod_minute, 59), 2, "0"), ":",
 LPAD(IFNULL(lastmod_second, 59), 2, "0")) <= ?)
 ORDER BY lastmod_year DESC, lastmod_month DESC, lastmod_day DESC,
@@ -437,12 +437,12 @@ ORDER BY lastmod_year DESC, lastmod_month DESC, lastmod_day DESC,
 // or returns an error
 func GetEPrintIDsForDateType(config *Config, repoID string, dateType string, start string, end string) ([]int, error) {
 	stmt := fmt.Sprintf(`SELECT eprintid FROM eprint
-WHERE ((date_type) = ?) AND 
-(CONCAT(date_year, "-", 
-LPAD(IFNULL(date_month, 1), 2, "0"), "-", 
-LPAD(IFNULL(date_day, 1), 2, "0")) >= ?) AND 
-(CONCAT(date_year, "-", 
-LPAD(IFNULL(date_month, 12), 2, "0"), "-", 
+WHERE ((date_type) = ?) AND
+(CONCAT(date_year, "-",
+LPAD(IFNULL(date_month, 1), 2, "0"), "-",
+LPAD(IFNULL(date_day, 1), 2, "0")) >= ?) AND
+(CONCAT(date_year, "-",
+LPAD(IFNULL(date_month, 12), 2, "0"), "-",
 LPAD(IFNULL(date_day, 28), 2, "0")) <= ?)
 ORDER BY date_year DESC, date_month DESC, date_day DESC
 `)
@@ -453,12 +453,12 @@ ORDER BY date_year DESC, date_month DESC, date_day DESC
 // date range for a given status or returns an error
 func GetEPrintIDsWithStatusForDateType(config *Config, repoID string, status string, dateType string, start string, end string) ([]int, error) {
 	stmt := fmt.Sprintf(`SELECT eprintid FROM eprint
-WHERE (eprint_status = ? ) AND (date_type = ?) AND 
-(CONCAT(date_year, "-", 
-LPAD(IFNULL(date_month, 1), 2, "0"), "-", 
-LPAD(IFNULL(date_day, 1), 2, "0")) >= ?) AND 
-(CONCAT(date_year, "-", 
-LPAD(IFNULL(date_month, 12), 2, "0"), "-", 
+WHERE (eprint_status = ? ) AND (date_type = ?) AND
+(CONCAT(date_year, "-",
+LPAD(IFNULL(date_month, 1), 2, "0"), "-",
+LPAD(IFNULL(date_day, 1), 2, "0")) >= ?) AND
+(CONCAT(date_year, "-",
+LPAD(IFNULL(date_month, 12), 2, "0"), "-",
 LPAD(IFNULL(date_day, 28), 2, "0")) <= ?)
 ORDER BY date_year DESC, date_month DESC, date_day DESC
 `)
@@ -530,7 +530,7 @@ GROUP BY eprint_%s.%s ORDER BY eprint_%s.%s`,
 
 // GetEPrintIDsForItem
 func GetEPrintIDsForItem(config *Config, repoID string, field string, value string) ([]int, error) {
-	stmt := fmt.Sprintf(`SELECT eprint.eprintid AS eprintid 
+	stmt := fmt.Sprintf(`SELECT eprint.eprintid AS eprintid
 FROM eprint_%s JOIN eprint ON (eprint_%s.eprintid = eprint.eprintid)
 WHERE eprint_%s.%s = ?
 ORDER BY eprint.date_year DESC, eprint.date_month DESC, eprint.date_day DESC`, field, field, field, field)
@@ -1135,10 +1135,9 @@ func eprintToColumnsAndValues(eprint *EPrint, columnsIn []string, ifNull bool) (
 			values = append(values, &eprint.Language)
 			columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
 		case "referencetext":
-			if eprint.ReferenceTextString != "" {
-				values = append(values, &eprint.ReferenceTextString)
-		        columnsOut = append(columnsOut, colExpr(key, ifNull, `""`))
-			}
+			// NOTE: This is just an ignore column, CaltechES has this as a VARCHAR column in the eprint
+			// table and all values are NULL. None of our other repositories have this columns. Possibly
+			// added in error or is a legacy EPrint column that was migrated from an older version but was not used.
 		default:
 			// Handle case where we have value that is unmapped or not available in EPrint struct
 			log.Printf("could not map %q (col. %d, eprintid %d) into EPrint struct", key, i, eprint.EPrintID)
@@ -2314,8 +2313,8 @@ func eprintIDToItemIssues(repoID string, eprintID int, db *sql.DB, tables map[st
 			value                                       string
 		)
 		itemList := new(ItemIssueItemList)
-		stmt := fmt.Sprintf(`SELECT pos, 
-IFNULL(item_issues_timestamp_year, 0) AS year, 
+		stmt := fmt.Sprintf(`SELECT pos,
+IFNULL(item_issues_timestamp_year, 0) AS year,
 IFNULL(item_issues_timestamp_month, 0) AS month,
 IFNULL(item_issues_timestamp_day, 0) AS day,
 IFNULL(item_issues_timestamp_hour, 0) AS hour,

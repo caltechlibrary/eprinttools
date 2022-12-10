@@ -251,7 +251,7 @@ type EPrint struct {
 	ThesisAwards                string               `xml:"thesis_awards,omitempty" json:"thesis_awards,omitempty"`
 	ReviewStatus                string               `xml:"review_status,omitempty" json:"review_status,omitempty"`
 	OptionMajor                 *OptionMajorItemList `xml:"option_major,omitempty" json:"option_major,omitempty"`
-	OptionMinor                 *OptionMinorItemList `xml:"option_minor,omitempty" json:"option_major,omitempty"`
+	OptionMinor                 *OptionMinorItemList `xml:"option_minor,omitempty" json:"option_minor,omitempty"`
 	CopyrightStatement          string               `xml:"copyright_statement,omitempty" json:"copyright_statement,omitempty"`
 
 	// Custom fields from some EPrints repositories
@@ -264,7 +264,7 @@ type EPrint struct {
 	EditLockUntil int `xml:"-" json:"-"`
 
 	// Fields identified through harvesting.
-	ReferenceTextString string `xml:referencetext,omitempty" json:"referencetext,omitempty"`
+	//ReferenceTextString string `xml:"referencetext,omitempty" json:"referencetext,omitempty"`
 	Language            string `xml:"language,omitempty" json:"language,omitempty"`
 
 	// Synthetic fields are created to help in eventual migration of
@@ -2133,8 +2133,7 @@ type File struct {
 	ClassificationDateMonth int    `xml:"classification_date_month,omitempty" json:"classification_date_month,omitempty"`
 	ClassificationDateDay   int    `xml:"classification_date_day,omitempty" json:"classification_date_day,omitempty"`
 
-	ClassificationDateHour int `xml:"classification_date_hour,omitempty" json:"
-classification_date_hour,omitempty"`
+	ClassificationDateHour int `xml:"classification_date_hour,omitempty" json:"classification_date_hour,omitempty"`
 
 	ClassificationDateMinute int `xml:"classification_date_minute,omitempty" json:"classification_date_minute,omitempty"`
 

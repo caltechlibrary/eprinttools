@@ -146,7 +146,7 @@ func GetPerson(cfg *Config, personID string) (*Person, error) {
 			&person.Title, &person.Bio, &person.Division, &updated); err != nil {
 			return nil, err
 		}
-		person.Updated = time.UnixMicro(updated)
+		person.Updated = time.Unix(updated, 0)
 	}
 	err = row.Err()
 	return person, err
@@ -187,7 +187,7 @@ func SaveGroupJSON(cfg *Config, group *Group) error {
 
 func GetGroup(cfg *Config, groupID string) (*Group, error) {
 	var updated int64
-stmt := `SELECT group_id, name, alternative, email, date, description, start,
+	stmt := `SELECT group_id, name, alternative, email, date, description, start,
     approx_start, activity, end, approx_end, website, pi,
     parent, prefix, grid, isni, ringold, viaf,
     ror, UNIX_TIMESTAMP(updated) FROM _groups WHERE group_id = ?`
@@ -208,6 +208,22 @@ stmt := `SELECT group_id, name, alternative, email, date, description, start,
 	err = row.Err()
 	group.Updated = time.UnixMicro(updated)
 	return group, err
+}
+
+func GetGroupIDByName(cfg *Config, groupName string) (string, error) {
+	var groupID string
+	stmt := `SELECT group_id FROM _groups WHERE name = ? OR (LOCATE(?, alternative) > 0) LIMIT 1`
+	row, err := cfg.Jdb.Query(stmt, groupName, groupName)
+	if err != nil {
+		return "", err
+	}
+	defer row.Close()
+	if row.Next() {
+		if err := row.Scan(&groupID); err != nil {
+			return "", err
+		}
+	}
+	return groupID, nil
 }
 
 func GetGroupIDs(cfg *Config) ([]string, error) {
@@ -231,30 +247,37 @@ func GetGroupIDs(cfg *Config) ([]string, error) {
 	return ids, err
 }
 
-func GetGroupAggregations(cfg *Config, repoName, groupID string) (map[string][]int, error) {
-	// Create an emptyp map[string][]int{}
-	m := map[string][]int{}
+func GetGroupAggregations(cfg *Config, groupID string) (map[string]map[string][]int, error) {
 	// Read the _aggregate_group to get the eprintid for group by decending publation date
-	stmt := fmt.Sprintf(`SELECT eprintid, record_type, pubDate FROM _aggregate_group WHERE repository = ? AND local_group = ? ORDER BY pubDate DESC`)
-	rows, err := cfg.Jdb.Query(stmt, repoName, groupID)
+	stmt := `SELECT repository, eprintid, record_type FROM _aggregate_groups WHERE group_id = ? ORDER BY repository, pubDate DESC`
+	rows, err := cfg.Jdb.Query(stmt, groupID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	m["combined"] = []int{}
 	var (
 		id         int
 		recordType string
+		repoName   string
+		repository string
 	)
+	m := map[string]map[string][]int{}
 	for rows.Next() {
-		if err := rows.Scan(&id, &recordType); err != nil {
+		if err := rows.Scan(&repository, &id, &recordType); err != nil {
 			return nil, err
 		}
-		m["combined"] = append(m["combined"], id)
-		if _, ok := m[recordType]; !ok {
-			m[recordType] = []int{}
+		if repoName != repository {
+			repoName = repository
+			if _, ok := m[repoName]; !ok {
+				m[repoName] = map[string][]int{}
+			}
+			m[repoName]["combined"] = []int{}
 		}
-		m[recordType] = append(m[recordType], id)
+		if _, ok := m[repoName][recordType]; !ok {
+			m[repoName][recordType] = []int{}
+		}
+		m[repoName][recordType] = append(m[repoName][recordType], id)
+		m[repoName]["combined"] = append(m[repoName]["combined"], id)
 	}
 	err = rows.Err()
 	return m, err
