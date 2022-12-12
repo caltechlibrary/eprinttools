@@ -12,6 +12,8 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
+const MySQLTimestamp = "2006-01-02 15:04:05"
+
 // OpenJSONStore
 func OpenJSONStore(config *Config) error {
 	if config.JSONStore == "" {
@@ -131,22 +133,25 @@ func GetPerson(cfg *Config, personID string) (*Person, error) {
 	stmt := `SELECT person_id, cl_people_id, family_name, given_name, sort_name, thesis_id, advisor_id, authors_id,
     archivesspace_id, directory_id, viaf_id, lcnaf, isni, wikidata, snac, orcid,
     image, educated_at, caltech, jpl, faculty, alumn, status, directory_person_type,
-    title, bio, division, UNIX_TIMESTAMP(updated) FROM _people WHERE cl_people_id = ?`
+    title, bio, division, DATE_FORMAT(updated, "%Y-%m-%d %H:%i:%s") FROM _people WHERE cl_people_id = ?`
 	row, err := cfg.Jdb.Query(stmt, personID)
 	if err != nil {
 		return nil, err
 	}
 	defer row.Close()
-	var updated int64
 	person := new(Person)
 	if row.Next() {
+		var updated string
 		if err := row.Scan(&person.PersonID, &person.CLPeopleID, &person.FamilyName, &person.GivenName, &person.SortName, &person.ThesisID, &person.AdvisorID, &person.AuthorsID,
 			&person.ArchivesSpaceID, &person.DirectoryID, &person.VIAF, &person.LCNAF, &person.ISNI, &person.Wikidata, &person.SNAC, &person.ORCID,
 			&person.Image, &person.EducatedAt, &person.Caltech, &person.JPL, &person.Faculty, &person.Alumn, &person.Status, &person.DirectoryPersonType,
 			&person.Title, &person.Bio, &person.Division, &updated); err != nil {
 			return nil, err
 		}
-		person.Updated = time.Unix(updated, 0)
+		person.Updated, err = time.Parse(MySQLTimestamp, updated)
+		if err != nil {
+			return nil, err
+		}
 	}
 	err = row.Err()
 	return person, err
@@ -186,11 +191,10 @@ func SaveGroupJSON(cfg *Config, group *Group) error {
 }
 
 func GetGroup(cfg *Config, groupID string) (*Group, error) {
-	var updated int64
 	stmt := `SELECT group_id, name, alternative, email, date, description, start,
     approx_start, activity, end, approx_end, website, pi,
     parent, prefix, grid, isni, ringold, viaf,
-    ror, UNIX_TIMESTAMP(updated) FROM _groups WHERE group_id = ?`
+    ror, DATE_FORMAT(updated, "%Y-%m-%d %H:%i:%s") FROM _groups WHERE group_id = ?`
 	row, err := cfg.Jdb.Query(stmt, groupID)
 	if err != nil {
 		return nil, err
@@ -198,15 +202,19 @@ func GetGroup(cfg *Config, groupID string) (*Group, error) {
 	defer row.Close()
 	group := new(Group)
 	if row.Next() {
+		var updated string
 		if err := row.Scan(&group.GroupID, &group.Name, &group.Alternative, &group.EMail, &group.Date, &group.Description, &group.Start,
 			&group.ApproxStart, &group.Activity, &group.End, &group.ApproxEnd, &group.Website, &group.PI,
 			&group.Parent, &group.Prefix, &group.GRID, &group.ISNI, &group.RinGold, &group.VIAF,
 			&group.ROR, &updated); err != nil {
 			return nil, err
 		}
+		group.Updated, err = time.Parse(MySQLTimestamp, updated)
+		if err != nil {
+			return nil, err
+		}
 	}
 	err = row.Err()
-	group.Updated = time.UnixMicro(updated)
 	return group, err
 }
 

@@ -7,7 +7,7 @@ This is for the simplified eprinttools codebase.
 Bugs
 ----
 
-- [ ] updated value retrieved from database isn't converting correctly into a time.Time object in Go. Need to figure the best way to make this correct
+- [x] updated value retrieved from database isn't converting correctly into a time.Time object in Go. Need to figure the best way to make this correct
 - [x] Aggregation group_list.json has empty "combined" mapped when there are no eprintid for the specific group in the respository 
 - [ ] each index.html under people and group should have a corresponding index.json that is used by Pandoc to render index.md that then renders index.html, include.include
 - [x] Issue 40, SQL reference document_relation_type table issues
