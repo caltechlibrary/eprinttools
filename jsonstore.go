@@ -238,7 +238,7 @@ func GetGroup(cfg *Config, groupID string) (*Group, error) {
 
 func GetGroupIDByName(cfg *Config, groupName string) (string, error) {
 	var groupID string
-	stmt := `SELECT group_id FROM _groups WHERE name = ? OR (LOCATE(?, alternative) > 0) LIMIT 1`
+	stmt := `SELECT group_id FROM _groups WHERE name LIKE ? OR (LOCATE(?, alternative) > 0) LIMIT 1`
 	row, err := cfg.Jdb.Query(stmt, groupName, groupName)
 	if err != nil {
 		return "", err

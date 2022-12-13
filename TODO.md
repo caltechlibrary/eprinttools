@@ -7,6 +7,8 @@ This is for the simplified eprinttools codebase.
 Bugs
 ----
 
+- [ ] If feeds are "public only" then I need to strip email addresses from the JSON objects.
+- [ ] For feeds generated as REPO_NAME-RECORD_TYPE.json to name the feed by record type only, but before I add this I need to see if there is any case where thesis in CaltechAUTHORS need to be itemized along with thesis in CaltechTHESIS
 - [x] updated value retrieved from database isn't converting correctly into a time.Time object in Go. Need to figure the best way to make this correct
 - [x] Aggregation group_list.json has empty "combined" mapped when there are no eprintid for the specific group in the respository 
 - [ ] each index.html under people and group should have a corresponding index.json that is used by Pandoc to render index.md that then renders index.html, include.include
