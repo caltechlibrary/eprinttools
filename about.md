@@ -32,7 +32,7 @@ About this software
 
 ### Maintainers
 
--  
+- R. S. Doiel
 
 Command line tools, Golang package and Python module for working with
 the EPrints 3.x REST API

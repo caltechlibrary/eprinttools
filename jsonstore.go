@@ -3,6 +3,7 @@
 package eprinttools
 
 import (
+	"encoding/json"
 	"database/sql"
 	"fmt"
 	"strings"
@@ -50,13 +51,14 @@ type Doc struct {
 	Status       string `json:"status,omitempty"`
 	IsPublic     bool   `json:"is_public,omitempty"`
 	RecordType   string `json:"record_type,omitempty"`
+	ThesisType   string `json:"thesis_type,omitempty"`
 }
 
 // SaveJSONDocument takes a configuration, repoName, eprint id as integer and
 // JSON source saving it to the appropriate JSON table.
-func SaveJSONDocument(cfg *Config, repoName string, id int, src []byte, action string, created string, lastmod string, pubdate string, status string, isPublic bool, recordType string) error {
+func SaveJSONDocument(cfg *Config, repoName string, id int, src []byte, action string, created string, lastmod string, pubdate string, status string, isPublic bool, recordType string, thesisType string) error {
 
-	stmt := fmt.Sprintf(`REPLACE INTO %s (id, src, action, created, lastmod, pubdate, status, is_public, record_type) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`, repoName)
+	stmt := fmt.Sprintf(`REPLACE INTO %s (id, src, action, created, lastmod, pubdate, status, is_public, record_type, thesis_type) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, repoName)
 	doc := new(Doc)
 	doc.ID = id
 	doc.Src = src
@@ -67,7 +69,8 @@ func SaveJSONDocument(cfg *Config, repoName string, id int, src []byte, action s
 	doc.Status = status
 	doc.IsPublic = isPublic
 	doc.RecordType = recordType
-	_, err := cfg.Jdb.Exec(stmt, doc.ID, doc.Src, doc.Action, doc.Created, doc.LastModified, doc.PubDate, doc.Status, doc.IsPublic, doc.RecordType)
+	doc.ThesisType = thesisType
+	_, err := cfg.Jdb.Exec(stmt, doc.ID, doc.Src, doc.Action, doc.Created, doc.LastModified, doc.PubDate, doc.Status, doc.IsPublic, doc.RecordType, doc.ThesisType)
 	if err != nil {
 		return fmt.Errorf("sql failed for %d in %s, %s", id, repoName, err)
 	}
@@ -80,23 +83,38 @@ func GetJSONDocument(cfg *Config, repoName string, id int) ([]byte, error) {
 	stmt := fmt.Sprintf("SELECT src FROM %s WHERE id = ? LIMIT 1", repoName)
 	rows, err := cfg.Jdb.Query(stmt, id)
 	if err != nil {
-		return nil, fmt.Errorf("Failed to get %s id %d, %s", repoName, id, err)
+		return nil, fmt.Errorf("failed to get %s id %d, %s", repoName, id, err)
 	}
 	defer rows.Close()
 	var src []byte
 	for rows.Next() {
-		if err := rows.Scan(src); err != nil {
-			return nil, fmt.Errorf("Failed to get row in %s for id %d, %s", repoName, id, err)
+		if err := rows.Scan(&src); err != nil {
+			return nil, fmt.Errorf("failed to get row in %s for id %d, %s", repoName, id, err)
 		}
 	}
 	err = rows.Err()
 	return src, err
 }
 
+// GetDocumentAsEPrint trake a configuration, repoName, eprint if 
+// and returns an EPrint struct or error based on the contents in
+// the json store.
+func GetDocumentAsEPrint(cfg *Config, repoName string, id int, eprint *EPrint) error {
+	src, err := GetJSONDocument(cfg, repoName, id)
+	if err != nil {
+		return err
+	}
+	err = json.Unmarshal(src, eprint)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 // GetJSONRow takes a configuration, repoName, eprint id and returns
 // the table row as JSON source.
 func GetJSONRow(cfg *Config, repoName string, id int) ([]byte, error) {
-	stmt := fmt.Sprintf("SELECT id, src, action, created, lastmod, pubdate, status, is_public, record_type FROM %s WHERE id = ?", repoName)
+	stmt := fmt.Sprintf("SELECT id, src, action, created, lastmod, pubdate, status, is_public, record_type, thesis_type FROM %s WHERE id = ?", repoName)
 	rows, err := cfg.Jdb.Query(stmt, id)
 	if err != nil {
 		return nil, fmt.Errorf("Failed to get %s id %d, %s", repoName, id, err)
@@ -104,7 +122,7 @@ func GetJSONRow(cfg *Config, repoName string, id int) ([]byte, error) {
 	defer rows.Close()
 	doc := new(Doc)
 	for rows.Next() {
-		if err := rows.Scan(doc.ID, doc.Src, doc.Action, doc.Created, doc.LastModified, doc.PubDate, doc.Status, doc.IsPublic, doc.RecordType); err != nil {
+		if err := rows.Scan(doc.ID, doc.Src, doc.Action, doc.Created, doc.LastModified, doc.PubDate, doc.Status, doc.IsPublic, doc.RecordType, doc.ThesisType); err != nil {
 			return nil, fmt.Errorf("Failed to get row in %s for id %d, %s", repoName, id, err)
 		}
 	}
@@ -255,9 +273,20 @@ func GetGroupIDs(cfg *Config) ([]string, error) {
 	return ids, err
 }
 
+// containsInt check a slice of int for the int i
+// returns true if i is found in slice, falther otherwise
+func containsInt(l []int, i int) bool {
+	for _, j := range l {
+		if j == i {
+			return true
+		}
+	}
+	return false
+}
+
 func GetGroupAggregations(cfg *Config, groupID string) (map[string]map[string][]int, error) {
 	// Read the _aggregate_group to get the eprintid for group by decending publation date
-	stmt := `SELECT repository, eprintid, record_type FROM _aggregate_groups WHERE group_id = ? ORDER BY repository, pubDate DESC`
+	stmt := `SELECT repository, eprintid, record_type, thesis_type FROM _aggregate_groups WHERE group_id = ? ORDER BY repository, pubDate DESC`
 	rows, err := cfg.Jdb.Query(stmt, groupID)
 	if err != nil {
 		return nil, err
@@ -266,12 +295,13 @@ func GetGroupAggregations(cfg *Config, groupID string) (map[string]map[string][]
 	var (
 		id         int
 		recordType string
+		thesisType string
 		repoName   string
 		repository string
 	)
 	m := map[string]map[string][]int{}
 	for rows.Next() {
-		if err := rows.Scan(&repository, &id, &recordType); err != nil {
+		if err := rows.Scan(&repository, &id, &recordType, &thesisType); err != nil {
 			return nil, err
 		}
 		if repoName != repository {
@@ -281,11 +311,23 @@ func GetGroupAggregations(cfg *Config, groupID string) (map[string]map[string][]
 			}
 			m[repoName]["combined"] = []int{}
 		}
-		if _, ok := m[repoName][recordType]; !ok {
-			m[repoName][recordType] = []int{}
+		// NOTE: We need to handle thesis (e.g. PhD, Masters, etc) as individual aggregations.
+		// To carry this information through we combine recordType and thesisType when thesisType
+		// is not an empty string.
+		aggregateAs := recordType
+		if recordType == "thesis" && thesisType != "" {
+			aggregateAs = fmt.Sprintf("%s %s", recordType, thesisType)
 		}
-		m[repoName][recordType] = append(m[repoName][recordType], id)
-		m[repoName]["combined"] = append(m[repoName]["combined"], id)
+		if _, ok := m[repoName][aggregateAs]; !ok {
+			m[repoName][aggregateAs] = []int{}
+		}
+		// We want to avoid deduplicate ids in each list
+		if !containsInt(m[repoName][aggregateAs], id) {
+			m[repoName][aggregateAs] = append(m[repoName][aggregateAs], id)
+		}
+		if !containsInt(m[repoName]["combined"], id) {
+			m[repoName]["combined"] = append(m[repoName]["combined"], id)
+		}
 	}
 	err = rows.Err()
 	return m, err

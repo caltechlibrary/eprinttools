@@ -15,11 +15,61 @@ import (
 // non-templated Markdown documents in the htdocs directory.
 //
 
-func generateGroupListJSON(cfg *Config, groupIDs []string, verbose bool) ([]map[string]interface{}, error) {
+func generateGroupDir(cfg *Config, groupID string, group *Group, m map[string]interface{}) error {
+	groupDir := path.Join(cfg.Htdocs, "groups", groupID)
+	// NOTE: Is htdocs relative to project? If so handle that case
+	if !(strings.HasPrefix(cfg.Htdocs, "/") || strings.HasPrefix(groupDir, cfg.ProjectDir)) {
+		groupDir = path.Join(cfg.ProjectDir, groupDir)
+	}
+	if _, err := os.Stat(groupDir); os.IsNotExist(err) {
+		if err := os.MkdirAll(groupDir, 0775); err != nil {
+			return err
+		}
+	}
+	// FIXME: group.json should be renamed index.json, this file contains
+	// all the metadata to write index.md, index.html and icnlude.include
+	fName := path.Join(groupDir, "group.json")
+	if err := jsonEncodeToFile(fName, m, 0664); err != nil {
+		return err
+	}
+    for repoName, v := range m {
+		// FIXME: We are using a switch to check the type because
+		// the v1.0 feeds doesn't have a defined "aggregation" attribute.
+		switch v.(type) {
+			case map[string][]int:
+				aMap := v.(map[string][]int)
+				for recordType, ids := range aMap {
+					docs := []*EPrint{}
+					for _, id := range ids {
+						eprint := new(EPrint)
+						if err := GetDocumentAsEPrint(cfg, repoName, id, eprint); err != nil {
+							return err
+						}
+						docs = append(docs, eprint)
+					}
+					fName = path.Join(groupDir, fmt.Sprintf("%s-%s.json", repoName, recordType))
+					if err := jsonEncodeToFile(fName, docs, 0664); err != nil {
+						return err	
+					}
+
+				}
+		}
+	}
+	return nil
+}
+
+func generateGroupListAndDir(cfg *Config, groupIDs []string, verbose bool) ([]map[string]interface{}, error) {
 	groupList := []map[string]interface{}{}
 	tot := len(groupIDs)
 	t0 := time.Now()
 	for i, groupID := range groupIDs {
+		// FIXME: In feeds v1.0 aggregrated repositories info is mixed 
+		// into the attributes of the group's metadata, this prevents
+		// us from using a struct representing Group or People
+		// aggregations. In v1.1 or v1.2 this should change. Aggregations
+		// should fall under an aggregated attribute which is a
+		// map[string][]int type (or map[string][]string type when we
+		// move to Invenio-RDM.
 		group, err := GetGroup(cfg, groupID)
 		if err != nil {
 			return nil, err
@@ -40,17 +90,25 @@ func generateGroupListJSON(cfg *Config, groupIDs []string, verbose bool) ([]map[
 		if err != nil {
 			return nil, err
 		}
+		// Copy the aggregations into the map we'll use to represent a list of group info
+		// for each repository in the system.
+		hasAggregation := false
 		for k, v := range aggregations {
-			//log.Printf("DEBUG groupID %q -> k (%T) %+v, v (%T) %+v", groupID, k, k, v, v)
 			if combined, ok := v["combined"]; ok && len(combined) > 0 {
 				m[k] = v
+				hasAggregation = true
 			}
 		}
-		if len(m) > 0 {
+		if hasAggregation {
+			if err := generateGroupDir(cfg, groupID, group, m); err != nil {
+				log.Printf("failed to generate directory for %s, %s", groupID, err)
+			}
 			groupList = append(groupList, m)
 			if verbose {
-				log.Printf("added %s (%s)", groupID, progress(t0, i, tot))
+				log.Printf("processed %s (%s)", groupID, progress(t0, i, tot))
 			}
+		} else {
+			log.Printf("%s did not have any aggregations", groupID)
 		}
 	}
 	if verbose {
@@ -89,7 +147,7 @@ func GenerateGroupIDs(cfg *Config, verbose bool) error {
 
 	// For each group in _groups, find the records that should be included
 	fName = path.Join(groupDir, "group_list.json")
-	groupList, err := generateGroupListJSON(cfg, groupIDs, verbose)
+	groupList, err := generateGroupListAndDir(cfg, groupIDs, verbose)
 	if err != nil {
 		return err
 	}

@@ -59,7 +59,8 @@ CREATE TABLE IF NOT EXISTS _aggregate_creator (
 	person_id VARCHAR(256) DEFAULT "",
   	pubdate VARCHAR(256) DEFAULT "",
   	is_public BOOLEAN DEFAULT FALSE,
-  	record_type VARCHAR(256) DEFAULT ""
+  	record_type VARCHAR(256) DEFAULT "",
+    thesis_type VARCHAR(256) DEFAULT ""
 );
 
 -- Table Schema generated for MySQL 8
@@ -72,7 +73,8 @@ CREATE TABLE IF NOT EXISTS _aggregate_editor (
 	person_id VARCHAR(256) DEFAULT "",
   	pubdate VARCHAR(256) DEFAULT "",
   	is_public BOOLEAN DEFAULT FALSE,
-  	record_type VARCHAR(256) DEFAULT ""
+  	record_type VARCHAR(256) DEFAULT "",
+      thesis_type VARCHAR(256) DEFAULT ""
 );
 
 -- Table Schema generated for MySQL 8
@@ -85,7 +87,8 @@ CREATE TABLE IF NOT EXISTS _aggregate_contributor (
 	person_id VARCHAR(256) DEFAULT "",
   	pubdate VARCHAR(256) DEFAULT "",
   	is_public BOOLEAN DEFAULT FALSE,
-  	record_type VARCHAR(256) DEFAULT ""
+  	record_type VARCHAR(256) DEFAULT "",
+      thesis_type VARCHAR(256) DEFAULT ""
 );
 
 -- Table Schema generated for MySQL 8
@@ -98,7 +101,8 @@ CREATE TABLE IF NOT EXISTS _aggregate_advisor (
 	person_id VARCHAR(256) DEFAULT "",
   	pubdate VARCHAR(256) DEFAULT "",
   	is_public BOOLEAN DEFAULT FALSE,
-  	record_type VARCHAR(256) DEFAULT ""
+  	record_type VARCHAR(256) DEFAULT "",
+    thesis_type VARCHAR(256) DEFAULT ""
 );
 
 -- Table Schema generated for MySQL 8
@@ -111,7 +115,8 @@ CREATE TABLE IF NOT EXISTS _aggregate_committee (
 	person_id VARCHAR(256) DEFAULT "",
   	pubdate VARCHAR(256) DEFAULT "",
   	is_public BOOLEAN DEFAULT FALSE,
-  	record_type VARCHAR(256) DEFAULT ""
+  	record_type VARCHAR(256) DEFAULT "",
+    thesis_type VARCHAR(256) DEFAULT ""
 );
 
 -- Table Schema generated for MySQL 8
@@ -124,7 +129,8 @@ CREATE TABLE IF NOT EXISTS _aggregate_option_major (
   	pubdate VARCHAR(256) DEFAULT "",
   	is_public BOOLEAN DEFAULT FALSE,
   	record_type VARCHAR(256) DEFAULT "",
-	local_option VARCHAR(256) DEFAULT ""
+    thesis_type VARCHAR(256) DEFAULT "",
+    local_option VARCHAR(256) DEFAULT ""
 );
 
 -- Table Schema generated for MySQL 8
@@ -137,7 +143,8 @@ CREATE TABLE IF NOT EXISTS _aggregate_option_minor (
   	pubdate VARCHAR(256) DEFAULT "",
   	is_public BOOLEAN DEFAULT FALSE,
   	record_type VARCHAR(256) DEFAULT "",
-	local_option VARCHAR(256) DEFAULT ""
+    thesis_type VARCHAR(256) DEFAULT "",
+    local_option VARCHAR(256) DEFAULT ""
 );
 
 -- Table Schema generated for MySQL 8
@@ -150,6 +157,7 @@ CREATE TABLE IF NOT EXISTS _aggregate_groups (
   	pubdate VARCHAR(256) DEFAULT "",
   	is_public BOOLEAN DEFAULT FALSE,
   	record_type VARCHAR(256) DEFAULT "",
+    thesis_type VARCHAR(256) DEFAULT "",
 	name VARCHAR(1024) DEFAULT "",
     alternative VARCHAR(1024) DEFAULT "",
     group_id VARCHAR(256) DEFAULT ""
@@ -229,6 +237,7 @@ CREATE TABLE IF NOT EXISTS %s (
   pubdate VARCHAR(256) DEFAULT "",
   is_public BOOLEAN DEFAULT FALSE,
   record_type VARCHAR(256) DEFAULT "",
+  thesis_type VARCHAR(256) DEFAULT "",
   status VARCHAR(256) DEFAULT ""
 );
 `
@@ -255,7 +264,7 @@ CREATE TABLE IF NOT EXISTS %s (
 // records created or modified during that time sequence.
 func RunHarvester(cfgName string, start string, end string, verbose bool) error {
 	if cfgName == "" {
-		return fmt.Errorf("Configuration filename missing")
+		return fmt.Errorf("configuration filename missing")
 	}
 	now := time.Now()
 	// Read in the configuration for this harvester instance.
@@ -264,7 +273,7 @@ func RunHarvester(cfgName string, start string, end string, verbose bool) error 
 		return err
 	}
 	if cfg == nil {
-		return fmt.Errorf("Could not create a configuration object")
+		return fmt.Errorf("could not create a configuration object")
 	}
 	if start == "" {
 		// Pick a start date/time before EPrints existed.
@@ -355,7 +364,7 @@ func harvestRepository(cfg *Config, repoName string, start string, end string, v
 			log.Printf("Harvested EPrint %d (%s)", id, progress(t0, i, tot))
 		}
 	}
-	log.Printf("Harvested %q in %v", repoName, time.Now().Sub(t0))
+	log.Printf("Harvested %q in %v", repoName, time.Since(t0).Truncate(time.Second))
 	return nil
 }
 
@@ -365,7 +374,7 @@ func harvestRepository(cfg *Config, repoName string, start string, end string, v
 func harvestEPrintRecord(cfg *Config, repoName string, eprintID int) error {
 	ds, ok := cfg.Repositories[repoName]
 	if !ok {
-		return fmt.Errorf("Data Source not found for %q looking up eprint %d", repoName, eprintID)
+		return fmt.Errorf("data source not found for %q looking up eprint %d", repoName, eprintID)
 	}
 	eprint, err := SQLReadEPrint(cfg, repoName, ds.BaseURL, eprintID)
 	if err != nil {
@@ -379,7 +388,7 @@ func harvestEPrintRecord(cfg *Config, repoName string, eprintID int) error {
 		action = "deleted"
 	}
 	src, _ := jsonEncode(eprint)
-	err = SaveJSONDocument(cfg, repoName, eprintID, src, action, eprint.Datestamp, eprint.LastModified, eprint.PubDate(), eprint.EPrintStatus, eprint.IsPublic(), eprint.Type)
+	err = SaveJSONDocument(cfg, repoName, eprintID, src, action, eprint.Datestamp, eprint.LastModified, eprint.PubDate(), eprint.EPrintStatus, eprint.IsPublic(), eprint.Type, eprint.ThesisType)
 	if err != nil {
 		return err
 	}
@@ -391,43 +400,43 @@ func harvestEPrintRecord(cfg *Config, repoName string, eprintID int) error {
 }
 
 // aggregatePersons aggregates by the person related roles, e.g. creator, editor, contributor, advisor, committee memember
-func aggregatePersons(cfg *Config, repoName string, collection string, tableName string, eprintID int, recordType string, isPublic bool, pubDate string, personIDs []string) {
+func aggregatePersons(cfg *Config, repoName string, collection string, tableName string, eprintID int, recordType string, thesisType string, isPublic bool, pubDate string, personIDs []string) {
 	deleteStmt := fmt.Sprintf(`DELETE FROM %s WHERE repository = ? AND collection = ? AND eprintid = ?`, tableName)
 	cfg.Jdb.Exec(deleteStmt)
 	if len(personIDs) > 0 {
-		insertStmt := fmt.Sprintf(`INSERT INTO %s (repository, collection, eprintid, person_id, record_type, is_public, pubdate) VALUES (?, ?, ?, ?, ?, ?, ?)`, tableName)
+		insertStmt := fmt.Sprintf(`INSERT INTO %s (repository, collection, eprintid, person_id, record_type, thesis_type, is_public, pubdate) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`, tableName)
 		for _, personID := range personIDs {
-			if _, err := cfg.Jdb.Exec(insertStmt, repoName, collection, eprintID, personID, recordType, isPublic, pubDate); err != nil {
-				log.Printf("WARNING: failed aggregreatePersons(cfg, %q, %q, %d, %q, %t, %q, %q): %s", repoName, collection, eprintID, recordType, isPublic, pubDate, personID, err)
+			if _, err := cfg.Jdb.Exec(insertStmt, repoName, collection, eprintID, personID, recordType, thesisType, isPublic, pubDate); err != nil {
+				log.Printf("WARNING: failed aggregreatePersons(cfg, %q, %q, %d, %q, %q, %t, %q, %q): %s", repoName, collection, eprintID, recordType, thesisType, isPublic, pubDate, personID, err)
 			}
 		}
 	}
 }
 
-func aggregateOptions(cfg *Config, repoName string, collection string, tableName string, eprintID int, recordType string, isPublic bool, pubDate string, options []string) {
+func aggregateOptions(cfg *Config, repoName string, collection string, tableName string, eprintID int, recordType string, thesisType string, isPublic bool, pubDate string, options []string) {
 	deleteStmt := fmt.Sprintf(`DELETE FROM %s WHERE repository = ? AND collection = ? AND eprintid = ?`, tableName)
 	cfg.Jdb.Exec(deleteStmt)
 	if len(options) > 0 {
-		insertStmt := fmt.Sprintf(`INSERT INTO %s (repository, collection, eprintid, record_type, is_public, pubdate, local_option) VALUES (?, ?, ?, ?, ?, ?, ?)`, tableName)
+		insertStmt := fmt.Sprintf(`INSERT INTO %s (repository, collection, eprintid, record_type, thesis_type, is_public, pubdate, local_option) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`, tableName)
 		for _, option := range options {
-			if _, err := cfg.Jdb.Exec(insertStmt, repoName, collection, eprintID, recordType, isPublic, pubDate, option); err != nil {
-				log.Printf("WARNING: failed aggregateOptions(cfg, %q, %q, %d, %q, %t, %q, %q): %s", repoName, collection, eprintID, recordType, isPublic, pubDate, option, err)
+			if _, err := cfg.Jdb.Exec(insertStmt, repoName, collection, eprintID, recordType, thesisType, isPublic, pubDate, option); err != nil {
+				log.Printf("WARNING: failed aggregateOptions(cfg, %q, %q, %d, %q, %q, %t, %q, %q): %s", repoName, collection, eprintID, recordType, thesisType, isPublic, pubDate, option, err)
 			}
 		}
 	}
 }
 
 // aggregateGroup aggregates a single group by group_id
-func aggregateGroup(cfg *Config, repoName string, collection string, eprintID int, groupID string, recordType string, isPublic bool, pubDate string) error {
-	insertStmt := `INSERT INTO _aggregate_groups (repository, collection, eprintid, record_type, is_public, pubdate, group_id) VALUES (?, ?, ?, ?, ?, ?, ?)`
-	if _, err := cfg.Jdb.Exec(insertStmt, repoName, collection, eprintID, recordType, isPublic, pubDate, groupID); err != nil {
+func aggregateGroup(cfg *Config, repoName string, collection string, eprintID int, groupID string, recordType string, thesisType string, isPublic bool, pubDate string) error {
+	insertStmt := `INSERT INTO _aggregate_groups (repository, collection, eprintid, record_type, thesis_type, is_public, pubdate, group_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+	if _, err := cfg.Jdb.Exec(insertStmt, repoName, collection, eprintID, recordType, thesisType, isPublic, pubDate, groupID); err != nil {
 		return err
 	}
 	return nil
 }
 
 // aggregateGroups aggregates a list of groups by group name
-func aggregateGroups(cfg *Config, repoName string, collection string, eprintID int, recordType string, isPublic bool, pubDate string, groups []string) {
+func aggregateGroups(cfg *Config, repoName string, collection string, eprintID int, recordType string, thesisType string, isPublic bool, pubDate string, groups []string) {
 	deleteStmt := `DELETE FROM _aggregate_groups WHERE repository = ? AND collection = ? AND eprintid = ?`
 	cfg.Jdb.Exec(deleteStmt)
 	if len(groups) > 0 {
@@ -442,8 +451,8 @@ func aggregateGroups(cfg *Config, repoName string, collection string, eprintID i
 				log.Printf("Skipping, %q (%s eprintid %d) not found in _groups table, returned empty groupID", groupName, repoName, eprintID)
 				continue
 			}
-			if err := aggregateGroup(cfg, repoName, collection, eprintID, groupID, recordType, isPublic, pubDate); err != nil {
-				log.Printf("WARNING: failed aggregateGroup(cfg, %q, %q, %d, %q, %q, %t, %q): %s", repoName, collection, eprintID, groupID, recordType, isPublic, pubDate, err)
+			if err := aggregateGroup(cfg, repoName, collection, eprintID, groupID, recordType, thesisType, isPublic, pubDate); err != nil {
+				log.Printf("WARNING: failed aggregateGroup(cfg, %q, %q, %d, %q, %q, %q,%t, %q): %s", repoName, collection, eprintID, groupID, recordType, thesisType, isPublic, pubDate, err)
 			}
 		}
 	}
@@ -454,32 +463,33 @@ func aggregateGroups(cfg *Config, repoName string, collection string, eprintID i
 func aggregateEPrintRecord(cfg *Config, repoName string, eprintID int, eprint *EPrint) {
 	collection := eprint.Collection
 	recordType := eprint.Type
+	thesisType := eprint.ThesisType
 	isPublic := eprint.IsPublic()
 	pubDate := eprint.PubDate()
 	// Clear the creators aggregation for this eprint record
 	if personIDs := eprint.Creators.GetIDs(); len(personIDs) > 0 {
-		aggregatePersons(cfg, repoName, collection, "_aggregate_creator", eprintID, recordType, isPublic, pubDate, personIDs)
+		aggregatePersons(cfg, repoName, collection, "_aggregate_creator", eprintID, recordType, thesisType, isPublic, pubDate, personIDs)
 	}
 	if personIDs := eprint.Editors.GetIDs(); len(personIDs) > 0 {
-		aggregatePersons(cfg, repoName, collection, "_aggregate_editor", eprintID, recordType, isPublic, pubDate, personIDs)
+		aggregatePersons(cfg, repoName, collection, "_aggregate_editor", eprintID, recordType, thesisType, isPublic, pubDate, personIDs)
 	}
 	if personIDs := eprint.Contributors.GetIDs(); len(personIDs) > 0 {
-		aggregatePersons(cfg, repoName, collection, "_aggregate_contributor", eprintID, recordType, isPublic, pubDate, personIDs)
+		aggregatePersons(cfg, repoName, collection, "_aggregate_contributor", eprintID, recordType, thesisType, isPublic, pubDate, personIDs)
 	}
 	if personIDs := eprint.ThesisAdvisor.GetIDs(); len(personIDs) > 0 {
-		aggregatePersons(cfg, repoName, collection, "_aggregate_advisor", eprintID, recordType, isPublic, pubDate, personIDs)
+		aggregatePersons(cfg, repoName, collection, "_aggregate_advisor", eprintID, recordType, thesisType, isPublic, pubDate, personIDs)
 	}
 	if personIDs := eprint.ThesisCommittee.GetIDs(); len(personIDs) > 0 {
-		aggregatePersons(cfg, repoName, collection, "_aggregate_committee", eprintID, recordType, isPublic, pubDate, personIDs)
+		aggregatePersons(cfg, repoName, collection, "_aggregate_committee", eprintID, recordType, thesisType, isPublic, pubDate, personIDs)
 	}
 	if options := eprint.OptionMajor.GetOptions(); len(options) > 0 {
-		aggregateOptions(cfg, repoName, collection, "_aggregate_option_major", eprintID, recordType, isPublic, pubDate, options)
+		aggregateOptions(cfg, repoName, collection, "_aggregate_option_major", eprintID, recordType, thesisType, isPublic, pubDate, options)
 	}
 	if options := eprint.OptionMinor.GetOptions(); len(options) > 0 {
-		aggregateOptions(cfg, repoName, collection, "_aggregate_option_minor", eprintID, recordType, isPublic, pubDate, options)
+		aggregateOptions(cfg, repoName, collection, "_aggregate_option_minor", eprintID, recordType, thesisType, isPublic, pubDate, options)
 	}
 	if groups := eprint.LocalGroup.GetGroups(); len(groups) > 0 {
-		aggregateGroups(cfg, repoName, collection, eprintID, recordType, isPublic, pubDate, groups)
+		aggregateGroups(cfg, repoName, collection, eprintID, recordType, thesisType, isPublic, pubDate, groups)
 	}
 }
 
@@ -493,7 +503,7 @@ func aggregateEPrintRecord(cfg *Config, repoName string, eprintID int, eprint *E
 // Person holds the data structure representing the general person
 // information and the crosswalk IDs maintained in the people.csv file.
 type Person struct {
-	PersonID            string    `json:"id,required"`
+	PersonID            string    `json:"id"`
 	CLPeopleID          string    `json:"cl_people_id,omitempty"`
 	FamilyName          string    `json:"family_name,omitempty"`
 	GivenName           string    `json:"given_name,omitempty"`
@@ -520,13 +530,13 @@ type Person struct {
 	Title               string    `json:"title,omitempty"`
 	Bio                 string    `json:"bio,omitempty"`
 	Division            string    `json:"division,omitempty"`
-	Updated             time.Time `json:"updated,omitemtpy"`
+	Updated             time.Time `json:"updated"`
 }
 
 // Group holds the data structure presenting the group information
 // and the crossswalk IDs maintained in groups.csv
 type Group struct {
-	GroupID     string    `json:"key,required"`
+	GroupID     string    `json:"key"`
 	Name        string    `json:"name,omitempty"`
 	Alternative string    `json:"alternative"`
 	EMail       string    `json:"email,omitempty"`
@@ -559,7 +569,7 @@ func aToBool(s string) bool {
 
 func columnsToPerson(columns []string, row []string) (*Person, error) {
 	if len(columns) != len(row) {
-		return nil, fmt.Errorf("Mismatched columns in row")
+		return nil, fmt.Errorf("mismatched columns in row")
 	}
 	person := new(Person)
 	for i, field := range columns {
@@ -679,7 +689,7 @@ func ReadPersonCSV(fName string, verbose bool) ([]*Person, error) {
 
 func columnsToGroup(columns []string, row []string) (*Group, error) {
 	if len(columns) != len(row) {
-		return nil, fmt.Errorf("Mismatched columns in row")
+		return nil, fmt.Errorf("mismatched columns in row")
 	}
 	group := new(Group)
 	for i, field := range columns {
@@ -774,7 +784,7 @@ func ReadGroupsCSV(fName string, verbose bool) ([]*Group, error) {
 // in EPrints.
 func RunHarvestPeopleGroups(cfgName string, verbose bool) error {
 	if cfgName == "" {
-		return fmt.Errorf("Configuration filename missing")
+		return fmt.Errorf("configuration filename missing")
 	}
 	// Read in the configuration for this harvester instance.
 	cfg, err := LoadConfig(cfgName)
@@ -782,7 +792,7 @@ func RunHarvestPeopleGroups(cfgName string, verbose bool) error {
 		return err
 	}
 	if cfg == nil {
-		return fmt.Errorf("Could not create a configuration object")
+		return fmt.Errorf("could not create a configuration object")
 	}
 	if err := OpenJSONStore(cfg); err != nil {
 		return err
