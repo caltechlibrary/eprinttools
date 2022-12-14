@@ -3,8 +3,8 @@
 package eprinttools
 
 import (
-	"encoding/json"
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
@@ -96,7 +96,7 @@ func GetJSONDocument(cfg *Config, repoName string, id int) ([]byte, error) {
 	return src, err
 }
 
-// GetDocumentAsEPrint trake a configuration, repoName, eprint if 
+// GetDocumentAsEPrint trake a configuration, repoName, eprint if
 // and returns an EPrint struct or error based on the contents in
 // the json store.
 func GetDocumentAsEPrint(cfg *Config, repoName string, id int, eprint *EPrint) error {
@@ -316,7 +316,56 @@ func GetGroupAggregations(cfg *Config, groupID string) (map[string]map[string][]
 		// is not an empty string.
 		aggregateAs := recordType
 		if recordType == "thesis" && thesisType != "" {
-			aggregateAs = fmt.Sprintf("%s %s", recordType, thesisType)
+			aggregateAs = fmt.Sprintf("%s-%s", recordType, thesisType)
+		}
+		if _, ok := m[repoName][aggregateAs]; !ok {
+			m[repoName][aggregateAs] = []int{}
+		}
+		// We want to avoid deduplicate ids in each list
+		if !containsInt(m[repoName][aggregateAs], id) {
+			m[repoName][aggregateAs] = append(m[repoName][aggregateAs], id)
+		}
+		if !containsInt(m[repoName]["combined"], id) {
+			m[repoName]["combined"] = append(m[repoName]["combined"], id)
+		}
+	}
+	err = rows.Err()
+	return m, err
+}
+
+func GetPersonByRoleAggregations(cfg *Config, personID string, role string) (map[string]map[string][]int, error) {
+	// Read the _aggregate_group to get the eprintid for group by decending publation date
+	stmt := fmt.Sprintf(`SELECT repository, eprintid, record_type, thesis_type FROM _aggregate_%s WHERE person_id = ? ORDER BY repository, pubDate DESC`, role)
+	rows, err := cfg.Jdb.Query(stmt, personID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var (
+		id         int
+		recordType string
+		thesisType string
+		repoName   string
+		repository string
+	)
+	m := map[string]map[string][]int{}
+	for rows.Next() {
+		if err := rows.Scan(&repository, &id, &recordType, &thesisType); err != nil {
+			return nil, err
+		}
+		if repoName != repository {
+			repoName = repository
+			if _, ok := m[repoName]; !ok {
+				m[repoName] = map[string][]int{}
+			}
+			m[repoName]["combined"] = []int{}
+		}
+		// NOTE: We need to handle thesis (e.g. PhD, Masters, etc) as individual aggregations.
+		// To carry this information through we combine recordType and thesisType when thesisType
+		// is not an empty string.
+		aggregateAs := recordType
+		if recordType == "thesis" && thesisType != "" {
+			aggregateAs = fmt.Sprintf("%s-%s", recordType, thesisType)
 		}
 		if _, ok := m[repoName][aggregateAs]; !ok {
 			m[repoName][aggregateAs] = []int{}

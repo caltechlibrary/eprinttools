@@ -85,7 +85,7 @@ func generateDataset(cfg *Config, repoName string, projectDir string, verbose bo
 				log.Printf("failed to create %q in %q, %s", key, cName, err)
 			}
 			i += 1
-			if verbose && ((i % 2500) == 0) {
+			if verbose && ((i % 2750) == 0) {
 				log.Printf("%s %d records added (%s)", path.Base(cName), i, progress(t0, i, tot))
 			}
 		}

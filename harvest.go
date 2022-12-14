@@ -62,6 +62,8 @@ CREATE TABLE IF NOT EXISTS _aggregate_creator (
   	record_type VARCHAR(256) DEFAULT "",
     thesis_type VARCHAR(256) DEFAULT ""
 );
+CREATE INDEX _aggregrate_creator_person_idi ON _aggregate_creator (person_id ASC);
+CREATE INDEX _aggregrate_creator_pubdate_i ON _aggregate_creator (pubdate DESC);
 
 -- Table Schema generated for MySQL 8
 -- for all EPrint repositories as _aggregate_editor
@@ -74,8 +76,9 @@ CREATE TABLE IF NOT EXISTS _aggregate_editor (
   	pubdate VARCHAR(256) DEFAULT "",
   	is_public BOOLEAN DEFAULT FALSE,
   	record_type VARCHAR(256) DEFAULT "",
-      thesis_type VARCHAR(256) DEFAULT ""
+    thesis_type VARCHAR(256) DEFAULT ""
 );
+CREATE INDEX _aggregrate_editor_pubdate_i ON _aggregate_editor (pubdate DESC);
 
 -- Table Schema generated for MySQL 8
 -- for all EPrint repositories as _aggregate_contributor
@@ -90,6 +93,7 @@ CREATE TABLE IF NOT EXISTS _aggregate_contributor (
   	record_type VARCHAR(256) DEFAULT "",
       thesis_type VARCHAR(256) DEFAULT ""
 );
+CREATE INDEX _aggregrate_contributor_pubdate_i ON _aggregate_contributor (pubdate DESC);
 
 -- Table Schema generated for MySQL 8
 -- for all EPrint repositories as _aggregate_advisor
@@ -104,6 +108,7 @@ CREATE TABLE IF NOT EXISTS _aggregate_advisor (
   	record_type VARCHAR(256) DEFAULT "",
     thesis_type VARCHAR(256) DEFAULT ""
 );
+CREATE INDEX _aggregrate_advisor_pubdate_i ON _aggregate_advisor (pubdate DESC);
 
 -- Table Schema generated for MySQL 8
 -- for all EPrint repositories as _aggregate_committee
@@ -118,6 +123,7 @@ CREATE TABLE IF NOT EXISTS _aggregate_committee (
   	record_type VARCHAR(256) DEFAULT "",
     thesis_type VARCHAR(256) DEFAULT ""
 );
+CREATE INDEX _aggregate_committee_pubdate_i ON _aggregate_committee (pubdate DESC);
 
 -- Table Schema generated for MySQL 8
 -- for all EPrint repositories as _aggregate_option_major
@@ -132,6 +138,7 @@ CREATE TABLE IF NOT EXISTS _aggregate_option_major (
     thesis_type VARCHAR(256) DEFAULT "",
     local_option VARCHAR(256) DEFAULT ""
 );
+CREATE INDEX _aggregate_option_major_pubdate_i ON _aggregate_option_major (pubdate DESC);
 
 -- Table Schema generated for MySQL 8
 -- for all EPrint repositories as _aggregate_option_minor
@@ -146,6 +153,7 @@ CREATE TABLE IF NOT EXISTS _aggregate_option_minor (
     thesis_type VARCHAR(256) DEFAULT "",
     local_option VARCHAR(256) DEFAULT ""
 );
+CREATE INDEX _aggregate_option_minor_pubdate_i ON _aggregate_option_minor (pubdate DESC);
 
 -- Table Schema generated for MySQL 8
 -- for all EPrint repositories as _aggregate_groups
@@ -162,6 +170,7 @@ CREATE TABLE IF NOT EXISTS _aggregate_groups (
     alternative VARCHAR(1024) DEFAULT "",
     group_id VARCHAR(256) DEFAULT ""
 );
+CREATE INDEX _aggregate_groups_pubdate_i ON _aggregate_groups (pubdate DESC);
 
 -- Table Schema generate for MySQL 8
 -- for external People list (e.g. from people.csv)
@@ -197,6 +206,7 @@ CREATE TABLE IF NOT EXISTS _people (
     division VARCHAR(256) DEFAULT "",
     updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
+CREATE INDEX _people_sort_name_i ON _people (sort_name ASC);
 
 CREATE TABLE IF NOT EXISTS _groups (
     group_id VARCHAR(256) NOT NULL PRIMARY KEY,
@@ -221,6 +231,7 @@ CREATE TABLE IF NOT EXISTS _groups (
     ror VARCHAR(256) DEFAULT "",
     updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
+CREATE INDEX _groups_name_i ON _groups (name ASC);
 
 `
 	table := `--
@@ -240,6 +251,7 @@ CREATE TABLE IF NOT EXISTS %s (
   thesis_type VARCHAR(256) DEFAULT "",
   status VARCHAR(256) DEFAULT ""
 );
+CREATE INDEX %s_pubdate_i ON %s (pubdate DESC);
 `
 	cfg, err := LoadConfig(cfgName)
 	if err != nil {
@@ -254,7 +266,7 @@ CREATE TABLE IF NOT EXISTS %s (
 		src = append(src, fmt.Sprintf(database, appName, Version, cfgName, now.Format(mysqlTimeFmt), dbName, dbName, dbName))
 	}
 	for repoName := range cfg.Repositories {
-		src = append(src, fmt.Sprintf(table, appName, Version, repoName, now.Format(mysqlTimeFmt), repoName))
+		src = append(src, fmt.Sprintf(table, appName, Version, repoName, now.Format(mysqlTimeFmt), repoName, repoName, repoName))
 	}
 	return strings.Join(src, "\n"), nil
 }
@@ -360,7 +372,7 @@ func harvestRepository(cfg *Config, repoName string, start string, end string, v
 		if err != nil {
 			log.Printf("Harvesting EPrint %d (%s) failed, %s", id, progress(t0, i, tot), err)
 		}
-		if verbose && ((i % 2500) == 0) {
+		if verbose && ((i % 2750) == 0) {
 			log.Printf("Harvested EPrint %d (%s)", id, progress(t0, i, tot))
 		}
 	}
@@ -400,14 +412,14 @@ func harvestEPrintRecord(cfg *Config, repoName string, eprintID int) error {
 }
 
 // aggregatePersons aggregates by the person related roles, e.g. creator, editor, contributor, advisor, committee memember
-func aggregatePersons(cfg *Config, repoName string, collection string, tableName string, eprintID int, recordType string, thesisType string, isPublic bool, pubDate string, personIDs []string) {
-	deleteStmt := fmt.Sprintf(`DELETE FROM %s WHERE repository = ? AND collection = ? AND eprintid = ?`, tableName)
+func aggregatePersons(cfg *Config, repoName string, collection string, role string, eprintID int, recordType string, thesisType string, isPublic bool, pubDate string, personIDs []string) {
+	deleteStmt := fmt.Sprintf(`DELETE FROM _aggregate_%s WHERE repository = ? AND collection = ? AND eprintid = ?`, role)
 	cfg.Jdb.Exec(deleteStmt)
 	if len(personIDs) > 0 {
-		insertStmt := fmt.Sprintf(`INSERT INTO %s (repository, collection, eprintid, person_id, record_type, thesis_type, is_public, pubdate) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`, tableName)
+		insertStmt := fmt.Sprintf(`INSERT INTO _aggregate_%s (repository, collection, eprintid, person_id, record_type, thesis_type, is_public, pubdate) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`, role)
 		for _, personID := range personIDs {
 			if _, err := cfg.Jdb.Exec(insertStmt, repoName, collection, eprintID, personID, recordType, thesisType, isPublic, pubDate); err != nil {
-				log.Printf("WARNING: failed aggregreatePersons(cfg, %q, %q, %d, %q, %q, %t, %q, %q): %s", repoName, collection, eprintID, recordType, thesisType, isPublic, pubDate, personID, err)
+				log.Printf("WARNING: failed aggregreatePersons(cfg, %q, %q, %q, %d, %q, %q, %t, %q, %q): %s", repoName, collection, role, eprintID, recordType, thesisType, isPublic, pubDate, role, err)
 			}
 		}
 	}
@@ -468,19 +480,19 @@ func aggregateEPrintRecord(cfg *Config, repoName string, eprintID int, eprint *E
 	pubDate := eprint.PubDate()
 	// Clear the creators aggregation for this eprint record
 	if personIDs := eprint.Creators.GetIDs(); len(personIDs) > 0 {
-		aggregatePersons(cfg, repoName, collection, "_aggregate_creator", eprintID, recordType, thesisType, isPublic, pubDate, personIDs)
+		aggregatePersons(cfg, repoName, collection, "creator", eprintID, recordType, thesisType, isPublic, pubDate, personIDs)
 	}
 	if personIDs := eprint.Editors.GetIDs(); len(personIDs) > 0 {
-		aggregatePersons(cfg, repoName, collection, "_aggregate_editor", eprintID, recordType, thesisType, isPublic, pubDate, personIDs)
+		aggregatePersons(cfg, repoName, collection, "editor", eprintID, recordType, thesisType, isPublic, pubDate, personIDs)
 	}
 	if personIDs := eprint.Contributors.GetIDs(); len(personIDs) > 0 {
-		aggregatePersons(cfg, repoName, collection, "_aggregate_contributor", eprintID, recordType, thesisType, isPublic, pubDate, personIDs)
+		aggregatePersons(cfg, repoName, collection, "contributor", eprintID, recordType, thesisType, isPublic, pubDate, personIDs)
 	}
 	if personIDs := eprint.ThesisAdvisor.GetIDs(); len(personIDs) > 0 {
-		aggregatePersons(cfg, repoName, collection, "_aggregate_advisor", eprintID, recordType, thesisType, isPublic, pubDate, personIDs)
+		aggregatePersons(cfg, repoName, collection, "advisor", eprintID, recordType, thesisType, isPublic, pubDate, personIDs)
 	}
 	if personIDs := eprint.ThesisCommittee.GetIDs(); len(personIDs) > 0 {
-		aggregatePersons(cfg, repoName, collection, "_aggregate_committee", eprintID, recordType, thesisType, isPublic, pubDate, personIDs)
+		aggregatePersons(cfg, repoName, collection, "committee", eprintID, recordType, thesisType, isPublic, pubDate, personIDs)
 	}
 	if options := eprint.OptionMajor.GetOptions(); len(options) > 0 {
 		aggregateOptions(cfg, repoName, collection, "_aggregate_option_major", eprintID, recordType, thesisType, isPublic, pubDate, options)

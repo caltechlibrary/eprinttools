@@ -32,27 +32,27 @@ func generateGroupDir(cfg *Config, groupID string, group *Group, m map[string]in
 	if err := jsonEncodeToFile(fName, m, 0664); err != nil {
 		return err
 	}
-    for repoName, v := range m {
+	for repoName, v := range m {
 		// FIXME: We are using a switch to check the type because
 		// the v1.0 feeds doesn't have a defined "aggregation" attribute.
 		switch v.(type) {
-			case map[string][]int:
-				aMap := v.(map[string][]int)
-				for recordType, ids := range aMap {
-					docs := []*EPrint{}
-					for _, id := range ids {
-						eprint := new(EPrint)
-						if err := GetDocumentAsEPrint(cfg, repoName, id, eprint); err != nil {
-							return err
-						}
-						docs = append(docs, eprint)
+		case map[string][]int:
+			aMap := v.(map[string][]int)
+			for recordType, ids := range aMap {
+				docs := []*EPrint{}
+				for _, id := range ids {
+					eprint := new(EPrint)
+					if err := GetDocumentAsEPrint(cfg, repoName, id, eprint); err != nil {
+						return err
 					}
-					fName = path.Join(groupDir, fmt.Sprintf("%s-%s.json", repoName, recordType))
-					if err := jsonEncodeToFile(fName, docs, 0664); err != nil {
-						return err	
-					}
-
+					docs = append(docs, eprint)
 				}
+				fName = path.Join(groupDir, fmt.Sprintf("%s-%s.json", repoName, recordType))
+				if err := jsonEncodeToFile(fName, docs, 0664); err != nil {
+					return err
+				}
+
+			}
 		}
 	}
 	return nil
@@ -63,7 +63,7 @@ func generateGroupListAndDir(cfg *Config, groupIDs []string, verbose bool) ([]ma
 	tot := len(groupIDs)
 	t0 := time.Now()
 	for i, groupID := range groupIDs {
-		// FIXME: In feeds v1.0 aggregrated repositories info is mixed 
+		// FIXME: In feeds v1.0 aggregrated repositories info is mixed
 		// into the attributes of the group's metadata, this prevents
 		// us from using a struct representing Group or People
 		// aggregations. In v1.1 or v1.2 this should change. Aggregations
@@ -189,7 +189,6 @@ func GeneratePeopleIDs(cfg *Config, verbose bool) error {
 	if err := jsonEncodeToFile(fName, personIDs, 0664); err != nil {
 		return err
 	}
-	fName = path.Join(peopleDir, "people_list.json")
 	peopleList := []*Person{}
 	tot := len(personIDs)
 	t0 := time.Now()
@@ -197,10 +196,34 @@ func GeneratePeopleIDs(cfg *Config, verbose bool) error {
 		person, err := GetPerson(cfg, personID)
 		if err != nil {
 			return fmt.Errorf("failed to find %q in %q, %s", personID, cfg.JSONStore, err)
-		} else if person != nil {
-			peopleList = append(peopleList, person)
 		}
-		if verbose && ((i % 1000) == 0) {
+		if person != nil {
+			// For each person in _people, find the records that should be included
+			// e.g. creator, editor, contributor, advisor, committee member.
+			includePerson := false
+			dName := path.Join(peopleDir, personID)
+			if _, err := os.Stat(dName); os.IsNotExist(err) {
+				if err := os.MkdirAll(dName, 0775); err != nil {
+					return err
+				}
+			}
+			// NOTE: each role is stored in a separate table for performance reasons. The table name is `_aggregate_<ROLE>`
+			for _, role := range []string{"creator", "contributor", "editor", "advisor", "committee"} {
+				if m, err := GetPersonByRoleAggregations(cfg, personID, role); err != nil {
+					log.Printf("skipping %q for %q, %s", personID, role, err)
+				} else if len(m) > 0 {
+					includePerson = true
+					fName = path.Join(dName, fmt.Sprintf("%s.json", role))
+					if err := jsonEncodeToFile(fName, m, 0664); err != nil {
+						return err
+					}
+				}
+			}
+			if includePerson {
+				peopleList = append(peopleList, person)
+			}
+		}
+		if verbose && ((i % 500) == 0) {
 			log.Printf("added %s add to _people, (%s)", personID, progress(t0, i, tot))
 		}
 	}
@@ -208,12 +231,10 @@ func GeneratePeopleIDs(cfg *Config, verbose bool) error {
 		log.Printf("%d people added to _people (%s)", tot, time.Since(t0).Truncate(time.Second))
 		log.Printf("Writing %d people info %s", len(peopleList), fName)
 	}
+	fName = path.Join(peopleDir, "people_list.json")
 	if err := jsonEncodeToFile(path.Join(peopleDir, "people_list.json"), peopleList, 0664); err != nil {
 		return err
 	}
-
-	// For each person in _people, find the records that should be included
-	// e.g. creator, editor, contributor, advisor, committee member.
 	return nil
 }
 
@@ -240,10 +261,10 @@ func RunGenfeeds(cfgName string, verbose bool) error {
 	}
 	defer cfg.Jdb.Close()
 	log.Printf("%s started %v", appName, t0.Format("2006-01-02 15:04:05"))
-	if err := GenerateGroupIDs(cfg, verbose); err != nil {
+	if err := GeneratePeopleIDs(cfg, verbose); err != nil {
 		return err
 	}
-	if err := GeneratePeopleIDs(cfg, verbose); err != nil {
+	if err := GenerateGroupIDs(cfg, verbose); err != nil {
 		return err
 	}
 	if verbose {
