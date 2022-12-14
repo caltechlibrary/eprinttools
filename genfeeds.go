@@ -223,7 +223,7 @@ func GeneratePeopleIDs(cfg *Config, verbose bool) error {
 				peopleList = append(peopleList, person)
 			}
 		}
-		if verbose && ((i % 500) == 0) {
+		if verbose && ((i % 250) == 0) {
 			log.Printf("added %s add to _people, (%s)", personID, progress(t0, i, tot))
 		}
 	}
