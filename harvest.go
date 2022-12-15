@@ -414,6 +414,9 @@ func harvestRepository(cfg *Config, repoName string, start string, end string, v
 		log.Printf("Processing %d unique keys", tot)
 	}
 	for i, id := range ids {
+		// FIXME: Need to pull map thesis_id to person_id for CaltechTHESIS
+		// FIXME: Need to map advisor_id to person_id for CaltechTHESIS
+		// FIXME: Need to map authors_id to person_id for CaltechAUTHORS
 		err := harvestEPrintRecord(cfg, repoName, id)
 		if err != nil {
 			log.Printf("Harvesting EPrint %d (%s) failed, %s", id, progress(t0, i, tot), err)
@@ -430,6 +433,9 @@ func harvestRepository(cfg *Config, repoName string, start string, end string, v
 // a repository name and EPrint record ID and populates a JSON datastore
 // of harvested EPrints.
 func harvestEPrintRecord(cfg *Config, repoName string, eprintID int) error {
+	//FIXME: Need to add a parameter for mapping advisor_id and 
+	// creator_id in CaltechTHESIS to person_id before generating
+	// people aggregations
 	ds, ok := cfg.Repositories[repoName]
 	if !ok {
 		return fmt.Errorf("data source not found for %q looking up eprint %d", repoName, eprintID)
