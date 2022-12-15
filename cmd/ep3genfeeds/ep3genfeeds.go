@@ -75,9 +75,11 @@ Harvesting repositories for week month of May, 2022.
 	showHelp    bool
 	showLicense bool
 	showVersion bool
+	verbose bool
 
 	// App Option
-	verbose bool
+	people bool
+	groups bool
 )
 
 func main() {
@@ -90,6 +92,9 @@ func main() {
 	flagSet.BoolVar(&showLicense, "license", false, "display license")
 	flagSet.BoolVar(&showVersion, "version", false, "display version")
 	flagSet.BoolVar(&verbose, "verbose", false, "use verbose logging")
+	flagSet.BoolVar(&people, "people", false, "render people feeds")
+	flagSet.BoolVar(&groups, "groups", false, "render groups feeds")
+
 
 	// We're ready to process args
 	flagSet.Parse(os.Args[1:])
@@ -116,10 +121,22 @@ func main() {
 	}
 
 	t0 := time.Now()
-	err := eprinttools.RunGenfeeds(settings, verbose)
-	if err != nil {
-		log.Print(err)
-		os.Exit(1)
+	switch {
+		case people:
+			if err := eprinttools.RunGenPeople(settings, verbose); err != nil {
+				log.Print(err)
+				os.Exit(1)
+			}
+		case groups:
+			if err := eprinttools.RunGenGroups(settings, verbose); err != nil {
+				log.Print(err)
+				os.Exit(1)
+			}
+		default:
+			if err := eprinttools.RunGenfeeds(settings, verbose); err != nil {
+				log.Print(err)
+				os.Exit(1)
+			}
 	}
 	log.Printf("Total run time %v", time.Now().Sub(t0).Truncate(time.Second))
 }

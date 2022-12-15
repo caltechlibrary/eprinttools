@@ -151,7 +151,7 @@ func GetPerson(cfg *Config, personID string) (*Person, error) {
 	stmt := `SELECT person_id, cl_people_id, family_name, given_name, sort_name, thesis_id, advisor_id, authors_id,
     archivesspace_id, directory_id, viaf_id, lcnaf, isni, wikidata, snac, orcid,
     image, educated_at, caltech, jpl, faculty, alumn, status, directory_person_type,
-    title, bio, division, DATE_FORMAT(updated, "%Y-%m-%d %H:%i:%s") FROM _people WHERE cl_people_id = ?`
+    title, bio, division, DATE_FORMAT(updated, "%Y-%m-%d %H:%i:%s") FROM _people WHERE person_id = ?`
 	row, err := cfg.Jdb.Query(stmt, personID)
 	if err != nil {
 		return nil, err
@@ -194,6 +194,56 @@ func GetPersonIDs(cfg *Config) ([]string, error) {
 	}
 	err = rows.Err()
 	return ids, err
+}
+
+func GetPersonByRoleAggregations(cfg *Config, person *Person, role string) (map[string]map[string][]int, error) {
+	personID := person.PersonID
+	// Read the _aggregate_group to get the eprintid for group by decending publation date
+	stmt := fmt.Sprintf(`SELECT repository, eprintid, record_type, thesis_type FROM _aggregate_%s WHERE person_id = ? ORDER BY repository, pubDate DESC`, role)
+	rows, err := cfg.Jdb.Query(stmt, personID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var (
+		id         int
+		recordType string
+		thesisType string
+		repoName   string
+		repository string
+	)
+	m := map[string]map[string][]int{}
+	for rows.Next() {
+		if err := rows.Scan(&repository, &id, &recordType, &thesisType); err != nil {
+			return nil, err
+		}
+		if repoName != repository {
+			repoName = repository
+			if _, ok := m[repoName]; !ok {
+				m[repoName] = map[string][]int{}
+			}
+			m[repoName]["combined"] = []int{}
+		}
+		// NOTE: We need to handle thesis (e.g. PhD, Masters, etc) as individual aggregations.
+		// To carry this information through we combine recordType and thesisType when thesisType
+		// is not an empty string.
+		aggregateAs := recordType
+		if recordType == "thesis" && thesisType != "" {
+			aggregateAs = fmt.Sprintf("%s-%s", recordType, thesisType)
+		}
+		if _, ok := m[repoName][aggregateAs]; !ok {
+			m[repoName][aggregateAs] = []int{}
+		}
+		// We want to avoid deduplicate ids in each list
+		if !containsInt(m[repoName][aggregateAs], id) {
+			m[repoName][aggregateAs] = append(m[repoName][aggregateAs], id)
+		}
+		if !containsInt(m[repoName]["combined"], id) {
+			m[repoName]["combined"] = append(m[repoName]["combined"], id)
+		}
+	}
+	err = rows.Err()
+	return m, err
 }
 
 func SaveGroupJSON(cfg *Config, group *Group) error {
@@ -288,55 +338,6 @@ func GetGroupAggregations(cfg *Config, groupID string) (map[string]map[string][]
 	// Read the _aggregate_group to get the eprintid for group by decending publation date
 	stmt := `SELECT repository, eprintid, record_type, thesis_type FROM _aggregate_groups WHERE group_id = ? ORDER BY repository, pubDate DESC`
 	rows, err := cfg.Jdb.Query(stmt, groupID)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var (
-		id         int
-		recordType string
-		thesisType string
-		repoName   string
-		repository string
-	)
-	m := map[string]map[string][]int{}
-	for rows.Next() {
-		if err := rows.Scan(&repository, &id, &recordType, &thesisType); err != nil {
-			return nil, err
-		}
-		if repoName != repository {
-			repoName = repository
-			if _, ok := m[repoName]; !ok {
-				m[repoName] = map[string][]int{}
-			}
-			m[repoName]["combined"] = []int{}
-		}
-		// NOTE: We need to handle thesis (e.g. PhD, Masters, etc) as individual aggregations.
-		// To carry this information through we combine recordType and thesisType when thesisType
-		// is not an empty string.
-		aggregateAs := recordType
-		if recordType == "thesis" && thesisType != "" {
-			aggregateAs = fmt.Sprintf("%s-%s", recordType, thesisType)
-		}
-		if _, ok := m[repoName][aggregateAs]; !ok {
-			m[repoName][aggregateAs] = []int{}
-		}
-		// We want to avoid deduplicate ids in each list
-		if !containsInt(m[repoName][aggregateAs], id) {
-			m[repoName][aggregateAs] = append(m[repoName][aggregateAs], id)
-		}
-		if !containsInt(m[repoName]["combined"], id) {
-			m[repoName]["combined"] = append(m[repoName]["combined"], id)
-		}
-	}
-	err = rows.Err()
-	return m, err
-}
-
-func GetPersonByRoleAggregations(cfg *Config, personID string, role string) (map[string]map[string][]int, error) {
-	// Read the _aggregate_group to get the eprintid for group by decending publation date
-	stmt := fmt.Sprintf(`SELECT repository, eprintid, record_type, thesis_type FROM _aggregate_%s WHERE person_id = ? ORDER BY repository, pubDate DESC`, role)
-	rows, err := cfg.Jdb.Query(stmt, personID)
 	if err != nil {
 		return nil, err
 	}

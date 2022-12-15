@@ -62,7 +62,7 @@ CREATE TABLE IF NOT EXISTS _aggregate_creator (
   	record_type VARCHAR(256) DEFAULT "",
     thesis_type VARCHAR(256) DEFAULT ""
 );
-CREATE INDEX _aggregrate_creator_person_idi ON _aggregate_creator (person_id ASC);
+CREATE INDEX _aggregrate_creator_person_id_i ON _aggregate_creator (person_id ASC);
 CREATE INDEX _aggregrate_creator_pubdate_i ON _aggregate_creator (pubdate DESC);
 
 -- Table Schema generated for MySQL 8
@@ -78,6 +78,7 @@ CREATE TABLE IF NOT EXISTS _aggregate_editor (
   	record_type VARCHAR(256) DEFAULT "",
     thesis_type VARCHAR(256) DEFAULT ""
 );
+CREATE INDEX _aggregrate_editor_person_id_i ON _aggregate_editor (person_id ASC);
 CREATE INDEX _aggregrate_editor_pubdate_i ON _aggregate_editor (pubdate DESC);
 
 -- Table Schema generated for MySQL 8
@@ -93,6 +94,7 @@ CREATE TABLE IF NOT EXISTS _aggregate_contributor (
   	record_type VARCHAR(256) DEFAULT "",
       thesis_type VARCHAR(256) DEFAULT ""
 );
+CREATE INDEX _aggregrate_contributor_person_id_i ON _aggregate_contributor (person_id ASC);
 CREATE INDEX _aggregrate_contributor_pubdate_i ON _aggregate_contributor (pubdate DESC);
 
 -- Table Schema generated for MySQL 8
@@ -108,6 +110,7 @@ CREATE TABLE IF NOT EXISTS _aggregate_advisor (
   	record_type VARCHAR(256) DEFAULT "",
     thesis_type VARCHAR(256) DEFAULT ""
 );
+CREATE INDEX _aggregrate_advisor_person_id_i ON _aggregate_advisor (person_id ASC);
 CREATE INDEX _aggregrate_advisor_pubdate_i ON _aggregate_advisor (pubdate DESC);
 
 -- Table Schema generated for MySQL 8
@@ -123,6 +126,7 @@ CREATE TABLE IF NOT EXISTS _aggregate_committee (
   	record_type VARCHAR(256) DEFAULT "",
     thesis_type VARCHAR(256) DEFAULT ""
 );
+CREATE INDEX _aggregate_committee_person_id_i ON _aggregate_committee (person_id ASC);
 CREATE INDEX _aggregate_committee_pubdate_i ON _aggregate_committee (pubdate DESC);
 
 -- Table Schema generated for MySQL 8
@@ -298,6 +302,47 @@ func RunHarvester(cfgName string, start string, end string, verbose bool) error 
 	return harvest(cfg, start, end, verbose)
 }
 
+// RunHarvestRepoID will use the config file names by cfgName and
+// the repository id, the start and end time strings if set to retrieve all eprint
+// records created or modified during that time sequence for that repository.
+func RunHarvestRepoID(cfgName string, repoName, start string, end string, verbose bool) error {
+	if cfgName == "" {
+		return fmt.Errorf("configuration filename missing")
+	}
+	now := time.Now()
+	// Read in the configuration for this harvester instance.
+	cfg, err := LoadConfig(cfgName)
+	if err != nil {
+		return err
+	}
+	if cfg == nil {
+		return fmt.Errorf("could not create a configuration object")
+	}
+	if start == "" {
+		// Pick a start date/time before EPrints existed.
+		start = "2000-01-01 00:00:00"
+	}
+	if end == "" {
+		// Pick the current date time when harvest is starting
+		end = now.Format(mysqlTimeFmt)
+	}
+	if err := OpenConnections(cfg); err != nil {
+		return err
+	}
+	defer CloseConnections(cfg)
+	if err := OpenJSONStore(cfg); err != nil {
+		return err
+	}
+	defer cfg.Jdb.Close()
+	log.Printf("harvesting %s started", repoName)
+	if err := harvestRepository(cfg, repoName, start, end, verbose); err != nil {
+		log.Printf("harvesting %s aborted", repoName)
+		return err
+	}
+	log.Printf("harvesting %s completed", repoName)
+	return nil
+}
+
 // harvest implements an harvest instance.
 func harvest(cfg *Config, start string, end string, verbose bool) error {
 	// Open the repository collections, JSON store with aggregation tables
@@ -363,6 +408,7 @@ func harvestRepository(cfg *Config, repoName string, start string, end string, v
 	ids := append(createdIDs, modifiedIDs...)
 	ids = getSortedUniqueIDs(ids)
 	tot := len(ids)
+	modValue := calcModValue(tot)
 	t0 := time.Now()
 	if verbose {
 		log.Printf("Processing %d unique keys", tot)
@@ -372,7 +418,7 @@ func harvestRepository(cfg *Config, repoName string, start string, end string, v
 		if err != nil {
 			log.Printf("Harvesting EPrint %d (%s) failed, %s", id, progress(t0, i, tot), err)
 		}
-		if verbose && ((i % 2750) == 0) {
+		if verbose && ((i % modValue) == 0) {
 			log.Printf("Harvested EPrint %d (%s)", id, progress(t0, i, tot))
 		}
 	}
@@ -413,6 +459,7 @@ func harvestEPrintRecord(cfg *Config, repoName string, eprintID int) error {
 
 // aggregatePersons aggregates by the person related roles, e.g. creator, editor, contributor, advisor, committee memember
 func aggregatePersons(cfg *Config, repoName string, collection string, role string, eprintID int, recordType string, thesisType string, isPublic bool, pubDate string, personIDs []string) {
+	// Normalize the person id from the crosswalks using in repositories.
 	deleteStmt := fmt.Sprintf(`DELETE FROM _aggregate_%s WHERE repository = ? AND collection = ? AND eprintid = ?`, role)
 	cfg.Jdb.Exec(deleteStmt)
 	if len(personIDs) > 0 {
@@ -470,6 +517,7 @@ func aggregateGroups(cfg *Config, repoName string, collection string, eprintID i
 	}
 }
 
+
 // aggregateEPrintRecord takes a configuration, repository name, eprintID and struct
 // then performances an analysis of the record aggregrating it's component parts.
 func aggregateEPrintRecord(cfg *Config, repoName string, eprintID int, eprint *EPrint) {
@@ -479,6 +527,10 @@ func aggregateEPrintRecord(cfg *Config, repoName string, eprintID int, eprint *E
 	isPublic := eprint.IsPublic()
 	pubDate := eprint.PubDate()
 	// Clear the creators aggregation for this eprint record
+
+	//FIXME: need normalize the crosswalked Ids to the canonical personID.
+
+
 	if personIDs := eprint.Creators.GetIDs(); len(personIDs) > 0 {
 		aggregatePersons(cfg, repoName, collection, "creator", eprintID, recordType, thesisType, isPublic, pubDate, personIDs)
 	}
@@ -656,8 +708,8 @@ func columnsToPerson(columns []string, row []string) (*Person, error) {
 			return nil, fmt.Errorf("failed to map column (%d: %q)", i, field)
 		}
 	}
-	// Handle personID
-	person.PersonID = strings.ToLower(person.CLPeopleID)
+	// Handle personID, in version >= 2 PersonID should be lowercase
+	person.PersonID = person.CLPeopleID
 	// Handle creating SortName
 	person.SortName = fmt.Sprintf("%s, %s", person.FamilyName, person.GivenName)
 	return person, nil
@@ -791,10 +843,52 @@ func ReadGroupsCSV(fName string, verbose bool) ([]*Group, error) {
 	return groups, nil
 }
 
-// RunHarvestPeopleGroups loads CSV files containing people and group
+// RunHarvestGroups loads CSV files containing people and group
 // crosswalk tables. These synthesize Person and Group objects not present
 // in EPrints.
-func RunHarvestPeopleGroups(cfgName string, verbose bool) error {
+func RunHarvestGroups(cfgName string, verbose bool) error {
+	if cfgName == "" {
+		return fmt.Errorf("configuration filename missing")
+	}
+	// Read in the configuration for this harvester instance.
+	cfg, err := LoadConfig(cfgName)
+	if err != nil {
+		return err
+	}
+	if cfg == nil {
+		return fmt.Errorf("could not create a configuration object")
+	}
+	if err := OpenJSONStore(cfg); err != nil {
+		return err
+	}
+	defer cfg.Jdb.Close()
+	if cfg.GroupsCSV != "" {
+		groups, err := ReadGroupsCSV(cfg.GroupsCSV, verbose)
+		if err != nil {
+			return err
+		}
+		tot := len(groups)
+		modValue := calcModValue(tot)
+		t0 := time.Now()
+		for i, group := range groups {
+			if err := SaveGroupJSON(cfg, group); err != nil {
+				log.Printf("failed to save group record, %s", err)
+			}
+			if verbose && ((i % modValue) == 0) {
+				log.Printf("loaded %d groups (%s)", i, progress(t0, i, tot))
+			}
+		}
+		if verbose {
+			log.Printf("loaded %d groups in %v", tot, time.Since(t0).Truncate(time.Second))
+		}
+	}
+	return nil
+}
+
+// RunHarvestPeople loads CSV files containing people and group
+// crosswalk tables. These synthesize Person and Group objects not present
+// in EPrints.
+func RunHarvestPeople(cfgName string, verbose bool) error {
 	if cfgName == "" {
 		return fmt.Errorf("configuration filename missing")
 	}
@@ -816,36 +910,18 @@ func RunHarvestPeopleGroups(cfgName string, verbose bool) error {
 			return err
 		}
 		tot := len(people)
+		modValue := calcModValue(tot)
 		t0 := time.Now()
 		for i, person := range people {
 			if err := SavePersonJSON(cfg, person); err != nil {
 				log.Printf("failed to save person record, %s", err)
 			}
-			if verbose && ((i % 1000) == 0) {
+			if verbose && ((i % modValue) == 0) {
 				log.Printf("loaded %d people (%s)", i, progress(t0, i, tot))
 			}
 		}
 		if verbose {
 			log.Printf("loaded %d people in %v", tot, time.Since(t0).Truncate(time.Second))
-		}
-	}
-	if cfg.GroupsCSV != "" {
-		groups, err := ReadGroupsCSV(cfg.GroupsCSV, verbose)
-		if err != nil {
-			return err
-		}
-		tot := len(groups)
-		t0 := time.Now()
-		for i, group := range groups {
-			if err := SaveGroupJSON(cfg, group); err != nil {
-				log.Printf("failed to save group record, %s", err)
-			}
-			if verbose && ((i % 1000) == 0) {
-				log.Printf("loaded %d groups (%s)", i, progress(t0, i, tot))
-			}
-		}
-		if verbose {
-			log.Printf("loaded %d groups in %v", tot, time.Since(t0).Truncate(time.Second))
 		}
 	}
 	return nil

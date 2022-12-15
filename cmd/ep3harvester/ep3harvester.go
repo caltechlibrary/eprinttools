@@ -104,6 +104,9 @@ Harvesting repositories for week month of May, 2022.
 	// App Option
 	showSqlSchema   bool
 	initialize      bool
+	people          bool
+	groups          bool
+	repoName        string
 	peopleAndGroups bool
 	verbose         bool
 )
@@ -120,7 +123,10 @@ func main() {
 	flagSet.BoolVar(&showSqlSchema, "sql-schema", false, "display SQL schema for installing MySQL jsonstore DB")
 	flagSet.BoolVar(&verbose, "verbose", false, "use verbose logging")
 	flagSet.BoolVar(&initialize, "init", false, "generate a settings JSON file")
+	flagSet.BoolVar(&people, "people", false, "Harvest people from CSV files included configuration")
+	flagSet.BoolVar(&groups, "groups", false, "Harvest groups from CSV files included configuration")
 	flagSet.BoolVar(&peopleAndGroups, "people-groups", false, "Harvest people and groups from CSV files included configuration")
+	flagSet.StringVar(&repoName, "repo", "", "Harvest a specific repository id defined in configuration")
 
 	// We're ready to process args
 	flagSet.Parse(os.Args[1:])
@@ -167,30 +173,48 @@ func main() {
 		fmt.Fprintf(out, "%s\n", eprinttools.DefaultConfig())
 		os.Exit(0)
 	}
+	if settings == "" {
+		log.Printf("%s a settings file parameter", appName)
+		os.Exit(1)
+	}
 
+	t0 := time.Now()
 	// Handle request to show schema.
-	if showSqlSchema {
-		if settings == "" {
-			log.Printf("%s -sql-schema option requires a settings file parameter", appName)
-			os.Exit(1)
-		}
+	switch {
+	case showSqlSchema:
 		src, err := eprinttools.HarvesterDBSchema(settings)
 		if err != nil {
 			log.Printf("%s -sql-schema error: %s", appName, err)
 			os.Exit(1)
 		}
-		fmt.Print(src)
+		fmt.Printf("%s\n", src)
 		os.Exit(0)
-	}
-	t0 := time.Now()
-	if peopleAndGroups {
-		if err := eprinttools.RunHarvestPeopleGroups(settings, verbose); err != nil {
+	case people:
+		if err := eprinttools.RunHarvestPeople(settings, verbose); err != nil {
 			log.Print(err)
 			os.Exit(1)
 		}
-	} else {
-		err := eprinttools.RunHarvester(settings, start, end, verbose)
-		if err != nil {
+	case groups:
+		if err := eprinttools.RunHarvestGroups(settings, verbose); err != nil {
+			log.Print(err)
+			os.Exit(1)
+		}
+	case peopleAndGroups:
+		if err := eprinttools.RunHarvestPeople(settings, verbose); err != nil {
+			log.Print(err)
+			os.Exit(1)
+		}
+		if err := eprinttools.RunHarvestGroups(settings, verbose); err != nil {
+			log.Print(err)
+			os.Exit(1)
+		}
+	case repoName != "":
+		if err := eprinttools.RunHarvestRepoID(settings, repoName, start, end, verbose); err != nil {
+			log.Print(err)
+			os.Exit(1)
+		}
+	default:
+		if err := eprinttools.RunHarvester(settings, start, end, verbose); err != nil {
 			log.Print(err)
 			os.Exit(1)
 		}

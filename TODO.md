@@ -7,6 +7,7 @@ This is for the simplified eprinttools codebase.
 Bugs
 ----
 
+- [ ] Are messy people identifiers in EPrints are preventing a simple mapping to a single person id, when the EPRint record is read in it needs the ID should be corsswalked to the cl_people_id value.
 - [ ] If feeds are "public only" then I need to strip email addresses from the JSON objects.
 - [ ] For feeds generated as REPO_NAME-RECORD_TYPE.json to name the feed by record type only, but before I add this I need to see if there is any case where thesis in CaltechAUTHORS need to be itemized along with thesis in CaltechTHESIS
 - [x] updated value retrieved from database isn't converting correctly into a time.Time object in Go. Need to figure the best way to make this correct

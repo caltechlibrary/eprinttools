@@ -117,10 +117,10 @@ func generateGroupListAndDir(cfg *Config, groupIDs []string, verbose bool) ([]ma
 	return groupList, nil
 }
 
-// GenerateGroupIDs returns a JSON document containing an array of
+// GenerateGroupFeed returns a JSON document containing an array of
 // group keys. Group keys are sorted alphabetically. Group keys are
 // formed from the group field slugified.
-func GenerateGroupIDs(cfg *Config, verbose bool) error {
+func GenerateGroupFeed(cfg *Config, verbose bool) error {
 	groupDir := path.Join(cfg.Htdocs, "groups")
 	// NOTE: Is htdocs relative to project? If so handle that case
 	if !(strings.HasPrefix(cfg.Htdocs, "/") || strings.HasPrefix(groupDir, cfg.ProjectDir)) {
@@ -163,9 +163,9 @@ func GenerateGroupIDs(cfg *Config, verbose bool) error {
 	return nil
 }
 
-// GeneratePeopleIDs returns a JSON document contiainer an array
+// GeneratePeopleFeed returns a JSON document contiainer an array
 // of people ids. People keys are sorted alphabetically.
-func GeneratePeopleIDs(cfg *Config, verbose bool) error {
+func GeneratePeopleFeed(cfg *Config, verbose bool) error {
 	peopleDir := path.Join(cfg.Htdocs, "people")
 	// NOTE: Is htdocs relative to project? If so handle that case
 	if !(strings.HasPrefix(cfg.Htdocs, "/") || strings.HasPrefix(peopleDir, cfg.ProjectDir)) {
@@ -191,6 +191,7 @@ func GeneratePeopleIDs(cfg *Config, verbose bool) error {
 	}
 	peopleList := []*Person{}
 	tot := len(personIDs)
+	modValue := calcModValue(tot)
 	t0 := time.Now()
 	for i, personID := range personIDs {
 		person, err := GetPerson(cfg, personID)
@@ -208,27 +209,49 @@ func GeneratePeopleIDs(cfg *Config, verbose bool) error {
 				}
 			}
 			// NOTE: each role is stored in a separate table for performance reasons. The table name is `_aggregate_<ROLE>`
-			for _, role := range []string{"creator", "contributor", "editor", "advisor", "committee"} {
-				if m, err := GetPersonByRoleAggregations(cfg, personID, role); err != nil {
+			for _, role := range []string{ "creator", "contributor", "editor", "advisor", "committee" } {
+				aMap, err := GetPersonByRoleAggregations(cfg, person, role)
+				if err != nil {
 					log.Printf("skipping %q for %q, %s", personID, role, err)
-				} else if len(m) > 0 {
+					continue
+				} 
+				if len(aMap) > 0 {
 					includePerson = true
 					fName = path.Join(dName, fmt.Sprintf("%s.json", role))
-					if err := jsonEncodeToFile(fName, m, 0664); err != nil {
+					if err := jsonEncodeToFile(fName, aMap, 0664); err != nil {
 						return err
+					}
+					for repoName, rMap := range aMap {
+						for recordType, ids := range rMap {
+							fName = path.Join(dName, fmt.Sprintf("%s-%s-%s", repoName, recordType, role))
+							records := []*EPrint{}
+							for _, eprintid := range ids {
+								eprint := new(EPrint)
+								if err := GetDocumentAsEPrint(cfg, repoName, eprintid, eprint); err != nil {
+									return err
+								}
+								records = append(records, eprint)
+
+							}
+							if err := jsonEncodeToFile(fName, records, 0664); err != nil {
+								return err
+							}
+						}
 					}
 				}
 			}
 			if includePerson {
 				peopleList = append(peopleList, person)
+			} else {
+				log.Printf("skipped %q, no aggregations found for roles, probably and id mismatch", personID)
 			}
 		}
-		if verbose && ((i % 250) == 0) {
-			log.Printf("added %s add to _people, (%s)", personID, progress(t0, i, tot))
+		if verbose && ((i % modValue) == 0) {
+			log.Printf("processed %s in _people, (%s)", personID, progress(t0, i, tot))
 		}
 	}
 	if verbose {
-		log.Printf("%d people added to _people (%s)", tot, time.Since(t0).Truncate(time.Second))
+		log.Printf("%d people updated in _people (%s)", tot, time.Since(t0).Truncate(time.Second))
 		log.Printf("Writing %d people info %s", len(peopleList), fName)
 	}
 	fName = path.Join(peopleDir, "people_list.json")
@@ -238,6 +261,69 @@ func GeneratePeopleIDs(cfg *Config, verbose bool) error {
 	return nil
 }
 
+// RunGenPeople will use the config file names by cfgName and
+// render all the directorys, JSON documents and non-templated
+// markdown content needed for a feeds v1.1 website in the htdocs
+// directory indicated in the configuration file.
+func RunGenPeople(cfgName string, verbose bool) error {
+	if cfgName == "" {
+		return fmt.Errorf("Configuration filename missing")
+	}
+	t0 := time.Now()
+	appName := path.Base(os.Args[0])
+	// Read in the configuration for this harvester instance.
+	cfg, err := LoadConfig(cfgName)
+	if err != nil {
+		return err
+	}
+	if cfg == nil {
+		return fmt.Errorf("could not create a configuration object")
+	}
+	if err := OpenJSONStore(cfg); err != nil {
+		return err
+	}
+	defer cfg.Jdb.Close()
+	log.Printf("%s started %v", appName, t0.Format("2006-01-02 15:04:05"))
+	if err := GeneratePeopleFeed(cfg, verbose); err != nil {
+		return err
+	}
+	if verbose {
+		log.Printf("%s run time %v", appName, time.Since(t0).Truncate(time.Second))
+	}
+	return nil
+}
+
+// RunGenGroups will use the config file names by cfgName and
+// render all the directorys, JSON documents and non-templated
+// markdown content needed for a feeds v1.1 website in the htdocs
+// directory indicated in the configuration file.
+func RunGenGroups(cfgName string, verbose bool) error {
+	if cfgName == "" {
+		return fmt.Errorf("Configuration filename missing")
+	}
+	t0 := time.Now()
+	appName := path.Base(os.Args[0])
+	// Read in the configuration for this harvester instance.
+	cfg, err := LoadConfig(cfgName)
+	if err != nil {
+		return err
+	}
+	if cfg == nil {
+		return fmt.Errorf("could not create a configuration object")
+	}
+	if err := OpenJSONStore(cfg); err != nil {
+		return err
+	}
+	defer cfg.Jdb.Close()
+	log.Printf("%s started %v", appName, t0.Format("2006-01-02 15:04:05"))
+	if err := GenerateGroupFeed(cfg, verbose); err != nil {
+		return err
+	}
+	if verbose {
+		log.Printf("%s run time %v", appName, time.Since(t0).Truncate(time.Second))
+	}
+	return nil
+}
 // RunGenfeeds will use the config file names by cfgName and
 // render all the directorys, JSON documents and non-templated
 // markdown content needed for a feeds v1.1 website in the htdocs
@@ -261,10 +347,10 @@ func RunGenfeeds(cfgName string, verbose bool) error {
 	}
 	defer cfg.Jdb.Close()
 	log.Printf("%s started %v", appName, t0.Format("2006-01-02 15:04:05"))
-	if err := GeneratePeopleIDs(cfg, verbose); err != nil {
+	if err := GeneratePeopleFeed(cfg, verbose); err != nil {
 		return err
 	}
-	if err := GenerateGroupIDs(cfg, verbose); err != nil {
+	if err := GenerateGroupFeed(cfg, verbose); err != nil {
 		return err
 	}
 	if verbose {

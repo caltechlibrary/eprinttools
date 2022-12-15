@@ -65,6 +65,8 @@ func generateDataset(cfg *Config, repoName string, projectDir string, verbose bo
 	}
 	rows.Close()
 
+	modValue := calcModValue(tot)
+
 	rows, err = cfg.Jdb.Query(stmt)
 	if err != nil {
 		return err
@@ -85,7 +87,7 @@ func generateDataset(cfg *Config, repoName string, projectDir string, verbose bo
 				log.Printf("failed to create %q in %q, %s", key, cName, err)
 			}
 			i += 1
-			if verbose && ((i % 2750) == 0) {
+			if verbose && ((i % modValue) == 0) {
 				log.Printf("%s %d records added (%s)", path.Base(cName), i, progress(t0, i, tot))
 			}
 		}
