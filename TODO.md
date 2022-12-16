@@ -7,6 +7,8 @@ This is for the simplified eprinttools codebase.
 Bugs
 ----
 
+- [ ] Still debugging mapping the advisor_id, thesis_id and authors_id to person_id for aggregation tables and people feed generation
+	- caltechthesis record 15078 is showing up with a local group of "Scott Cushing" who is actaully a committee member not a local gorup.
 - [ ] Are messy people identifiers in EPrints are preventing a simple mapping to a single person id, when the EPRint record is read in it needs the ID should be corsswalked to the cl_people_id value.
 - [ ] If feeds are "public only" then I need to strip email addresses from the JSON objects.
 - [ ] For feeds generated as REPO_NAME-RECORD_TYPE.json to name the feed by record type only, but before I add this I need to see if there is any case where thesis in CaltechAUTHORS need to be itemized along with thesis in CaltechTHESIS

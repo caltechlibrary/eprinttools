@@ -413,10 +413,25 @@ func harvestRepository(cfg *Config, repoName string, start string, end string, v
 	if verbose {
 		log.Printf("Processing %d unique keys", tot)
 	}
+
+	// FIXME: This code is called to deal with the person id name collisions
+	// in our EPrints repositories due to lack of common person objects.
+	// This calls code in person_id_remapping.go.
+	/*
+	if (repoName == "caltechauthors") {
+		if err := loadPersonIDMapping(cfg, "caltechauthors"); err != nil {
+			return err
+		}
+	}
+	*/
+	log.Printf("DEBUG repoName %q", repoName)
+	if (repoName == "caltechthesis") {
+		if err := loadPersonIDMapping(cfg, "caltechthesis"); err != nil {
+			return err
+		}
+	}
+
 	for i, id := range ids {
-		// FIXME: Need to pull map thesis_id to person_id for CaltechTHESIS
-		// FIXME: Need to map advisor_id to person_id for CaltechTHESIS
-		// FIXME: Need to map authors_id to person_id for CaltechAUTHORS
 		err := harvestEPrintRecord(cfg, repoName, id)
 		if err != nil {
 			log.Printf("Harvesting EPrint %d (%s) failed, %s", id, progress(t0, i, tot), err)
@@ -433,9 +448,6 @@ func harvestRepository(cfg *Config, repoName string, start string, end string, v
 // a repository name and EPrint record ID and populates a JSON datastore
 // of harvested EPrints.
 func harvestEPrintRecord(cfg *Config, repoName string, eprintID int) error {
-	//FIXME: Need to add a parameter for mapping advisor_id and 
-	// creator_id in CaltechTHESIS to person_id before generating
-	// people aggregations
 	ds, ok := cfg.Repositories[repoName]
 	if !ok {
 		return fmt.Errorf("data source not found for %q looking up eprint %d", repoName, eprintID)
@@ -458,8 +470,6 @@ func harvestEPrintRecord(cfg *Config, repoName string, eprintID int) error {
 	}
 	// Since we can save the JSON recordd, need to aggregate the contents of it.
 	aggregateEPrintRecord(cfg, repoName, eprintID, eprint)
-	// FIXME: Do we update the people, group counts here? Or when we've
-	// aggregate the feeds?
 	return err
 }
 
@@ -523,7 +533,6 @@ func aggregateGroups(cfg *Config, repoName string, collection string, eprintID i
 	}
 }
 
-
 // aggregateEPrintRecord takes a configuration, repository name, eprintID and struct
 // then performances an analysis of the record aggregrating it's component parts.
 func aggregateEPrintRecord(cfg *Config, repoName string, eprintID int, eprint *EPrint) {
@@ -534,10 +543,16 @@ func aggregateEPrintRecord(cfg *Config, repoName string, eprintID int, eprint *E
 	pubDate := eprint.PubDate()
 	// Clear the creators aggregation for this eprint record
 
-	//FIXME: need normalize the crosswalked Ids to the canonical personID.
-
-
 	if personIDs := eprint.Creators.GetIDs(); len(personIDs) > 0 {
+		// FIXME: This code is called to deal with the person id name collisions
+		// in our EPrints repositories due to lack of common person objects.
+		// This calls code in person_id_remapping.go.
+		if repoName == "caltechthesis" {
+			personIDs = normalizePersonIDs(repoName, personIDs, "thesis_id")
+		}
+		if repoName == "caltechauthors" {
+			personIDs = normalizePersonIDs(repoName, personIDs, "authors_id")
+		}
 		aggregatePersons(cfg, repoName, collection, "creator", eprintID, recordType, thesisType, isPublic, pubDate, personIDs)
 	}
 	if personIDs := eprint.Editors.GetIDs(); len(personIDs) > 0 {
@@ -547,6 +562,12 @@ func aggregateEPrintRecord(cfg *Config, repoName string, eprintID int, eprint *E
 		aggregatePersons(cfg, repoName, collection, "contributor", eprintID, recordType, thesisType, isPublic, pubDate, personIDs)
 	}
 	if personIDs := eprint.ThesisAdvisor.GetIDs(); len(personIDs) > 0 {
+		// FIXME: This code is called to deal with the person id name collisions
+		// in our EPrints repositories due to lack of common person objects.
+		// This calls code in person_id_remapping.go.
+		if repoName == "caltechthesis" {
+			personIDs = normalizePersonIDs(repoName, personIDs, "advisor_id")
+		}
 		aggregatePersons(cfg, repoName, collection, "advisor", eprintID, recordType, thesisType, isPublic, pubDate, personIDs)
 	}
 	if personIDs := eprint.ThesisCommittee.GetIDs(); len(personIDs) > 0 {
