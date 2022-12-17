@@ -418,14 +418,13 @@ func harvestRepository(cfg *Config, repoName string, start string, end string, v
 	// in our EPrints repositories due to lack of common person objects.
 	// This calls code in person_id_remapping.go.
 	/*
-	if (repoName == "caltechauthors") {
-		if err := loadPersonIDMapping(cfg, "caltechauthors"); err != nil {
-			return err
+		if (repoName == "caltechauthors") {
+			if err := loadPersonIDMapping(cfg, "caltechauthors"); err != nil {
+				return err
+			}
 		}
-	}
 	*/
-	log.Printf("DEBUG repoName %q", repoName)
-	if (repoName == "caltechthesis") {
+	if repoName == "caltechthesis" {
 		if err := loadPersonIDMapping(cfg, "caltechthesis"); err != nil {
 			return err
 		}

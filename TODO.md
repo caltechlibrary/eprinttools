@@ -7,13 +7,18 @@ This is for the simplified eprinttools codebase.
 Bugs
 ----
 
+- [x] Cleanup eprint content for public views
+	- [x] Does sanitization happen at rendering of JSON/Markdown documents or when harvesting the content?
+        - Santization happens when we render content, this lets us do one harvest for both dark and public archives
+	- [x] Cleanup email content fields
+	- [x] Remove "notes"
 - [ ] Still debugging mapping the advisor_id, thesis_id and authors_id to person_id for aggregation tables and people feed generation
 	- caltechthesis record 15078 is showing up with a local group of "Scott Cushing" who is actaully a committee member not a local gorup.
 - [ ] Are messy people identifiers in EPrints are preventing a simple mapping to a single person id, when the EPRint record is read in it needs the ID should be corsswalked to the cl_people_id value.
 - [ ] If feeds are "public only" then I need to strip email addresses from the JSON objects.
 - [ ] For feeds generated as REPO_NAME-RECORD_TYPE.json to name the feed by record type only, but before I add this I need to see if there is any case where thesis in CaltechAUTHORS need to be itemized along with thesis in CaltechTHESIS
 - [x] updated value retrieved from database isn't converting correctly into a time.Time object in Go. Need to figure the best way to make this correct
-- [x] Aggregation group_list.json has empty "combined" mapped when there are no eprintid for the specific group in the respository 
+- [x] Aggregation group_list.json has empty "combined" mapped when there are no eprintid for the specific group in the respository
 - [ ] each index.html under people and group should have a corresponding index.json that is used by Pandoc to render index.md that then renders index.html, include.include
 - [x] Issue 40, SQL reference document_relation_type table issues
 - [ ] Issue 41, Add related URL as DOI value (really make eprints show this as a linked field in the display, don't do that in the data structure)
@@ -79,7 +84,7 @@ Completed
 - [x] doi2eprintxml needs to fetch the object URL and save results along side the generated EPrints XML
     - added with a -D,-download option in doi2eprintxml.
 - [x] Added created (datestamp) end point for feeds
-- [x] Implement Simplified JSON record based on 
+- [x] Implement Simplified JSON record based on
     - https://inveniordm.docs.cern.ch/reference/metadata/
     - https://github.com/caltechlibrary/caltechdata_api/blob/ce16c6856eb7f6424db65c1b06de741bbcaee2c8/tests/conftest.py#L147
 - [x] Add simplified JSON output option to

@@ -96,10 +96,48 @@ func GetJSONDocument(cfg *Config, repoName string, id int) ([]byte, error) {
 	return src, err
 }
 
+// pruneEPrint removes emails addresses and .Notes from the EPrint record
+func pruneEPrint(eprint *EPrint) *EPrint {
+	// FIXME: Do we want to follow the internal flag or just
+	// strip all emails?
+	if eprint.Creators != nil && eprint.Creators.Items != nil {
+		for i, item := range eprint.Creators.Items {
+			if item.ShowEMail == "NO" {
+				eprint.Creators.Items[i].EMail = ""
+			}
+		}
+	}
+	if eprint.ThesisAdvisor != nil && eprint.ThesisAdvisor.Items != nil {
+		for i, item := range eprint.ThesisAdvisor.Items {
+			if item.ShowEMail == "NO" {
+				eprint.ThesisAdvisor.Items[i].EMail = ""
+			}
+		}
+	}
+	if eprint.ThesisCommittee != nil && eprint.ThesisCommittee.Items != nil {
+		for i, item := range eprint.ThesisCommittee.Items {
+			if item.ShowEMail == "NO" {
+				eprint.ThesisCommittee.Items[i].EMail = ""
+			}
+		}
+	}
+	if strings.Contains(eprint.Reviewer, "@") {
+		parts := strings.SplitN(eprint.Reviewer, "@", 2)
+		eprint.Reviewer = parts[0]
+	}
+	eprint.Note = ""
+	return eprint
+}
+
 // GetDocumentAsEPrint trake a configuration, repoName, eprint if
 // and returns an EPrint struct or error based on the contents in
 // the json store.
 func GetDocumentAsEPrint(cfg *Config, repoName string, id int, eprint *EPrint) error {
+	publicOnly := true // Assume we're publishing public content to be safe.
+	// NOTE: See if this repo is found then use it's "PublicOnly" status
+	if ds, ok := cfg.Repositories[repoName]; ok {
+		publicOnly = ds.PublicOnly
+	}
 	src, err := GetJSONDocument(cfg, repoName, id)
 	if err != nil {
 		return err
@@ -107,6 +145,9 @@ func GetDocumentAsEPrint(cfg *Config, repoName string, id int, eprint *EPrint) e
 	err = json.Unmarshal(src, eprint)
 	if err != nil {
 		return err
+	}
+	if publicOnly {
+		eprint = pruneEPrint(eprint)
 	}
 	return nil
 }

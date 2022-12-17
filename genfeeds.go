@@ -209,12 +209,12 @@ func GeneratePeopleFeed(cfg *Config, verbose bool) error {
 				}
 			}
 			// NOTE: each role is stored in a separate table for performance reasons. The table name is `_aggregate_<ROLE>`
-			for _, role := range []string{ "creator", "contributor", "editor", "advisor", "committee" } {
+			for _, role := range []string{"creator", "contributor", "editor", "advisor", "committee"} {
 				aMap, err := GetPersonByRoleAggregations(cfg, person, role)
 				if err != nil {
 					log.Printf("skipping %q for %q, %s", personID, role, err)
 					continue
-				} 
+				}
 				if len(aMap) > 0 {
 					includePerson = true
 					fName = path.Join(dName, fmt.Sprintf("%s.json", role))
@@ -324,6 +324,7 @@ func RunGenGroups(cfgName string, verbose bool) error {
 	}
 	return nil
 }
+
 // RunGenfeeds will use the config file names by cfgName and
 // render all the directorys, JSON documents and non-templated
 // markdown content needed for a feeds v1.1 website in the htdocs
