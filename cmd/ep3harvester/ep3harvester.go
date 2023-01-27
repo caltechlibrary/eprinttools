@@ -27,15 +27,18 @@ import (
 	"os"
 	"path"
 	"time"
+	"strings"
 
 	// Caltech Library Packages
 	"github.com/caltechlibrary/eprinttools"
 )
 
 var (
-	description = `%% {app_name}(1) user manual
-%% R. S. Doiel
-%% 2022-11-28
+	helpText = `---
+title: "{app_name} (1) user manual"
+author: "R. S. Doiel"
+pubDate: 2022-11-28
+---
 
 # NAME
 
@@ -82,9 +85,36 @@ parameter. E.g.
 
 # OPTIONS
 
-`
+-help
+: display help
 
-	examples = `
+-version
+: display version
+
+-license
+: display license
+
+-groups
+: Harvest groups from CSV files included configuration
+
+-init
+: generate a settings JSON file
+
+-people
+: Harvest people from CSV files included configuration
+
+-people-groups
+: Harvest people and groups from CSV files included configuration
+
+-repo string
+: Harvest a specific repository id defined in configuration
+
+-sql-schema
+: display SQL schema for installing MySQL jsonstore DB
+
+-verbose
+: use verbose logging
+
 # EXAMPLES
 
 Harvesting repositories for week month of May, 2022.
@@ -93,6 +123,8 @@ Harvesting repositories for week month of May, 2022.
     {app_name} harvester-settings.json \
         "2022-05-01 00:00:00" "2022-05-31 59:59:59"
 ~~~
+
+{app_name} {version}
 
 `
 
@@ -111,40 +143,48 @@ Harvesting repositories for week month of May, 2022.
 	verbose         bool
 )
 
+func fmtTxt(src string, appName string, version string) string {
+	return strings.ReplaceAll(strings.ReplaceAll(src, "{app_name}", appName), "{version}", version)
+}
+
 func main() {
 	appName := path.Base(os.Args[0])
-	flagSet := flag.NewFlagSet(appName, flag.ContinueOnError)
 
 	// Standard Options
-	flagSet.BoolVar(&showHelp, "h", false, "display help")
-	flagSet.BoolVar(&showHelp, "help", false, "display help")
-	flagSet.BoolVar(&showLicense, "license", false, "display license")
-	flagSet.BoolVar(&showVersion, "version", false, "display version")
-	flagSet.BoolVar(&showSqlSchema, "sql-schema", false, "display SQL schema for installing MySQL jsonstore DB")
-	flagSet.BoolVar(&verbose, "verbose", false, "use verbose logging")
-	flagSet.BoolVar(&initialize, "init", false, "generate a settings JSON file")
-	flagSet.BoolVar(&people, "people", false, "Harvest people from CSV files included configuration")
-	flagSet.BoolVar(&groups, "groups", false, "Harvest groups from CSV files included configuration")
-	flagSet.BoolVar(&peopleAndGroups, "people-groups", false, "Harvest people and groups from CSV files included configuration")
-	flagSet.StringVar(&repoName, "repo", "", "Harvest a specific repository id defined in configuration")
+	flag.BoolVar(&showHelp, "h", false, "display help")
+	flag.BoolVar(&showHelp, "help", false, "display help")
+	flag.BoolVar(&showLicense, "license", false, "display license")
+	flag.BoolVar(&showVersion, "version", false, "display version")
+	flag.BoolVar(&showSqlSchema, "sql-schema", false, "display SQL schema for installing MySQL jsonstore DB")
+	flag.BoolVar(&verbose, "verbose", false, "use verbose logging")
+	flag.BoolVar(&initialize, "init", false, "generate a settings JSON file")
+	flag.BoolVar(&people, "people", false, "Harvest people from CSV files included configuration")
+	flag.BoolVar(&groups, "groups", false, "Harvest groups from CSV files included configuration")
+	flag.BoolVar(&peopleAndGroups, "people-groups", false, "Harvest people and groups from CSV files included configuration")
+	flag.StringVar(&repoName, "repo", "", "Harvest a specific repository id defined in configuration")
 
 	// We're ready to process args
-	flagSet.Parse(os.Args[1:])
-	args := flagSet.Args()
+	flag.Parse()
+	args := flag.Args()
 
+	// Setup I/O
+	var err error
+
+	//in := os.Stdin
 	out := os.Stdout
+	eout := os.Stderr
 
 	// Handle options
 	if showHelp {
-		eprinttools.DisplayUsage(out, appName, flagSet, description, examples)
+		fmt.Fprintf(out, "%s\n", fmtTxt(helpText, appName, eprinttools.Version))
 		os.Exit(0)
 	}
 	if showLicense {
-		eprinttools.DisplayLicense(out, appName)
+		fmt.Fprintf(out, "%s\n", eprinttools.LicenseText)
 		os.Exit(0)
 	}
 	if showVersion {
-		eprinttools.DisplayVersion(out, appName)
+		fmt.Fprintf(out, "%s %s\n", appName, eprinttools.Version)
 		os.Exit(0)
 	}
 	settings, start, end := "", "", ""
@@ -160,7 +200,6 @@ func main() {
 	}
 
 	if initialize {
-		out := os.Stdout
 		if settings != "" {
 			var err error
 			out, err = os.Create(settings)
@@ -184,40 +223,31 @@ func main() {
 	case showSqlSchema:
 		src, err := eprinttools.HarvesterDBSchema(settings)
 		if err != nil {
-			log.Printf("%s -sql-schema error: %s", appName, err)
+			fmt.Fprintf(eout, "%s -sql-schema error: %s", appName, err)
 			os.Exit(1)
 		}
-		fmt.Printf("%s\n", src)
-		os.Exit(0)
+		fmt.Fprintf(out, "%s\n", src)
+		os.Exit(1)
 	case people:
-		if err := eprinttools.RunHarvestPeople(settings, verbose); err != nil {
-			log.Print(err)
-			os.Exit(1)
-		}
+		err = eprinttools.RunHarvestPeople(settings, verbose)
 	case groups:
-		if err := eprinttools.RunHarvestGroups(settings, verbose); err != nil {
-			log.Print(err)
-			os.Exit(1)
-		}
+		err = eprinttools.RunHarvestGroups(settings, verbose)
 	case peopleAndGroups:
-		if err := eprinttools.RunHarvestPeople(settings, verbose); err != nil {
-			log.Print(err)
+		err = eprinttools.RunHarvestPeople(settings, verbose)
+		if err != nil {
+			fmt.Fprintln(eout, err)
 			os.Exit(1)
 		}
-		if err := eprinttools.RunHarvestGroups(settings, verbose); err != nil {
-			log.Print(err)
-			os.Exit(1)
-		}
+		err = eprinttools.RunHarvestGroups(settings, verbose)
 	case repoName != "":
-		if err := eprinttools.RunHarvestRepoID(settings, repoName, start, end, verbose); err != nil {
-			log.Print(err)
-			os.Exit(1)
-		}
+		err = eprinttools.RunHarvestRepoID(settings, repoName, start, end, verbose)
 	default:
-		if err := eprinttools.RunHarvester(settings, start, end, verbose); err != nil {
-			log.Print(err)
-			os.Exit(1)
-		}
+		err = eprinttools.RunHarvester(settings, start, end, verbose)
+	}
+	if err != nil {
+		fmt.Fprintln(eout, err)
+		os.Exit(1)
 	}
 	log.Printf("total run time %v", time.Now().Sub(t0).Truncate(time.Second))
+	os.Exit(0)
 }

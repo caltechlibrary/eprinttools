@@ -32,18 +32,28 @@ import (
 )
 
 var (
-	description = `
-USAGE
-	{app_name} [OPTIONS] EPRINT_REST_URL
+	helpText = `---
+title: "{app_name} (1) user manual"
+author: "R. S. Doiel"
+pubDate: 2023-01-11
+---
 
-SYNOPSIS
+# NAME
+
+{app_name}
+
+# SYNOPSIS
+
+{app_name} [OPTIONS] EPRINT_REST_URL
+
+# DESCRIPTION
 
 {app_name} is a command line program for exploring
 the EPrints Extended API (provided by ep3apid) or EPrint's
 own REST API.  Records are returned in either JSON or EPrints XML.
 Lists of eprint ids are returned in JSON.
 
-DETAIL FOR EPrints Extended API
+## DETAIL FOR EPrints Extended API
 
 The extended API is expected to be present on the local machine
 at http://localhost:8484.  {app_name} will convert the command line
@@ -51,9 +61,10 @@ parameters into the appropriate URL encoding the command line as
 necessary and return the values from the Extended API end points.
 
 The format of the command working with the EPrints extended API
-is ` + "`" + `{app_name} REPO_ID END_POINT_NAME [PARAMETER ...]` + "`" + `
+is `+"`{app_name} REPO_ID END_POINT_NAME [PARAMETER ...]`"+`
 You must specify the repository id in the command. E.g.
 
+~~~
     {app_name} caltechauthors keys
 	{app_name} caltechauthors doi
 	{app_name} caltechauthors doi "10.5062/F4NP22DV"
@@ -62,16 +73,19 @@ You must specify the repository id in the command. E.g.
 	{app_name} caltechauthors grant-number "kzcx3-sw-147"
 	{app_name} caltechauthors eprint 18339
 	{app_name} -json caltechauthors eprint 18339
+~~~
 
 See website for a full list of available end points.
 
+~~~
     https://caltechlibrary.github.io/eprinttools/docs/ep3apid.html
+~~~
 
-DETAIL FOR EPrints REST API
+## DETAIL FOR EPrints REST API
 
 {app_name} parses XML content retrieved from
 EPrints 3.x. REST API. It will render
-results in JSON or XML.  With the ` + "`" + `-raw` + "`" + `
+results in JSON or XML.  With the `+"`-raw`"+`
 option you can get the unmodified EPrintXML from the
 REST API otherwise the XML is parsed before final
 rendering as JSON or XML. It requires a basic knowledge
@@ -81,31 +95,88 @@ to the API. The REST API authentication mechanism
 appears indepent of the primary website authentication
 setup of the installed EPrints (at least at Caltech
 Library). See the examples to start exploring the API.
-`
 
-	examples = `
+# OPTIONS
+
+-help
+: display help
+
+-license
+: display license
+
+-version
+: display version
+
+-auth string
+: set the authentication type for access, default is basic (default "basic")
+
+-document
+: Retrieve a document from the provided url
+
+-i, -input
+: (string) input file name (read the URL connection string from the input file
+
+-json
+: attempt to parse XML into generaic JSON structure
+
+-nl, -newline
+: if true add a trailing newline
+
+-o, -output
+: (string) output file name
+
+-password
+: Prompt for the password for authenticated access
+
+-quiet
+: suppress error messages
+
+-raw
+: get the raw EPrint REST API response
+
+-s, -simple
+: Return the object in a simplified JSON data structure.
+
+-u, -un, -user, -username
+: (string) set the username for authenticated access
+
+-verbose
+: verbose output
+
+# EXAMPLES
+
 Fetch the raw unmarshaled EPrint XML via the
 EPrint REST API for id 123.
 
+~~~
     {app_name} -raw https://example.org/rest/eprint/123.xml
+~~~
 
 Fetch the EPrint XML marshaled as XML using the
 EPrints REST API for id 123.
 
+~~~
     {app_name} https://example.org/rest/eprint/123.xml
+~~~
 
 Fetch the EPrint XML marshaled as JSON using the
 EPrints REST API for id 123.
 
+~~~
     {app_name} -json https://example.org/rest/eprint/123.xml
+~~~
 
 Get a JSON array of eprint ids from the REST API
 
+~~~
     {app_name} -json https://example.org/rest/eprint/
+~~~
 
 Get the last modified date for id 123 from REST API
 
+~~~
     {app_name} -raw https://example.org/rest/eprint/123/lastmod.txt
+~~~
 
 If the EPrint REST API is protected by basic authentication
 you can pass the username and password via command line
@@ -114,8 +185,10 @@ or via the URL.  In this example the username is
 "user" and password is "secret". In this example you will
 be prompted to enter your secret.
 
+~~~
     {app_name} -username=user -password \
       https://example.org/rest/eprint/123.xml
+~~~
 
 You can also pass the username and secret via the URL
 but this leaves you vunerable to the password being recorded
@@ -123,7 +196,9 @@ in your command history or if another person has access to
 the process table. You SHOULD NOT use this approach on a
 shared machine!
 
+~~~
     {app_name} https://user:secret@example.org/rest/eprint/123.xml
+~~~
 
 Getting IDs doesn't typically require authentication but seeing
 specific records may depending on the roles and security
@@ -131,10 +206,15 @@ setup implemented in the EPrint instance.
 
 Supported Environment Variables
 
-    EPRINT_USER     sets the default username used by eputil
-	EPRINT_PASSWORD sets the default password used by eputil
+~~~
+    EPRINT_USER     sets the default username used by {app_name}
+	EPRINT_PASSWORD sets the default password used by {app_name}
 	EPRINT_BASE_URL sets the default base URL to access the
 	                EPrints REST API
+~~~
+
+{app_name} {version}
+
 
 `
 
@@ -160,10 +240,11 @@ Supported Environment Variables
 	asSimplified   bool
 )
 
+func fmtTxt(src string, appName string, version string) string {
+	return strings.ReplaceAll(strings.ReplaceAll(src, "{app_name}", appName), "{version}", version)
+}
+
 func main() {
-	var (
-		err error
-	)
 	appName := path.Base(os.Args[0])
 	username = os.Getenv("EPRINT_USER")
 	password = os.Getenv("EPRINT_PASSWORD")
@@ -173,38 +254,35 @@ func main() {
 		getURL = fmt.Sprintf("%s/rest/eprint", getURL)
 	}
 
-	flagSet := flag.NewFlagSet(appName, flag.ContinueOnError)
-
 	// Standard Options
-	flagSet.BoolVar(&showHelp, "h", false, "display help")
-	flagSet.BoolVar(&showHelp, "help", false, "display help")
-	flagSet.BoolVar(&showLicense, "license", false, "display license")
-	flagSet.BoolVar(&showVersion, "version", false, "display version")
-	flagSet.BoolVar(&verbose, "verbose", false, "verbose output")
-	flagSet.StringVar(&inputFName, "i", "", "input file name (read the URL connection string from the input file")
-	flagSet.StringVar(&inputFName, "input", "", "input file name (read the URL connection string from the input file")
-	flagSet.StringVar(&outputFName, "o", "", "output file name")
-	flagSet.StringVar(&outputFName, "output", "", "output file name")
-	flagSet.BoolVar(&quiet, "quiet", false, "suppress error messages")
-	flagSet.BoolVar(&newLine, "nl", false, "if true add a trailing newline")
-	flagSet.BoolVar(&newLine, "newline", false, "if true add a trailing newline")
+	flag.BoolVar(&showHelp, "help", false, "display help")
+	flag.BoolVar(&showLicense, "license", false, "display license")
+	flag.BoolVar(&showVersion, "version", false, "display version")
+	flag.BoolVar(&verbose, "verbose", false, "verbose output")
+	flag.StringVar(&inputFName, "i", "", "input file name (read the URL connection string from the input file")
+	flag.StringVar(&inputFName, "input", "", "input file name (read the URL connection string from the input file")
+	flag.StringVar(&outputFName, "o", "", "output file name")
+	flag.StringVar(&outputFName, "output", "", "output file name")
+	flag.BoolVar(&quiet, "quiet", false, "suppress error messages")
+	flag.BoolVar(&newLine, "nl", false, "if true add a trailing newline")
+	flag.BoolVar(&newLine, "newline", false, "if true add a trailing newline")
 
 	// App Options
-	flagSet.BoolVar(&raw, "raw", false, "get the raw EPrint REST API response")
-	flagSet.BoolVar(&asJSON, "json", false, "attempt to parse XML into generaic JSON structure")
-	flagSet.StringVar(&username, "u", username, "set the username for authenticated access")
-	flagSet.StringVar(&username, "un", username, "set the username for authenticated access")
-	flagSet.StringVar(&username, "user", username, "set the username for authenticated access")
-	flagSet.StringVar(&username, "username", username, "set the username for authenticated access")
-	flagSet.BoolVar(&passwordPrompt, "password", false, "Prompt for the password for authenticated access")
-	flagSet.StringVar(&auth, "auth", "basic", "set the authentication type for access, default is basic")
-	flagSet.BoolVar(&getDocument, "document", false, "Retrieve a document from the provided url")
-	flagSet.BoolVar(&asSimplified, "s", false, "Return the object in a simplified JSON data structure.")
-	flagSet.BoolVar(&asSimplified, "simple", false, "Return the object in a simplified JSON data structure.")
+	flag.BoolVar(&raw, "raw", false, "get the raw EPrint REST API response")
+	flag.BoolVar(&asJSON, "json", false, "attempt to parse XML into generaic JSON structure")
+	flag.StringVar(&username, "u", username, "set the username for authenticated access")
+	flag.StringVar(&username, "un", username, "set the username for authenticated access")
+	flag.StringVar(&username, "user", username, "set the username for authenticated access")
+	flag.StringVar(&username, "username", username, "set the username for authenticated access")
+	flag.BoolVar(&passwordPrompt, "password", false, "Prompt for the password for authenticated access")
+	flag.StringVar(&auth, "auth", "basic", "set the authentication type for access, default is basic")
+	flag.BoolVar(&getDocument, "document", false, "Retrieve a document from the provided url")
+	flag.BoolVar(&asSimplified, "s", false, "Return the object in a simplified JSON data structure.")
+	flag.BoolVar(&asSimplified, "simple", false, "Return the object in a simplified JSON data structure.")
 
 	// We're ready to process args
-	flagSet.Parse(os.Args[1:])
-	args := flagSet.Args()
+	flag.Parse()
+	args := flag.Args()
 
 	if len(args) > 0 && strings.Contains(args[0], "://") {
 		getURL = args[0]
@@ -213,19 +291,24 @@ func main() {
 	}
 
 	// Setup IO
+	var err error
+
 	in := os.Stdin
 	out := os.Stdout
+	eout := os.Stderr
 
-	if inputFName != "" {
-		if in, err = os.Open(inputFName); err != nil {
-			fmt.Fprintf(os.Stderr, "%s\n", err)
+	if inputFName != "" && inputFName != "-" {
+		in, err = os.Open(inputFName)
+		if err != nil {
+			fmt.Fprintln(eout, err)
 			os.Exit(1)
 		}
 		defer in.Close()
 	}
-	if outputFName != "" {
-		if out, err = os.Create(outputFName); err != nil {
-			fmt.Fprintf(os.Stderr, "%s\n", err)
+	if outputFName != ""  && outputFName != "-" {
+		out, err = os.Create(outputFName)
+		if err != nil {
+			fmt.Fprintln(eout, err)
 			os.Exit(1)
 		}
 		defer out.Close()
@@ -233,15 +316,15 @@ func main() {
 
 	// Handle options
 	if showHelp {
-		eprinttools.DisplayUsage(out, appName, flagSet, description, examples)
+		fmt.Fprintf(out, "%s\n", fmtTxt(helpText, appName, eprinttools.Version))
 		os.Exit(0)
 	}
 	if showLicense {
-		eprinttools.DisplayLicense(out, appName)
+		fmt.Fprintf(out, "%s\n", eprinttools.Version)
 		os.Exit(0)
 	}
 	if showVersion {
-		eprinttools.DisplayVersion(out, appName)
+		fmt.Fprintf(out, "%s %s\n", appName, eprinttools.Version)
 		os.Exit(0)
 	}
 

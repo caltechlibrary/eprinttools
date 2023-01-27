@@ -1,6 +1,8 @@
-% ep3datasets(1) user manual
-% R. S. Doiel
-% 2022-11-28
+---
+title: "ep3datasets (1) user manual"
+author: "R. S. Doiel"
+pubDate: 2022-11-28
+---
 
 # NAME
 
@@ -18,17 +20,17 @@ configuration in the JSON_SETTINGS_FILENAME.
 
 # OPTIONS
 
--h, -help
+-help
 : display help
 
 -license
 : display license
 
--verbose
-: use verbose logging
-
 -version
 : display version
+
+-verbose
+: use verbose logging
 
 # EXAMPLES
 
@@ -37,4 +39,7 @@ Rendering harvested repositories for settings.json.
 ~~~
     ep3datasets settings.json
 ~~~
+
+ep3datasets 1.2.1
+
 

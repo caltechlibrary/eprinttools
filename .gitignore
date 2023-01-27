@@ -62,7 +62,6 @@ py/files.txt
 py/MANIFEST
 dist
 eprinttools.egg-info
-man
 testout
 testout_*
 *.keys

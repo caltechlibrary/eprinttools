@@ -1,6 +1,8 @@
-% ep3harvester(1) user manual
-% R. S. Doiel
-% 2022-11-28
+---
+title: "ep3harvester (1) user manual"
+author: "R. S. Doiel"
+pubDate: 2022-11-28
+---
 
 # NAME
 
@@ -47,19 +49,35 @@ parameter. E.g.
 
 # OPTIONS
 
-  -h	display help
-  -help
-    	display help
-  -init
-    	generate a settings JSON file
-  -license
-    	display license
-  -sql-schema
-    	display SQL schema for installing MySQL jsonstore DB
-  -verbose
-    	use verbose logging
-  -version
-    	display version
+-help
+: display help
+
+-version
+: display version
+
+-license
+: display license
+
+-groups
+: Harvest groups from CSV files included configuration
+
+-init
+: generate a settings JSON file
+
+-people
+: Harvest people from CSV files included configuration
+
+-people-groups
+: Harvest people and groups from CSV files included configuration
+
+-repo string
+: Harvest a specific repository id defined in configuration
+
+-sql-schema
+: display SQL schema for installing MySQL jsonstore DB
+
+-verbose
+: use verbose logging
 
 # EXAMPLES
 
@@ -69,4 +87,7 @@ Harvesting repositories for week month of May, 2022.
     ep3harvester harvester-settings.json \
         "2022-05-01 00:00:00" "2022-05-31 59:59:59"
 ~~~
+
+ep3harvester 1.2.1
+
 

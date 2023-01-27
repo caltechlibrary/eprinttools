@@ -29,6 +29,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path"
+	"strings"
 
 	// Caltech Library Packages
 	"github.com/caltechlibrary/eprinttools"
@@ -40,16 +41,26 @@ const (
 )
 
 var (
-	description = `
-USAGE
-	{app_name} 
+	helpText = `---
+title: "{app_name} (1) user manual"
+author: "R. S. Doiel"
+pubDate: 2023-01-11
+---
+
+# NAME
+
+{app_name}
+
+# SYNOPSIS
+
+{app_name} 
+
+# DESCRIPTION
 
 {app_name} is a command line program for pretty printing
 EPrint XML. It can also convert EPrint XML to and from
 JSON. By default it reads from standard input and writes to
 standard out.
-
-DESCRIPTION
 
 {app_name} EPrint XML (or JSON version) from
 standard input and pretty prints the result to 
@@ -59,26 +70,67 @@ option. The XML representation is based on EPrints
 3.x.  {app_name} does NOT interact with the EPrints API 
 only the the document presented via standard
 input.
-`
 
-	examples = `
+# OPTIONS
+
+-help
+: display help
+
+-license
+: display license
+
+-i, -input
+: (string) input file name (read the URL connection string from the input file
+
+-json
+: output JSON version of EPrint XML
+
+-nl, -newline
+: if true add a trailing newline
+
+-o, -output
+: (string) output file name
+
+-quiet
+: suppress error messages
+
+-s, -simplified
+: output simplified JSON version of EPrints XML
+
+-version
+: display version
+
+-xml
+: output EPrint XML
+
+# EXAMPLES
+
 Pretty print EPrint XML as XML.
 
+~~~
     {app_name} < 123.xml
+~~~
 
 Pretty print from EPrint XML as JSON
 
+~~~
     {app_name} -json < 123.xml
+~~~
 
 Render EPrint JSON as EPrint XML.
 
+~~~
     {app_name} -xml < 123.json
+~~~
 
 {app_name} will first parse the XML or JSON 
 presented to it and pretty print the output 
 in the desired format requested. If no 
 format option chosen it will pretty print 
 in the same format as input.
+
+{app_name} {version}
+
 `
 
 	// Standard Options
@@ -100,45 +152,54 @@ in the same format as input.
 	asSimplified bool
 )
 
+func fmtTxt(src string, appName string, version string) string {
+	return strings.ReplaceAll(strings.ReplaceAll(src, "{app_name}", appName), "{version}", version)
+}
+
 func main() {
 	var (
 		inputFmt int
 		obj      *eprinttools.EPrints
 		src      []byte
-		err      error
 	)
 
 	appName := path.Base(os.Args[0])
-	flagSet := flag.NewFlagSet(appName, flag.ContinueOnError)
 
 	// Standard Options
-	flagSet.BoolVar(&showHelp, "h", false, "display help")
-	flagSet.BoolVar(&showHelp, "help", false, "display help")
-	flagSet.BoolVar(&showLicense, "license", false, "display license")
-	flagSet.BoolVar(&showVersion, "version", false, "display version")
-	flagSet.StringVar(&inputFName, "i", "", "input file name (read the URL connection string from the input file")
-	flagSet.StringVar(&inputFName, "input", "", "input file name (read the URL connection string from the input file")
-	flagSet.StringVar(&outputFName, "o", "", "output file name")
-	flagSet.StringVar(&outputFName, "output", "", "output file name")
-	flagSet.BoolVar(&quiet, "quiet", false, "suppress error messages")
-	flagSet.BoolVar(&newLine, "nl", false, "if true add a trailing newline")
-	flagSet.BoolVar(&newLine, "newline", false, "if true add a trailing newline")
+	flag.BoolVar(&showHelp, "help", false, "display help")
+	flag.BoolVar(&showLicense, "license", false, "display license")
+	flag.BoolVar(&showVersion, "version", false, "display version")
+	flag.StringVar(&inputFName, "i", "", "input file name (read the URL connection string from the input file")
+	flag.StringVar(&inputFName, "input", "", "input file name (read the URL connection string from the input file")
+	flag.StringVar(&outputFName, "o", "", "output file name")
+	flag.StringVar(&outputFName, "output", "", "output file name")
+	flag.BoolVar(&quiet, "quiet", false, "suppress error messages")
+	flag.BoolVar(&newLine, "nl", false, "if true add a trailing newline")
+	flag.BoolVar(&newLine, "newline", false, "if true add a trailing newline")
 
 	// App Options
-	flagSet.BoolVar(&asXML, "xml", false, "output EPrint XML")
-	flagSet.BoolVar(&asJSON, "json", false, "output JSON version of EPrint XML")
-	flagSet.BoolVar(&asSimplified, "s", false, "output simplified JSON version of EPrints XML")
-	flagSet.BoolVar(&asSimplified, "simplified", false, "output simplified JSON version of EPrints XML")
+	flag.BoolVar(&asXML, "xml", false, "output EPrint XML")
+	flag.BoolVar(&asJSON, "json", false, "output JSON version of EPrint XML")
+	flag.BoolVar(&asSimplified, "s", false, "output simplified JSON version of EPrints XML")
+	flag.BoolVar(&asSimplified, "simplified", false, "output simplified JSON version of EPrints XML")
 
 	// We're ready to process args
-	flagSet.Parse(os.Args[1:])
-	args := flagSet.Args()
+	flag.Parse()
+	args := flag.Args()
 
 	// Simplified output is aways JSON formatted.
 	if asSimplified {
 		asJSON = true
 		asXML = false
 	}
+
+	// Setup IO
+	var err error
+
+	in := os.Stdin
+	out := os.Stdout
+	eout := os.Stderr
+
 
 	if len(args) > 1 {
 		inputFName = args[1]
@@ -147,21 +208,19 @@ func main() {
 		outputFName = args[2]
 	}
 
-	// Setup IO
-	in := os.Stdin
-	out := os.Stdout
-
-	if inputFName != "" {
-		if in, err = os.Open(inputFName); err != nil {
-			fmt.Fprintf(os.Stderr, "%s\n", err)
+	if inputFName != "" && inputFName != "-" {
+		in, err = os.Open(inputFName)
+		if err != nil {
+			fmt.Fprintln(eout, err)
 			os.Exit(1)
 		}
 		defer in.Close()
 	}
 
-	if outputFName != "" {
-		if out, err = os.Create(outputFName); err != nil {
-			fmt.Fprintf(os.Stderr, "%s\n", err)
+	if outputFName != "" && outputFName != "-" {
+		out, err = os.Create(outputFName)
+		if err != nil {
+			fmt.Fprintln(eout, err)
 			os.Exit(1)
 		}
 		defer out.Close()
@@ -169,28 +228,28 @@ func main() {
 
 	// Handle options
 	if showHelp {
-		eprinttools.DisplayUsage(out, appName, flagSet, description, examples)
+		fmt.Fprintf(out, "%s\n", fmtTxt(helpText, appName, eprinttools.Version))
 		os.Exit(0)
 	}
 	if showLicense {
-		eprinttools.DisplayLicense(out, appName)
+		fmt.Fprintf(out, "%s\n", eprinttools.LicenseText)
 		os.Exit(0)
 	}
 	if showVersion {
-		eprinttools.DisplayVersion(out, appName)
+		fmt.Fprintf(out, "%s %s\n", appName, eprinttools.Version)
 		os.Exit(0)
 	}
 
 	// Read the file to []byte
 	src, err = ioutil.ReadAll(in)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "%s\n", err)
+		fmt.Fprintln(eout, err)
 		os.Exit(1)
 	}
 	// Trim leading/trailing spaces
 	src = bytes.TrimSpace(src)
 	if len(src) == 0 {
-		fmt.Fprintf(os.Stderr, "Nothing to parse\n")
+		fmt.Fprintln(eout, "Nothing to parse")
 		os.Exit(1)
 	}
 
@@ -205,7 +264,7 @@ func main() {
 		err = xml.Unmarshal(src, &obj)
 	}
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "%s\n", err)
+		fmt.Fprintln(eout, err)
 		os.Exit(1)
 	}
 
@@ -219,7 +278,7 @@ func main() {
 		if len(obj.EPrint) == 1 {
 			sObject, err := eprinttools.CrosswalkEPrintToRecord(obj.EPrint[0])
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "%s\n", err)
+				fmt.Fprintln(eout, err)
 				os.Exit(1)
 			}
 			src, err = json.MarshalIndent(sObject, "", "   ")
@@ -228,7 +287,7 @@ func main() {
 			for _, eprint := range obj.EPrint {
 				obj, err := eprinttools.CrosswalkEPrintToRecord(eprint)
 				if err != nil {
-					fmt.Fprintf(os.Stderr, "%s\n", err)
+					fmt.Fprintln(eout, err)
 					os.Exit(1)
 				}
 				sObjects = append(sObjects, obj)
@@ -244,7 +303,7 @@ func main() {
 		}
 	}
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "%s\n", err)
+		fmt.Fprintln(eout, err)
 		os.Exit(1)
 	}
 	// Print the doc string if XML
@@ -252,10 +311,10 @@ func main() {
 		fmt.Fprintf(out, "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n")
 	}
 
+	eol := ""
 	if newLine {
-		fmt.Fprintf(out, "%s\n", src)
-	} else {
-		fmt.Fprintf(out, "%s", src)
+		eol = "\n"
 	}
+	fmt.Fprintf(out, "%s%s", src, eol)
 	os.Exit(0)
 }

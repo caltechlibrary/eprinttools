@@ -23,19 +23,23 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log"
 	"os"
 	"path"
 	"time"
+	"strings"
 
 	// Caltech Library Packages
 	"github.com/caltechlibrary/eprinttools"
 )
 
 var (
-	description = `%% {app_name}(1) user manual
-%% R. S. Doiel
-%% 2022-11-28
+	helpText = `---
+title: "{app_name} (1) user manual"
+author: "R. S. Doiel"
+pubDate: 2022-11-28
+---
 
 # NAME
 
@@ -53,9 +57,18 @@ configuration in the JSON_SETTINGS_FILENAME.
 
 # OPTIONS
 
-`
+-help
+: display help
 
-	examples = `
+-license
+: display license
+
+-version
+: display version
+
+-verbose
+: use verbose logging
+
 # EXAMPLES
 
 Rendering harvested repositories for settings.json.
@@ -63,6 +76,8 @@ Rendering harvested repositories for settings.json.
 ~~~
     {app_name} settings.json
 ~~~
+
+{app_name} {version}
 
 `
 
@@ -75,34 +90,42 @@ Rendering harvested repositories for settings.json.
 	verbose bool
 )
 
+func fmtTxt(src string, appName string, version string) string {
+	return strings.ReplaceAll(strings.ReplaceAll(src, "{app_name}", appName), "{version}", version)
+}
+
 func main() {
 	appName := path.Base(os.Args[0])
-	flagSet := flag.NewFlagSet(appName, flag.ContinueOnError)
 
 	// Standard Options
-	flagSet.BoolVar(&showHelp, "h", false, "display help")
-	flagSet.BoolVar(&showHelp, "help", false, "display help")
-	flagSet.BoolVar(&showLicense, "license", false, "display license")
-	flagSet.BoolVar(&showVersion, "version", false, "display version")
-	flagSet.BoolVar(&verbose, "verbose", false, "use verbose logging")
+	flag.BoolVar(&showHelp, "h", false, "display help")
+	flag.BoolVar(&showHelp, "help", false, "display help")
+	flag.BoolVar(&showLicense, "license", false, "display license")
+	flag.BoolVar(&showVersion, "version", false, "display version")
+	flag.BoolVar(&verbose, "verbose", false, "use verbose logging")
 
 	// We're ready to process args
-	flagSet.Parse(os.Args[1:])
-	args := flagSet.Args()
+	flag.Parse()
+	args := flag.Args()
 
+	// Setup I/O
+	var err error
+
+	//in := os.Stdin
 	out := os.Stdout
+	eout := os.Stderr
 
 	// Handle options
 	if showHelp {
-		eprinttools.DisplayUsage(out, appName, flagSet, description, examples)
+		fmt.Fprintf(out, "%s\n", fmtTxt(helpText, appName, eprinttools.Version)		)
 		os.Exit(0)
 	}
 	if showLicense {
-		eprinttools.DisplayLicense(out, appName)
+		fmt.Fprintf(out, "%s\n", eprinttools.LicenseText)
 		os.Exit(0)
 	}
 	if showVersion {
-		eprinttools.DisplayVersion(out, appName)
+		fmt.Fprintf(out, "%s %s\n", appName, eprinttools.Version)
 		os.Exit(0)
 	}
 	settings := ""
@@ -111,9 +134,9 @@ func main() {
 	}
 
 	t0 := time.Now()
-	err := eprinttools.RunDatasets(settings, verbose)
+	err = eprinttools.RunDatasets(settings, verbose)
 	if err != nil {
-		log.Print(err)
+		fmt.Fprintln(eout, err)
 		os.Exit(1)
 	}
 	log.Printf("Total run time %v", time.Now().Sub(t0).Truncate(time.Second))

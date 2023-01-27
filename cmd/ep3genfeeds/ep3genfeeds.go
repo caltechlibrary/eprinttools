@@ -24,19 +24,23 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log"
 	"os"
 	"path"
 	"time"
+	"strings"
 
 	// Caltech Library Packages
 	"github.com/caltechlibrary/eprinttools"
 )
 
 var (
-	description = `%% {app_name}(1) user manual
-%% R. S. Doiel
-%% 2022-11-28
+	helpText = `---
+title: "{app_name} (1) user manual"
+author: "R. S. Doiel"
+pubDate: 2022-11-28
+---
 
 # NAME
 
@@ -58,9 +62,24 @@ ep3harvester tool.
 
 # OPTIONS
 
-`
+-help
+: display help
 
-	examples = `
+-license
+: display license
+
+-version
+: display version
+
+-groups
+: render groups feeds
+
+-people
+: render people feeds
+
+-verbose
+: use verbose logging
+
 # EXAMPLES
 
 Harvesting repositories for week month of May, 2022.
@@ -68,6 +87,8 @@ Harvesting repositories for week month of May, 2022.
 ~~~
     {app_name} harvester-settings.json
 ~~~
+
+{app_name} {version}
 
 `
 
@@ -82,37 +103,45 @@ Harvesting repositories for week month of May, 2022.
 	groups bool
 )
 
+func fmtTxt(src string, appName string, version string) string {
+	return strings.ReplaceAll(strings.ReplaceAll(src, "{app_name}", appName), "{version}", version)
+}
+
 func main() {
 	appName := path.Base(os.Args[0])
-	flagSet := flag.NewFlagSet(appName, flag.ContinueOnError)
 
 	// Standard Options
-	flagSet.BoolVar(&showHelp, "h", false, "display help")
-	flagSet.BoolVar(&showHelp, "help", false, "display help")
-	flagSet.BoolVar(&showLicense, "license", false, "display license")
-	flagSet.BoolVar(&showVersion, "version", false, "display version")
-	flagSet.BoolVar(&verbose, "verbose", false, "use verbose logging")
-	flagSet.BoolVar(&people, "people", false, "render people feeds")
-	flagSet.BoolVar(&groups, "groups", false, "render groups feeds")
+	flag.BoolVar(&showHelp, "h", false, "display help")
+	flag.BoolVar(&showHelp, "help", false, "display help")
+	flag.BoolVar(&showLicense, "license", false, "display license")
+	flag.BoolVar(&showVersion, "version", false, "display version")
+	flag.BoolVar(&verbose, "verbose", false, "use verbose logging")
+	flag.BoolVar(&people, "people", false, "render people feeds")
+	flag.BoolVar(&groups, "groups", false, "render groups feeds")
 
 
 	// We're ready to process args
-	flagSet.Parse(os.Args[1:])
-	args := flagSet.Args()
+	flag.Parse()
+	args := flag.Args()
 
+	// Setup I/O
+	var err error
+
+	//in := os.Stdin
 	out := os.Stdout
+	eout := os.Stderr
 
 	// Handle options
 	if showHelp {
-		eprinttools.DisplayUsage(out, appName, flagSet, description, examples)
+		fmt.Fprintf(out, "%s\n", fmtTxt(helpText, appName, eprinttools.Version))
 		os.Exit(0)
 	}
 	if showLicense {
-		eprinttools.DisplayLicense(out, appName)
+		fmt.Fprintf(out, "%s\n", eprinttools.LicenseText)
 		os.Exit(0)
 	}
 	if showVersion {
-		eprinttools.DisplayVersion(out, appName)
+		fmt.Fprintf(out, "%s %s\n", appName, eprinttools.Version)
 		os.Exit(0)
 	}
 	settings := ""
@@ -123,20 +152,15 @@ func main() {
 	t0 := time.Now()
 	switch {
 		case people:
-			if err := eprinttools.RunGenPeople(settings, verbose); err != nil {
-				log.Print(err)
-				os.Exit(1)
-			}
+			err = eprinttools.RunGenPeople(settings, verbose)
 		case groups:
-			if err := eprinttools.RunGenGroups(settings, verbose); err != nil {
-				log.Print(err)
-				os.Exit(1)
-			}
+			err = eprinttools.RunGenGroups(settings, verbose)
 		default:
-			if err := eprinttools.RunGenfeeds(settings, verbose); err != nil {
-				log.Print(err)
-				os.Exit(1)
-			}
+			err = eprinttools.RunGenfeeds(settings, verbose)
+	}
+	if err != nil {
+		fmt.Fprintln(eout, err)
+		os.Exit(1)
 	}
 	log.Printf("Total run time %v", time.Now().Sub(t0).Truncate(time.Second))
 }

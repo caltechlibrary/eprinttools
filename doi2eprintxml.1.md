@@ -1,6 +1,8 @@
-% doi2eprintxml(1) user manual
-% R. S. Doiel
-% 2022-11-28
+---
+title: "doi2eprintxml"
+author: "R. S. Doiel"
+pubDate: 2023-01-11
+---
 
 # NAME
 
@@ -22,64 +24,108 @@ form or URL form (e.g. "10.1021/acsami.7b15651" or
 
 # OPTIONS
 
--h, -help
+-help
 : display help
 
--c, -crossref
+-license
+: display license
+
+-version
+: display version
+
+-D
+: attempt to download the digital object if object URL provided
+
+-c
 : only search CrossRef API for DOI records
 
 -clsrules
-: Apply Caltech Library Specific Rules to EPrintXML output
+: Apply current Caltech Library Specific Rules to EPrintXML output (default true)
 
--d, -datacite
+-crossref
+: only search CrossRef API for DOI records
+
+-d
 : only search DataCite API for DOI records
 
--eprints-url
+-datacite
+: only search DataCite API for DOI records
+
+-dot-initials
+: Add period to initials in given name
+
+-download
+: attempt to download the digital object if object URL provided
+
+-eprints-url string
 : Sets the EPRints API URL
 
--generate-manpage
-: generate man page
-
--generate-markdown
-: generate Markdown documentation
-
 -i, -input
-: set input filename
+: (string) set input filename
 
 -json
 : output EPrint structure as JSON
 
--l, -license
-: display license
+-m 
+: (string) set the mailto value for CrossRef API access (default "helpdesk@library.caltech.edu")
 
--m, -mailto
-: set the mailto value for CrossRef API access
+-mailto
+: (string) set the mailto value for CrossRef API access (default "helpdesk@library.caltech.edu")
+
+-normalize-publisher
+: Use normalize publisher rule
+
+-normalize-related-url
+: Use normlize related url rule
+
+-normlize-publication
+: Use normalize publication rule
+
+-o, -output
+: (string) set output filename
 
 -quiet
 : set quiet output
 
--v, -version
-: display app version
+-simple
+: output EPrint structure as Simplified JSON
+
+-trim-creators
+: Use trim creators list rule
+
+-trim-number
+: Use trim number rule
+
+-trim-series
+: Use trim series rule
+
+-trim-title
+: Use trim title rule
+
+-trim-volume
+: Use trim volume rule
 
 # EXAMPLES
 
 Example generating an EPrintsXML for one DOI
 
-```
+~~~
 	doi2eprintxml "10.1021/acsami.7b15651" > article.xml
-```
+~~~
 
 Example generating an EPrintsXML for two DOI
 
-```
+~~~
 	doi2eprintxml "10.1021/acsami.7b15651" "10.1093/mnras/stu2495" > articles.xml
-```
+~~~
 
 Example processing a list of DOIs in a text file into
 an XML document called "import-articles.xml".
 
-```
+~~~
 	doi2eprintxml -i doi-list.txt -o import-articles.xml
-```
+~~~
+
+doi2eprintxml 1.2.1
 
 
