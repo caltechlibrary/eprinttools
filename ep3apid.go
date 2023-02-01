@@ -1,4 +1,3 @@
-//
 // Package eprinttools is a collection of structures, functions and programs// for working with the EPrints XML and EPrints REST API
 //
 // @author R. S. Doiel, <rsdoiel@caltech.edu>
@@ -15,7 +14,6 @@
 // 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
 //
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
 package eprinttools
 
 /**
@@ -36,6 +34,9 @@ import (
 	"strings"
 	"syscall"
 	"time"
+
+	// Caltech Library packages
+	"github.com/caltechlibrary/simplified"
 )
 
 type EP3API struct {
@@ -43,7 +44,6 @@ type EP3API struct {
 	Log    *log.Logger
 }
 
-//
 // Handle parameters that may continue URL
 func joinArgs(args []string) string {
 	if len(args) > 0 && (strings.HasPrefix(args[0], `http:`) ||
@@ -53,9 +53,7 @@ func joinArgs(args []string) string {
 	return strings.Join(args, `/`)
 }
 
-//
 // Date/Time expansion
-//
 func expandAproxDate(dt string, roundDown bool) string {
 	switch len(dt) {
 	case 4:
@@ -240,9 +238,7 @@ func (api *EP3API) repositoryEndPoint(w http.ResponseWriter, r *http.Request, re
 	return api.packageJSON(w, repoID, src, err)
 }
 
-//
 // End Point for user information
-//
 func (api *EP3API) usernamesEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
 	if strings.HasSuffix(r.URL.Path, "/help") {
 		return api.packageDocument(w, userDocument(repoID))
@@ -709,9 +705,7 @@ func (api EP3API) yearEndPoint(w http.ResponseWriter, r *http.Request, repoID st
 	return api.packageIntIDs(w, repoID, eprintIDs, err)
 }
 
-//
 // Unique identifiers (e.g. doi, issn, isbn) end points
-//
 func (api *EP3API) doiEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
 	if strings.HasSuffix(r.URL.Path, `/help`) {
 		return api.packageDocument(w, doiDocument(repoID))
@@ -810,11 +804,9 @@ func (api *EP3API) patentClassificationEndPoint(w http.ResponseWriter, r *http.R
 	return api.packageIntIDs(w, repoID, eprintIDs, err)
 }
 
-//
 // Record End Point is experimental and may not make it to the
 // release version of eprinttools. It accepts a EPrint ID and returns
 // a simplfied JSON object.
-//
 func (api *EP3API) recordEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
 	if len(args) == 0 || strings.HasSuffix(r.URL.Path, "/help") {
 		return api.packageDocument(w, recordDocument(repoID))
@@ -838,22 +830,20 @@ func (api *EP3API) recordEndPoint(w http.ResponseWriter, r *http.Request, repoID
 		return 404, fmt.Errorf("not found")
 	}
 	//FIXME: this should just be a simple JSON from SQL ...
-	simple, err := CrosswalkEPrintToRecord(eprint)
-	if err != nil {
+	simple := new(simplified.Record)
+	if err := CrosswalkEPrintToRecord(eprint, simple); err != nil {
 		return 500, fmt.Errorf("internal server error")
 	}
 	src, err := json.MarshalIndent(simple, "", "    ")
 	return api.packageJSON(w, repoID, src, err)
 }
 
-//
 // EPrint XML End Point is an experimental read end point provided
 // in the extended EPrint API.  It reads EPrint data structures
 // based on SQL calls to the MySQL database for a given EPrints
 // repository. It accepts two content types - "application/xml"
 // which returns EPrints XML or "application/json" which returns
 // a JSON version of the EPrints XML.
-//
 func (api *EP3API) eprintEndPoint(w http.ResponseWriter, r *http.Request, repoID string, args []string) (int, error) {
 	if len(args) == 0 || repoID == "" || strings.HasSuffix(r.URL.Path, "/help") {
 		return api.packageDocument(w, eprintReadWriteDocument(repoID))
@@ -900,7 +890,6 @@ func (api *EP3API) eprintEndPoint(w http.ResponseWriter, r *http.Request, repoID
 	}
 }
 
-//
 // EPrint Import End Point is an experimental write end point provided
 // in the extended EPrint API.  It Accepts EPrints XML or the JSON
 // expression of the EPrint XML and creates new EPrints medata records
@@ -966,7 +955,6 @@ func (api *EP3API) eprintImportEndPoint(w http.ResponseWriter, r *http.Request, 
 
 // The following define the API as a service handling errors,
 // routes and logging.
-//
 func (api *EP3API) logRequest(r *http.Request, status int, err error) {
 	q := r.URL.Query()
 	errStr := "OK"

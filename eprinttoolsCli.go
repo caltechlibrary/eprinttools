@@ -32,6 +32,9 @@ import (
 
 	// Golang optional libraries
 	"golang.org/x/crypto/ssh/terminal"
+
+	// Caltech Library packages
+	"github.com/caltechlibrary/simplified"
 )
 
 func DisplayLicense(out io.Writer, appName string) {
@@ -183,10 +186,11 @@ func RunEPrintsRESTClient(out io.Writer, getURL string, auth string, username st
 			e.SyntheticFields()
 		}
 		if asSimplified {
-			if sObj, err := CrosswalkEPrintToRecord(data.EPrint[0]); err != nil {
+			simple := new(simplified.Record)
+			if err := CrosswalkEPrintToRecord(data.EPrint[0], simple); err != nil {
 				fmt.Fprintf(os.Stderr, "%s\n", err)
 			} else {
-				src, err = json.MarshalIndent(sObj, "", "   ")
+				src, err = json.MarshalIndent(simple, "", "   ")
 			}
 		} else if asJSON {
 			src, err = json.MarshalIndent(data, "", "   ")

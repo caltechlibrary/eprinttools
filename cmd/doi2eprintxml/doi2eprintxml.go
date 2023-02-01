@@ -41,6 +41,7 @@ import (
 	"github.com/caltechlibrary/dataciteapi"
 	"github.com/caltechlibrary/eprinttools"
 	"github.com/caltechlibrary/eprinttools/clsrules"
+	"github.com/caltechlibrary/simplified"
 )
 
 var (
@@ -293,7 +294,6 @@ func main() {
 		os.Exit(0)
 	}
 
-
 	if len(args) < 1 {
 		fmt.Fprintln(eout, "Missing parameters see %s -help", appName)
 		os.Exit(1)
@@ -488,7 +488,8 @@ func main() {
 				if i > 0 {
 					fmt.Fprintf(out, ",\n")
 				}
-				rec, err := eprinttools.CrosswalkEPrintToRecord(item)
+				rec := new(simplified.Record)
+				err := eprinttools.CrosswalkEPrintToRecord(item, rec)
 				if err != nil {
 					fmt.Fprintf(eout, "%s\n", err)
 					os.Exit(1)
