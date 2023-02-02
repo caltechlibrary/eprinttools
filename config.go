@@ -33,7 +33,7 @@ type Config struct {
 
 	// Repositories are defined by a REPO_ID (string)
 	// that points at a MySQL Db connection string
-	Repositories map[string]*DataSource `json:"eprint_repositories"`
+	Repositories map[string]*DataSource `json:"repositories"`
 
 	// Connections is a map to database connections
 	Connections map[string]*sql.DB `json:"-"`

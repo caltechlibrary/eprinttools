@@ -41,7 +41,6 @@ import (
 	"github.com/caltechlibrary/dataciteapi"
 	"github.com/caltechlibrary/eprinttools"
 	"github.com/caltechlibrary/eprinttools/clsrules"
-	"github.com/caltechlibrary/simplified"
 )
 
 var (
@@ -113,7 +112,7 @@ form or URL form (e.g. "10.1021/acsami.7b15651" or
 -json
 : output EPrint structure as JSON
 
--m 
+-m
 : (string) set the mailto value for CrossRef API access (default "helpdesk@library.caltech.edu")
 
 -mailto
@@ -294,8 +293,8 @@ func main() {
 		os.Exit(0)
 	}
 
-	if len(args) < 1 {
-		fmt.Fprintln(eout, "Missing parameters see %s -help", appName)
+	if len(args) < 1 && inputFName == "" {
+		fmt.Fprintf(eout, "Missing parameters see %s -help\n", appName)
 		os.Exit(1)
 	}
 
@@ -488,7 +487,7 @@ func main() {
 				if i > 0 {
 					fmt.Fprintf(out, ",\n")
 				}
-				rec := new(simplified.Record)
+				rec := new(eprinttools.Record)
 				err := eprinttools.CrosswalkEPrintToRecord(item, rec)
 				if err != nil {
 					fmt.Fprintf(eout, "%s\n", err)

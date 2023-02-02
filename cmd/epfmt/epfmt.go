@@ -33,7 +33,6 @@ import (
 
 	// Caltech Library Packages
 	"github.com/caltechlibrary/eprinttools"
-	"github.com/caltechlibrary/simplified"
 )
 
 const (
@@ -276,7 +275,7 @@ func main() {
 	}
 	if asSimplified {
 		if len(obj.EPrint) == 1 {
-			sObject := new(simplified.Record)
+			sObject := new(eprinttools.Record)
 			err := eprinttools.CrosswalkEPrintToRecord(obj.EPrint[0], sObject)
 			if err != nil {
 				fmt.Fprintln(eout, err)
@@ -284,9 +283,9 @@ func main() {
 			}
 			src, err = json.MarshalIndent(sObject, "", "   ")
 		} else {
-			sObjects := []*simplified.Record{}
+			sObjects := []*eprinttools.Record{}
 			for _, eprint := range obj.EPrint {
-				obj := new(simplified.Record)
+				obj := new(eprinttools.Record)
 				err := eprinttools.CrosswalkEPrintToRecord(eprint, obj)
 				if err != nil {
 					fmt.Fprintln(eout, err)
