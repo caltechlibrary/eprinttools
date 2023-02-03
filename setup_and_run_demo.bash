@@ -31,3 +31,4 @@ if make; then
 	./bin/ep3harvester -verbose settings.json
 	./bin/ep3genfeeds -verbose settings.json
 fi
+

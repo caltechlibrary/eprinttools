@@ -4,7 +4,64 @@ Action items
 
 This is for the simplified eprinttools codebase.
 
-- [ ] Make a list of the missing page types I need to render to match feeds
+- [x] Make a list of the missing page types I need to render to match feeds
+- [ ] Render json types  
+    - [ ] advisor-bachelors.json
+    - [ ] advisor-combined.json
+    - [ ] advisor-engd.json
+    - [ ] advisor-masters.json
+    - [ ] advisor-other.json
+    - [ ] advisor-phd.json
+    - [ ] advisor-senior_major.json
+    - [ ] advisor-senior_minor.json
+    - [x] advisor.json
+    - [ ] article.json
+    - [ ] audiovisual.json
+    - [ ] bachelors.json
+    - [ ] book.json
+    - [ ] book_section.json
+    - [ ] caltechauthors-grid.json
+    - [ ] caltechdata-grid.json
+    - [ ] caltechthesis-grid.json
+    - [ ] collection.json
+    - [ ] combined.json
+    - [ ] combined_data.json
+    - [ ] conference_item.json
+    - [ ] data.json
+    - [ ] data_object_types.json
+    - [ ] data_pub_types.json
+    - [ ] data_types.json
+    - [ ] dataset.json
+    - [ ] directory_info.json
+    - [ ] engd.json
+    - [x] group.json
+    - [x] group_list.json
+    - [ ] image.json
+    - [x] index.json
+    - [ ] interactiveresource.json
+    - [ ] masters.json
+    - [ ] model.json
+    - [ ] monograph.json
+    - [ ] object_types.json
+    - [ ] pagefind-entry.json
+    - [ ] patent.json
+    - [ ] people.json
+    - [x] people_list.json
+    - [ ] phd.json
+    - [ ] pub_types.json
+    - [ ] senior_major.json
+    - [ ] senior_minor.json
+    - [ ] software.json
+    - [ ] teaching_resource.json
+    - [ ] text.json
+    - [ ] thesis.json
+    - [ ] video.json
+    - [ ] workflow.json
+- [ ] Render keys types
+- [ ] Render Markdown types
+- [ ] Render include types
+- [ ] Render BibTeX types
+- [ ] Render RSS types
 - [ ] Make a list of the new pages types reflecting use of simplified records
 
 Bugs
