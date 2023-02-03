@@ -4,6 +4,9 @@ Action items
 
 This is for the simplified eprinttools codebase.
 
+- [ ] Make a list of the missing page types I need to render to match feeds
+- [ ] Make a list of the new pages types reflecting use of simplified records
+
 Bugs
 ----
 
