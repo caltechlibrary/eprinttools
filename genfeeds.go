@@ -243,7 +243,7 @@ func GeneratePeopleFeed(cfg *Config, verbose bool) error {
 			if includePerson {
 				peopleList = append(peopleList, person)
 			} else {
-				log.Printf("skipped %q, no aggregations found for roles, probably and id mismatch", personID)
+				log.Printf("skipped %q, no aggregations found for roles, possible person_id mismatch", personID)
 			}
 		}
 		if verbose && ((i % modValue) == 0) {

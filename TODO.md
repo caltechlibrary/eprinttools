@@ -6,57 +6,64 @@ This is for the simplified eprinttools codebase.
 
 - [x] Make a list of the missing page types I need to render to match feeds
 - [ ] Render json types  
-    - [ ] advisor-bachelors.json
-    - [ ] advisor-combined.json
-    - [ ] advisor-engd.json
-    - [ ] advisor-masters.json
-    - [ ] advisor-other.json
-    - [ ] advisor-phd.json
-    - [ ] advisor-senior_major.json
-    - [ ] advisor-senior_minor.json
-    - [x] advisor.json
-    - [ ] article.json
-    - [ ] audiovisual.json
-    - [ ] bachelors.json
-    - [ ] book.json
-    - [ ] book_section.json
-    - [ ] caltechauthors-grid.json
-    - [ ] caltechdata-grid.json
-    - [ ] caltechthesis-grid.json
-    - [ ] collection.json
-    - [ ] combined.json
-    - [ ] combined_data.json
-    - [ ] conference_item.json
-    - [ ] data.json
-    - [ ] data_object_types.json
-    - [ ] data_pub_types.json
-    - [ ] data_types.json
-    - [ ] dataset.json
-    - [ ] directory_info.json
-    - [ ] engd.json
-    - [x] group.json
-    - [x] group_list.json
-    - [ ] image.json
-    - [x] index.json
-    - [ ] interactiveresource.json
-    - [ ] masters.json
-    - [ ] model.json
-    - [ ] monograph.json
-    - [ ] object_types.json
-    - [ ] pagefind-entry.json
-    - [ ] patent.json
-    - [ ] people.json
-    - [x] people_list.json
-    - [ ] phd.json
-    - [ ] pub_types.json
-    - [ ] senior_major.json
-    - [ ] senior_minor.json
-    - [ ] software.json
-    - [ ] teaching_resource.json
-    - [ ] text.json
-    - [ ] thesis.json
-    - [ ] video.json
-    - [ ] workflow.json
+	- Misc. JSON files
+    	- [ ] caltechauthors-grid.json
+    	- [ ] caltechdata-grid.json
+    	- [ ] caltechthesis-grid.json
+    	- [ ] directory_info.json    (only found for people)
+    	- [x] index.json
+    	- [ ] pagefind-entry.json
+	    - [x] group.json
+	    - [x] group_list.json
+  		- [ ] people.json
+    	- [x] people_list.json
+	- CaltechTHESIS derived
+    	- [ ] advisor-bachelors.json (needed in groups only)
+    	- [ ] advisor-combined.json  (needed in groups only)
+    	- [ ] advisor-engd.json      (needed in groups only)
+    	- [ ] advisor-masters.json   (needed in groups only)
+    	- [ ] advisor-other.json     (needed in groups only)
+    	- [ ] advisor-phd.json       (needed in groups only)
+    	- [ ] advisor-senior_major.json (needed in groups only)
+    	- [ ] advisor-senior_minor.json (needed in groups only)
+    	- [x] advisor.json           (person/group)
+    	- [ ] bachelors.json         (person/group)
+    	- [ ] engd.json              (person/group)
+    	- [ ] masters.json           (person/group)
+    	- [ ] phd.json               (person/group)
+    	- [ ] senior_major.json      (person/group)
+    	- [ ] senior_minor.json      (person/group)
+	- CaltechAUTHORS derived
+   		- [ ] combined.json (from CaltechAUTHORS), should be renamed combined_authors.json
+    	- [ ] pub_types.json
+   		- [ ] article.json
+   		- [ ] audiovisual.json
+   		- [ ] book.json
+   		- [ ] book_section.json
+   		- [ ] collection.json
+    	- [ ] conference_item.json
+   		- [ ] dataset.json
+   		- [ ] image.json
+   		- [ ] interactiveresource.json
+    	- [ ] model.json
+   		- [ ] monograph.json
+   		- [ ] object_types.json
+   		- [ ] patent.json
+   		- [ ] software.json
+   		- [ ] teaching_resource.json
+   		- [ ] text.json
+   		- [ ] thesis.json
+   		- [ ] video.json
+   		- [ ] workflow.json
+	- CaltechDATA
+   		- [ ] combined_data.json
+    	- [ ] software.json
+    	- [ ] data.json
+    	- [ ] teaching_resource.json
+    	- [ ] data_object_types.json
+    	- [ ] data_pub_types.json
+    	- [ ] data_types.json
+    	- [ ] image.json
 - [ ] Render keys types
 - [ ] Render Markdown types
 - [ ] Render include types
