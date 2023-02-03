@@ -11,7 +11,7 @@ on localhost to test with.
 
 Requirements
 
-- Go 1.19 or better
+- Go 1.20 or better
 	- compiler for eprinttools
 - GNU Make
 	- Runs build process
