@@ -127,13 +127,13 @@ func RunDataset(cfgName string, repoName string, verbose bool) error {
 		}
 	}
 	if verbose {
-		log.Printf("%s started %v", appName, time.Now().Sub(t0).Truncate(time.Second))
+		log.Printf("%s (%s) started %v", appName, repoName, time.Now().Sub(t0).Truncate(time.Second))
 	}
 	if err := generateDataset(cfg, repoName, cfg.ProjectDir, verbose); err != nil {
 		return err
 	}
 	if verbose {
-		log.Printf("datasets run time %v", time.Since(t0).Truncate(time.Second))
+		log.Printf("%s (%s) run time %v", appName, repoName, time.Since(t0).Truncate(time.Second))
 	}
 	return nil
 }
@@ -161,7 +161,7 @@ func RunDatasets(cfgName string, verbose bool) error {
 		}
 	}
 	if verbose {
-		log.Printf("%s started %v", appName, t0)
+		log.Printf("%s started %v", appName, time.Now().Sub(t0).Truncate(time.Second))
 	}
 	for repoName := range cfg.Repositories {
 		if err := generateDataset(cfg, repoName, cfg.ProjectDir, verbose); err != nil {
@@ -169,7 +169,7 @@ func RunDatasets(cfgName string, verbose bool) error {
 		}
 	}
 	if verbose {
-		log.Printf("datasets run time %v", time.Since(t0).Truncate(time.Second))
+		log.Printf("%s run time %v", appName, time.Since(t0).Truncate(time.Second))
 	}
 	return nil
 }
