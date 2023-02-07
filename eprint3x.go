@@ -265,7 +265,7 @@ type EPrint struct {
 
 	// Fields identified through harvesting.
 	//ReferenceTextString string `xml:"referencetext,omitempty" json:"referencetext,omitempty"`
-	Language            string `xml:"language,omitempty" json:"language,omitempty"`
+	Language string `xml:"language,omitempty" json:"language,omitempty"`
 
 	// Synthetic fields are created to help in eventual migration of
 	// EPrints field data to other JSON formats.

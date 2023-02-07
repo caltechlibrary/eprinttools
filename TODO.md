@@ -74,6 +74,7 @@ This is for the simplified eprinttools codebase.
 Bugs
 ----
 
+- [ ] ep3datasets renders EPrints JSON objects without primary_object being set
 - [x] Cleanup eprint content for public views
 	- [x] Does sanitization happen at rendering of JSON/Markdown documents or when harvesting the content?
         - Santization happens when we render content, this lets us do one harvest for both dark and public archives

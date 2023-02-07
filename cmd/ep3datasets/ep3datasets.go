@@ -38,7 +38,7 @@ var (
 	helpText = `---
 title: "{app_name} (1) user manual"
 author: "R. S. Doiel"
-pubDate: 2022-11-28
+pubDate: 2023-02-07
 ---
 
 # NAME
@@ -47,13 +47,13 @@ pubDate: 2022-11-28
 
 # SYNOPSIS
 
-{app_name} [OPTION] JSON_SETTINGS_FILENAME
+{app_name} [OPTION] JSON_SETTINGS_FILE
 
 # DESCRIPTION
 
 {app_name} is a command line program renders dataset collections
 from previously harvested EPrint repositories based on the
-configuration in the JSON_SETTINGS_FILENAME.
+configuration in the JSON_SETTINGS_FILE.
 
 # OPTIONS
 
@@ -69,12 +69,21 @@ configuration in the JSON_SETTINGS_FILENAME.
 -verbose
 : use verbose logging
 
+-repo
+: write out the dataset for a specific repo in JSON_SETTINGS_FILE
+
 # EXAMPLES
 
 Rendering harvested repositories for settings.json.
 
 ~~~
     {app_name} settings.json
+~~~
+
+Render the harvested repository caltechauthors based on settings.json.
+
+~~~
+	{app_name} -repo caltechauthors settings.json
 ~~~
 
 {app_name} {version}
@@ -88,6 +97,7 @@ Rendering harvested repositories for settings.json.
 
 	// App Option
 	verbose bool
+	repoName string
 )
 
 func fmtTxt(src string, appName string, version string) string {
@@ -103,7 +113,7 @@ func main() {
 	flag.BoolVar(&showLicense, "license", false, "display license")
 	flag.BoolVar(&showVersion, "version", false, "display version")
 	flag.BoolVar(&verbose, "verbose", false, "use verbose logging")
-
+	flag.StringVar(&repoName, "repo", "", "Harvest a specific repository id defined in configuration")
 	// We're ready to process args
 	flag.Parse()
 	args := flag.Args()
@@ -134,7 +144,11 @@ func main() {
 	}
 
 	t0 := time.Now()
-	err = eprinttools.RunDatasets(settings, verbose)
+	if repoName != "" {
+		err = eprinttools.RunDataset(settings, repoName, verbose)
+	} else {
+		err = eprinttools.RunDatasets(settings, verbose)
+	}
 	if err != nil {
 		fmt.Fprintln(eout, err)
 		os.Exit(1)

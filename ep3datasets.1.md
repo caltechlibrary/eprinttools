@@ -1,7 +1,7 @@
 ---
 title: "ep3datasets (1) user manual"
 author: "R. S. Doiel"
-pubDate: 2022-11-28
+pubDate: 2023-02-07
 ---
 
 # NAME
@@ -10,13 +10,13 @@ ep3datasets
 
 # SYNOPSIS
 
-ep3datasets [OPTION] JSON_SETTINGS_FILENAME
+ep3datasets [OPTION] JSON_SETTINGS_FILE
 
 # DESCRIPTION
 
 ep3datasets is a command line program renders dataset collections
 from previously harvested EPrint repositories based on the
-configuration in the JSON_SETTINGS_FILENAME.
+configuration in the JSON_SETTINGS_FILE.
 
 # OPTIONS
 
@@ -32,6 +32,9 @@ configuration in the JSON_SETTINGS_FILENAME.
 -verbose
 : use verbose logging
 
+-repo
+: write out the dataset for a specific repo in JSON_SETTINGS_FILE
+
 # EXAMPLES
 
 Rendering harvested repositories for settings.json.
@@ -40,6 +43,12 @@ Rendering harvested repositories for settings.json.
     ep3datasets settings.json
 ~~~
 
-ep3datasets 1.2.1
+Render the harvested repository caltechauthors based on settings.json.
+
+~~~
+	ep3datasets -repo caltechauthors settings.json
+~~~
+
+ep3datasets 1.2.2
 
 

@@ -29,6 +29,7 @@ if make; then
 	./bin/ep3harvester -sql-schema settings.json | mysql
 	./bin/ep3harvester -verbose -people-groups settings.json
 	./bin/ep3harvester -verbose settings.json
+	./bin/ep3datasets -verbose settings.json
 	./bin/ep3genfeeds -verbose settings.json
 fi
 

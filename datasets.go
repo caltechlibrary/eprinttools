@@ -102,6 +102,41 @@ func generateDataset(cfg *Config, repoName string, projectDir string, verbose bo
 	return nil
 }
 
+// RunDataset will use the eprinttools settings.jons config file 
+// and a repository ID (e.g. caltechauthors) and render a
+// dataset collection based on the previously harvested contents.
+func RunDataset(cfgName string, repoName string, verbose bool) error {
+	t0 := time.Now()
+	appName := path.Base(os.Args[0])
+	// Read in the configuration for this harvester instance.
+	cfg, err := LoadConfig(cfgName)
+	if err != nil {
+		return err
+	}
+	if cfg == nil {
+		return fmt.Errorf("could not create a configuration object")
+	}
+	if err := OpenJSONStore(cfg); err != nil {
+		return err
+	}
+	defer cfg.Jdb.Close()
+	if _, err := os.Stat(cfg.ProjectDir); os.IsNotExist(err) {
+		if err := os.MkdirAll(cfg.ProjectDir, 0775); err != nil {
+			log.Printf("%s", err)
+			os.Exit(1)
+		}
+	}
+	if verbose {
+		log.Printf("%s started %v", appName, time.Now().Sub(t0).Truncate(time.Second))
+	}
+	if err := generateDataset(cfg, repoName, cfg.ProjectDir, verbose); err != nil {
+		return err
+	}
+	if verbose {
+		log.Printf("datasets run time %v", time.Since(t0).Truncate(time.Second))
+	}
+	return nil
+}
 // RunDatasets will use the eprinttools settings.jons config file 
 // and reader dataset collections based on the contents.
 func RunDatasets(cfgName string, verbose bool) error {

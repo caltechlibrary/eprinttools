@@ -37,7 +37,7 @@ var (
 	helpText = `---
 title: "{app_name} (1) user manual"
 author: "R. S. Doiel"
-pubDate: 2022-11-28
+pubDate: 2023-02-07
 ---
 
 # NAME
@@ -46,7 +46,7 @@ pubDate: 2022-11-28
 
 # SYNOPSIS
 
-{app_name} [OPTION] JSON_SETTINGS_FILENAME \
+{app_name} [OPTIONS] JSON_SETTINGS_FILENAME \
            [START_TIMESTAMP] [END_TIMESTAMP]
 
 # DESCRIPTION
@@ -63,7 +63,7 @@ Each MySQL 8 table has several columns id, src (holding the JSON
 document as a JSON column) and an updated (holding the timestamp
 of when the metadata was harvested).
 
-## CONFIGURING YOUR JSON STORE
+# CONFIGURATION
 
 {app_name} can generate an example settings JSON document. You
 can then edit it with any plain text editor (e.g. nano). Then
@@ -117,10 +117,18 @@ parameter. E.g.
 
 # EXAMPLES
 
-Harvesting repositories for week month of May, 2022.
+Harvesting repositories for the month of May, 2022.
 
 ~~~
     {app_name} harvester-settings.json \
+        "2022-05-01 00:00:00" "2022-05-31 59:59:59"
+~~~
+
+Harvesting a caltechauthors repo using harvester-settings.json
+for week month of the month of May, 2022.
+
+~~~
+	{app_name} -repo caltechauthors harvester-settings.json \ 
         "2022-05-01 00:00:00" "2022-05-31 59:59:59"
 ~~~
 
