@@ -7,7 +7,6 @@ package eprinttools
 //
 
 import (
-	"bytes"
 	"encoding/csv"
 	"fmt"
 	"io"
@@ -466,14 +465,6 @@ func harvestEPrintRecord(cfg *Config, repoName string, eprintID int) error {
 	// NOTE: Need to render synthetic fields ... like primary_object
 	eprint.SyntheticFields()
 	src, _ := jsonEncode(eprint)
-	/* DEBUG
-	if eprint.PrimaryObject != nil && len(eprint.PrimaryObject) > 0 { // DEBUG
-		fmt.Printf("DEBUG id: %d eprint.PimaryObject -> %+v\n", eprint.EPrintID, eprint.PrimaryObject)
-		if bytes.Contains(src, []byte("primary")) {// DEBUG
-		fmt.Printf("DEBUG id: %d -> %s\n", eprint.EPrintID, src)
-		} //DEBUG
-	} // DEBUG
-	*/
 	err = SaveJSONDocument(cfg, repoName, eprintID, src, action, eprint.Datestamp, eprint.LastModified, eprint.PubDate(), eprint.EPrintStatus, eprint.IsPublic(), eprint.Type, eprint.ThesisType)
 	if err != nil {
 		return err
