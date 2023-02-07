@@ -82,9 +82,11 @@ func remapIDs(personIDs []string, idMap map[string]string, label string) []strin
 	newPersonIDs := []string{}
 	for _, personID := range personIDs {
 		if newID, ok = idMap[personID]; ok {
-			if label == "thesis_id" {
+			/*
+			if label == "thesis_id" { // DEBUG
 				log.Printf("DEBUG mapping (%q) %q -> %q", label, personID, newID)
-			}
+			} // DEBUG
+			*/
 			newPersonIDs = append(newPersonIDs, newID)
 			cnt++
 		} else {
