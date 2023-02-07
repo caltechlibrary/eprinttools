@@ -5,8 +5,8 @@ Installation and setup
 ----------------------
 
 1. With your web browser goto https://github.com/caltechlibrary/eprinttools/releases/
-2. Download the file called "eprinttools-v1.0.3-windows-amd64.zip".
-    + if there is a newer version (e.g. v1.0.4) download that instead
+2. Download the file called "eprinttools-v1.2.2-windows-amd64.zip".
+    + if there is a newer version (e.g. v1.2.2) download that instead
 3. Unzip the downloaded zip file
 4. Copy "doi2eprintxml.exe" to where you want to work (e.g. Desktop)
 5. Open the windows "command prompt" and change directory to your desktop
@@ -25,7 +25,7 @@ under "Manage Deposits" page.
 ### Workflow
 
 The typical workflow is to create a plain text file (UTF-8 encoded)
-using a text editor such as [Atom](https://atom.io) with one DOI per 
+using a text editor such as [VSCode](https://code.visualstudio.com/) with one DOI per 
 line. The `doi2eprintxml.exe` file can then read the list and 
 generate an EPrint XML document for importing into EPrints. Follow 
 the following steps to generate a file called **eprint.xml** based 
@@ -33,7 +33,7 @@ on a list of of DOI in a file called **doi.txt**.
 
 ### General recipe
 
-1. Open your text editor (e.g Atom)
+1. Open your text editor (e.g VSCode)
 2. With your text editor create a list of DOI on per line 
 3. Save this list to your desktop as **doi.txt**
     NOTE: **doi.txt** is the name of your file you saved on your desktop.
