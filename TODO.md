@@ -2,6 +2,19 @@
 Action items
 ============
 
+Next
+----
+
+Transitional support for feeds
+
+- [ ] Simplfied record (invenio-RDM record) to EPrint XML/EPrint JSON
+    - [ ] implement libdataset for v2 dataset collection
+    - [ ] convert feeds' datasets to v2 ds collections
+    - [ ] CaltechDATA records are a good test case for mapping Invenio-RDM to JSON that will drive EPrints templates for feeds (v1 of feeds is EPrints centric)
+    - [ ] I need to generate EPrint XML as Invenio-RDM records (simplified records) first and input into the test instance of CaltechAUTHORS as RDM based repository
+    - [ ] I can then take the Invenio-RDM records returned and turn those into EPrint XMl/JSON for integration into existing feeds
+
+
 This is for the simplified eprinttools codebase.
 
 - [x] Make a list of the missing page types I need to render to match feeds
