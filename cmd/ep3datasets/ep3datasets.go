@@ -98,6 +98,7 @@ Render the harvested repository caltechauthors based on settings.json.
 	// App Option
 	verbose bool
 	repoName string
+	simplified bool
 )
 
 func fmtTxt(src string, appName string, version string) string {
@@ -113,6 +114,7 @@ func main() {
 	flag.BoolVar(&showLicense, "license", false, "display license")
 	flag.BoolVar(&showVersion, "version", false, "display version")
 	flag.BoolVar(&verbose, "verbose", false, "use verbose logging")
+	flag.BoolVar(&simplified, "simplified", false, "use a simplified records structure in collection")
 	flag.StringVar(&repoName, "repo", "", "Harvest a specific repository id defined in configuration")
 	// We're ready to process args
 	flag.Parse()

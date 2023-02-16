@@ -109,6 +109,9 @@ parameter. E.g.
 -repo string
 : Harvest a specific repository id defined in configuration
 
+-simple
+: Crosswalk the harvested eprint record to the simplified record model
+
 -sql-schema
 : display SQL schema for installing MySQL jsonstore DB
 
@@ -148,6 +151,7 @@ for week month of the month of May, 2022.
 	groups          bool
 	repoName        string
 	peopleAndGroups bool
+	useSimplifiedRecord bool
 	verbose         bool
 )
 
@@ -169,6 +173,7 @@ func main() {
 	flag.BoolVar(&people, "people", false, "Harvest people from CSV files included configuration")
 	flag.BoolVar(&groups, "groups", false, "Harvest groups from CSV files included configuration")
 	flag.BoolVar(&peopleAndGroups, "people-groups", false, "Harvest people and groups from CSV files included configuration")
+	flag.BoolVar(&useSimplifiedRecord, "simple", false, "Crosswalk harvested eprint records storing simplified model")
 	flag.StringVar(&repoName, "repo", "", "Harvest a specific repository id defined in configuration")
 
 	// We're ready to process args
@@ -250,6 +255,9 @@ func main() {
 	case repoName != "":
 		err = eprinttools.RunHarvestRepoID(settings, repoName, start, end, verbose)
 	default:
+		if useSimplifiedRecord {
+			eprinttools.UseSimplifiedRecord = true
+		}
 		err = eprinttools.RunHarvester(settings, start, end, verbose)
 	}
 	if err != nil {

@@ -24,6 +24,10 @@ const (
 	mysqlTimeFmt = "2006-01-02 15:04:05"
 )
 
+var (
+	UseSimplifiedRecord bool
+)
+
 // getDBName uses the ParseDSN function from the MySQL driver to
 // return the DB name.
 func getDBName(dsn string) (string, error) {
@@ -464,7 +468,20 @@ func harvestEPrintRecord(cfg *Config, repoName string, eprintID int) error {
 	}
 	// NOTE: Need to render synthetic fields ... like primary_object
 	eprint.SyntheticFields()
-	src, _ := jsonEncode(eprint)
+
+	// NOTE: If we want to use simplified records we need to do the
+	// crosswalk here.
+	var src []byte
+	if UseSimplifiedRecord {
+		simplified := new(Record)
+		err = CrosswalkEPrintToRecord(eprint, simplified)
+		if err != nil {
+			return fmt.Errorf("failed to crosswalk eprint %d, %s", eprintID, err)
+		} 
+		src, _ = jsonEncode(simplified)
+	} else {
+		src, _ = jsonEncode(eprint)
+	}
 	err = SaveJSONDocument(cfg, repoName, eprintID, src, action, eprint.Datestamp, eprint.LastModified, eprint.PubDate(), eprint.EPrintStatus, eprint.IsPublic(), eprint.Type, eprint.ThesisType)
 	if err != nil {
 		return err
