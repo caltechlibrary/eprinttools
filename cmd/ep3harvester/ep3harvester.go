@@ -256,9 +256,6 @@ func main() {
 	case repoName != "":
 		err = eprinttools.RunHarvestRepoID(settings, repoName, start, end, verbose)
 	default:
-		if useSimplifiedRecord {
-			fmt.Printf("DEBUG setting eprinttools.UseSimplifiedRecord true\n")
-		}
 		err = eprinttools.RunHarvester(settings, start, end, useSimplifiedRecord, verbose)
 	}
 	if err != nil {
