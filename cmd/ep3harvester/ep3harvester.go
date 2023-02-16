@@ -36,8 +36,8 @@ import (
 var (
 	helpText = `---
 title: "{app_name} (1) user manual"
+pubDate: 2023-02-16
 author: "R. S. Doiel"
-pubDate: 2023-02-07
 ---
 
 # NAME
@@ -111,6 +111,7 @@ parameter. E.g.
 
 -simple
 : Crosswalk the harvested eprint record to the simplified record model
+before saving the JSON to the SQL database.
 
 -sql-schema
 : display SQL schema for installing MySQL jsonstore DB
@@ -256,9 +257,9 @@ func main() {
 		err = eprinttools.RunHarvestRepoID(settings, repoName, start, end, verbose)
 	default:
 		if useSimplifiedRecord {
-			eprinttools.UseSimplifiedRecord = true
+			fmt.Printf("DEBUG setting eprinttools.UseSimplifiedRecord true\n")
 		}
-		err = eprinttools.RunHarvester(settings, start, end, verbose)
+		err = eprinttools.RunHarvester(settings, start, end, useSimplifiedRecord, verbose)
 	}
 	if err != nil {
 		fmt.Fprintln(eout, err)

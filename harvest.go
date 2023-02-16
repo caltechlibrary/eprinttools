@@ -25,7 +25,7 @@ const (
 )
 
 var (
-	UseSimplifiedRecord bool
+	UseSimpleRecord bool
 )
 
 // getDBName uses the ParseDSN function from the MySQL driver to
@@ -282,7 +282,8 @@ CREATE INDEX %s_pubdate_i ON %s (pubdate DESC);
 // RunHarvester will use the config file names by cfgName and
 // the start and end time strings if set to retrieve all eprint
 // records created or modified during that time sequence.
-func RunHarvester(cfgName string, start string, end string, verbose bool) error {
+func RunHarvester(cfgName string, start string, end string, useSimpleRecord bool, verbose bool) error {
+	UseSimpleRecord = useSimpleRecord
 	if cfgName == "" {
 		return fmt.Errorf("configuration filename missing")
 	}
@@ -472,7 +473,7 @@ func harvestEPrintRecord(cfg *Config, repoName string, eprintID int) error {
 	// NOTE: If we want to use simplified records we need to do the
 	// crosswalk here.
 	var src []byte
-	if UseSimplifiedRecord {
+	if UseSimpleRecord {
 		simplified := new(Record)
 		err = CrosswalkEPrintToRecord(eprint, simplified)
 		if err != nil {
