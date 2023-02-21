@@ -66,7 +66,7 @@ form or URL form (e.g. "10.1021/acsami.7b15651" or
 -json
 : output EPrint structure as JSON
 
--m 
+-m
 : (string) set the mailto value for CrossRef API access (default "helpdesk@library.caltech.edu")
 
 -mailto
@@ -126,6 +126,6 @@ an XML document called "import-articles.xml".
 	doi2eprintxml -i doi-list.txt -o import-articles.xml
 ~~~
 
-doi2eprintxml 1.2.1
+doi2eprintxml 1.2.3
 
 

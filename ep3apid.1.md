@@ -164,6 +164,6 @@ or to load "settings.json" from the current work directory.
 ~~~
 
 
-ep3apid 1.2.1
+ep3apid 1.2.3
 
 

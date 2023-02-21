@@ -21,12 +21,12 @@
 ep3datasets
 .SH SYNOPSIS
 .PP
-ep3datasets [OPTION] JSON_SETTINGS_FILENAME
+ep3datasets [OPTION] JSON_SETTINGS_FILE
 .SH DESCRIPTION
 .PP
 ep3datasets is a command line program renders dataset collections from
 previously harvested EPrint repositories based on the configuration in
-the JSON_SETTINGS_FILENAME.
+the JSON_SETTINGS_FILE.
 .SH OPTIONS
 .TP
 -help
@@ -40,6 +40,9 @@ display version
 .TP
 -verbose
 use verbose logging
+.TP
+-repo
+write out the dataset for a specific repo in JSON_SETTINGS_FILE
 .SH EXAMPLES
 .PP
 Rendering harvested repositories for settings.json.
@@ -50,6 +53,14 @@ Rendering harvested repositories for settings.json.
 \f[R]
 .fi
 .PP
-ep3datasets 1.2.1
+Render the harvested repository caltechauthors based on settings.json.
+.IP
+.nf
+\f[C]
+    ep3datasets -repo caltechauthors settings.json
+\f[R]
+.fi
+.PP
+ep3datasets 1.2.3
 .SH AUTHORS
 R. S. Doiel.

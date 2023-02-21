@@ -86,6 +86,6 @@ in the desired format requested. If no
 format option chosen it will pretty print 
 in the same format as input.
 
-epfmt 1.2.1
+epfmt 1.2.3
 
 

@@ -49,6 +49,6 @@ Render the harvested repository caltechauthors based on settings.json.
 	ep3datasets -repo caltechauthors settings.json
 ~~~
 
-ep3datasets 1.2.2
+ep3datasets 1.2.3
 
 

@@ -179,7 +179,7 @@ Supported Environment Variables
 	                EPrints REST API
 ~~~
 
-eputil 1.2.1
+eputil 1.2.3
 
 
 

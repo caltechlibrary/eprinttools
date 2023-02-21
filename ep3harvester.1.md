@@ -1,7 +1,7 @@
 ---
 title: "ep3harvester (1) user manual"
+pubDate: 2023-02-16
 author: "R. S. Doiel"
-pubDate: 2023-02-07
 ---
 
 # NAME
@@ -75,6 +75,7 @@ parameter. E.g.
 
 -simple
 : Crosswalk the harvested eprint record to the simplified record model
+before saving the JSON to the SQL database.
 
 -sql-schema
 : display SQL schema for installing MySQL jsonstore DB
