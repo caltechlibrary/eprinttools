@@ -19,7 +19,7 @@ import (
 
 
 // generateDataset creates a dataset from the harvested repository.
-func generateDataset(cfg *Config, repoName string, projectDir string, verbose bool) error {
+func generateDataset(cfg *Config, repoName string, dsn string, projectDir string, verbose bool) error {
 	repoCfg, ok := cfg.Repositories[repoName]
 	if !ok {
 		return fmt.Errorf("%s not found in configuration", repoName)
@@ -30,7 +30,7 @@ func generateDataset(cfg *Config, repoName string, projectDir string, verbose bo
 		os.RemoveAll(cName)
 	}
 	// NOTE: We're creating a pairtree dataset collection so it can be downloaded as a ZIP
-	c, err := dataset.Init(cName, "")
+	c, err := dataset.Init(cName, dsn)
 	if err != nil {
 		return err
 	}
@@ -106,7 +106,7 @@ func generateDataset(cfg *Config, repoName string, projectDir string, verbose bo
 // RunDataset will use the eprinttools settings.jons config file 
 // and a repository ID (e.g. caltechauthors) and render a
 // dataset collection based on the previously harvested contents.
-func RunDataset(cfgName string, repoName string, verbose bool) error {
+func RunDataset(cfgName string, repoName string, dsn string, verbose bool) error {
 	t0 := time.Now()
 	appName := path.Base(os.Args[0])
 	// Read in the configuration for this harvester instance.
@@ -130,7 +130,7 @@ func RunDataset(cfgName string, repoName string, verbose bool) error {
 	if verbose {
 		log.Printf("%s (%s) started %v", appName, repoName, time.Now().Sub(t0).Truncate(time.Second))
 	}
-	if err := generateDataset(cfg, repoName, cfg.ProjectDir, verbose); err != nil {
+	if err := generateDataset(cfg, repoName, dsn, cfg.ProjectDir, verbose); err != nil {
 		return err
 	}
 	if verbose {
@@ -138,9 +138,10 @@ func RunDataset(cfgName string, repoName string, verbose bool) error {
 	}
 	return nil
 }
+
 // RunDatasets will use the eprinttools settings.jons config file 
 // and reader dataset collections based on the contents.
-func RunDatasets(cfgName string, verbose bool) error {
+func RunDatasets(cfgName string, dsn string, verbose bool) error {
 	t0 := time.Now()
 	appName := path.Base(os.Args[0])
 	// Read in the configuration for this harvester instance.
@@ -165,7 +166,7 @@ func RunDatasets(cfgName string, verbose bool) error {
 		log.Printf("%s started %v", appName, time.Now().Sub(t0).Truncate(time.Second))
 	}
 	for repoName := range cfg.Repositories {
-		if err := generateDataset(cfg, repoName, cfg.ProjectDir, verbose); err != nil {
+		if err := generateDataset(cfg, repoName, dsn, cfg.ProjectDir, verbose); err != nil {
 			return err
 		}
 	}

@@ -98,6 +98,7 @@ Render the harvested repository caltechauthors based on settings.json.
 	// App Option
 	verbose bool
 	repoName string
+	dsn string
 	simplified bool
 )
 
@@ -116,6 +117,7 @@ func main() {
 	flag.BoolVar(&verbose, "verbose", false, "use verbose logging")
 	flag.BoolVar(&simplified, "simplified", false, "use a simplified records structure in collection")
 	flag.StringVar(&repoName, "repo", "", "Harvest a specific repository id defined in configuration")
+	flag.StringVar(&dsn, "dsn", "", "Set a DSN for the destination dataset generated")
 	// We're ready to process args
 	flag.Parse()
 	args := flag.Args()
@@ -147,9 +149,9 @@ func main() {
 
 	t0 := time.Now()
 	if repoName != "" {
-		err = eprinttools.RunDataset(settings, repoName, verbose)
+		err = eprinttools.RunDataset(settings, repoName, dsn, verbose)
 	} else {
-		err = eprinttools.RunDatasets(settings, verbose)
+		err = eprinttools.RunDatasets(settings, dsn, verbose)
 	}
 	if err != nil {
 		fmt.Fprintln(eout, err)
