@@ -121,10 +121,12 @@ func RunDataset(cfgName string, repoName string, dsn string, verbose bool) error
 		return err
 	}
 	defer cfg.Jdb.Close()
-	if _, err := os.Stat(cfg.ProjectDir); os.IsNotExist(err) {
-		if err := os.MkdirAll(cfg.ProjectDir, 0775); err != nil {
-			log.Printf("%s", err)
-			os.Exit(1)
+	if cfg.ProjectDir != "" && cfg.ProjectDir != "." {
+		if _, err := os.Stat(cfg.ProjectDir); os.IsNotExist(err) {
+			if err := os.MkdirAll(cfg.ProjectDir, 0775); err != nil {
+				log.Printf("%s", err)
+				os.Exit(1)
+			}
 		}
 	}
 	if verbose {

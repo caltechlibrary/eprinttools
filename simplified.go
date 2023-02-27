@@ -154,8 +154,8 @@ type Embargo struct {
 // Creator of a record's object
 type Creator struct {
 	PersonOrOrg  *PersonOrOrg   `json:"person_or_org,omitempty"` // The person or organization.
-	Role         *Role          `json:"role,omitempty"`          // The role of the person or organization selected from a customizable controlled vocabularly.
-	Affiliations []*Affiliation `json:"affiliations,omitempty"`  // Affiliations if `PersonOrOrg.Type` is personal.
+	//Role         *Role          `json:"role,omitempty"`          // The role of the person or organization selected from a customizable controlled vocabularly.
+//	Affiliations []*Affiliation `json:"affiliations,omitempty"`  // Affiliations if `PersonOrOrg.Type` is personal.
 }
 
 // Role is an object describing a relationship to authorship
@@ -177,6 +177,12 @@ type PersonOrOrg struct {
 
 	// Identifiers holds a list of unique ID like ORCID, GND, ROR, ISNI
 	Identifiers []*Identifier `json:"identifiers,omitempty"`
+
+	// Roles of the person or organization selected from a customizable controlled vocabularly.
+	Role         *Role          `json:"role,omitempty"`          
+
+	// Affiliations if `PersonOrOrg.Type` is personal.
+	Affiliations []*Affiliation `json:"affiliations,omitempty"`  
 }
 
 // Affiliation describes how a person or organization is affialated

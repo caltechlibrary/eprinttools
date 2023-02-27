@@ -68,8 +68,38 @@ func CrosswalkEPrintToRecord(eprint *EPrint, rec *Record) error {
 	if err := pidFromEPrint(eprint, rec); err != nil {
 		return err
 	}
+	// Now finish simplified record normalization ...
+	if err := mapResourceType(rec); err != nil {
+		return err
+	}
+	// FIXME: Make sure role is inside person object
+	// FIXME: Map eprint record types to invenio RDM record types we've
+	// decided on.
+	// FIXME: Funders must have a title, could just copy in the funder
+	// name for now.
 	return nil
 }
+
+// mapResourceType maps the EPrints record types to a predetermined
+// Invenio-RDM record type.
+func mapResourceType(rec *Record) error {
+	// FIXME: need to load this from a configuration file
+	crosswalkResourceTypes := map[string]string{
+		"article": "publication-article",
+	}
+	if rec.Metadata.ResourceType != nil {
+		// Should always have an id for a reource_type
+		if id, ok := rec.Metadata.ResourceType["id"]; ok {
+			if val, hasID := crosswalkResourceTypes[id]; hasID {
+				rec.Metadata.ResourceType["id"] = val
+			//} else { // FIXME: I don't want to implement a full mapping yet.
+			//	return fmt.Errorf("failed to find id %q in record type crosswalk", id)
+			}
+		}
+	}
+	return nil
+}
+
 
 // PIDFromEPrint crosswalks the PID from an EPrint record.
 func pidFromEPrint(eprint *EPrint, rec *Record) error {
@@ -117,7 +147,7 @@ func externalPIDFromEPrint(eprint *EPrint, rec *Record) error {
 		pid.Identifier = eprint.ISSN
 		pid.Provider = "" // FIXME: Need to find out identifier string
 		pid.Client = ""   // FIXME: need to find out client string
-		rec.ExternalPIDs["ISSN"] = pid
+		rec.ExternalPIDs["issn"] = pid
 	}
 	// Pickup ISBN
 	if eprint.ISBN != "" {
@@ -125,7 +155,7 @@ func externalPIDFromEPrint(eprint *EPrint, rec *Record) error {
 		pid.Identifier = eprint.ISBN
 		pid.Provider = "" // FIXME: Need to find out identifier string
 		pid.Client = ""   // FIXME: need to find out client string
-		rec.ExternalPIDs["ISBN"] = pid
+		rec.ExternalPIDs["isbn"] = pid
 	}
 	//FIXME: figure out if we have other persistent identifiers
 	//scattered in the EPrints XML and map them.
@@ -182,7 +212,7 @@ func creatorFromItem(item *Item, objType string, objRoleSrc string, objIdType st
 	}
 	if item.ORCID != "" {
 		identifier := new(Identifier)
-		identifier.Scheme = "ORCID"
+		identifier.Scheme = "orcid"
 		identifier.Identifier = item.ORCID
 		person.Identifiers = append(person.Identifiers, identifier)
 	}
@@ -194,8 +224,10 @@ func creatorFromItem(item *Item, objType string, objRoleSrc string, objIdType st
 	}
 	creator := new(Creator)
 	creator.PersonOrOrg = person
-	creator.Role = &Role{ ID: objRoleSrc }
-
+	// FIXME: For Creators we skip adding the role and affiliation for now,
+	// it break RDM.
+	//creator.PersonOrOrg.Role = &Role{ ID: objRoleSrc }
+	//FIXME: Need to map affiliation here when we're ready.
 	return creator
 }
 
@@ -215,7 +247,7 @@ func dateTypeFromTimestamp(dtType string, timestamp string, description string) 
 
 func mkSimpleIdentifier(scheme, value string) *Identifier {
 	identifier := new(Identifier)
-	identifier.Scheme = scheme
+	identifier.Scheme = strings.ToLower(scheme)
 	identifier.Identifier = value
 	return identifier
 }
@@ -359,16 +391,16 @@ func metadataFromEPrint(eprint *EPrint, rec *Record) error {
 		metadata.Publisher = eprint.Publisher
 	}
 	if eprint.DOI != "" {
-		metadata.Identifiers = append(metadata.Identifiers, mkSimpleIdentifier("DOI", eprint.DOI))
+		metadata.Identifiers = append(metadata.Identifiers, mkSimpleIdentifier("doi", eprint.DOI))
 	}
 	if eprint.ISBN != "" {
-		metadata.Identifiers = append(metadata.Identifiers, mkSimpleIdentifier("ISBN", eprint.ISBN))
+		metadata.Identifiers = append(metadata.Identifiers, mkSimpleIdentifier("isbn", eprint.ISBN))
 	}
 	if eprint.ISSN != "" {
-		metadata.Identifiers = append(metadata.Identifiers, mkSimpleIdentifier("ISSN", eprint.ISSN))
+		metadata.Identifiers = append(metadata.Identifiers, mkSimpleIdentifier("issn", eprint.ISSN))
 	}
 	if eprint.PMCID != "" {
-		metadata.Identifiers = append(metadata.Identifiers, mkSimpleIdentifier("PMCID", eprint.PMCID))
+		metadata.Identifiers = append(metadata.Identifiers, mkSimpleIdentifier("pmcid", eprint.PMCID))
 	}
 	if (eprint.Funders != nil) && (eprint.Funders.Items != nil) {
 		for _, item := range eprint.Funders.Items {
