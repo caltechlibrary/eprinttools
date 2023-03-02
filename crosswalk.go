@@ -17,7 +17,7 @@
 package eprinttools
 
 /**
- * simplified.go implements an Invenio 3 like JSON representation
+ * simple.go implements an Invenio 3 like JSON representation
  * of an EPrint record. This is intended to make the development of
  * V2 of feeds easier for both our audience and in for our internal
  * programming needs.
@@ -68,15 +68,67 @@ func CrosswalkEPrintToRecord(eprint *EPrint, rec *Record) error {
 	if err := pidFromEPrint(eprint, rec); err != nil {
 		return err
 	}
-	// Now finish simplified record normalization ...
+	// Now finish simple record normalization ...
 	if err := mapResourceType(rec); err != nil {
 		return err
 	}
-	// FIXME: Make sure role is inside person object
+	if err := simplifyCreators(rec); err != nil {
+		return err
+	}
 	// FIXME: Map eprint record types to invenio RDM record types we've
 	// decided on.
 	// FIXME: Funders must have a title, could just copy in the funder
 	// name for now.
+	if err := simplifyFunding(rec); err != nil {
+		return err
+	}
+	return nil
+}
+
+// simplifyCreators make sure the identifiers are mapped to Invenio-RDM
+// identifiers.
+func simplifyCreators(rec *Record) error {
+	if rec.Metadata.Creators != nil && len(rec.Metadata.Creators) > 0 {
+		creators := []*Creator{}
+		for _, creator := range rec.Metadata.Creators {
+			if creator.PersonOrOrg != nil && creator.PersonOrOrg.FamilyName != "" && creator.PersonOrOrg.Identifiers != nil && len(creator.PersonOrOrg.Identifiers) > 0 {
+				for _, identifier := range creator.PersonOrOrg.Identifiers {
+					if identifier.Scheme == "creator_id" {
+						identifier.Scheme = "clpid"
+					}
+				}
+				creators = append(creators, creator)
+			}
+		}
+		if len(creators) > 0 {
+			rec.Metadata.Creators = creators
+		}
+	}
+	return nil
+}
+
+func simplifyFunding(rec *Record) error {
+	if rec.Metadata.Funding != nil && len(rec.Metadata.Funding) > 0 {
+		for _, funder := range rec.Metadata.Funding {
+			if funder.Funder != nil {
+				funder.Funder.Scheme = ""
+			}
+			if funder.Award != nil {
+				if funder.Award.Number == "" {
+					funder.Award = nil
+				} else {
+					//NOTE: funder.Award.Title is a struct in
+					// Invenio-RDM like
+					// ```
+					//   title : { "lang": "en", "unavailable" }
+					// ```
+					// This needs to be normalized in the final
+					// Python processing for importing into Invenio-RDM.
+					funder.Award.Scheme = ""
+				}
+			}
+		}
+	}
 	return nil
 }
 
@@ -92,14 +144,13 @@ func mapResourceType(rec *Record) error {
 		if id, ok := rec.Metadata.ResourceType["id"]; ok {
 			if val, hasID := crosswalkResourceTypes[id]; hasID {
 				rec.Metadata.ResourceType["id"] = val
-			//} else { // FIXME: I don't want to implement a full mapping yet.
-			//	return fmt.Errorf("failed to find id %q in record type crosswalk", id)
+				//} else { // FIXME: I don't want to implement a full mapping yet.
+				//	return fmt.Errorf("failed to find id %q in record type crosswalk", id)
 			}
 		}
 	}
 	return nil
 }
-
 
 // PIDFromEPrint crosswalks the PID from an EPrint record.
 func pidFromEPrint(eprint *EPrint, rec *Record) error {
@@ -118,14 +169,16 @@ func pidFromEPrint(eprint *EPrint, rec *Record) error {
 
 // parentFromEPrint crosswalks the Perent unique ID from EPrint record.
 func parentFromEPrint(eprint *EPrint, rec *Record) error {
-	parent := new(RecordIdentifier)
-	parent.ID = fmt.Sprintf("%s:%d", eprint.Collection, eprint.EPrintID)
-	parent.Access = new(Access)
-	ownedBy := new(User)
-	ownedBy.User = eprint.UserID
-	ownedBy.DisplayName = eprint.Reviewer
-	parent.Access.OwnedBy = append(parent.Access.OwnedBy, ownedBy)
-	rec.Parent = parent
+	if eprint.Reviewer != "" {
+		parent := new(RecordIdentifier)
+		parent.ID = fmt.Sprintf("%s:%d", eprint.Collection, eprint.EPrintID)
+		parent.Access = new(Access)
+		ownedBy := new(User)
+		ownedBy.User = eprint.UserID
+		ownedBy.DisplayName = eprint.Reviewer
+		parent.Access.OwnedBy = append(parent.Access.OwnedBy, ownedBy)
+		rec.Parent = parent
+	}
 	return nil
 }
 
@@ -137,24 +190,24 @@ func externalPIDFromEPrint(eprint *EPrint, rec *Record) error {
 	if eprint.DOI != "" {
 		pid := new(PersistentIdentifier)
 		pid.Identifier = eprint.DOI
-		pid.Provider = "datacite" // FIXME: should be DataCite or CrossRef
-		pid.Client = ""           // FIXME: need to find out client string
+		pid.Provider = "datacite"
+		pid.Client = ""
 		rec.ExternalPIDs["doi"] = pid
 	}
 	// Pickup ISSN
 	if eprint.ISBN != "" {
 		pid := new(PersistentIdentifier)
 		pid.Identifier = eprint.ISSN
-		pid.Provider = "" // FIXME: Need to find out identifier string
-		pid.Client = ""   // FIXME: need to find out client string
+		pid.Provider = ""
+		pid.Client = ""
 		rec.ExternalPIDs["issn"] = pid
 	}
 	// Pickup ISBN
 	if eprint.ISBN != "" {
 		pid := new(PersistentIdentifier)
 		pid.Identifier = eprint.ISBN
-		pid.Provider = "" // FIXME: Need to find out identifier string
-		pid.Client = ""   // FIXME: need to find out client string
+		pid.Provider = ""
+		pid.Client = ""
 		rec.ExternalPIDs["isbn"] = pid
 	}
 	//FIXME: figure out if we have other persistent identifiers
@@ -175,6 +228,8 @@ func recordAccessFromEPrint(eprint *EPrint, rec *Record) error {
 		isPublic = false
 	}
 	rec.RecordAccess = new(RecordAccess)
+	// By default lets assume the files are restricted.
+	rec.RecordAccess.Files = "resticted"
 	if isPublic {
 		rec.RecordAccess.Record = "public"
 	} else {
@@ -276,43 +331,43 @@ func metadataFromEPrint(eprint *EPrint, rec *Record) error {
 	// NOTE: Creators get listed in the citation, Contributors do not.
 	if (eprint.Creators != nil) && (eprint.Creators.Items != nil) {
 		for _, item := range eprint.Creators.Items {
-			creator := creatorFromItem(item, "person", "creator", "creator_id")
+			creator := creatorFromItem(item, "personal", "creator", "creator_id")
 			metadata.Creators = append(metadata.Creators, creator)
 		}
 	}
 	if (eprint.CorpCreators != nil) && (eprint.CorpCreators.Items != nil) {
 		for _, item := range eprint.CorpCreators.Items {
-			creator := creatorFromItem(item, "organization", "corporate_creator", "organization_id")
+			creator := creatorFromItem(item, "organizational", "corporate_creator", "organization_id")
 			metadata.Creators = append(metadata.Creators, creator)
 		}
 	}
 	if (eprint.Contributors != nil) && (eprint.Contributors.Items != nil) {
 		for _, item := range eprint.Contributors.Items {
-			contributor := creatorFromItem(item, "person", "contributor", "contributor_id")
+			contributor := creatorFromItem(item, "personal", "contributor", "contributor_id")
 			metadata.Contributors = append(metadata.Contributors, contributor)
 		}
 	}
 	if (eprint.CorpContributors != nil) && (eprint.CorpContributors.Items != nil) {
 		for _, item := range eprint.CorpContributors.Items {
-			contributor := creatorFromItem(item, "organization", "corporate_contributor", "organization_id")
+			contributor := creatorFromItem(item, "organizational", "corporate_contributor", "organization_id")
 			metadata.Contributors = append(metadata.Contributors, contributor)
 		}
 	}
 	if (eprint.Editors != nil) && (eprint.Editors.Items != nil) {
 		for _, item := range eprint.Editors.Items {
-			editor := creatorFromItem(item, "person", "editor", "editor_id")
+			editor := creatorFromItem(item, "personal", "editor", "editor_id")
 			metadata.Contributors = append(metadata.Contributors, editor)
 		}
 	}
 	if (eprint.ThesisAdvisor != nil) && (eprint.ThesisAdvisor.Items != nil) {
 		for _, item := range eprint.ThesisAdvisor.Items {
-			advisor := creatorFromItem(item, "person", "thesis_advisor", "thesis_advisor_id")
+			advisor := creatorFromItem(item, "personal", "thesis_advisor", "thesis_advisor_id")
 			metadata.Contributors = append(metadata.Contributors, advisor)
 		}
 	}
 	if (eprint.ThesisCommittee != nil) && (eprint.ThesisCommittee.Items != nil) {
 		for _, item := range eprint.ThesisCommittee.Items {
-			committee := creatorFromItem(item, "person", "thesis_committee", "thesis_committee_id")
+			committee := creatorFromItem(item, "personal", "thesis_committee", "thesis_committee_id")
 			metadata.Contributors = append(metadata.Contributors, committee)
 		}
 	}
@@ -335,7 +390,7 @@ func metadataFromEPrint(eprint *EPrint, rec *Record) error {
 	rights := new(Right)
 	if eprint.Rights != "" {
 		addRights = true
-		rights.Description = &Description {
+		rights.Description = &Description{
 			Description: eprint.Rights,
 		}
 	}
@@ -380,10 +435,14 @@ func metadataFromEPrint(eprint *EPrint, rec *Record) error {
 	if eprint.LastModified != "" {
 		metadata.Dates = append(metadata.Dates, dateTypeFromTimestamp("updated", eprint.LastModified, "Created from EPrint's last_modified field"))
 	}
+	/*
+	// status_changed is not a date type in Invenio-RDM, might be mapped
+	// into available object.
 	// FIXME: is this date reflect when it changes status or when it was made available?
 	if eprint.StatusChanged != "" {
 		metadata.Dates = append(metadata.Dates, dateTypeFromTimestamp("status_changed", eprint.StatusChanged, "Created from EPrint's status_changed field"))
 	}
+	*/
 	if eprint.RevNumber != 0 {
 		metadata.Version = fmt.Sprintf("v%d", eprint.RevNumber)
 	}
@@ -416,13 +475,16 @@ func metadataFromEPrint(eprint *EPrint, rec *Record) error {
 func filesFromEPrint(eprint *EPrint, rec *Record) error {
 	// crosswalk Files from EPrints DocumentList
 	if (eprint != nil) && (eprint.Documents != nil) && (eprint.Documents.Length() > 0) {
-		rec.Files = new(Files)
-		rec.Files.Enabled = true
-		rec.Files.Entries = map[string]*Entry{}
+		addFiles := false
+		files := new(Files)
+		files.Order = []string{}
+		files.Enabled = true
+		files.Entries = map[string]*Entry{}
 		for i := 0; i < eprint.Documents.Length(); i++ {
 			doc := eprint.Documents.IndexOf(i)
 			if len(doc.Files) > 0 {
 				for _, docFile := range doc.Files {
+					addFiles = true
 					entry := new(Entry)
 					entry.FileID = docFile.URL
 					entry.Size = docFile.FileSize
@@ -430,12 +492,17 @@ func filesFromEPrint(eprint *EPrint, rec *Record) error {
 					if docFile.Hash != "" {
 						entry.CheckSum = fmt.Sprintf("%s:%s", strings.ToLower(docFile.HashType), docFile.Hash)
 					}
-					rec.Files.Entries[docFile.Filename] = entry
+					files.Entries[docFile.Filename] = entry
 					if strings.HasPrefix(docFile.Filename, "preview") {
-						rec.Files.DefaultPreview = docFile.Filename
+						files.DefaultPreview = docFile.Filename
 					}
 				}
 			}
+		}
+		if addFiles {
+			rec.Files = files
+		} else {
+			rec.Files = nil
 		}
 	}
 	return nil

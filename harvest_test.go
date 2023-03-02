@@ -64,7 +64,7 @@ func Test01Harvester(t *testing.T) {
 	startYear := today.Year() - 1
 
 	start := fmt.Sprintf("%d-01-01", startYear)
-	if err := RunHarvester(fName, start, "", false, true); err != nil {
+	if err := RunHarvester(fName, start, "", "", false, true); err != nil {
 		t.Error(err)
 		t.FailNow()
 	}
@@ -78,7 +78,7 @@ func Test02Datasets(t *testing.T) {
 		t.Errorf("could not find %q, %s", fName, err)
 		t.FailNow()
 	}
-	if err := RunDatasets(fName, "", true); err != nil {
+	if err := RunDatasets(fName, "", "", true); err != nil {
 		t.Error(err)
 		t.FailNow()
 	}

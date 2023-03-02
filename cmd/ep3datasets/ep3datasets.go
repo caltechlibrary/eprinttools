@@ -27,8 +27,8 @@ import (
 	"log"
 	"os"
 	"path"
-	"time"
 	"strings"
+	"time"
 
 	// Caltech Library Packages
 	"github.com/caltechlibrary/eprinttools"
@@ -38,7 +38,7 @@ var (
 	helpText = `---
 title: "{app_name} (1) user manual"
 author: "R. S. Doiel"
-pubDate: 2023-02-07
+pubDate: 2023-03-01
 ---
 
 # NAME
@@ -72,6 +72,9 @@ configuration in the JSON_SETTINGS_FILE.
 -repo
 : write out the dataset for a specific repo in JSON_SETTINGS_FILE
 
+-eprintids
+: use the file, one eprintid per line, for eprint records to export to the dataset collection specified.
+
 # EXAMPLES
 
 Rendering harvested repositories for settings.json.
@@ -86,6 +89,13 @@ Render the harvested repository caltechauthors based on settings.json.
 	{app_name} -repo caltechauthors settings.json
 ~~~
 
+Render the harvested repository caltechauthors for specific eprintids
+in the key list file to th edataset collection.
+
+~~~
+	{app_name} -repo caltechauthors -eprinids keys.txt settings.json
+~~~
+
 {app_name} {version}
 
 `
@@ -96,9 +106,10 @@ Render the harvested repository caltechauthors based on settings.json.
 	showVersion bool
 
 	// App Option
-	verbose bool
-	repoName string
-	dsn string
+	verbose    bool
+	repoName   string
+	keyList    string
+	dsn        string
 	simplified bool
 )
 
@@ -117,6 +128,7 @@ func main() {
 	flag.BoolVar(&verbose, "verbose", false, "use verbose logging")
 	flag.BoolVar(&simplified, "simplified", false, "use a simplified records structure in collection")
 	flag.StringVar(&repoName, "repo", "", "Harvest a specific repository id defined in configuration")
+	flag.StringVar(&keyList, "eprintids", "", "Harvest the eprintids listed in the provided file")
 	flag.StringVar(&dsn, "dsn", "", "Set a DSN for the destination dataset generated")
 	// We're ready to process args
 	flag.Parse()
@@ -131,7 +143,7 @@ func main() {
 
 	// Handle options
 	if showHelp {
-		fmt.Fprintf(out, "%s\n", fmtTxt(helpText, appName, eprinttools.Version)		)
+		fmt.Fprintf(out, "%s\n", fmtTxt(helpText, appName, eprinttools.Version))
 		os.Exit(0)
 	}
 	if showLicense {
@@ -149,9 +161,9 @@ func main() {
 
 	t0 := time.Now()
 	if repoName != "" {
-		err = eprinttools.RunDataset(settings, repoName, dsn, verbose)
+		err = eprinttools.RunDataset(settings, repoName, dsn, keyList, verbose)
 	} else {
-		err = eprinttools.RunDatasets(settings, dsn, verbose)
+		err = eprinttools.RunDatasets(settings, dsn, keyList, verbose)
 	}
 	if err != nil {
 		fmt.Fprintln(eout, err)

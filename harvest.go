@@ -7,12 +7,14 @@ package eprinttools
 //
 
 import (
+	"bufio"
 	"encoding/csv"
 	"fmt"
 	"io"
 	"log"
 	"os"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 
@@ -282,7 +284,7 @@ CREATE INDEX %s_pubdate_i ON %s (pubdate DESC);
 // RunHarvester will use the config file names by cfgName and
 // the start and end time strings if set to retrieve all eprint
 // records created or modified during that time sequence.
-func RunHarvester(cfgName string, start string, end string, useSimpleRecord bool, verbose bool) error {
+func RunHarvester(cfgName string, start string, end string, keyList string, useSimpleRecord bool, verbose bool) error {
 	UseSimpleRecord = useSimpleRecord
 	if cfgName == "" {
 		return fmt.Errorf("configuration filename missing")
@@ -304,13 +306,14 @@ func RunHarvester(cfgName string, start string, end string, useSimpleRecord bool
 		// Pick the current date time when harvest is starting
 		end = now.Format(mysqlTimeFmt)
 	}
-	return harvest(cfg, start, end, verbose)
+	return harvest(cfg, start, end, keyList, verbose)
 }
 
 // RunHarvestRepoID will use the config file names by cfgName and
 // the repository id, the start and end time strings if set to retrieve all eprint
 // records created or modified during that time sequence for that repository.
-func RunHarvestRepoID(cfgName string, repoName, start string, end string, verbose bool) error {
+func RunHarvestRepoID(cfgName string, repoName, start string, end string, keyList string, useSimpleRecord bool, verbose bool) error {
+	UseSimpleRecord = useSimpleRecord
 	if cfgName == "" {
 		return fmt.Errorf("configuration filename missing")
 	}
@@ -340,7 +343,7 @@ func RunHarvestRepoID(cfgName string, repoName, start string, end string, verbos
 	}
 	defer cfg.Jdb.Close()
 	log.Printf("harvesting %s started", repoName)
-	if err := harvestRepository(cfg, repoName, start, end, verbose); err != nil {
+	if err := harvestRepository(cfg, repoName, start, end, keyList, verbose); err != nil {
 		log.Printf("harvesting %s aborted", repoName)
 		return err
 	}
@@ -349,7 +352,7 @@ func RunHarvestRepoID(cfgName string, repoName, start string, end string, verbos
 }
 
 // harvest implements an harvest instance.
-func harvest(cfg *Config, start string, end string, verbose bool) error {
+func harvest(cfg *Config, start string, end string, keyList string, verbose bool) error {
 	// Open the repository collections, JSON store with aggregation tables
 	if err := OpenConnections(cfg); err != nil {
 		return err
@@ -366,7 +369,7 @@ func harvest(cfg *Config, start string, end string, verbose bool) error {
 	sort.Strings(repoNames)
 	for _, repoName := range repoNames {
 		log.Printf("harvesting %s started", repoName)
-		if err := harvestRepository(cfg, repoName, start, end, verbose); err != nil {
+		if err := harvestRepository(cfg, repoName, start, end, keyList, verbose); err != nil {
 			log.Printf("harvesting %s aborted", repoName)
 			return err
 		}
@@ -395,22 +398,49 @@ func getSortedUniqueIDs(ids []int) []int {
 // a repository name (i.e. eprint database name) along with a start and
 // end timestamp. It harvests records created/modified from the repository
 // in time range.
-func harvestRepository(cfg *Config, repoName string, start string, end string, verbose bool) error {
-	createdIDs, err := GetEPrintIDsInTimestampRange(cfg, repoName, "datestamp", start, end)
-	if err != nil {
-		return err
+func harvestRepository(cfg *Config, repoName string, start string, end string, keyList string, verbose bool) error {
+	var ids []int
+	if keyList != "" {
+		fp, err := os.Open(keyList)
+		if err != nil {
+			return err
+		}
+		defer fp.Close()
+		scanner := bufio.NewScanner(fp)
+		for scanner.Scan() {
+			tok := scanner.Text()
+			if tok != "" {
+				id, err := strconv.Atoi(strings.TrimSpace(tok))
+				if err != nil {
+					log.Printf("warning %q is not a valid eprintid", tok)
+				} else {
+					ids = append(ids, id)
+				}
+			}
+		}
+		if err := scanner.Err(); err != nil {
+			return err
+		}
+		if verbose {
+			log.Printf("Retrieved %d keys from %q", len(ids), keyList)
+		}
+	} else {
+		createdIDs, err := GetEPrintIDsInTimestampRange(cfg, repoName, "datestamp", start, end)
+		if err != nil {
+			return err
+		}
+		if verbose {
+			log.Printf("Retrieved %d keys based on creation date", len(createdIDs))
+		}
+		modifiedIDs, err := GetEPrintIDsInTimestampRange(cfg, repoName, "lastmod", start, end)
+		if err != nil {
+			return err
+		}
+		if verbose {
+			log.Printf("Retrieved %d keys based on modified date", len(modifiedIDs))
+		}
+		ids = append(createdIDs, modifiedIDs...)
 	}
-	if verbose {
-		log.Printf("Retrieved %d keys based on creation date", len(createdIDs))
-	}
-	modifiedIDs, err := GetEPrintIDsInTimestampRange(cfg, repoName, "lastmod", start, end)
-	if err != nil {
-		return err
-	}
-	if verbose {
-		log.Printf("Retrieved %d keys based on modified date", len(modifiedIDs))
-	}
-	ids := append(createdIDs, modifiedIDs...)
 	ids = getSortedUniqueIDs(ids)
 	tot := len(ids)
 	modValue := calcModValue(tot)
@@ -478,7 +508,7 @@ func harvestEPrintRecord(cfg *Config, repoName string, eprintID int) error {
 		err = CrosswalkEPrintToRecord(eprint, simplified)
 		if err != nil {
 			return fmt.Errorf("failed to crosswalk eprint %d, %s", eprintID, err)
-		} 
+		}
 		src, _ = jsonEncode(simplified)
 	} else {
 		src, _ = jsonEncode(eprint)

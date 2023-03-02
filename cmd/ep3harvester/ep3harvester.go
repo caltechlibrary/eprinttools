@@ -26,8 +26,8 @@ import (
 	"log"
 	"os"
 	"path"
-	"time"
 	"strings"
+	"time"
 
 	// Caltech Library Packages
 	"github.com/caltechlibrary/eprinttools"
@@ -100,6 +100,9 @@ parameter. E.g.
 -init
 : generate a settings JSON file
 
+-eprintids
+: harvest the eprintids indicated by the filename, one id per line
+
 -people
 : Harvest people from CSV files included configuration
 
@@ -146,14 +149,15 @@ for week month of the month of May, 2022.
 	showVersion bool
 
 	// App Option
-	showSqlSchema   bool
-	initialize      bool
-	people          bool
-	groups          bool
-	repoName        string
-	peopleAndGroups bool
+	showSqlSchema       bool
+	initialize          bool
+	people              bool
+	groups              bool
+	repoName            string
+	keyList             string
+	peopleAndGroups     bool
 	useSimplifiedRecord bool
-	verbose         bool
+	verbose             bool
 )
 
 func fmtTxt(src string, appName string, version string) string {
@@ -176,6 +180,7 @@ func main() {
 	flag.BoolVar(&peopleAndGroups, "people-groups", false, "Harvest people and groups from CSV files included configuration")
 	flag.BoolVar(&useSimplifiedRecord, "simple", false, "Crosswalk harvested eprint records storing simplified model")
 	flag.StringVar(&repoName, "repo", "", "Harvest a specific repository id defined in configuration")
+	flag.StringVar(&keyList, "eprintids", "", "Harvest the eprintids indicated in the named file, one eprintid per line")
 
 	// We're ready to process args
 	flag.Parse()
@@ -254,9 +259,9 @@ func main() {
 		}
 		err = eprinttools.RunHarvestGroups(settings, verbose)
 	case repoName != "":
-		err = eprinttools.RunHarvestRepoID(settings, repoName, start, end, verbose)
+		err = eprinttools.RunHarvestRepoID(settings, repoName, start, end, keyList, useSimplifiedRecord, verbose)
 	default:
-		err = eprinttools.RunHarvester(settings, start, end, useSimplifiedRecord, verbose)
+		err = eprinttools.RunHarvester(settings, start, end, keyList, useSimplifiedRecord, verbose)
 	}
 	if err != nil {
 		fmt.Fprintln(eout, err)

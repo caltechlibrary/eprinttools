@@ -2,7 +2,7 @@ package eprinttools
 
 /**
  * This file implements an intermediate metadata representation
- * suitable for moving data between EPrints 3.3 and Invenio-RDM 11.
+ * suitable for moving data between EPrints 3.3 and Invenio-RDM.
  *
  * See documentation and example on Invenio's structured data:
  *
@@ -98,6 +98,7 @@ type Files struct {
 	DefaultPreview string                  `json:"default_preview,omitempty"`
 	Sizes          []string                `json:"sizes,omitempty"`
 	Formats        []string                `json:"formats,omitempty"`
+	Order          []string                `json:"order,omitempty"`
 	Locations      map[string]*interface{} `json:"locations,omitempty"`
 }
 
@@ -153,9 +154,9 @@ type Embargo struct {
 
 // Creator of a record's object
 type Creator struct {
-	PersonOrOrg  *PersonOrOrg   `json:"person_or_org,omitempty"` // The person or organization.
+	PersonOrOrg *PersonOrOrg `json:"person_or_org,omitempty"` // The person or organization.
 	//Role         *Role          `json:"role,omitempty"`          // The role of the person or organization selected from a customizable controlled vocabularly.
-//	Affiliations []*Affiliation `json:"affiliations,omitempty"`  // Affiliations if `PersonOrOrg.Type` is personal.
+	//	Affiliations []*Affiliation `json:"affiliations,omitempty"`  // Affiliations if `PersonOrOrg.Type` is personal.
 }
 
 // Role is an object describing a relationship to authorship
@@ -179,10 +180,10 @@ type PersonOrOrg struct {
 	Identifiers []*Identifier `json:"identifiers,omitempty"`
 
 	// Roles of the person or organization selected from a customizable controlled vocabularly.
-	Role         *Role          `json:"role,omitempty"`          
+	Role *Role `json:"role,omitempty"`
 
 	// Affiliations if `PersonOrOrg.Type` is personal.
-	Affiliations []*Affiliation `json:"affiliations,omitempty"`  
+	Affiliations []*Affiliation `json:"affiliations,omitempty"`
 }
 
 // Affiliation describes how a person or organization is affialated
