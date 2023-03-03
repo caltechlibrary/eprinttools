@@ -178,6 +178,8 @@ func parentFromEPrint(eprint *EPrint, rec *Record) error {
 		ownedBy.DisplayName = eprint.Reviewer
 		parent.Access.OwnedBy = append(parent.Access.OwnedBy, ownedBy)
 		rec.Parent = parent
+	} else {
+		rec.Parent = nil
 	}
 	return nil
 }
@@ -436,19 +438,24 @@ func metadataFromEPrint(eprint *EPrint, rec *Record) error {
 		metadata.Dates = append(metadata.Dates, dateTypeFromTimestamp("updated", eprint.LastModified, "Created from EPrint's last_modified field"))
 	}
 	/*
-	// status_changed is not a date type in Invenio-RDM, might be mapped
-	// into available object.
-	// FIXME: is this date reflect when it changes status or when it was made available?
-	if eprint.StatusChanged != "" {
-		metadata.Dates = append(metadata.Dates, dateTypeFromTimestamp("status_changed", eprint.StatusChanged, "Created from EPrint's status_changed field"))
-	}
+		// status_changed is not a date type in Invenio-RDM, might be mapped
+		// into available object.
+		// FIXME: is this date reflect when it changes status or when it was made available?
+		if eprint.StatusChanged != "" {
+			metadata.Dates = append(metadata.Dates, dateTypeFromTimestamp("status_changed", eprint.StatusChanged, "Created from EPrint's status_changed field"))
+		}
 	*/
 	if eprint.RevNumber != 0 {
 		metadata.Version = fmt.Sprintf("v%d", eprint.RevNumber)
 	}
 	if eprint.Publisher != "" {
 		metadata.Publisher = eprint.Publisher
+	} else if eprint.Publication != "" {
+		metadata.Publisher = eprint.Publication
+	} else if eprint.DOI == "" {
+		metadata.Publisher = "Caltech Library"
 	}
+
 	if eprint.DOI != "" {
 		metadata.Identifiers = append(metadata.Identifiers, mkSimpleIdentifier("doi", eprint.DOI))
 	}

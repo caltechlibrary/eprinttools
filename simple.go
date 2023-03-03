@@ -22,10 +22,11 @@ import (
 
 // Record implements the top level Invenio 3 record structure
 type Record struct {
-	Schema       string                           `json:"$schema,omitempty"`
-	ID           string                           `json:"id"`                  // Interneral persistent identifier for a specific version.
-	PID          map[string]interface{}           `json:"pid,omitempty"`       // Interneral persistent identifier for a specific version.
-	Parent       *RecordIdentifier                `json:"parent"`              // The internal persistent identifier for ALL versions.
+	Schema string                 `json:"$schema,omitempty"`
+	ID     string                 `json:"id"`            // Interneral persistent identifier for a specific version.
+	PID    map[string]interface{} `json:"pid,omitempty"` // Interneral persistent identifier for a specific version.
+	Parent *RecordIdentifier      `json:"parent,omitempty"`
+	// The internal persistent identifier for ALL versions.
 	ExternalPIDs map[string]*PersistentIdentifier `json:"pids,omitempty"`      // System-managed external persistent identifiers (DOI, Handles, OAI-PMH identifiers)
 	RecordAccess *RecordAccess                    `json:"access,omitempty"`    // Access control for record
 	Metadata     *Metadata                        `json:"metadata"`            // Descriptive metadata for the resource
@@ -177,7 +178,7 @@ type PersonOrOrg struct {
 	Name       string `json:"name,omitempty" xml:"name,omitempty"`               // Name holds a corporate name, e.g. The Unseen University
 
 	// Identifiers holds a list of unique ID like ORCID, GND, ROR, ISNI
-	Identifiers []*Identifier `json:"identifiers,omitempty"`
+	Identifiers []*Identifier `json:"identifier,omitempty"`
 
 	// Roles of the person or organization selected from a customizable controlled vocabularly.
 	Role *Role `json:"role,omitempty"`
