@@ -1,7 +1,7 @@
 ---
 title: "ep3datasets (1) user manual"
 author: "R. S. Doiel"
-pubDate: 2023-02-07
+pubDate: 2023-03-01
 ---
 
 # NAME
@@ -35,6 +35,9 @@ configuration in the JSON_SETTINGS_FILE.
 -repo
 : write out the dataset for a specific repo in JSON_SETTINGS_FILE
 
+-eprintids
+: use the file, one eprintid per line, for eprint records to export to the dataset collection specified.
+
 # EXAMPLES
 
 Rendering harvested repositories for settings.json.
@@ -47,6 +50,13 @@ Render the harvested repository caltechauthors based on settings.json.
 
 ~~~
 	ep3datasets -repo caltechauthors settings.json
+~~~
+
+Render the harvested repository caltechauthors for specific eprintids
+in the key list file to th edataset collection.
+
+~~~
+	ep3datasets -repo caltechauthors -eprinids keys.txt settings.json
 ~~~
 
 ep3datasets 1.2.3

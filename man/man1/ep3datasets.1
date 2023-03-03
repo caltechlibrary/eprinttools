@@ -43,6 +43,10 @@ use verbose logging
 .TP
 -repo
 write out the dataset for a specific repo in JSON_SETTINGS_FILE
+.TP
+-eprintids
+use the file, one eprintid per line, for eprint records to export to the
+dataset collection specified.
 .SH EXAMPLES
 .PP
 Rendering harvested repositories for settings.json.
@@ -58,6 +62,15 @@ Render the harvested repository caltechauthors based on settings.json.
 .nf
 \f[C]
     ep3datasets -repo caltechauthors settings.json
+\f[R]
+.fi
+.PP
+Render the harvested repository caltechauthors for specific eprintids in
+the key list file to th edataset collection.
+.IP
+.nf
+\f[C]
+    ep3datasets -repo caltechauthors -eprinids keys.txt settings.json
 \f[R]
 .fi
 .PP

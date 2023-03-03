@@ -64,6 +64,9 @@ parameter. E.g.
 -init
 : generate a settings JSON file
 
+-eprintids
+: harvest the eprintids indicated by the filename, one id per line
+
 -people
 : Harvest people from CSV files included configuration
 
