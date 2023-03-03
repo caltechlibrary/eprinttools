@@ -1,7 +1,7 @@
 package eprinttools
 
 const (
-    Version = "1.2.3f"
+    Version = "1.2.3"
 
 LicenseText = `
 
