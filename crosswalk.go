@@ -376,9 +376,11 @@ func metadataFromEPrint(eprint *EPrint, rec *Record) error {
 	metadata.Title = eprint.Title
 	if (eprint.AltTitle != nil) && (eprint.AltTitle.Items != nil) {
 		for _, item := range eprint.AltTitle.Items {
-			title := new(TitleDetail)
-			title.Title = item.Value
-			metadata.AdditionalTitles = append(metadata.AdditionalTitles, title)
+			if strings.TrimSpace(item.Value) !=  "" {
+				title := new(TitleDetail)
+				title.Title = item.Value
+				metadata.AdditionalTitles = append(metadata.AdditionalTitles, title)
+			}
 		}
 	}
 	if eprint.Abstract != "" {
