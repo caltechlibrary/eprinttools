@@ -91,10 +91,12 @@ func simplifyCreators(rec *Record) error {
 	if rec.Metadata.Creators != nil && len(rec.Metadata.Creators) > 0 {
 		creators := []*Creator{}
 		for _, creator := range rec.Metadata.Creators {
-			if creator.PersonOrOrg != nil && creator.PersonOrOrg.FamilyName != "" && creator.PersonOrOrg.Identifiers != nil && len(creator.PersonOrOrg.Identifiers) > 0 {
-				for _, identifier := range creator.PersonOrOrg.Identifiers {
-					if identifier.Scheme == "creator_id" {
-						identifier.Scheme = "clpid"
+			if creator.PersonOrOrg != nil && creator.PersonOrOrg.FamilyName != "" {
+				if creator.PersonOrOrg.Identifiers != nil && len(creator.PersonOrOrg.Identifiers) > 0 {
+					for _, identifier := range creator.PersonOrOrg.Identifiers {
+						if identifier.Scheme == "creator_id" {
+							identifier.Scheme = "clpid"
+						}
 					}
 				}
 				creators = append(creators, creator)
@@ -376,7 +378,7 @@ func metadataFromEPrint(eprint *EPrint, rec *Record) error {
 	metadata.Title = eprint.Title
 	if (eprint.AltTitle != nil) && (eprint.AltTitle.Items != nil) {
 		for _, item := range eprint.AltTitle.Items {
-			if strings.TrimSpace(item.Value) !=  "" {
+			if strings.TrimSpace(item.Value) != "" {
 				title := new(TitleDetail)
 				title.Title = item.Value
 				metadata.AdditionalTitles = append(metadata.AdditionalTitles, title)
