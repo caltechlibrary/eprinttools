@@ -44,7 +44,7 @@ var (
 	helpText = `---
 title: "{app_name} (1) user manual"
 author: "R. S. Doiel"
-pubDate: 2023-01-11
+pubDate: 2023-03-03
 ---
 
 # NAME
@@ -59,7 +59,10 @@ pubDate: 2023-01-11
 
 {app_name} is a command line program for pretty printing
 EPrint XML. It can also convert EPrint XML to and from
-JSON. By default it reads from standard input and writes to
+EPrint as JSON or as a simplified JSON records for export
+to RDM. 
+
+By default it reads from standard input and writes to
 standard out.
 
 {app_name} EPrint XML (or JSON version) from
@@ -94,7 +97,7 @@ input.
 -quiet
 : suppress error messages
 
--s, -simplified
+-s, -simple
 : output simplified JSON version of EPrints XML
 
 -version
@@ -180,8 +183,8 @@ func main() {
 	// App Options
 	flag.BoolVar(&asXML, "xml", false, "output EPrint XML")
 	flag.BoolVar(&asJSON, "json", false, "output JSON version of EPrint XML")
-	flag.BoolVar(&asSimplified, "s", false, "output simplified JSON version of EPrints XML")
-	flag.BoolVar(&asSimplified, "simplified", false, "output simplified JSON version of EPrints XML")
+	flag.BoolVar(&asSimplified, "s", false, "output simple JSON record version of EPrints XML")
+	flag.BoolVar(&asSimplified, "simple", false, "output simple JSON record version of EPrints XML")
 
 	// We're ready to process args
 	flag.Parse()

@@ -1,7 +1,7 @@
 ---
 title: "epfmt (1) user manual"
 author: "R. S. Doiel"
-pubDate: 2023-01-11
+pubDate: 2023-03-03
 ---
 
 # NAME
@@ -16,7 +16,10 @@ epfmt
 
 epfmt is a command line program for pretty printing
 EPrint XML. It can also convert EPrint XML to and from
-JSON. By default it reads from standard input and writes to
+EPrint as JSON or as a simplified JSON records for export
+to RDM. 
+
+By default it reads from standard input and writes to
 standard out.
 
 epfmt EPrint XML (or JSON version) from
@@ -51,7 +54,7 @@ input.
 -quiet
 : suppress error messages
 
--s, -simplified
+-s, -simple
 : output simplified JSON version of EPrints XML
 
 -version
@@ -86,6 +89,6 @@ in the desired format requested. If no
 format option chosen it will pretty print 
 in the same format as input.
 
-epfmt 1.2.3
+epfmt 1.2.4
 
 

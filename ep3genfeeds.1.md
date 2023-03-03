@@ -50,6 +50,6 @@ Harvesting repositories for week month of May, 2022.
     ep3genfeeds harvester-settings.json
 ~~~
 
-ep3genfeeds 1.2.3
+ep3genfeeds 1.2.4
 
 

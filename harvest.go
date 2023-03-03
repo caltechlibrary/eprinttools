@@ -504,12 +504,12 @@ func harvestEPrintRecord(cfg *Config, repoName string, eprintID int) error {
 	// crosswalk here.
 	var src []byte
 	if UseSimpleRecord {
-		simplified := new(Record)
-		err = CrosswalkEPrintToRecord(eprint, simplified)
+		simple := new(Record)
+		err = CrosswalkEPrintToRecord(eprint, simple)
 		if err != nil {
 			return fmt.Errorf("failed to crosswalk eprint %d, %s", eprintID, err)
 		}
-		src, _ = jsonEncode(simplified)
+		src, _ = jsonEncode(simple)
 	} else {
 		src, _ = jsonEncode(eprint)
 	}

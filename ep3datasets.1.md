@@ -59,6 +59,6 @@ in the key list file to th edataset collection.
 	ep3datasets -repo caltechauthors -eprinids keys.txt settings.json
 ~~~
 
-ep3datasets 1.2.3
+ep3datasets 1.2.4
 
 

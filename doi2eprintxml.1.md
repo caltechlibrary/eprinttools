@@ -126,6 +126,6 @@ an XML document called "import-articles.xml".
 	doi2eprintxml -i doi-list.txt -o import-articles.xml
 ~~~
 
-doi2eprintxml 1.2.3
+doi2eprintxml 1.2.4
 
 

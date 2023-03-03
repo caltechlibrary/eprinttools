@@ -75,6 +75,9 @@ func CrosswalkEPrintToRecord(eprint *EPrint, rec *Record) error {
 	if err := simplifyCreators(rec); err != nil {
 		return err
 	}
+	if err := simplifyContributors(rec); err != nil {
+		return err
+	}
 	// FIXME: Map eprint record types to invenio RDM record types we've
 	// decided on.
 	// FIXME: Funders must have a title, could just copy in the funder
@@ -305,6 +308,11 @@ func creatorFromItem(item *Item, objType string, objRoleSrc string, objIdType st
 		identifier.Scheme = objIdType
 		identifier.Identifier = item.ID
 		person.Identifiers = append(person.Identifiers, identifier)
+	}
+	//NOTE: for contributors we need to map the type as LOC URI
+	// to a person's role.
+	if item.Type != "" {
+		person.Role = &Role{ ID: item.Type }
 	}
 	creator := new(Creator)
 	creator.PersonOrOrg = person

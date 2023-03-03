@@ -103,6 +103,6 @@ for week month of the month of May, 2022.
         "2022-05-01 00:00:00" "2022-05-31 59:59:59"
 ~~~
 
-ep3harvester 1.2.3
+ep3harvester 1.2.4
 
 

@@ -25,7 +25,9 @@ epfmt
 .SH DESCRIPTION
 .PP
 epfmt is a command line program for pretty printing EPrint XML.
-It can also convert EPrint XML to and from JSON.
+It can also convert EPrint XML to and from EPrint as JSON or as a
+simplified JSON records for export to RDM.
+.PP
 By default it reads from standard input and writes to standard out.
 .PP
 epfmt EPrint XML (or JSON version) from standard input and pretty prints
@@ -59,7 +61,7 @@ if true add a trailing newline
 -quiet
 suppress error messages
 .TP
--s, -simplified
+-s, -simple
 output simplified JSON version of EPrints XML
 .TP
 -version
@@ -98,6 +100,6 @@ the output in the desired format requested.
 If no format option chosen it will pretty print in the same format as
 input.
 .PP
-epfmt 1.2.3
+epfmt 1.2.4
 .SH AUTHORS
 R. S. Doiel.
