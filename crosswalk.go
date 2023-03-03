@@ -109,6 +109,31 @@ func simplifyCreators(rec *Record) error {
 	return nil
 }
 
+// simplifyContributors make sure the identifiers are mapped to Invenio-RDM
+// identifiers.
+func simplifyContributors(rec *Record) error {
+	if rec.Metadata.Contributors != nil && len(rec.Metadata.Contributors) > 0 {
+		contributors := []*Creator{}
+		for _, contributor := range rec.Metadata.Contributors {
+			if contributor.PersonOrOrg != nil && contributor.PersonOrOrg.FamilyName != "" {
+				if contributor.PersonOrOrg.Identifiers != nil && len(contributor.PersonOrOrg.Identifiers) > 0 {
+					for _, identifier := range contributor.PersonOrOrg.Identifiers {
+						if identifier.Scheme == "contributor_id" {
+							identifier.Scheme = "clpid"
+						}
+					}
+				}
+				contributors = append(contributors, contributor)
+			}
+		}
+		if len(contributors) > 0 {
+			rec.Metadata.Contributors = contributors
+		}
+	}
+	return nil
+}
+
+
 func simplifyFunding(rec *Record) error {
 	if rec.Metadata.Funding != nil && len(rec.Metadata.Funding) > 0 {
 		for _, funder := range rec.Metadata.Funding {
