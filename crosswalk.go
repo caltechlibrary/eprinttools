@@ -126,6 +126,9 @@ func simplifyContributors(rec *Record) error {
 						}
 					}
 				}
+				if contributor.PersonOrOrg.Role == nil {
+					return fmt.Errorf("contributor is missing role -> %+v", contributor)
+				}
 				contributors = append(contributors, contributor)
 			}
 		}
@@ -309,10 +312,17 @@ func creatorFromItem(item *Item, objType string, objRoleSrc string, objIdType st
 		identifier.Identifier = item.ID
 		person.Identifiers = append(person.Identifiers, identifier)
 	}
-	//NOTE: for contributors we need to map the type as LOC URI
-	// to a person's role.
-	if item.Type != "" {
-		person.Role = &Role{ ID: item.Type }
+	if objRoleSrc == "contributor" {
+		//NOTE: for contributors we need to map the type as LOC URI
+		// to a person's role.
+		if item.Type != "" {
+			person.Role = &Role{ ID: item.Type }
+		}
+		// DEBUG start
+		if person.Role == nil {
+			fmt.Printf("DEBUG person.Role should have been populated -> %+v\nDEBUG item passed -> %+v\n", person.Role, item)
+		}
+		// DEBUG end
 	}
 	creator := new(Creator)
 	creator.PersonOrOrg = person
@@ -379,8 +389,11 @@ func metadataFromEPrint(eprint *EPrint, rec *Record) error {
 		}
 	}
 	if (eprint.Contributors != nil) && (eprint.Contributors.Items != nil) {
-		for _, item := range eprint.Contributors.Items {
+		fmt.Printf("DEBUG eprint.Contributors.Items -> %+v\n", eprint.Contributors.Items)
+		for i, item := range eprint.Contributors.Items {
+			fmt.Printf("DEBUG eprint.Contributors.Items[%d] -> %+v\n", i, item)
 			contributor := creatorFromItem(item, "personal", "contributor", "contributor_id")
+
 			metadata.Contributors = append(metadata.Contributors, contributor)
 		}
 	}

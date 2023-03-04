@@ -1611,7 +1611,7 @@ func eprintIDToPersonItemList(db *sql.DB, tables map[string][]string, repoID str
 	}
 	tablesAndColumn := map[string][2]string{}
 	columnPrefix := strings.TrimPrefix(tablePrefix, `eprint_`)
-	for _, suffix := range []string{"id", "orcid", "uri", "url", "role", "email", "show_email"} {
+	for _, suffix := range []string{"id", "orcid", "uri", "url", "role", "email", "show_email", "type"} {
 		key := fmt.Sprintf("%s_%s", tablePrefix, suffix)
 		tablesAndColumn[key] = [2]string{
 			// Column Name
