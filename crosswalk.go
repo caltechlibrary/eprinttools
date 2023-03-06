@@ -293,6 +293,57 @@ func recordAccessFromEPrint(eprint *EPrint, rec *Record) error {
 	return nil
 }
 
+func uriToContributorType(role_uri string) string {
+    roles := map[string]string{
+        // Article Author
+        "http://coda.library.caltech.edu/ARA": "author_section",
+        // Astronaut
+        "http://coda.library.caltech.edu/AST": "astronaut",
+        // Author of afterword, colophon, etc.
+        "http://www.loc.gov/loc.terms/relators/AFT": "aft",
+        // Bibliographic antecedent
+        "http://www.loc.gov/loc.terms/relators/ANT": "ant",
+        // Author in quotations or text abstracts
+        "http://www.loc.gov/loc.terms/relators/AQT": "aqt",
+        // Screenwriter
+        "http://www.loc.gov/loc.terms/relators/AUS": "screenwriter",
+        // Author, joint author
+        "http://www.loc.gov/loc.terms/relators/AUT": "author",
+        // Collaborator
+        "http://www.loc.gov/loc.terms/relators/CLB": "collaborator",
+        // Compiler
+        "http://www.loc.gov/loc.terms/relators/COM": "compiler",
+        // Contributor
+        "http://www.loc.gov/loc.terms/relators/CTB": "contributor",
+        // Directory
+        "http://www.loc.gov/loc.terms/relators/DRT": "director",
+        // Editor
+        "http://www.loc.gov/loc.terms/relators/EDT": "editor",
+        // Narrator
+        "http://www.loc.gov/loc.terms/relators/NRT": "narrator",
+        // Other
+        "http://www.loc.gov/loc.terms/relators/OTH": "other",
+        // Publishing director
+        "http://www.loc.gov/loc.terms/relators/PBD": "publishing_director",
+        // Programmer
+        "http://www.loc.gov/loc.terms/relators/PRG": "programmer",
+        // Reviewer
+        "http://www.loc.gov/loc.terms/relators/REV": "reviewer",
+        // Research team member
+        "http://www.loc.gov/loc.terms/relators/RTM": "research_tream",
+        // Speaker
+        "http://www.loc.gov/loc.terms/relators/SPK": "speaker",
+        // Teacher
+        "http://www.loc.gov/loc.terms/relators/TCH": "teacher",
+        // Translator
+        "http://www.loc.gov/loc.terms/relators/TRL": "translator",
+    }
+	if val, ok := roles[role_uri]; ok {
+		return val
+	}
+	return "contributor"
+}
+
 func creatorFromItem(item *Item, objType string, objRoleSrc string, objIdType string) *Creator {
 	person := new(PersonOrOrg)
 	person.Type = objType
@@ -312,17 +363,17 @@ func creatorFromItem(item *Item, objType string, objRoleSrc string, objIdType st
 		identifier.Identifier = item.ID
 		person.Identifiers = append(person.Identifiers, identifier)
 	}
-	if objRoleSrc == "contributor" {
-		//NOTE: for contributors we need to map the type as LOC URI
-		// to a person's role.
-		if item.Type != "" {
-			person.Role = &Role{ ID: item.Type }
-		}
-		// DEBUG start
-		if person.Role == nil {
-			fmt.Printf("DEBUG person.Role should have been populated -> %+v\nDEBUG item passed -> %+v\n", person.Role, item)
-		}
-		// DEBUG end
+	switch objRoleSrc{
+		case "contributor":
+			//NOTE: for contributors we need to map the type as LOC URI
+			// to a person's role.
+			contributorType := "contributor"
+			if item != nil {
+				contributorType = uriToContributorType(item.Type)
+			}
+			person.Role = &Role{ ID: contributorType }
+		case "editor":
+			person.Role = &Role{ ID: "editor" }
 	}
 	creator := new(Creator)
 	creator.PersonOrOrg = person
@@ -389,9 +440,7 @@ func metadataFromEPrint(eprint *EPrint, rec *Record) error {
 		}
 	}
 	if (eprint.Contributors != nil) && (eprint.Contributors.Items != nil) {
-		fmt.Printf("DEBUG eprint.Contributors.Items -> %+v\n", eprint.Contributors.Items)
-		for i, item := range eprint.Contributors.Items {
-			fmt.Printf("DEBUG eprint.Contributors.Items[%d] -> %+v\n", i, item)
+		for _, item := range eprint.Contributors.Items {
 			contributor := creatorFromItem(item, "personal", "contributor", "contributor_id")
 
 			metadata.Contributors = append(metadata.Contributors, contributor)
@@ -520,7 +569,9 @@ func metadataFromEPrint(eprint *EPrint, rec *Record) error {
 	}
 	if (eprint.Funders != nil) && (eprint.Funders.Items != nil) {
 		for _, item := range eprint.Funders.Items {
-			metadata.Funding = append(metadata.Funding, funderFromItem(item))
+			if item.Agency != "" {
+				metadata.Funding = append(metadata.Funding, funderFromItem(item))
+			}
 		}
 	}
 	rec.Metadata = metadata
