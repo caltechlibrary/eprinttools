@@ -122,6 +122,16 @@ func simplifyContributors(rec *Record) error {
 				if contributor.PersonOrOrg.Identifiers != nil && len(contributor.PersonOrOrg.Identifiers) > 0 {
 					for _, identifier := range contributor.PersonOrOrg.Identifiers {
 						switch identifier.Scheme {
+							// conf_creators_id
+							// corp_creators_id
+							// creators_id 
+							// exhibitors_id 
+							// lyricists_id 
+							// producers_id 
+							case "thesis_advisor_id":
+								identifier.Scheme = "clpid"
+							case "thesis_committee_id":
+								identifier.Scheme = "clpid"
 							case "author_id": 
 								identifier.Scheme = "clpid"
 							case "editor_id": 
