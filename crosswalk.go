@@ -121,8 +121,13 @@ func simplifyContributors(rec *Record) error {
 			if contributor.PersonOrOrg != nil && contributor.PersonOrOrg.FamilyName != "" {
 				if contributor.PersonOrOrg.Identifiers != nil && len(contributor.PersonOrOrg.Identifiers) > 0 {
 					for _, identifier := range contributor.PersonOrOrg.Identifiers {
-						if identifier.Scheme == "contributor_id" {
-							identifier.Scheme = "clpid"
+						switch identifier.Scheme {
+							case "author_id": 
+								identifier.Scheme = "clpid"
+							case "editor_id": 
+								identifier.Scheme = "clpid"
+							case "contributor_id": 
+								identifier.Scheme = "clpid"
 						}
 					}
 				}
