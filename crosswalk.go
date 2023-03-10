@@ -125,6 +125,7 @@ func simplifyContributors(rec *Record) error {
 		for _, contributor := range rec.Metadata.Contributors {
 			appendContributor := false
 			if contributor.PersonOrOrg != nil && contributor.PersonOrOrg.FamilyName != "" {
+				appendContributor = true
 				if contributor.PersonOrOrg.Identifiers != nil && len(contributor.PersonOrOrg.Identifiers) > 0 {
 					for _, identifier := range contributor.PersonOrOrg.Identifiers {
 						switch identifier.Scheme {
@@ -136,19 +137,14 @@ func simplifyContributors(rec *Record) error {
 							// producers_id 
 							case "thesis_advisor_id":
 								identifier.Scheme = "clpid"
-								appendContributor = true
 							case "thesis_committee_id":
 								identifier.Scheme = "clpid"
-								appendContributor = true
 							case "author_id": 
 								identifier.Scheme = "clpid"
-								appendContributor = true
 							case "editor_id": 
 								identifier.Scheme = "clpid"
-								appendContributor = true
 							case "contributor_id": 
 								identifier.Scheme = "clpid"
-								appendContributor = true
 						}
 					}
 				}
