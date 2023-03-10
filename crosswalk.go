@@ -94,6 +94,8 @@ func simplifyCreators(rec *Record) error {
 	if rec.Metadata.Creators != nil && len(rec.Metadata.Creators) > 0 {
 		creators := []*Creator{}
 		for _, creator := range rec.Metadata.Creators {
+			//FIXME: do I need to handle assigning a role here?
+			appendCreator := false
 			if creator.PersonOrOrg != nil && creator.PersonOrOrg.FamilyName != "" {
 				if creator.PersonOrOrg.Identifiers != nil && len(creator.PersonOrOrg.Identifiers) > 0 {
 					for _, identifier := range creator.PersonOrOrg.Identifiers {
@@ -101,7 +103,10 @@ func simplifyCreators(rec *Record) error {
 							identifier.Scheme = "clpid"
 						}
 					}
+					appendCreator = true
 				}
+			}
+			if appendCreator {
 				creators = append(creators, creator)
 			}
 		}
@@ -118,6 +123,7 @@ func simplifyContributors(rec *Record) error {
 	if rec.Metadata.Contributors != nil && len(rec.Metadata.Contributors) > 0 {
 		contributors := []*Creator{}
 		for _, contributor := range rec.Metadata.Contributors {
+			appendContributor := false
 			if contributor.PersonOrOrg != nil && contributor.PersonOrOrg.FamilyName != "" {
 				if contributor.PersonOrOrg.Identifiers != nil && len(contributor.PersonOrOrg.Identifiers) > 0 {
 					for _, identifier := range contributor.PersonOrOrg.Identifiers {
@@ -130,18 +136,25 @@ func simplifyContributors(rec *Record) error {
 							// producers_id 
 							case "thesis_advisor_id":
 								identifier.Scheme = "clpid"
+								appendContributor = true
 							case "thesis_committee_id":
 								identifier.Scheme = "clpid"
+								appendContributor = true
 							case "author_id": 
 								identifier.Scheme = "clpid"
+								appendContributor = true
 							case "editor_id": 
 								identifier.Scheme = "clpid"
+								appendContributor = true
 							case "contributor_id": 
 								identifier.Scheme = "clpid"
+								appendContributor = true
 						}
 					}
 				}
-				if contributor.PersonOrOrg.Role == nil {
+			}
+			if appendContributor {
+				if contributor.Role == nil {
 					return fmt.Errorf("contributor is missing role -> %+v", contributor)
 				}
 				contributors = append(contributors, contributor)
@@ -345,7 +358,7 @@ func uriToContributorType(role_uri string) string {
         // Reviewer
         "http://www.loc.gov/loc.terms/relators/REV": "reviewer",
         // Research team member
-        "http://www.loc.gov/loc.terms/relators/RTM": "research_tream",
+        "http://www.loc.gov/loc.terms/relators/RTM": "research_team",
         // Speaker
         "http://www.loc.gov/loc.terms/relators/SPK": "speaker",
         // Teacher
@@ -378,6 +391,8 @@ func creatorFromItem(item *Item, objType string, objRoleSrc string, objIdType st
 		identifier.Identifier = item.ID
 		person.Identifiers = append(person.Identifiers, identifier)
 	}
+	creator := new(Creator)
+	creator.PersonOrOrg = person
 	switch objRoleSrc{
 		case "contributor":
 			//NOTE: for contributors we need to map the type as LOC URI
@@ -386,12 +401,10 @@ func creatorFromItem(item *Item, objType string, objRoleSrc string, objIdType st
 			if item != nil {
 				contributorType = uriToContributorType(item.Type)
 			}
-			person.Role = &Role{ ID: contributorType }
+			creator.Role = &Role{ ID: contributorType }
 		case "editor":
-			person.Role = &Role{ ID: "editor" }
+			creator.Role = &Role{ ID: "editor" }
 	}
-	creator := new(Creator)
-	creator.PersonOrOrg = person
 	// FIXME: For Creators we skip adding the role and affiliation for now,
 	// it break RDM.
 	//creator.PersonOrOrg.Role = &Role{ ID: objRoleSrc }
