@@ -24,7 +24,7 @@ import (
 type Record struct {
 	Schema string                 `json:"$schema,omitempty"`
 	ID     string                 `json:"id"`            // Interneral persistent identifier for a specific version.
-	PID    map[string]interface{} `json:"pid,omitempty"` // Interneral persistent identifier for a specific version.
+	//PID    map[string]interface{} `json:"pid,omitempty"` // Interneral persistent identifier for a specific version.
 	Parent *RecordIdentifier      `json:"parent,omitempty"`
 	// The internal persistent identifier for ALL versions.
 	ExternalPIDs map[string]*PersistentIdentifier `json:"pids,omitempty"`      // System-managed external persistent identifiers (DOI, Handles, OAI-PMH identifiers)
@@ -82,7 +82,7 @@ type Metadata struct {
 	Dates                  []*DateType          `json:"dates,omitempty"`
 	Version                string               `json:"version,omitempty"`
 	Publisher              string               `json:"publisher,omitempty"`
-	Identifiers            []*Identifier        `json:"identifier,omitempty"`
+	Identifiers            []*Identifier        `json:"identifiers,omitempty"`
 	Funding                []*Funder            `json:"funding,omitempty"`
 
 	/*

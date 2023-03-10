@@ -65,9 +65,11 @@ func CrosswalkEPrintToRecord(eprint *EPrint, rec *Record) error {
 	if err := createdUpdatedFromEPrint(eprint, rec); err != nil {
 		return err
 	}
+	/*
 	if err := pidFromEPrint(eprint, rec); err != nil {
 		return err
 	}
+	*/
 	// Now finish simple record normalization ...
 	if err := mapResourceType(rec); err != nil {
 		return err
@@ -209,6 +211,7 @@ func mapResourceType(rec *Record) error {
 	return nil
 }
 
+/*
 // PIDFromEPrint crosswalks the PID from an EPrint record.
 func pidFromEPrint(eprint *EPrint, rec *Record) error {
 	data := map[string]interface{}{}
@@ -223,6 +226,7 @@ func pidFromEPrint(eprint *EPrint, rec *Record) error {
 	rec.PID = data
 	return nil
 }
+*/
 
 // parentFromEPrint crosswalks the Perent unique ID from EPrint record.
 func parentFromEPrint(eprint *EPrint, rec *Record) error {
@@ -577,6 +581,11 @@ func metadataFromEPrint(eprint *EPrint, rec *Record) error {
 		metadata.Publisher = eprint.Publication
 	} else if eprint.DOI == "" {
 		metadata.Publisher = "Caltech Library"
+	}
+	
+	// Pickup EPrint ID as "external identifier" in .metadata.identifier
+	if eprint.EPrintID > 0 {
+		metadata.Identifiers = append(metadata.Identifiers, mkSimpleIdentifier("eprintid", fmt.Sprintf("%d", eprint.EPrintID)))
 	}
 
 	if eprint.DOI != "" {
