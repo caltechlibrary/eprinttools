@@ -66,13 +66,13 @@ You must specify the repository id in the command. E.g.
 
 ~~~
     {app_name} caltechauthors keys
-	{app_name} caltechauthors doi
-	{app_name} caltechauthors doi "10.5062/F4NP22DV"
-	{app_name} caltechauthors creator-name "Morrell" "Thomas"
-	{app_name} caltechauthors grant-number
-	{app_name} caltechauthors grant-number "kzcx3-sw-147"
-	{app_name} caltechauthors eprint 18339
-	{app_name} -json caltechauthors eprint 18339
+    {app_name} caltechauthors doi
+    {app_name} caltechauthors doi "10.5062/F4NP22DV"
+    {app_name} caltechauthors creator-name "Morrell" "Thomas"
+    {app_name} caltechauthors grant-number
+    {app_name} caltechauthors grant-number "kzcx3-sw-147"
+    {app_name} caltechauthors eprint 18339
+    {app_name} -json caltechauthors eprint 18339
 ~~~
 
 See website for a full list of available end points.
@@ -208,9 +208,9 @@ Supported Environment Variables
 
 ~~~
     EPRINT_USER     sets the default username used by {app_name}
-	EPRINT_PASSWORD sets the default password used by {app_name}
-	EPRINT_BASE_URL sets the default base URL to access the
-	                EPrints REST API
+    EPRINT_PASSWORD sets the default password used by {app_name}
+    EPRINT_BASE_URL sets the default base URL to access the
+                    EPrints REST API
 ~~~
 
 {app_name} {version}
