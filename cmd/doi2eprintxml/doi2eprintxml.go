@@ -113,6 +113,9 @@ form or URL form (e.g. "10.1021/acsami.7b15651" or
 -json
 : output EPrint structure as JSON
 
+-simple
+: output a simplified JSON record
+
 -m
 : (string) set the mailto value for CrossRef API access (default "helpdesk@library.caltech.edu")
 
