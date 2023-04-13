@@ -24,12 +24,13 @@
 
 <section>
 <h1 id="name">NAME</h1>
-<p>ep2apid</p>
+<p>ep3apid</p>
 <h1 id="synopsis">SYNOPSIS</h1>
 <p>ep3apid <a href="#options">OPTIONS</a> [SETTINGS_FILENAME]</p>
 <h1 id="description">DESCRIPTION</h1>
 <p>Run an extended EPrints 3.x web API based on direct manipulation of
 EPrint’s MySQL database(s).</p>
+<h2 id="detail">DETAIL</h2>
 <p><strong>ep3apid</strong> can be run from the command line and the
 will create an http web service. The web service provides a limitted
 number of end points providing eprint ids for content matched in
@@ -206,12 +207,6 @@ type of “application/xml” or JSON of EPrints XML with content type
 true’ to the repositories setting in settins.json.</li>
 </ul>
 <h2 id="settings.json-configuration">settings.json (configuration)</h2>
-<p>To run the web service create a JSON file named settings.ini in the
-current directory where you’re invoking <strong>ep3apid</strong> from.
-The web service can be started with running</p>
-<pre><code>    ep3apid</code></pre>
-<p>or to load “settings.json” from the current work directory.</p>
-<pre><code>    ep3apid settings.json</code></pre>
 <p>The JSON settings.json file should look something like “REPO_ID”
 would be the name used in the <strong>ep3apid</strong> to access a
 specific repsitory. The “dsn” value should be replaced with an
@@ -234,11 +229,11 @@ in a single <strong>ep3apid</strong> instance.</p>
         }
     }</code></pre>
 <p>NOTE: The “default_collection”, “default_official_url”,
-“default_rights”, “default_rights”, “default_refereed”, “default_status”
-are option configurations in the <code>settings.json</code> file.</p>
+“default_rights”, “default_refereed”, “default_status” are option
+configurations in the ‘settings.json’ file.</p>
 <h1 id="options">OPTIONS</h1>
 <dl>
-<dt>-h, -help</dt>
+<dt>-help</dt>
 <dd>
 Display this help message
 </dd>
@@ -251,6 +246,14 @@ Display software license
 Display software version
 </dd>
 </dl>
+<h1 id="examples">EXAMPLES</h1>
+<p>To run the web service create a JSON file named settings.ini in the
+current directory where you’re invoking <em>ep3apid</em> from. The web
+service can be started with running</p>
+<pre><code>    ep3apid</code></pre>
+<p>or to load “settings.json” from the current work directory.</p>
+<pre><code>    ep3apid settings.json</code></pre>
+<p>ep3apid 1.2.4</p>
 </section>
 
 <footer>

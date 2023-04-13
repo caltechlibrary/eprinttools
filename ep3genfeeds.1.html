@@ -24,22 +24,47 @@
 
 <section>
 <h1 id="name">NAME</h1>
-<p>ep3feeds</p>
+<p>ep3genfeeds</p>
 <h1 id="synopsis">SYNOPSIS</h1>
-<p>ep3feeds [OPTION] JSON_SETTINGS_FILENAME</p>
+<p>ep3genfeeds [OPTION] JSON_SETTINGS_FILENAME</p>
 <h1 id="description">DESCRIPTION</h1>
-<p>ep3feeds is a command line program that renders the EPrint harvested
-metadata and aggregation tables to JSON documents, non-templated
-Markdown documents and the necessary directory structures needed for
-representing EPrints repositories as a static site.</p>
+<p>ep3genfeeds is a command line program that renders the EPrint
+harvested metadata and aggregation tables to JSON documents,
+non-templated Markdown documents and the necessary directory structures
+needed for representing EPrints repositories as a static site.</p>
 <p>The configuration needs to be previously created using the
 ep3harvester tool.</p>
 <h1 id="options">OPTIONS</h1>
-<p>-h display help -help display help -license display license -verbose
-use verbose logging -version display version</p>
+<dl>
+<dt>-help</dt>
+<dd>
+display help
+</dd>
+<dt>-license</dt>
+<dd>
+display license
+</dd>
+<dt>-version</dt>
+<dd>
+display version
+</dd>
+<dt>-groups</dt>
+<dd>
+render groups feeds
+</dd>
+<dt>-people</dt>
+<dd>
+render people feeds
+</dd>
+<dt>-verbose</dt>
+<dd>
+use verbose logging
+</dd>
+</dl>
 <h1 id="examples">EXAMPLES</h1>
 <p>Harvesting repositories for week month of May, 2022.</p>
-<pre><code>    ep3feeds harvester-settings.json</code></pre>
+<pre><code>    ep3genfeeds harvester-settings.json</code></pre>
+<p>ep3genfeeds 1.2.4</p>
 </section>
 
 <footer>

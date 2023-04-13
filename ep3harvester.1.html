@@ -26,7 +26,8 @@
 <h1 id="name">NAME</h1>
 <p>ep3harvester</p>
 <h1 id="synopsis">SYNOPSIS</h1>
-<p>ep3harvester [OPTION] JSON_SETTINGS_FILENAME<br />
+<p>ep3harvester <a href="#options">OPTIONS</a>
+JSON_SETTINGS_FILENAME<br />
 [START_TIMESTAMP] [END_TIMESTAMP]</p>
 <h1 id="description">DESCRIPTION</h1>
 <p>ep3harvester is a command line program for metadata harvesting of
@@ -37,7 +38,7 @@ in MySQL 8. One repository per MySQL 8 table.</p>
 <p>Each MySQL 8 table has several columns id, src (holding the JSON
 document as a JSON column) and an updated (holding the timestamp of when
 the metadata was harvested).</p>
-<h2 id="configuring-your-json-store">CONFIGURING YOUR JSON STORE</h2>
+<h1 id="configuration">CONFIGURATION</h1>
 <p>ep3harvester can generate an example settings JSON document. You can
 then edit it with any plain text editor (e.g. nano). Then you’ll need to
 setup a MySQL 8 database and tables to store havested data in.</p>
@@ -50,14 +51,66 @@ a JSON settings filename parameter. E.g.</p>
     nano harvester-settings.json
     ep3harvester -sql-schema harvester-settings.json &gt;collections.sql</code></pre>
 <h1 id="options">OPTIONS</h1>
-<p>-h display help -help display help -init generate a settings JSON
-file -license display license -sql-schema display SQL schema for
-installing MySQL jsonstore DB -verbose use verbose logging -version
-display version</p>
+<dl>
+<dt>-help</dt>
+<dd>
+display help
+</dd>
+<dt>-version</dt>
+<dd>
+display version
+</dd>
+<dt>-license</dt>
+<dd>
+display license
+</dd>
+<dt>-groups</dt>
+<dd>
+Harvest groups from CSV files included configuration
+</dd>
+<dt>-init</dt>
+<dd>
+generate a settings JSON file
+</dd>
+<dt>-eprintids</dt>
+<dd>
+harvest the eprintids indicated by the filename, one id per line
+</dd>
+<dt>-people</dt>
+<dd>
+Harvest people from CSV files included configuration
+</dd>
+<dt>-people-groups</dt>
+<dd>
+Harvest people and groups from CSV files included configuration
+</dd>
+<dt>-repo string</dt>
+<dd>
+Harvest a specific repository id defined in configuration
+</dd>
+<dt>-simple</dt>
+<dd>
+Crosswalk the harvested eprint record to the simplified record model
+before saving the JSON to the SQL database.
+</dd>
+<dt>-sql-schema</dt>
+<dd>
+display SQL schema for installing MySQL jsonstore DB
+</dd>
+<dt>-verbose</dt>
+<dd>
+use verbose logging
+</dd>
+</dl>
 <h1 id="examples">EXAMPLES</h1>
-<p>Harvesting repositories for week month of May, 2022.</p>
+<p>Harvesting repositories for the month of May, 2022.</p>
 <pre><code>    ep3harvester harvester-settings.json \
         &quot;2022-05-01 00:00:00&quot; &quot;2022-05-31 59:59:59&quot;</code></pre>
+<p>Harvesting a caltechauthors repo using harvester-settings.json for
+week month of the month of May, 2022.</p>
+<pre><code>    ep3harvester -repo caltechauthors harvester-settings.json \ 
+        &quot;2022-05-01 00:00:00&quot; &quot;2022-05-31 59:59:59&quot;</code></pre>
+<p>ep3harvester 1.2.4</p>
 </section>
 
 <footer>

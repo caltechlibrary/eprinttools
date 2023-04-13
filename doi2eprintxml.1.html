@@ -36,57 +36,116 @@ The DOI can be in either their canonical form or URL form
 “https://doi.org/10.1021/acsami.7b15651”).</p>
 <h1 id="options">OPTIONS</h1>
 <dl>
-<dt>-h, -help</dt>
+<dt>-help</dt>
 <dd>
 display help
 </dd>
-<dt>-c, -crossref</dt>
+<dt>-license</dt>
+<dd>
+display license
+</dd>
+<dt>-version</dt>
+<dd>
+display version
+</dd>
+<dt>-D</dt>
+<dd>
+attempt to download the digital object if object URL provided
+</dd>
+<dt>-c</dt>
 <dd>
 only search CrossRef API for DOI records
 </dd>
 <dt>-clsrules</dt>
 <dd>
-Apply Caltech Library Specific Rules to EPrintXML output
+Apply current Caltech Library Specific Rules to EPrintXML output
+(default true)
 </dd>
-<dt>-d, -datacite</dt>
+<dt>-crossref</dt>
+<dd>
+only search CrossRef API for DOI records
+</dd>
+<dt>-d</dt>
 <dd>
 only search DataCite API for DOI records
 </dd>
-<dt>-eprints-url</dt>
+<dt>-datacite</dt>
+<dd>
+only search DataCite API for DOI records
+</dd>
+<dt>-dot-initials</dt>
+<dd>
+Add period to initials in given name
+</dd>
+<dt>-download</dt>
+<dd>
+attempt to download the digital object if object URL provided
+</dd>
+<dt>-eprints-url string</dt>
 <dd>
 Sets the EPRints API URL
 </dd>
-<dt>-generate-manpage</dt>
-<dd>
-generate man page
-</dd>
-<dt>-generate-markdown</dt>
-<dd>
-generate Markdown documentation
-</dd>
 <dt>-i, -input</dt>
 <dd>
-set input filename
+(string) set input filename
 </dd>
 <dt>-json</dt>
 <dd>
 output EPrint structure as JSON
 </dd>
-<dt>-l, -license</dt>
+<dt>-m</dt>
 <dd>
-display license
+(string) set the mailto value for CrossRef API access (default
+“helpdesk@library.caltech.edu”)
 </dd>
-<dt>-m, -mailto</dt>
+<dt>-mailto</dt>
 <dd>
-set the mailto value for CrossRef API access
+(string) set the mailto value for CrossRef API access (default
+“helpdesk@library.caltech.edu”)
+</dd>
+<dt>-normalize-publisher</dt>
+<dd>
+Use normalize publisher rule
+</dd>
+<dt>-normalize-related-url</dt>
+<dd>
+Use normlize related url rule
+</dd>
+<dt>-normlize-publication</dt>
+<dd>
+Use normalize publication rule
+</dd>
+<dt>-o, -output</dt>
+<dd>
+(string) set output filename
 </dd>
 <dt>-quiet</dt>
 <dd>
 set quiet output
 </dd>
-<dt>-v, -version</dt>
+<dt>-simple</dt>
 <dd>
-display app version
+output EPrint structure as Simplified JSON
+</dd>
+<dt>-trim-creators</dt>
+<dd>
+Use trim creators list rule
+</dd>
+<dt>-trim-number</dt>
+<dd>
+Use trim number rule
+</dd>
+<dt>-trim-series</dt>
+<dd>
+Use trim series rule
+</dd>
+<dt>-trim-title</dt>
+<dd>
+Use trim title rule
+</dd>
+<dt>-trim-volume</dt>
+<dd>
+Use trim volume rule
 </dd>
 </dl>
 <h1 id="examples">EXAMPLES</h1>
@@ -97,6 +156,7 @@ display app version
 <p>Example processing a list of DOIs in a text file into an XML document
 called “import-articles.xml”.</p>
 <pre><code>    doi2eprintxml -i doi-list.txt -o import-articles.xml</code></pre>
+<p>doi2eprintxml 1.2.4</p>
 </section>
 
 <footer>

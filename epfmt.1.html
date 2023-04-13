@@ -26,45 +26,36 @@
 <h1 id="name">NAME</h1>
 <p>epfmt</p>
 <h1 id="synopsis">SYNOPSIS</h1>
-<p>epfmt <a href="#options">OPTIONS</a></p>
+<p>epfmt</p>
 <h1 id="description">DESCRIPTION</h1>
-<p><em>epfmt</em> is a command line program for pretty printing EPrint
-XML. It can also convert EPrint XML to and from JSON.</p>
-<p><em>epfmt</em> parses EPrint XML (or JSON version) from standard
-input and pretty prints the result to standard out. You can change
-output format XML and JSON by using either the ‘-xml’ or ‘-json’ option.
-The XML representation is based on EPrints 3.x. <em>epfmt</em> does NOT
-interact with the EPrints API only the the document presented via
-standard input.</p>
+<p>epfmt is a command line program for pretty printing EPrint XML. It
+can also convert EPrint XML to and from EPrint as JSON or as a
+simplified JSON records for export to RDM.</p>
+<p>By default it reads from standard input and writes to standard
+out.</p>
+<p>epfmt EPrint XML (or JSON version) from standard input and pretty
+prints the result to standard out. You can change output format XML and
+JSON by using either the ‘-xml’ or ‘-json’ option. The XML
+representation is based on EPrints 3.x. epfmt does NOT interact with the
+EPrints API only the the document presented via standard input.</p>
 <h1 id="options">OPTIONS</h1>
 <dl>
-<dt>-e, -examples</dt>
-<dd>
-display examples
-</dd>
-<dt>-generate-manpage</dt>
-<dd>
-generate man page
-</dd>
-<dt>-generate-markdown</dt>
-<dd>
-generate Markdown documentation
-</dd>
-<dt>-h, -help</dt>
+<dt>-help</dt>
 <dd>
 display help
 </dd>
+<dt>-license</dt>
+<dd>
+display license
+</dd>
 <dt>-i, -input</dt>
 <dd>
-input file name (read the URL connection string from the input file
+(string) input file name (read the URL connection string from the input
+file
 </dd>
 <dt>-json</dt>
 <dd>
 output JSON version of EPrint XML
-</dd>
-<dt>-l, -license</dt>
-<dd>
-display license
 </dd>
 <dt>-nl, -newline</dt>
 <dd>
@@ -72,13 +63,17 @@ if true add a trailing newline
 </dd>
 <dt>-o, -output</dt>
 <dd>
-output file name
+(string) output file name
 </dd>
 <dt>-quiet</dt>
 <dd>
 suppress error messages
 </dd>
-<dt>-v, -version</dt>
+<dt>-s, -simple</dt>
+<dd>
+output simplified JSON version of EPrints XML
+</dd>
+<dt>-version</dt>
 <dd>
 display version
 </dd>
@@ -94,11 +89,10 @@ output EPrint XML
 <pre><code>    epfmt -json &lt; 123.xml</code></pre>
 <p>Render EPrint JSON as EPrint XML.</p>
 <pre><code>    epfmt -xml &lt; 123.json</code></pre>
-<p>Render EPrint simplified JSON from EPrint XML.</p>
-<pre><code>    epfmt -simplified &lt; 123.xml</code></pre>
-<p><em>epfmt</em> will first parse the XML or JSON presented to it and
-pretty print the output in the desired format requested. If no format
-option chosen it will pretty print in the same format as input.</p>
+<p>epfmt will first parse the XML or JSON presented to it and pretty
+print the output in the desired format requested. If no format option
+chosen it will pretty print in the same format as input.</p>
+<p>epfmt 1.2.4</p>
 </section>
 
 <footer>

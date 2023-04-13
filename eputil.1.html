@@ -45,10 +45,12 @@ specify the repository id in the command. E.g.</p>
     eputil caltechauthors doi
     eputil caltechauthors doi &quot;10.5062/F4NP22DV&quot;
     eputil caltechauthors creator-name &quot;Morrell&quot; &quot;Thomas&quot;
-    eputil caltechauthors grant-number 
-    eputil caltechauthors grant-number &quot;kzcx3-sw-147&quot;</code></pre>
-<p>See website for a full list of available end points. <a
-href="ep3apid.html">ep3apid</a></p>
+    eputil caltechauthors grant-number
+    eputil caltechauthors grant-number &quot;kzcx3-sw-147&quot;
+    eputil caltechauthors eprint 18339
+    eputil -json caltechauthors eprint 18339</code></pre>
+<p>See website for a full list of available end points.</p>
+<pre><code>    https://caltechlibrary.github.io/eprinttools/docs/ep3apid.html</code></pre>
 <h2 id="detail-for-eprints-rest-api">DETAIL FOR EPrints REST API</h2>
 <p>eputil parses XML content retrieved from EPrints 3.x. REST API. It
 will render results in JSON or XML. With the <code>-raw</code> option
@@ -61,7 +63,19 @@ authentication setup of the installed EPrints (at least at Caltech
 Library). See the examples to start exploring the API.</p>
 <h1 id="options">OPTIONS</h1>
 <dl>
-<dt>-auth STRING</dt>
+<dt>-help</dt>
+<dd>
+display help
+</dd>
+<dt>-license</dt>
+<dd>
+display license
+</dd>
+<dt>-version</dt>
+<dd>
+display version
+</dd>
+<dt>-auth string</dt>
 <dd>
 set the authentication type for access, default is basic (default
 “basic”)
@@ -70,33 +84,22 @@ set the authentication type for access, default is basic (default
 <dd>
 Retrieve a document from the provided url
 </dd>
-<dt>-h, -help</dt>
+<dt>-i, -input</dt>
 <dd>
-display help
-</dd>
-<dt>-i STRING</dt>
-<dd>
-input file name (read the URL connection string from the input file
-</dd>
-<dt>-input STRING</dt>
-<dd>
-input file name (read the URL connection string from the input file
+(string) input file name (read the URL connection string from the input
+file
 </dd>
 <dt>-json</dt>
 <dd>
 attempt to parse XML into generaic JSON structure
 </dd>
-<dt>-license</dt>
-<dd>
-display license
-</dd>
 <dt>-nl, -newline</dt>
 <dd>
 if true add a trailing newline
 </dd>
-<dt>-o, -output STRING</dt>
+<dt>-o, -output</dt>
 <dd>
-output file name
+(string) output file name
 </dd>
 <dt>-password</dt>
 <dd>
@@ -110,21 +113,17 @@ suppress error messages
 <dd>
 get the raw EPrint REST API response
 </dd>
-<dt>-s,-simple</dt>
+<dt>-s, -simple</dt>
 <dd>
 Return the object in a simplified JSON data structure.
 </dd>
-<dt>-u, -un, -user, -username STRING</dt>
+<dt>-u, -un, -user, -username</dt>
 <dd>
-set the username for authenticated access
+(string) set the username for authenticated access
 </dd>
 <dt>-verbose</dt>
 <dd>
 verbose output
-</dd>
-<dt>-version</dt>
-<dd>
-display version
 </dd>
 </dl>
 <h1 id="examples">EXAMPLES</h1>
@@ -133,14 +132,14 @@ display version
 <pre><code>    eputil -raw https://example.org/rest/eprint/123.xml</code></pre>
 <p>Fetch the EPrint XML marshaled as XML using the EPrints REST API for
 id 123.</p>
-<pre><code>    eputil https://example.org/rest/eprint/123.xml </code></pre>
+<pre><code>    eputil https://example.org/rest/eprint/123.xml</code></pre>
 <p>Fetch the EPrint XML marshaled as JSON using the EPrints REST API for
 id 123.</p>
 <pre><code>    eputil -json https://example.org/rest/eprint/123.xml</code></pre>
 <p>Get a JSON array of eprint ids from the REST API</p>
-<pre><code>    eputil -json https://example.org/rest/eprint/ </code></pre>
+<pre><code>    eputil -json https://example.org/rest/eprint/</code></pre>
 <p>Get the last modified date for id 123 from REST API</p>
-<pre><code>    eputil -raw https://example.org/rest/eprint/123/lastmod.txt </code></pre>
+<pre><code>    eputil -raw https://example.org/rest/eprint/123/lastmod.txt</code></pre>
 <p>If the EPrint REST API is protected by basic authentication you can
 pass the username and password via command line options. You will be
 prompted for the password value. or via the URL. In this example the
@@ -156,6 +155,12 @@ this approach on a shared machine!</p>
 <p>Getting IDs doesn’t typically require authentication but seeing
 specific records may depending on the roles and security setup
 implemented in the EPrint instance.</p>
+<p>Supported Environment Variables</p>
+<pre><code>    EPRINT_USER     sets the default username used by eputil
+    EPRINT_PASSWORD sets the default password used by eputil
+    EPRINT_BASE_URL sets the default base URL to access the
+                    EPrints REST API</code></pre>
+<p>eputil 1.2.4</p>
 </section>
 
 <footer>

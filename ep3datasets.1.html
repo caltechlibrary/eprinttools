@@ -26,14 +26,14 @@
 <h1 id="name">NAME</h1>
 <p>ep3datasets</p>
 <h1 id="synopsis">SYNOPSIS</h1>
-<p>ep3datasets [OPTION] JSON_SETTINGS_FILENAME</p>
+<p>ep3datasets [OPTION] JSON_SETTINGS_FILE</p>
 <h1 id="description">DESCRIPTION</h1>
 <p>ep3datasets is a command line program renders dataset collections
 from previously harvested EPrint repositories based on the configuration
-in the JSON_SETTINGS_FILENAME.</p>
+in the JSON_SETTINGS_FILE.</p>
 <h1 id="options">OPTIONS</h1>
 <dl>
-<dt>-h, -help</dt>
+<dt>-help</dt>
 <dd>
 display help
 </dd>
@@ -41,18 +41,34 @@ display help
 <dd>
 display license
 </dd>
+<dt>-version</dt>
+<dd>
+display version
+</dd>
 <dt>-verbose</dt>
 <dd>
 use verbose logging
 </dd>
-<dt>-version</dt>
+<dt>-repo</dt>
 <dd>
-display version
+write out the dataset for a specific repo in JSON_SETTINGS_FILE
+</dd>
+<dt>-eprintids</dt>
+<dd>
+use the file, one eprintid per line, for eprint records to export to the
+dataset collection specified.
 </dd>
 </dl>
 <h1 id="examples">EXAMPLES</h1>
 <p>Rendering harvested repositories for settings.json.</p>
 <pre><code>    ep3datasets settings.json</code></pre>
+<p>Render the harvested repository caltechauthors based on
+settings.json.</p>
+<pre><code>    ep3datasets -repo caltechauthors settings.json</code></pre>
+<p>Render the harvested repository caltechauthors for specific eprintids
+in the key list file to th edataset collection.</p>
+<pre><code>    ep3datasets -repo caltechauthors -eprinids keys.txt settings.json</code></pre>
+<p>ep3datasets 1.2.4</p>
 </section>
 
 <footer>
