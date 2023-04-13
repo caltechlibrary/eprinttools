@@ -30,6 +30,9 @@ import (
 	"path"
 	"strings"
 
+	// Caltech Library Packages
+	"github.com/caltechlibrary/simplified"
+
 	// Golang optional libraries
 	"golang.org/x/crypto/ssh/terminal"
 )
@@ -183,7 +186,7 @@ func RunEPrintsRESTClient(out io.Writer, getURL string, auth string, username st
 			e.SyntheticFields()
 		}
 		if asSimplified {
-			simple := new(Record)
+			simple := new(simplified.Record)
 			if err := CrosswalkEPrintToRecord(data.EPrint[0], simple); err != nil {
 				fmt.Fprintf(os.Stderr, "%s\n", err)
 			} else {

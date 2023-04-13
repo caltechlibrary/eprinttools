@@ -33,9 +33,12 @@ import (
 	"fmt"
 	"strings"
 	"time"
+
+	// Caltech Library Packages
+	"github.com/caltechlibrary/simplified"
 )
 
-func CrosswalkEPrintToRecord(eprint *EPrint, rec *Record) error {
+func CrosswalkEPrintToRecord(eprint *EPrint, rec *simplified.Record) error {
 	rec.Schema = `local://records/record-v2.0.0.json`
 	rec.ID = fmt.Sprintf("%s:%d", eprint.Collection, eprint.EPrintID)
 
@@ -92,9 +95,9 @@ func CrosswalkEPrintToRecord(eprint *EPrint, rec *Record) error {
 
 // simplifyCreators make sure the identifiers are mapped to Invenio-RDM
 // identifiers.
-func simplifyCreators(rec *Record) error {
+func simplifyCreators(rec *simplified.Record) error {
 	if rec.Metadata.Creators != nil && len(rec.Metadata.Creators) > 0 {
-		creators := []*Creator{}
+		creators := []*simplified.Creator{}
 		for _, creator := range rec.Metadata.Creators {
 			//FIXME: do I need to handle assigning a role here?
 			appendCreator := false
@@ -121,9 +124,9 @@ func simplifyCreators(rec *Record) error {
 
 // simplifyContributors make sure the identifiers are mapped to Invenio-RDM
 // identifiers.
-func simplifyContributors(rec *Record) error {
+func simplifyContributors(rec *simplified.Record) error {
 	if rec.Metadata.Contributors != nil && len(rec.Metadata.Contributors) > 0 {
-		contributors := []*Creator{}
+		contributors := []*simplified.Creator{}
 		for _, contributor := range rec.Metadata.Contributors {
 			appendContributor := false
 			if contributor.PersonOrOrg != nil && contributor.PersonOrOrg.FamilyName != "" {
@@ -166,7 +169,7 @@ func simplifyContributors(rec *Record) error {
 }
 
 
-func simplifyFunding(rec *Record) error {
+func simplifyFunding(rec *simplified.Record) error {
 	if rec.Metadata.Funding != nil && len(rec.Metadata.Funding) > 0 {
 		for _, funder := range rec.Metadata.Funding {
 			if funder.Funder != nil {
@@ -193,7 +196,7 @@ func simplifyFunding(rec *Record) error {
 
 // mapResourceType maps the EPrints record types to a predetermined
 // Invenio-RDM record type.
-func mapResourceType(rec *Record) error {
+func mapResourceType(rec *simplified.Record) error {
 	// FIXME: need to load this from a configuration file
 	crosswalkResourceTypes := map[string]string{
 		"article": "publication-article",
@@ -213,7 +216,7 @@ func mapResourceType(rec *Record) error {
 
 /*
 // PIDFromEPrint crosswalks the PID from an EPrint record.
-func pidFromEPrint(eprint *EPrint, rec *Record) error {
+func pidFromEPrint(eprint *EPrint, rec *simplified.Record) error {
 	data := map[string]interface{}{}
 	src := fmt.Sprintf(`{
 "id": %d,
@@ -229,12 +232,12 @@ func pidFromEPrint(eprint *EPrint, rec *Record) error {
 */
 
 // parentFromEPrint crosswalks the Perent unique ID from EPrint record.
-func parentFromEPrint(eprint *EPrint, rec *Record) error {
+func parentFromEPrint(eprint *EPrint, rec *simplified.Record) error {
 	if eprint.Reviewer != "" {
-		parent := new(RecordIdentifier)
+		parent := new(simplified.RecordIdentifier)
 		parent.ID = fmt.Sprintf("%s:%d", eprint.Collection, eprint.EPrintID)
-		parent.Access = new(Access)
-		ownedBy := new(User)
+		parent.Access = new(simplified.Access)
+		ownedBy := new(simplified.User)
 		ownedBy.User = eprint.UserID
 		ownedBy.DisplayName = eprint.Reviewer
 		parent.Access.OwnedBy = append(parent.Access.OwnedBy, ownedBy)
@@ -247,11 +250,11 @@ func parentFromEPrint(eprint *EPrint, rec *Record) error {
 
 // externalPIDFromEPrint aggregates all the external identifiers
 // from the EPrint record into Record
-func externalPIDFromEPrint(eprint *EPrint, rec *Record) error {
-	rec.ExternalPIDs = map[string]*PersistentIdentifier{}
+func externalPIDFromEPrint(eprint *EPrint, rec *simplified.Record) error {
+	rec.ExternalPIDs = map[string]*simplified.PersistentIdentifier{}
 	// Pickup DOI
 	if eprint.DOI != "" {
-		pid := new(PersistentIdentifier)
+		pid := new(simplified.PersistentIdentifier)
 		pid.Identifier = eprint.DOI
 		pid.Provider = "datacite"
 		pid.Client = ""
@@ -259,7 +262,7 @@ func externalPIDFromEPrint(eprint *EPrint, rec *Record) error {
 	}
 	// Pickup ISSN
 	if eprint.ISBN != "" {
-		pid := new(PersistentIdentifier)
+		pid := new(simplified.PersistentIdentifier)
 		pid.Identifier = eprint.ISSN
 		pid.Provider = ""
 		pid.Client = ""
@@ -267,7 +270,7 @@ func externalPIDFromEPrint(eprint *EPrint, rec *Record) error {
 	}
 	// Pickup ISBN
 	if eprint.ISBN != "" {
-		pid := new(PersistentIdentifier)
+		pid := new(simplified.PersistentIdentifier)
 		pid.Identifier = eprint.ISBN
 		pid.Provider = ""
 		pid.Client = ""
@@ -279,7 +282,7 @@ func externalPIDFromEPrint(eprint *EPrint, rec *Record) error {
 }
 
 // recordAccessFromEPrint extracts access permissions from the EPrint
-func recordAccessFromEPrint(eprint *EPrint, rec *Record) error {
+func recordAccessFromEPrint(eprint *EPrint, rec *simplified.Record) error {
 	isPublic := true
 	if (eprint.ReviewStatus == "review") ||
 		(eprint.ReviewStatus == "withheld") ||
@@ -290,7 +293,7 @@ func recordAccessFromEPrint(eprint *EPrint, rec *Record) error {
 	if eprint.EPrintStatus != "archive" || eprint.MetadataVisibility != "show" {
 		isPublic = false
 	}
-	rec.RecordAccess = new(RecordAccess)
+	rec.RecordAccess = new(simplified.RecordAccess)
 	// By default lets assume the files are restricted.
 	rec.RecordAccess.Files = "resticted"
 	if isPublic {
@@ -303,7 +306,7 @@ func recordAccessFromEPrint(eprint *EPrint, rec *Record) error {
 		for i := 0; i < eprint.Documents.Length(); i++ {
 			doc := eprint.Documents.IndexOf(i)
 			if doc.DateEmbargo != "" {
-				embargo := new(Embargo)
+				embargo := new(simplified.Embargo)
 				embargo.Until = doc.DateEmbargo
 				if eprint.Suggestions != "" {
 					embargo.Reason = eprint.Suggestions
@@ -372,26 +375,26 @@ func uriToContributorType(role_uri string) string {
 	return "contributor"
 }
 
-func creatorFromItem(item *Item, objType string, objRoleSrc string, objIdType string) *Creator {
-	person := new(PersonOrOrg)
+func creatorFromItem(item *Item, objType string, objRoleSrc string, objIdType string) *simplified.Creator {
+	person := new(simplified.PersonOrOrg)
 	person.Type = objType
 	if item.Name != nil {
 		person.FamilyName = item.Name.Family
 		person.GivenName = item.Name.Given
 	}
 	if item.ORCID != "" {
-		identifier := new(Identifier)
+		identifier := new(simplified.Identifier)
 		identifier.Scheme = "orcid"
 		identifier.Identifier = item.ORCID
 		person.Identifiers = append(person.Identifiers, identifier)
 	}
 	if item.ID != "" {
-		identifier := new(Identifier)
+		identifier := new(simplified.Identifier)
 		identifier.Scheme = objIdType
 		identifier.Identifier = item.ID
 		person.Identifiers = append(person.Identifiers, identifier)
 	}
-	creator := new(Creator)
+	creator := new(simplified.Creator)
 	creator.PersonOrOrg = person
 	switch objRoleSrc{
 		case "contributor":
@@ -401,20 +404,20 @@ func creatorFromItem(item *Item, objType string, objRoleSrc string, objIdType st
 			if item != nil {
 				contributorType = uriToContributorType(item.Type)
 			}
-			creator.Role = &Role{ ID: contributorType }
+			creator.Role = &simplified.Role{ ID: contributorType }
 		case "editor":
-			creator.Role = &Role{ ID: "editor" }
+			creator.Role = &simplified.Role{ ID: "editor" }
 	}
 	// FIXME: For Creators we skip adding the role and affiliation for now,
 	// it break RDM.
-	//creator.PersonOrOrg.Role = &Role{ ID: objRoleSrc }
+	//creator.PersonOrOrg.Role = &simplified.Role{ ID: objRoleSrc }
 	//FIXME: Need to map affiliation here when we're ready.
 	return creator
 }
 
-func dateTypeFromTimestamp(dtType string, timestamp string, description string) *DateType {
-	dt := new(DateType)
-	dt.Type = new(Type)
+func dateTypeFromTimestamp(dtType string, timestamp string, description string) *simplified.DateType {
+	dt := new(simplified.DateType)
+	dt.Type = new(simplified.Type)
 	dt.Type.ID = dtType
 	dt.Type.Title = dtType
 	dt.Description = description
@@ -426,22 +429,22 @@ func dateTypeFromTimestamp(dtType string, timestamp string, description string) 
 	return dt
 }
 
-func mkSimpleIdentifier(scheme, value string) *Identifier {
-	identifier := new(Identifier)
+func mkSimpleIdentifier(scheme, value string) *simplified.Identifier {
+	identifier := new(simplified.Identifier)
 	identifier.Scheme = strings.ToLower(scheme)
 	identifier.Identifier = value
 	return identifier
 }
 
-func funderFromItem(item *Item) *Funder {
-	funder := new(Funder)
+func funderFromItem(item *Item) *simplified.Funder {
+	funder := new(simplified.Funder)
 	if item.GrantNumber != "" {
-		funder.Award = new(Identifier)
+		funder.Award = new(simplified.Identifier)
 		funder.Award.Number = item.GrantNumber
 		funder.Award.Scheme = "eprints_grant_number"
 	}
 	if item.Agency != "" {
-		org := new(Identifier)
+		org := new(simplified.Identifier)
 		org.Name = item.Agency
 		org.Scheme = "eprints_agency"
 		funder.Funder = org
@@ -450,8 +453,8 @@ func funderFromItem(item *Item) *Funder {
 }
 
 // metadataFromEPrint extracts metadata from the EPrint record
-func metadataFromEPrint(eprint *EPrint, rec *Record) error {
-	metadata := new(Metadata)
+func metadataFromEPrint(eprint *EPrint, rec *simplified.Record) error {
+	metadata := new(simplified.Metadata)
 	metadata.ResourceType = map[string]string{}
 	metadata.ResourceType["id"] = eprint.Type
 	// NOTE: Creators get listed in the citation, Contributors do not.
@@ -502,7 +505,7 @@ func metadataFromEPrint(eprint *EPrint, rec *Record) error {
 	if (eprint.AltTitle != nil) && (eprint.AltTitle.Items != nil) {
 		for _, item := range eprint.AltTitle.Items {
 			if strings.TrimSpace(item.Value) != "" {
-				title := new(TitleDetail)
+				title := new(simplified.TitleDetail)
 				title.Title = item.Value
 				metadata.AdditionalTitles = append(metadata.AdditionalTitles, title)
 			}
@@ -516,17 +519,17 @@ func metadataFromEPrint(eprint *EPrint, rec *Record) error {
 	// Rights are scattered in several EPrints fields, they need to
 	// be evaluated to create a "Rights" object used in DataCite/Invenio
 	addRights := false
-	rights := new(Right)
+	rights := new(simplified.Right)
 	if eprint.Rights != "" {
 		addRights = true
-		rights.Description = &Description{
+		rights.Description = &simplified.Description{
 			Description: eprint.Rights,
 		}
 	}
 	// Figure out if our copyright information is in the Note field.
 	if (eprint.Note != "") && (strings.Contains(eprint.Note, "©") || strings.Contains(eprint.Note, "copyright") || strings.Contains(eprint.Note, "(c)")) {
 		addRights = true
-		rights.Description = &Description{
+		rights.Description = &simplified.Description{
 			Description: fmt.Sprintf("%s", eprint.Note),
 		}
 	}
@@ -534,8 +537,8 @@ func metadataFromEPrint(eprint *EPrint, rec *Record) error {
 		metadata.Rights = append(metadata.Rights, rights)
 	}
 	if eprint.CopyrightStatement != "" {
-		rights := new(Right)
-		rights.Description = &Description{
+		rights := new(simplified.Right)
+		rights.Description = &simplified.Description{
 			Description: eprint.CopyrightStatement,
 		}
 		metadata.Rights = append(metadata.Rights, rights)
@@ -545,7 +548,7 @@ func metadataFromEPrint(eprint *EPrint, rec *Record) error {
 
 	if (eprint.Subjects != nil) && (eprint.Subjects.Items != nil) {
 		for _, item := range eprint.Subjects.Items {
-			subject := new(Subject)
+			subject := new(simplified.Subject)
 			subject.Subject = item.Value
 			metadata.Subjects = append(metadata.Subjects, subject)
 		}
@@ -613,20 +616,20 @@ func metadataFromEPrint(eprint *EPrint, rec *Record) error {
 
 // filesFromEPrint extracts all the file specific metadata from the
 // EPrint record
-func filesFromEPrint(eprint *EPrint, rec *Record) error {
+func filesFromEPrint(eprint *EPrint, rec *simplified.Record) error {
 	// crosswalk Files from EPrints DocumentList
 	if (eprint != nil) && (eprint.Documents != nil) && (eprint.Documents.Length() > 0) {
 		addFiles := false
-		files := new(Files)
+		files := new(simplified.Files)
 		files.Order = []string{}
 		files.Enabled = true
-		files.Entries = map[string]*Entry{}
+		files.Entries = map[string]*simplified.Entry{}
 		for i := 0; i < eprint.Documents.Length(); i++ {
 			doc := eprint.Documents.IndexOf(i)
 			if len(doc.Files) > 0 {
 				for _, docFile := range doc.Files {
 					addFiles = true
-					entry := new(Entry)
+					entry := new(simplified.Entry)
 					entry.FileID = docFile.URL
 					entry.Size = docFile.FileSize
 					entry.MimeType = docFile.MimeType
@@ -651,11 +654,11 @@ func filesFromEPrint(eprint *EPrint, rec *Record) error {
 
 // tombstoneFromEPrint builds a tombstone is the EPrint record
 // eprint_status is deletion.
-func tombstoneFromEPrint(eprint *EPrint, rec *Record) error {
+func tombstoneFromEPrint(eprint *EPrint, rec *simplified.Record) error {
 	// FIXME: crosswalk Tombstone
 	if eprint.EPrintStatus == "deletion" {
-		tombstone := new(Tombstone)
-		tombstone.RemovedBy = new(User)
+		tombstone := new(simplified.Tombstone)
+		tombstone.RemovedBy = new(simplified.User)
 		tombstone.RemovedBy.DisplayName = eprint.Reviewer
 		tombstone.RemovedBy.User = eprint.UserID
 		if eprint.Suggestions != "" {
@@ -667,7 +670,7 @@ func tombstoneFromEPrint(eprint *EPrint, rec *Record) error {
 }
 
 // createdUpdatedFromEPrint extracts
-func createdUpdatedFromEPrint(eprint *EPrint, rec *Record) error {
+func createdUpdatedFromEPrint(eprint *EPrint, rec *simplified.Record) error {
 	var (
 		created, updated time.Time
 		err              error

@@ -18,6 +18,9 @@ import (
 	"strings"
 	"time"
 
+	// Caltech Library Packages
+	"github.com/caltechlibrary/simplified"
+
 	// Aliasing mysql driver to get to ParseDSN
 	mysqlDriver "github.com/go-sql-driver/mysql"
 )
@@ -504,7 +507,7 @@ func harvestEPrintRecord(cfg *Config, repoName string, eprintID int) error {
 	// crosswalk here.
 	var src []byte
 	if UseSimpleRecord {
-		simple := new(Record)
+		simple := new(simplified.Record)
 		err = CrosswalkEPrintToRecord(eprint, simple)
 		if err != nil {
 			return fmt.Errorf("failed to crosswalk eprint %d, %s", eprintID, err)

@@ -25,6 +25,9 @@ import (
 	"os"
 	"path"
 	"testing"
+
+	// Caltech Library Packages
+	"github.com/caltechlibrary/simplified"
 )
 
 /* NOTE: It is expected harvested and sanitized test EPrints records
@@ -50,7 +53,7 @@ func TestRecordFromEPrint(t *testing.T) {
 			t.FailNow()
 		}
 		for j, eprint := range eprints.EPrint {
-			rec := new(Record)
+			rec := new(simplified.Record)
 			if err := CrosswalkEPrintToRecord(eprint, rec); err != nil {
 				fmt.Fprintf(os.Stderr, "ERROR in crosswalk:\n%s\n", rec.ToString())
 				t.Errorf("CrosswalkEPrintToRecord() failed (%d:%d), %s", i, j, err)

@@ -3,6 +3,9 @@ package eprinttools
 import (
 	"encoding/json"
 	"testing"
+
+	// Caltech Library Packages
+	"github.com/caltechlibrary/simplified"
 )
 
 // TestSimplifiedRecord checks if the a record rendered in a simplified form
@@ -169,7 +172,7 @@ func TestSimplifiedRecord(t *testing.T) {
         },
         "notes": ["Under investigation for copyright infringement."]
     }`)
-	simpleRecord := new(Record)
+	simpleRecord := new(simplified.Record)
 	if err := json.Unmarshal(example1Text, &simpleRecord); err != nil {
 		t.Errorf("Unmarshal failed, %s", err)
 		t.FailNow()

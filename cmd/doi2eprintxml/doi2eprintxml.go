@@ -41,6 +41,7 @@ import (
 	"github.com/caltechlibrary/dataciteapi"
 	"github.com/caltechlibrary/eprinttools"
 	"github.com/caltechlibrary/eprinttools/clsrules"
+	"github.com/caltechlibrary/simplified"
 )
 
 var (
@@ -487,7 +488,7 @@ func main() {
 				if i > 0 {
 					fmt.Fprintf(out, ",\n")
 				}
-				rec := new(eprinttools.Record)
+				rec := new(simplified.Record)
 				err := eprinttools.CrosswalkEPrintToRecord(item, rec)
 				if err != nil {
 					fmt.Fprintf(eout, "%s\n", err)

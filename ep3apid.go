@@ -34,6 +34,9 @@ import (
 	"strings"
 	"syscall"
 	"time"
+
+	// Caltech Library Packages
+	"github.com/caltechlibrary/simplified"
 )
 
 type EP3API struct {
@@ -827,7 +830,7 @@ func (api *EP3API) recordEndPoint(w http.ResponseWriter, r *http.Request, repoID
 		return 404, fmt.Errorf("not found")
 	}
 	//FIXME: this should just be a simple JSON from SQL ...
-	simple := new(Record)
+	simple := new(simplified.Record)
 	if err := CrosswalkEPrintToRecord(eprint, simple); err != nil {
 		return 500, fmt.Errorf("internal server error")
 	}
