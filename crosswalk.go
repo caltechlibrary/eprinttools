@@ -203,7 +203,7 @@ func mapResourceType(rec *simplified.Record) error {
 	}
 	if rec.Metadata.ResourceType != nil {
 		// Should always have an id for a reource_type
-		if id, ok := rec.Metadata.ResourceType["id"]; ok {
+		if id, ok := rec.Metadata.ResourceType["id"].(string); ok {
 			if val, hasID := crosswalkResourceTypes[id]; hasID {
 				rec.Metadata.ResourceType["id"] = val
 				//} else { // FIXME: I don't want to implement a full mapping yet.
@@ -419,7 +419,9 @@ func dateTypeFromTimestamp(dtType string, timestamp string, description string) 
 	dt := new(simplified.DateType)
 	dt.Type = new(simplified.Type)
 	dt.Type.ID = dtType
-	dt.Type.Title = dtType
+	dt.Type.Title = map[string]string{
+		"en": dtType,
+	}
 	dt.Description = description
 	if len(timestamp) > 9 {
 		dt.Date = timestamp[0:10]
@@ -439,7 +441,7 @@ func mkSimpleIdentifier(scheme, value string) *simplified.Identifier {
 func funderFromItem(item *Item) *simplified.Funder {
 	funder := new(simplified.Funder)
 	if item.GrantNumber != "" {
-		funder.Award = new(simplified.Identifier)
+		funder.Award = new(simplified.AwardIdentifier)
 		funder.Award.Number = item.GrantNumber
 		funder.Award.Scheme = "eprints_grant_number"
 	}
@@ -455,7 +457,7 @@ func funderFromItem(item *Item) *simplified.Funder {
 // metadataFromEPrint extracts metadata from the EPrint record
 func metadataFromEPrint(eprint *EPrint, rec *simplified.Record) error {
 	metadata := new(simplified.Metadata)
-	metadata.ResourceType = map[string]string{}
+	metadata.ResourceType = make(map[string]interface{})
 	metadata.ResourceType["id"] = eprint.Type
 	// NOTE: Creators get listed in the citation, Contributors do not.
 	if (eprint.Creators != nil) && (eprint.Creators.Items != nil) {
