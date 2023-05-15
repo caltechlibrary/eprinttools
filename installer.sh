@@ -70,7 +70,7 @@ DIR_IN_PATH='no'
 for P in $PATH; do
   [ "$p" = "$HOME/bin" ] && DIR_IN_PATH='yes'
 done
-if [ "$dir_in_path" = "no" ]; then
+if [ "$DIR_IN_PATH" = "no" ]; then
 	echo 'export PATH="$HOME/bin:$PATH"' >>$HOME/.bashrc
 	echo 'export PATH="$HOME/bin:$PATH"' >>$HOME/.zshrc
 fi
