@@ -5,15 +5,26 @@ Installation
 harvest, work with EPrint repository content, and import content from 
 CrossRef and DataCite.
 
+Quick install with curl
+-----------------------
+
+There is an experimental installer.sh script that can be run with the
+following command to install lastest table release. This may work for
+macOS, Linux and if you're using Windows with the Unix subsystem.
+
+~~~
+curl https://caltechlibrary.github.io/eprinttools/installer.sh | sh
+~~~
+
 Below are generalized instructions for installation of a release.
 
 Compiled version
 ----------------
 
-Compiled versions are available for Mac OS X (amd64 and M1 processor, macos-amd64, macos-arm64), Linux (amd64 process, linux-amd64), Windows (amd64 and arm64 processor, windows-amd64 and windows-arm64) and Rapsberry Pi (arm7 processor, raspbian-arm7)
+Compiled versions are available for macOS (Intel and M1 processors as macos-amd64 or macos-arm64), Linux (amd64 process, linux-amd64), Windows (amd64 and arm64 processor, windows-amd64 and windows-arm64) and Rapsberry Pi (arm7 processor, raspbian-arm7)
 
 VERSION\_NUMBER is a [symantic version number](http://semver.org/) (e.g.
-`v1.0.3`)
+`v1.3.0`)
 
 For all the released version go to the project page on Github and click latest release
 
