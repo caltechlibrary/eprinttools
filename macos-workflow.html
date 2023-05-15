@@ -25,25 +25,53 @@
 <section>
 <h1 id="notes-on-using-doi2eprintxml-on-mac-os-x">Notes on using
 doi2eprintxml on Mac OS X</h1>
+<p>NOTE: In recent (version greater than 13.3) versions of macOS, Apple
+has enhanced their security policies such that it is more difficult to
+install open source software like eprinttools. To allow software like
+eprinttools on your Mac you need to author installation of unsigned
+software when using the Mac Terminal application. Go to your system
+settings, click on “Privacy &amp; Secutiry”, then click on “Developer
+Tools”. You should see the Terminal listed. Set the setting so you are
+allowed to install unsigned software in the Terminal. You can switch
+this back off after run the software installed installed.</p>
 <h2 id="installation-and-setup">Installation and setup</h2>
 <ol type="1">
 <li>With your web browser goto
 https://github.com/caltechlibrary/eprinttools/releases/</li>
-<li>Download the file called “eprinttools-v1.0.3-macos-amd64.zip” (for
-older Intel based Macs) or “eprinttools-v1.0.3-macos-arm64.zip” (for
+<li>Download the file called “eprinttools-v1.3.0-macos-amd64.zip” (for
+older Intel based Macs) or “eprinttools-v1.3.0-macos-arm64.zip” (for
 newer M1 based Macs).
 <ul>
-<li>if there is a newer version (e.g. v1.0.4) download that instead</li>
+<li>if there is a newer version (e.g. v1.3.1, v1.4.0) download that
+instead</li>
 </ul></li>
+<li>Open the Terminal application and change to directory to the
+Downloads folder</li>
 <li>Unzip the downloaded zip file</li>
-<li>Copy “bin/doi2eprintxml” to your local <strong>bin</strong> folder
+<li>Create a home “bin” folder if you haven’t in the past</li>
+<li>Move “bin/doi2eprintxml” to your local <strong>bin</strong> folder
 (e.g. /Users/rsdoiel/bin)</li>
 <li>Make sure your <strong>bin</strong> directory is in your path
 (e.g. <code>export PATH="$HOME/bin:$PATH"</code> in your
-<strong>.bashrc</strong> file)</li>
-<li>Open the your “Terminal” application</li>
+<strong>.bashrc</strong> file if your shell is Bash or
+<strong>.zshrc</strong> if your shell is zsh)</li>
+<li>Close the Terminl application and then restart it.</li>
 <li>Run <code>doi2printxml -h</code> to see the help page</li>
 </ol>
+<p>Here’s an example of the commands I after downloading the zip file to
+the “Downloads” folder on my M1 Mac Mini (steps 4 through 6).</p>
+<pre><code>cd
+cd Downloads
+unzip eprinttools-v1.3.0.macos-arm64.zip
+mkdir -p $HOME/bin
+mv bin/doi2eprintxml $HOME/bin/</code></pre>
+<p>If you’ve not previously add your home “bin” directory to your path
+and you’re using the new default shell on macOS (i.e. zsh). Enter the
+following command.</p>
+<pre><code>echo &#39;export PATH=&quot;$HOME/bin:$PATH&quot;&#39; &gt;&gt;$HOME/.zshrc</code></pre>
+<p>If you’re using Bash the command is.</p>
+<pre><code>echo &#39;export PATH=&quot;$HOME/bin:$PATH&quot;&#39; &gt;&gt;$HOME/.bashrc</code></pre>
+<p>Close the Terminal application and restart it then run step 9.</p>
 <h2 id="getting-started">Getting started</h2>
 <p>The tool <code>doi2eprintxml</code> is a command line program, it is
 normally run from the terminal’s command prompt. The purpose of the
