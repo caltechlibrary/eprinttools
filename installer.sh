@@ -96,11 +96,15 @@ if [ "$EXPLAIN_OS_POLICY" = "no" ]; then
 
   You need to take additional steps to complete installation.
 
-  You operating systems' security policied need to "allow" 
+  Your operating systems' security policied need to "allow"
   running programs from $PACKAGE.
 
-  Example: on macOS You can right click on the program(s)
-  installed in $HOME/bin to enable them.
+  Example: on macOS you can type open the programs in finder.
+
+      open $HOME/bin
+
+  Find the program(s) and right click and select open
+  to enable them to run.
 
 EOT
 fi
