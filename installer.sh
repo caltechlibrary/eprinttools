@@ -61,7 +61,8 @@ unzip $HOME/Downloads/$ZIPFILE bin/*
 mkdir -p $HOME/bin
 EXPLAIN_OS_POLICY="no"
 for APP in $(find bin -type f); do
-	mv $APP $HOME/bin/
+	FNAME=$(basename $APP)
+	mv $APP $HOME/bin/$FNAME
 	if ! $HOME/bin/$APP >/dev/null 2>%1; then
 		EXPLAIN_OS_POLICY="yes"
 	fi
@@ -80,16 +81,6 @@ if [ "$DIR_IN_PATH" = "no" ]; then
 fi
 rm -fR $HOME/.$PACKAGE/installer
 cd $START
-
-if [ "$OS_NAME" = "macos" ]; then
-	cat <<EOT
-
-If you are running macOS you may need to "right click" on the
-installed files in $HOME/bin 
-
-and enable them to be 
-EOT
-fi
 
 if [ "$EXPLAIN_OS_POLICY" = "no" ]; then
 	cat <<EOT
