@@ -36,7 +36,7 @@ ifeq ($(quick), true)
 endif
 
 
-build: version.go $(PROGRAMS)
+build: version.go $(PROGRAMS) about.md installer.sh
 
 version.go: .FORCE
 	@echo 'package $(PROJECT)' >version.go
@@ -67,7 +67,6 @@ CITATION.cff: .FORCE
 	if [ -f $(PANDOC) ]; then echo "" | $(PANDOC) --metadata title="Cite $(PROJECT)" --metadata-file=_codemeta.json --template=codemeta-cff.tmpl >CITATION.cff; fi
 	if [ -f _codemeta.json ]; then rm _codemeta.json; fi
 
-
 # NOTE: macOS requires a "mv" command for placing binaries instead of "cp" due to signing process of compile
 install: build man
 	@echo "Installing programs in $(PREFIX)/bin"
@@ -91,6 +90,13 @@ about.md: .FORCE
 	cat codemeta.json | sed -E 's/"@context"/"at__context"/g;s/"@type"/"at__type"/g;s/"@id"/"at__id"/g' >_codemeta.json
 	if [ -f $(PANDOC) ]; then echo "" | pandoc --metadata title="About $(PROJECT)" --metadata-file=_codemeta.json --template codemeta-md.tmpl >about.md; fi
 	if [ -f _codemeta.json ]; then rm _codemeta.json; fi
+
+installer.sh: .FORCE
+	echo '' | pandoc --metadata title='Installer' \
+		--metadata-file codemeta.json \
+		--template codemeta-installer.tmpl >installer.sh
+	chmod 775 installer.sh
+	git add -f installer.sh
 
 website: index.md about.md page.tmpl *.md LICENSE css/site.css
 	make -f website.mak
@@ -152,6 +158,7 @@ distribute_docs:
 	cp -v README.md dist/
 	cp -v LICENSE dist/
 	cp -v INSTALL.md dist/
+	cp -v installer.sh dist/
 	cp -vR man dist/
 
 release: build man CITATION.cff distribute_docs dist/linux-amd64 dist/windows-amd64 dist/windows-arm64 dist/macos-amd64 dist/macos-arm64 dist/raspbian-arm7
