@@ -7,22 +7,27 @@ Installation and setup
 ----------------------
 
 1. Open the Terminal application 
-2. Type the "curl" command below
-3. Follow the instructions it provides
-4. Run the "open" command
-5. In the finder window, then right click on `doi2eprintxml` and click "Open" in the dialog
-6. Close the Terminal and reopen it, you should now be ready to use doi2eprintxml
+2. Change to your home directory (`cd`
+3. Type the "curl" command below
+4. Follow the instructions it provides
+5. Run the "open" command
+6. In the finder window, then right click on `doi2eprintxml` and click "Open" in the dialog
+7. Close the Terminal and reopen it, you should now be ready to use doi2eprintxml
 
-Steps 2 through 4
+Steps 2 through 5
 
 ~~~
-curl https://caltechlibrary.github.io/eprinttools/installer.sh
+cd
+curl https://caltechlibrary.github.io/eprinttools/installer.sh | sh
 open bin
 ~~~
 
-Step six close the Terminal window and reopen it. You should now be ready
+Step 6 switch to the finder window. Right click on the `doi2eprintxml` program, then click "open" in the dialog box.
+
+Step 7 close the Terminal window and reopen it. You should now be ready
 to use `doi2eprintxml`.
 
+You can test by running the command `doi2eprintxml -version`.
 
 Getting started
 ---------------

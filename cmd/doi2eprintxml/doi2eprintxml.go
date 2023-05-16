@@ -293,7 +293,7 @@ func main() {
 	}
 
 	if showVersion {
-		fmt.Fprintf(out, "%s %s\n", eprinttools.Version)
+		fmt.Fprintf(out, "%s %s\n", appName, eprinttools.Version)
 		os.Exit(0)
 	}
 
