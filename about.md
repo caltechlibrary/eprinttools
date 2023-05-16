@@ -11,7 +11,7 @@ authors:
     orcid: "https://orcid.org/0000-0003-0900-6903"
 
 repository-code: "https://github.com/caltechlibrary/eprinttools"
-version: 1.3.0
+version: 1.3.1
 license-url: "https://caltechlibrary.github.io/eprinttools/license.html"
 keywords: [ "metadata", "repository", "EPrints", "CrossRef", "DataCite", "software" ]
 
@@ -20,7 +20,7 @@ keywords: [ "metadata", "repository", "EPrints", "CrossRef", "DataCite", "softwa
 About this software
 ===================
 
-## eprinttools 1.3.0
+## eprinttools 1.3.1
 
 ### Authors
 
