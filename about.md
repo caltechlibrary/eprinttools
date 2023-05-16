@@ -14,7 +14,7 @@ repository-code: "https://github.com/caltechlibrary/eprinttools"
 version: 1.3.1
 license-url: "https://caltechlibrary.github.io/eprinttools/license.html"
 keywords: [ "metadata", "repository", "EPrints", "CrossRef", "DataCite", "software" ]
-
+date-released: 2023-05-16
 ---
 
 About this software
