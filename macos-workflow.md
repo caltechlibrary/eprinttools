@@ -16,7 +16,7 @@ Installation and setup
 Steps 2 through 4
 
 ~~~
-curl https://caltechlibrary.caltech.edu/eprinttools/installer.sh
+curl https://caltechlibrary.github.io/eprinttools/installer.sh
 open bin
 ~~~
 
