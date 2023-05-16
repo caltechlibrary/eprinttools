@@ -13,6 +13,16 @@ Installation and setup
 5. In the finder window, then right click on `doi2eprintxml` and click "Open" in the dialog
 6. Close the Terminal and reopen it, you should now be ready to use doi2eprintxml
 
+Steps 2 through 4
+
+~~~
+curl https://caltechlibrary.caltech.edu/eprinttools/installer.sh
+open bin
+~~~
+
+Step six close the Terminal window and reopen it. You should now be ready
+to use `doi2eprintxml`.
+
 
 Getting started
 ---------------
