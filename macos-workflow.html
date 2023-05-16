@@ -36,42 +36,15 @@ allowed to install unsigned software in the Terminal. You can switch
 this back off after run the software installed installed.</p>
 <h2 id="installation-and-setup">Installation and setup</h2>
 <ol type="1">
-<li>With your web browser goto
-https://github.com/caltechlibrary/eprinttools/releases/</li>
-<li>Download the file called “eprinttools-v1.3.0-macos-amd64.zip” (for
-older Intel based Macs) or “eprinttools-v1.3.0-macos-arm64.zip” (for
-newer M1 based Macs).
-<ul>
-<li>if there is a newer version (e.g. v1.3.1, v1.4.0) download that
-instead</li>
-</ul></li>
-<li>Open the Terminal application and change to directory to the
-Downloads folder</li>
-<li>Unzip the downloaded zip file</li>
-<li>Create a home “bin” folder if you haven’t in the past</li>
-<li>Move “bin/doi2eprintxml” to your local <strong>bin</strong> folder
-(e.g. /Users/rsdoiel/bin)</li>
-<li>Make sure your <strong>bin</strong> directory is in your path
-(e.g. <code>export PATH="$HOME/bin:$PATH"</code> in your
-<strong>.bashrc</strong> file if your shell is Bash or
-<strong>.zshrc</strong> if your shell is zsh)</li>
-<li>Close the Terminl application and then restart it.</li>
-<li>Run <code>doi2printxml -h</code> to see the help page</li>
+<li>Open the Terminal application</li>
+<li>Type the “curl” command below</li>
+<li>Follow the instructions it provides</li>
+<li>Run the “open” command</li>
+<li>In the finder window, then right click on <code>doi2eprintxml</code>
+and click “Open” in the dialog</li>
+<li>Close the Terminal and reopen it, you should now be ready to use
+doi2eprintxml</li>
 </ol>
-<p>Here’s an example of the commands I after downloading the zip file to
-the “Downloads” folder on my M1 Mac Mini (steps 4 through 6).</p>
-<pre><code>cd
-cd Downloads
-unzip eprinttools-v1.3.0.macos-arm64.zip
-mkdir -p $HOME/bin
-mv bin/doi2eprintxml $HOME/bin/</code></pre>
-<p>If you’ve not previously add your home “bin” directory to your path
-and you’re using the new default shell on macOS (i.e. zsh). Enter the
-following command.</p>
-<pre><code>echo &#39;export PATH=&quot;$HOME/bin:$PATH&quot;&#39; &gt;&gt;$HOME/.zshrc</code></pre>
-<p>If you’re using Bash the command is.</p>
-<pre><code>echo &#39;export PATH=&quot;$HOME/bin:$PATH&quot;&#39; &gt;&gt;$HOME/.bashrc</code></pre>
-<p>Close the Terminal application and restart it then run step 9.</p>
 <h2 id="getting-started">Getting started</h2>
 <p>The tool <code>doi2eprintxml</code> is a command line program, it is
 normally run from the terminal’s command prompt. The purpose of the
@@ -81,41 +54,25 @@ is used to import records into EPrints (e.g. CaltechAUTHORS) via the
 “import” button under “Manage Deposits” page.</p>
 <h3 id="workflow">Workflow</h3>
 <p>The typical workflow is to create a plain text file (UTF-8 encoded)
-using a text editor such as <a href="https://atom.io">Atom</a> with one
-DOI per line. The <code>doi2eprintxml</code> program can then read the
-list and generate an EPrint XML document for importing into EPrints.
-Follow the following steps to generate a file called
-<strong>eprint.xml</strong> based on a list of of DOI in a file called
-<strong>doi.txt</strong>.</p>
-<h4 id="general-recipe">General recipe</h4>
-<ol type="1">
-<li>Open your text editor (e.g Atom)</li>
-<li>With your text editor create a list of DOI on per line</li>
-<li>Save this list to your desktop as <strong>doi.txt</strong> NOTE:
-<strong>doi.txt</strong> is the name of your file you saved on your
-desktop.</li>
-<li>Open the Terminal app and change directory to your desktop
-<code>cd ~/Desktop</code></li>
-<li>Generate <strong>eprint.xml</strong> with the following command
-<code>doi2eprintxml -i doi.txt &gt; eprint.xml</code></li>
-<li>From the file manager open <strong>eprint.xml</strong> and review
-the XML document (e.g. in your web browser or other text editor)</li>
-<li>With your web browser go to CaltechAUTHORS and log in</li>
-<li>Change to the “manage deposits” page and select “EPrints XML” from
-the pull down menu next to the “import” button</li>
-<li>Press the “import” button</li>
-<li>Click on “Upload from file”</li>
-<li>Click the “browse” button and find <strong>eprint.xml</strong> on
-the desktop</li>
-<li>From the pull down list next to the filename select “UTF-8”</li>
-<li>Click “Test without importing”, proceed to the next step if
-everything is OK</li>
-<li>Click the “browse” button and find <strong>eprint.xml</strong> on
-the desktop</li>
-<li>From the pulldown list next to the filename select “UTF-8”</li>
-<li>Click on “import items” buttons, this should import the items into
-your buffer to review</li>
-</ol>
+using a text editor such as <a
+href="https://code.visualstudio.com/">VSCode</a> or <a
+href="https://zed.dev/">Zed</a> with one DOI per line. The
+<code>doi2eprintxml</code> program can then read the list and generate
+an EPrint XML document for importing into EPrints. Follow the following
+steps to generate a file called <strong>eprint.xml</strong> based on a
+list of of DOI in a file called <strong>doi.txt</strong>. In the example
+below <code>code</code> is the VS code editor, replace that line with
+your favorite text editor.</p>
+<pre><code>cd ~/Desktop
+code doi.txt
+doi2eprintxml -i doi.txt &gt;eprints.xml</code></pre>
+<h4 id="generating-eprints-xml-for-a-single-doi">Generating eprints XML
+for a single DOI</h4>
+<p>In this example the DOI is “10.1021/acsami.7b15651”.</p>
+<pre><code>doi2eprintxml &quot;10.1021/acsami.7b15651&quot; &gt; article.xml</code></pre>
+<p>For details of using <code>doi2eprintxml</code> see the <a
+href="https://caltechlibrary.github.io/eprinttools/doi2eprintxml.1.html">manual
+page</a></p>
 </section>
 
 <footer>
