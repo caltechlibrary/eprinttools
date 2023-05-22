@@ -29,6 +29,9 @@ case "$MACHINE" in
    x86_64)
    MACHINE="amd64"
    ;;
+   aarch64)
+   MACHINE="arm64"
+   ;;
 esac
 ZIPFILE="$PACKAGE-v$VERSION-$OS_NAME-$MACHINE.zip"
 
