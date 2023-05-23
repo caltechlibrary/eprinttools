@@ -1,12 +1,14 @@
 Notes on using doi2eprintxml.exe on Windows 10
 ==============================================
 
+NOTE: Most Windows machines use an Intel or AMD style processor. You'll want the zip file with both "windows" and "amd64" in the name. The exceptions are some Microsoft Surface tablets and specialized developer machines like Microsoft/Qualcomm's deverloper for ARM NUC. If you are unsure you can type "info" in the search box of your taskbar then click "System Info". Here's the instructions on Microsoft's website <https://support.microsoft.com/en-us/windows/view-your-system-info-a965a8f2-0773-1d65-472a-1e747c9ebe00>
+
 Installation and setup
 ----------------------
 
 1. With your web browser goto https://github.com/caltechlibrary/eprinttools/releases/
-2. Download the file called "eprinttools-v1.2.2-windows-amd64.zip".
-    + if there is a newer version (e.g. v1.2.2) download that instead
+2. Download the file called "eprinttools-v1.3.1-windows-amd64.zip".
+    + if there is a newer version (e.g. v1.3.1) download that instead
 3. Unzip the downloaded zip file
 4. Copy "doi2eprintxml.exe" to where you want to work (e.g. Desktop)
 5. Open the windows "command prompt" and change directory to your desktop

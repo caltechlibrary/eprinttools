@@ -120,6 +120,7 @@ Here's an example of the commands run in from the Bash shell on Windows 10 after
     eputil -version
 ```
 
+Windows on ARM is relatively rare (in 2023). There are a few Windows for ARM developer boxes out and some Microsoft Surface tablets use an ARM processor.
 
 ### Linux
 
