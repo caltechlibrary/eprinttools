@@ -122,6 +122,16 @@ Here's an example of the commands run in from the Bash shell on Windows 10 after
 
 Windows on ARM is relatively rare (in 2023). There are a few Windows for ARM developer boxes out and some Microsoft Surface tablets use an ARM processor.
 
+To find out what type of processor you are running on Windows you can type "systeminfo" into the command prompt or search in the taskbar for "systeminfo" then click on the System Information menu item. You're looking for an entry for "processor". It may look something like
+
+~~~
+Processor(s):              1 Processor(s) Installed.
+                           [01]: Intel64 Family 6 Model 142 Stepping 12 GenuineIntel ~1803 Mhz
+~~
+
+If you see "Intel" somewhere in the description choose the Zip file with "windos" and "amd64" in the name.
+
+
 ### Linux
 
 1.  Download the zip file

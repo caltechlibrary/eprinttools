@@ -3,6 +3,15 @@ Notes on using doi2eprintxml.exe on Windows 10
 
 NOTE: Most Windows machines use an Intel or AMD style processor. You'll want the zip file with both "windows" and "amd64" in the name. The exceptions are some Microsoft Surface tablets and specialized developer machines like Microsoft/Qualcomm's deverloper for ARM NUC. If you are unsure you can type "info" in the search box of your taskbar then click "System Info". Here's the instructions on Microsoft's website <https://support.microsoft.com/en-us/windows/view-your-system-info-a965a8f2-0773-1d65-472a-1e747c9ebe00>
 
+You're looking for an entry for "processor". It may look something like
+
+~~~
+Processor(s):              1 Processor(s) Installed.
+                           [01]: Intel64 Family 6 Model 142 Stepping 12 GenuineIntel ~1803 Mhz
+~~
+
+If you see "Intel" somewhere in the description choose the Zip file with "windos" and "amd64" in the name.
+
 Installation and setup
 ----------------------
 
