@@ -21,6 +21,7 @@ package eprinttools
 import (
 	"encoding/json"
 	"fmt"
+	"strconv"
 	"strings"
 
 	// Caltech Library Packages
@@ -224,7 +225,17 @@ func CrossRefWorksToEPrint(obj crossrefapi.Object) (*EPrint, error) {
 			l2 = l1[0].([]interface{})
 			ymd := []string{}
 			for _, v := range l2 {
-				n := v.(json.Number).String()
+				var n string
+				switch v.(type) {
+					case json.Number:
+						n = v.(json.Number).String()
+					case float64:
+						n = strconv.FormatFloat(v.(float64), 'f', -1, 64)
+					case int:
+						n = strconv.Itoa(v.(int))	
+					default:
+						n = "1"
+				}
 				if len(n) < 2 {
 					n = "0" + n
 				}

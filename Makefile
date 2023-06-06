@@ -3,6 +3,12 @@
 #
 PROJECT = eprinttools
 
+GIT_GROUP = caltechlibrary
+
+RELEASE_DATE=$(shell date +'%Y-%m-%d')
+
+RELEASE_HASH=$(shell git log --pretty=format:'%h' -n 1)
+
 VERSION = $(shell grep '"version":' codemeta.json | cut -d\"  -f 4)
 
 BRANCH = $(shell git branch | grep '* ' | cut -d\  -f 2)
@@ -39,18 +45,14 @@ endif
 build: version.go $(PROGRAMS) about.md installer.sh
 
 version.go: .FORCE
-	@echo 'package $(PROJECT)' >version.go
-	@echo '' >>version.go
-	@echo 'const (' >>version.go
-	@echo '    Version = "$(VERSION)"' >>version.go
-	@echo '' >>version.go
-	@echo 'LicenseText = `' >>version.go
-	@cat LICENSE >>version.go
-	@echo '`' >>version.go
-	@echo ')' >>version.go
-	@echo '' >>version.go
-	-git add version.go
-	@if [ -f bin/codemeta ]; then ./bin/codemeta; fi
+	echo '' | pandoc --from t2t --to plain \
+                --metadata-file codemeta.json \
+                --metadata package=$(PROJECT) \
+                --metadata version=$(VERSION) \
+                --metadata release_date=$(RELEASE_DATE) \
+                --metadata release_hash=$(RELEASE_HASH) \
+                --template codemeta-version-go.tmpl \
+                LICENSE >version.go
 
 $(PROGRAMS): $(PACKAGE)
 	@mkdir -p bin
@@ -88,13 +90,11 @@ index.md: .FORCE
 
 about.md: .FORCE
 	cat codemeta.json | sed -E 's/"@context"/"at__context"/g;s/"@type"/"at__type"/g;s/"@id"/"at__id"/g' >_codemeta.json
-	if [ -f $(PANDOC) ]; then echo "" | pandoc --metadata title="About $(PROJECT)" --metadata-file=_codemeta.json --template codemeta-md.tmpl >about.md; fi
+	if [ -f $(PANDOC) ]; then echo "" | pandoc --metadata title="About $(PROJECT)" --metadata-file=_codemeta.json --template codemeta-about.tmpl >about.md; fi
 	if [ -f _codemeta.json ]; then rm _codemeta.json; fi
 
 installer.sh: .FORCE
-	echo '' | pandoc --metadata title='Installer' \
-		--metadata-file codemeta.json \
-		--template codemeta-installer.tmpl >installer.sh
+	@echo '' | pandoc --metadata title="Installer" --metadata git_org_or_person="$(GIT_GROUP)" --metadata-file codemeta.json --template codemeta-installer.tmpl >installer.sh
 	chmod 775 installer.sh
 	git add -f installer.sh
 
@@ -114,41 +114,55 @@ clean:
 	@if [ -d bin ]; then rm -fR bin; fi
 	@if [ -d dist ]; then rm -fR dist; fi
 
-dist/linux-amd64:
+dist/Linux-x86_64:
 	@mkdir -p dist/bin
 	@for FNAME in $(PROGRAMS); do env  GOOS=linux GOARCH=amd64 go build -o dist/bin/$$FNAME cmd/$$FNAME/$$FNAME.go; done
-	@cd dist && zip -r $(PROJECT)-v$(VERSION)-linux-amd64.zip LICENSE codemeta.json CITATION.cff *.md bin/* man/man1/* 
+	@cd dist && zip -r $(PROJECT)-v$(VERSION)-Linux-x86_64.zip LICENSE codemeta.json CITATION.cff *.md bin/* man/* 
 	@rm -fR dist/bin
 
-dist/macos-amd64:
+dist/macOS-x86_64:
 	@mkdir -p dist/bin
 	@for FNAME in $(PROGRAMS); do env GOOS=darwin GOARCH=amd64 go build -o dist/bin/$$FNAME cmd/$$FNAME/$$FNAME.go; done
-	@cd dist && zip -r $(PROJECT)-v$(VERSION)-macos-amd64.zip LICENSE codemeta.json CITATION.cff *.md bin/* man/man1/*
+	@cd dist && zip -r $(PROJECT)-v$(VERSION)-macOS-x86_64.zip LICENSE codemeta.json CITATION.cff *.md bin/* man/*
 	@rm -fR dist/bin
 
-dist/macos-arm64:
+dist/macOS-arm64:
 	@mkdir -p dist/bin
 	@for FNAME in $(PROGRAMS); do env GOOS=darwin GOARCH=arm64 go build -o dist/bin/$$FNAME cmd/$$FNAME/$$FNAME.go; done
-	@cd dist && zip -r $(PROJECT)-v$(VERSION)-macos-arm64.zip LICENSE codemeta.json CITATION.cff *.md bin/* man/man1/*
+	@cd dist && zip -r $(PROJECT)-v$(VERSION)-macOS-arm64.zip LICENSE codemeta.json CITATION.cff *.md bin/* man/*
 	@rm -fR dist/bin
 
-dist/windows-amd64:
+dist/Windows-x86_64:
 	@mkdir -p dist/bin
 	@for FNAME in $(PROGRAMS); do env GOOS=windows GOARCH=amd64 go build -o dist/bin/$$FNAME.exe cmd/$$FNAME/$$FNAME.go; done
-	@cd dist && zip -r $(PROJECT)-v$(VERSION)-windows-amd64.zip LICENSE codemeta.json CITATION.cff *.md bin/* man/man1/*
+	@cd dist && zip -r $(PROJECT)-v$(VERSION)-Windows-x86_64.zip LICENSE codemeta.json CITATION.cff *.md bin/* man/*
 	@rm -fR dist/bin
 
-dist/windows-arm64:
+dist/Windows-arm64:
 	@mkdir -p dist/bin
 	@for FNAME in $(PROGRAMS); do env GOOS=windows GOARCH=arm64 go build -o dist/bin/$$FNAME.exe cmd/$$FNAME/$$FNAME.go; done
-	@cd dist && zip -r $(PROJECT)-v$(VERSION)-windows-arm64.zip LICENSE codemeta.json CITATION.cff *.md bin/* man/man1/*
+	@cd dist && zip -r $(PROJECT)-v$(VERSION)-Windows-arm64.zip LICENSE codemeta.json CITATION.cff *.md bin/* man/*
 	@rm -fR dist/bin
 
+# Raspberry Pi running Ubuntu 64bit or Apple M1 running a VM
+dist/Linux-aarch64:
+	@mkdir -p dist/bin
+	@for FNAME in $(PROGRAMS); do env GOOS=linux GOARCH=arm64 go build -o dist/bin/$$FNAME cmd/$$FNAME/$$FNAME.go; done
+	@cd dist && zip -r $(PROJECT)-v$(VERSION)-Linux-aarch64.zip LICENSE codemeta.json CITATION.cff *.md bin/* man/*
+	@rm -fR dist/bin
+  
 
-dist/raspbian-arm7:
+# Raspberry Pi OS (32bit) as reported on Raspberry Pi Model 3B+
+dist/Linux-armv7l:
 	@mkdir -p dist/bin
 	@for FNAME in $(PROGRAMS); do env GOOS=linux GOARCH=arm GOARM=7 go build -o dist/bin/$$FNAME cmd/$$FNAME/$$FNAME.go; done
-	@cd dist && zip -r $(PROJECT)-v$(VERSION)-raspbian-os-arm7.zip LICENSE codemeta.json CITATION.cff *.md bin/* man/man1/*
+	@cd dist && zip -r $(PROJECT)-v$(VERSION)-Linux-armv7l.zip LICENSE codemeta.json CITATION.cff *.md bin/* man/*
+	@rm -fR dist/bin
+  
+dist/RaspberryPiOS-arm7:
+	@mkdir -p dist/bin
+	@for FNAME in $(PROGRAMS); do env GOOS=linux GOARCH=arm GOARM=7 go build -o dist/bin/$$FNAME cmd/$$FNAME/$$FNAME.go; done
+	@cd dist && zip -r $(PROJECT)-v$(VERSION)-RaspberryPiOS-arm7.zip LICENSE codemeta.json CITATION.cff *.md bin/* man/*
 	@rm -fR dist/bin
   
 distribute_docs:
@@ -161,7 +175,7 @@ distribute_docs:
 	cp -v installer.sh dist/
 	cp -vR man dist/
 
-release: build man CITATION.cff distribute_docs dist/linux-amd64 dist/windows-amd64 dist/windows-arm64 dist/macos-amd64 dist/macos-arm64 dist/raspbian-arm7
+release: build man CITATION.cff distribute_docs dist/Linux-x86_64 dist/Windows-x86_64 dist/Windows-arm64 dist/macOS-x86_64 dist/macOS-arm64 dist/RaspberryPiOS-arm7 dist/Linux-aarch64 dist/Linux-armv7l
 
 status:
 	git status

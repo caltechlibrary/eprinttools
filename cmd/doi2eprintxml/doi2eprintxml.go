@@ -24,6 +24,7 @@ package main
 //
 
 import (
+	"bytes"
 	"encoding/json"
 	"encoding/xml"
 	"flag"
@@ -46,9 +47,9 @@ import (
 
 var (
 	helpText = `---
-title: "{app_name}"
+title: "{app_name}(1) | version {version} {release_hash}"
 author: "R. S. Doiel"
-pubDate: 2023-01-11
+pubDate: {release_date}
 ---
 
 # NAME
@@ -176,7 +177,7 @@ an XML document called "import-articles.xml".
 	{app_name} -i doi-list.txt -o import-articles.xml
 ~~~
 
-{app_name} {version}
+{app_name} {version} {release_hash}
 
 `
 
@@ -210,12 +211,30 @@ an XML document called "import-articles.xml".
 	dotInitials                    bool
 )
 
-func fmtTxt(src string, appName string, version string) string {
-	return strings.ReplaceAll(strings.ReplaceAll(src, "{app_name}", appName), "{version}", version)
+
+// Custom JSON encoder so we can treat numbers easier
+func jsonEncode(obj interface{}) ([]byte, error) {
+	return json.MarshalIndent(obj, "", "    ")
+}
+
+// Custom JSON decoder so we can treat numbers easier
+func jsonDecode(src []byte, obj interface{}) error {
+	dec := json.NewDecoder(bytes.NewReader(src))
+	dec.UseNumber()
+	err := dec.Decode(&obj)
+	if err != nil && err != io.EOF {
+		return err
+	}
+	return nil
 }
 
 func main() {
 	appName := path.Base(os.Args[0])
+	// NOTE: This following are set when version.go is generated
+	version := eprinttools.Version
+	releaseDate := eprinttools.ReleaseDate
+	releaseHash := eprinttools.ReleaseHash
+	fmtHelp := eprinttools.FmtHelp
 
 	// Standard Options
 	flag.BoolVar(&showHelp, "help", false, "display help")
@@ -283,7 +302,7 @@ func main() {
 	}
 
 	if showHelp {
-		fmt.Fprintf(out, "%s\n", fmtTxt(helpText, appName, eprinttools.Version))
+		fmt.Fprintf(out, "%s\n", fmtHelp(helpText, appName, version, releaseDate, releaseHash))
 		os.Exit(0)
 	}
 
@@ -293,7 +312,7 @@ func main() {
 	}
 
 	if showVersion {
-		fmt.Fprintf(out, "%s %s\n", appName, eprinttools.Version)
+		fmt.Fprintf(out, "%s %s %s\n", appName, version, releaseHash)
 		os.Exit(0)
 	}
 
@@ -345,9 +364,20 @@ func main() {
 				fmt.Fprintf(eout, "ERROR (CrossRef API) %q, %s\n", doi, err)
 				os.Exit(1)
 			}
+			m := map[string]interface{}{}
+			src, err := jsonEncode(obj)
+			if err != nil {
+				fmt.Fprintf(eout, "ERROR (marshall Crossref Works) %q, %s\n", doi, err)
+				os.Exit(1)
+			}
+
+			if err := jsonDecode(src, &m); err != nil {
+				fmt.Fprintf(eout, "ERROR (unmarshall Crossref Works to map) %q, %s\n", doi, err)
+				os.Exit(1)
+			}
 			if apiCrossRef.StatusCode == 200 {
 				// NOTE: First we see if we can get a CrossRef record
-				eprint, err := eprinttools.CrossRefWorksToEPrint(obj)
+				eprint, err := eprinttools.CrossRefWorksToEPrint(m)
 				if err != nil {
 					fmt.Fprintf(eout, "ERROR (CrossRef to EPrintXML): skipping %q, %s\n", doi, err)
 				} else {
@@ -382,10 +412,20 @@ func main() {
 				fmt.Fprintf(eout, "ERROR (CrossRef API): %q, %s\n", doi, err)
 				os.Exit(1)
 			}
+			m := map[string]interface{}{}
+			src, err := json.Marshal(obj)
+			if err != nil {
+				fmt.Fprintf(eout, "ERROR (marshall Crossref Works) %q, %s\n", doi, err)
+				os.Exit(1)
+			}
+			if err := json.Unmarshal(src, &m); err != nil {
+				fmt.Fprintf(eout, "ERROR (unmarshall Crossref Works to map) %q, %s\n", doi, err)
+				os.Exit(1)
+			}
 			if apiCrossRef.StatusCode == 200 {
 				isCrossRefDOI = true
 				// NOTE: First we see if we can get a CrossRef record
-				eprint, err := eprinttools.CrossRefWorksToEPrint(obj)
+				eprint, err := eprinttools.CrossRefWorksToEPrint(m)
 				if err != nil {
 					fmt.Fprintf(eout, "ERROR (CrossRef to EPrintXML): skipping %q, %s\n", doi, err)
 				} else {
