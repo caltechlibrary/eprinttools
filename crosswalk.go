@@ -522,27 +522,39 @@ func metadataFromEPrint(eprint *EPrint, rec *simplified.Record) error {
 	// be evaluated to create a "Rights" object used in DataCite/Invenio
 	addRights := false
 	rights := new(simplified.Right)
+	rights.Title = map[string]string{}
+	rights.Description = map[string]string{}
 	if eprint.Rights != "" {
 		addRights = true
-		rights.Description = &simplified.Description{
+		/*
+		rights.Description = map["en"] &simplified.Description{
 			Description: eprint.Rights,
 		}
+		*/
+		rights.Description["en"] = eprint.Rights
 	}
 	// Figure out if our copyright information is in the Note field.
 	if (eprint.Note != "") && (strings.Contains(eprint.Note, "©") || strings.Contains(eprint.Note, "copyright") || strings.Contains(eprint.Note, "(c)")) {
 		addRights = true
+		/*
 		rights.Description = &simplified.Description{
 			Description: fmt.Sprintf("%s", eprint.Note),
 		}
+		*/
+		rights.Description["en"] = fmt.Sprintf("%s", eprint.Note)
 	}
 	if addRights {
 		metadata.Rights = append(metadata.Rights, rights)
 	}
 	if eprint.CopyrightStatement != "" {
 		rights := new(simplified.Right)
+		rights.Description = map[string]string{}
+		/*
 		rights.Description = &simplified.Description{
 			Description: eprint.CopyrightStatement,
 		}
+		*/
+		rights.Description["en"] = eprint.CopyrightStatement
 		metadata.Rights = append(metadata.Rights, rights)
 	}
 	// FIXME: work with Tom to sort out how "Rights" and document level
@@ -555,9 +567,6 @@ func metadataFromEPrint(eprint *EPrint, rec *simplified.Record) error {
 			metadata.Subjects = append(metadata.Subjects, subject)
 		}
 	}
-
-	// FIXME: Work with Tom to figure out correct mapping of rights from EPrints XML
-	// FIXME: Language appears to be at the "document" level, not record level
 
 	// Dates are scattered through the primary eprint table.
 	if (eprint.DateType != "published") && (eprint.Date != "") {
