@@ -175,7 +175,7 @@ distribute_docs:
 	cp -v installer.sh dist/
 	cp -vR man dist/
 
-dist_clean: .FORCE
+dist_cleanup: .FORCE
 	if [ -d dist ]; then rm -fR dist/*; fi
 
 release: build man CITATION.cff dist_cleanup distribute_docs dist/Linux-x86_64 dist/Windows-x86_64 dist/Windows-arm64 dist/macOS-x86_64 dist/macOS-arm64 dist/RaspberryPiOS-arm7 dist/Linux-aarch64 dist/Linux-armv7l
