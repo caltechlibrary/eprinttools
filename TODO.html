@@ -27,342 +27,364 @@
 <h2 id="next">Next</h2>
 <p>Transitional support for feeds</p>
 <ul class="task-list">
-<li><input type="checkbox" disabled="" />Simplfied record (invenio-RDM
-record) to EPrint XML/EPrint JSON<ul class="task-list">
-<li><input type="checkbox" disabled="" />implement libdataset for v2
-dataset collection</li>
-<li><input type="checkbox" disabled="" />convert feeds’ datasets to v2
-ds collections</li>
-<li><input type="checkbox" disabled="" />CaltechDATA records are a good
-test case for mapping Invenio-RDM to JSON that will drive EPrints
-templates for feeds (v1 of feeds is EPrints centric)</li>
-<li><input type="checkbox" disabled="" />I need to generate EPrint XML
-as Invenio-RDM records (simplified records) first and input into the
-test instance of CaltechAUTHORS as RDM based repository</li>
-<li><input type="checkbox" disabled="" />I can then take the Invenio-RDM
+<li><label><input type="checkbox" />Simplfied record (invenio-RDM
+record) to EPrint XML/EPrint JSON</label>
+<ul class="task-list">
+<li><label><input type="checkbox" />implement libdataset for v2 dataset
+collection</label></li>
+<li><label><input type="checkbox" />convert feeds’ datasets to v2 ds
+collections</label></li>
+<li><label><input type="checkbox" />CaltechDATA records are a good test
+case for mapping Invenio-RDM to JSON that will drive EPrints templates
+for feeds (v1 of feeds is EPrints centric)</label></li>
+<li><label><input type="checkbox" />I need to generate EPrint XML as
+Invenio-RDM records (simplified records) first and input into the test
+instance of CaltechAUTHORS as RDM based repository</label></li>
+<li><label><input type="checkbox" />I can then take the Invenio-RDM
 records returned and turn those into EPrint XMl/JSON for integration
-into existing feeds</li>
+into existing feeds</label></li>
 </ul></li>
 </ul>
 <p>This is for the simplified eprinttools codebase.</p>
 <ul class="task-list">
-<li><input type="checkbox" disabled="" checked="" />Make a list of the
-missing page types I need to render to match feeds</li>
-<li><input type="checkbox" disabled="" />Render json types<ul>
+<li><label><input type="checkbox" checked="" />Make a list of the
+missing page types I need to render to match feeds</label></li>
+<li><label><input type="checkbox" />Render json types</label>
+<ul>
 <li>Misc. JSON files
 <ul class="task-list">
-<li><input type="checkbox" disabled="" />caltechauthors-grid.json</li>
-<li><input type="checkbox" disabled="" />caltechdata-grid.json</li>
-<li><input type="checkbox" disabled="" />caltechthesis-grid.json</li>
-<li><input type="checkbox" disabled="" />directory_info.json (only found
-for people)</li>
-<li><input type="checkbox" disabled="" checked="" />index.json</li>
-<li><input type="checkbox" disabled="" />pagefind-entry.json</li>
-<li><input type="checkbox" disabled="" checked="" />group.json</li>
-<li><input type="checkbox" disabled="" checked="" />group_list.json</li>
-<li><input type="checkbox" disabled="" />people.json</li>
-<li><input type="checkbox" disabled=""
-checked="" />people_list.json</li>
+<li><label><input
+type="checkbox" />caltechauthors-grid.json</label></li>
+<li><label><input type="checkbox" />caltechdata-grid.json</label></li>
+<li><label><input type="checkbox" />caltechthesis-grid.json</label></li>
+<li><label><input type="checkbox" />directory_info.json (only found for
+people)</label></li>
+<li><label><input type="checkbox" checked="" />index.json</label></li>
+<li><label><input type="checkbox" />pagefind-entry.json</label></li>
+<li><label><input type="checkbox" checked="" />group.json</label></li>
+<li><label><input type="checkbox"
+checked="" />group_list.json</label></li>
+<li><label><input type="checkbox" />people.json</label></li>
+<li><label><input type="checkbox"
+checked="" />people_list.json</label></li>
 </ul></li>
 <li>CaltechTHESIS derived
 <ul class="task-list">
-<li><input type="checkbox" disabled="" />advisor-bachelors.json (needed
-in groups only)</li>
-<li><input type="checkbox" disabled="" />advisor-combined.json (needed
-in groups only)</li>
-<li><input type="checkbox" disabled="" />advisor-engd.json (needed in
-groups only)</li>
-<li><input type="checkbox" disabled="" />advisor-masters.json (needed in
-groups only)</li>
-<li><input type="checkbox" disabled="" />advisor-other.json (needed in
-groups only)</li>
-<li><input type="checkbox" disabled="" />advisor-phd.json (needed in
-groups only)</li>
-<li><input type="checkbox" disabled="" />advisor-senior_major.json
-(needed in groups only)</li>
-<li><input type="checkbox" disabled="" />advisor-senior_minor.json
-(needed in groups only)</li>
-<li><input type="checkbox" disabled="" checked="" />advisor.json
-(person/group)</li>
-<li><input type="checkbox" disabled="" />bachelors.json
-(person/group)</li>
-<li><input type="checkbox" disabled="" />engd.json (person/group)</li>
-<li><input type="checkbox" disabled="" />masters.json
-(person/group)</li>
-<li><input type="checkbox" disabled="" />phd.json (person/group)</li>
-<li><input type="checkbox" disabled="" />senior_major.json
-(person/group)</li>
-<li><input type="checkbox" disabled="" />senior_minor.json
-(person/group)</li>
+<li><label><input type="checkbox" />advisor-bachelors.json (needed in
+groups only)</label></li>
+<li><label><input type="checkbox" />advisor-combined.json (needed in
+groups only)</label></li>
+<li><label><input type="checkbox" />advisor-engd.json (needed in groups
+only)</label></li>
+<li><label><input type="checkbox" />advisor-masters.json (needed in
+groups only)</label></li>
+<li><label><input type="checkbox" />advisor-other.json (needed in groups
+only)</label></li>
+<li><label><input type="checkbox" />advisor-phd.json (needed in groups
+only)</label></li>
+<li><label><input type="checkbox" />advisor-senior_major.json (needed in
+groups only)</label></li>
+<li><label><input type="checkbox" />advisor-senior_minor.json (needed in
+groups only)</label></li>
+<li><label><input type="checkbox" checked="" />advisor.json
+(person/group)</label></li>
+<li><label><input type="checkbox" />bachelors.json
+(person/group)</label></li>
+<li><label><input type="checkbox" />engd.json
+(person/group)</label></li>
+<li><label><input type="checkbox" />masters.json
+(person/group)</label></li>
+<li><label><input type="checkbox" />phd.json (person/group)</label></li>
+<li><label><input type="checkbox" />senior_major.json
+(person/group)</label></li>
+<li><label><input type="checkbox" />senior_minor.json
+(person/group)</label></li>
 </ul></li>
 <li>CaltechAUTHORS derived
 <ul class="task-list">
-<li><input type="checkbox" disabled="" />combined.json (from
-CaltechAUTHORS), should be renamed combined_authors.json</li>
-<li><input type="checkbox" disabled="" />pub_types.json</li>
-<li><input type="checkbox" disabled="" />article.json</li>
-<li><input type="checkbox" disabled="" />audiovisual.json</li>
-<li><input type="checkbox" disabled="" />book.json</li>
-<li><input type="checkbox" disabled="" />book_section.json</li>
-<li><input type="checkbox" disabled="" />collection.json</li>
-<li><input type="checkbox" disabled="" />conference_item.json</li>
-<li><input type="checkbox" disabled="" />dataset.json</li>
-<li><input type="checkbox" disabled="" />image.json</li>
-<li><input type="checkbox" disabled="" />interactiveresource.json</li>
-<li><input type="checkbox" disabled="" />model.json</li>
-<li><input type="checkbox" disabled="" />monograph.json</li>
-<li><input type="checkbox" disabled="" />object_types.json</li>
-<li><input type="checkbox" disabled="" />patent.json</li>
-<li><input type="checkbox" disabled="" />software.json</li>
-<li><input type="checkbox" disabled="" />teaching_resource.json</li>
-<li><input type="checkbox" disabled="" />text.json</li>
-<li><input type="checkbox" disabled="" />thesis.json</li>
-<li><input type="checkbox" disabled="" />video.json</li>
-<li><input type="checkbox" disabled="" />workflow.json</li>
+<li><label><input type="checkbox" />combined.json (from CaltechAUTHORS),
+should be renamed combined_authors.json</label></li>
+<li><label><input type="checkbox" />pub_types.json</label></li>
+<li><label><input type="checkbox" />article.json</label></li>
+<li><label><input type="checkbox" />audiovisual.json</label></li>
+<li><label><input type="checkbox" />book.json</label></li>
+<li><label><input type="checkbox" />book_section.json</label></li>
+<li><label><input type="checkbox" />collection.json</label></li>
+<li><label><input type="checkbox" />conference_item.json</label></li>
+<li><label><input type="checkbox" />dataset.json</label></li>
+<li><label><input type="checkbox" />image.json</label></li>
+<li><label><input
+type="checkbox" />interactiveresource.json</label></li>
+<li><label><input type="checkbox" />model.json</label></li>
+<li><label><input type="checkbox" />monograph.json</label></li>
+<li><label><input type="checkbox" />object_types.json</label></li>
+<li><label><input type="checkbox" />patent.json</label></li>
+<li><label><input type="checkbox" />software.json</label></li>
+<li><label><input type="checkbox" />teaching_resource.json</label></li>
+<li><label><input type="checkbox" />text.json</label></li>
+<li><label><input type="checkbox" />thesis.json</label></li>
+<li><label><input type="checkbox" />video.json</label></li>
+<li><label><input type="checkbox" />workflow.json</label></li>
 </ul></li>
 <li>CaltechDATA
 <ul class="task-list">
-<li><input type="checkbox" disabled="" />combined_data.json</li>
-<li><input type="checkbox" disabled="" />software.json</li>
-<li><input type="checkbox" disabled="" />data.json</li>
-<li><input type="checkbox" disabled="" />teaching_resource.json</li>
-<li><input type="checkbox" disabled="" />data_object_types.json</li>
-<li><input type="checkbox" disabled="" />data_pub_types.json</li>
-<li><input type="checkbox" disabled="" />data_types.json</li>
-<li><input type="checkbox" disabled="" />image.json</li>
+<li><label><input type="checkbox" />combined_data.json</label></li>
+<li><label><input type="checkbox" />software.json</label></li>
+<li><label><input type="checkbox" />data.json</label></li>
+<li><label><input type="checkbox" />teaching_resource.json</label></li>
+<li><label><input type="checkbox" />data_object_types.json</label></li>
+<li><label><input type="checkbox" />data_pub_types.json</label></li>
+<li><label><input type="checkbox" />data_types.json</label></li>
+<li><label><input type="checkbox" />image.json</label></li>
 </ul></li>
 </ul></li>
-<li><input type="checkbox" disabled="" />Render keys types</li>
-<li><input type="checkbox" disabled="" />Render Markdown types</li>
-<li><input type="checkbox" disabled="" />Render include types</li>
-<li><input type="checkbox" disabled="" />Render BibTeX types</li>
-<li><input type="checkbox" disabled="" />Render RSS types</li>
-<li><input type="checkbox" disabled="" />Make a list of the new pages
-types reflecting use of simplified records</li>
+<li><label><input type="checkbox" />Render keys types</label></li>
+<li><label><input type="checkbox" />Render Markdown types</label></li>
+<li><label><input type="checkbox" />Render include types</label></li>
+<li><label><input type="checkbox" />Render BibTeX types</label></li>
+<li><label><input type="checkbox" />Render RSS types</label></li>
+<li><label><input type="checkbox" />Make a list of the new pages types
+reflecting use of simplified records</label></li>
 </ul>
 <h2 id="bugs">Bugs</h2>
 <ul class="task-list">
-<li><input type="checkbox" disabled="" />ep3datasets renders EPrints
-JSON objects without primary_object being set</li>
-<li><input type="checkbox" disabled="" checked="" />Cleanup eprint
-content for public views<ul class="task-list">
-<li><input type="checkbox" disabled="" checked="" />Does sanitization
-happen at rendering of JSON/Markdown documents or when harvesting the
-content?<ul>
+<li><label><input type="checkbox" />ep3datasets renders EPrints JSON
+objects without primary_object being set</label></li>
+<li><label><input type="checkbox" checked="" />Cleanup eprint content
+for public views</label>
+<ul class="task-list">
+<li><label><input type="checkbox" checked="" />Does sanitization happen
+at rendering of JSON/Markdown documents or when harvesting the
+content?</label>
+<ul>
 <li>Santization happens when we render content, this lets us do one
 harvest for both dark and public archives</li>
 </ul></li>
-<li><input type="checkbox" disabled="" checked="" />Cleanup email
-content fields</li>
-<li><input type="checkbox" disabled="" checked="" />Remove “notes”</li>
+<li><label><input type="checkbox" checked="" />Cleanup email content
+fields</label></li>
+<li><label><input type="checkbox" checked="" />Remove
+“notes”</label></li>
 </ul></li>
-<li><input type="checkbox" disabled="" />Still debugging mapping the
+<li><label><input type="checkbox" />Still debugging mapping the
 advisor_id, thesis_id and authors_id to person_id for aggregation tables
-and people feed generation<ul>
+and people feed generation</label>
+<ul>
 <li>caltechthesis record 15078 is showing up with a local group of
 “Scott Cushing” who is actaully a committee member not a local
 gorup.</li>
 </ul></li>
-<li><input type="checkbox" disabled="" />Are messy people identifiers in
+<li><label><input type="checkbox" />Are messy people identifiers in
 EPrints are preventing a simple mapping to a single person id, when the
 EPRint record is read in it needs the ID should be corsswalked to the
-cl_people_id value.</li>
-<li><input type="checkbox" disabled="" />If feeds are “public only” then
-I need to strip email addresses from the JSON objects.</li>
-<li><input type="checkbox" disabled="" />For feeds generated as
+cl_people_id value.</label></li>
+<li><label><input type="checkbox" />If feeds are “public only” then I
+need to strip email addresses from the JSON objects.</label></li>
+<li><label><input type="checkbox" />For feeds generated as
 REPO_NAME-RECORD_TYPE.json to name the feed by record type only, but
 before I add this I need to see if there is any case where thesis in
 CaltechAUTHORS need to be itemized along with thesis in
-CaltechTHESIS</li>
-<li><input type="checkbox" disabled="" checked="" />updated value
-retrieved from database isn’t converting correctly into a time.Time
-object in Go. Need to figure the best way to make this correct</li>
-<li><input type="checkbox" disabled="" checked="" />Aggregation
+CaltechTHESIS</label></li>
+<li><label><input type="checkbox" checked="" />updated value retrieved
+from database isn’t converting correctly into a time.Time object in Go.
+Need to figure the best way to make this correct</label></li>
+<li><label><input type="checkbox" checked="" />Aggregation
 group_list.json has empty “combined” mapped when there are no eprintid
-for the specific group in the respository</li>
-<li><input type="checkbox" disabled="" />each index.html under people
-and group should have a corresponding index.json that is used by Pandoc
-to render index.md that then renders index.html, include.include</li>
-<li><input type="checkbox" disabled="" checked="" />Issue 40, SQL
-reference document_relation_type table issues</li>
-<li><input type="checkbox" disabled="" />Issue 41, Add related URL as
-DOI value (really make eprints show this as a linked field in the
-display, don’t do that in the data structure)</li>
-<li><input type="checkbox" disabled="" checked="" />Issue 44, Funders
-are coming up as “UNSPECIFIED”</li>
-<li><input type="checkbox" disabled="" />Issue 45, Related URLs are
-coming in as “UNSPECIFIED”</li>
-<li><input type="checkbox" disabled="" />Issue 47, Need to strip HTML
-from Abstract field</li>
-<li><input type="checkbox" disabled="" />Issue 48, Imported EPrint
-doesn’t show up in review buffer<ul class="task-list">
-<li><input type="checkbox" disabled="" />in release 1.1.1-next datestamp
-isn’t set, example eprintid 111912</li>
-<li><input type="checkbox" disabled="" checked="" />I might be setting
-the wrong event_status (e.g. buffer or inbox)</li>
-<li><input type="checkbox" disabled="" checked="" />I need to confirm
-all timestamp fields and datestamp field is being set correctly</li>
+for the specific group in the respository</label></li>
+<li><label><input type="checkbox" />each index.html under people and
+group should have a corresponding index.json that is used by Pandoc to
+render index.md that then renders index.html,
+include.include</label></li>
+<li><label><input type="checkbox" checked="" />Issue 40, SQL reference
+document_relation_type table issues</label></li>
+<li><label><input type="checkbox" />Issue 41, Add related URL as DOI
+value (really make eprints show this as a linked field in the display,
+don’t do that in the data structure)</label></li>
+<li><label><input type="checkbox" checked="" />Issue 44, Funders are
+coming up as “UNSPECIFIED”</label></li>
+<li><label><input type="checkbox" />Issue 45, Related URLs are coming in
+as “UNSPECIFIED”</label></li>
+<li><label><input type="checkbox" />Issue 47, Need to strip HTML from
+Abstract field</label></li>
+<li><label><input type="checkbox" />Issue 48, Imported EPrint doesn’t
+show up in review buffer</label>
+<ul class="task-list">
+<li><label><input type="checkbox" />in release 1.1.1-next datestamp
+isn’t set, example eprintid 111912</label></li>
+<li><label><input type="checkbox" checked="" />I might be setting the
+wrong event_status (e.g. buffer or inbox)</label></li>
+<li><label><input type="checkbox" checked="" />I need to confirm all
+timestamp fields and datestamp field is being set correctly</label></li>
 </ul></li>
-<li><input type="checkbox" disabled="" checked="" />Issue 49, Field
-defaults on import including resolver URL and collection</li>
-<li><input type="checkbox" disabled="" />Issue 50, Verify why imported
-and published EPrints don’t show in recent additions (is the an issue
-with generated views or with a datestamp not getting set
-correctly?).</li>
+<li><label><input type="checkbox" checked="" />Issue 49, Field defaults
+on import including resolver URL and collection</label></li>
+<li><label><input type="checkbox" />Issue 50, Verify why imported and
+published EPrints don’t show in recent additions (is the an issue with
+generated views or with a datestamp not getting set
+correctly?).</label></li>
 </ul>
 <h2 id="next-1">Next</h2>
 <ul class="task-list">
-<li><input type="checkbox" disabled="" />Add deposit info to EPrintXML
-output</li>
-<li><input type="checkbox" disabled="" />ioutil is depreciated, need to
-update the code that uses it</li>
-<li><input type="checkbox" disabled="" checked="" />Need a means of
-filtering for public EPrint records only<ul>
+<li><label><input type="checkbox" />Add deposit info to EPrintXML
+output</label></li>
+<li><label><input type="checkbox" />ioutil is depreciated, need to
+update the code that uses it</label></li>
+<li><label><input type="checkbox" checked="" />Need a means of filtering
+for public EPrint records only</label>
+<ul>
 <li><code>is-public</code> end point added to ep3apid</li>
 <li><code>?eprint_status=...</code> added for keys and keys by timestamp
 ranges</li>
 </ul></li>
-<li><input type="checkbox" disabled="" checked="" />Add Extended API
-support to eputil command</li>
-<li><input type="checkbox" disabled="" />Implement Solr index record
-view for Solr 8.9 ingest</li>
-<li><input type="checkbox" disabled="" />Add update end point to support
-update EPrints Metadata<ul class="task-list">
-<li><input type="checkbox" disabled="" />Figure out how historical diffs
-of EPrints XML are generated in EPrints’ History tab</li>
-<li><input type="checkbox" disabled="" />Implement updates versioning
-the EPrint Metadata record</li>
-<li><input type="checkbox" disabled="" />Implement file upload and
-manage document versioning</li>
+<li><label><input type="checkbox" checked="" />Add Extended API support
+to eputil command</label></li>
+<li><label><input type="checkbox" />Implement Solr index record view for
+Solr 8.9 ingest</label></li>
+<li><label><input type="checkbox" />Add update end point to support
+update EPrints Metadata</label>
+<ul class="task-list">
+<li><label><input type="checkbox" />Figure out how historical diffs of
+EPrints XML are generated in EPrints’ History tab</label></li>
+<li><label><input type="checkbox" />Implement updates versioning the
+EPrint Metadata record</label></li>
+<li><label><input type="checkbox" />Implement file upload and manage
+document versioning</label></li>
 </ul></li>
 </ul>
 <h2 id="completed">Completed</h2>
 <ul class="task-list">
-<li><input type="checkbox" disabled="" checked="" />Implement an example
-ep3apid Python API</li>
-<li><input type="checkbox" disabled="" checked="" />Implement a /version
-end point displaying ep3apid version number</li>
-<li><input type="checkbox" disabled="" checked="" />Create an example
-service file for running ep3apid as a service under SystemD (Linux)</li>
-<li><input type="checkbox" disabled="" checked="" />Create an example
-service file for running ep3apid as a service under LaunchD (macOS)</li>
-<li><input type="checkbox" disabled="" checked="" />Need a Users end
-point to get a list of users in the system and retrieve their numeric
-user id</li>
-<li><input type="checkbox" disabled="" checked="" />the various related
+<li><label><input type="checkbox" checked="" />Implement an example
+ep3apid Python API</label></li>
+<li><label><input type="checkbox" checked="" />Implement a /version end
+point displaying ep3apid version number</label></li>
+<li><label><input type="checkbox" checked="" />Create an example service
+file for running ep3apid as a service under SystemD (Linux)</label></li>
+<li><label><input type="checkbox" checked="" />Create an example service
+file for running ep3apid as a service under LaunchD (macOS)</label></li>
+<li><label><input type="checkbox" checked="" />Need a Users end point to
+get a list of users in the system and retrieve their numeric user
+id</label></li>
+<li><label><input type="checkbox" checked="" />the various related
 tables that represent item lists don’t have the same row count so I need
 to explicitly query for eprintid, pos or do JOIN and handle the NULL
-column cases.</li>
-<li><input type="checkbox" disabled="" checked="" />Fix
+column cases.</label></li>
+<li><label><input type="checkbox" checked="" />Fix
 lemurprints-import-api-16 through 21 examples, re-import with
-./bin/doi2eprintxml tool</li>
-<li><input type="checkbox" disabled="" checked="" />Add script to
-generate “lemurprints” database with support for all fields present
-across our repositories so I can do robust testing and generate
-appropriate testdata<ul class="task-list">
-<li><input type="checkbox" disabled="" checked="" />Include all fields
-and tables in caltechauthors</li>
-<li><input type="checkbox" disabled="" checked="" />Include all fields
-and tables in caltechthesis</li>
-<li><input type="checkbox" disabled="" checked="" />Include all fields
-and tables in caltechconf</li>
-<li><input type="checkbox" disabled="" checked="" />Include all fields
-and tables in caltechcampuspubs</li>
-<li><input type="checkbox" disabled="" checked="" />Include all fields
-and tables in calteches</li>
-<li><input type="checkbox" disabled="" checked="" />Include all fields
-and tabels in caltechoh</li>
-<li><input type="checkbox" disabled="" checked="" />Include all fields
-and tabels in caltechln</li>
-<li><input type="checkbox" disabled="" checked="" />Exported selected
-records from production, sanitize them and write import test against
-lemurprints test database</li>
-<li><input type="checkbox" disabled="" checked="" />Fetch DOI of records
-found in EPrints use them to test in lemurprints</li>
+./bin/doi2eprintxml tool</label></li>
+<li><label><input type="checkbox" checked="" />Add script to generate
+“lemurprints” database with support for all fields present across our
+repositories so I can do robust testing and generate appropriate
+testdata</label>
+<ul class="task-list">
+<li><label><input type="checkbox" checked="" />Include all fields and
+tables in caltechauthors</label></li>
+<li><label><input type="checkbox" checked="" />Include all fields and
+tables in caltechthesis</label></li>
+<li><label><input type="checkbox" checked="" />Include all fields and
+tables in caltechconf</label></li>
+<li><label><input type="checkbox" checked="" />Include all fields and
+tables in caltechcampuspubs</label></li>
+<li><label><input type="checkbox" checked="" />Include all fields and
+tables in calteches</label></li>
+<li><label><input type="checkbox" checked="" />Include all fields and
+tabels in caltechoh</label></li>
+<li><label><input type="checkbox" checked="" />Include all fields and
+tabels in caltechln</label></li>
+<li><label><input type="checkbox" checked="" />Exported selected records
+from production, sanitize them and write import test against lemurprints
+test database</label></li>
+<li><label><input type="checkbox" checked="" />Fetch DOI of records
+found in EPrints use them to test in lemurprints</label></li>
 </ul></li>
-<li><input type="checkbox" disabled="" checked="" />Add create end
-points to support importing EPrint XML metadata into eprints<ul
-class="task-list">
-<li><input type="checkbox" disabled="" checked="" />Implement
-SQLReadEPrint</li>
-<li><input type="checkbox" disabled="" checked="" />Implement
-SQLCreateEPrint</li>
-<li><input type="checkbox" disabled="" checked="" />Implement
-ImportEPrint for importing EPrint XML metadata</li>
-<li><input type="checkbox" disabled="" checked="" />Implement a method
-that takes a table/column map and EPrint structure then renders a INSERT
-or REPLACE sequence to create or update an EPrint record</li>
-<li><input type="checkbox" disabled="" checked="" />Implement a method
-that takes a table/column map and EPrint structure and update the EPrint
-structure from a sequnce of SELECT statements</li>
+<li><label><input type="checkbox" checked="" />Add create end points to
+support importing EPrint XML metadata into eprints</label>
+<ul class="task-list">
+<li><label><input type="checkbox" checked="" />Implement
+SQLReadEPrint</label></li>
+<li><label><input type="checkbox" checked="" />Implement
+SQLCreateEPrint</label></li>
+<li><label><input type="checkbox" checked="" />Implement ImportEPrint
+for importing EPrint XML metadata</label></li>
+<li><label><input type="checkbox" checked="" />Implement a method that
+takes a table/column map and EPrint structure then renders a INSERT or
+REPLACE sequence to create or update an EPrint record</label></li>
+<li><label><input type="checkbox" checked="" />Implement a method that
+takes a table/column map and EPrint structure and update the EPrint
+structure from a sequnce of SELECT statements</label></li>
 </ul></li>
-<li><input type="checkbox" disabled="" checked="" />Split clsrules into
-separate options to allow for more specific control</li>
-<li><input type="checkbox" disabled="" checked="" />Add end point for
+<li><label><input type="checkbox" checked="" />Split clsrules into
+separate options to allow for more specific control</label></li>
+<li><label><input type="checkbox" checked="" />Add end point for
 <code>/{REPO_ID}/year</code> (list years that have eprint records with a
-“published” date type)</li>
-<li><input type="checkbox" disabled="" checked="" />Add end point for
+“published” date type)</label></li>
+<li><label><input type="checkbox" checked="" />Add end point for
 <code>/{REPO_ID}/year/{YEAR}</code> lists eprint records published in
-that year</li>
-<li><input type="checkbox" disabled="" checked="" />Implement a method
-to show which tables a repository instance has and the column names in
-each table<ul class="task-list">
-<li><input type="checkbox" disabled="" checked="" />Implement a startup
-data structure that captures the <code>/repository/</code> end point
-data so that table/column map can be used to build the SQL queries need
-to read, create, and update an EPrint record</li>
-<li><input type="checkbox" disabled="" checked="" />Implement
+that year</label></li>
+<li><label><input type="checkbox" checked="" />Implement a method to
+show which tables a repository instance has and the column names in each
+table</label>
+<ul class="task-list">
+<li><label><input type="checkbox" checked="" />Implement a startup data
+structure that captures the <code>/repository/</code> end point data so
+that table/column map can be used to build the SQL queries need to read,
+create, and update an EPrint record</label></li>
+<li><label><input type="checkbox" checked="" />Implement
 <code>/repository/&lt;REPO_ID&gt;</code> end point with
-<code>map[string][]string{}</code> output</li>
+<code>map[string][]string{}</code> output</label></li>
 </ul></li>
-<li><input type="checkbox" disabled="" checked="" />doi2eprintxml list
-of DOI should allow for pipe separator and URL to object and handle it
-like Acacia does</li>
-<li><input type="checkbox" disabled="" checked="" />doi2eprintxml needs
-to fetch the object URL and save results along side the generated
-EPrints XML<ul>
+<li><label><input type="checkbox" checked="" />doi2eprintxml list of DOI
+should allow for pipe separator and URL to object and handle it like
+Acacia does</label></li>
+<li><label><input type="checkbox" checked="" />doi2eprintxml needs to
+fetch the object URL and save results along side the generated EPrints
+XML</label>
+<ul>
 <li>added with a -D,-download option in doi2eprintxml.</li>
 </ul></li>
-<li><input type="checkbox" disabled="" checked="" />Added created
-(datestamp) end point for feeds</li>
-<li><input type="checkbox" disabled="" checked="" />Implement Simplified
-JSON record based on<ul>
+<li><label><input type="checkbox" checked="" />Added created (datestamp)
+end point for feeds</label></li>
+<li><label><input type="checkbox" checked="" />Implement Simplified JSON
+record based on</label>
+<ul>
 <li>https://inveniordm.docs.cern.ch/reference/metadata/</li>
 <li>https://github.com/caltechlibrary/caltechdata_api/blob/ce16c6856eb7f6424db65c1b06de741bbcaee2c8/tests/conftest.py#L147</li>
 </ul></li>
-<li><input type="checkbox" disabled="" checked="" />Add simplified JSON
-output option to<ul class="task-list">
-<li><input type="checkbox" disabled="" checked="" />eputil</li>
-<li><input type="checkbox" disabled="" checked="" />epfmt</li>
-<li><input type="checkbox" disabled="" checked="" />doi2eprintxml</li>
+<li><label><input type="checkbox" checked="" />Add simplified JSON
+output option to</label>
+<ul class="task-list">
+<li><label><input type="checkbox" checked="" />eputil</label></li>
+<li><label><input type="checkbox" checked="" />epfmt</label></li>
+<li><label><input type="checkbox"
+checked="" />doi2eprintxml</label></li>
 </ul></li>
 </ul>
 <h2 id="someday-maybe">Someday, Maybe</h2>
 <ul class="task-list">
-<li><input type="checkbox" disabled="" />Add end point to recreate
-Person A-Z list</li>
-<li><input type="checkbox" disabled="" />Add end point for subjects</li>
-<li><input type="checkbox" disabled="" />Add end point for events
-(Conferences)</li>
-<li><input type="checkbox" disabled="" />Add end point for
-collection</li>
-<li><input type="checkbox" disabled="" />Add end point for
-publication</li>
-<li><input type="checkbox" disabled="" />Add end point for
-place_of_pub</li>
-<li><input type="checkbox" disabled="" />Add end point for issn</li>
-<li><input type="checkbox" disabled="" />Add end point for Person
-(Person IDs)</li>
-<li><input type="checkbox" disabled="" />Add end point for Authors
-(creators)</li>
-<li><input type="checkbox" disabled="" />Add end point for Editors</li>
-<li><input type="checkbox" disabled="" />Add end point for
-contributors</li>
-<li><input type="checkbox" disabled="" />Add end point for types</li>
-<li><input type="checkbox" disabled="" />Add end point for
-corp_creators</li>
-<li><input type="checkbox" disabled="" />Add end point ofr
-issuing_body</li>
+<li><label><input type="checkbox" />Add end point to recreate Person A-Z
+list</label></li>
+<li><label><input type="checkbox" />Add end point for
+subjects</label></li>
+<li><label><input type="checkbox" />Add end point for events
+(Conferences)</label></li>
+<li><label><input type="checkbox" />Add end point for
+collection</label></li>
+<li><label><input type="checkbox" />Add end point for
+publication</label></li>
+<li><label><input type="checkbox" />Add end point for
+place_of_pub</label></li>
+<li><label><input type="checkbox" />Add end point for issn</label></li>
+<li><label><input type="checkbox" />Add end point for Person (Person
+IDs)</label></li>
+<li><label><input type="checkbox" />Add end point for Authors
+(creators)</label></li>
+<li><label><input type="checkbox" />Add end point for
+Editors</label></li>
+<li><label><input type="checkbox" />Add end point for
+contributors</label></li>
+<li><label><input type="checkbox" />Add end point for types</label></li>
+<li><label><input type="checkbox" />Add end point for
+corp_creators</label></li>
+<li><label><input type="checkbox" />Add end point ofr
+issuing_body</label></li>
 </ul>
 </section>
 
