@@ -16,6 +16,8 @@ github.com/caltechlibrary/semver v0.0.0-20220817184719-a504da2d5c6a h1:3q6ct6FfF
 github.com/caltechlibrary/semver v0.0.0-20220817184719-a504da2d5c6a/go.mod h1:LxzDpCilL3QqjL8qdirgmlo8riDkSFNsTALfIYYyQtE=
 github.com/caltechlibrary/simplified v0.0.19 h1:zyiGhuanLSe0DcdsvvmG8JV/+saO0m7SDRrB44ohPE4=
 github.com/caltechlibrary/simplified v0.0.19/go.mod h1:T36AVk2yLIhH/0zlM3wTeVEFgcsSn2zqdqFVanntSPc=
+github.com/caltechlibrary/simplified v0.0.21 h1:oZ3Un7KAyDIXyLeonRDUwuP4E3vhJxouhBNb4mdgx0A=
+github.com/caltechlibrary/simplified v0.0.21/go.mod h1:T36AVk2yLIhH/0zlM3wTeVEFgcsSn2zqdqFVanntSPc=
 github.com/dustin/go-humanize v1.0.0/go.mod h1:HtrtbFcZ19U5GC7JDqmcUSB87Iq5E25KnS6fMYU6eOk=
 github.com/glebarez/go-sqlite v1.18.1 h1:w0xtxKWktqYsUsXg//SQK+l1IcpKb3rGOQHmMptvL2U=
 github.com/glebarez/go-sqlite v1.18.1/go.mod h1:ydXIGq2M4OzF4YyNhH129SPp7jWoVvgkEgb6pldmS0s=

@@ -7,7 +7,7 @@ require (
 	github.com/caltechlibrary/dataciteapi v1.0.1
 	github.com/caltechlibrary/dataset/v2 v2.1.1
 	github.com/caltechlibrary/pairtree v1.0.2
-	github.com/caltechlibrary/simplified v0.0.19
+	github.com/caltechlibrary/simplified v0.0.21
 	github.com/go-sql-driver/mysql v1.7.1
 	golang.org/x/crypto v0.11.0
 )

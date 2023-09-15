@@ -446,7 +446,7 @@ func funderFromItem(item *Item) *simplified.Funder {
 		funder.Award.Scheme = "eprints_grant_number"
 	}
 	if item.Agency != "" {
-		org := new(simplified.Identifier)
+		org := new(simplified.FunderIdentifier)
 		org.Name = item.Agency
 		org.Scheme = "eprints_agency"
 		funder.Funder = org
