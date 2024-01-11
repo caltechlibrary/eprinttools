@@ -1096,7 +1096,7 @@ type RelationItemList struct {
 }
 
 // Init will initilize the Items array attribute of List
-func (itemList *KeywordItemList) Init() {
+func (itemList *RelationItemList) Init() {
 	if itemList.Items == nil {
 		itemList.Items = []*Item{}
 	}
