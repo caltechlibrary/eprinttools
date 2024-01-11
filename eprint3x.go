@@ -519,6 +519,8 @@ func (item *Item) UnmarshalJSON(src []byte) error {
 
 // ItemsInterface describes a common set of operations on an item list.
 type ItemsInterface interface {
+	// Init will initialize the item interface element (e.g. initialize .Items array)
+	Init()
 	// Append an item to an ItemList
 	Append(*Item) int
 	// Length returns the item count
@@ -533,6 +535,13 @@ type ItemsInterface interface {
 type CreatorItemList struct {
 	XMLName xml.Name `xml:"creators" json:"-"`
 	Items   []*Item  `xml:"item,omitempty" json:"items,omitempty"`
+}
+
+// Init will initilize the Items array attribute of List
+func (itemList *CreatorItemList) Init() {
+	if itemList.Items == nil {
+		itemList.Items = []*Item{}
+	}
 }
 
 // Append adds an item to the Creator list and returns the new count of items
@@ -590,6 +599,13 @@ type EditorItemList struct {
 	Items   []*Item  `xml:"item,omitempty" json:"items,omitempty"`
 }
 
+// Init will initilize the Items array attribute of List
+func (itemList *EditorItemList) Init() {
+	if itemList.Items == nil {
+		itemList.Items = []*Item{}
+	}
+}
+
 // Append adds an item to the Editor item list and returns the new count of items
 func (itemList *EditorItemList) Append(item *Item) int {
 	itemList.Items = append(itemList.Items, item)
@@ -639,6 +655,13 @@ type RelatedURLItemList struct {
 	Items   []*Item  `xml:"item,omitempty" json:"items,omitempty"`
 }
 
+// Init will initilize the Items array attribute of List
+func (itemList *RelatedURLItemList) Init() {
+	if itemList.Items == nil {
+		itemList.Items = []*Item{}
+	}
+}
+
 // Append an item to the related url item list
 func (itemList *RelatedURLItemList) Append(item *Item) int {
 	itemList.Items = append(itemList.Items, item)
@@ -673,6 +696,13 @@ func (itemList *RelatedURLItemList) SetAttributeOf(i int, key string, value inte
 type ReferenceTextItemList struct {
 	XMLName xml.Name `xml:"referencetext" json:"-"`
 	Items   []*Item  `xml:"item,omitempty" json:"items,omitempty"`
+}
+
+// Init will initilize the Items array attribute of List
+func (itemList *ReferenceTextItemList) Init() {
+	if itemList.Items == nil {
+		itemList.Items = []*Item{}
+	}
 }
 
 // Append adds an item to the reference text url item list and returns the new count of items
@@ -737,6 +767,13 @@ type ProjectItemList struct {
 	Items   []*Item  `xml:"item,omitempty" json:"items,omitempty"`
 }
 
+// Init will initilize the Items array attribute of List
+func (itemList *ProjectItemList) Init() {
+	if itemList.Items == nil {
+		itemList.Items = []*Item{}
+	}
+}
+
 // Append adds an item to the project item list and returns the new count of items
 func (itemList *ProjectItemList) Append(item *Item) int {
 	itemList.Items = append(itemList.Items, item)
@@ -773,6 +810,13 @@ type FunderItemList struct {
 	Items   []*Item  `xml:"item,omitempty" json:"items,omitempty"`
 }
 
+// Init will initilize the Items array attribute of List
+func (itemList *FunderItemList) Init() {
+	if itemList.Items == nil {
+		itemList.Items = []*Item{}
+	}
+}
+
 // Append adds an item to the funder item list and returns the new count of items
 func (itemList *FunderItemList) Append(item *Item) int {
 	itemList.Items = append(itemList.Items, item)
@@ -807,6 +851,13 @@ func (itemList *FunderItemList) SetAttributeOf(i int, key string, value interfac
 type LocalGroupItemList struct {
 	XMLName xml.Name `xml:"local_group" json:"-"`
 	Items   []*Item  `xml:"item,omitempty" json:"items,omitempty"`
+}
+
+// Init will initilize the Items array attribute of List
+func (itemList *LocalGroupItemList) Init() {
+	if itemList.Items == nil {
+		itemList.Items = []*Item{}
+	}
 }
 
 // Append adds an item to the local group item list and returns the new count of items
@@ -858,6 +909,13 @@ type OtherNumberingSystemItemList struct {
 	Items   []*Item  `xml:"item,omitempty" json:"items,omitempty"`
 }
 
+// Init will initilize the Items array attribute of List
+func (itemList *OtherNumberingSystemItemList) Init() {
+	if itemList.Items == nil {
+		itemList.Items = []*Item{}
+	}
+}
+
 // Append adds an item to the other numbering system item list and returns the new count of items
 func (itemList *OtherNumberingSystemItemList) Append(item *Item) int {
 	itemList.Items = append(itemList.Items, item)
@@ -893,6 +951,14 @@ type ContributorItemList struct {
 	XMLName xml.Name `xml:"contributors" json:"-"`
 	Items   []*Item  `xml:"item,omitempty" json:"items,omitempty"`
 }
+
+// Init will initilize the Items array attribute of List
+func (itemList *ContributorItemList) Init() {
+	if itemList.Items == nil {
+		itemList.Items = []*Item{}
+	}
+}
+
 
 // Append adds an item to the contributor item list and returns the new count of items
 func (itemList *ContributorItemList) Append(item *Item) int {
@@ -943,6 +1009,13 @@ type SubjectItemList struct {
 	Items   []*Item  `xml:"item,omitempty" json:"items,omitempty"`
 }
 
+// Init will initilize the Items array attribute of List
+func (itemList *SubjectItemList) Init() {
+	if itemList.Items == nil {
+		itemList.Items = []*Item{}
+	}
+}
+
 // Append adds an item to the subject item list and returns the new count of items
 func (itemList *SubjectItemList) Append(item *Item) int {
 	itemList.Items = append(itemList.Items, item)
@@ -977,6 +1050,13 @@ func (itemList *SubjectItemList) SetAttributeOf(i int, key string, value interfa
 type KeywordItemList struct {
 	XMLName xml.Name `xml:"keywords" json:"-"`
 	Items   []*Item  `xml:"item,omitempty" json:"items,omitempty"`
+}
+
+// Init will initilize the Items array attribute of List
+func (itemList *KeywordItemList) Init() {
+	if itemList.Items == nil {
+		itemList.Items = []*Item{}
+	}
 }
 
 // Append adds an item to the subject item list and returns the new count of items
@@ -1015,6 +1095,13 @@ type RelationItemList struct {
 	Items   []*Item  `xml:"item,omitempty" json:"items,omitempty"`
 }
 
+// Init will initilize the Items array attribute of List
+func (itemList *KeywordItemList) Init() {
+	if itemList.Items == nil {
+		itemList.Items = []*Item{}
+	}
+}
+
 // Append adds an item to the subject item list and returns the new count of items
 func (itemList *RelationItemList) Append(item *Item) int {
 	itemList.Items = append(itemList.Items, item)
@@ -1049,6 +1136,13 @@ func (itemList *RelationItemList) SetAttributeOf(i int, key string, value interf
 type ItemIssueItemList struct {
 	XMLName xml.Name `xml:"item_issues" json:"-"`
 	Items   []*Item  `xml:"item,omitempty" json:"items,omitempty"`
+}
+
+// Init will initilize the Items array attribute of List
+func (itemList *ItemIssueItemList) Init() {
+	if itemList.Items == nil {
+		itemList.Items = []*Item{}
+	}
 }
 
 // Append adds an item to the issue item list and returns the new count of items
@@ -1087,6 +1181,13 @@ type CorpCreatorItemList struct {
 	Items   []*Item  `xml:"item,omitempty" json:"items,omitempty"`
 }
 
+// Init will initilize the Items array attribute of List
+func (itemList *CorpCreatorItemList) Init() {
+	if itemList.Items == nil {
+		itemList.Items = []*Item{}
+	}
+}
+
 // Append adds an item to the corp creator item list and returns the new count of items
 func (itemList *CorpCreatorItemList) Append(item *Item) int {
 	itemList.Items = append(itemList.Items, item)
@@ -1121,6 +1222,13 @@ func (itemList *CorpCreatorItemList) SetAttributeOf(i int, key string, value int
 type CorpContributorItemList struct {
 	XMLName xml.Name `xml:"corp_contributors" json:"-"`
 	Items   []*Item  `xml:"item,omitempty" json:"items,omitempty"`
+}
+
+// Init will initilize the Items array attribute of List
+func (itemList *CorpContributorItemList) Init() {
+	if itemList.Items == nil {
+		itemList.Items = []*Item{}
+	}
 }
 
 // Append adds an item to the corp creator item list and returns the new count of items
@@ -1172,6 +1280,13 @@ type ExhibitorItemList struct {
 	Items   []*Item  `xml:"item,omitempty" json:"items,omitempty"`
 }
 
+// Init will initilize the Items array attribute of List
+func (itemList *ExhibitorItemList) Init() {
+	if itemList.Items == nil {
+		itemList.Items = []*Item{}
+	}
+}
+
 // Append adds an item to the exhibitor item list and returns the new count of items
 func (itemList *ExhibitorItemList) Append(item *Item) int {
 	itemList.Items = append(itemList.Items, item)
@@ -1206,6 +1321,13 @@ func (itemList *ExhibitorItemList) SetAttributeOf(i int, key string, value inter
 type ProducerItemList struct {
 	XMLName xml.Name `xml:"producers" json:"-"`
 	Items   []*Item  `xml:"item,omitempty" json:"items,omitempty"`
+}
+
+// Init will initilize the Items array attribute of List
+func (itemList *ProducerItemList) Init() {
+	if itemList.Items == nil {
+		itemList.Items = []*Item{}
+	}
 }
 
 // Append adds an item to the producer item list and returns the new count of items
@@ -1244,6 +1366,13 @@ type ConductorItemList struct {
 	Items   []*Item  `xml:"item,omitempty" json:"items,omitempty"`
 }
 
+// Init will initilize the Items array attribute of List
+func (itemList *ConductorItemList) Init() {
+	if itemList.Items == nil {
+		itemList.Items = []*Item{}
+	}
+}
+
 // Append adds an item to the conductor item list and returns the new count of items
 func (itemList *ConductorItemList) Append(item *Item) int {
 	itemList.Items = append(itemList.Items, item)
@@ -1280,6 +1409,13 @@ type LyricistItemList struct {
 	Items   []*Item  `xml:"item,omitempty" json:"items,omitempty"`
 }
 
+// Init will initilize the Items array attribute of List
+func (itemList *LyricistItemList) Init() {
+	if itemList.Items == nil {
+		itemList.Items = []*Item{}
+	}
+}
+
 // Append adds an item to the lyricist item list and returns the new count of items
 func (itemList *LyricistItemList) Append(item *Item) int {
 	itemList.Items = append(itemList.Items, item)
@@ -1314,6 +1450,13 @@ func (itemList *LyricistItemList) SetAttributeOf(i int, key string, value interf
 type OptionMajorItemList struct {
 	XMLName xml.Name `xml:"option_major" json:"-"`
 	Items   []*Item  `xml:"item,omitempty" json:"items,omitempty"`
+}
+
+// Init will initilize the Items array attribute of List
+func (itemList *OptionMajorItemList) Init() {
+	if itemList.Items == nil {
+		itemList.Items = []*Item{}
+	}
 }
 
 // Append adds an item to the option major item list and returns the new count of items
@@ -1365,6 +1508,13 @@ type OptionMinorItemList struct {
 	Items   []*Item  `xml:"item,omitempty" json:"items,omitempty"`
 }
 
+// Init will initilize the Items array attribute of List
+func (itemList *OptionMinorItemList) Init() {
+	if itemList.Items == nil {
+		itemList.Items = []*Item{}
+	}
+}
+
 // Append adds an item to the option minor item list and returns the new count of items
 func (itemList *OptionMinorItemList) Append(item *Item) int {
 	itemList.Items = append(itemList.Items, item)
@@ -1412,6 +1562,13 @@ func (itemList *OptionMinorItemList) GetOptions() []string {
 type ThesisCommitteeItemList struct {
 	XMLName xml.Name `xml:"thesis_committee" json:"-"`
 	Items   []*Item  `xml:"item,omitempty" json:"items,omitempty"`
+}
+
+// Init will initilize the Items array attribute of List
+func (itemList *ThesisCommitteeItemList) Init() {
+	if itemList.Items == nil {
+		itemList.Items = []*Item{}
+	}
 }
 
 // Append adds an item to the thesis committee item list and returns the new count of items
@@ -1463,6 +1620,13 @@ type ThesisAdvisorItemList struct {
 	Items   []*Item  `xml:"item,omitempty" json:"items,omitempty"`
 }
 
+// Init will initilize the Items array attribute of List
+func (itemList *ThesisAdvisorItemList) Init() {
+	if itemList.Items == nil {
+		itemList.Items = []*Item{}
+	}
+}
+
 // Append adds an item to the thesis advisor item list and returns the new count of items
 func (itemList *ThesisAdvisorItemList) Append(item *Item) int {
 	itemList.Items = append(itemList.Items, item)
@@ -1512,6 +1676,13 @@ type DivisionItemList struct {
 	Items   []*Item  `xml:"item,omitempty" json:"items,omitempty"`
 }
 
+// Init will initilize the Items array attribute of List
+func (itemList *DivisionItemList) Init() {
+	if itemList.Items == nil {
+		itemList.Items = []*Item{}
+	}
+}
+
 // Append adds an item to the division item list and returns the new count of items
 func (itemList *DivisionItemList) Append(item *Item) int {
 	itemList.Items = append(itemList.Items, item)
@@ -1546,6 +1717,13 @@ func (itemList *DivisionItemList) SetAttributeOf(i int, key string, value interf
 type RelatedPatentItemList struct {
 	XMLName xml.Name `xml:"related_patents" json:"-"`
 	Items   []*Item  `xml:"item,omitempty" json:"items,omitempty"`
+}
+
+// Init will initilize the Items array attribute of List
+func (itemList *RelatedPatentItemList) Init() {
+	if itemList.Items == nil {
+		itemList.Items = []*Item{}
+	}
 }
 
 // Append adds an item to the related patent item list and returns the new count of items
@@ -1584,6 +1762,13 @@ type PatentClassificationItemList struct {
 	Items   []*Item  `xml:"item,omitempty" json:"items,omitempty"`
 }
 
+// Init will initilize the Items array attribute of List
+func (itemList *PatentClassificationItemList) Init() {
+	if itemList.Items == nil {
+		itemList.Items = []*Item{}
+	}
+}
+
 // Append adds an item to the patent classification item list and returns the new count of items
 func (itemList *PatentClassificationItemList) Append(item *Item) int {
 	itemList.Items = append(itemList.Items, item)
@@ -1618,6 +1803,13 @@ func (itemList *PatentClassificationItemList) SetAttributeOf(i int, key string, 
 type PatentAssigneeItemList struct {
 	XMLName xml.Name `xml:"patent_assignee" json:"-"`
 	Items   []*Item  `xml:"item,omitempty" json:"items,omitempty"`
+}
+
+// Init will initilize the Items array attribute of List
+func (itemList *PatentAssigneeItemList) Init() {
+	if itemList.Items == nil {
+		itemList.Items = []*Item{}
+	}
 }
 
 // Append adds an item to the patent assignee item list and returns the new count of items
@@ -1656,6 +1848,13 @@ type ShelfItemList struct {
 	Items   []*Item  `xml:"item,omitempty" json:"items,omitempty"`
 }
 
+// Init will initilize the Items array attribute of List
+func (itemList *ShelfItemList) Init() {
+	if itemList.Items == nil {
+		itemList.Items = []*Item{}
+	}
+}
+
 // Append adds an item to the shelf item list and returns the new count of items
 func (itemList *ShelfItemList) Append(item *Item) int {
 	itemList.Items = append(itemList.Items, item)
@@ -1690,6 +1889,13 @@ func (itemList *ShelfItemList) SetAttributeOf(i int, key string, value interface
 type GScholarItemList struct {
 	XMLName xml.Name `xml:"gscholar" json:"-"`
 	Items   []*Item  `xml:"item,omitempty" json:"items,omitempty"`
+}
+
+// Init will initilize the Items array attribute of List
+func (itemList *GScholarItemList) Init() {
+	if itemList.Items == nil {
+		itemList.Items = []*Item{}
+	}
 }
 
 // Append adds an item to the gScholar item list and returns the new count of items
@@ -1728,6 +1934,13 @@ type AltTitleItemList struct {
 	Items   []*Item  `xml:"item,omitempty" json:"items,omitempty"`
 }
 
+// Init will initilize the Items array attribute of List
+func (itemList *AltTitleItemList) Init() {
+	if itemList.Items == nil {
+		itemList.Items = []*Item{}
+	}
+}
+
 // Append adds an item to the altTitle item list and returns the new count of items
 func (itemList *AltTitleItemList) Append(item *Item) int {
 	itemList.Items = append(itemList.Items, item)
@@ -1762,6 +1975,13 @@ func (itemList *AltTitleItemList) SetAttributeOf(i int, key string, value interf
 type ConfCreatorItemList struct {
 	XMLName xml.Name `xml:"conf_creators" json:"-"`
 	Items   []*Item  `xml:"item,omitempty" json:"items,omitempty"`
+}
+
+// Init will initilize the Items array attribute of List
+func (itemList *ConfCreatorItemList) Init() {
+	if itemList.Items == nil {
+		itemList.Items = []*Item{}
+	}
 }
 
 // Append adds an item to the confCreator item list and returns the new count of items
@@ -1800,6 +2020,13 @@ type ReferenceItemList struct {
 	Items   []*Item  `xml:"item,omitempty" json:"items,omitempty"`
 }
 
+// Init will initilize the Items array attribute of List
+func (itemList *ReferenceItemList) Init() {
+	if itemList.Items == nil {
+		itemList.Items = []*Item{}
+	}
+}
+
 // Append adds an item to the reference item list and returns the new count of items
 func (itemList *ReferenceItemList) Append(item *Item) int {
 	itemList.Items = append(itemList.Items, item)
@@ -1834,6 +2061,13 @@ func (itemList *ReferenceItemList) SetAttributeOf(i int, key string, value inter
 type LearningLevelItemList struct {
 	XMLName xml.Name `xml:"learning_level" json:"-"`
 	Items   []*Item  `xml:"item,omitempty" json:"items,omitempty"`
+}
+
+// Init will initilize the Items array attribute of List
+func (itemList *LearningLevelItemList) Init() {
+	if itemList.Items == nil {
+		itemList.Items = []*Item{}
+	}
 }
 
 // Append adds an item to the learningLevel item list and returns the new count of items
@@ -1872,6 +2106,13 @@ type CopyrightHolderItemList struct {
 	Items   []*Item  `xml:"item,omitempty" json:"items,omitempty"`
 }
 
+// Init will initilize the Items array attribute of List
+func (itemList *CopyrightHolderItemList) Init() {
+	if itemList.Items == nil {
+		itemList.Items = []*Item{}
+	}
+}
+
 // Append adds an item to the copyrightHolder item list and returns the new count of items
 func (itemList *CopyrightHolderItemList) Append(item *Item) int {
 	itemList.Items = append(itemList.Items, item)
@@ -1908,6 +2149,13 @@ type SkillAreaItemList struct {
 	Items   []*Item  `xml:"item,omitempty" jsons:"item,omitempty"`
 }
 
+// Init will initilize the Items array attribute of List
+func (itemList *SkillAreaItemList) Init() {
+	if itemList.Items == nil {
+		itemList.Items = []*Item{}
+	}
+}
+
 // Append adds an item to the skillArea item list and returns the new count of items
 func (itemList *SkillAreaItemList) Append(item *Item) int {
 	itemList.Items = append(itemList.Items, item)
@@ -1942,6 +2190,13 @@ func (itemList *SkillAreaItemList) SetAttributeOf(i int, key string, value inter
 type AccompanimentItemList struct {
 	XMLName xml.Name `xml:"accompaniment" json:"-"`
 	Items   []*Item  `xml:"item,omitempty" json:"items,omitempty"`
+}
+
+// Init will initilize the Items array attribute of List
+func (itemList *AccompanimentItemList) Init() {
+	if itemList.Items == nil {
+		itemList.Items = []*Item{}
+	}
 }
 
 // Append adds an item to the accompaniment item list and returns the new count of items
