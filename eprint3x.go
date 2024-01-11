@@ -1672,7 +1672,7 @@ func (itemList *ShelfItemList) Length() int {
 
 // IndexOf return item or nil
 func (itemList *ShelfItemList) IndexOf(i int) *Item {
-	if i >= 0 && i <= itemList.Length() {
+	if i >= 0 && i < itemList.Length() {
 		return itemList.Items[i]
 	}
 	return nil
