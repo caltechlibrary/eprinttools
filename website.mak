@@ -17,7 +17,7 @@ $(HTML_PAGES): $(MD_PAGES) .FORCE
 	git add $(basename $@).html
 
 pagefind: .FORCE
-	pagefind --verbose --exclude-selectors="nav,header,footer" --bundle-dir ./pagefind --source .
+	pagefind --verbose --exclude-selectors="nav,header,footer" --site .
 	git add pagefind
 
 clean:

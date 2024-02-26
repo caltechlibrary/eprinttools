@@ -11,7 +11,7 @@ authors:
     orcid: "https://orcid.org/0000-0003-0900-6903"
 
 repository-code: "https://github.com/caltechlibrary/eprinttools"
-version: 1.3.6
+version: 1.3.7
 license-url: "https://caltechlibrary.github.io/eprinttools/license.html"
 keywords: [ "metadata", "repository", "EPrints", "CrossRef", "DataCite", "software" ]
 date-released: 2023-06-06
@@ -20,7 +20,7 @@ date-released: 2023-06-06
 About this software
 ===================
 
-## eprinttools 1.3.6
+## eprinttools 1.3.7
 
 ### Authors
 
@@ -44,6 +44,6 @@ the EPrints 3.x REST API
 
 ### Programming languages
 
-- Go
+- Go &gt;= 1.22
 
 
