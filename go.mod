@@ -10,6 +10,7 @@ require (
 	github.com/caltechlibrary/simplified v0.0.22
 	github.com/go-sql-driver/mysql v1.7.1
 	golang.org/x/crypto v0.20.0
+	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (

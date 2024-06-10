@@ -143,7 +143,7 @@ The metadata import functionality is enabled per repository. It only supports im
 
 ## settings.json (configuration)
 
-The JSON settings.json file should look something like "REPO_ID" would
+The JSON (or YAML) settings.json file should look something like "REPO_ID" would
 be the name used in the __{app_name}__ to access a specific repsitory. The
 "dsn" value should be replaced with an appropriate data source name to
 access the MySQL database for the repository you're supporting. You can have many repositories configured in a single __{app_name}__ instance.

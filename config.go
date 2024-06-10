@@ -11,6 +11,10 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"strings"
+
+	// 3rd Party Package
+	"gopkg.in/yaml.v3"
 )
 
 // Config holds a configuration file structure used by EPrints Extended API
@@ -153,8 +157,14 @@ func LoadConfig(fname string) (*Config, error) {
 		return nil, err
 	} else {
 		// Since we should be OK, unmarshal in into active config
-		if err = jsonDecode(src, &config); err != nil {
-			return nil, fmt.Errorf("Unmarshaling %q failed, %s", fname, err)
+		if strings.HasSuffix(fname, ".yaml") {
+			if err = yaml.Unmarshal(src, &config); err != nil {
+				return nil, fmt.Errorf("Unmarshaling %q failed, %s", fname, err)
+			}
+		} else {
+			if err = jsonDecode(src, &config); err != nil {
+				return nil, fmt.Errorf("Unmarshaling %q failed, %s", fname, err)
+			}
 		}
 		if config.Hostname == "" {
 			config.Hostname = "localhost:8484"
