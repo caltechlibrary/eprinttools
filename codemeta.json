@@ -68,7 +68,7 @@
   "developmentStatus": "inactive",
   "issueTracker": "https://github.com/caltechlibrary/eprinttools/issues",
   "downloadUrl": "https://github.com/caltechlibrary/eprinttools/release/latest",
-  "releaseNotes": "updated module depencies per issue #68",
+  "releaseNotes": "updated module depencies per issue #68.",
   "copyrightYear": 2022,
   "copyrightHolder": [
     "California Institute of Technology"

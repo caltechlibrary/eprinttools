@@ -39,7 +39,7 @@ About this software
 
 ## eprinttools 1.3.10
 
-updated module depencies per issue #68
+updated module depencies per issue #68.
 
 ### Authors
 
