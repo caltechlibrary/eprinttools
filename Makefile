@@ -42,17 +42,10 @@ ifeq ($(quick), true)
 endif
 
 
-build: version.go $(PROGRAMS) about.md installer.sh
+build: version.go $(PROGRAMS) about.md installer.sh installer.ps1
 
 version.go: .FORCE
-	echo '' | pandoc --from t2t --to plain \
-                --metadata-file codemeta.json \
-                --metadata package=$(PROJECT) \
-                --metadata version=$(VERSION) \
-                --metadata release_date=$(RELEASE_DATE) \
-                --metadata release_hash=$(RELEASE_HASH) \
-                --template codemeta-version-go.tmpl \
-                LICENSE >version.go
+	cmt codemeta.json version.go
 
 $(PROGRAMS): $(PACKAGE)
 	@mkdir -p bin
@@ -65,9 +58,7 @@ $(MAN_PAGES): .FORCE
 	$(PANDOC) $@.md --from markdown --to man -s >man/man1/$@
 
 CITATION.cff: .FORCE
-	cat codemeta.json | sed -E   's/"@context"/"at__context"/g;s/"@type"/"at__type"/g;s/"@id"/"at__id"/g' >_codemeta.json
-	if [ -f $(PANDOC) ]; then echo "" | $(PANDOC) --metadata title="Cite $(PROJECT)" --metadata-file=_codemeta.json --template=codemeta-cff.tmpl >CITATION.cff; fi
-	if [ -f _codemeta.json ]; then rm _codemeta.json; fi
+	cmt codemeta.json CITATION.cff
 
 # NOTE: macOS requires a "mv" command for placing binaries instead of "cp" due to signing process of compile
 install: build man
@@ -89,14 +80,13 @@ index.md: .FORCE
 	git add index.md
 
 about.md: .FORCE
-	cat codemeta.json | sed -E 's/"@context"/"at__context"/g;s/"@type"/"at__type"/g;s/"@id"/"at__id"/g' >_codemeta.json
-	if [ -f $(PANDOC) ]; then echo "" | pandoc --metadata title="About $(PROJECT)" --metadata-file=_codemeta.json --template codemeta-about.tmpl >about.md; fi
-	if [ -f _codemeta.json ]; then rm _codemeta.json; fi
+	cmt codemeta.json about.md
 
 installer.sh: .FORCE
-	@echo '' | pandoc --metadata title="Installer" --metadata git_org_or_person="$(GIT_GROUP)" --metadata-file codemeta.json --template codemeta-installer.tmpl >installer.sh
-	chmod 775 installer.sh
-	git add -f installer.sh
+	cmt codemeta.json installer.sh
+
+installer.ps1: .FORCE
+	cmt codemeta.json installer.ps1
 
 website: index.md about.md page.tmpl *.md LICENSE css/site.css
 	make -f website.mak
@@ -179,6 +169,7 @@ dist_cleanup: .FORCE
 	if [ -d dist ]; then rm -fR dist/*; fi
 
 release: build man CITATION.cff dist_cleanup distribute_docs dist/Linux-x86_64 dist/Windows-x86_64 dist/Windows-arm64 dist/macOS-x86_64 dist/macOS-arm64 dist/RaspberryPiOS-arm7 dist/Linux-aarch64 dist/Linux-armv7l
+	echo "Ready to do ./release.bash"
 
 status:
 	git status
