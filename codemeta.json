@@ -64,11 +64,11 @@
     "Pandoc > 3",
     "CMTools >= 0.0.23"
   ],
-  "version": "1.3.10",
+  "version": "1.3.11",
   "developmentStatus": "inactive",
   "issueTracker": "https://github.com/caltechlibrary/eprinttools/issues",
   "downloadUrl": "https://github.com/caltechlibrary/eprinttools/release/latest",
-  "releaseNotes": "updated module depencies per issue #68.",
+  "releaseNotes": "updated module depencies per issue #68. Added another report showing all non published and non submitted status and eprintid.",
   "copyrightYear": 2022,
   "copyrightHolder": [
     "California Institute of Technology"

@@ -17,7 +17,7 @@ maintainer:
     id: https://orcid.org/0000-0003-0900-6903
 
 repository_code: https://github.com/caltechlibrary/eprinttools
-version: 1.3.10
+version: 1.3.11
 license_url: https://caltechlibrary.github.io/eprinttools/LICENSE
 
 programming_language:
@@ -37,9 +37,9 @@ date_released: 2024-04-14
 About this software
 ===================
 
-## eprinttools 1.3.10
+## eprinttools 1.3.11
 
-updated module depencies per issue #68.
+updated module depencies per issue #68. Added another report showing all non published and non submitted status and eprintid.
 
 ### Authors
 
