@@ -17,7 +17,7 @@ maintainer:
     id: https://orcid.org/0000-0003-0900-6903
 
 repository_code: https://github.com/caltechlibrary/eprinttools
-version: 1.3.11
+version: 1.3.12
 license_url: https://caltechlibrary.github.io/eprinttools/LICENSE
 
 programming_language:
@@ -31,15 +31,16 @@ keywords:
   - DataCite
   - software
 
-date_released: 2024-04-14
+date_released: 2026-01-05
 ---
 
 About this software
 ===================
 
-## eprinttools 1.3.11
+## eprinttools 1.3.12
 
-updated module depencies per issue #68. Added another report showing all non published and non submitted status and eprintid.
+- Updated dependencies per issue #69.
+- Updated issue #64, trailing empty person in creator lists
 
 ### Authors
 
@@ -64,17 +65,17 @@ Command line tools, Golang package and Python module for working with the EPrint
 
 ### Programming languages
 
-- Go &gt;&#x3D; 1.24.2
+- Go >= 1.24.2
 
 
 
 
 ### Software Requirements
 
-- Go &gt;&#x3D; 1.24.2
-- GNU Make &gt; 3
-- Pandoc &gt; 3
-- CMTools &gt;&#x3D; 0.0.23
+- Go >= 1.24.2
+- GNU Make > 3
+- Pandoc > 3
+- CMTools >= 0.0.23
 
 
 
