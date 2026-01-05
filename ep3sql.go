@@ -1568,6 +1568,7 @@ func makeDirValue(ID int) string {
 
 func resizeItemList(pos int, itemList ItemsInterface) {
 	if (pos >= 0) && (pos >= itemList.Length()) {
+		//FIXME: I think this is here we're getting a tailing item, see issue #64
 		for j := itemList.Length(); j <= pos; j++ {
 			item := new(Item)
 			itemList.Append(item)
@@ -1597,7 +1598,6 @@ func eprintIDToPersonItemList(db *sql.DB, tables map[string][]string, repoID str
 					log.Printf("Could not scan %s for %d in %q, %s", tableName, eprintID, repoID, err)
 				} else {
 					// Check if we have enough items in our item list.
-					//FIXME: I think should only happen if ew have a full person record
 					resizeItemList(pos, itemList)
 					if item := itemList.IndexOf(pos); item != nil {
 						item.Pos = pos
