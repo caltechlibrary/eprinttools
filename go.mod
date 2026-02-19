@@ -14,7 +14,7 @@ require (
 )
 
 require (
-	filippo.io/edwards25519 v1.1.0 // indirect
+	filippo.io/edwards25519 v1.1.1 // indirect
 	github.com/caltechlibrary/doitools v0.0.3 // indirect
 	github.com/caltechlibrary/dotpath v0.0.4 // indirect
 	github.com/caltechlibrary/dsv1 v0.0.0-20220817192039-7c2741c5699d // indirect
