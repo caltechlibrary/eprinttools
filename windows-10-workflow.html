@@ -1,29 +1,30 @@
 <!DOCTYPE html>
-<html>
+<html lang="en-US">
 <head>
-    <title>eprinttools - windows-10-workflow.html</title>
-    <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" href="/css/site.css">
-	<script type="module" src="https://caltechlibrary.github.io/CL-web-components/src/footer-global.js"></script>
+    <title>eprinttools</title>
+    <link rel="stylesheet" href="https://caltechlibrary.github.io/css/site.css">
+    <link rel="stylesheet" href="https://media.library.caltech.edu/cl-webcomponents/css/code-blocks.css">
+    <script type="module" src="https://media.library.caltech.edu/cl-webcomponents/copyToClipboard.js"></script>
+    <script type="module" src="https://media.library.caltech.edu/cl-webcomponents/footer-global.js"></script>
 </head>
 <body>
 <header>
-<a href="http://library.caltech.edu" title="link to Caltech Library Homepage"><img src="/assets/liblogo.gif" alt="Caltech Library logo"></a>
+<a href="https://library.caltech.edu"><img src="https://media.library.caltech.edu/assets/caltechlibrary-logo.png" alt="Caltech Library logo"></a>
 </header>
+<a href="#main-content" class="visually-hidden">skip to main content</a>
 <nav>
 <ul>
-    <li><a href="/">Home</a></li>
-    <li><a href="README.html">README</a></li>
+    <li><a href="/">All Library Apps</a></li>
+    <li><a href="index.html">Home</a></li>
     <li><a href="LICENSE">LICENSE</a></li>
-    <li><a href="install.html">INSTALL</a></li>
-    <li><a href="user-manual.html">User Manual</a></li>
-	<li><a href="search.html">Search Docs</a></li>
+    <li><a href="INSTALL.html">INSTALL</a></li>
+    <li><a href="user_manual.html">User Manual</a></li>
     <li><a href="about.html">About</a></li>
-    <li><a href="https://github.com/caltechlibrary/eprinttools">GitHub</a></li>
+    <!-- <li><a href="search.html">Search</a></li> -->
+    <li><a href="https://github.com/caltechlibrary/eprinttools">Code Repository</a></li>
 </ul>
 </nav>
-
-<section>
+<section id="main-content">
 <h1 id="notes-on-using-doi2eprintxml.exe-on-windows-10">Notes on using
 doi2eprintxml.exe on Windows 10</h1>
 <p>NOTE: Most Windows machines use an Intel or AMD style processor.
@@ -37,8 +38,8 @@ href="https://support.microsoft.com/en-us/windows/view-your-system-info-a965a8f2
 class="uri">https://support.microsoft.com/en-us/windows/view-your-system-info-a965a8f2-0773-1d65-472a-1e747c9ebe00</a></p>
 <p>You’re looking for an entry for “processor”. It may look something
 like</p>
-<p>~~~ Processor(s): 1 Processor(s) Installed. [01]: Intel64 Family 6
-Model 142 Stepping 12 GenuineIntel ~1803 Mhz ~~</p>
+<p><sub></sub>~ Processor(s): 1 Processor(s) Installed. [01]: Intel64
+Family 6 Model 142 Stepping 12 GenuineIntel ~1803 Mhz <sub></sub></p>
 <p>If you see “Intel” somewhere in the description choose the Zip file
 with “windos” and “amd64” in the name.</p>
 <h2 id="installation-and-setup">Installation and setup</h2>
@@ -101,29 +102,6 @@ the desktop</li>
 your buffer to review</li>
 </ol>
 </section>
-
 <footer-global></footer-global>
-<!-- START: PrettyFi from https://github.com/google/code-prettify -->
-<script>
-/* We want to add the class "prettyprint" to all the pre elements */
-var pre_list = document.querySelectorAll("pre");
-
-pre_list.forEach(function(elem) {
-    elem.classList.add("prettyprint");
-    elem.classList.add("linenums");/**/
-    elem.classList.add("json"); /**/
-});
-</script>
-<style>
-li.L0, li.L1, li.L2, li.L3, li.L4, li.L5, li.L6, li.L7, li.L8, li.L9
-{
-    color: #555;
-    list-style-type: decimal;
-}
-</style>
-<link rel="stylesheet" type="text/css" href="/css/prettify.css">
-<script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_
-prettify.js"></script>
-<!--  END: PrettyFi from https://github.com/google/code-prettify -->
 </body>
 </html>

@@ -42,35 +42,35 @@ About this software
 - Updated dependencies per issue #69.
 - Updated issue #64, trailing empty person in creator lists
 
-### Authors
+## Authors
 
-- R. S. Doiel, <https://orcid.org/0000-0003-0900-6903>
-
-
-### Contributors
-
-- George Porter, <https://orcid.org/0000-0002-6539-638X>
+- [R. S. Doiel](https://orcid.org/0000-0003-0900-6903)
 
 
-### Maintainers
+## Contributors
 
-- R. S. Doiel, <https://orcid.org/0000-0003-0900-6903>
+- [George Porter](https://orcid.org/0000-0002-6539-638X)
+
+
+## Maintainers
+
+- [R. S. Doiel](https://orcid.org/0000-0003-0900-6903)
 
 
 Command line tools, Golang package and Python module for working with the EPrints 3.x REST API
 
-- License: <https://caltechlibrary.github.io/eprinttools/LICENSE>
-- GitHub: <https://github.com/caltechlibrary/eprinttools>
-- Issues: <https://github.com/caltechlibrary/eprinttools/issues>
+- [License](https://caltechlibrary.github.io/eprinttools/LICENSE)
+- [Code Repository](https://github.com/caltechlibrary/eprinttools)
+  - [Issue Tracker](https://github.com/caltechlibrary/eprinttools/issues)
 
-### Programming languages
+## Programming languages
 
 - Go >= 1.24.2
 
 
 
 
-### Software Requirements
+## Software Requirements
 
 - Go >= 1.24.2
 - GNU Make > 3
