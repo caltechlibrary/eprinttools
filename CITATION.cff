@@ -3,7 +3,8 @@ cff-version: 1.2.0
 message: "If you use this software, please cite it as below."
 type: software
 title: eprinttools
-abstract: "Command line tools, Golang package and Python module for working with the EPrints 3.x REST API"
+abstract: |-
+  Command line tools, Golang package and Python module for working with the EPrints 3.x REST API
 authors:
   - family-names: Doiel
     given-names: R. S.
@@ -17,8 +18,8 @@ contacts:
     email: rsdoiel@caltech.edu
 
 repository-code: "https://github.com/caltechlibrary/eprinttools"
-version: 1.3.12
-date-released: 2026-01-05
+version: 1.3.13
+date-released: 2026-07-16
 
 license-url: "https://caltechlibrary.github.io/eprinttools/LICENSE"
 keywords:
