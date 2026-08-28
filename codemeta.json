@@ -54,7 +54,7 @@
     "software"
   ],
   "name": "eprinttools",
-  "license": "https://caltechlibrary.github.io/eprinttools/LICENSE",
+  "license": "https://software.library.caltech.edu/eprinttools/LICENSE",
   "programmingLanguage": [
     "Go >= 1.24.2"
   ],

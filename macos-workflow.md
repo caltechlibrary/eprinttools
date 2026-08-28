@@ -18,7 +18,7 @@ Steps 2 through 5
 
 ~~~
 cd
-curl https://caltechlibrary.github.io/eprinttools/installer.sh | sh
+curl https://software.library.caltech.edu/eprinttools/installer.sh | sh
 open bin
 ~~~
 
@@ -64,5 +64,5 @@ In this example the DOI is  "10.1021/acsami.7b15651".
 doi2eprintxml "10.1021/acsami.7b15651" > article.xml
 ~~~
 
-For details of using `doi2eprintxml` see the [manual page](https://caltechlibrary.github.io/eprinttools/doi2eprintxml.1.html)
+For details of using `doi2eprintxml` see the [manual page](https://software.library.caltech.edu/eprinttools/doi2eprintxml.1.html)
 

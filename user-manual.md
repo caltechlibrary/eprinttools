@@ -1,7 +1,7 @@
 
 # command line tools
 
-- [eputil](eputil.1.md) is the new harvester, it talks to the REST API and can return JSON documents, XML or EPrints documents available from the REST API. It can be piped into a [dataset](https://caltechlibrary.github.io/dataset) if needed
+- [eputil](eputil.1.md) is the new harvester, it talks to the REST API and can return JSON documents, XML or EPrints documents available from the REST API. It can be piped into a [dataset](https://software.library.caltech.edu/dataset) if needed
 - [epfmt](epfmt.1.md) is a command line utility to pretty print EPrints XML and convert to/from JSON
     - in the process of pretty printing it also validates the EPrints XML against the eprinttools Go package definitions
 - [doi2eprintxml](doi2eprintxml.1.md) is a CaltechAUTHORS centric DOI to EPrint XML document generator 

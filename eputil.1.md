@@ -44,7 +44,7 @@ You must specify the repository id in the command. E.g.
 See website for a full list of available end points.
 
 ~~~
-    https://caltechlibrary.github.io/eprinttools/docs/ep3apid.html
+    https://software.library.caltech.edu/eprinttools/docs/ep3apid.html
 ~~~
 
 ## DETAIL FOR EPrints REST API
