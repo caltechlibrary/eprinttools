@@ -42,7 +42,7 @@ ifeq ($(quick), true)
 endif
 
 
-build: version.go $(PROGRAMS) about.md installer.sh installer.ps1
+build: version.go $(PROGRAMS) installer.sh installer.ps1
 
 version.go: .FORCE
 	cmt codemeta.json version.go
@@ -78,9 +78,6 @@ uninstall: .FORCE
 index.md: .FORCE
 	cp README.md index.md
 	git add index.md
-
-about.md: .FORCE
-	cmt codemeta.json about.md
 
 installer.sh: .FORCE
 	cmt codemeta.json installer.sh
