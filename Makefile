@@ -85,7 +85,7 @@ installer.sh: .FORCE
 installer.ps1: .FORCE
 	cmt codemeta.json installer.ps1
 
-website: index.md about.md page.tmpl *.md LICENSE css/site.css
+website: index.md page.tmpl *.md LICENSE css/site.css
 	make -f website.mak
 
 
