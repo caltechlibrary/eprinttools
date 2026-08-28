@@ -79,3 +79,4 @@ tmp/*
 *-example
 test_db_setup.bash
 demo/*
+man
